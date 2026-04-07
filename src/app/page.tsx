@@ -1,4 +1,11 @@
-export default function Home() {
+import Link from "next/link";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+
+export default async function Home() {
+  const { userId } = await auth();
+  const isSignedIn = Boolean(userId);
+
   return (
     <main
       style={{
@@ -25,20 +32,48 @@ export default function Home() {
       >
         <div
           style={{
-            display: "inline-flex",
+            display: "flex",
+            justifyContent: "space-between",
             alignItems: "center",
-            gap: 10,
-            borderRadius: 999,
-            padding: "8px 14px",
-            background: "rgba(59,130,246,0.14)",
-            border: "1px solid rgba(96,165,250,0.28)",
-            fontSize: 12,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "#bfdbfe",
+            gap: 16,
+            flexWrap: "wrap",
           }}
         >
-          CC restart
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              borderRadius: 999,
+              padding: "8px 14px",
+              background: "rgba(59,130,246,0.14)",
+              border: "1px solid rgba(96,165,250,0.28)",
+              fontSize: 12,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "#bfdbfe",
+            }}
+          >
+            CC restart
+          </div>
+
+          {isSignedIn ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <Link
+                href="/account"
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 999,
+                  border: "1px solid rgba(148,163,184,0.24)",
+                  background: "rgba(15,23,42,0.7)",
+                  fontSize: 14,
+                }}
+              >
+                Go to account
+              </Link>
+              <UserButton />
+            </div>
+          ) : null}
         </div>
 
         <div style={{ marginTop: 20, display: "grid", gap: 18 }}>
@@ -101,11 +136,50 @@ export default function Home() {
             marginTop: 28,
             paddingTop: 18,
             borderTop: "1px solid rgba(148,163,184,0.14)",
-            fontSize: 14,
-            color: "#94a3b8",
+            display: "flex",
+            gap: 12,
+            flexWrap: "wrap",
+            alignItems: "center",
           }}
         >
-          Live bootstrap in progress.
+          {isSignedIn ? (
+            <span style={{ color: "#94a3b8", fontSize: 14 }}>
+              Signed in. The first authenticated account shell is ready.
+            </span>
+          ) : (
+            <>
+              <SignUpButton mode="modal">
+                <button
+                  style={{
+                    borderRadius: 999,
+                    border: "1px solid rgba(96,165,250,0.32)",
+                    background: "#eff6ff",
+                    color: "#0f172a",
+                    padding: "12px 18px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Create account
+                </button>
+              </SignUpButton>
+              <SignInButton mode="modal">
+                <button
+                  style={{
+                    borderRadius: 999,
+                    border: "1px solid rgba(148,163,184,0.24)",
+                    background: "rgba(15,23,42,0.7)",
+                    color: "#f8fafc",
+                    padding: "12px 18px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Sign in
+                </button>
+              </SignInButton>
+            </>
+          )}
         </div>
       </section>
     </main>
