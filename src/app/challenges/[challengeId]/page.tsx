@@ -157,6 +157,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
         latest.candidateSummary ? ` (${latest.candidateSummary})` : ""
       }`
     : "No verification check yet.";
+  const showRetryVerification = accepted && userId && latest?.status && latest.status !== "verified";
   const statusTone: BannerTone = !accepted
     ? "neutral"
     : latest?.status === "verified"
@@ -275,6 +276,33 @@ export default async function ChallengeDetailPage({ params }: Props) {
 
               <div>{acceptanceBanner}</div>
               <div>{latestVerificationSummary}</div>
+
+              {showRetryVerification ? (
+                <form
+                  action={verifyChallenge.bind(null, challenge.id)}
+                  style={{
+                    display: "grid",
+                    justifyItems: "start",
+                    marginTop: 2,
+                  }}
+                >
+                  <button
+                    type="submit"
+                    style={{
+                      width: "fit-content",
+                      borderRadius: 999,
+                      border: "1px solid rgba(251, 191, 36, 0.4)",
+                      background: "rgba(120, 53, 15, 0.2)",
+                      color: "#fde68a",
+                      padding: "8px 14px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Retry verification
+                  </button>
+                </form>
+              ) : null}
             </div>
           </div>
 
