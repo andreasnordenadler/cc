@@ -4,6 +4,12 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 
 type UserMetadataRecord = Record<string, unknown>;
 
+type ChallengeProgress = {
+  completedChallengeIds: string[];
+  totalCompletedChallenges: number;
+  totalRewardPoints: number;
+};
+
 type ActiveChallenge = {
   id: string;
   status?: string;
@@ -32,6 +38,7 @@ export default async function Home() {
     typeof metadata.lichessUsername === "string" ? metadata.lichessUsername : "";
   const activeChallenge = getActiveChallenge(metadata);
   const latestAttempt = getLatestChallengeAttempt(metadata, activeChallenge);
+  const progress = getChallengeProgress(metadata);
 
   return (
     <main
@@ -237,6 +244,27 @@ export default async function Home() {
               <div
                 style={{
                   borderRadius: 18,
+                  border: "1px solid rgba(251,191,36,0.3)",
+                  background: "rgba(120,53,15,0.25)",
+                  padding: 14,
+                }}
+              >
+                <div style={{ color: "#fde68a", marginBottom: 6, fontSize: 13 }}>
+                  Your progress
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>
+                  {progress.totalRewardPoints} pts · {progress.totalCompletedChallenges} solved
+                </div>
+                <div style={{ color: "#f8fafc", fontSize: 14, marginTop: 6 }}>
+                  {progress.totalCompletedChallenges > 0
+                    ? "Keep going to unlock the next milestone."
+                    : "Start your first challenge to begin earning points."}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  borderRadius: 18,
                   border: "1px solid rgba(148,163,184,0.2)",
                   background: "rgba(15,23,42,0.58)",
                   padding: 14,
@@ -430,6 +458,36 @@ function getLatestChallengeAttempt(
 
   const latest = items.at(-1);
   return latest ?? null;
+}
+
+function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
+  const raw = metadata.challengeProgress;
+
+  if (!raw || typeof raw !== "object") {
+    return {
+      completedChallengeIds: [],
+      totalCompletedChallenges: 0,
+      totalRewardPoints: 0,
+    };
+  }
+
+  const record = raw as Record<string, unknown>;
+  const completedChallengeIds =
+    Array.isArray(record.completedChallengeIds)
+      ? record.completedChallengeIds.filter((entry): entry is string => typeof entry === "string")
+      : [];
+
+  return {
+    completedChallengeIds,
+    totalCompletedChallenges:
+      typeof record.totalCompletedChallenges === "number" && record.totalCompletedChallenges >= 0
+        ? record.totalCompletedChallenges
+        : completedChallengeIds.length,
+    totalRewardPoints:
+      typeof record.totalRewardPoints === "number" && record.totalRewardPoints >= 0
+        ? record.totalRewardPoints
+        : 0,
+  };
 }
 
 function formatTime(value?: string): string {

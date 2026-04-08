@@ -153,8 +153,12 @@ async function saveLichessUsername(formData: FormData) {
   }
 
   const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const existingMetadata = user.publicMetadata ?? {};
+
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
+      ...existingMetadata,
       lichessUsername,
     },
   });

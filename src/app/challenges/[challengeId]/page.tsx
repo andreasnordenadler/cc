@@ -17,6 +17,15 @@ type Attempt = {
   summary: string;
   candidateSummary?: string;
   checkedAt: string;
+  reward?: number;
+};
+
+type ChallengeProgress = {
+  completedChallengeIds: string[];
+  totalCompletedChallenges: number;
+  totalRewardPoints: number;
+  lastCompletedChallengeId?: string;
+  lastCompletedAt?: string;
 };
 
 type LichessGame = {
@@ -132,6 +141,8 @@ export default async function ChallengeDetailPage({ params }: Props) {
     typeof metadata.lichessUsername === "string" ? metadata.lichessUsername : "";
   const activeChallenge = getActiveChallenge(metadata);
   const accepted = activeChallenge?.id === challenge.id;
+  const progress = getChallengeProgress(metadata);
+  const alreadyCompleted = progress.completedChallengeIds.includes(challenge.id);
 
   const attempts: Attempt[] = Array.isArray(metadata.challengeAttempts)
     ? (metadata.challengeAttempts as Attempt[]).filter(
@@ -221,6 +232,11 @@ export default async function ChallengeDetailPage({ params }: Props) {
 
         <p style={{ color: "#93c5fd", maxWidth: 680 }}>{challenge.instruction}</p>
 
+        <p style={{ color: "#94a3b8", marginTop: 0 }}>
+          Reward: <strong>{challenge.reward} points</strong>
+          {alreadyCompleted ? " (already completed for this account)" : ""}
+        </p>
+
         <div style={{ marginTop: 20, display: "grid", gap: 12 }}>
           <div
             style={{
@@ -277,6 +293,10 @@ export default async function ChallengeDetailPage({ params }: Props) {
 
               <div>{acceptanceBanner}</div>
               <div>{latestVerificationSummary}</div>
+              <div>
+                Total points: <strong>{progress.totalRewardPoints}</strong> · Completed
+                challenges: <strong>{progress.totalCompletedChallenges}</strong>
+              </div>
 
               {showRetryVerification ? (
                     <form
@@ -457,6 +477,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
 
                     <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>
                       {attempt.checkedAt} · game {attempt.gameId}
+                      {attempt.reward ? ` · +${attempt.reward} pts` : ""}
                     </div>
                   </div>
                 ))}
@@ -823,6 +844,7 @@ async function verifyChallenge(challengeId: string) {
     gameId: "(none)",
   };
   let gameId = "(none)";
+  const progress = getChallengeProgress(metadata);
 
   try {
     const since = getChallengeStartTime(activeChallenge);
@@ -848,6 +870,13 @@ async function verifyChallenge(challengeId: string) {
     ? (metadata.challengeAttempts as Attempt[])
     : [];
 
+  const reward = result.status === "verified"
+    ? getProgressReward(challenge, progress)
+    : {
+        awarded: 0,
+        progress: getChallengeProgress(metadata),
+      };
+
   const nextAttempts = [
     ...latestAttempts,
     {
@@ -860,9 +889,16 @@ async function verifyChallenge(challengeId: string) {
             candidateSummary: result.candidateSummary,
           }
         : {}),
+      ...(reward.awarded > 0
+        ? {
+            reward: reward.awarded,
+          }
+        : {}),
       checkedAt: new Date().toISOString(),
     },
   ].slice(-40);
+
+  const nextProgress = reward.progress;
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
@@ -873,6 +909,7 @@ async function verifyChallenge(challengeId: string) {
         verifiedAt: new Date().toISOString(),
       },
       challengeAttempts: nextAttempts,
+      challengeProgress: nextProgress,
     },
   });
 
@@ -909,4 +946,72 @@ async function writeAttempt(
       challengeAttempts: nextAttempts,
     },
   });
+}
+
+function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
+  const raw = metadata.challengeProgress;
+
+  if (!raw || typeof raw !== "object") {
+    return {
+      completedChallengeIds: [],
+      totalCompletedChallenges: 0,
+      totalRewardPoints: 0,
+    };
+  }
+
+  const record = raw as Record<string, unknown>;
+
+  const completedChallengeIds =
+    Array.isArray(record.completedChallengeIds)
+      ? record.completedChallengeIds.filter((id): id is string => typeof id === "string")
+      : [];
+
+  const totalCompletedChallenges =
+    typeof record.totalCompletedChallenges === "number" && record.totalCompletedChallenges >= 0
+      ? Math.trunc(record.totalCompletedChallenges)
+      : completedChallengeIds.length;
+
+  const totalRewardPoints =
+    typeof record.totalRewardPoints === "number" && record.totalRewardPoints >= 0
+      ? Math.trunc(record.totalRewardPoints)
+      : 0;
+
+  return {
+    completedChallengeIds,
+    totalCompletedChallenges,
+    totalRewardPoints,
+    lastCompletedChallengeId:
+      typeof record.lastCompletedChallengeId === "string"
+        ? record.lastCompletedChallengeId
+        : undefined,
+    lastCompletedAt:
+      typeof record.lastCompletedAt === "string" ? record.lastCompletedAt : undefined,
+  };
+}
+
+function getProgressReward(
+  challenge: Challenge,
+  progress: ChallengeProgress,
+): { awarded: number; progress: ChallengeProgress } {
+  const alreadyCompleted = progress.completedChallengeIds.includes(challenge.id);
+
+  if (alreadyCompleted) {
+    return {
+      awarded: 0,
+      progress,
+    };
+  }
+
+  const now = new Date().toISOString();
+
+  return {
+    awarded: challenge.reward,
+    progress: {
+      completedChallengeIds: [...progress.completedChallengeIds, challenge.id],
+      totalCompletedChallenges: progress.totalCompletedChallenges + 1,
+      totalRewardPoints: progress.totalRewardPoints + challenge.reward,
+      lastCompletedChallengeId: challenge.id,
+      lastCompletedAt: now,
+    },
+  };
 }
