@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
-import { getChallengeById, type Challenge } from "@/lib/challenges";
+import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 
 type ActiveChallenge = {
   id: string;
@@ -38,9 +38,18 @@ const PILL_STYLE = {
   fontSize: 12,
 } as const;
 
+export async function generateStaticParams() {
+  return CHALLENGES.map((challenge) => ({
+    challengeId: challenge.id,
+  }));
+}
+
+export const dynamicParams = false;
+
 export default async function ChallengeDetailPage({ params }: Props) {
   const { challengeId } = await params;
-  const challenge = getChallengeById(challengeId);
+  const normalizedChallengeId = decodeURIComponent(String(challengeId)).trim().toLowerCase();
+  const challenge = getChallengeById(normalizedChallengeId);
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
 
