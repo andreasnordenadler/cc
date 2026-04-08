@@ -18,6 +18,25 @@ type Attempt = {
   checkedAt: string;
 };
 
+type LichessGame = {
+  id: string;
+  status?: string;
+  winner?: "white" | "black";
+  createdAt?: number;
+  players?: {
+    white?: {
+      user?: {
+        name?: string;
+      };
+    };
+    black?: {
+      user?: {
+        name?: string;
+      };
+    };
+  };
+};
+
 type UserMetadataRecord = Record<string, unknown>;
 
 type Props = {
@@ -251,28 +270,12 @@ export default async function ChallengeDetailPage({ params }: Props) {
 
             <p style={{ color: "#94a3b8", marginTop: 8 }}>
               {accepted
-                ? "After you finish the game on Lichess, paste the finished game ID or URL and click Check result."
-                : "Mark this challenge as accepted before verifying. Then play on Lichess and paste the finished game ID here."
+                ? "After you finish a game, click Check games to verify the latest matching result automatically (no game ID needed)."
+                : "Mark this challenge as accepted before verifying. Then play on Lichess and return here to check your recent games."
               }
             </p>
 
             <form action={verifyChallenge.bind(null, challenge.id)} style={{ marginTop: 10, display: "grid", gap: 10 }}>
-              <input
-                name="gameReference"
-                required
-                minLength={5}
-                placeholder="e.g. 8v4f7y8j or https://lichess.org/8v4f7y8j"
-                style={{
-                  width: "min(100%, 500px)",
-                  borderRadius: 12,
-                  border: "1px solid rgba(148,163,184,0.26)",
-                  background: "rgba(15,23,42,0.72)",
-                  color: "#f8fafc",
-                  padding: "12px 14px",
-                  fontSize: 16,
-                }}
-              />
-
               <button
                 type="submit"
                 disabled={!accepted}
@@ -287,7 +290,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
                   cursor: accepted ? "pointer" : "not-allowed",
                 }}
               >
-                Check result
+                Check recent games
               </button>
             </form>
           </section>
@@ -390,43 +393,22 @@ function getChallengeExpectation(challenge: Challenge): string {
   return "To pass this challenge, finish any completed game where your identity appears.";
 }
 
-function parseGameId(input: string): string {
-  const trimmed = input.trim();
-  const byPath = trimmed.match(/lichess\.org\/(?:game\/)?([a-zA-Z0-9]{5,16})(?:[?#/].*)?$/);
-
-  if (byPath) {
-    return byPath[1].toLowerCase();
+function getPlayerName(game: LichessGame, side: "white" | "black"): string {
+  const players = game.players;
+  if (!players) {
+    return "";
   }
 
-  const bare = trimmed.replace(/[\s]/g, "").toLowerCase();
-  if (/^[a-zA-Z0-9]{5,16}$/.test(bare)) {
-    return bare;
-  }
-
-  return "";
+  const section = side === "white" ? players.white : players.black;
+  return section?.user?.name ?? "";
 }
 
-function parseGamePlayersAndResult(pgn: string) {
-  const white = /\[White "([^"]+)"\]/.exec(pgn)?.[1] ?? "";
-  const black = /\[Black "([^"]+)"\]/.exec(pgn)?.[1] ?? "";
-  const result = /\[Result "([^"]+)"\]/.exec(pgn)?.[1] ?? "*";
-  const termination = /\[Termination "([^"]+)"\]/.exec(pgn)?.[1] ?? "unknown";
-
-  return {
-    white,
-    black,
-    result,
-    termination,
-  };
+function isFinishedGame(game: LichessGame): boolean {
+  return !!game.status && game.status !== "started";
 }
 
 function evaluateVerification(
-  game: {
-    white: string;
-    black: string;
-    result: string;
-    termination: string;
-  },
+  game: LichessGame,
   challenge: Challenge,
   lichessUsername: string,
 ): { status: Attempt["status"]; summary: string } {
@@ -437,8 +419,8 @@ function evaluateVerification(
     };
   }
 
-  const whiteNormalized = game.white.toLowerCase();
-  const blackNormalized = game.black.toLowerCase();
+  const whiteNormalized = getPlayerName(game, "white").toLowerCase();
+  const blackNormalized = getPlayerName(game, "black").toLowerCase();
   const userNormalized = lichessUsername.toLowerCase();
 
   const isWhite = userNormalized === whiteNormalized;
@@ -464,17 +446,24 @@ function evaluateVerification(
       };
     }
 
-    if (game.result === "1-0" && playedSide === "white") {
+    if (!isFinishedGame(game)) {
       return {
-        status: "verified",
-        summary: `Verified: you won as White. (${game.termination})`,
+        status: "failed",
+        summary: "This matching game is not finished yet.",
       };
     }
 
-    if (game.result === "0-1" && playedSide === "black") {
+    if (game.winner === "white" && playedSide === "white") {
       return {
         status: "verified",
-        summary: `Verified: you won as Black. (${game.termination})`,
+        summary: "Verified: you won as White.",
+      };
+    }
+
+    if (game.winner === "black" && playedSide === "black") {
+      return {
+        status: "verified",
+        summary: "Verified: you won as Black.",
       };
     }
 
@@ -484,7 +473,7 @@ function evaluateVerification(
     };
   }
 
-  if (game.result === "*") {
+  if (!isFinishedGame(game)) {
     return {
       status: "failed",
       summary: "Game not finished yet. Finish it on Lichess first.",
@@ -493,8 +482,106 @@ function evaluateVerification(
 
   return {
     status: "verified",
-    summary: `Verified: finished as ${playedSide} (${game.result}, ${game.termination}).`,
+    summary: `Verified: finished as ${playedSide}.`,
   };
+}
+
+function getChallengeStartTime(activeChallenge?: ActiveChallenge | null): number {
+  if (!activeChallenge?.startedAt) {
+    return Date.now() - 15 * 60 * 1000;
+  }
+
+  const parsed = Date.parse(activeChallenge.startedAt);
+  if (Number.isNaN(parsed)) {
+    return Date.now() - 15 * 60 * 1000;
+  }
+
+  return parsed;
+}
+
+function getMostRecentChallengeResult(
+  games: LichessGame[],
+  challenge: Challenge,
+  lichessUsername: string,
+): { status: Attempt["status"]; summary: string; gameId: string } {
+  const sorted = [...games].sort((a, b) => {
+    const aTime = typeof a.createdAt === "number" ? a.createdAt : 0;
+    const bTime = typeof b.createdAt === "number" ? b.createdAt : 0;
+
+    return bTime - aTime;
+  });
+
+  for (const game of sorted) {
+    const result = evaluateVerification(game, challenge, lichessUsername);
+    if (result.status === "verified") {
+      return {
+        ...result,
+        gameId: game.id,
+      };
+    }
+  }
+
+  if (!sorted.length) {
+    return {
+      status: "unable",
+      summary: "No completed games found after this challenge was accepted.",
+      gameId: "(none)",
+    };
+  }
+
+  const mostRecent = sorted[0];
+  const result = evaluateVerification(mostRecent, challenge, lichessUsername);
+  return {
+    ...result,
+    gameId: mostRecent.id,
+  };
+}
+
+async function fetchRecentGamesForUser(username: string, startedAt: number): Promise<LichessGame[]> {
+  const url = new URL(`https://lichess.org/api/games/user/${encodeURIComponent(username)}`);
+  url.searchParams.set("since", String(startedAt));
+  url.searchParams.set("max", "50");
+  url.searchParams.set("pgnInJson", "true");
+  url.searchParams.set("moves", "0");
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      Accept: "application/x-ndjson",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Could not fetch recent games from Lichess (status ${response.status}).`);
+  }
+
+  const text = await response.text();
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return lines
+    .map((line) => {
+      try {
+        return JSON.parse(line) as LichessGame;
+      } catch (error) {
+        console.error("Failed to parse Lichess game JSON", error);
+        return null;
+      }
+    })
+    .filter((game): game is LichessGame => {
+      if (!game || typeof game.id !== "string") {
+        return false;
+      }
+
+      if (typeof game.createdAt !== "number") {
+        return false;
+      }
+
+      return game.createdAt >= startedAt;
+    });
 }
 
 async function startChallenge(challengeId: string) {
@@ -523,7 +610,7 @@ async function startChallenge(challengeId: string) {
   revalidatePath(`/challenges/${challengeId}`);
 }
 
-async function verifyChallenge(challengeId: string, formData: FormData) {
+async function verifyChallenge(challengeId: string) {
   "use server";
   const { userId } = await auth();
 
@@ -552,50 +639,42 @@ async function verifyChallenge(challengeId: string, formData: FormData) {
     return;
   }
 
-  const rawInput = formData.get("gameReference");
-  const gameReference = typeof rawInput === "string" ? rawInput.trim() : "";
-  const gameId = parseGameId(gameReference);
+  const lichessUsername =
+    typeof metadata.lichessUsername === "string" ? metadata.lichessUsername : "";
 
-  let result: { status: Attempt["status"]; summary: string } = {
-    status: "unable",
-    summary: "Unable to parse a valid Lichess game id from your input.",
-  };
-
-  if (!gameId) {
+  if (!lichessUsername) {
     await writeAttempt(challenge, userId, metadata, {
-      gameId: gameReference || "(invalid)",
-      ...result,
+      gameId: "(missing username)",
+      status: "unable",
+      summary: "Save your Lichess username in /account before verifying.",
     });
 
     revalidatePath(`/challenges/${challengeId}`);
     return;
   }
 
-  try {
-    const response = await fetch(`https://lichess.org/game/export/${gameId}`, {
-      method: "GET",
-      cache: "no-store",
-    });
+  let result: { status: Attempt["status"]; summary: string } = {
+    status: "unable",
+    summary: "No matching recent games were found. Play and finish a game first.",
+  };
+  let gameId = "(none)";
 
-    if (!response.ok) {
-      result = {
-        status: "unable",
-        summary: `Could not fetch game ${gameId} from Lichess (status ${response.status}).`,
-      };
-    } else {
-      const pgn = await response.text();
-      const parsed = parseGamePlayersAndResult(pgn);
-      result = evaluateVerification(
-        parsed,
-        challenge,
-        typeof metadata.lichessUsername === "string" ? metadata.lichessUsername : "",
-      );
-    }
+  try {
+    const since = getChallengeStartTime(activeChallenge);
+    const recentGames = await fetchRecentGamesForUser(lichessUsername, since);
+    const best = getMostRecentChallengeResult(
+      recentGames,
+      challenge,
+      lichessUsername,
+    );
+
+    gameId = best.gameId;
+    result = best;
   } catch (error) {
     console.error(error);
     result = {
       status: "unable",
-      summary: "Network error while trying to contact Lichess for verification.",
+      summary: error instanceof Error ? error.message : "Network error while trying to contact Lichess for verification.",
     };
   }
 
