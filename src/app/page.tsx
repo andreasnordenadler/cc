@@ -83,7 +83,7 @@ export default async function Home() {
                 color: "#bfdbfe",
               }}
             >
-              BlunderCheck
+              CC
             </p>
 
             <h1
@@ -96,6 +96,17 @@ export default async function Home() {
             >
               Your next chess challenge starts with your real Lichess game.
             </h1>
+
+            <p
+              style={{
+                margin: "12px 0 0",
+                color: "#94a3b8",
+                maxWidth: 640,
+                lineHeight: 1.5,
+              }}
+            >
+              CC is a chess challenge platform about winning for the wrong reasons.
+            </p>
           </div>
 
           {isSignedIn ? (
@@ -208,6 +219,19 @@ export default async function Home() {
                 <div style={{ color: activeChallenge ? "#e2e8f0" : "#94a3b8", fontSize: 14 }}>
                   {challengeBanner(activeChallenge)}
                 </div>
+
+                <Link
+                  href={activeChallenge?.id ? `/challenges/${activeChallenge.id}` : "/challenges"}
+                  style={{
+                    display: "inline-block",
+                    marginTop: 10,
+                    color: "#93c5fd",
+                    textDecoration: "none",
+                    fontSize: 14,
+                  }}
+                >
+                  {activeChallenge?.id ? "Open this challenge" : "Choose a challenge"}
+                </Link>
               </div>
 
               <div
