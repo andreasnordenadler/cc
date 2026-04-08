@@ -509,51 +509,11 @@ function getVerificationActionLabel(latest?: Attempt): string {
     return "Check recent games";
   }
 
-  if (latest.status === "unable") {
-    if (latest.summary.includes("No completed games found")) {
-      return "Check again after a new game";
-    }
-
-    if (latest.summary.includes("No matching recent games")) {
-      return "Check for newer games";
-    }
-
-    if (latest.summary.includes("No saved Lichess username")) {
-      return "Save username and retry";
-    }
-
-    if (latest.summary.includes("Please mark this challenge")) {
-      return "Mark challenge first";
-    }
-
-    if (latest.candidateSummary?.includes("not finished")) {
-      return "Wait for game to finish";
-    }
-
-    if (latest.summary.includes("not finished yet")) {
-      return "Wait for game to finish";
-    }
-
-    return "Retry verification";
+  if (latest.status === "verified") {
+    return "Check recent games";
   }
 
-  if (latest.status === "failed") {
-    if (latest.summary.includes("Challenge requires side")) {
-      return "Play required side and retry";
-    }
-
-    if (latest.summary.includes("does not contain user")) {
-      return "Play on your saved account";
-    }
-
-    if (latest.summary.includes("not a win")) {
-      return "Play and win again";
-    }
-
-    return "Retry after next game";
-  }
-
-  return "Retry verification";
+  return "Try again";
 }
 
 function getPlayerName(game: LichessGame, side: "white" | "black"): string {
