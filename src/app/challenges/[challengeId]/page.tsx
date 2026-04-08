@@ -158,7 +158,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
       }`
     : "No verification check yet.";
   const showRetryVerification = accepted && userId && latest?.status && latest.status !== "verified";
-  const primaryVerificationLabel = latest && latest.status !== "verified" ? "Try again" : "Check recent games";
+  const verificationButtonLabel = getVerificationActionLabel(latest);
   const statusTone: BannerTone = !accepted
     ? "neutral"
     : latest?.status === "verified"
@@ -174,7 +174,6 @@ export default async function ChallengeDetailPage({ params }: Props) {
       ? `Accepted ${new Date(activeChallenge.startedAt).toLocaleString()} · checks scan last ${RECENT_GAME_WINDOW} completed games. Window starts at this timestamp.`
       : `Accepted with no recorded timestamp · checks scan last ${RECENT_GAME_WINDOW} completed games. Retry if this is stale.`
     : "Accept this challenge to begin verification checks.";
-  const retryVerificationLabel = getRetryVerificationLabel(latest);
 
   return (
     <main
@@ -280,11 +279,11 @@ export default async function ChallengeDetailPage({ params }: Props) {
               <div>{latestVerificationSummary}</div>
 
               {showRetryVerification ? (
-                <form
-                  action={verifyChallenge.bind(null, challenge.id)}
-                  style={{
-                    display: "grid",
-                    justifyItems: "start",
+                    <form
+                      action={verifyChallenge.bind(null, challenge.id)}
+                      style={{
+                        display: "grid",
+                        justifyItems: "start",
                     marginTop: 2,
                   }}
                 >
@@ -301,10 +300,10 @@ export default async function ChallengeDetailPage({ params }: Props) {
                       cursor: "pointer",
                     }}
                     >
-                    {retryVerificationLabel}
-                  </button>
-                </form>
-              ) : null}
+                    {verificationButtonLabel}
+                    </button>
+                  </form>
+                ) : null}
             </div>
           </div>
 
@@ -381,7 +380,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
                   cursor: accepted ? "pointer" : "not-allowed",
                 }}
               >
-                {primaryVerificationLabel}
+                {verificationButtonLabel}
               </button>
             </form>
           </section>
@@ -505,7 +504,7 @@ function getChallengeExpectation(challenge: Challenge): string {
   return "To pass this challenge, finish any completed game where your identity appears.";
 }
 
-function getRetryVerificationLabel(latest?: Attempt): string {
+function getVerificationActionLabel(latest?: Attempt): string {
   if (!latest) {
     return "Check recent games";
   }
