@@ -21,9 +21,9 @@ type Attempt = {
 type UserMetadataRecord = Record<string, unknown>;
 
 type Props = {
-  params: {
+  params: Promise<{
     challengeId: string;
-  };
+  }>;
 };
 
 const RESULT_LABELS: Record<Attempt["status"], { label: string; color: string; bg: string }> = {
@@ -39,7 +39,7 @@ const PILL_STYLE = {
 } as const;
 
 export default async function ChallengeDetailPage({ params }: Props) {
-  const { challengeId } = params;
+  const { challengeId } = await params;
   const challenge = getChallengeById(challengeId);
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
