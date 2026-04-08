@@ -158,6 +158,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
       }`
     : "No verification check yet.";
   const showRetryVerification = accepted && userId && latest?.status && latest.status !== "verified";
+  const primaryVerificationLabel = latest && latest.status !== "verified" ? "Try again" : "Check recent games";
   const statusTone: BannerTone = !accepted
     ? "neutral"
     : latest?.status === "verified"
@@ -380,7 +381,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
                   cursor: accepted ? "pointer" : "not-allowed",
                 }}
               >
-                Check recent games
+                {primaryVerificationLabel}
               </button>
             </form>
           </section>
