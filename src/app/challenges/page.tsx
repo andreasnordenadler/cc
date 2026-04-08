@@ -50,8 +50,8 @@ export default function ChallengesPage() {
         </h1>
 
         <p style={{ color: "#94a3b8", marginBottom: 24, maxWidth: 700 }}>
-          Pick one challenge, play it on Lichess, then come back and submit a finished
-          game ID to verify.
+          Pick one challenge, play it on Lichess, then return here and we&apos;ll verify it from
+          your recent games automatically.
         </p>
 
         <div
@@ -79,6 +79,10 @@ export default function ChallengesPage() {
               </p>
               <p style={{ margin: 0, color: "#93c5fd", fontSize: 14 }}>
                 {challenge.openingHint}
+                <br />
+                <span style={{ color: "#fde68a", fontWeight: 600 }}>
+                  Reward: {challenge.reward} points
+                </span>
               </p>
               <Link
                 href={`/challenges/${challenge.id}`}
