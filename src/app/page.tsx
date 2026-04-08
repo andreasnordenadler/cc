@@ -142,6 +142,22 @@ export default async function Home() {
             alignItems: "center",
           }}
         >
+          <Link
+            href="/challenges"
+            style={{
+              borderRadius: 999,
+              border: "1px solid rgba(59,130,246,0.32)",
+              background: "rgba(59,130,246,0.16)",
+              color: "#dbeafe",
+              padding: "12px 18px",
+              fontWeight: 600,
+              textDecoration: "none",
+              display: "inline-block",
+            }}
+          >
+            Browse challenges
+          </Link>
+
           {isSignedIn ? (
             <span style={{ color: "#94a3b8", fontSize: 14 }}>
               Signed in. The first authenticated account shell is ready.
