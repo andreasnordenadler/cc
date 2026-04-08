@@ -51,11 +51,21 @@ const RESULT_LABELS: Record<Attempt["status"], { label: string; color: string; b
   unable: { label: "Unable", color: "#fde68a", bg: "rgba(253, 230, 138, 0.16)" },
 };
 
+const RECENT_GAME_WINDOW = 12;
+
 const PILL_STYLE = {
   borderRadius: 999,
   padding: "2px 10px",
   fontSize: 12,
 } as const;
+
+function getGameLink(gameId: string): string | null {
+  if (!gameId || gameId.startsWith("(") || /\s/.test(gameId)) {
+    return null;
+  }
+
+  return `https://lichess.org/${encodeURIComponent(gameId)}`;
+}
 
 export async function generateStaticParams() {
   return CHALLENGES.map((challenge) => ({
@@ -342,6 +352,22 @@ export default async function ChallengeDetailPage({ params }: Props) {
                       </span>
 
                       <span>{attempt.summary}</span>
+
+                      {getGameLink(attempt.gameId) ? (
+                        <a
+                          href={getGameLink(attempt.gameId) as string}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            marginLeft: 4,
+                            color: "#93c5fd",
+                            textDecoration: "underline",
+                            textUnderlineOffset: 2,
+                          }}
+                        >
+                          Open game
+                        </a>
+                      ) : null}
                     </div>
 
                     <div style={{ color: "#94a3b8", fontSize: 12, marginTop: 4 }}>
@@ -504,12 +530,14 @@ function getMostRecentChallengeResult(
   challenge: Challenge,
   lichessUsername: string,
 ): { status: Attempt["status"]; summary: string; gameId: string } {
-  const sorted = [...games].sort((a, b) => {
-    const aTime = typeof a.createdAt === "number" ? a.createdAt : 0;
-    const bTime = typeof b.createdAt === "number" ? b.createdAt : 0;
+  const sorted = [...games]
+    .sort((a, b) => {
+      const aTime = typeof a.createdAt === "number" ? a.createdAt : 0;
+      const bTime = typeof b.createdAt === "number" ? b.createdAt : 0;
 
-    return bTime - aTime;
-  });
+      return bTime - aTime;
+    })
+    .slice(0, RECENT_GAME_WINDOW);
 
   for (const game of sorted) {
     const result = evaluateVerification(game, challenge, lichessUsername);
@@ -540,7 +568,7 @@ function getMostRecentChallengeResult(
 async function fetchRecentGamesForUser(username: string, startedAt: number): Promise<LichessGame[]> {
   const url = new URL(`https://lichess.org/api/games/user/${encodeURIComponent(username)}`);
   url.searchParams.set("since", String(startedAt));
-  url.searchParams.set("max", "50");
+  url.searchParams.set("max", String(RECENT_GAME_WINDOW));
   url.searchParams.set("pgnInJson", "true");
   url.searchParams.set("moves", "0");
 
