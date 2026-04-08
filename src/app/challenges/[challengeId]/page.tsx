@@ -126,11 +126,17 @@ export default async function ChallengeDetailPage({ params }: Props) {
     .slice(-20);
 
   const latest = challengeAttempts.at(-1);
-  const startedText =
-    activeChallenge?.startedAt
-      ? `Started ${new Date(activeChallenge.startedAt).toLocaleString()}`
-      : "Not started yet";
   const expectedRequirement = getChallengeExpectation(challenge);
+  const latestVerificationSummary = latest
+    ? `Last check: ${new Date(latest.checkedAt).toLocaleString()} · ${RESULT_LABELS[latest.status].label} · ${latest.summary}${
+        latest.candidateSummary ? ` (${latest.candidateSummary})` : ""
+      }`
+    : "No verification check yet.";
+  const acceptanceBanner = accepted
+    ? activeChallenge?.startedAt
+      ? `Accepted ${new Date(activeChallenge.startedAt).toLocaleString()} · checks scan last ${RECENT_GAME_WINDOW} completed games. Window starts at this timestamp.`
+      : `Accepted with no recorded timestamp · checks scan last ${RECENT_GAME_WINDOW} completed games. Retry if this is stale.`
+    : "Accept this challenge to begin verification checks.";
 
   return (
     <main
@@ -194,57 +200,43 @@ export default async function ChallengeDetailPage({ params }: Props) {
               {expectedRequirement}
             </p>
 
-            <ul style={{ margin: 0, color: "#cbd5e1", display: "grid", gap: 8 }}>
-              <li>
-                Saved Lichess identity: {lichessUsername || "not saved yet"}
-              </li>
-              <li>
+            <div
+              style={{
+                borderRadius: 12,
+                border: "1px solid rgba(148,163,184,0.22)",
+                background: "rgba(2,6,23,0.52)",
+                padding: "12px 14px",
+                display: "grid",
+                gap: 8,
+                fontSize: 14,
+              }}
+            >
+              <div>
+                Saved Lichess identity: <strong>{lichessUsername || "not saved yet"}</strong>
+              </div>
+
+              <div>
                 Challenge state: {" "}
                 <span
                   style={{
                     ...PILL_STYLE,
-                    ...{
-                      border:
-                        accepted ? "1px solid rgba(74,222,128,0.4)" : "1px solid rgba(248,113,113,0.4)",
-                      background: accepted
-                        ? "rgba(134,239,172,0.16)"
-                        : "rgba(248,113,113,0.16)",
-                      color: accepted ? "#bbf7d0" : "#fecaca",
-                    },
+                    border:
+                      accepted
+                        ? "1px solid rgba(74,222,128,0.4)"
+                        : "1px solid rgba(248,113,113,0.4)",
+                    background: accepted
+                      ? "rgba(134,239,172,0.16)"
+                      : "rgba(248,113,113,0.16)",
+                    color: accepted ? "#bbf7d0" : "#fecaca",
                   }}
                 >
                   {accepted ? "Active" : "Not active"}
                 </span>
-              </li>
-              <li>{startedText}</li>
-              <li>
-                Last verification: {latest ? latest.checkedAt : "None yet"}
-                {latest ? (
-                  <span
-                    style={{
-                      ...PILL_STYLE,
-                      marginLeft: 8,
-                      border: `1px solid ${RESULT_LABELS[latest.status].bg}`,
-                      background: RESULT_LABELS[latest.status].bg,
-                      color: RESULT_LABELS[latest.status].color,
-                    }}
-                  >
-                    {RESULT_LABELS[latest.status].label}
-                  </span>
-                ) : null}
-              </li>
+              </div>
 
-              <li>
-                Verification rules: check the last {RECENT_GAME_WINDOW} completed games on
-                Lichess after this challenge was started.
-              </li>
-
-              <li>
-                {accepted
-                  ? `If no success yet, retry after you finish another game.`
-                  : "Accept this challenge first to begin verification checks."}
-              </li>
-            </ul>
+              <div>{acceptanceBanner}</div>
+              <div style={{ color: "#cbd5e1" }}>{latestVerificationSummary}</div>
+            </div>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
