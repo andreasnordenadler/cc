@@ -173,6 +173,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
       ? `Accepted ${new Date(activeChallenge.startedAt).toLocaleString()} · checks scan last ${RECENT_GAME_WINDOW} completed games. Window starts at this timestamp.`
       : `Accepted with no recorded timestamp · checks scan last ${RECENT_GAME_WINDOW} completed games. Retry if this is stale.`
     : "Accept this challenge to begin verification checks.";
+  const retryVerificationLabel = getRetryVerificationLabel(latest);
 
   return (
     <main
@@ -298,8 +299,8 @@ export default async function ChallengeDetailPage({ params }: Props) {
                       fontWeight: 600,
                       cursor: "pointer",
                     }}
-                  >
-                    Retry verification
+                    >
+                    {retryVerificationLabel}
                   </button>
                 </form>
               ) : null}
@@ -501,6 +502,58 @@ function getChallengeExpectation(challenge: Challenge): string {
   }
 
   return "To pass this challenge, finish any completed game where your identity appears.";
+}
+
+function getRetryVerificationLabel(latest?: Attempt): string {
+  if (!latest) {
+    return "Check recent games";
+  }
+
+  if (latest.status === "unable") {
+    if (latest.summary.includes("No completed games found")) {
+      return "Check again after a new game";
+    }
+
+    if (latest.summary.includes("No matching recent games")) {
+      return "Check for newer games";
+    }
+
+    if (latest.summary.includes("No saved Lichess username")) {
+      return "Save username and retry";
+    }
+
+    if (latest.summary.includes("Please mark this challenge")) {
+      return "Mark challenge first";
+    }
+
+    if (latest.candidateSummary?.includes("not finished")) {
+      return "Wait for game to finish";
+    }
+
+    if (latest.summary.includes("not finished yet")) {
+      return "Wait for game to finish";
+    }
+
+    return "Retry verification";
+  }
+
+  if (latest.status === "failed") {
+    if (latest.summary.includes("Challenge requires side")) {
+      return "Play required side and retry";
+    }
+
+    if (latest.summary.includes("does not contain user")) {
+      return "Play on your saved account";
+    }
+
+    if (latest.summary.includes("not a win")) {
+      return "Play and win again";
+    }
+
+    return "Retry after next game";
+  }
+
+  return "Retry verification";
 }
 
 function getPlayerName(game: LichessGame, side: "white" | "black"): string {
