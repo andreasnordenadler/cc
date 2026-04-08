@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "CC — Chess Challenge",
-  description: "BlunderCheck restart foundation shell.",
+  description: "CC is a chess challenge platform about winning for the wrong reasons.",
 };
 
 export default function RootLayout({
