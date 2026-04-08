@@ -68,6 +68,31 @@ const PILL_STYLE = {
   fontSize: 12,
 } as const;
 
+type BannerTone = "green" | "amber" | "red" | "neutral";
+
+const BANNER_TONES: Record<BannerTone, { border: string; bg: string; color: string }> = {
+  green: {
+    border: "1px solid rgba(74, 222, 128, 0.45)",
+    bg: "rgba(22, 101, 52, 0.2)",
+    color: "#bbf7d0",
+  },
+  amber: {
+    border: "1px solid rgba(251, 191, 36, 0.45)",
+    bg: "rgba(120, 53, 15, 0.2)",
+    color: "#fde68a",
+  },
+  red: {
+    border: "1px solid rgba(248, 113, 113, 0.45)",
+    bg: "rgba(127, 29, 29, 0.2)",
+    color: "#fecaca",
+  },
+  neutral: {
+    border: "1px solid rgba(148, 163, 184, 0.3)",
+    bg: "rgba(15, 23, 42, 0.6)",
+    color: "#cbd5e1",
+  },
+};
+
 function getGameLink(gameId: string): string | null {
   if (!gameId || gameId.startsWith("(") || /\s/.test(gameId)) {
     return null;
@@ -132,6 +157,16 @@ export default async function ChallengeDetailPage({ params }: Props) {
         latest.candidateSummary ? ` (${latest.candidateSummary})` : ""
       }`
     : "No verification check yet.";
+  const statusTone: BannerTone = !accepted
+    ? "neutral"
+    : latest?.status === "verified"
+      ? "green"
+      : latest?.status === "failed"
+        ? "red"
+        : latest?.status === "unable"
+          ? "amber"
+          : "neutral";
+  const bannerStyle = BANNER_TONES[statusTone];
   const acceptanceBanner = accepted
     ? activeChallenge?.startedAt
       ? `Accepted ${new Date(activeChallenge.startedAt).toLocaleString()} · checks scan last ${RECENT_GAME_WINDOW} completed games. Window starts at this timestamp.`
@@ -203,12 +238,16 @@ export default async function ChallengeDetailPage({ params }: Props) {
             <div
               style={{
                 borderRadius: 12,
-                border: "1px solid rgba(148,163,184,0.22)",
-                background: "rgba(2,6,23,0.52)",
+                border: bannerStyle.border,
+                background: bannerStyle.bg,
+                color: bannerStyle.color,
                 padding: "12px 14px",
                 display: "grid",
                 gap: 8,
                 fontSize: 14,
+                position: "sticky",
+                top: 18,
+                zIndex: 2,
               }}
             >
               <div>
@@ -235,7 +274,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
               </div>
 
               <div>{acceptanceBanner}</div>
-              <div style={{ color: "#cbd5e1" }}>{latestVerificationSummary}</div>
+              <div>{latestVerificationSummary}</div>
             </div>
           </div>
 
