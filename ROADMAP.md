@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-09 18:50 Europe/Stockholm
+Last updated: 2026-04-09 22:03 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -36,6 +36,19 @@ Execution canon:
   - Acceptance: one reviewable improvement lands with relevant checks and proof matched to the work type.
   - Verification for completion: commit + relevant verification (+ deploy/live check when applicable).
   - Proof: shipped the missing v0 route loop with `src/app/account/page.tsx`, `src/app/challenges/page.tsx`, `src/app/challenges/[id]/page.tsx`, shared metadata helpers in `src/lib/user-metadata.ts`, and server actions in `src/app/actions.ts`; verified locally on 2026-04-09 with `pnpm lint` and `pnpm build`.
+- [x] Add finished-game submission on the challenge detail route with a pending/manual-review result placeholder.
+  - estimate: 1 focused run
+  - Acceptance: a signed-in user can submit a Lichess game ID from `/challenges/[id]` and see a clear stored result state such as pending/manual review.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+  - Proof: `src/app/challenges/[id]/page.tsx`, `src/app/actions.ts`, and `src/lib/user-metadata.ts` now store and render submitted Lichess game IDs with a pending/manual-review placeholder; verified locally on 2026-04-09 with `pnpm lint` and `pnpm build`.
+- [ ] Persist per-user attempt/result history and surface it on `/account` and the challenge detail route.
+  - estimate: 1 focused run
+  - Acceptance: the signed-in user can see their latest submitted challenge attempt/result without losing the state on refresh.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+- [ ] Verify the full CC v0 route loop on the live deployment and record the exact URL + verdict in `cc/docs/LIVE_ROUTE_CHECK_2026-04-09.md`.
+  - estimate: 1 focused run
+  - Acceptance: the active CC route loop is verified on the actual deployed surface, not only locally.
+  - Verification for completion: committed artifact with exact live URL and route verdicts.
 
 ## Proof rule
 
