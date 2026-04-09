@@ -182,9 +182,11 @@ export default async function ChallengeDetailPage({ params }: Props) {
           : "neutral";
   const bannerStyle = BANNER_TONES[statusTone];
   const acceptanceBanner = accepted
-    ? activeChallenge?.startedAt
-      ? `Accepted ${new Date(activeChallenge.startedAt).toLocaleString()} · checks scan last ${RECENT_GAME_WINDOW} completed games. Window starts at this timestamp.`
-      : `Accepted with no recorded timestamp · checks scan last ${RECENT_GAME_WINDOW} completed games. Retry if this is stale.`
+    ? activeChallenge?.status === "suggested"
+      ? `Suggested next challenge. Open and verify when you're ready.\nThe check window starts now.`
+      : activeChallenge?.startedAt
+        ? `Accepted ${new Date(activeChallenge.startedAt).toLocaleString()} · checks scan last ${RECENT_GAME_WINDOW} completed games. Window starts at this timestamp.`
+        : `Accepted with no recorded timestamp · checks scan last ${RECENT_GAME_WINDOW} completed games. Retry if this is stale.`
     : "Accept this challenge to begin verification checks.";
 
   return (
@@ -882,6 +884,7 @@ async function verifyChallenge(challengeId: string) {
   };
   let gameId = "(none)";
   const progress = getChallengeProgress(metadata);
+  let nextProgress = getChallengeProgress(metadata);
 
   try {
     const since = getChallengeStartTime(activeChallenge);
@@ -914,6 +917,12 @@ async function verifyChallenge(challengeId: string) {
         progress: getChallengeProgress(metadata),
       };
 
+  nextProgress = reward.progress;
+  const nextSuggestion =
+    result.status === "verified" && reward.awarded > 0
+      ? getNextChallenge(nextProgress, challenge)
+      : null;
+
   const nextAttempts = [
     ...latestAttempts,
     {
@@ -935,16 +944,23 @@ async function verifyChallenge(challengeId: string) {
     },
   ].slice(-40);
 
-  const nextProgress = reward.progress;
+  const nextActiveChallenge =
+    result.status === "verified" && reward.awarded > 0 && nextSuggestion
+      ? {
+          id: nextSuggestion.id,
+          status: "suggested",
+          startedAt: new Date().toISOString(),
+        }
+      : {
+          id: challenge.id,
+          status: result.status,
+          verifiedAt: new Date().toISOString(),
+        };
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
-      activeChallenge: {
-        id: challenge.id,
-        status: result.status,
-        verifiedAt: new Date().toISOString(),
-      },
+      activeChallenge: nextActiveChallenge,
       challengeAttempts: nextAttempts,
       challengeProgress: nextProgress,
     },

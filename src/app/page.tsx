@@ -242,7 +242,7 @@ export default async function Home() {
                   {activeChallenge?.id ? "Open this challenge" : "Choose a challenge"}
                 </Link>
 
-                {activeChallenge?.status === "verified" && nextChallenge ? (
+                {(activeChallenge?.status === "verified" || activeChallenge?.status === "suggested") && nextChallenge ? (
                   <div
                     style={{
                       borderTop: "1px solid rgba(148,163,184,0.18)",
@@ -256,7 +256,7 @@ export default async function Home() {
                     <div style={{ fontWeight: 600, marginBottom: 6 }}>
                       {formatChallengeId(nextChallenge.id)}
                     </div>
-                      <Link
+                    <Link
                       href={`/challenges/${nextChallenge.id}`}
                       style={{
                         borderRadius: 999,
@@ -422,6 +422,10 @@ function challengeBanner(challenge: ActiveChallenge | null): string {
     return `Verified at ${formatTime(challenge.verifiedAt)}.`;
   }
 
+  if (challenge.status === "suggested") {
+    return "Suggested next challenge. Open it and start verifying when you are ready.";
+  }
+
   if (challenge.status === "accepted") {
     return `Started ${formatTime(challenge.startedAt)}. Check your latest games after you finish one.`;
   }
@@ -529,6 +533,16 @@ function getNextChallenge(
 ): Challenge | null {
   if (!progress.completedChallengeIds.length) {
     return CHALLENGES[0] ?? null;
+  }
+
+  if (
+    activeChallenge?.status === "suggested" &&
+    activeChallenge.id
+  ) {
+    const suggested = getChallengeById(activeChallenge.id);
+    if (suggested && !progress.completedChallengeIds.includes(suggested.id)) {
+      return suggested;
+    }
   }
 
   const completedSet = new Set(progress.completedChallengeIds);
