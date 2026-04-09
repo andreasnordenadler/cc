@@ -21,10 +21,11 @@ Execution canon:
   - Acceptance: artifact names current routes/components and the most important product gap visible from the baseline.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: `docs/EXECUTIVE_SUMMARY_2026-04-09.md` created and verified locally on 2026-04-09 (`test -f docs/EXECUTIVE_SUMMARY_2026-04-09.md`).
-- [ ] Audit auth and deployment assumptions only; append the results and open risks to `cc/docs/EXECUTIVE_SUMMARY_2026-04-09.md`.
+- [x] Audit auth and deployment assumptions only; append the results and open risks to `cc/docs/EXECUTIVE_SUMMARY_2026-04-09.md`.
   - estimate: 1 focused run
   - Acceptance: Clerk usage, deployment path, and any blockers/unknowns are explicitly stated without mixing them into a broader product rewrite.
   - Verification for completion: committed artifact update + relevant local verification note.
+  - Proof: `docs/EXECUTIVE_SUMMARY_2026-04-09.md` appended with auth/deploy audit and verified locally on 2026-04-09 (`test -f docs/EXECUTIVE_SUMMARY_2026-04-09.md`).
 - [ ] Define the first concrete product direction and minimum shippable v0 scope in `cc/docs/V0_SCOPE_2026-04-09.md`.
   - estimate: 1 focused run
   - Acceptance: artifact states target user, first user promise, in-scope v0 loop, and explicit out-of-scope items.
