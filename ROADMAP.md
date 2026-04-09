@@ -46,10 +46,11 @@ Execution canon:
   - Acceptance: the signed-in user can see their latest submitted challenge attempt/result without losing the state on refresh.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - Proof: persisted challenge-linked attempt history in Clerk public metadata via `src/app/actions.ts` and rendered it in `src/app/account/page.tsx` plus `src/app/challenges/[id]/page.tsx`, with helpers updated in `src/lib/user-metadata.ts`; verified locally on 2026-04-09 with `pnpm lint` and `pnpm build`.
-- [ ] Verify the full CC v0 route loop on the live deployment and record the exact URL + verdict in `cc/docs/LIVE_ROUTE_CHECK_2026-04-09.md`.
+- [x] Verify the full CC v0 route loop on the live deployment and record the exact URL + verdict in `cc/docs/LIVE_ROUTE_CHECK_2026-04-09.md`.
   - estimate: 1 focused run
   - Acceptance: the active CC route loop is verified on the actual deployed surface, not only locally.
   - Verification for completion: committed artifact with exact live URL and route verdicts.
+  - Proof: `docs/LIVE_ROUTE_CHECK_2026-04-09.md` created and verified locally on 2026-04-09 (`test -f docs/LIVE_ROUTE_CHECK_2026-04-09.md`); live check recorded exact production URL and found `/account` returning 404 while `/`, `/challenges`, and `/challenges/mate-in-one` returned 200.
 
 ## Proof rule
 
