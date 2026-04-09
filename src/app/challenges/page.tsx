@@ -1,7 +1,23 @@
 import Link from "next/link";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { CHALLENGES } from "@/lib/challenges";
 
-export default function ChallengesPage() {
+type UserMetadataRecord = Record<string, unknown>;
+
+type ChallengeProgress = {
+  completedChallengeIds: string[];
+};
+
+export default async function ChallengesPage() {
+  const { userId } = await auth();
+  const user = userId ? await currentUser() : null;
+  const metadata = user?.publicMetadata
+    ? (user.publicMetadata as UserMetadataRecord)
+    : {};
+
+  const progress = getChallengeProgress(metadata);
+  const nextChallenge = getNextChallenge(progress);
+
   return (
     <main
       style={{
@@ -61,18 +77,60 @@ export default function ChallengesPage() {
             gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
           }}
         >
-          {CHALLENGES.map((challenge) => (
+          {CHALLENGES.map((challenge) => {
+            const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+            const isNext = challenge.id === nextChallenge?.id;
+
+            return (
             <article
               key={challenge.id}
               style={{
                 borderRadius: 18,
-                background: "rgba(15,23,42,0.58)",
-                border: "1px solid rgba(148,163,184,0.18)",
+                background: isCompleted
+                  ? "rgba(22, 163, 74, 0.10)"
+                  : "rgba(15,23,42,0.58)",
+                border: isCompleted
+                  ? "1px solid rgba(74, 222, 128, 0.35)"
+                  : "1px solid rgba(148,163,184,0.18)",
                 padding: 16,
                 display: "grid",
                 gap: 12,
               }}
             >
+              {isCompleted ? (
+                <span
+                  style={{
+                    borderRadius: 999,
+                    alignSelf: "start",
+                    background: "rgba(74, 222, 128, 0.18)",
+                    border: "1px solid rgba(74, 222, 128, 0.35)",
+                    color: "#bbf7d0",
+                    padding: "4px 10px",
+                    width: "fit-content",
+                    fontSize: 12,
+                  }}
+                >
+                  Completed
+                </span>
+              ) : null}
+
+              {isNext ? (
+                <span
+                  style={{
+                    borderRadius: 999,
+                    alignSelf: "start",
+                    background: "rgba(96, 165, 250, 0.16)",
+                    border: "1px solid rgba(96,165,250,0.35)",
+                    color: "#93c5fd",
+                    padding: "4px 10px",
+                    width: "fit-content",
+                    fontSize: 12,
+                  }}
+                >
+                  Next
+                </span>
+              ) : null}
+
               <h2 style={{ margin: 0, fontSize: 22 }}>{challenge.title}</h2>
               <p style={{ margin: 0, color: "#cbd5e1", lineHeight: 1.5 }}>
                 {challenge.objective}
@@ -99,12 +157,36 @@ export default function ChallengesPage() {
                   width: "fit-content",
                 }}
               >
-                Open challenge
+                {isCompleted ? "Review challenge" : isNext ? "Start next" : "Open challenge"}
               </Link>
             </article>
-          ))}
+            );
+          })}
         </div>
       </section>
     </main>
   );
+}
+
+function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
+  const raw = metadata.challengeProgress;
+
+  if (!raw || typeof raw !== "object") {
+    return {
+      completedChallengeIds: [],
+    };
+  }
+
+  const record = raw as Record<string, unknown>;
+
+  return {
+    completedChallengeIds: Array.isArray(record.completedChallengeIds)
+      ? record.completedChallengeIds.filter((entry): entry is string => typeof entry === "string")
+      : [],
+  };
+}
+
+function getNextChallenge(progress: ChallengeProgress) {
+  const completedSet = new Set(progress.completedChallengeIds);
+  return CHALLENGES.find((challenge) => !completedSet.has(challenge.id)) || null;
 }

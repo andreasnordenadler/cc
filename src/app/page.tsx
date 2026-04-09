@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 
 type UserMetadataRecord = Record<string, unknown>;
 
@@ -39,6 +40,7 @@ export default async function Home() {
   const activeChallenge = getActiveChallenge(metadata);
   const latestAttempt = getLatestChallengeAttempt(metadata, activeChallenge);
   const progress = getChallengeProgress(metadata);
+  const nextChallenge = getNextChallenge(activeChallenge, progress);
 
   return (
     <main
@@ -239,6 +241,37 @@ export default async function Home() {
                 >
                   {activeChallenge?.id ? "Open this challenge" : "Choose a challenge"}
                 </Link>
+
+                {activeChallenge?.status === "verified" && nextChallenge ? (
+                  <div
+                    style={{
+                      borderTop: "1px solid rgba(148,163,184,0.18)",
+                      marginTop: 12,
+                      paddingTop: 12,
+                    }}
+                  >
+                    <div style={{ color: "#93c5fd", fontSize: 13, marginBottom: 4 }}>
+                      Next suggestion
+                    </div>
+                    <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                      {formatChallengeId(nextChallenge.id)}
+                    </div>
+                      <Link
+                      href={`/challenges/${nextChallenge.id}`}
+                      style={{
+                        borderRadius: 999,
+                        border: "1px solid rgba(96,165,250,0.32)",
+                        background: "rgba(96,165,250,0.12)",
+                        color: "#93c5fd",
+                        textDecoration: "none",
+                        padding: "8px 12px",
+                        display: "inline-block",
+                      }}
+                    >
+                      Continue to next challenge
+                    </Link>
+                  </div>
+                ) : null}
               </div>
 
               <div
@@ -488,6 +521,31 @@ function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
         ? record.totalRewardPoints
         : 0,
   };
+}
+
+function getNextChallenge(
+  activeChallenge: ActiveChallenge | null,
+  progress: ChallengeProgress,
+): Challenge | null {
+  if (!progress.completedChallengeIds.length) {
+    return CHALLENGES[0] ?? null;
+  }
+
+  const completedSet = new Set(progress.completedChallengeIds);
+
+  const firstRemaining = CHALLENGES.find(
+    (challenge) => !completedSet.has(challenge.id),
+  );
+
+  if (firstRemaining) {
+    return firstRemaining;
+  }
+
+  if (activeChallenge && activeChallenge.status !== "verified") {
+    return getChallengeById(activeChallenge.id) ?? CHALLENGES[0] ?? null;
+  }
+
+  return null;
 }
 
 function formatTime(value?: string): string {

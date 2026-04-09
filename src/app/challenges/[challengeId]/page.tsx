@@ -143,6 +143,7 @@ export default async function ChallengeDetailPage({ params }: Props) {
   const accepted = activeChallenge?.id === challenge.id;
   const progress = getChallengeProgress(metadata);
   const alreadyCompleted = progress.completedChallengeIds.includes(challenge.id);
+  const nextChallenge = getNextChallenge(progress, challenge);
 
   const attempts: Attempt[] = Array.isArray(metadata.challengeAttempts)
     ? (metadata.challengeAttempts as Attempt[]).filter(
@@ -403,6 +404,42 @@ export default async function ChallengeDetailPage({ params }: Props) {
                 {verificationButtonLabel}
               </button>
             </form>
+
+            {latest?.status === "verified" && nextChallenge ? (
+              <div
+                style={{
+                  marginTop: 14,
+                  borderRadius: 12,
+                  border: "1px solid rgba(96,165,250,0.3)",
+                  background: "rgba(59,130,246,0.12)",
+                  padding: "12px 14px",
+                  color: "#dbeafe",
+                  display: "grid",
+                  gap: 8,
+                  maxWidth: 640,
+                }}
+              >
+                <div style={{ fontWeight: 600 }}>Nice, this one is verified.</div>
+                <div style={{ color: "#93c5fd", fontSize: 14 }}>
+                  Next up: <strong>{nextChallenge.title}</strong>
+                </div>
+                <Link
+                  href={`/challenges/${nextChallenge.id}`}
+                  style={{
+                    width: "fit-content",
+                    borderRadius: 999,
+                    border: "1px solid rgba(96,165,250,0.32)",
+                    background: "rgba(96,165,250,0.16)",
+                    color: "#93c5fd",
+                    textDecoration: "none",
+                    padding: "8px 12px",
+                    fontWeight: 600,
+                  }}
+                >
+                  Continue to next challenge
+                </Link>
+              </div>
+            ) : null}
           </section>
         ) : (
           <p style={{ marginTop: 22, color: "#cbd5e1" }}>
@@ -987,6 +1024,26 @@ function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
     lastCompletedAt:
       typeof record.lastCompletedAt === "string" ? record.lastCompletedAt : undefined,
   };
+}
+
+function getNextChallenge(
+  progress: ChallengeProgress,
+  challenge: Challenge,
+): Challenge | null {
+  const completedSet = new Set(progress.completedChallengeIds);
+  const currentIndex = CHALLENGES.findIndex((item) => item.id === challenge.id);
+
+  if (currentIndex >= 0) {
+    const remainingInOrder = CHALLENGES
+      .slice(currentIndex + 1)
+      .find((item) => !completedSet.has(item.id));
+
+    if (remainingInOrder) {
+      return remainingInOrder;
+    }
+  }
+
+  return CHALLENGES.find((item) => !completedSet.has(item.id)) || null;
 }
 
 function getProgressReward(
