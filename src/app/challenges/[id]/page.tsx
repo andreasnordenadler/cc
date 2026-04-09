@@ -6,6 +6,7 @@ import { getChallengeById } from "@/lib/challenges";
 import {
   formatTime,
   getActiveChallenge,
+  getChallengeAttempts,
   getLatestChallengeAttempt,
   getLichessUsername,
   type UserMetadataRecord,
@@ -30,7 +31,8 @@ export default async function ChallengeDetailPage({
     : {};
   const lichessUsername = getLichessUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
-  const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
+  const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
+  const latestAttempt = attempts[0] ?? getLatestChallengeAttempt(metadata, challenge.id);
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
 
@@ -96,6 +98,25 @@ export default async function ChallengeDetailPage({
                     ? `${latestAttempt.summary} Last checked ${formatTime(latestAttempt.checkedAt)}.`
                     : "No attempt submitted yet. This v0 flow stores a pending/manual-review placeholder after submission."}
                 </p>
+              </div>
+
+              <div style={statusBoxStyle}>
+                <strong>Attempt history</strong>
+                {attempts.length ? (
+                  <ul style={attemptListStyle}>
+                    {attempts.map((attempt) => (
+                      <li key={attempt.id ?? `${attempt.gameId}-${attempt.checkedAt ?? "unknown"}`} style={attemptItemStyle}>
+                        <span style={copyStyle}>{attempt.summary}</span>
+                        <span style={metaStyle}>
+                          {attempt.gameId ? `Game ${attempt.gameId}, ` : ""}
+                          {attempt.status ?? "pending"} • {formatTime(attempt.checkedAt)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={copyStyle}>No attempt history yet for this challenge.</p>
+                )}
               </div>
             </>
           ) : (
@@ -187,4 +208,25 @@ const statusBoxStyle = {
   padding: 16,
   display: "grid",
   gap: 8,
+};
+
+const metaStyle = {
+  margin: 0,
+  color: "#94a3b8",
+  fontSize: 14,
+};
+
+const attemptListStyle = {
+  listStyle: "none",
+  margin: 0,
+  padding: 0,
+  display: "grid",
+  gap: 10,
+};
+
+const attemptItemStyle = {
+  display: "grid",
+  gap: 4,
+  borderTop: "1px solid rgba(148,163,184,0.12)",
+  paddingTop: 10,
 };

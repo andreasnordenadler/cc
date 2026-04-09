@@ -105,6 +105,7 @@ export async function submitChallengeAttempt(formData: FormData) {
         ...existingAttempts,
         {
           id: `${challenge.id}:${now}`,
+          challengeId: challenge.id,
           gameId,
           status: "pending",
           summary: lichessUsername
@@ -118,6 +119,7 @@ export async function submitChallengeAttempt(formData: FormData) {
   });
 
   revalidatePath("/");
+  revalidatePath("/account");
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
 }

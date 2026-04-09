@@ -1,6 +1,13 @@
+import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { saveLichessUsername } from "@/app/actions";
-import { getLichessUsername, type UserMetadataRecord } from "@/lib/user-metadata";
+import {
+  formatChallengeId,
+  formatTime,
+  getChallengeAttempts,
+  getLichessUsername,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 export default async function AccountPage() {
   const user = await currentUser();
@@ -8,6 +15,7 @@ export default async function AccountPage() {
     ? (user.publicMetadata as UserMetadataRecord)
     : {};
   const lichessUsername = getLichessUsername(metadata);
+  const attempts = getChallengeAttempts(metadata).slice().reverse();
 
   return (
     <main style={shellStyle}>
@@ -38,6 +46,32 @@ export default async function AccountPage() {
         <p style={metaStyle}>
           Current value: {lichessUsername || "not set yet"}
         </p>
+
+        <div style={historyStyle}>
+          <h2 style={{ margin: 0 }}>Recent submissions</h2>
+          {attempts.length ? (
+            <ul style={historyListStyle}>
+              {attempts.map((attempt) => {
+                const challengeId = attempt.challengeId ?? attempt.id?.split(":")[0] ?? "challenge";
+
+                return (
+                  <li key={attempt.id ?? `${challengeId}-${attempt.checkedAt ?? "unknown"}`} style={historyItemStyle}>
+                    <div style={{ display: "grid", gap: 4 }}>
+                      <strong>{formatChallengeId(challengeId)}</strong>
+                      <span style={metaStyle}>{attempt.summary}</span>
+                      <span style={metaStyle}>Checked {formatTime(attempt.checkedAt)}</span>
+                    </div>
+                    <Link href={`/challenges/${challengeId}`} style={historyLinkStyle}>
+                      Open challenge
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p style={metaStyle}>No submissions yet. Your latest challenge attempt will show up here after you submit one.</p>
+          )}
+        </div>
       </section>
     </main>
   );
@@ -98,4 +132,35 @@ const metaStyle = {
   margin: 0,
   color: "#94a3b8",
   fontSize: 14,
+};
+
+const historyStyle = {
+  display: "grid",
+  gap: 12,
+};
+
+const historyListStyle = {
+  listStyle: "none",
+  margin: 0,
+  padding: 0,
+  display: "grid",
+  gap: 12,
+};
+
+const historyItemStyle = {
+  borderRadius: 18,
+  border: "1px solid rgba(148,163,184,0.18)",
+  background: "rgba(15,23,42,0.48)",
+  padding: 16,
+  display: "flex",
+  gap: 12,
+  justifyContent: "space-between" as const,
+  alignItems: "center" as const,
+  flexWrap: "wrap" as const,
+};
+
+const historyLinkStyle = {
+  color: "#dbeafe",
+  textDecoration: "none",
+  fontWeight: 600,
 };

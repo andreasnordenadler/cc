@@ -17,6 +17,7 @@ export type ActiveChallenge = {
 
 export type ChallengeAttempt = {
   id?: string;
+  challengeId?: string;
   gameId?: string;
   status?: string;
   summary?: string;
@@ -50,15 +51,15 @@ export function getActiveChallenge(metadata: UserMetadataRecord): ActiveChalleng
   return null;
 }
 
-export function getLatestChallengeAttempt(
+export function getChallengeAttempts(
   metadata: UserMetadataRecord,
   challengeId?: string,
-): ChallengeAttempt | null {
-  if (!challengeId || !Array.isArray(metadata.challengeAttempts)) {
-    return null;
+): ChallengeAttempt[] {
+  if (!Array.isArray(metadata.challengeAttempts)) {
+    return [];
   }
 
-  const items = metadata.challengeAttempts
+  return metadata.challengeAttempts
     .filter((entry): entry is ChallengeAttempt => {
       return Boolean(
         entry &&
@@ -68,14 +69,26 @@ export function getLatestChallengeAttempt(
       );
     })
     .filter((attempt) => {
-      if (typeof attempt.id !== "string") {
-        return false;
+      const attemptChallengeId =
+        typeof attempt.challengeId === "string"
+          ? attempt.challengeId
+          : typeof attempt.id === "string"
+            ? attempt.id.split(":")[0]
+            : undefined;
+
+      if (!challengeId) {
+        return Boolean(attemptChallengeId);
       }
 
-      return attempt.id.startsWith(challengeId);
+      return attemptChallengeId === challengeId;
     });
+}
 
-  return items.at(-1) ?? null;
+export function getLatestChallengeAttempt(
+  metadata: UserMetadataRecord,
+  challengeId?: string,
+): ChallengeAttempt | null {
+  return getChallengeAttempts(metadata, challengeId).at(-1) ?? null;
 }
 
 export function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
