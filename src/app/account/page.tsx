@@ -1,167 +1,101 @@
-import Link from "next/link";
-import { revalidatePath } from "next/cache";
-import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
+import { saveLichessUsername } from "@/app/actions";
+import { getLichessUsername, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export default async function AccountPage() {
   const user = await currentUser();
-  const lichessUsername =
-    typeof user?.publicMetadata?.lichessUsername === "string"
-      ? user.publicMetadata.lichessUsername
-      : "";
+  const metadata = user?.publicMetadata
+    ? (user.publicMetadata as UserMetadataRecord)
+    : {};
+  const lichessUsername = getLichessUsername(metadata);
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "32px",
-        background:
-          "radial-gradient(circle at top, rgba(96,165,250,0.18), transparent 32%), linear-gradient(180deg, #0b1020 0%, #111827 100%)",
-        color: "#f8fafc",
-      }}
-    >
-      <section
-        style={{
-          margin: "0 auto",
-          width: "100%",
-          maxWidth: 760,
-          border: "1px solid rgba(148,163,184,0.22)",
-          background: "rgba(15,23,42,0.72)",
-          backdropFilter: "blur(14px)",
-          borderRadius: 28,
-          padding: "32px",
-          boxShadow: "0 30px 80px rgba(2,6,23,0.45)",
-        }}
-      >
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 10,
-            borderRadius: 999,
-            padding: "8px 14px",
-            background: "rgba(59,130,246,0.14)",
-            border: "1px solid rgba(96,165,250,0.28)",
-            fontSize: 12,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "#bfdbfe",
-          }}
-        >
-          Authenticated account
-        </div>
+    <main style={shellStyle}>
+      <section style={cardStyle}>
+        <p style={eyebrowStyle}>Account</p>
+        <h1 style={{ margin: 0 }}>Save your Lichess username</h1>
+        <p style={copyStyle}>
+          This is the identity CC will show alongside your challenge submissions.
+        </p>
 
-        <div style={{ marginTop: 20, display: "grid", gap: 14 }}>
-          <h1
-            style={{
-              fontSize: "clamp(2rem, 4vw, 3.5rem)",
-              lineHeight: 0.98,
-              letterSpacing: "-0.04em",
-            }}
-          >
-            Public chess identity
-          </h1>
-
-          <p style={{ fontSize: 18, color: "#cbd5e1", lineHeight: 1.6 }}>
-            Save a public Lichess username once, then it will persist on this account
-            and survive refresh.
-          </p>
-
-          {lichessUsername ? (
-            <p style={{ color: "#86efac", marginTop: 0, fontSize: 14 }}>
-              Current saved username: <strong>{lichessUsername}</strong>
-            </p>
-          ) : null}
-        </div>
-
-        <form
-          action={saveLichessUsername}
-          style={{
-            marginTop: 24,
-            display: "grid",
-            gap: 12,
-          }}
-        >
-          <label htmlFor="lichessUsername" style={{ fontSize: 13, color: "#bfdbfe" }}>
-            Lichess username
+        <form action={saveLichessUsername} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
+          <label style={{ display: "grid", gap: 8 }}>
+            <span style={{ fontWeight: 600 }}>Lichess username</span>
+            <input
+              type="text"
+              name="lichessUsername"
+              defaultValue={lichessUsername}
+              placeholder="e.g. AndreasN"
+              style={inputStyle}
+            />
           </label>
-          <input
-            id="lichessUsername"
-            name="lichessUsername"
-            defaultValue={lichessUsername}
-            placeholder="and72nor"
-            style={{
-              borderRadius: 12,
-              border: "1px solid rgba(148,163,184,0.26)",
-              background: "rgba(15,23,42,0.72)",
-              color: "#f8fafc",
-              padding: "12px 14px",
-              fontSize: 16,
-              maxWidth: 320,
-            }}
-            required
-            minLength={1}
-          />
-          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-            <button
-              type="submit"
-              style={{
-                borderRadius: 999,
-                border: "1px solid rgba(96,165,250,0.32)",
-                background: "#eff6ff",
-                color: "#0f172a",
-                padding: "10px 16px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Save public username
-            </button>
-            <Link
-              href="/"
-              style={{
-                borderRadius: 999,
-                border: "1px solid rgba(148,163,184,0.28)",
-                padding: "10px 16px",
-                color: "#cbd5e1",
-                textDecoration: "none",
-                fontSize: 14,
-              }}
-            >
-              Back to home
-            </Link>
-          </div>
+
+          <button type="submit" style={buttonStyle}>
+            {lichessUsername ? "Update username" : "Save username"}
+          </button>
         </form>
+
+        <p style={metaStyle}>
+          Current value: {lichessUsername || "not set yet"}
+        </p>
       </section>
     </main>
   );
 }
 
-async function saveLichessUsername(formData: FormData) {
-  "use server";
-  const { userId } = await auth();
+const shellStyle = {
+  minHeight: "100vh",
+  padding: "clamp(20px, 3vw, 36px)",
+  background: "linear-gradient(180deg, #0b1020 0%, #111827 100%)",
+  color: "#f8fafc",
+};
 
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
+const cardStyle = {
+  width: "100%",
+  maxWidth: 720,
+  margin: "0 auto",
+  borderRadius: 28,
+  border: "1px solid rgba(148,163,184,0.22)",
+  background: "rgba(15,23,42,0.78)",
+  padding: 24,
+  display: "grid",
+  gap: 16,
+};
 
-  const submitted = formData.get("lichessUsername");
-  const lichessUsername =
-    typeof submitted === "string" ? submitted.trim() : "";
+const eyebrowStyle = {
+  margin: 0,
+  color: "#93c5fd",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.12em",
+  fontSize: 12,
+};
 
-  if (!lichessUsername) {
-    return;
-  }
+const copyStyle = {
+  margin: 0,
+  color: "#cbd5e1",
+  lineHeight: 1.5,
+};
 
-  const client = await clerkClient();
-  const user = await client.users.getUser(userId);
-  const existingMetadata = user.publicMetadata ?? {};
+const inputStyle = {
+  borderRadius: 14,
+  border: "1px solid rgba(148,163,184,0.22)",
+  background: "rgba(15,23,42,0.7)",
+  color: "#f8fafc",
+  padding: "12px 14px",
+};
 
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      ...existingMetadata,
-      lichessUsername,
-    },
-  });
+const buttonStyle = {
+  borderRadius: 999,
+  border: "1px solid rgba(59,130,246,0.32)",
+  background: "rgba(59,130,246,0.16)",
+  color: "#dbeafe",
+  padding: "12px 18px",
+  fontWeight: 600,
+  cursor: "pointer",
+};
 
-  revalidatePath("/account");
-}
+const metaStyle = {
+  margin: 0,
+  color: "#94a3b8",
+  fontSize: 14,
+};

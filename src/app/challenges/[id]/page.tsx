@@ -1,0 +1,190 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { startChallenge, submitChallengeAttempt } from "@/app/actions";
+import { getChallengeById } from "@/lib/challenges";
+import {
+  formatTime,
+  getActiveChallenge,
+  getLatestChallengeAttempt,
+  getLichessUsername,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
+
+export default async function ChallengeDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const challenge = getChallengeById(id);
+
+  if (!challenge) {
+    notFound();
+  }
+
+  const { userId } = await auth();
+  const user = userId ? await currentUser() : null;
+  const metadata = user?.publicMetadata
+    ? (user.publicMetadata as UserMetadataRecord)
+    : {};
+  const lichessUsername = getLichessUsername(metadata);
+  const activeChallenge = getActiveChallenge(metadata);
+  const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
+  const isSignedIn = Boolean(userId);
+  const isActive = activeChallenge?.id === challenge.id;
+
+  return (
+    <main style={shellStyle}>
+      <section style={sectionStyle}>
+        <div style={cardStyle}>
+          <p style={eyebrowStyle}>Challenge detail</p>
+          <h1 style={{ margin: 0 }}>{challenge.title}</h1>
+          <p style={copyStyle}>{challenge.objective}</p>
+          <ul style={listStyle}>
+            <li>{challenge.instruction}</li>
+            <li>Reward: {challenge.reward} points</li>
+            <li>Opening hint: {challenge.openingHint}</li>
+          </ul>
+        </div>
+
+        <div style={cardStyle}>
+          <h2 style={{ margin: 0 }}>Your run</h2>
+
+          {isSignedIn ? (
+            <>
+              <p style={copyStyle}>
+                Saved username: {lichessUsername || "not set yet"}
+              </p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <form action={startChallenge}>
+                  <input type="hidden" name="challengeId" value={challenge.id} />
+                  <button type="submit" style={buttonStyle}>
+                    {isActive ? "Restart this challenge" : "Start this challenge"}
+                  </button>
+                </form>
+                <Link href="/account" style={secondaryButtonStyle}>
+                  {lichessUsername ? "Update username" : "Add username"}
+                </Link>
+              </div>
+
+              <form action={submitChallengeAttempt} style={{ display: "grid", gap: 12, maxWidth: 480, marginTop: 20 }}>
+                <input type="hidden" name="challengeId" value={challenge.id} />
+                <label style={{ display: "grid", gap: 8 }}>
+                  <span style={{ fontWeight: 600 }}>Finished Lichess game ID or URL</span>
+                  <input
+                    type="text"
+                    name="gameId"
+                    placeholder="e.g. abCDef12 or https://lichess.org/abCDef12"
+                    style={inputStyle}
+                  />
+                </label>
+                <button type="submit" style={buttonStyle}>
+                  Submit for review
+                </button>
+              </form>
+
+              <div style={statusBoxStyle}>
+                <strong>Status</strong>
+                <p style={copyStyle}>
+                  {isActive
+                    ? `Current state: ${activeChallenge?.status ?? "accepted"}`
+                    : "This challenge is not active yet."}
+                </p>
+                <p style={copyStyle}>
+                  {latestAttempt
+                    ? `${latestAttempt.summary} Last checked ${formatTime(latestAttempt.checkedAt)}.`
+                    : "No attempt submitted yet. This v0 flow stores a pending/manual-review placeholder after submission."}
+                </p>
+              </div>
+            </>
+          ) : (
+            <p style={copyStyle}>
+              Sign in from the homepage to start this challenge.
+            </p>
+          )}
+        </div>
+      </section>
+    </main>
+  );
+}
+
+const shellStyle = {
+  minHeight: "100vh",
+  padding: "clamp(20px, 3vw, 36px)",
+  background: "linear-gradient(180deg, #0b1020 0%, #111827 100%)",
+  color: "#f8fafc",
+};
+
+const sectionStyle = {
+  width: "100%",
+  maxWidth: 900,
+  margin: "0 auto",
+  display: "grid",
+  gap: 20,
+};
+
+const cardStyle = {
+  borderRadius: 24,
+  border: "1px solid rgba(148,163,184,0.22)",
+  background: "rgba(15,23,42,0.78)",
+  padding: 24,
+  display: "grid",
+  gap: 14,
+};
+
+const eyebrowStyle = {
+  margin: 0,
+  color: "#93c5fd",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.12em",
+  fontSize: 12,
+};
+
+const copyStyle = {
+  margin: 0,
+  color: "#cbd5e1",
+  lineHeight: 1.5,
+};
+
+const listStyle = {
+  margin: 0,
+  paddingLeft: 18,
+  color: "#cbd5e1",
+  display: "grid",
+  gap: 8,
+};
+
+const inputStyle = {
+  borderRadius: 14,
+  border: "1px solid rgba(148,163,184,0.22)",
+  background: "rgba(15,23,42,0.7)",
+  color: "#f8fafc",
+  padding: "12px 14px",
+};
+
+const buttonStyle = {
+  borderRadius: 999,
+  border: "1px solid rgba(59,130,246,0.32)",
+  background: "rgba(59,130,246,0.16)",
+  color: "#dbeafe",
+  padding: "10px 14px",
+  fontWeight: 600,
+  cursor: "pointer",
+};
+
+const secondaryButtonStyle = {
+  ...buttonStyle,
+  textDecoration: "none",
+  display: "inline-flex",
+  alignItems: "center",
+};
+
+const statusBoxStyle = {
+  borderRadius: 18,
+  border: "1px solid rgba(148,163,184,0.18)",
+  background: "rgba(15,23,42,0.48)",
+  padding: 16,
+  display: "grid",
+  gap: 8,
+};

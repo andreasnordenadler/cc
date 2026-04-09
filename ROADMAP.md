@@ -31,10 +31,11 @@ Execution canon:
   - Acceptance: artifact states target user, first user promise, in-scope v0 loop, and explicit out-of-scope items.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: `docs/V0_SCOPE_2026-04-09.md` created and verified locally on 2026-04-09 (`test -f docs/V0_SCOPE_2026-04-09.md`).
-- [ ] Implement the single highest-leverage proof-bearing improvement from the approved v0 scope.
+- [x] Implement the single highest-leverage proof-bearing improvement from the approved v0 scope.
   - estimate: 1 focused run
   - Acceptance: one reviewable improvement lands with relevant checks and proof matched to the work type.
   - Verification for completion: commit + relevant verification (+ deploy/live check when applicable).
+  - Proof: shipped the missing v0 route loop with `src/app/account/page.tsx`, `src/app/challenges/page.tsx`, `src/app/challenges/[id]/page.tsx`, shared metadata helpers in `src/lib/user-metadata.ts`, and server actions in `src/app/actions.ts`; verified locally on 2026-04-09 with `pnpm lint` and `pnpm build`.
 
 ## Proof rule
 
