@@ -97,6 +97,22 @@ function isFinishedGame(game: ChessComGame): boolean {
   return Boolean(game.end_time);
 }
 
+function getPlayerSideForUsername(game: ChessComGame, chessComUsername: string): "white" | "black" | null {
+  const normalizedUsername = normalizeChessComUsername(chessComUsername);
+  const whiteName = normalizeChessComUsername(game.white?.username ?? "");
+  const blackName = normalizeChessComUsername(game.black?.username ?? "");
+
+  if (whiteName === normalizedUsername) {
+    return "white";
+  }
+
+  if (blackName === normalizedUsername) {
+    return "black";
+  }
+
+  return null;
+}
+
 async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Promise<ChessComGame | null | undefined> {
   const normalizedUrl = normalizeChessComGameUrl(rawGameUrl);
   const archives = await fetchArchiveMonths(chessComUsername);
@@ -123,12 +139,18 @@ async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Prom
   return undefined;
 }
 
-export async function verifyChessComFinishAnyGameAttempt({
+async function verifyChessComFinishedGameWithSideRequirement({
   gameUrl,
   chessComUsername,
+  requiredSide,
+  passSummary,
+  sideMismatchSummary,
 }: {
   gameUrl: string;
   chessComUsername: string;
+  requiredSide: "white" | "black" | "either";
+  passSummary: string;
+  sideMismatchSummary: string;
 }): Promise<ChessComVerificationVerdict> {
   if (!chessComUsername) {
     return {
@@ -161,14 +183,13 @@ export async function verifyChessComFinishAnyGameAttempt({
     if (!game) {
       return {
         status: "pending",
-        summary: `Submitted Chess.com game saved, but it is not visible in the recent public archive yet. Try again shortly if the game just finished.`,
+        summary: "Submitted Chess.com game saved, but it is not visible in the recent public archive yet. Try again shortly if the game just finished.",
       };
     }
 
-    const whiteName = normalizeChessComUsername(game.white?.username ?? "");
-    const blackName = normalizeChessComUsername(game.black?.username ?? "");
+    const playerSide = getPlayerSideForUsername(game, normalizedUsername);
 
-    if (whiteName !== normalizedUsername && blackName !== normalizedUsername) {
+    if (!playerSide) {
       return {
         status: "failed",
         summary: `Submitted Chess.com game found, but saved username ${chessComUsername} does not appear in that game.`,
@@ -182,9 +203,16 @@ export async function verifyChessComFinishAnyGameAttempt({
       };
     }
 
+    if (requiredSide !== "either" && playerSide !== requiredSide) {
+      return {
+        status: "failed",
+        summary: sideMismatchSummary,
+      };
+    }
+
     return {
       status: "passed",
-      summary: `Verified Chess.com game. ${chessComUsername} appears in a finished public game, so this challenge passed.`,
+      summary: passSummary,
     };
   } catch {
     return {
@@ -192,4 +220,36 @@ export async function verifyChessComFinishAnyGameAttempt({
       summary: "Submitted Chess.com game, but verification could not complete right now. Try again later if this stays pending.",
     };
   }
+}
+
+export async function verifyChessComFinishAnyGameAttempt({
+  gameUrl,
+  chessComUsername,
+}: {
+  gameUrl: string;
+  chessComUsername: string;
+}): Promise<ChessComVerificationVerdict> {
+  return verifyChessComFinishedGameWithSideRequirement({
+    gameUrl,
+    chessComUsername,
+    requiredSide: "either",
+    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public game, so this challenge passed.`,
+    sideMismatchSummary: "",
+  });
+}
+
+export async function verifyChessComFinishAsWhiteAttempt({
+  gameUrl,
+  chessComUsername,
+}: {
+  gameUrl: string;
+  chessComUsername: string;
+}): Promise<ChessComVerificationVerdict> {
+  return verifyChessComFinishedGameWithSideRequirement({
+    gameUrl,
+    chessComUsername,
+    requiredSide: "white",
+    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public game as White, so this challenge passed.`,
+    sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as Black instead of White.`,
+  });
 }

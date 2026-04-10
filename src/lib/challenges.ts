@@ -30,10 +30,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Finish as White",
     objective: "Complete and submit one finished game where you played as White.",
     instruction:
-      "Start a real game as White, finish it, and return with the game ID. Lichess is supported here today.",
+      "Start a real game as White, finish it, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 90,
     openingHint:
-      "This is the smallest step up from any finished game, keeping the focus on side awareness instead of winning.",
+      "This is the smallest step up from any finished game, keeping the focus on side awareness instead of winning, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "white",
       result: "finish",
