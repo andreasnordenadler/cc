@@ -21,7 +21,7 @@ export default async function ChallengesPage() {
       <section style={sectionStyle}>
         <div style={{ display: "grid", gap: 8 }}>
           <p style={eyebrowStyle}>Challenges</p>
-          <h1 style={{ margin: 0 }}>Pick a real game challenge</h1>
+          <h1 style={titleStyle}>Pick a real game challenge</h1>
           <p style={copyStyle}>
             Start with one simple run, then come back with a Lichess game ID.
           </p>
@@ -42,13 +42,13 @@ export default async function ChallengesPage() {
                     {isCompleted ? <span style={pillGreen}>completed</span> : null}
                   </div>
 
-                  <h2 style={{ margin: 0 }}>{challenge.title}</h2>
+                  <h2 style={cardTitleStyle}>{challenge.title}</h2>
                   <p style={copyStyle}>{challenge.objective}</p>
-                  <p style={{ ...copyStyle, fontSize: 14 }}>{challenge.openingHint}</p>
+                  <p style={hintStyle}>{challenge.openingHint}</p>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                  <strong>{challenge.reward} pts</strong>
+                  <strong style={rewardStyle}>{challenge.reward} pts</strong>
                   <Link href={`/challenges/${challenge.id}`} style={buttonStyle}>
                     Open challenge
                   </Link>
@@ -75,6 +75,7 @@ const sectionStyle = {
   margin: "0 auto",
   display: "grid",
   gap: 20,
+  alignContent: "start",
 };
 
 const gridStyle = {
@@ -92,6 +93,12 @@ const cardStyle = {
   gap: 18,
 };
 
+const titleStyle = {
+  margin: 0,
+  fontSize: "clamp(1.8rem, 4vw, 2.4rem)",
+  letterSpacing: "-0.02em",
+};
+
 const eyebrowStyle = {
   margin: 0,
   color: "#93c5fd",
@@ -104,6 +111,21 @@ const copyStyle = {
   margin: 0,
   color: "#cbd5e1",
   lineHeight: 1.5,
+};
+
+const hintStyle = {
+  ...copyStyle,
+  fontSize: 14,
+  color: "#9ca3af",
+};
+
+const cardTitleStyle = {
+  margin: 0,
+  fontSize: "1.25rem",
+};
+
+const rewardStyle = {
+  fontSize: "1.2rem",
 };
 
 const buttonStyle = {

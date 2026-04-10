@@ -44,7 +44,7 @@ export default async function ChallengeDetailPage({
       <section style={sectionStyle}>
         <div style={cardStyle}>
           <p style={eyebrowStyle}>Challenge detail</p>
-          <h1 style={{ margin: 0 }}>{challenge.title}</h1>
+          <h1 style={titleStyle}>{challenge.title}</h1>
           <p style={copyStyle}>{challenge.objective}</p>
           <ul style={listStyle}>
             <li>{challenge.instruction}</li>
@@ -54,7 +54,7 @@ export default async function ChallengeDetailPage({
         </div>
 
         <div style={cardStyle}>
-          <h2 style={{ margin: 0 }}>Your run</h2>
+          <h2 style={sectionTitleStyle}>Your run</h2>
 
           {isSignedIn ? (
             <>
@@ -76,7 +76,7 @@ export default async function ChallengeDetailPage({
               <form action={submitChallengeAttempt} style={{ display: "grid", gap: 12, maxWidth: 480, marginTop: 20 }}>
                 <input type="hidden" name="challengeId" value={challenge.id} />
                 <label style={{ display: "grid", gap: 8 }}>
-                  <span style={{ fontWeight: 600 }}>Finished Lichess game ID or URL</span>
+                  <span style={inputHintStyle}>Finished Lichess game ID or URL</span>
                   <input
                     type="text"
                     name="gameId"
@@ -94,7 +94,7 @@ export default async function ChallengeDetailPage({
                   <span style={summaryEyebrowStyle}>Latest attempt</span>
                   <span style={statusPillStyle}>{formatAttemptStatus(latestAttempt?.status)}</span>
                 </div>
-                <strong style={{ fontSize: 24 }}>{latestAttemptSummary.headline}</strong>
+                <strong style={latestHeadlineStyle}>{latestAttemptSummary.headline}</strong>
                 <p style={copyStyle}>{latestAttemptSummary.detail}</p>
                 <p style={metaStyle}>{latestAttemptSummary.meta}</p>
                 <p style={copyStyle}>
@@ -166,10 +166,26 @@ const eyebrowStyle = {
   fontSize: 12,
 };
 
+const titleStyle = {
+  margin: 0,
+  fontSize: "clamp(1.8rem, 5vw, 2.4rem)",
+  lineHeight: 1.1,
+};
+
+const sectionTitleStyle = {
+  margin: 0,
+  fontSize: "1.4rem",
+};
+
 const copyStyle = {
   margin: 0,
   color: "#cbd5e1",
   lineHeight: 1.5,
+};
+
+const inputHintStyle = {
+  fontWeight: 600,
+  color: "#e2e8f0",
 };
 
 const listStyle = {
@@ -221,6 +237,10 @@ const latestSummaryStyle = {
   padding: 18,
   display: "grid",
   gap: 10,
+};
+
+const latestHeadlineStyle = {
+  fontSize: 24,
 };
 
 const summaryHeaderStyle = {

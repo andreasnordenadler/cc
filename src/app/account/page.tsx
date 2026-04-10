@@ -28,18 +28,18 @@ export default async function AccountPage() {
     <main style={shellStyle}>
       <section style={cardStyle}>
         <p style={eyebrowStyle}>Account</p>
-        <h1 style={{ margin: 0 }}>Save your Lichess username</h1>
+        <h1 style={titleStyle}>Save your Lichess username</h1>
         <p style={copyStyle}>
           This is the identity CC will show alongside your challenge submissions.
         </p>
 
         <form action={saveLichessUsername} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
-          <label style={{ display: "grid", gap: 8 }}>
-            <span style={{ fontWeight: 600 }}>Lichess username</span>
-            <input
-              type="text"
-              name="lichessUsername"
-              defaultValue={lichessUsername}
+            <label style={{ display: "grid", gap: 8 }}>
+              <span style={labelStyle}>Lichess username</span>
+              <input
+                type="text"
+                name="lichessUsername"
+                defaultValue={lichessUsername}
               placeholder="e.g. AndreasN"
               style={inputStyle}
             />
@@ -55,7 +55,7 @@ export default async function AccountPage() {
         </p>
 
         <div style={challengeSectionStyle}>
-          <h2 style={{ margin: 0 }}>Active challenge</h2>
+          <h2 style={sectionTitleStyle}>Active challenge</h2>
           {activeChallenge ? (
             <>
               <p style={copyStyle}>
@@ -72,7 +72,7 @@ export default async function AccountPage() {
         </div>
 
         <div style={historyStyle}>
-          <h2 style={{ margin: 0 }}>Recent submissions</h2>
+          <h2 style={sectionTitleStyle}>Recent submissions</h2>
           {attempts.length ? (
             <ul style={historyListStyle}>
               {attempts.map((attempt) => {
@@ -126,6 +126,22 @@ const eyebrowStyle = {
   textTransform: "uppercase" as const,
   letterSpacing: "0.12em",
   fontSize: 12,
+};
+
+const titleStyle = {
+  margin: 0,
+  fontSize: "clamp(1.8rem, 5vw, 2.2rem)",
+  letterSpacing: "-0.02em",
+};
+
+const sectionTitleStyle = {
+  margin: 0,
+  fontSize: "1.3rem",
+};
+
+const labelStyle = {
+  fontWeight: 600,
+  color: "#e2e8f0",
 };
 
 const copyStyle = {
