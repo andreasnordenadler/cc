@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-09 22:03 Europe/Stockholm
+Last updated: 2026-04-10 09:38 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -51,6 +51,19 @@ Execution canon:
   - Acceptance: the active CC route loop is verified on the actual deployed surface, not only locally.
   - Verification for completion: committed artifact with exact live URL and route verdicts.
   - Proof: `docs/LIVE_ROUTE_CHECK_2026-04-09.md` created and verified locally on 2026-04-09 (`test -f docs/LIVE_ROUTE_CHECK_2026-04-09.md`); live check recorded exact production URL and found `/account` returning 404 while `/`, `/challenges`, and `/challenges/mate-in-one` returned 200.
+- [x] Fix the live `/account` route so the signed-in account/settings step works on the production deployment.
+  - estimate: 1 focused run
+  - Acceptance: `/account` returns 200 on the active live deployment and supports the v0 loop instead of 404ing.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build` + live verification.
+  - Proof: verified on 2026-04-10 that `https://cc-andreas-nordenadlers-projects.vercel.app/account` returns 200 and redirects unauthenticated users into Clerk sign-in instead of 404ing; recorded proof in `docs/ACCOUNT_ROUTE_FIX_2026-04-10.md` and re-ran `pnpm lint` plus `pnpm build`.
+- [ ] Re-run the CC live route check after the `/account` fix and update `cc/docs/LIVE_ROUTE_CHECK_2026-04-09.md` with the new verdict.
+  - estimate: 1 focused run
+  - Acceptance: the artifact records the checked live URL and confirms whether `/`, `/challenges`, `/challenges/[id]`, and `/account` all work end to end.
+  - Verification for completion: committed artifact update with exact live URL and verdicts.
+- [ ] Add one clear post-submission result summary on the challenge detail route so users can understand their latest attempt state at a glance.
+  - estimate: 1 focused run
+  - Acceptance: after submitting a game ID, the challenge detail route shows a compact result summary with current status and latest attempt context.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
 
 ## Proof rule
 
