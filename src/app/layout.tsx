@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CC — Chess Challenge",
-  description: "CC is a chess challenge platform about winning for the wrong reasons.",
+  title: "CC",
+  description: "Play a real Lichess game and track challenge progress.",
 };
 
 export default function RootLayout({
