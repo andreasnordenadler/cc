@@ -4,6 +4,8 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { startChallenge, submitChallengeAttempt } from "@/app/actions";
 import { getChallengeById } from "@/lib/challenges";
 import {
+  buildAttemptSummary,
+  formatAttemptStatus,
   formatTime,
   getActiveChallenge,
   getChallengeAttempts,
@@ -35,6 +37,7 @@ export default async function ChallengeDetailPage({
   const latestAttempt = attempts[0] ?? getLatestChallengeAttempt(metadata, challenge.id);
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
+  const latestAttemptSummary = buildAttemptSummary(latestAttempt);
 
   return (
     <main style={shellStyle}>
@@ -86,17 +89,18 @@ export default async function ChallengeDetailPage({
                 </button>
               </form>
 
-              <div style={statusBoxStyle}>
-                <strong>Status</strong>
+              <div style={latestSummaryStyle}>
+                <div style={summaryHeaderStyle}>
+                  <span style={summaryEyebrowStyle}>Latest attempt</span>
+                  <span style={statusPillStyle}>{formatAttemptStatus(latestAttempt?.status)}</span>
+                </div>
+                <strong style={{ fontSize: 24 }}>{latestAttemptSummary.headline}</strong>
+                <p style={copyStyle}>{latestAttemptSummary.detail}</p>
+                <p style={metaStyle}>{latestAttemptSummary.meta}</p>
                 <p style={copyStyle}>
                   {isActive
-                    ? `Current state: ${activeChallenge?.status ?? "accepted"}`
+                    ? `Challenge state: ${formatAttemptStatus(activeChallenge?.status ?? "accepted")}`
                     : "This challenge is not active yet."}
-                </p>
-                <p style={copyStyle}>
-                  {latestAttempt
-                    ? `${latestAttempt.summary} Last checked ${formatTime(latestAttempt.checkedAt)}.`
-                    : "No attempt submitted yet. This v0 flow stores a pending/manual-review placeholder after submission."}
                 </p>
               </div>
 
@@ -208,6 +212,41 @@ const statusBoxStyle = {
   padding: 16,
   display: "grid",
   gap: 8,
+};
+
+const latestSummaryStyle = {
+  borderRadius: 22,
+  border: "1px solid rgba(96,165,250,0.28)",
+  background: "linear-gradient(180deg, rgba(30,41,59,0.92) 0%, rgba(15,23,42,0.88) 100%)",
+  padding: 18,
+  display: "grid",
+  gap: 10,
+};
+
+const summaryHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between" as const,
+  gap: 12,
+  alignItems: "center" as const,
+  flexWrap: "wrap" as const,
+};
+
+const summaryEyebrowStyle = {
+  color: "#93c5fd",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.12em",
+  fontSize: 12,
+  fontWeight: 700,
+};
+
+const statusPillStyle = {
+  borderRadius: 999,
+  padding: "6px 10px",
+  background: "rgba(59,130,246,0.16)",
+  border: "1px solid rgba(59,130,246,0.32)",
+  color: "#dbeafe",
+  fontSize: 13,
+  fontWeight: 700,
 };
 
 const metaStyle = {

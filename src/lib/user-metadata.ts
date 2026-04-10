@@ -155,6 +155,44 @@ export function formatChallengeId(id: string): string {
     .join(" ");
 }
 
+export function formatAttemptStatus(status?: string): string {
+  if (!status) {
+    return "Pending review";
+  }
+
+  if (status === "pending") {
+    return "Pending review";
+  }
+
+  return status
+    .split(/[-_\s]+/)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(" ");
+}
+
+export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
+  headline: string;
+  detail: string;
+  meta: string;
+} {
+  if (!attempt) {
+    return {
+      headline: "No attempt submitted yet",
+      detail: "Submit a finished Lichess game to create your first review record.",
+      meta: "No latest attempt yet",
+    };
+  }
+
+  const statusLabel = formatAttemptStatus(attempt.status);
+  const gameLabel = attempt.gameId ? `Game ${attempt.gameId}` : "Game ID missing";
+
+  return {
+    headline: statusLabel,
+    detail: attempt.summary ?? "Latest attempt saved.",
+    meta: `${gameLabel} • Updated ${formatTime(attempt.checkedAt)}`,
+  };
+}
+
 export function formatTime(value?: string): string {
   if (!value) {
     return "just now";

@@ -61,10 +61,11 @@ Execution canon:
   - Acceptance: the artifact records the checked live URL and confirms whether `/`, `/challenges`, `/challenges/[id]`, and `/account` all work end to end.
   - Verification for completion: committed artifact update with exact live URL and verdicts.
   - Proof: updated `docs/LIVE_ROUTE_CHECK_2026-04-09.md` on 2026-04-10 after re-checking `https://cc-andreas-nordenadlers-projects.vercel.app` with `curl -L`; `/`, `/challenges`, and `/challenges/mate-in-one` returned 200 while `/account` returned 404.
-- [ ] Add one clear post-submission result summary on the challenge detail route so users can understand their latest attempt state at a glance.
+- [x] Add one clear post-submission result summary on the challenge detail route so users can understand their latest attempt state at a glance.
   - estimate: 1 focused run
   - Acceptance: after submitting a game ID, the challenge detail route shows a compact result summary with current status and latest attempt context.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+  - Proof: added a dedicated latest-attempt summary card on `src/app/challenges/[id]/page.tsx` backed by shared attempt-summary helpers in `src/lib/user-metadata.ts`; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
 
 ## Proof rule
 
