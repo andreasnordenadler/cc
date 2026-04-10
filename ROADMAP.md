@@ -97,6 +97,11 @@ Execution canon:
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - 2026-04-10: Added an "Active challenge" card on `/account` with current active challenge title, status banner text, and direct resume link for active runs; otherwise shows a calm no-active fallback line.
   - Proof: `pnpm lint` ✅, `pnpm build` ✅, commit `8c5cae7`.
+- [x] Write a one-page live `/account` blocker handoff note in `cc/docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact states the exact blocker, the exact docs Andreas should use, and the single unblock condition that should trigger the queued live re-check.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md`.
 - [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
