@@ -34,7 +34,7 @@ export default async function Home() {
       style={{
         minHeight: "100vh",
         padding: "clamp(20px, 3vw, 36px)",
-        background: "#0b1020",
+        background: "#0a0f1f",
         color: "#f8fafc",
       }}
     >
@@ -50,8 +50,7 @@ export default async function Home() {
         <header
           style={{
             border: "1px solid rgba(148,163,184,0.22)",
-            background: "rgba(15,23,42,0.72)",
-            backdropFilter: "blur(14px)",
+            background: "#111827",
             borderRadius: 28,
             padding: "24px",
             display: "flex",
@@ -128,10 +127,8 @@ export default async function Home() {
           style={{
             borderRadius: 28,
             border: "1px solid rgba(148,163,184,0.22)",
-            background: "rgba(15,23,42,0.72)",
-            backdropFilter: "blur(14px)",
+            background: "#111827",
             padding: "26px",
-            boxShadow: "0 30px 80px rgba(2,6,23,0.45)",
             display: "grid",
             gap: 14,
           }}
@@ -173,7 +170,7 @@ export default async function Home() {
                 style={{
                   borderRadius: 18,
                   border: "1px solid rgba(148,163,184,0.2)",
-                  background: "rgba(15,23,42,0.58)",
+                  background: "#1f2937",
                   padding: 14,
                 }}
               >
@@ -201,7 +198,7 @@ export default async function Home() {
                 style={{
                   borderRadius: 18,
                   border: "1px solid rgba(148,163,184,0.2)",
-                  background: "rgba(15,23,42,0.58)",
+                  background: "#1f2937",
                   padding: 14,
                 }}
               >
@@ -264,7 +261,8 @@ export default async function Home() {
                 style={{
                   borderRadius: 18,
                   border: "1px solid rgba(251,191,36,0.3)",
-                  background: "rgba(120,53,15,0.25)",
+                  background: "#1f2937",
+                  borderColor: "#ca8a04",
                   padding: 14,
                 }}
               >
@@ -285,7 +283,7 @@ export default async function Home() {
                 style={{
                   borderRadius: 18,
                   border: "1px solid rgba(148,163,184,0.2)",
-                  background: "rgba(15,23,42,0.58)",
+                  background: "#1f2937",
                   padding: 14,
                 }}
               >
@@ -309,7 +307,7 @@ export default async function Home() {
           style={{
             borderRadius: 28,
             border: "1px solid rgba(148,163,184,0.22)",
-            background: "rgba(15,23,42,0.72)",
+            background: "#111827",
             padding: "24px",
             display: "grid",
             gap: 16,

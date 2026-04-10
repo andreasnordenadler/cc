@@ -104,7 +104,7 @@ export default async function AccountPage() {
 const shellStyle = {
   minHeight: "100vh",
   padding: "clamp(20px, 3vw, 36px)",
-  background: "#0b1020",
+  background: "#0a0f1f",
   color: "#f8fafc",
 };
 
@@ -114,7 +114,7 @@ const cardStyle = {
   margin: "0 auto",
   borderRadius: 28,
   border: "1px solid rgba(148,163,184,0.22)",
-  background: "rgba(15,23,42,0.78)",
+  background: "#111827",
   padding: 24,
   display: "grid",
   gap: 16,
@@ -137,7 +137,7 @@ const copyStyle = {
 const inputStyle = {
   borderRadius: 14,
   border: "1px solid rgba(148,163,184,0.22)",
-  background: "rgba(15,23,42,0.7)",
+  background: "#1f2937",
   color: "#f8fafc",
   padding: "12px 14px",
 };
@@ -145,7 +145,7 @@ const inputStyle = {
 const buttonStyle = {
   borderRadius: 999,
   border: "1px solid rgba(59,130,246,0.32)",
-  background: "rgba(59,130,246,0.16)",
+  background: "#1e3a8a",
   color: "#dbeafe",
   padding: "12px 18px",
   fontWeight: 600,
@@ -179,7 +179,7 @@ const historyListStyle = {
 const historyItemStyle = {
   borderRadius: 18,
   border: "1px solid rgba(148,163,184,0.18)",
-  background: "rgba(15,23,42,0.48)",
+  background: "#1f2937",
   padding: 16,
   display: "flex",
   gap: 12,
