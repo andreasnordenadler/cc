@@ -3,7 +3,13 @@
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
-import { getLichessUsername, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
+import { verifyFinishAnyGameAttempt } from "@/lib/lichess";
+import {
+  getChallengeProgress,
+  getLichessUsername,
+  type ChallengeAttempt,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 function assertUserId(userId: string | null): string {
   if (!userId) {
@@ -92,14 +98,34 @@ export async function submitChallengeAttempt(formData: FormData) {
   const gameId = rawGameId.replace(/^https?:\/\/lichess\.org\//, "").replace(/\/.*/, "");
   const now = new Date().toISOString();
 
+  const progress = getChallengeProgress(metadata);
+  const existingActiveChallenge =
+    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+      ? (metadata.activeChallenge as { startedAt?: string })
+      : null;
+  const verification =
+    challenge.id === "finish-any-game"
+      ? await verifyFinishAnyGameAttempt({ gameId, lichessUsername })
+      : {
+          status: "pending" as const,
+          summary: lichessUsername
+            ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
+            : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
+        };
+  const completedChallengeIds =
+    verification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
+      ? [...progress.completedChallengeIds, challenge.id]
+      : progress.completedChallengeIds;
+
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
       activeChallenge: {
         id: challenge.id,
-        status: "pending",
-        startedAt: now,
+        status: verification.status === "passed" ? "verified" : verification.status,
+        startedAt: existingActiveChallenge?.startedAt ?? now,
+        verifiedAt: verification.status === "passed" ? now : undefined,
       },
       challengeAttempts: [
         ...existingAttempts,
@@ -107,14 +133,19 @@ export async function submitChallengeAttempt(formData: FormData) {
           id: `${challenge.id}:${now}`,
           challengeId: challenge.id,
           gameId,
-          status: "pending",
-          summary: lichessUsername
-            ? `Submitted ${gameId} for ${lichessUsername}. Manual review placeholder is active.`
-            : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
+          status: verification.status,
+          summary: verification.summary,
           checkedAt: now,
         },
       ],
-      challengeProgress: metadata.challengeProgress,
+      challengeProgress: {
+        completedChallengeIds,
+        totalCompletedChallenges: completedChallengeIds.length,
+        totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
+          const completedChallenge = getChallengeById(id);
+          return sum + (completedChallenge?.reward ?? 0);
+        }, 0),
+      },
     },
   });
 
