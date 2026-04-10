@@ -7,7 +7,7 @@ export type Challenge = {
   reward: number;
   requirement: {
     side: "white" | "black" | "either";
-    result: "win" | "finish" | "draw";
+    result: "win" | "finish" | "draw" | "lose";
   };
 };
 
@@ -121,6 +121,20 @@ export const CHALLENGES: Challenge[] = [
     requirement: {
       side: "black",
       result: "draw",
+    },
+  },
+  {
+    id: "lose-any-game",
+    title: "Lose Any Game",
+    objective: "Finish and submit one lost game where your public Lichess account appears.",
+    instruction:
+      "Play a real Lichess game, finish it with a loss, and return with the game ID.",
+    reward: 125,
+    openingHint:
+      "This adds one narrow loss check using the same finished-game, identity, and winner evidence already in the verifier path.",
+    requirement: {
+      side: "either",
+      result: "lose",
     },
   },
 ];

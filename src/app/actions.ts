@@ -10,6 +10,7 @@ import {
   verifyFinishAnyGameAttempt,
   verifyFinishAsBlackAttempt,
   verifyFinishAsWhiteAttempt,
+  verifyLoseAnyGameAttempt,
   verifyWinAsBlackAttempt,
   verifyWinAsWhiteAttempt,
 } from "@/lib/lichess";
@@ -129,7 +130,9 @@ export async function submitChallengeAttempt(formData: FormData) {
                   ? await verifyDrawAsWhiteAttempt({ gameId, lichessUsername })
                   : challenge.id === "draw-as-black"
                     ? await verifyDrawAsBlackAttempt({ gameId, lichessUsername })
-                    : {
+                    : challenge.id === "lose-any-game"
+                      ? await verifyLoseAnyGameAttempt({ gameId, lichessUsername })
+                      : {
                       status: "pending" as const,
                       summary: lichessUsername
                         ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`

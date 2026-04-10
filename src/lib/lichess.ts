@@ -259,6 +259,86 @@ export async function verifyDrawAsBlackAttempt({
   return verifyDrawAttempt({ gameId, lichessUsername, requiredSide: "black" });
 }
 
+async function verifyLoseAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  if (!lichessUsername) {
+    return {
+      status: "pending",
+      summary:
+        "Submitted game saved, but no Lichess username is stored yet. Add it in account settings so verification can finish.",
+    };
+  }
+
+  try {
+    const game = await fetchLichessGame(gameId);
+
+    if (!game) {
+      return {
+        status: "pending",
+        summary: `Submitted ${gameId}, but Lichess verification is temporarily unavailable.`,
+      };
+    }
+
+    const { whiteName, blackName } = getPlayerNames(game);
+    const normalizedUsername = lichessUsername.trim().toLowerCase();
+
+    if (whiteName !== normalizedUsername && blackName !== normalizedUsername) {
+      return {
+        status: "failed",
+        summary: `Submitted ${gameId}, but saved username ${lichessUsername} does not appear in that finished game.`,
+      };
+    }
+
+    if (!game.status || OPEN_GAME_STATUSES.has(game.status)) {
+      return {
+        status: "pending",
+        summary: `Submitted ${gameId}. The Lichess game is not finished yet, so loss verification is still pending.`,
+      };
+    }
+
+    if (!game.winner) {
+      return {
+        status: "failed",
+        summary: `Submitted ${gameId}. ${lichessUsername} appears in that finished game, but it did not end with a winner, so this loss challenge failed.`,
+      };
+    }
+
+    const actualSide = whiteName === normalizedUsername ? "white" : "black";
+
+    if (game.winner === actualSide) {
+      return {
+        status: "failed",
+        summary: `Submitted ${gameId}. ${lichessUsername} appears in that finished game, but their side won instead of lost.`,
+      };
+    }
+
+    return {
+      status: "passed",
+      summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss challenge passed.`,
+    };
+  } catch {
+    return {
+      status: "pending",
+      summary: `Submitted ${gameId}, but Lichess verification could not complete right now. Try again later if this stays pending.`,
+    };
+  }
+}
+
+export async function verifyLoseAnyGameAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  return verifyLoseAttempt({ gameId, lichessUsername });
+}
+
 async function verifyWinAttempt({
   gameId,
   lichessUsername,
