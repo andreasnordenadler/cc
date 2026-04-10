@@ -7,7 +7,7 @@ export type Challenge = {
   reward: number;
   requirement: {
     side: "white" | "black" | "either";
-    result: "win" | "finish";
+    result: "win" | "finish" | "draw";
   };
 };
 
@@ -79,6 +79,20 @@ export const CHALLENGES: Challenge[] = [
     requirement: {
       side: "black",
       result: "win",
+    },
+  },
+  {
+    id: "draw-any-game",
+    title: "Draw Any Game",
+    objective: "Finish and submit one drawn game where your public Lichess account appears.",
+    instruction:
+      "Play a real Lichess game, finish it as a draw, and return with the game ID.",
+    reward: 110,
+    openingHint:
+      "This is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic.",
+    requirement: {
+      side: "either",
+      result: "draw",
     },
   },
 ];

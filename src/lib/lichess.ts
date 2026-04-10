@@ -148,6 +148,67 @@ export async function verifyFinishAsBlackAttempt({
   return verifyFinishAttempt({ gameId, lichessUsername, requiredSide: "black" });
 }
 
+export async function verifyDrawAnyGameAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  if (!lichessUsername) {
+    return {
+      status: "pending",
+      summary:
+        "Submitted game saved, but no Lichess username is stored yet. Add it in account settings so verification can finish.",
+    };
+  }
+
+  try {
+    const game = await fetchLichessGame(gameId);
+
+    if (!game) {
+      return {
+        status: "pending",
+        summary: `Submitted ${gameId}, but Lichess verification is temporarily unavailable.`,
+      };
+    }
+
+    const { whiteName, blackName } = getPlayerNames(game);
+    const normalizedUsername = lichessUsername.trim().toLowerCase();
+
+    if (whiteName !== normalizedUsername && blackName !== normalizedUsername) {
+      return {
+        status: "failed",
+        summary: `Submitted ${gameId}, but saved username ${lichessUsername} does not appear in that finished game.`,
+      };
+    }
+
+    if (!game.status || OPEN_GAME_STATUSES.has(game.status)) {
+      return {
+        status: "pending",
+        summary: `Submitted ${gameId}. The Lichess game is not finished yet, so draw verification is still pending.`,
+      };
+    }
+
+    if (game.winner) {
+      return {
+        status: "failed",
+        summary: `Submitted ${gameId}. ${lichessUsername} appears in that finished game, but it did not end in a draw.`,
+      };
+    }
+
+    return {
+      status: "passed",
+      summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game with no winning side, so this draw challenge passed.`,
+    };
+  } catch {
+    return {
+      status: "pending",
+      summary: `Submitted ${gameId}, but Lichess verification could not complete right now. Try again later if this stays pending.`,
+    };
+  }
+}
+
 async function verifyWinAttempt({
   gameId,
   lichessUsername,

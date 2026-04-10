@@ -4,6 +4,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
 import {
+  verifyDrawAnyGameAttempt,
   verifyFinishAnyGameAttempt,
   verifyFinishAsBlackAttempt,
   verifyFinishAsWhiteAttempt,
@@ -120,7 +121,9 @@ export async function submitChallengeAttempt(formData: FormData) {
             ? await verifyWinAsWhiteAttempt({ gameId, lichessUsername })
             : challenge.id === "win-as-black"
               ? await verifyWinAsBlackAttempt({ gameId, lichessUsername })
-              : {
+              : challenge.id === "draw-any-game"
+                ? await verifyDrawAnyGameAttempt({ gameId, lichessUsername })
+                : {
                   status: "pending" as const,
                   summary: lichessUsername
                     ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
