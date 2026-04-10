@@ -3,7 +3,7 @@
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
-import { verifyFinishAnyGameAttempt } from "@/lib/lichess";
+import { verifyFinishAnyGameAttempt, verifyWinAsWhiteAttempt } from "@/lib/lichess";
 import {
   getChallengeProgress,
   getLichessUsername,
@@ -106,12 +106,14 @@ export async function submitChallengeAttempt(formData: FormData) {
   const verification =
     challenge.id === "finish-any-game"
       ? await verifyFinishAnyGameAttempt({ gameId, lichessUsername })
-      : {
-          status: "pending" as const,
-          summary: lichessUsername
-            ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
-            : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
-        };
+      : challenge.id === "win-as-white"
+        ? await verifyWinAsWhiteAttempt({ gameId, lichessUsername })
+        : {
+            status: "pending" as const,
+            summary: lichessUsername
+              ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
+              : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
+          };
   const completedChallengeIds =
     verification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
       ? [...progress.completedChallengeIds, challenge.id]
