@@ -58,6 +58,28 @@ This is the most likely cause of the live `/account` protection failure. The rou
 
 Replace the Vercel production Clerk keys with the intended live Clerk instance values, redeploy, and then re-run the live `/account` route check.
 
+## Follow-up re-check at 2026-04-10 11:35 Europe/Stockholm
+
+The requested post-cutover re-check is currently blocked because the Clerk production cutover has **not** happened yet.
+
+### Fresh evidence
+
+From `npx vercel env pull --yes --environment=production .env.production.autopilot-check` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2hhbXBpb24taGFnZmlzaC0xMy5jbGVyay5hY2NvdW50cy5kZXYk"`
+- `CLERK_SECRET_KEY="sk_test_qYlQRLWzNfUUF7O8LIDYZPTAsLapcvJtogZg1oHoho"`
+
+From `curl -I -L https://cc-andreas-nordenadlers-projects.vercel.app/account` on 2026-04-10:
+
+- `HTTP/2 404`
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-clerk-auth-status: signed-out`
+- `x-matched-path: /404`
+
+### Current blocker verdict
+
+The live deployment is still using Clerk test/dev keys, so the post-cutover acceptance check cannot be completed honestly in this run. This roadmap item must remain open until the Vercel Production Clerk keys are replaced and the site is redeployed.
+
 ## Verification note
 
-Artifact created and verified locally on 2026-04-10 with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
+Artifact updated and verified locally on 2026-04-10 with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
