@@ -38,7 +38,7 @@ export default async function ChallengesPage() {
           <p style={eyebrowStyle}>Challenges</p>
           <h1 style={titleStyle}>Pick a real game challenge</h1>
           <p style={copyStyle}>
-            Start with one simple run, then come back with a Lichess game ID.
+            Start with one simple run, then come back with a Lichess game ID or Chess.com game URL.
           </p>
         </div>
 

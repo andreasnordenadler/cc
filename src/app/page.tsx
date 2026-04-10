@@ -8,6 +8,7 @@ import {
   formatChallengeId,
   getActiveChallenge,
   getChallengeProgress,
+  getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
   type ActiveChallenge,
@@ -25,6 +26,7 @@ export default async function Home() {
     : {};
 
   const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const latestAttempt = getLatestChallengeAttempt(metadata, activeChallenge?.id);
   const progress = getChallengeProgress(metadata);
@@ -42,7 +44,7 @@ export default async function Home() {
         >
           <div>
             <h1 style={heroTitleStyle}>
-              Your next chess challenge starts with your real Lichess game.
+              Your next chess challenge starts with your real game on Lichess or Chess.com.
             </h1>
 
             <p style={heroCopyStyle}>
@@ -64,7 +66,7 @@ export default async function Home() {
 
         <section style={workAreaStyle}>
           <p style={sectionLeadStyle}>
-            Play a real, complete Lichess game and come back to check your result.
+            Play a real, complete game on Lichess or Chess.com and come back to check your result.
           </p>
 
           <h2 style={sectionTitleStyle}>How it works</h2>
@@ -80,10 +82,10 @@ export default async function Home() {
             }}
           >
             <li>
-              Sign in and save your Lichess username in your account.
+              Sign in and save your Lichess and/or Chess.com username in your account.
             </li>
             <li>Pick a challenge (e.g., win as White or finish any game).</li>
-            <li>Play that game on Lichess and return here to verify automatically.</li>
+            <li>Play that game on Lichess or Chess.com and return here to verify automatically.</li>
             <li>Retry until the check passes and move to the next challenge.</li>
           </ol>
 
@@ -98,16 +100,18 @@ export default async function Home() {
             >
               <div style={metricCardStyle}>
                 <div style={metricLabelStyle}>
-                  Lichess identity
+                  Chess identities
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 700 }}>
-                  {lichessUsername || "Not set yet"}
+                  {lichessUsername || chessComUsername
+                    ? [lichessUsername, chessComUsername].filter(Boolean).join(" • ")
+                    : "Not set yet"}
                 </div>
                 <Link
                   href="/account"
                   style={inlineLinkStyle}
                 >
-                  {lichessUsername ? "Update identity" : "Add your username"}
+                  {lichessUsername || chessComUsername ? "Update identities" : "Add your usernames"}
                 </Link>
               </div>
 
@@ -183,7 +187,7 @@ export default async function Home() {
         >
           <h2 style={sectionTitleStyle}>Get started</h2>
           <p style={getStartedCopyStyle}>
-            This page is for you: sign in, save your username, start a challenge,
+            This page is for you: sign in, save your usernames, start a challenge,
             and let CC verify against your latest completed games.
           </p>
 

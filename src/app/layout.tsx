@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Chess",
-  description: "Play a real Lichess game and track challenge progress.",
+  description: "Play real games on Lichess or Chess.com and track challenge progress.",
 };
 
 export default function RootLayout({
