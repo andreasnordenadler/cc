@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CC",
+  title: "Chess",
   description: "Play a real Lichess game and track challenge progress.",
 };
 

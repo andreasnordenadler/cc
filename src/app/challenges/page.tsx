@@ -61,7 +61,7 @@ export default async function ChallengesPage() {
             <p style={summaryCopyStyle}>
               {currentChallenge
                 ? challengeBanner(activeChallenge)
-                : "Start one challenge so CC can track your active run clearly."}
+                : "Start one challenge so your active run is tracked clearly."}
             </p>
           </article>
 

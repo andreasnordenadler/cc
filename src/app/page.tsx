@@ -41,16 +41,12 @@ export default async function Home() {
           style={heroCardStyle}
         >
           <div>
-            <p style={eyebrowStyle}>
-              CC
-            </p>
-
             <h1 style={heroTitleStyle}>
               Your next chess challenge starts with your real Lichess game.
             </h1>
 
             <p style={heroCopyStyle}>
-              CC is a chess challenge platform about winning for the wrong reasons.
+              Play real games, verify the result automatically, and track your progress clearly.
             </p>
           </div>
 
@@ -247,22 +243,6 @@ const heroCardStyle = {
   alignItems: "center",
   gap: 16,
   flexWrap: "wrap" as const,
-};
-
-const eyebrowStyle = {
-  margin: 0,
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 10,
-  borderRadius: 999,
-  padding: "8px 14px",
-  background: "#1d4ed8",
-  border: "1px solid rgba(96,165,250,0.35)",
-  fontSize: 12,
-  letterSpacing: "0.12em",
-  textTransform: "uppercase",
-  color: "#dbeafe",
-  fontWeight: 700,
 };
 
 const heroTitleStyle = {

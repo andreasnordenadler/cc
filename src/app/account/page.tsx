@@ -34,7 +34,7 @@ export default async function AccountPage() {
         <p style={eyebrowStyle}>Account</p>
         <h1 style={titleStyle}>Save your Lichess username</h1>
         <p style={copyStyle}>
-          This is the identity CC will show alongside your challenge submissions.
+          This is the identity shown alongside your challenge submissions.
         </p>
 
         <form action={saveLichessUsername} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
