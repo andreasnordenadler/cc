@@ -103,6 +103,29 @@ From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel
 
 No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
 
+## Follow-up re-check at 2026-04-10 13:15 Europe/Stockholm
+
+The blocker still has not cleared.
+
+### Fresh evidence
+
+From `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2hhbXBpb24taGFnZmlzaC0xMy5jbGVyay5hY2NvdW50cy5kZXYk"`
+- `CLERK_SECRET_KEY="sk_test_qYlQRLWzNfUUF7O8LIDYZPTAsLapcvJtogZg1oHoho"`
+
+From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` on 2026-04-10:
+
+- `HTTP/2 404`
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-clerk-auth-status: signed-out`
+- `x-matched-path: /404`
+- `x-vercel-cache: HIT`
+
+### Current blocker verdict
+
+No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
+
 ## Verification note
 
 Artifact updated and verified locally on 2026-04-10 with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
