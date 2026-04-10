@@ -2,8 +2,10 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import { saveLichessUsername } from "@/app/actions";
 import {
+  challengeBanner,
   formatChallengeId,
   formatTime,
+  getActiveChallenge,
   getChallengeAttempts,
   getLichessUsername,
   type UserMetadataRecord,
@@ -15,7 +17,12 @@ export default async function AccountPage() {
     ? (user.publicMetadata as UserMetadataRecord)
     : {};
   const lichessUsername = getLichessUsername(metadata);
+  const activeChallenge = getActiveChallenge(metadata);
   const attempts = getChallengeAttempts(metadata).slice().reverse();
+  const activeChallengeLabel = activeChallenge
+    ? formatChallengeId(activeChallenge.id)
+    : null;
+  const activeChallengeBanner = challengeBanner(activeChallenge);
 
   return (
     <main style={shellStyle}>
@@ -46,6 +53,23 @@ export default async function AccountPage() {
         <p style={metaStyle}>
           Current value: {lichessUsername || "not set yet"}
         </p>
+
+        <div style={challengeSectionStyle}>
+          <h2 style={{ margin: 0 }}>Active challenge</h2>
+          {activeChallenge ? (
+            <>
+              <p style={copyStyle}>
+                <strong style={{ color: "#dbeafe" }}>Continue:</strong> {activeChallengeLabel}
+              </p>
+              <p style={metaStyle}>{activeChallengeBanner}</p>
+              <a href={`/challenges/${activeChallenge.id}`} style={buttonStyle}>
+                Open challenge
+              </a>
+            </>
+          ) : (
+            <p style={copyStyle}>No active challenge currently tracked. Choose one from the challenge list.</p>
+          )}
+        </div>
 
         <div style={historyStyle}>
           <h2 style={{ margin: 0 }}>Recent submissions</h2>
@@ -126,6 +150,11 @@ const buttonStyle = {
   padding: "12px 18px",
   fontWeight: 600,
   cursor: "pointer",
+};
+
+const challengeSectionStyle = {
+  display: "grid",
+  gap: 8,
 };
 
 const metaStyle = {

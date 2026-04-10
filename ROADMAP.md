@@ -91,6 +91,10 @@ Execution canon:
   - Acceptance: artifact names the first challenge to automate, the exact verification boundary, and the explicit deferrals that keep the slice reviewable.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/LICHESS_VERIFICATION_SLICE_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/LICHESS_VERIFICATION_SLICE_2026-04-10.md`.
+- [ ] Add an account-level active-challenge continuation card on `/account` so returning users can continue their current run without navigating away.
+  - estimate: 1 focused run
+  - Acceptance: signed-in `/account` shows the active challenge context with a clear resume action when present, and explicitly states when no active challenge is running.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
 - [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
