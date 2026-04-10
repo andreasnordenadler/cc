@@ -29,6 +29,9 @@ export default async function Home() {
   const latestAttempt = getLatestChallengeAttempt(metadata, activeChallenge?.id);
   const progress = getChallengeProgress(metadata);
   const nextChallenge = getNextChallenge(activeChallenge, progress);
+  const completedSet = new Set(progress.completedChallengeIds);
+  const currentChallenge = activeChallenge?.id ? getChallengeById(activeChallenge.id) ?? null : null;
+  const latestCompletedChallenge = [...CHALLENGES].reverse().find((challenge) => completedSet.has(challenge.id)) ?? null;
 
   return (
     <main style={pageStyle}>
@@ -112,67 +115,57 @@ export default async function Home() {
                 </Link>
               </div>
 
-              <div
-                style={metricCardStyle}
-              >
+              <div style={metricCardStyle}>
                 <div style={metricLabelStyle}>
-                  Current challenge
+                  Journey status
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>
-                  {activeChallenge?.id ? formatChallengeId(activeChallenge.id) : "No challenge started"}
+                  {currentChallenge ? formatChallengeId(currentChallenge.id) : "No active challenge"}
                 </div>
-                <div style={{ color: activeChallenge ? "#e2e8f0" : "#94a3b8", fontSize: 14 }}>
-                  {challengeBanner(activeChallenge)}
+                <div style={{ color: currentChallenge ? "#e2e8f0" : "#94a3b8", fontSize: 14 }}>
+                  {currentChallenge
+                    ? challengeBanner(activeChallenge)
+                    : "Choose a challenge to begin your tracked run."}
+                </div>
+
+                <div style={journeyListStyle}>
+                  <div style={journeyRowStyle}>
+                    <span style={journeyKeyStyle}>Completed</span>
+                    <span>{progress.totalCompletedChallenges}</span>
+                  </div>
+                  <div style={journeyRowStyle}>
+                    <span style={journeyKeyStyle}>Points</span>
+                    <span>{progress.totalRewardPoints}</span>
+                  </div>
+                  <div style={journeyRowStyle}>
+                    <span style={journeyKeyStyle}>Next</span>
+                    <span>{nextChallenge ? formatChallengeId(nextChallenge.id) : "All clear"}</span>
+                  </div>
                 </div>
 
                 <Link
-                  href={activeChallenge?.id ? `/challenges/${activeChallenge.id}` : "/challenges"}
+                  href={currentChallenge ? `/challenges/${currentChallenge.id}` : "/challenges"}
                   style={inlineLinkStyle}
                 >
-                  {activeChallenge?.id ? "Open this challenge" : "Choose a challenge"}
+                  {currentChallenge ? "Continue current challenge" : "Choose a challenge"}
                 </Link>
-
-                {(activeChallenge?.status === "verified" || activeChallenge?.status === "suggested") && nextChallenge ? (
-                  <div
-                    style={{
-                      borderTop: "1px solid rgba(148,163,184,0.18)",
-                      marginTop: 12,
-                      paddingTop: 12,
-                    }}
-                  >
-                    <div style={{ color: "#93c5fd", fontSize: 13, marginBottom: 4 }}>
-                      Next suggestion
-                    </div>
-                    <div style={{ fontWeight: 600, marginBottom: 6 }}>
-                      {formatChallengeId(nextChallenge.id)}
-                    </div>
-                    <Link
-                    href={`/challenges/${nextChallenge.id}`}
-                      style={suggestionLinkStyle}
-                    >
-                      Continue to next challenge
-                    </Link>
-                  </div>
-                ) : null}
               </div>
 
               <div style={progressCardStyle}>
                 <div style={metricLabelStyleYellow}>
-                  Your progress
+                  Completed recently
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 700 }}>
-                  {progress.totalRewardPoints} pts · {progress.totalCompletedChallenges} solved
+                  {latestCompletedChallenge ? latestCompletedChallenge.title : "Nothing completed yet"}
                 </div>
                 <div style={{ color: "#f8fafc", fontSize: 14, marginTop: 6 }}>
-                  {progress.totalCompletedChallenges > 0
-                    ? "Keep going to unlock the next milestone."
-                    : "Start your first challenge to begin earning points."}
+                  {latestCompletedChallenge
+                    ? `${latestCompletedChallenge.reward} pts locked in. Finished challenges stay visible in the challenge list.`
+                    : "Once a challenge passes verification, it will move into the completed section."}
                 </div>
               </div>
 
-              <div
-                style={metricCardStyle}
-              >
+              <div style={metricCardStyle}>
                 <div style={metricLabelStyle}>
                   Latest check
                 </div>
@@ -355,14 +348,24 @@ const inlineLinkStyle = {
   fontSize: 14,
 };
 
-const suggestionLinkStyle = {
-  borderRadius: 999,
-  border: "1px solid rgba(96,165,250,0.32)",
-  background: "#1e3a8a",
-  color: "#93c5fd",
-  textDecoration: "none",
-  padding: "8px 12px",
-  display: "inline-block",
+const journeyListStyle = {
+  marginTop: 12,
+  borderTop: "1px solid rgba(148,163,184,0.18)",
+  paddingTop: 12,
+  display: "grid",
+  gap: 8,
+};
+
+const journeyRowStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  gap: 12,
+  color: "#e2e8f0",
+  fontSize: 14,
+};
+
+const journeyKeyStyle = {
+  color: "#94a3b8",
 };
 
 const getStartedStyle = {

@@ -3,6 +3,8 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
+  challengeBanner,
+  formatChallengeId,
   getActiveChallenge,
   getChallengeProgress,
   type UserMetadataRecord,
@@ -16,6 +18,17 @@ export default async function ChallengesPage() {
     : {};
   const activeChallenge = getActiveChallenge(metadata);
   const progress = getChallengeProgress(metadata);
+  const completedSet = new Set(progress.completedChallengeIds);
+  const currentChallenge = activeChallenge?.id
+    ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
+    : null;
+  const nextChallenge = CHALLENGES.find(
+    (challenge) => !completedSet.has(challenge.id) && challenge.id !== currentChallenge?.id,
+  ) ?? null;
+  const readyChallenges = CHALLENGES.filter(
+    (challenge) => !completedSet.has(challenge.id) && challenge.id !== currentChallenge?.id,
+  );
+  const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
 
   return (
     <main style={shellStyle}>
@@ -29,36 +42,145 @@ export default async function ChallengesPage() {
           </p>
         </div>
 
-        <div style={gridStyle}>
-          {CHALLENGES.map((challenge) => {
-            const isActive = activeChallenge?.id === challenge.id;
-            const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+        <section style={summaryGridStyle}>
+          <article style={summaryCardStyle}>
+            <p style={summaryLabelStyle}>Completed</p>
+            <strong style={summaryValueStyle}>{progress.totalCompletedChallenges}</strong>
+            <p style={summaryCopyStyle}>
+              {progress.totalCompletedChallenges
+                ? `${progress.totalRewardPoints} pts earned across finished challenges.`
+                : "No completions yet. Your first verified game will appear here."}
+            </p>
+          </article>
 
-            return (
-              <article key={challenge.id} style={cardStyle}>
-                <div style={{ display: "grid", gap: 8 }}>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    <span style={pillBlue}>{challenge.requirement.result}</span>
-                    <span style={pillSlate}>{challenge.requirement.side}</span>
-                    {isActive ? <span style={pillGold}>active</span> : null}
-                    {isCompleted ? <span style={pillGreen}>completed</span> : null}
+          <article style={summaryCardStyle}>
+            <p style={summaryLabelStyle}>Current</p>
+            <strong style={summaryValueStyle}>
+              {currentChallenge ? formatChallengeId(currentChallenge.id) : "Nothing active"}
+            </strong>
+            <p style={summaryCopyStyle}>
+              {currentChallenge
+                ? challengeBanner(activeChallenge)
+                : "Start one challenge so CC can track your active run clearly."}
+            </p>
+          </article>
+
+          <article style={summaryCardStyle}>
+            <p style={summaryLabelStyle}>Next</p>
+            <strong style={summaryValueStyle}>
+              {nextChallenge ? formatChallengeId(nextChallenge.id) : "All listed challenges complete"}
+            </strong>
+            <p style={summaryCopyStyle}>
+              {nextChallenge
+                ? nextChallenge.objective
+                : "You have cleared the current challenge set."}
+            </p>
+          </article>
+        </section>
+
+        {currentChallenge ? (
+          <section style={laneStyle}>
+            <div style={laneHeaderStyle}>
+              <div>
+                <p style={laneEyebrowStyle}>Continue now</p>
+                <h2 style={laneTitleStyle}>Current challenge</h2>
+              </div>
+              <span style={pillGold}>active</span>
+            </div>
+            <article style={featuredCardStyle}>
+              <div style={{ display: "grid", gap: 8 }}>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <span style={pillBlue}>{currentChallenge.requirement.result}</span>
+                  <span style={pillSlate}>{currentChallenge.requirement.side}</span>
+                </div>
+                <h3 style={cardTitleStyle}>{currentChallenge.title}</h3>
+                <p style={copyStyle}>{currentChallenge.objective}</p>
+                <p style={hintStyle}>{challengeBanner(activeChallenge)}</p>
+              </div>
+              <div style={cardFooterStyle}>
+                <strong style={rewardStyle}>{currentChallenge.reward} pts</strong>
+                <Link href={`/challenges/${currentChallenge.id}`} style={buttonStyle}>
+                  Continue challenge
+                </Link>
+              </div>
+            </article>
+          </section>
+        ) : null}
+
+        <section style={laneStyle}>
+          <div style={laneHeaderStyle}>
+            <div>
+              <p style={laneEyebrowStyle}>Ready to start</p>
+              <h2 style={laneTitleStyle}>Available challenges</h2>
+            </div>
+          </div>
+
+          {readyChallenges.length ? (
+            <div style={gridStyle}>
+              {readyChallenges.map((challenge) => (
+                <article key={challenge.id} style={cardStyle}>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <span style={pillBlue}>{challenge.requirement.result}</span>
+                      <span style={pillSlate}>{challenge.requirement.side}</span>
+                    </div>
+
+                    <h3 style={cardTitleStyle}>{challenge.title}</h3>
+                    <p style={copyStyle}>{challenge.objective}</p>
+                    <p style={hintStyle}>{challenge.openingHint}</p>
                   </div>
 
-                  <h2 style={cardTitleStyle}>{challenge.title}</h2>
-                  <p style={copyStyle}>{challenge.objective}</p>
-                  <p style={hintStyle}>{challenge.openingHint}</p>
-                </div>
+                  <div style={cardFooterStyle}>
+                    <strong style={rewardStyle}>{challenge.reward} pts</strong>
+                    <Link href={`/challenges/${challenge.id}`} style={buttonStyle}>
+                      Open challenge
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p style={emptyStateStyle}>No remaining available challenges in this set.</p>
+          )}
+        </section>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                  <strong style={rewardStyle}>{challenge.reward} pts</strong>
-                  <Link href={`/challenges/${challenge.id}`} style={buttonStyle}>
-                    Open challenge
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        <section style={laneStyle}>
+          <div style={laneHeaderStyle}>
+            <div>
+              <p style={laneEyebrowStyle}>Already done</p>
+              <h2 style={laneTitleStyle}>Completed challenges</h2>
+            </div>
+          </div>
+
+          {completedChallenges.length ? (
+            <div style={gridStyle}>
+              {completedChallenges.map((challenge) => (
+                <article key={challenge.id} style={completedCardStyle}>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <span style={pillBlue}>{challenge.requirement.result}</span>
+                      <span style={pillSlate}>{challenge.requirement.side}</span>
+                      <span style={pillGreen}>completed</span>
+                    </div>
+
+                    <h3 style={cardTitleStyle}>{challenge.title}</h3>
+                    <p style={copyStyle}>{challenge.objective}</p>
+                    <p style={hintStyle}>Finished and counted toward your progress total.</p>
+                  </div>
+
+                  <div style={cardFooterStyle}>
+                    <strong style={rewardStyle}>{challenge.reward} pts</strong>
+                    <Link href={`/challenges/${challenge.id}`} style={secondaryButtonStyle}>
+                      View details
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p style={emptyStateStyle}>Completed challenges will collect here after successful verification.</p>
+          )}
+        </section>
       </section>
     </main>
   );
@@ -80,10 +202,60 @@ const sectionStyle = {
   alignContent: "start",
 };
 
+const summaryGridStyle = {
+  display: "grid",
+  gap: 16,
+  gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+};
+
+const summaryCardStyle = {
+  borderRadius: 22,
+  border: "1px solid rgba(148,163,184,0.2)",
+  background: "#111827",
+  padding: 18,
+  display: "grid",
+  gap: 8,
+};
+
 const gridStyle = {
   display: "grid",
   gap: 16,
   gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+};
+
+const laneStyle = {
+  display: "grid",
+  gap: 14,
+};
+
+const laneHeaderStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "end",
+  gap: 12,
+  flexWrap: "wrap" as const,
+};
+
+const laneEyebrowStyle = {
+  margin: 0,
+  color: "#93c5fd",
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.12em",
+  fontSize: 12,
+};
+
+const laneTitleStyle = {
+  margin: "4px 0 0",
+  fontSize: "1.2rem",
+};
+
+const featuredCardStyle = {
+  borderRadius: 24,
+  border: "1px solid rgba(245,158,11,0.28)",
+  background: "#111827",
+  padding: 20,
+  display: "grid",
+  gap: 18,
 };
 
 const cardStyle = {
@@ -93,6 +265,12 @@ const cardStyle = {
   padding: 20,
   display: "grid",
   gap: 18,
+};
+
+const completedCardStyle = {
+  ...cardStyle,
+  border: "1px solid rgba(34,197,94,0.24)",
+  background: "#0f172a",
 };
 
 const titleStyle = {
@@ -126,8 +304,41 @@ const cardTitleStyle = {
   fontSize: "1.25rem",
 };
 
+const summaryLabelStyle = {
+  margin: 0,
+  color: "#93c5fd",
+  fontSize: 13,
+  textTransform: "uppercase" as const,
+  letterSpacing: "0.12em",
+};
+
+const summaryValueStyle = {
+  fontSize: "1.15rem",
+};
+
+const summaryCopyStyle = {
+  margin: 0,
+  color: "#cbd5e1",
+  lineHeight: 1.5,
+  fontSize: 14,
+};
+
 const rewardStyle = {
   fontSize: "1.2rem",
+};
+
+const cardFooterStyle = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  flexWrap: "wrap" as const,
+};
+
+const emptyStateStyle = {
+  margin: 0,
+  color: "#94a3b8",
+  lineHeight: 1.5,
 };
 
 const buttonStyle = {
@@ -138,6 +349,13 @@ const buttonStyle = {
   padding: "10px 14px",
   fontWeight: 600,
   textDecoration: "none",
+};
+
+const secondaryButtonStyle = {
+  ...buttonStyle,
+  background: "#1e293b",
+  borderColor: "rgba(148,163,184,0.3)",
+  color: "#f8fafc",
 };
 
 const pillBlue = {
