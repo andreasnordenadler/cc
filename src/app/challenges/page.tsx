@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
   getActiveChallenge,
@@ -18,6 +19,7 @@ export default async function ChallengesPage() {
 
   return (
     <main style={shellStyle}>
+      <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
       <section style={sectionStyle}>
         <div style={{ display: "grid", gap: 8 }}>
           <p style={eyebrowStyle}>Challenges</p>

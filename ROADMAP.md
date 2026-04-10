@@ -16,6 +16,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Improve CC navigation and button hierarchy across homepage/challenges/account pages.
+  - estimate: 1 focused run
+  - Acceptance: home and challenge routes include a consistent top nav with signed-in/signed-out actions; nested flows gain clear back-links (e.g. challenge detail→list, account→home) and core CTAs follow a consistent button hierarchy, while behavior and routes stay unchanged.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build` + production route checks.
+  - Proof: added `src/components/site-nav.tsx`, updated `src/app/page.tsx`, `src/app/challenges/page.tsx`, `src/app/challenges/[id]/page.tsx`, and `src/app/account/page.tsx`; validated `pnpm lint` and `pnpm build` and production checks on `https://cc-taupe-kappa.vercel.app` for `/`, `/challenges`, and `/challenges/win-as-white` all returned `200` after deploy.
+
 - [x] Define the smallest next verifier-backed challenge expansion after the current fully automated seven-challenge catalog in `cc/docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_5_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact identifies the exact next challenge to add, explains why it is the smallest reviewable post-catalog step from the live seven-challenge state, names the already-available Lichess evidence it reuses, and explicitly defers any broader progression work.

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 import {
   challengeBanner,
@@ -31,6 +32,7 @@ export default async function Home() {
 
   return (
     <main style={pageStyle}>
+      <SiteNav isSignedIn={isSignedIn} active="home" />
       <section style={contentStyle}>
         <header
           style={heroCardStyle}
@@ -55,7 +57,7 @@ export default async function Home() {
                 href="/account"
                 style={accountLinkStyle}
               >
-                Account
+                Your account
               </Link>
             </div>
           ) : null}

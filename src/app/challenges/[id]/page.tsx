@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import SiteNav from "@/components/site-nav";
 import { startChallenge, submitChallengeAttempt } from "@/app/actions";
 import { getChallengeById } from "@/lib/challenges";
 import {
@@ -41,7 +42,12 @@ export default async function ChallengeDetailPage({
 
   return (
     <main style={shellStyle}>
+      <SiteNav isSignedIn={isSignedIn} active="challenges" />
       <section style={sectionStyle}>
+        <Link href="/challenges" style={backLinkStyle}>
+          ← Back to challenge list
+        </Link>
+
         <div style={cardStyle}>
           <p style={eyebrowStyle}>Challenge detail</p>
           <h1 style={titleStyle}>{challenge.title}</h1>
@@ -181,6 +187,13 @@ const copyStyle = {
   margin: 0,
   color: "#cbd5e1",
   lineHeight: 1.5,
+};
+
+const backLinkStyle = {
+  display: "inline-flex",
+  color: "#93c5fd",
+  textDecoration: "none",
+  fontWeight: 500,
 };
 
 const inputHintStyle = {

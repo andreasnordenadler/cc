@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
+import SiteNav from "@/components/site-nav";
 import { saveLichessUsername } from "@/app/actions";
 import {
   challengeBanner,
@@ -26,7 +27,10 @@ export default async function AccountPage() {
 
   return (
     <main style={shellStyle}>
+      <SiteNav isSignedIn={Boolean(user)} active="account" />
       <section style={cardStyle}>
+        <Link href="/" style={backLinkStyle}>← Back to home</Link>
+
         <p style={eyebrowStyle}>Account</p>
         <h1 style={titleStyle}>Save your Lichess username</h1>
         <p style={copyStyle}>
@@ -62,9 +66,9 @@ export default async function AccountPage() {
                 <strong style={{ color: "#dbeafe" }}>Continue:</strong> {activeChallengeLabel}
               </p>
               <p style={metaStyle}>{activeChallengeBanner}</p>
-              <a href={`/challenges/${activeChallenge.id}`} style={buttonStyle}>
+              <Link href={`/challenges/${activeChallenge.id}`} style={buttonStyle}>
                 Open challenge
-              </a>
+              </Link>
             </>
           ) : (
             <p style={copyStyle}>No active challenge currently tracked. Choose one from the challenge list.</p>
@@ -171,6 +175,13 @@ const buttonStyle = {
 const challengeSectionStyle = {
   display: "grid",
   gap: 8,
+};
+
+const backLinkStyle = {
+  display: "inline-flex",
+  color: "#93c5fd",
+  textDecoration: "none",
+  fontWeight: 500,
 };
 
 const metaStyle = {
