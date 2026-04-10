@@ -16,10 +16,11 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
-- [ ] Audit the signed-out `/account` auth handoff and define the smallest cleanup that removes the confusing Clerk-managed 404 behavior without disrupting the working authenticated flow.
+- [x] Audit the signed-out `/account` auth handoff and define the smallest cleanup that removes the confusing Clerk-managed 404 behavior without disrupting the working authenticated flow.
   - estimate: 1 focused run
   - Acceptance: one concise artifact records the exact signed-out/browser split, names whether the right fix is config-only or app-level, and defines the smallest safe follow-up slice.
   - Verification for completion: committed artifact exists with fresh evidence.
+  - Proof: created `docs/ACCOUNT_AUTH_HANDOFF_MINIMUM_CLEANUP_2026-04-10.md` on 2026-04-10, documented the exact authenticated-vs-signed-out split, concluded the minimum safe fix is app-level rather than config-only, and verified it locally with `test -f docs/ACCOUNT_AUTH_HANDOFF_MINIMUM_CLEANUP_2026-04-10.md`.
 - [x] Audit the current CC app surface and routing only; write a concise baseline in `cc/docs/EXECUTIVE_SUMMARY_2026-04-09.md`.
   - estimate: 1 focused run
   - Acceptance: artifact names current routes/components and the most important product gap visible from the baseline.
