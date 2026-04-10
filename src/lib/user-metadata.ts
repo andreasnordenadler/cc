@@ -28,6 +28,10 @@ export function getLichessUsername(metadata: UserMetadataRecord): string {
   return typeof metadata.lichessUsername === "string" ? metadata.lichessUsername : "";
 }
 
+export function getChessComUsername(metadata: UserMetadataRecord): string {
+  return typeof metadata.chessComUsername === "string" ? metadata.chessComUsername : "";
+}
+
 export function getActiveChallenge(metadata: UserMetadataRecord): ActiveChallenge | null {
   if (
     typeof metadata.activeChallenge === "object" &&
@@ -178,7 +182,7 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
   if (!attempt) {
     return {
       headline: "No attempt submitted yet",
-      detail: "Submit a finished Lichess game to create your first review record.",
+      detail: "Submit a finished Lichess or Chess.com game to create your first review record.",
       meta: "No latest attempt yet",
     };
   }

@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
-import { saveLichessUsername } from "@/app/actions";
+import { saveChessUsernames } from "@/app/actions";
 import {
   challengeBanner,
   formatChallengeId,
   formatTime,
   getActiveChallenge,
   getChallengeAttempts,
+  getChessComUsername,
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -18,6 +19,7 @@ export default async function AccountPage() {
     ? (user.publicMetadata as UserMetadataRecord)
     : {};
   const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const attempts = getChallengeAttempts(metadata).slice().reverse();
   const activeChallengeLabel = activeChallenge
@@ -32,31 +34,43 @@ export default async function AccountPage() {
         <Link href="/" style={backLinkStyle}>← Back to home</Link>
 
         <p style={eyebrowStyle}>Account</p>
-        <h1 style={titleStyle}>Save your Lichess username</h1>
+        <h1 style={titleStyle}>Save your chess usernames</h1>
         <p style={copyStyle}>
-          This is the identity shown alongside your challenge submissions.
+          These identities are used alongside your challenge submissions and automated game checks.
         </p>
 
-        <form action={saveLichessUsername} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
-            <label style={{ display: "grid", gap: 8 }}>
-              <span style={labelStyle}>Lichess username</span>
-              <input
-                type="text"
-                name="lichessUsername"
-                defaultValue={lichessUsername}
+        <form action={saveChessUsernames} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
+          <label style={{ display: "grid", gap: 8 }}>
+            <span style={labelStyle}>Lichess username</span>
+            <input
+              type="text"
+              name="lichessUsername"
+              defaultValue={lichessUsername}
+              placeholder="e.g. AndreasN"
+              style={inputStyle}
+            />
+          </label>
+
+          <label style={{ display: "grid", gap: 8 }}>
+            <span style={labelStyle}>Chess.com username</span>
+            <input
+              type="text"
+              name="chessComUsername"
+              defaultValue={chessComUsername}
               placeholder="e.g. AndreasN"
               style={inputStyle}
             />
           </label>
 
           <button type="submit" style={buttonStyle}>
-            {lichessUsername ? "Update username" : "Save username"}
+            {lichessUsername || chessComUsername ? "Update usernames" : "Save usernames"}
           </button>
         </form>
 
-        <p style={metaStyle}>
-          Current value: {lichessUsername || "not set yet"}
-        </p>
+        <div style={{ display: "grid", gap: 6 }}>
+          <p style={metaStyle}>Lichess: {lichessUsername || "not set yet"}</p>
+          <p style={metaStyle}>Chess.com: {chessComUsername || "not set yet"}</p>
+        </div>
 
         <div style={challengeSectionStyle}>
           <h2 style={sectionTitleStyle}>Active challenge</h2>

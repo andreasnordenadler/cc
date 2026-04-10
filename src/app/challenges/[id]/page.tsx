@@ -10,6 +10,7 @@ import {
   formatTime,
   getActiveChallenge,
   getChallengeAttempts,
+  getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
   type UserMetadataRecord,
@@ -33,6 +34,7 @@ export default async function ChallengeDetailPage({
     ? (user.publicMetadata as UserMetadataRecord)
     : {};
   const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = attempts[0] ?? getLatestChallengeAttempt(metadata, challenge.id);
@@ -64,9 +66,10 @@ export default async function ChallengeDetailPage({
 
           {isSignedIn ? (
             <>
-              <p style={copyStyle}>
-                Saved username: {lichessUsername || "not set yet"}
-              </p>
+              <div style={{ display: "grid", gap: 4 }}>
+                <p style={copyStyle}>Saved Lichess username: {lichessUsername || "not set yet"}</p>
+                <p style={copyStyle}>Saved Chess.com username: {chessComUsername || "not set yet"}</p>
+              </div>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <form action={startChallenge}>
                   <input type="hidden" name="challengeId" value={challenge.id} />
@@ -75,18 +78,18 @@ export default async function ChallengeDetailPage({
                   </button>
                 </form>
                 <Link href="/account" style={secondaryButtonStyle}>
-                  {lichessUsername ? "Update username" : "Add username"}
+                  {lichessUsername || chessComUsername ? "Update usernames" : "Add usernames"}
                 </Link>
               </div>
 
               <form action={submitChallengeAttempt} style={{ display: "grid", gap: 12, maxWidth: 480, marginTop: 20 }}>
                 <input type="hidden" name="challengeId" value={challenge.id} />
                 <label style={{ display: "grid", gap: 8 }}>
-                  <span style={inputHintStyle}>Finished Lichess game ID or URL</span>
+                  <span style={inputHintStyle}>Finished Lichess game ID/URL or Chess.com game URL</span>
                   <input
                     type="text"
                     name="gameId"
-                    placeholder="e.g. abCDef12 or https://lichess.org/abCDef12"
+                    placeholder="e.g. abCDef12, https://lichess.org/abCDef12, or https://www.chess.com/game/live/..."
                     style={inputStyle}
                   />
                 </label>
@@ -103,6 +106,9 @@ export default async function ChallengeDetailPage({
                 <strong style={latestHeadlineStyle}>{latestAttemptSummary.headline}</strong>
                 <p style={copyStyle}>{latestAttemptSummary.detail}</p>
                 <p style={metaStyle}>{latestAttemptSummary.meta}</p>
+                {challenge.id === "finish-any-game" ? (
+                  <p style={metaStyle}>For this challenge, Chess.com pasted game URLs now work too.</p>
+                ) : null}
                 <p style={copyStyle}>
                   {isActive
                     ? `Challenge state: ${formatAttemptStatus(activeChallenge?.status ?? "accepted")}`

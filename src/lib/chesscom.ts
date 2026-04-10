@@ -1,0 +1,195 @@
+export type ChessComVerificationVerdict = {
+  status: "passed" | "failed" | "pending";
+  summary: string;
+};
+
+type ChessComPlayer = {
+  username?: string;
+  result?: string;
+};
+
+type ChessComGame = {
+  url?: string;
+  uuid?: string;
+  end_time?: number;
+  white?: ChessComPlayer;
+  black?: ChessComPlayer;
+};
+
+type ChessComMonthlyArchive = {
+  games?: ChessComGame[];
+};
+
+const DRAW_RESULTS = new Set([
+  "agreed",
+  "repetition",
+  "stalemate",
+  "50move",
+  "timevsinsufficient",
+  "insufficient",
+]);
+
+function normalizeChessComUsername(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+function normalizeChessComGameUrl(value: string): string {
+  return value.trim().replace(/\/+$/, "");
+}
+
+function extractArchivePathFromGameUrl(value: string): { year: string; month: string } | null {
+  const normalized = normalizeChessComGameUrl(value);
+
+  const liveMatch = normalized.match(/\/game\/live\/(\d+)$/i);
+  if (liveMatch) {
+    return null;
+  }
+
+  const dailyMatch = normalized.match(/\/game\/daily\/([a-z0-9-]+)$/i);
+  if (dailyMatch) {
+    return null;
+  }
+
+  return null;
+}
+
+async function fetchArchiveMonths(chessComUsername: string): Promise<string[] | null> {
+  const response = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(chessComUsername)}/games/archives`, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "cc-verifier/0.1 (+https://cc-taupe-kappa.vercel.app)",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = (await response.json()) as { archives?: string[] };
+  return Array.isArray(data.archives) ? data.archives : null;
+}
+
+async function fetchMonthlyArchive(url: string): Promise<ChessComGame[] | null> {
+  const response = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "cc-verifier/0.1 (+https://cc-taupe-kappa.vercel.app)",
+    },
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = (await response.json()) as ChessComMonthlyArchive;
+  return Array.isArray(data.games) ? data.games : null;
+}
+
+function isDrawGame(game: ChessComGame): boolean {
+  const whiteResult = game.white?.result?.toLowerCase();
+  const blackResult = game.black?.result?.toLowerCase();
+  return Boolean(whiteResult && blackResult && DRAW_RESULTS.has(whiteResult) && DRAW_RESULTS.has(blackResult));
+}
+
+function isFinishedGame(game: ChessComGame): boolean {
+  return Boolean(game.end_time);
+}
+
+async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Promise<ChessComGame | null | undefined> {
+  const normalizedUrl = normalizeChessComGameUrl(rawGameUrl);
+  const archives = await fetchArchiveMonths(chessComUsername);
+
+  if (!archives?.length) {
+    return null;
+  }
+
+  const recentArchives = archives.slice(-3).reverse();
+
+  for (const archiveUrl of recentArchives) {
+    const games = await fetchMonthlyArchive(archiveUrl);
+
+    if (!games) {
+      continue;
+    }
+
+    const match = games.find((game) => normalizeChessComGameUrl(game.url ?? "") === normalizedUrl);
+    if (match) {
+      return match;
+    }
+  }
+
+  return undefined;
+}
+
+export async function verifyChessComFinishAnyGameAttempt({
+  gameUrl,
+  chessComUsername,
+}: {
+  gameUrl: string;
+  chessComUsername: string;
+}): Promise<ChessComVerificationVerdict> {
+  if (!chessComUsername) {
+    return {
+      status: "pending",
+      summary:
+        "Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.",
+    };
+  }
+
+  try {
+    const normalizedUsername = normalizeChessComUsername(chessComUsername);
+    const normalizedUrl = normalizeChessComGameUrl(gameUrl);
+
+    if (!/^https?:\/\/(www\.)?chess\.com\/game\//i.test(normalizedUrl)) {
+      return {
+        status: "failed",
+        summary: "That does not look like a Chess.com game URL. Paste the full Chess.com game link.",
+      };
+    }
+
+    const game = await findGameByUrl(normalizedUsername, normalizedUrl);
+
+    if (game === null) {
+      return {
+        status: "pending",
+        summary: `Submitted Chess.com game, but Chess.com archive lookup is temporarily unavailable for ${chessComUsername}.`,
+      };
+    }
+
+    if (!game) {
+      return {
+        status: "pending",
+        summary: `Submitted Chess.com game saved, but it is not visible in the recent public archive yet. Try again shortly if the game just finished.`,
+      };
+    }
+
+    const whiteName = normalizeChessComUsername(game.white?.username ?? "");
+    const blackName = normalizeChessComUsername(game.black?.username ?? "");
+
+    if (whiteName !== normalizedUsername && blackName !== normalizedUsername) {
+      return {
+        status: "failed",
+        summary: `Submitted Chess.com game found, but saved username ${chessComUsername} does not appear in that game.`,
+      };
+    }
+
+    if (!isFinishedGame(game)) {
+      return {
+        status: "pending",
+        summary: "Submitted Chess.com game is not finished yet, so verification is still pending.",
+      };
+    }
+
+    return {
+      status: "passed",
+      summary: `Verified Chess.com game. ${chessComUsername} appears in a finished public game, so this challenge passed.`,
+    };
+  } catch {
+    return {
+      status: "pending",
+      summary: "Submitted Chess.com game, but verification could not complete right now. Try again later if this stays pending.",
+    };
+  }
+}

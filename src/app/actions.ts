@@ -3,6 +3,7 @@
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
+import { verifyChessComFinishAnyGameAttempt } from "@/lib/chesscom";
 import {
   verifyDrawAnyGameAttempt,
   verifyDrawAsBlackAttempt,
@@ -17,6 +18,7 @@ import {
 } from "@/lib/lichess";
 import {
   getChallengeProgress,
+  getChessComUsername,
   getLichessUsername,
   type ChallengeAttempt,
   type UserMetadataRecord,
@@ -41,19 +43,21 @@ async function getUserContext() {
   return { userId: ensuredUserId, metadata };
 }
 
-export async function saveLichessUsername(formData: FormData) {
+export async function saveChessUsernames(formData: FormData) {
   const { userId, metadata } = await getUserContext();
-  const username = String(formData.get("lichessUsername") ?? "").trim();
+  const lichessUsername = String(formData.get("lichessUsername") ?? "").trim();
+  const chessComUsername = String(formData.get("chessComUsername") ?? "").trim();
 
-  if (!username) {
-    throw new Error("Enter a Lichess username.");
+  if (!lichessUsername && !chessComUsername) {
+    throw new Error("Enter at least one chess username.");
   }
 
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
-      lichessUsername: username,
+      lichessUsername,
+      chessComUsername,
     },
   });
 
@@ -99,14 +103,18 @@ export async function submitChallengeAttempt(formData: FormData) {
   }
 
   if (!rawGameId) {
-    throw new Error("Enter a finished Lichess game ID.");
+    throw new Error("Enter a finished Lichess or Chess.com game link/ID.");
   }
 
   const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
   const existingAttempts = Array.isArray(metadata.challengeAttempts)
     ? (metadata.challengeAttempts as ChallengeAttempt[])
     : [];
-  const gameId = rawGameId.replace(/^https?:\/\/lichess\.org\//, "").replace(/\/.*/, "");
+  const isChessComSubmission = /^https?:\/\/(www\.)?chess\.com\/game\//i.test(rawGameId);
+  const gameId = isChessComSubmission
+    ? rawGameId.trim()
+    : rawGameId.replace(/^https?:\/\/lichess\.org\//, "").replace(/\/.*/, "");
   const now = new Date().toISOString();
 
   const progress = getChallengeProgress(metadata);
@@ -115,8 +123,10 @@ export async function submitChallengeAttempt(formData: FormData) {
       ? (metadata.activeChallenge as { startedAt?: string })
       : null;
   const verification =
-    challenge.id === "finish-any-game"
-      ? await verifyFinishAnyGameAttempt({ gameId, lichessUsername })
+    challenge.id === "finish-any-game" && isChessComSubmission
+      ? await verifyChessComFinishAnyGameAttempt({ gameUrl: gameId, chessComUsername })
+      : challenge.id === "finish-any-game"
+        ? await verifyFinishAnyGameAttempt({ gameId, lichessUsername })
       : challenge.id === "finish-as-white"
         ? await verifyFinishAsWhiteAttempt({ gameId, lichessUsername })
         : challenge.id === "finish-as-black"
@@ -137,9 +147,9 @@ export async function submitChallengeAttempt(formData: FormData) {
                         ? await verifyLoseAsWhiteAttempt({ gameId, lichessUsername })
                         : {
                             status: "pending" as const,
-                            summary: lichessUsername
-                              ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
-                              : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
+                            summary: lichessUsername || chessComUsername
+                              ? `Submitted ${gameId} for ${lichessUsername || chessComUsername}. Automated verification is not active for this challenge yet.`
+                              : `Submitted ${gameId}. Add your chess username in account settings for cleaner review context.`,
                           };
   const completedChallengeIds =
     verification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
