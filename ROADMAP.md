@@ -76,6 +76,15 @@ Execution canon:
   - Acceptance: artifact states whether the active deployment is using the intended Clerk environment for the live hostname and names the exact mismatch if one exists.
   - Verification for completion: committed artifact exists at the named path with source evidence.
   - Proof: created `docs/CLERK_ENV_CHECK_2026-04-10.md` on 2026-04-10 with `.vercel/project.json`, `npx vercel env ls production`, and `npx vercel env pull --environment=production` evidence showing the active Vercel production deployment is still using `pk_test_...` and `sk_test_...` Clerk keys matching local dev/test values; verified locally with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
+- [x] Write the exact Clerk production cutover checklist in `cc/docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact names the exact env vars to replace, the redeploy/check sequence, and the evidence Andreas must capture to safely clear the live `/account` blocker.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md` on 2026-04-10 with the exact Vercel env vars, redeploy sequence, and required post-cutover evidence; verified locally with `test -f docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md`.
+- [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
+  - Verification for completion: committed artifact update with live evidence.
 
 ## Proof rule
 
