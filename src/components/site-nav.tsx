@@ -12,11 +12,6 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   return (
     <header style={shellStyle}>
       <div style={innerStyle}>
-        <div style={brandStyle}>
-          <span style={brandBadge}>CC</span>
-          <span style={brandName}>Chess Challenge</span>
-        </div>
-
         <nav style={navLinksStyle} aria-label="Primary">
           <Link href="/" style={getNavItemStyle(active === "home")}>Home</Link>
           <Link href="/challenges" style={getNavItemStyle(active === "challenges")}>Challenges</Link>
@@ -60,31 +55,6 @@ const innerStyle = {
   alignItems: "center",
   gap: 16,
   flexWrap: "wrap" as const,
-};
-
-const brandStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 10,
-};
-
-const brandBadge = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 34,
-  height: 34,
-  borderRadius: 999,
-  border: "1px solid rgba(59,130,246,0.35)",
-  background: "#1d4ed8",
-  color: "#dbeafe",
-  fontWeight: 700,
-};
-
-const brandName = {
-  color: "#f8fafc",
-  fontWeight: 600,
-  fontSize: 15,
 };
 
 const navLinksStyle = {
