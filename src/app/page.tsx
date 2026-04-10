@@ -198,23 +198,12 @@ export default async function Home() {
             and let CC verify against your latest completed games.
           </p>
 
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <Link
-              href="/challenges"
-              style={primaryCtaStyle}
-            >
-              Open challenge list
-            </Link>
-
-            <a
-              href="https://lichess.org"
-              target="_blank"
-              rel="noreferrer"
-              style={ghostLinkStyle}
-            >
-              Open Lichess
-            </a>
-          </div>
+          <Link
+            href="/challenges"
+            style={primaryCtaStyle}
+          >
+            Open challenge list
+          </Link>
 
           {isSignedIn ? null : (
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -399,15 +388,6 @@ const primaryCtaStyle = {
   color: "#dbeafe",
   padding: "12px 18px",
   fontWeight: 600,
-  textDecoration: "none",
-  display: "inline-block",
-};
-
-const ghostLinkStyle = {
-  borderRadius: 999,
-  border: "1px solid rgba(148,163,184,0.3)",
-  color: "#f8fafc",
-  padding: "12px 18px",
   textDecoration: "none",
   display: "inline-block",
 };
