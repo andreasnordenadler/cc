@@ -71,10 +71,11 @@ Execution canon:
   - Acceptance: artifact captures the exact checked live URL, the observed response headers, the local route/middleware evidence, and the most likely deployment/auth mismatch causing the protected-route 404.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md` on 2026-04-10 with the live `curl -I -L` header evidence (`x-clerk-auth-reason: protect-rewrite, dev-browser-missing`) plus local route/config findings, and verified it locally with `test -f docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
-- [ ] Re-check the active Vercel deployment's Clerk environment against the `/account` protection audit and record the exact mismatch or clean bill of health in `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
+- [x] Re-check the active Vercel deployment's Clerk environment against the `/account` protection audit and record the exact mismatch or clean bill of health in `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact states whether the active deployment is using the intended Clerk environment for the live hostname and names the exact mismatch if one exists.
   - Verification for completion: committed artifact exists at the named path with source evidence.
+  - Proof: created `docs/CLERK_ENV_CHECK_2026-04-10.md` on 2026-04-10 with `.vercel/project.json`, `npx vercel env ls production`, and `npx vercel env pull --environment=production` evidence showing the active Vercel production deployment is still using `pk_test_...` and `sk_test_...` Clerk keys matching local dev/test values; verified locally with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
 
 ## Proof rule
 

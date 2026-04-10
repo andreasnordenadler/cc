@@ -1,0 +1,63 @@
+# CC Clerk Environment Check
+
+Date: 2026-04-10
+Checked by: Sam
+Vercel project: `cc`
+Vercel account: `andreasnordenadler-2420`
+Active live hostname checked against prior audit: `https://cc-andreas-nordenadlers-projects.vercel.app/account`
+
+## Verdict
+
+The active Vercel deployment is **not** using a production Clerk environment for the live hostname. It is wired to the same Clerk **test/development** instance seen locally, so this is an exact mismatch rather than a clean bill of health.
+
+## Source evidence
+
+### Vercel-linked project
+
+From `.vercel/project.json`:
+
+- `projectName`: `cc`
+- `projectId`: `prj_z4w2lp0MV5hJEhc3m7PN2CuH3d5w`
+
+### Vercel environment inventory
+
+From `npx vercel env ls production` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` present for Production, Preview, Development
+- `CLERK_SECRET_KEY` present for Production, Preview, Development
+
+### Pulled production values
+
+From `npx vercel env pull .env.vercel.production --environment=production --yes` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2hhbXBpb24taGFnZmlzaC0xMy5jbGVyay5hY2NvdW50cy5kZXYk"`
+- `CLERK_SECRET_KEY="sk_test_qYlQRLWzNfUUF7O8LIDYZPTAsLapcvJtogZg1oHoho"`
+
+### Comparison to local audit
+
+The production values exactly match the local `.env.local` development/test Clerk keys previously recorded in `docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
+
+## Exact mismatch
+
+The active Vercel production deployment for `cc` is using:
+
+- a `pk_test_...` publishable key
+- an `sk_test_...` secret key
+- a Clerk account domain encoded in the publishable key ending in `.clerk.accounts.dev`
+
+That is not the intended production-grade Clerk environment for a live Vercel hostname. It aligns with the earlier live header evidence:
+
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-matched-path: /404`
+
+## Conclusion
+
+This is the most likely cause of the live `/account` protection failure. The route is present and protected, but the active Vercel deployment is attached to a Clerk development/test instance instead of the intended live environment for this hostname.
+
+## Recommended next move
+
+Replace the Vercel production Clerk keys with the intended live Clerk instance values, redeploy, and then re-run the live `/account` route check.
+
+## Verification note
+
+Artifact created and verified locally on 2026-04-10 with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
