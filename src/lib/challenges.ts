@@ -95,6 +95,20 @@ export const CHALLENGES: Challenge[] = [
       result: "draw",
     },
   },
+  {
+    id: "draw-as-white",
+    title: "Draw as White",
+    objective: "Finish and submit one drawn game where you played as White.",
+    instruction:
+      "Play a real Lichess game as White, finish it as a draw, and return with the game ID.",
+    reward: 115,
+    openingHint:
+      "This adds one side-specific draw check without widening the loop beyond the current single-game verifier path.",
+    requirement: {
+      side: "white",
+      result: "draw",
+    },
+  },
 ];
 
 export function getChallengeById(id: string): Challenge | undefined {

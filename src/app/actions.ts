@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
 import {
   verifyDrawAnyGameAttempt,
+  verifyDrawAsWhiteAttempt,
   verifyFinishAnyGameAttempt,
   verifyFinishAsBlackAttempt,
   verifyFinishAsWhiteAttempt,
@@ -123,12 +124,14 @@ export async function submitChallengeAttempt(formData: FormData) {
               ? await verifyWinAsBlackAttempt({ gameId, lichessUsername })
               : challenge.id === "draw-any-game"
                 ? await verifyDrawAnyGameAttempt({ gameId, lichessUsername })
-                : {
-                  status: "pending" as const,
-                  summary: lichessUsername
-                    ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
-                    : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
-                };
+                : challenge.id === "draw-as-white"
+                  ? await verifyDrawAsWhiteAttempt({ gameId, lichessUsername })
+                  : {
+                    status: "pending" as const,
+                    summary: lichessUsername
+                      ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
+                      : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
+                  };
   const completedChallengeIds =
     verification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
       ? [...progress.completedChallengeIds, challenge.id]
