@@ -147,6 +147,15 @@ Execution canon:
   - Acceptance: one existing `win` challenge persists real `passed`, `failed`, or `pending` verdicts from Lichess without widening the UI or challenge catalog.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - Proof: added `winner`-aware win verification in `src/lib/lichess.ts` and wired `src/app/actions.ts` to persist real `passed` / `failed` / `pending` verdicts for `win-as-white` while keeping `win-as-black` on the narrower pending path; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
+- [x] Define the smallest automated verification slice for `win-as-black` in `cc/docs/LICHESS_BLACK_WIN_VERIFICATION_SLICE_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact names the exact target, the minimum Lichess evidence already available or still needed, the strict pass/fail boundary, and the explicit deferrals that keep the next code slice reviewable.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/LICHESS_BLACK_WIN_VERIFICATION_SLICE_2026-04-10.md` on 2026-04-10, defined `win-as-black` as the exact next target using already-available `winner` and player-color evidence, and verified it locally with `test -f docs/LICHESS_BLACK_WIN_VERIFICATION_SLICE_2026-04-10.md`.
+- [ ] Implement the automated Lichess verdict for `win-as-black` only.
+  - estimate: 1 focused run
+  - Acceptance: `win-as-black` persists real `passed`, `failed`, or `pending` verdicts from Lichess game data without widening the UI, challenge catalog, or background processing.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
 
 ## Proof rule
 
