@@ -127,6 +127,15 @@ Execution canon:
   - Acceptance: artifact gives the exact minimal command sequence and success/failure signals needed to re-check live `/account` immediately after any future Clerk production-key cutover.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md`.
+- [x] Reconcile the automated verification target with the actual shipped challenge catalog in `cc/docs/LICHESS_VERIFICATION_TARGET_ALIGNMENT_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact mismatch between the verification slice and `src/lib/challenges.ts`, names the smallest correct first automation target from the live catalog, and leaves a reviewable handoff for the first code slice.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/LICHESS_VERIFICATION_TARGET_ALIGNMENT_2026-04-10.md` on 2026-04-10, documented the mismatch between `docs/LICHESS_VERIFICATION_SLICE_2026-04-10.md` and `src/lib/challenges.ts`, selected `finish-any-game` as the smallest valid first automation target, and verified it locally with `test -f docs/LICHESS_VERIFICATION_TARGET_ALIGNMENT_2026-04-10.md`.
+- [ ] Implement the first automated Lichess verdict for the corrected single challenge target.
+  - estimate: 1 focused run
+  - Acceptance: one existing shipped challenge gets persisted `passed`, `failed`, or `pending` verdicts from real Lichess game data without widening scope.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
 
 ## Proof rule
 
