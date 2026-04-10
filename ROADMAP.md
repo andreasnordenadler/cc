@@ -112,6 +112,11 @@ Execution canon:
   - Acceptance: artifact states the latest checked live URL, the latest observed blocker evidence, and the single human action that will make the queued post-cutover live re-check executable again.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md`.
+- [x] Write the exact Vercel CLI production Clerk cutover command pack in `cc/docs/CLERK_VERCEL_CUTOVER_COMMANDS_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact provides the minimal copy-paste `vercel env rm` / `vercel env add` / redeploy command sequence Andreas can run once the live Clerk keys are ready, plus the exact follow-up smoke-test doc to use.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CLERK_VERCEL_CUTOVER_COMMANDS_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_VERCEL_CUTOVER_COMMANDS_2026-04-10.md`.
 - [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
