@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-10 11:36 Europe/Stockholm
+Last updated: 2026-04-10 12:56 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -90,7 +90,7 @@ Execution canon:
   - estimate: 1 focused run
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
   - Verification for completion: committed artifact update with live evidence.
-  - Blocked 2026-04-10 11:35 Europe/Stockholm: fresh `vercel env pull --environment=production` still returns `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
+  - Blocked 2026-04-10 12:55 Europe/Stockholm: fresh `vercel env pull --environment=production` still resolves to quoted `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
 
 ## Proof rule
 

@@ -80,6 +80,29 @@ From `curl -I -L https://cc-andreas-nordenadlers-projects.vercel.app/account` on
 
 The live deployment is still using Clerk test/dev keys, so the post-cutover acceptance check cannot be completed honestly in this run. This roadmap item must remain open until the Vercel Production Clerk keys are replaced and the site is redeployed.
 
+## Follow-up re-check at 2026-04-10 12:55 Europe/Stockholm
+
+The blocker still has not cleared.
+
+### Fresh evidence
+
+From `npx vercel env pull --yes --environment=production .env.production.autopilot-check` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` still resolves to a quoted `pk_test_...` value
+- `CLERK_SECRET_KEY` still resolves to a quoted `sk_test_...` value
+
+From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` on 2026-04-10:
+
+- `HTTP/2 404`
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-clerk-auth-status: signed-out`
+- `x-matched-path: /404`
+- `x-vercel-cache: HIT`
+
+### Current blocker verdict
+
+No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
+
 ## Verification note
 
 Artifact updated and verified locally on 2026-04-10 with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
