@@ -175,3 +175,49 @@ From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel
 ### Current blocker verdict
 
 No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
+
+## Follow-up re-check at 2026-04-10 15:19 Europe/Stockholm
+
+The Clerk production keys are still test/dev, and the live `/account` route is still rewriting to 404.
+
+### Fresh evidence
+
+From `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2hh..."`
+- `CLERK_SECRET_KEY="sk_test_qYl..."`
+
+From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` on 2026-04-10:
+
+- `HTTP/2 404`
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-clerk-auth-status: signed-out`
+- `x-matched-path: /404`
+- `x-vercel-cache: HIT`
+
+### Current blocker verdict
+
+No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
+
+## Follow-up re-check at 2026-04-10 16:19 Europe/Stockholm
+
+The Clerk production keys still have not been cut over, and the live `/account` route still rewrites to 404.
+
+### Fresh evidence
+
+From `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` still resolves to a `pk_test_...` value
+- `CLERK_SECRET_KEY` still resolves to an `sk_test_...` value
+
+From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` on 2026-04-10:
+
+- `HTTP/2 404`
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-clerk-auth-status: signed-out`
+- `x-matched-path: /404`
+- `x-vercel-cache: HIT`
+
+### Current blocker verdict
+
+No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
