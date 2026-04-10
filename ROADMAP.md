@@ -107,6 +107,11 @@ Execution canon:
   - Acceptance: artifact names the exact Clerk dashboard/domain checks Andreas should confirm alongside production key cutover for the active Vercel hostname and intended custom domain.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_DOMAIN_ALIGNMENT_CHECKLIST_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_DOMAIN_ALIGNMENT_CHECKLIST_2026-04-10.md`.
+- [x] Write a one-screen current Clerk cutover blocker status note in `cc/docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact states the latest checked live URL, the latest observed blocker evidence, and the single human action that will make the queued post-cutover live re-check executable again.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md`.
 - [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
@@ -114,6 +119,7 @@ Execution canon:
   - Blocked 2026-04-10 13:15 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - Blocked 2026-04-10 13:44 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - Blocked 2026-04-10 14:40 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
+  - Blocked 2026-04-10 15:19 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
 - [x] Write the exact post-cutover `/account` smoke-test command pack in `cc/docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact gives the exact minimal command sequence and success/failure signals needed to re-check live `/account` immediately after Clerk production key cutover.
