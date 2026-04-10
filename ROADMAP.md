@@ -16,6 +16,16 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next verifier-backed challenge expansion after the current fully automated eight-challenge catalog in `cc/docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_6_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next challenge to add, explains why it is the smallest reviewable post-catalog step from the live eight-challenge state, names the already-available Lichess evidence it reuses, and explicitly defers any broader progression work.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_6_2026-04-10.md` on 2026-04-10, selected `lose-any-game` as the smallest next verifier-backed challenge expansion after the current fully automated eight-challenge catalog, and verified it locally with `test -f docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_6_2026-04-10.md`.
+- [ ] Implement exactly one new verifier-backed challenge from the approved sixth post-catalog slice.
+  - estimate: 1 focused run
+  - Acceptance: the live challenge catalog grows by one narrow challenge that reuses the existing verification path and persists real `passed`, `failed`, or `pending` verdicts without widening the surrounding product loop.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+
 - [x] Improve CC navigation and button hierarchy across homepage/challenges/account pages.
   - estimate: 1 focused run
   - Acceptance: home and challenge routes include a consistent top nav with signed-in/signed-out actions; nested flows gain clear back-links (e.g. challenge detail→list, account→home) and core CTAs follow a consistent button hierarchy, while behavior and routes stay unchanged.
