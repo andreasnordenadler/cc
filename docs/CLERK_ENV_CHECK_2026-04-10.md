@@ -152,3 +152,26 @@ From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel
 ### Current blocker verdict
 
 No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
+
+## Follow-up re-check at 2026-04-10 14:40 Europe/Stockholm
+
+The Clerk production keys still have not flipped, and the live `/account` route is still rewriting to 404.
+
+### Fresh evidence
+
+From `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` on 2026-04-10:
+
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Y2hhbXBpb24taGFnZmlzaC0xMy5jbGVyay5hY2NvdW50cy5kZXYk"`
+- `CLERK_SECRET_KEY="sk_test_qYlQRLWzNfUUF7O8LIDYZPTAsLapcvJtogZg1oHoho"`
+
+From `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` on 2026-04-10:
+
+- `HTTP/2 404`
+- `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
+- `x-clerk-auth-status: signed-out`
+- `x-matched-path: /404`
+- `x-vercel-cache: HIT`
+
+### Current blocker verdict
+
+No production Clerk cutover is visible yet, so the post-cutover `/account` acceptance check remains blocked.
