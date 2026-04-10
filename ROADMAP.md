@@ -21,10 +21,11 @@ Execution canon:
   - Acceptance: artifact identifies the exact next challenge to add, explains why it is the smallest reviewable post-catalog step, names the already-available Lichess evidence it reuses, and explicitly defers any broader progression work.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_2026-04-10.md` on 2026-04-10, selected `finish-as-white` as the smallest next verifier-backed challenge expansion after the fully automated current catalog, and verified it locally with `test -f docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_2026-04-10.md`.
-- [ ] Implement exactly one new verifier-backed challenge from the approved post-catalog slice.
+- [x] Implement exactly one new verifier-backed challenge from the approved post-catalog slice.
   - estimate: 1 focused run
   - Acceptance: the live challenge catalog grows by one narrow challenge that reuses the existing verification path and persists real `passed`, `failed`, or `pending` verdicts without widening the surrounding product loop.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+  - Proof: added `finish-as-white` to `src/lib/challenges.ts`, extended `src/lib/lichess.ts` with side-aware finished-game verification reused by `finish-any-game`, and wired `src/app/actions.ts` to persist real `passed` / `failed` / `pending` verdicts for `finish-as-white`; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
 - [x] Audit the signed-out `/account` auth handoff and define the smallest cleanup that removes the confusing Clerk-managed 404 behavior without disrupting the working authenticated flow.
   - estimate: 1 focused run
   - Acceptance: one concise artifact records the exact signed-out/browser split, names whether the right fix is config-only or app-level, and defines the smallest safe follow-up slice.

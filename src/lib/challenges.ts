@@ -13,6 +13,33 @@ export type Challenge = {
 
 export const CHALLENGES: Challenge[] = [
   {
+    id: "finish-any-game",
+    title: "Finish Any Game",
+    objective: "Complete and submit any finished game where your public Lichess account appears.",
+    instruction:
+      "Play any game and submit the finished game ID. This proves the loop end-to-end.",
+    reward: 80,
+    openingHint: "This is the fastest loop sanity check with your saved identity.",
+    requirement: {
+      side: "either",
+      result: "finish",
+    },
+  },
+  {
+    id: "finish-as-white",
+    title: "Finish as White",
+    objective: "Complete and submit one finished game where you played as White.",
+    instruction:
+      "Start a real Lichess game as White, finish it, and return with the game ID.",
+    reward: 90,
+    openingHint:
+      "This is the smallest step up from any finished game, keeping the focus on side awareness instead of winning.",
+    requirement: {
+      side: "white",
+      result: "finish",
+    },
+  },
+  {
     id: "win-as-white",
     title: "Win as White",
     objective: "Win one complete game as White.",
@@ -38,19 +65,6 @@ export const CHALLENGES: Challenge[] = [
     requirement: {
       side: "black",
       result: "win",
-    },
-  },
-  {
-    id: "finish-any-game",
-    title: "Finish Any Game",
-    objective: "Complete and submit any finished game where your public Lichess account appears.",
-    instruction:
-      "Play any game and submit the finished game ID. This proves the loop end-to-end.",
-    reward: 80,
-    openingHint: "This is the fastest loop sanity check with your saved identity.",
-    requirement: {
-      side: "either",
-      result: "finish",
     },
   },
 ];
