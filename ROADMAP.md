@@ -24,12 +24,14 @@ Execution canon:
   - Acceptance: one concise artifact states whether Chess.com supports the minimum public evidence needed for username-based or pasted-game verification in CC, names the exact viable/blocked integration shape, and recommends the smallest next implementation slice without widening product scope.
   - Verification for completion: committed artifact exists with source-backed findings.
   - Proof: created `docs/CHESSCOM_VALIDATION_AUDIT_2026-04-11.md` on 2026-04-11 with source-backed viability findings from Chess.com published-data docs plus live archive/API checks, concluding a narrow pasted-game-based Chess.com verifier is likely viable and recommending `finish-any-game` as the first implementation slice.
-- [ ] Implement the smallest reviewable Chess.com identity + verifier slice proven by the audit.
+- [x] Implement the smallest reviewable Chess.com identity + verifier slice proven by the audit.
   - started_at: 2026-04-11 00:08 Europe/Stockholm
   - deadline_at: 2026-04-11 02:08 Europe/Stockholm
+  - closed_at: 2026-04-11 00:24 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: CC adds Chess.com username capture and exactly one narrow automated Chess.com verification path for one existing challenge without widening the surrounding product loop.
   - Verification for completion: commit + `pnpm lint` + `pnpm build` + deploy + live verification.
+  - Proof: committed Chess.com username capture plus the narrow `finish-any-game` Chess.com verifier slice in `src/app/account/page.tsx`, `src/app/challenges/[id]/page.tsx`, `src/app/actions.ts`, `src/lib/user-metadata.ts`, `src/lib/challenges.ts`, and `src/lib/chesscom.ts` (latest implementation commit on `main`: `76e8519` after feature commit `2c1c10e`); verified locally on 2026-04-11 with `pnpm lint` and `pnpm build`; live smoke-checked `https://cc-andreas-nordenadlers-projects.vercel.app/`, `/challenges`, and `/challenges/finish-any-game` returning `200` with Chess.com copy present on the relevant shipped pages.
 
 - [x] Define the smallest next verifier-backed challenge expansion after the current fully automated ten-challenge catalog in `cc/docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_8_2026-04-10.md`.
   - estimate: 1 focused run
