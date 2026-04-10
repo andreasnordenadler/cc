@@ -16,6 +16,21 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Audit whether Chess.com username capture plus automated public-game validation can be added with the same narrow loop shape as the current Lichess flow.
+  - started_at: 2026-04-11 00:05 Europe/Stockholm
+  - deadline_at: 2026-04-11 01:05 Europe/Stockholm
+  - closed_at: 2026-04-11 00:08 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: one concise artifact states whether Chess.com supports the minimum public evidence needed for username-based or pasted-game verification in CC, names the exact viable/blocked integration shape, and recommends the smallest next implementation slice without widening product scope.
+  - Verification for completion: committed artifact exists with source-backed findings.
+  - Proof: created `docs/CHESSCOM_VALIDATION_AUDIT_2026-04-11.md` on 2026-04-11 with source-backed viability findings from Chess.com published-data docs plus live archive/API checks, concluding a narrow pasted-game-based Chess.com verifier is likely viable and recommending `finish-any-game` as the first implementation slice.
+- [ ] Implement the smallest reviewable Chess.com identity + verifier slice proven by the audit.
+  - started_at: 2026-04-11 00:08 Europe/Stockholm
+  - deadline_at: 2026-04-11 02:08 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: CC adds Chess.com username capture and exactly one narrow automated Chess.com verification path for one existing challenge without widening the surrounding product loop.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build` + deploy + live verification.
+
 - [x] Define the smallest next verifier-backed challenge expansion after the current fully automated ten-challenge catalog in `cc/docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_8_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact identifies the exact next challenge to add, explains why it is the smallest reviewable post-catalog step from the live ten-challenge state, names the already-available Lichess evidence it reuses, and explicitly defers any broader progression work.
