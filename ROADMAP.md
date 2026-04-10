@@ -66,6 +66,15 @@ Execution canon:
   - Acceptance: after submitting a game ID, the challenge detail route shows a compact result summary with current status and latest attempt context.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - Proof: added a dedicated latest-attempt summary card on `src/app/challenges/[id]/page.tsx` backed by shared attempt-summary helpers in `src/lib/user-metadata.ts`; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
+- [x] Audit the live `/account` protection failure and record the exact Clerk/Vercel evidence in `cc/docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact captures the exact checked live URL, the observed response headers, the local route/middleware evidence, and the most likely deployment/auth mismatch causing the protected-route 404.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md` on 2026-04-10 with the live `curl -I -L` header evidence (`x-clerk-auth-reason: protect-rewrite, dev-browser-missing`) plus local route/config findings, and verified it locally with `test -f docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
+- [ ] Re-check the active Vercel deployment's Clerk environment against the `/account` protection audit and record the exact mismatch or clean bill of health in `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact states whether the active deployment is using the intended Clerk environment for the live hostname and names the exact mismatch if one exists.
+  - Verification for completion: committed artifact exists at the named path with source evidence.
 
 ## Proof rule
 
