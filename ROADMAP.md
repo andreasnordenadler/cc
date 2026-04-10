@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-10 12:56 Europe/Stockholm
+Last updated: 2026-04-10 17:14 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -16,6 +16,10 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [ ] Audit the signed-out `/account` auth handoff and define the smallest cleanup that removes the confusing Clerk-managed 404 behavior without disrupting the working authenticated flow.
+  - estimate: 1 focused run
+  - Acceptance: one concise artifact records the exact signed-out/browser split, names whether the right fix is config-only or app-level, and defines the smallest safe follow-up slice.
+  - Verification for completion: committed artifact exists with fresh evidence.
 - [x] Audit the current CC app surface and routing only; write a concise baseline in `cc/docs/EXECUTIVE_SUMMARY_2026-04-09.md`.
   - estimate: 1 focused run
   - Acceptance: artifact names current routes/components and the most important product gap visible from the baseline.
@@ -50,40 +54,40 @@ Execution canon:
   - estimate: 1 focused run
   - Acceptance: the active CC route loop is verified on the actual deployed surface, not only locally.
   - Verification for completion: committed artifact with exact live URL and route verdicts.
-  - Proof: `docs/LIVE_ROUTE_CHECK_2026-04-09.md` created and verified locally on 2026-04-09 (`test -f docs/LIVE_ROUTE_CHECK_2026-04-09.md`); live check recorded exact production URL and found `/account` returning 404 while `/`, `/challenges`, and `/challenges/mate-in-one` returned 200.
+  - Proof: `docs/LIVE_ROUTE_CHECK_2026-04-09.md` now records the corrected split verdict from 2026-04-10: `/`, `/challenges`, and `/challenges/mate-in-one` returned 200, authenticated browser `/account` worked in Google Chrome on the Mac mini, and only signed-out/raw requests still showed Clerk-managed 404 behavior.
 - [x] Fix the live `/account` route so the signed-in account/settings step works on the production deployment.
   - estimate: 1 focused run
-  - Acceptance: `/account` returns 200 on the active live deployment and supports the v0 loop instead of 404ing.
+  - Acceptance: `/account` returns the working signed-in account/settings screen on the active live deployment.
   - Verification for completion: commit + `pnpm lint` + `pnpm build` + live verification.
-  - Proof: verified on 2026-04-10 that `https://cc-andreas-nordenadlers-projects.vercel.app/account` returns 200 and redirects unauthenticated users into Clerk sign-in instead of 404ing; recorded proof in `docs/ACCOUNT_ROUTE_FIX_2026-04-10.md` and re-ran `pnpm lint` plus `pnpm build`.
+  - Proof: verified in Google Chrome on the Mac mini on 2026-04-10 that `https://cc-andreas-nordenadlers-projects.vercel.app/account` renders the authenticated account page successfully; the route is no longer accurately described as a general live blocker.
 - [x] Re-run the CC live route check after the `/account` fix and update `cc/docs/LIVE_ROUTE_CHECK_2026-04-09.md` with the new verdict.
   - estimate: 1 focused run
-  - Acceptance: the artifact records the checked live URL and confirms whether `/`, `/challenges`, `/challenges/[id]`, and `/account` all work end to end.
+  - Acceptance: the artifact records the checked live URL and confirms the authenticated route-loop reality, while noting any narrower signed-out edge case separately.
   - Verification for completion: committed artifact update with exact live URL and verdicts.
-  - Proof: updated `docs/LIVE_ROUTE_CHECK_2026-04-09.md` on 2026-04-10 after re-checking `https://cc-andreas-nordenadlers-projects.vercel.app` with `curl -L`; `/`, `/challenges`, and `/challenges/mate-in-one` returned 200 while `/account` returned 404.
+  - Proof: updated `docs/LIVE_ROUTE_CHECK_2026-04-09.md` on 2026-04-10 with both the signed-out/raw HTTP result and the authenticated Chrome result from the Mac mini.
 - [x] Add one clear post-submission result summary on the challenge detail route so users can understand their latest attempt state at a glance.
   - estimate: 1 focused run
   - Acceptance: after submitting a game ID, the challenge detail route shows a compact result summary with current status and latest attempt context.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - Proof: added a dedicated latest-attempt summary card on `src/app/challenges/[id]/page.tsx` backed by shared attempt-summary helpers in `src/lib/user-metadata.ts`; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
-- [x] Audit the live `/account` protection failure and record the exact Clerk/Vercel evidence in `cc/docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
+- [x] Audit the live `/account` protection behavior and record the exact Clerk/Vercel evidence in `cc/docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact captures the exact checked live URL, the observed response headers, the local route/middleware evidence, and the most likely deployment/auth mismatch causing the protected-route 404.
+  - Acceptance: artifact captures the exact checked live URL, the observed signed-out HTTP headers, the authenticated browser result, the local route/middleware evidence, and the narrow remaining auth concern without falsely calling the route fully broken.
   - Verification for completion: committed artifact exists at the named path.
-  - Proof: created `docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md` on 2026-04-10 with the live `curl -I -L` header evidence (`x-clerk-auth-reason: protect-rewrite, dev-browser-missing`) plus local route/config findings, and verified it locally with `test -f docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md`.
+  - Proof: updated `docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md` on 2026-04-10 with both the signed-out/raw HTTP evidence and the successful authenticated Chrome verification.
 - [x] Re-check the active Vercel deployment's Clerk environment against the `/account` protection audit and record the exact mismatch or clean bill of health in `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact states whether the active deployment is using the intended Clerk environment for the live hostname and names the exact mismatch if one exists.
+  - Acceptance: artifact states whether the active deployment is using the intended Clerk environment for the live hostname and distinguishes between configuration drift and actual product breakage.
   - Verification for completion: committed artifact exists at the named path with source evidence.
-  - Proof: created `docs/CLERK_ENV_CHECK_2026-04-10.md` on 2026-04-10 with `.vercel/project.json`, `npx vercel env ls production`, and `npx vercel env pull --environment=production` evidence showing the active Vercel production deployment is still using `pk_test_...` and `sk_test_...` Clerk keys matching local dev/test values; verified locally with `test -f docs/CLERK_ENV_CHECK_2026-04-10.md`.
+  - Proof: updated `docs/CLERK_ENV_CHECK_2026-04-10.md` on 2026-04-10 to keep the Vercel test-key evidence while correcting the product-state verdict: authenticated `/account` works in Chrome, and the remaining issue is signed-out/non-browser protected-route behavior.
 - [x] Write the exact Clerk production cutover checklist in `cc/docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact names the exact env vars to replace, the redeploy/check sequence, and the evidence Andreas must capture to safely clear the live `/account` blocker.
+  - Acceptance: artifact names the exact env vars to replace, the redeploy/check sequence, and the evidence Andreas must capture if we decide to clean up production auth configuration later.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md` on 2026-04-10 with the exact Vercel env vars, redeploy sequence, and required post-cutover evidence; verified locally with `test -f docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md`.
 - [x] Prepare an operator-ready Clerk production cutover checklist in `cc/docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact gives Andreas the shortest exact production-key replacement checklist plus the minimal proof needed to unblock the live `/account` re-check.
+  - Acceptance: artifact gives Andreas the shortest exact production-key replacement checklist plus the minimal proof needed if we later choose to normalize the signed-out flow.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md`.
 - [x] Define the smallest automated Lichess verification slice for the current v0 challenge loop in `cc/docs/LICHESS_VERIFICATION_SLICE_2026-04-10.md`.
@@ -97,39 +101,29 @@ Execution canon:
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - 2026-04-10: Added an "Active challenge" card on `/account` with current active challenge title, status banner text, and direct resume link for active runs; otherwise shows a calm no-active fallback line.
   - Proof: `pnpm lint` ✅, `pnpm build` ✅, commit `8c5cae7`.
-- [x] Write a one-page live `/account` blocker handoff note in `cc/docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md`.
+- [x] Write the live `/account` handoff status note in `cc/docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact states the exact blocker, the exact docs Andreas should use, and the single unblock condition that should trigger the queued live re-check.
+  - Acceptance: artifact reflects the corrected route status and points future work toward either normal product execution or narrower auth cleanup.
   - Verification for completion: committed artifact exists at the named path.
-  - Proof: created `docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md`.
+  - Proof: updated `docs/LIVE_ACCOUNT_BLOCKER_HANDOFF_2026-04-10.md` on 2026-04-10 to remove the false hard-block framing after authenticated Chrome verification.
 - [x] Write the exact Clerk domain and redirect alignment checklist in `cc/docs/CLERK_DOMAIN_ALIGNMENT_CHECKLIST_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact names the exact Clerk dashboard/domain checks Andreas should confirm alongside production key cutover for the active Vercel hostname and intended custom domain.
+  - Acceptance: artifact names the exact Clerk dashboard/domain checks Andreas should confirm if we later choose to align the signed-out auth experience more cleanly.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_DOMAIN_ALIGNMENT_CHECKLIST_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_DOMAIN_ALIGNMENT_CHECKLIST_2026-04-10.md`.
-- [x] Write a one-screen current Clerk cutover blocker status note in `cc/docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md`.
+- [x] Write the current Clerk cutover status note in `cc/docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact states the latest checked live URL, the latest observed blocker evidence, and the single human action that will make the queued post-cutover live re-check executable again.
+  - Acceptance: artifact states the remaining test-key drift and signed-out behavior without claiming the authenticated product flow is blocked.
   - Verification for completion: committed artifact exists at the named path.
-  - Proof: created `docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md`.
+  - Proof: updated `docs/CLERK_CUTOVER_BLOCKER_STATUS_2026-04-10.md` on 2026-04-10 after Chrome verification to clarify that the issue is cleanup, not a product freeze.
 - [x] Write the exact Vercel CLI production Clerk cutover command pack in `cc/docs/CLERK_VERCEL_CUTOVER_COMMANDS_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact provides the minimal copy-paste `vercel env rm` / `vercel env add` / redeploy command sequence Andreas can run once the live Clerk keys are ready, plus the exact follow-up smoke-test doc to use.
+  - Acceptance: artifact provides the minimal copy-paste `vercel env rm` / `vercel env add` / redeploy command sequence Andreas can run later if we choose to normalize production auth config, plus the exact follow-up smoke-test doc to use.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_VERCEL_CUTOVER_COMMANDS_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_VERCEL_CUTOVER_COMMANDS_2026-04-10.md`.
-- [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
-  - estimate: 1 focused run
-  - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
-  - Verification for completion: committed artifact update with live evidence.
-  - Blocked 2026-04-10 13:15 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
-  - Blocked 2026-04-10 13:44 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
-  - Blocked 2026-04-10 14:40 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
-  - Blocked 2026-04-10 15:19 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
-  - Blocked 2026-04-10 16:19 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
-  - Blocked 2026-04-10 17:00 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
 - [x] Write the exact post-cutover `/account` smoke-test command pack in `cc/docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md`.
   - estimate: 1 focused run
-  - Acceptance: artifact gives the exact minimal command sequence and success/failure signals needed to re-check live `/account` immediately after Clerk production key cutover.
+  - Acceptance: artifact gives the exact minimal command sequence and success/failure signals needed to re-check live `/account` immediately after any future Clerk production-key cutover.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md`.
 

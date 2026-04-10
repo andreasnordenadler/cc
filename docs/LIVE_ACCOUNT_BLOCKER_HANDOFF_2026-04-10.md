@@ -1,28 +1,27 @@
-# Live `/account` blocker handoff
+# Live `/account` handoff status
 
 Date: 2026-04-10
 Project: cc
 
-## Exact blocker
+## Status correction
 
-The active production deployment is still using Clerk test keys (`pk_test_...` / `sk_test_...`). Because of that mismatch, the protected live `/account` route still rewrites to 404 instead of serving the signed-in account flow.
+This is no longer accurate as a hard live blocker handoff.
 
-Latest repeated live evidence:
-- `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account`
-- verdict: `HTTP/2 404`
-- Clerk headers seen: `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`
-- repeated env evidence: `npx vercel env pull --yes --environment=production ...` still resolves to Clerk test keys
+Authenticated `/account` was verified working in Google Chrome on the Mac mini at 2026-04-10 17:09 Europe/Stockholm. The earlier blocker framing came from repeated signed-out/raw `curl` checks that still showed Clerk-managed 404 behavior.
+
+## Current reality
+
+- authenticated browser `/account` flow works
+- signed-out/non-browser `/account` checks still return a Clerk-managed `404` pattern
+- CC should continue as an active product lane
+- any Clerk cleanup should now be treated as auth-behavior polish, not a freeze condition
 
 ## Use these docs
 
-1. `docs/CLERK_ENV_CHECK_2026-04-10.md` for the exact evidence trail
-2. `docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md` for the shortest operator checklist
-3. `docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md` for the exact re-check commands immediately after cutover
+1. `docs/LIVE_ROUTE_CHECK_2026-04-09.md` for the corrected live route verdict
+2. `docs/ACCOUNT_PROTECTION_AUDIT_2026-04-10.md` for the split between authenticated success and signed-out 404 behavior
+3. `docs/CLERK_ENV_CHECK_2026-04-10.md` for the remaining Vercel test-key drift evidence
 
-## Single unblock condition
+## Practical next action
 
-Run the queued live re-check only after Vercel production env values have been replaced with the intended Clerk production keys and the site has been redeployed.
-
-## Expected next action after unblock
-
-Append the fresh live `/account` verdict and headers to `docs/CLERK_ENV_CHECK_2026-04-10.md` and then continue the roadmap from that result.
+Continue the roadmap from normal product work. Only return to the Clerk cutover docs if we decide to clean up the signed-out/protected-route experience or if real authenticated user failures appear.
