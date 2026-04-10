@@ -40,6 +40,20 @@ export const CHALLENGES: Challenge[] = [
     },
   },
   {
+    id: "finish-as-black",
+    title: "Finish as Black",
+    objective: "Complete and submit one finished game where you played as Black.",
+    instruction:
+      "Start a real Lichess game as Black, finish it, and return with the game ID.",
+    reward: 95,
+    openingHint:
+      "This closes the side-pair for finished-game verification without adding any new game outcome requirement.",
+    requirement: {
+      side: "black",
+      result: "finish",
+    },
+  },
+  {
     id: "win-as-white",
     title: "Win as White",
     objective: "Win one complete game as White.",
