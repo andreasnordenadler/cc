@@ -137,6 +137,15 @@ Execution canon:
   - Acceptance: one existing shipped challenge gets persisted `passed`, `failed`, or `pending` verdicts from real Lichess game data without widening scope.
   - Verification for completion: commit + `pnpm lint` + `pnpm build`.
   - Proof: added server-side Lichess verification in `src/lib/lichess.ts` and wired `src/app/actions.ts` to persist real `passed` / `failed` / `pending` verdicts for `finish-any-game`, update challenge completion metadata on pass, and preserve the narrower pending flow for other challenges; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
+- [x] Define the smallest next automated win-verification slice after `finish-any-game` in `cc/docs/LICHESS_WIN_VERIFICATION_SLICE_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact names the exact next challenge to automate, the minimum extra Lichess fields needed, the strict pass/fail boundary, and the explicit deferrals that keep the next code slice reviewable.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/LICHESS_WIN_VERIFICATION_SLICE_2026-04-10.md` on 2026-04-10, selected `win-as-white` as the next exact target, defined the required `winner` field and strict pass/fail boundary, and verified it locally with `test -f docs/LICHESS_WIN_VERIFICATION_SLICE_2026-04-10.md`.
+- [ ] Implement the next automated Lichess verdict for exactly one win-based challenge from the live catalog.
+  - estimate: 1 focused run
+  - Acceptance: one existing `win` challenge persists real `passed`, `failed`, or `pending` verdicts from Lichess without widening the UI or challenge catalog.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
 
 ## Proof rule
 
