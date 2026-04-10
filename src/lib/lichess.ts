@@ -98,12 +98,14 @@ export async function verifyFinishAnyGameAttempt({
   }
 }
 
-export async function verifyWinAsWhiteAttempt({
+async function verifyWinAttempt({
   gameId,
   lichessUsername,
+  requiredSide,
 }: {
   gameId: string;
   lichessUsername: string;
+  requiredSide: "white" | "black";
 }): Promise<LichessVerificationVerdict> {
   if (!lichessUsername) {
     return {
@@ -140,23 +142,26 @@ export async function verifyWinAsWhiteAttempt({
       };
     }
 
-    if (whiteName !== normalizedUsername) {
+    const actualSide = whiteName === normalizedUsername ? "white" : "black";
+    const requiredSideLabel = requiredSide === "white" ? "White" : "Black";
+
+    if (actualSide !== requiredSide) {
       return {
         status: "failed",
-        summary: `Submitted ${gameId}, but ${lichessUsername} played Black in that finished game, so it does not satisfy Win as White.`,
+        summary: `Submitted ${gameId}, but ${lichessUsername} played ${actualSide === "white" ? "White" : "Black"} in that finished game, so it does not satisfy Win as ${requiredSideLabel}.`,
       };
     }
 
-    if (game.winner !== "white") {
+    if (game.winner !== requiredSide) {
       return {
         status: "failed",
-        summary: `Submitted ${gameId}. ${lichessUsername} finished the game as White, but White did not win.`,
+        summary: `Submitted ${gameId}. ${lichessUsername} finished the game as ${requiredSideLabel}, but ${requiredSideLabel} did not win.`,
       };
     }
 
     return {
       status: "passed",
-      summary: `Verified ${gameId}. ${lichessUsername} won that finished Lichess game as White, so this challenge passed.`,
+      summary: `Verified ${gameId}. ${lichessUsername} won that finished Lichess game as ${requiredSideLabel}, so this challenge passed.`,
     };
   } catch {
     return {
@@ -164,4 +169,24 @@ export async function verifyWinAsWhiteAttempt({
       summary: `Submitted ${gameId}, but Lichess verification could not complete right now. Try again later if this stays pending.`,
     };
   }
+}
+
+export async function verifyWinAsWhiteAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  return verifyWinAttempt({ gameId, lichessUsername, requiredSide: "white" });
+}
+
+export async function verifyWinAsBlackAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  return verifyWinAttempt({ gameId, lichessUsername, requiredSide: "black" });
 }
