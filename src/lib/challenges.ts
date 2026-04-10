@@ -137,6 +137,20 @@ export const CHALLENGES: Challenge[] = [
       result: "lose",
     },
   },
+  {
+    id: "lose-as-white",
+    title: "Lose as White",
+    objective: "Finish and submit one lost game where you played as White.",
+    instruction:
+      "Play a real Lichess game as White, finish it with a loss, and return with the game ID.",
+    reward: 130,
+    openingHint:
+      "This adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop.",
+    requirement: {
+      side: "white",
+      result: "lose",
+    },
+  },
 ];
 
 export function getChallengeById(id: string): Challenge | undefined {

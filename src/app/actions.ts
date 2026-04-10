@@ -11,6 +11,7 @@ import {
   verifyFinishAsBlackAttempt,
   verifyFinishAsWhiteAttempt,
   verifyLoseAnyGameAttempt,
+  verifyLoseAsWhiteAttempt,
   verifyWinAsBlackAttempt,
   verifyWinAsWhiteAttempt,
 } from "@/lib/lichess";
@@ -132,12 +133,14 @@ export async function submitChallengeAttempt(formData: FormData) {
                     ? await verifyDrawAsBlackAttempt({ gameId, lichessUsername })
                     : challenge.id === "lose-any-game"
                       ? await verifyLoseAnyGameAttempt({ gameId, lichessUsername })
-                      : {
-                      status: "pending" as const,
-                      summary: lichessUsername
-                        ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
-                        : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
-                    };
+                      : challenge.id === "lose-as-white"
+                        ? await verifyLoseAsWhiteAttempt({ gameId, lichessUsername })
+                        : {
+                            status: "pending" as const,
+                            summary: lichessUsername
+                              ? `Submitted ${gameId} for ${lichessUsername}. Automated verification is not active for this challenge yet.`
+                              : `Submitted ${gameId}. Add your Lichess username in account settings for cleaner review context.`,
+                          };
   const completedChallengeIds =
     verification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
       ? [...progress.completedChallengeIds, challenge.id]

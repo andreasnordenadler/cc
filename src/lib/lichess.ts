@@ -262,9 +262,11 @@ export async function verifyDrawAsBlackAttempt({
 async function verifyLoseAttempt({
   gameId,
   lichessUsername,
+  requiredSide,
 }: {
   gameId: string;
   lichessUsername: string;
+  requiredSide: "white" | "black" | "either";
 }): Promise<LichessVerificationVerdict> {
   if (!lichessUsername) {
     return {
@@ -310,6 +312,15 @@ async function verifyLoseAttempt({
 
     const actualSide = whiteName === normalizedUsername ? "white" : "black";
 
+    const requiredSideLabel = requiredSide === "white" ? "White" : "Black";
+
+    if (requiredSide !== "either" && actualSide !== requiredSide) {
+      return {
+        status: "failed",
+        summary: `Submitted ${gameId}, but ${lichessUsername} played ${actualSide === "white" ? "White" : "Black"} in that finished game, so it does not satisfy Lose as ${requiredSideLabel}.`,
+      };
+    }
+
     if (game.winner === actualSide) {
       return {
         status: "failed",
@@ -317,9 +328,16 @@ async function verifyLoseAttempt({
       };
     }
 
+    if (requiredSide === "either") {
+      return {
+        status: "passed",
+        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss challenge passed.`,
+      };
+    }
+
     return {
       status: "passed",
-      summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss challenge passed.`,
+      summary: `Verified ${gameId}. ${lichessUsername} lost that finished Lichess game as ${requiredSideLabel}, so this challenge passed.`,
     };
   } catch {
     return {
@@ -336,7 +354,17 @@ export async function verifyLoseAnyGameAttempt({
   gameId: string;
   lichessUsername: string;
 }): Promise<LichessVerificationVerdict> {
-  return verifyLoseAttempt({ gameId, lichessUsername });
+  return verifyLoseAttempt({ gameId, lichessUsername, requiredSide: "either" });
+}
+
+export async function verifyLoseAsWhiteAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  return verifyLoseAttempt({ gameId, lichessUsername, requiredSide: "white" });
 }
 
 async function verifyWinAttempt({
