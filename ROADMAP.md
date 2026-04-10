@@ -102,6 +102,12 @@ Execution canon:
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
   - Verification for completion: committed artifact update with live evidence.
   - Blocked 2026-04-10 13:15 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
+  - Blocked 2026-04-10 13:44 Europe/Stockholm: fresh `npx vercel env pull --yes --environment=production .vercel/.env.production.recheck` still resolves to `pk_test_...` / `sk_test_...` Clerk keys, and `curl -I -L --max-redirs 10 https://cc-andreas-nordenadlers-projects.vercel.app/account` still returns `HTTP/2 404` with `x-clerk-auth-reason: protect-rewrite, dev-browser-missing` + `x-clerk-auth-status: signed-out`; see appended evidence in `docs/CLERK_ENV_CHECK_2026-04-10.md`.
+- [x] Write the exact post-cutover `/account` smoke-test command pack in `cc/docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact gives the exact minimal command sequence and success/failure signals needed to re-check live `/account` immediately after Clerk production key cutover.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_POST_CUTOVER_SMOKE_2026-04-10.md`.
 
 ## Proof rule
 
