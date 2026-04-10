@@ -69,6 +69,11 @@ export default async function ChallengeDetailPage({
               <div style={{ display: "grid", gap: 4 }}>
                 <p style={copyStyle}>Saved Lichess username: {lichessUsername || "not set yet"}</p>
                 <p style={copyStyle}>Saved Chess.com username: {chessComUsername || "not set yet"}</p>
+                <p style={metaStyle}>
+                  {challenge.id === "finish-any-game"
+                    ? "This challenge accepts a Lichess game ID/URL or a Chess.com game URL."
+                    : "For this challenge, automated verification currently uses the Lichess path."}
+                </p>
               </div>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                 <form action={startChallenge}>
