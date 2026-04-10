@@ -137,7 +137,7 @@ export default async function ChallengeDetailPage({
 const shellStyle = {
   minHeight: "100vh",
   padding: "clamp(20px, 3vw, 36px)",
-  background: "linear-gradient(180deg, #0b1020 0%, #111827 100%)",
+  background: "#0b1020",
   color: "#f8fafc",
 };
 
@@ -217,7 +217,7 @@ const statusBoxStyle = {
 const latestSummaryStyle = {
   borderRadius: 22,
   border: "1px solid rgba(96,165,250,0.28)",
-  background: "linear-gradient(180deg, rgba(30,41,59,0.92) 0%, rgba(15,23,42,0.88) 100%)",
+  background: "rgba(15,23,42,0.72)",
   padding: 18,
   display: "grid",
   gap: 10,

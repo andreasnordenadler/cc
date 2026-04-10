@@ -65,7 +65,7 @@ export default async function ChallengesPage() {
 const shellStyle = {
   minHeight: "100vh",
   padding: "clamp(20px, 3vw, 36px)",
-  background: "linear-gradient(180deg, #0b1020 0%, #111827 100%)",
+  background: "#0b1020",
   color: "#f8fafc",
 };
 

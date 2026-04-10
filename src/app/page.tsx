@@ -34,8 +34,7 @@ export default async function Home() {
       style={{
         minHeight: "100vh",
         padding: "clamp(20px, 3vw, 36px)",
-        background:
-          "radial-gradient(circle at top, rgba(96,165,250,0.18), transparent 32%), linear-gradient(180deg, #0b1020 0%, #111827 100%)",
+        background: "#0b1020",
         color: "#f8fafc",
       }}
     >
@@ -430,4 +429,3 @@ function getNextChallenge(
 
   return null;
 }
-
