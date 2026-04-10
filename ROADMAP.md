@@ -16,6 +16,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Refactor CC key pages to a stronger editorial hierarchy and reduce repetitive inline styles.
+  - estimate: 1 focused run
+  - Acceptance: `src/app/page.tsx` uses reusable style constants in place of repeated inline style objects, typography hierarchy is tightened in copy and headings, and account/challenge pages receive matching hierarchy polish without altering behavior.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+  - Proof: commit `d252e6a` (`CC: tighten editorial hierarchy and typography`), `pnpm lint` ✅, `pnpm build` ✅, and a no-gradient grep sweep across `src/app` returned no matches for `linear-gradient`, `radial-gradient`, or `conic-gradient`.
+
 - [x] Define the smallest next verifier-backed challenge expansion after the current fully automated six-challenge catalog in `cc/docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_4_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact identifies the exact next challenge to add, explains why it is the smallest reviewable post-catalog step from the live six-challenge state, names the already-available Lichess evidence it reuses, and explicitly defers any broader progression work.
