@@ -81,6 +81,11 @@ Execution canon:
   - Acceptance: artifact names the exact env vars to replace, the redeploy/check sequence, and the evidence Andreas must capture to safely clear the live `/account` blocker.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md` on 2026-04-10 with the exact Vercel env vars, redeploy sequence, and required post-cutover evidence; verified locally with `test -f docs/CLERK_PRODUCTION_CUTOVER_PLAN_2026-04-10.md`.
+- [x] Prepare an operator-ready Clerk production cutover checklist in `cc/docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact gives Andreas the shortest exact production-key replacement checklist plus the minimal proof needed to unblock the live `/account` re-check.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md` on 2026-04-10 and verified it locally with `test -f docs/CLERK_CUTOVER_OPERATOR_CHECKLIST_2026-04-10.md`.
 - [ ] After the Clerk keys are updated, re-check the live `/account` route and append the exact post-cutover verdict to `cc/docs/CLERK_ENV_CHECK_2026-04-10.md`.
   - estimate: 1 focused run
   - Acceptance: artifact records the checked live URL, whether Clerk still rewrites to 404, and the exact headers/verdict after cutover.
