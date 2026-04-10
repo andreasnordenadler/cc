@@ -109,6 +109,20 @@ export const CHALLENGES: Challenge[] = [
       result: "draw",
     },
   },
+  {
+    id: "draw-as-black",
+    title: "Draw as Black",
+    objective: "Finish and submit one drawn game where you played as Black.",
+    instruction:
+      "Play a real Lichess game as Black, finish it as a draw, and return with the game ID.",
+    reward: 120,
+    openingHint:
+      "This closes the side-pair for draw verification using the same single-game Lichess evidence already in production.",
+    requirement: {
+      side: "black",
+      result: "draw",
+    },
+  },
 ];
 
 export function getChallengeById(id: string): Challenge | undefined {

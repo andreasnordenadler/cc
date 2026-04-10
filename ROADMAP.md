@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-10 20:19 Europe/Stockholm
+Last updated: 2026-04-10 22:22 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -15,6 +15,17 @@ Execution canon:
 - keep scope tight
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
+
+- [x] Define the smallest next verifier-backed challenge expansion after the current fully automated seven-challenge catalog in `cc/docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_5_2026-04-10.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next challenge to add, explains why it is the smallest reviewable post-catalog step from the live seven-challenge state, names the already-available Lichess evidence it reuses, and explicitly defers any broader progression work.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_5_2026-04-10.md` on 2026-04-10, selected `draw-as-black` as the smallest next verifier-backed challenge expansion after the current fully automated seven-challenge catalog, and verified it locally with `test -f docs/NEXT_VERIFIER_BACKED_CHALLENGE_SLICE_5_2026-04-10.md`.
+- [x] Implement exactly one new verifier-backed challenge from the approved fifth post-catalog slice.
+  - estimate: 1 focused run
+  - Acceptance: the live challenge catalog grows by one narrow challenge that reuses the existing verification path and persists real `passed`, `failed`, or `pending` verdicts without widening the surrounding product loop.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+  - Proof: added `draw-as-black` to `src/lib/challenges.ts`, exported the narrow `verifyDrawAsBlackAttempt` wrapper in `src/lib/lichess.ts`, and wired `src/app/actions.ts` to persist real `passed` / `failed` / `pending` verdicts for `draw-as-black`; verified locally on 2026-04-10 with `pnpm lint` and `pnpm build`.
 
 - [x] Refactor CC key pages to a stronger editorial hierarchy and reduce repetitive inline styles.
   - estimate: 1 focused run

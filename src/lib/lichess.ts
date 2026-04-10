@@ -249,6 +249,16 @@ export async function verifyDrawAsWhiteAttempt({
   return verifyDrawAttempt({ gameId, lichessUsername, requiredSide: "white" });
 }
 
+export async function verifyDrawAsBlackAttempt({
+  gameId,
+  lichessUsername,
+}: {
+  gameId: string;
+  lichessUsername: string;
+}): Promise<LichessVerificationVerdict> {
+  return verifyDrawAttempt({ gameId, lichessUsername, requiredSide: "black" });
+}
+
 async function verifyWinAttempt({
   gameId,
   lichessUsername,
