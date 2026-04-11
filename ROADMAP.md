@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest canonical-host follow-up after the canonical-host auth-surface smoke proof, explains why one boundary detail-route check is now the tightest remaining host-consistency extension, reuses the current canonical-host and deployment-host evidence, and explicitly defers broader cross-host or signed-in browser auditing.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_BOUNDARY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live canonical-host boundary detail smoke proof on `/challenges/lose-as-black` as the tightest remaining host-consistency extension after the canonical-host auth-surface check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_BOUNDARY_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh post-parity live canonical-host boundary Chess.com-supported detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_BOUNDARY_SMOKE_2026-04-11.md`.
+- [x] Record one fresh post-parity live canonical-host boundary Chess.com-supported detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_BOUNDARY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 16:41 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records one canonical-host boundary challenge detail route, confirms it returns successfully, and captures live proof that the shipped Chess.com-supported submission wording remains visible there after the canonical-host auth-surface proof.
   - Verification for completion: committed artifact with exact canonical host URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_BOUNDARY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-black` returned `200` with `x-matched-path: /challenges/[id]`, and captured live response text proving the shipped Chess.com-supported boundary detail wording remains visible on the canonical host after the canonical-host auth-surface proof.
 
 - [x] Define the smallest next post-parity canonical-host auth-surface Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 16:03 Europe/Stockholm
