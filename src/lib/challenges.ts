@@ -44,10 +44,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Finish as Black",
     objective: "Complete and submit one finished game where you played as Black.",
     instruction:
-      "Start a real game as Black, finish it, and return with the game ID. Lichess is supported here today.",
+      "Start a real game as Black, finish it, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 95,
     openingHint:
-      "This closes the side-pair for finished-game verification without adding any new game outcome requirement.",
+      "This closes the side-pair for finished-game verification without adding any new game outcome requirement, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "black",
       result: "finish",
