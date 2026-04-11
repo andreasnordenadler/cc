@@ -17,6 +17,16 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Record one fresh same-run post-parity dual-host catalog-mixed Chess.com-supported smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 23:22 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host URLs for `/challenges`, `/challenges/win-as-white`, `/challenges/lose-as-black`, and `/account`, confirms both `/challenges` responses expose the full eleven shipped challenge routes during the same proof window, and captures concise representative-detail, boundary-detail, and signed-out protected-route evidence supporting a dual-host catalog-mixed parity verdict.
+  - Verification for completion: committed artifact with both exact list URLs, both exact detail URLs, both exact signed-out `/account` URLs, and the same-run eleven-route catalog verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_SMOKE_2026-04-11.md` on 2026-04-11, confirmed both `https://cc-andreas-nordenadlers-projects.vercel.app/challenges` and `https://cc-taupe-kappa.vercel.app/challenges` returned `200` with the full eleven-route challenge catalog during the same 2026-04-11 21:21:54 UTC to 21:21:58 UTC proof window, confirmed `/challenges/win-as-white` and `/challenges/lose-as-black` returned `200` on both hosts, confirmed signed-out `/account` returned the same visible `404` protection shape on both hosts, and independently rechecked the list plus signed-out auth surfaces in a second Python verification pass.
+- [ ] Define the smallest next post-parity dual-host catalog-mixed follow-up Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_FOLLOWUP_NEXT_STEP_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest proof-bearing follow-up after the completed dual-host catalog-mixed smoke proof, explains why it is the tightest remaining confidence extension from the current catalog-plus-detail-plus-auth evidence, reuses the current dual-host catalog-mixed proof chain, and explicitly defers authenticated browser work and broad per-route crawling.
+  - Verification for completion: artifact exists at the named path.
 - [x] Define the smallest next post-parity dual-host catalog-mixed Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 23:01 Europe/Stockholm
   - estimate: 1 focused run
