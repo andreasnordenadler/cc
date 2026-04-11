@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity canonical-host dual-host representative-detail parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_DETAIL_PARITY_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 19:41 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the dual-host challenge-list parity smoke proof, explains why one same-slice dual-host representative-detail `/challenges/win-as-white` parity recheck is now the tightest remaining public confidence extension, reuses the current canonical-host and deployment-host representative-detail evidence, and explicitly defers broader detail crawling or signed-in browser work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_DETAIL_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host representative-detail parity smoke proof on `/challenges/win-as-white` as the tightest next extension after the dual-host `/challenges` parity check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_DETAIL_PARITY_NEXT_STEP_2026-04-11.md`.
+- [ ] Record one fresh same-run post-parity dual-host representative-detail Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_DETAIL_PARITY_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host representative-detail URLs, confirms both return successfully during the same proof window, and captures live proof that the shipped Chess.com-supported submission wording remains visible on both hosts.
+  - Verification for completion: committed artifact with both exact live URLs and parity verdict.
+
 - [x] Define the smallest next post-parity canonical-host dual-host route-family parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_PARITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 19:04 Europe/Stockholm
   - estimate: 1 focused run
