@@ -17,6 +17,19 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity canonical-host auth-surface Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 16:03 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest canonical-host follow-up after the canonical-host catalog-integrity smoke proof, explains why one narrow `/account` auth-surface recheck is now the tightest remaining host-consistency extension, reuses the current canonical-host and deployment-host evidence, and explicitly defers broader auth cleanup or cross-host auditing.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live canonical-host auth/account smoke proof on `/account` as the tightest next host-consistency extension after the canonical-host catalog-integrity check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_NEXT_STEP_2026-04-11.md`.
+- [x] Record one fresh post-parity live canonical-host Chess.com-supported auth/account smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 16:04 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact records the current canonical production host `/account` route behavior, confirms it returns the expected auth/protection response, and captures live proof that the shipped Chess.com-aware account surface remains represented there after the canonical-host catalog-integrity proof.
+  - Verification for completion: committed artifact with exact canonical host URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-andreas-nordenadlers-projects.vercel.app/account` returned `404` with Clerk protected-route headers (`x-clerk-auth-status: signed-out`, `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`, `x-matched-path: /404`), and captured live Chess.com-aware account-surface evidence from the returned HTML plus shipped `/account` route code.
+
 - [x] Define the smallest next post-parity canonical-host catalog-integrity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 15:21 Europe/Stockholm
   - estimate: 1 focused run
