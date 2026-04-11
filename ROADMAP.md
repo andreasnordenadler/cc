@@ -23,10 +23,12 @@ Execution canon:
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected a representative active-live `win-as-white` Chess.com challenge detail smoke proof as the next smallest post-parity slice, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_NEXT_STEP_2026-04-11.md`.
 
-- [ ] Record one representative post-parity live Chess.com challenge detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_SMOKE_2026-04-11.md`.
+- [x] Record one representative post-parity live Chess.com challenge detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 09:02 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records one representative non-boundary Chess.com-supported live challenge detail route on the active production target, confirms the route returns successfully, and captures live proof that Chess.com submission wording remains visible after parity restoration.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-taupe-kappa.vercel.app/challenges/win-as-white` returned `200`, and captured live response text proving the shipped Chess.com game URL wording remains visible on the representative detail page after parity restoration.
 
 - [x] Deploy the already-shipped local eleven-challenge Chess.com catalog to the active production target and record the post-deploy parity proof in `cc/docs/CHESSCOM_LIVE_CATALOG_PARITY_RECHECK_2026-04-11.md`.
   - closed_at: 2026-04-11 08:20 Europe/Stockholm
