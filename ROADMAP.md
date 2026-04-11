@@ -35,10 +35,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the current list and detail post-parity checks, explains why the home entry surface is now the tightest confidence extension, reuses the existing post-parity evidence, and explicitly defers broader product work.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_ENTRY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live home-route Chess.com wording smoke proof on `/` as the smallest next confidence extension after the list and detail post-parity checks, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_ENTRY_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh post-parity live Chess.com-supported home smoke check in `cc/docs/CHESSCOM_POST_PARITY_ENTRY_SMOKE_2026-04-11.md`.
+- [x] Record one fresh post-parity live Chess.com-supported home smoke check in `cc/docs/CHESSCOM_POST_PARITY_ENTRY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 11:00 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the active live `/` route on the current production target, confirms the route returns successfully, and captures live proof that Chess.com-supported wording is still visible on the shipped home entry surface after the current post-parity list and detail proofs.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_ENTRY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-taupe-kappa.vercel.app/` returned `200`, and captured live response text proving the shipped home entry surface still shows Chess.com-supported wording after the current post-parity list and detail proofs.
 
 - [x] Define the smallest next post-parity boundary-detail proof step in `cc/docs/CHESSCOM_POST_PARITY_BOUNDARY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 09:20 Europe/Stockholm
