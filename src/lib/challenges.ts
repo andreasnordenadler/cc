@@ -156,10 +156,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Lose as Black",
     objective: "Finish and submit one lost game where you played as Black.",
     instruction:
-      "Play a real game as Black, finish it with a loss, and return with the game ID. Lichess is supported here today.",
+      "Play a real game as Black, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 135,
     openingHint:
-      "This closes the side-pair for loss verification using the same single-game Lichess evidence already reused across the current catalog.",
+      "This closes the side-pair for loss verification using the same single-game verifier path already reused across the current catalog, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "black",
       result: "lose",
