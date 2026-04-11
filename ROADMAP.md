@@ -23,6 +23,16 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the current entry, list, detail, submission, auth, and catalog-integrity post-parity checks, explains why canonical-host consistency is now the tightest confidence extension, reuses the existing post-parity evidence, and explicitly defers broader product work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live canonical-host home-route smoke proof as the smallest next confidence extension after the current post-parity deployment-host checks, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_NEXT_STEP_2026-04-11.md`.
+- [x] Record one fresh post-parity live canonical-host Chess.com-supported home smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 13:40 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact records the current canonical production host root, confirms it returns successfully, and captures live proof that the shipped Chess.com-supported home-entry wording remains visible there after the current deployment-host post-parity proof chain.
+  - Verification for completion: committed artifact with exact canonical host URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-andreas-nordenadlers-projects.vercel.app/` returned `200`, and captured live response text proving the shipped home-entry Chess.com wording matches the current deployment-host proof on `https://cc-taupe-kappa.vercel.app/` during the same check window.
+- [ ] Define the smallest next post-parity canonical-host route-family Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_NEXT_STEP_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest canonical-host follow-up after the canonical-host home smoke proof, explains why one additional narrow route-family check is the tightest remaining host-consistency extension, reuses the current canonical-host and deployment-host evidence, and explicitly defers broader cross-host auditing.
+  - Verification for completion: artifact exists at the named path.
 - [x] Define the smallest next post-parity catalog-integrity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 12:40 Europe/Stockholm
   - estimate: 1 focused run
