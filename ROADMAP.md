@@ -16,6 +16,13 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Deploy the already-shipped local eleven-challenge Chess.com catalog to the active production target and record the post-deploy parity proof in `cc/docs/CHESSCOM_LIVE_CATALOG_PARITY_RECHECK_2026-04-11.md`.
+  - closed_at: 2026-04-11 08:20 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: the active deployed `/challenges` surface reflects the local eleven-challenge catalog, `/challenges/finish-any-game` and `/challenges/lose-as-black` both return success on the active live target, and the named artifact records exact checked URLs plus the parity verdict.
+  - Verification for completion: commit + relevant pre-deploy checks (`pnpm lint` and `pnpm build`) + committed artifact with exact live results.
+  - Proof: deployed current `main` to Vercel production on 2026-04-11, verified `pnpm lint` and `pnpm build`, confirmed `https://cc-taupe-kappa.vercel.app/challenges` returned `200` with eleven unique challenge routes including `/challenges/lose-as-black`, and confirmed `https://cc-taupe-kappa.vercel.app/challenges/finish-any-game` plus `https://cc-taupe-kappa.vercel.app/challenges/lose-as-black` both returned `200`; recorded the exact recheck in `docs/CHESSCOM_LIVE_CATALOG_PARITY_RECHECK_2026-04-11.md`.
+
 - [x] Audit whether the active live deployment still exposes the full eleven-challenge Chess.com catalog and record the exact parity verdict in `cc/docs/CHESSCOM_LIVE_CATALOG_PARITY_AUDIT_2026-04-11.md`.
   - closed_at: 2026-04-11 07:40 Europe/Stockholm
   - estimate: 1 focused run
