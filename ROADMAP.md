@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity canonical-host dual-host auth parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_PARITY_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 17:41 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the dual-host boundary-detail parity smoke proof, explains why one same-slice dual-host `/account` parity recheck is now the tightest remaining confidence extension, reuses the current canonical-host and deployment-host auth evidence, and explicitly defers signed-in browser or broader host crawling.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host auth/account parity smoke proof on `/account` as the tightest next extension after the dual-host boundary-detail parity check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_PARITY_NEXT_STEP_2026-04-11.md`.
+- [ ] Record one fresh same-run post-parity dual-host Chess.com-supported auth/account parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_PARITY_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host `/account` URLs, confirms both return the expected signed-out protected-route response during the same proof window, and captures parity evidence for the shipped Chess.com-aware account surface.
+  - Verification for completion: committed artifact with both exact live URLs and parity verdict.
+
 - [x] Define the smallest next post-parity canonical-host boundary-detail Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_BOUNDARY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 16:22 Europe/Stockholm
   - estimate: 1 focused run
