@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the current entry, list, detail, submission, and auth post-parity checks, explains why a catalog-integrity recheck is now the tightest confidence extension, reuses the existing post-parity evidence, and explicitly defers broader product work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live `/challenges` catalog-integrity smoke proof as the tightest next confidence extension after the current post-parity surface-family checks, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh post-parity live Chess.com catalog-integrity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_SMOKE_2026-04-11.md`.
+- [x] Record one fresh post-parity live Chess.com catalog-integrity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 13:01 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the active live `/challenges` route on the current production target, confirms the route still returns successfully, and captures live proof that the shipped eleven-challenge Chess.com-supported catalog remains visible after the current post-parity surface-family proofs.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-taupe-kappa.vercel.app/challenges` returned `200`, and captured live response evidence showing all eleven shipped Chess.com-supported challenge routes remain visible on the active production list after the current post-parity surface-family proofs.
 - [x] Define the smallest next post-parity submission-surface Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_SUBMISSION_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 12:02 Europe/Stockholm
   - estimate: 1 focused run
