@@ -4,6 +4,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
 import {
+  verifyChessComDrawAnyGameAttempt,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
   verifyChessComFinishAsWhiteAttempt,
@@ -150,6 +151,8 @@ export async function submitChallengeAttempt(formData: FormData) {
               ? await verifyChessComWinAsBlackAttempt({ gameUrl: gameId, chessComUsername })
             : challenge.id === "win-as-black"
               ? await verifyWinAsBlackAttempt({ gameId, lichessUsername })
+              : challenge.id === "draw-any-game" && isChessComSubmission
+                ? await verifyChessComDrawAnyGameAttempt({ gameUrl: gameId, chessComUsername })
               : challenge.id === "draw-any-game"
                 ? await verifyDrawAnyGameAttempt({ gameId, lichessUsername })
                 : challenge.id === "draw-as-white"

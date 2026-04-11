@@ -46,22 +46,6 @@ function normalizeChessComGameUrl(value: string): string {
   return value.trim().replace(/\/+$/, "");
 }
 
-function extractArchivePathFromGameUrl(value: string): { year: string; month: string } | null {
-  const normalized = normalizeChessComGameUrl(value);
-
-  const liveMatch = normalized.match(/\/game\/live\/(\d+)$/i);
-  if (liveMatch) {
-    return null;
-  }
-
-  const dailyMatch = normalized.match(/\/game\/daily\/([a-z0-9-]+)$/i);
-  if (dailyMatch) {
-    return null;
-  }
-
-  return null;
-}
-
 async function fetchArchiveMonths(chessComUsername: string): Promise<string[] | null> {
   const response = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(chessComUsername)}/games/archives`, {
     headers: {
@@ -328,5 +312,23 @@ export async function verifyChessComWinAsBlackAttempt({
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
     resultRequirement: (game) => didSideWin(game, "black"),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as Black, but Black did not win.`,
+  });
+}
+
+export async function verifyChessComDrawAnyGameAttempt({
+  gameUrl,
+  chessComUsername,
+}: {
+  gameUrl: string;
+  chessComUsername: string;
+}): Promise<ChessComVerificationVerdict> {
+  return verifyChessComFinishedGameWithSideRequirement({
+    gameUrl,
+    chessComUsername,
+    requiredSide: "either",
+    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public draw, so this challenge passed.`,
+    sideMismatchSummary: "",
+    resultRequirement: (game) => isDrawGame(game),
+    resultMismatchSummary: `Submitted Chess.com game found, but it did not finish as a draw.`,
   });
 }

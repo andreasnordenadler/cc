@@ -86,10 +86,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Draw Any Game",
     objective: "Finish and submit one drawn game where your saved chess account appears.",
     instruction:
-      "Play a real game, finish it as a draw, and return with the game ID. Lichess is supported here today.",
+      "Play a real game, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 110,
     openingHint:
-      "This is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic.",
+      "This is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "either",
       result: "draw",
