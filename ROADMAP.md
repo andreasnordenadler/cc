@@ -16,6 +16,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next Chess.com verifier-backed challenge expansion after the current shipped `draw-any-game` support in `cc/docs/CHESSCOM_NEXT_VERIFIER_SLICE_6_2026-04-11.md`.
+  - closed_at: 2026-04-11 04:19 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next Chess.com challenge to add, explains why it is the smallest reviewable step from the live `draw-any-game` state, names the already-available Chess.com evidence it reuses, and explicitly defers broader Chess.com progression work.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_NEXT_VERIFIER_SLICE_6_2026-04-11.md` on 2026-04-11, selected `draw-as-white` as the smallest next Chess.com verifier-backed challenge expansion after the live `draw-any-game` state, and verified it locally with `test -f docs/CHESSCOM_NEXT_VERIFIER_SLICE_6_2026-04-11.md`.
 - [x] Define the smallest next Chess.com verifier-backed challenge expansion after the current shipped `win-as-black` support in `cc/docs/CHESSCOM_NEXT_VERIFIER_SLICE_5_2026-04-11.md`.
   - closed_at: 2026-04-11 03:39 Europe/Stockholm
   - estimate: 1 focused run
