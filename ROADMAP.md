@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity canonical-host catalog-integrity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 15:21 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest canonical-host follow-up after the canonical-host representative detail smoke proof, explains why one narrow catalog-integrity recheck is now the tightest remaining host-consistency extension, reuses the current canonical-host and deployment-host evidence, and explicitly defers broader cross-host auditing.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live canonical-host catalog-integrity smoke proof on `/challenges` as the tightest next host-consistency extension after the canonical-host representative detail check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
+- [ ] Record one fresh post-parity live canonical-host Chess.com catalog-integrity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_CATALOG_INTEGRITY_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the current canonical production host `/challenges` route, confirms it returns successfully, and captures live proof that the shipped eleven-challenge Chess.com-supported catalog remains visible there after the canonical-host representative detail proof.
+  - Verification for completion: committed artifact with exact canonical host URL and verdict.
+
 - [x] Define the smallest next post-parity canonical-host detail-route Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_DETAIL_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 14:41 Europe/Stockholm
   - estimate: 1 focused run
