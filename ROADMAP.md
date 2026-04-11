@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest follow-up after the dual-host auth/account parity smoke proof, explains why one same-slice dual-host `/` parity recheck is now the tightest remaining public confidence extension, reuses the current canonical-host and deployment-host home evidence, and explicitly defers broader crawling or signed-in browser work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_HOME_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host home-route parity smoke proof on `/` as the tightest next extension after the dual-host auth/account parity check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_HOME_PARITY_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh same-run post-parity dual-host home Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_HOME_PARITY_SMOKE_2026-04-11.md`.
+- [x] Record one fresh same-run post-parity dual-host home Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_HOME_PARITY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 18:42 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the exact canonical-host and active deployment-host home URLs, confirms both return successfully during the same proof window, and captures live proof that the shipped Chess.com-supported home-entry wording remains visible on both hosts.
   - Verification for completion: committed artifact with both exact live URLs and parity verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_HOME_PARITY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed both `https://cc-andreas-nordenadlers-projects.vercel.app/` and `https://cc-taupe-kappa.vercel.app/` returned `200` with `x-matched-path: /` during the same proof window, and captured shared Chess.com-supported home-entry wording proving dual-host root-surface parity.
 
 - [x] Define the smallest next post-parity canonical-host dual-host auth parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_AUTH_PARITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 17:41 Europe/Stockholm
