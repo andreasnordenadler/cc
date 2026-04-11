@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getChallengeById } from "@/lib/challenges";
 import {
   verifyChessComDrawAnyGameAttempt,
+  verifyChessComDrawAsBlackAttempt,
+  verifyChessComDrawAsWhiteAttempt,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
   verifyChessComFinishAsWhiteAttempt,
@@ -155,8 +157,12 @@ export async function submitChallengeAttempt(formData: FormData) {
                 ? await verifyChessComDrawAnyGameAttempt({ gameUrl: gameId, chessComUsername })
               : challenge.id === "draw-any-game"
                 ? await verifyDrawAnyGameAttempt({ gameId, lichessUsername })
+                : challenge.id === "draw-as-white" && isChessComSubmission
+                  ? await verifyChessComDrawAsWhiteAttempt({ gameUrl: gameId, chessComUsername })
                 : challenge.id === "draw-as-white"
                   ? await verifyDrawAsWhiteAttempt({ gameId, lichessUsername })
+                  : challenge.id === "draw-as-black" && isChessComSubmission
+                    ? await verifyChessComDrawAsBlackAttempt({ gameUrl: gameId, chessComUsername })
                   : challenge.id === "draw-as-black"
                     ? await verifyDrawAsBlackAttempt({ gameId, lichessUsername })
                     : challenge.id === "lose-any-game"

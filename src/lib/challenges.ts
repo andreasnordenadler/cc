@@ -100,10 +100,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Draw as White",
     objective: "Finish and submit one drawn game where you played as White.",
     instruction:
-      "Play a real game as White, finish it as a draw, and return with the game ID. Lichess is supported here today.",
+      "Play a real game as White, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 115,
     openingHint:
-      "This adds one side-specific draw check without widening the loop beyond the current single-game verifier path.",
+      "This adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "white",
       result: "draw",
@@ -114,10 +114,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Draw as Black",
     objective: "Finish and submit one drawn game where you played as Black.",
     instruction:
-      "Play a real game as Black, finish it as a draw, and return with the game ID. Lichess is supported here today.",
+      "Play a real game as Black, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 120,
     openingHint:
-      "This closes the side-pair for draw verification using the same single-game Lichess evidence already in production.",
+      "This closes the side-pair for draw verification using the same single-game verifier path already in production, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "black",
       result: "draw",
