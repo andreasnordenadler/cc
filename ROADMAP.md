@@ -35,6 +35,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest canonical-host follow-up after the canonical-host home smoke proof, explains why one additional narrow route-family check is the tightest remaining host-consistency extension, reuses the current canonical-host and deployment-host evidence, and explicitly defers broader cross-host auditing.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live canonical-host `/challenges` route-family smoke proof as the tightest next host-consistency extension after the canonical-host home-route check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_NEXT_STEP_2026-04-11.md`.
+- [x] Record one fresh post-parity live canonical-host Chess.com-supported route-family smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 14:21 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact records the current canonical production host `/challenges` route, confirms it returns successfully, and captures live proof that the shipped Chess.com-supported challenge-list wording remains visible there after the canonical-host home-route proof.
+  - Verification for completion: committed artifact with exact canonical host URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-andreas-nordenadlers-projects.vercel.app/challenges` returned `200`, and captured live response text proving the shipped challenge-list Chess.com wording remains visible on the canonical host after the canonical-host home-route proof.
 - [x] Define the smallest next post-parity catalog-integrity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 12:40 Europe/Stockholm
   - estimate: 1 focused run
