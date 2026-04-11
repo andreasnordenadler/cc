@@ -22,10 +22,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the representative `win-as-white` detail smoke proof, explains why a boundary detail route is now the tightest confidence extension, reuses the existing parity and representative-detail evidence, and explicitly defers broader product work.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_BOUNDARY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected a live `lose-as-black` boundary detail smoke proof as the smallest next confidence extension after the representative `win-as-white` check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_BOUNDARY_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one boundary post-parity live Chess.com challenge detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_BOUNDARY_SMOKE_2026-04-11.md`.
+- [x] Record one boundary post-parity live Chess.com challenge detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_BOUNDARY_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 09:40 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records one active-live boundary Chess.com-supported challenge detail route on the active production target, confirms the route returns successfully, and captures live proof that Chess.com submission wording remains visible on that boundary page after parity restoration.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_BOUNDARY_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-taupe-kappa.vercel.app/challenges/lose-as-black` returned `200`, and captured live response text proving the shipped Chess.com game URL wording remains visible on the boundary detail page after parity restoration.
 
 - [x] Define the smallest post-parity Chess.com live-proof follow-up in `cc/docs/CHESSCOM_POST_PARITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 08:40 Europe/Stockholm
