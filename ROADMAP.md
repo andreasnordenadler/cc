@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest follow-up after the dual-host public-bundle parity smoke proof, explains why one same-run mixed-surface bundle recheck across representative public and signed-out protected surfaces is now the tightest remaining confidence extension, reuses the current dual-host public-bundle and auth parity evidence, and explicitly defers signed-in browser work and broader crawling.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host mixed-surface bundle parity smoke proof across `/`, `/challenges/win-as-white`, and `/account` as the tightest next extension after the completed dual-host public-bundle proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh same-run post-parity dual-host mixed-surface bundle Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_BUNDLE_SMOKE_2026-04-11.md`.
+- [x] Record one fresh same-run post-parity dual-host mixed-surface bundle Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_BUNDLE_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 21:22 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the exact canonical-host and active deployment-host URLs for `/`, `/challenges/win-as-white`, and `/account`, confirms all six checks complete during the same proof window, and captures concise public plus signed-out protected-route evidence supporting a dual-host mixed-surface bundle parity verdict.
   - Verification for completion: committed artifact with all exact live URLs and mixed-surface parity verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_BUNDLE_SMOKE_2026-04-11.md` on 2026-04-11, confirmed the six exact canonical-host and active deployment-host mixed-surface URLs completed during the same 2026-04-11 19:21:43 UTC to 19:21:47 UTC proof window, and captured shared public Chess.com-supported wording plus identical signed-out `/account` protection headers on both hosts.
 
 - [x] Define the smallest next post-parity dual-host public-bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_PUBLIC_BUNDLE_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 20:21 Europe/Stockholm
