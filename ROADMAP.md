@@ -22,10 +22,12 @@ Execution canon:
   - Acceptance: artifact states whether the active deployed `/challenges` surface and a boundary challenge route still match the local eleven-challenge catalog, captures the exact live mismatch or clean parity result, and keeps scope limited to evidence rather than shipping a fix.
   - Verification for completion: committed artifact exists at the named path with exact checked live URLs and verdicts.
   - Proof: created `docs/CHESSCOM_LIVE_CATALOG_PARITY_AUDIT_2026-04-11.md` on 2026-04-11, confirmed local `src/lib/challenges.ts` defines eleven routes while the active live `/challenges` surface exposes ten, verified `https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-any-game` returned `200`, and confirmed `https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-black` returned `404`; verified locally with `test -f docs/CHESSCOM_LIVE_CATALOG_PARITY_AUDIT_2026-04-11.md`.
-- [ ] Define the smallest reviewable next step after the live Chess.com catalog parity verdict in `cc/docs/CHESSCOM_LIVE_CATALOG_PARITY_NEXT_STEP_2026-04-11.md`.
+- [x] Define the smallest reviewable next step after the live Chess.com catalog parity verdict in `cc/docs/CHESSCOM_LIVE_CATALOG_PARITY_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 08:00 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact names the exact next slice implied by the parity audit, explains why it is the smallest reviewable move, and explicitly defers wider product work.
   - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_LIVE_CATALOG_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, defined deploy-plus-recheck of `/challenges`, `/challenges/finish-any-game`, and `/challenges/lose-as-black` as the exact smallest follow-up after the live parity mismatch, and verified it locally with `test -f docs/CHESSCOM_LIVE_CATALOG_PARITY_NEXT_STEP_2026-04-11.md`.
 
 - [x] Define the smallest post-catalog Chess.com proof step after the current fully automated eleven-challenge catalog in `cc/docs/CHESSCOM_POST_CATALOG_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 07:01 Europe/Stockholm
