@@ -22,10 +22,12 @@ Execution canon:
   - Acceptance: artifact identifies the smallest next proof-bearing step after the fully automated Chess.com challenge catalog, explains why another challenge expansion is no longer the tightest move, names the already-shipped Chess.com evidence it reuses, and explicitly defers broader product work.
   - Verification for completion: committed artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_CATALOG_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected a live Chess.com catalog smoke check as the smallest next proof-bearing step after full eleven-challenge coverage, and verified it locally with `test -f docs/CHESSCOM_POST_CATALOG_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one representative live Chess.com catalog smoke check in `cc/docs/CHESSCOM_LIVE_CATALOG_SMOKE_2026-04-11.md`.
+- [x] Record one representative live Chess.com catalog smoke check in `cc/docs/CHESSCOM_LIVE_CATALOG_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 07:22 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records one deployed Chess.com-supported challenge route, confirms the route returns successfully, and captures live proof that Chess.com submission wording is visible on the active product surface.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_LIVE_CATALOG_SMOKE_2026-04-11.md` on 2026-04-11, verified `https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-any-game` returned `200`, and confirmed the live HTML includes `Play any game and submit the finished Lichess game ID or Chess.com game URL. This proves the loop end-to-end.`
 
 - [x] Define the smallest next Chess.com verifier-backed challenge expansion after the current shipped `lose-any-game` support in `cc/docs/CHESSCOM_NEXT_VERIFIER_SLICE_9_2026-04-11.md`.
   - closed_at: 2026-04-11 06:00 Europe/Stockholm
