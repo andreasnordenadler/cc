@@ -17,6 +17,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity canonical-host Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 13:21 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the current entry, list, detail, submission, auth, and catalog-integrity post-parity checks, explains why canonical-host consistency is now the tightest confidence extension, reuses the existing post-parity evidence, and explicitly defers broader product work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live canonical-host home-route smoke proof as the smallest next confidence extension after the current post-parity deployment-host checks, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_NEXT_STEP_2026-04-11.md`.
 - [x] Define the smallest next post-parity catalog-integrity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CATALOG_INTEGRITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 12:40 Europe/Stockholm
   - estimate: 1 focused run
