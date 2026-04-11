@@ -16,6 +16,18 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest post-parity Chess.com live-proof follow-up in `cc/docs/CHESSCOM_POST_PARITY_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 08:40 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest proof-bearing step after the restored eleven-route live catalog parity, explains why it is the tightest follow-up, reuses the just-recorded live parity evidence, and explicitly defers broader product work.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected a representative active-live `win-as-white` Chess.com challenge detail smoke proof as the next smallest post-parity slice, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_NEXT_STEP_2026-04-11.md`.
+
+- [ ] Record one representative post-parity live Chess.com challenge detail smoke check in `cc/docs/CHESSCOM_POST_PARITY_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records one representative non-boundary Chess.com-supported live challenge detail route on the active production target, confirms the route returns successfully, and captures live proof that Chess.com submission wording remains visible after parity restoration.
+  - Verification for completion: committed artifact with exact live URL and verdict.
+
 - [x] Deploy the already-shipped local eleven-challenge Chess.com catalog to the active production target and record the post-deploy parity proof in `cc/docs/CHESSCOM_LIVE_CATALOG_PARITY_RECHECK_2026-04-11.md`.
   - closed_at: 2026-04-11 08:20 Europe/Stockholm
   - estimate: 1 focused run
