@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-11 18:21 Europe/Stockholm
+Last updated: 2026-04-12 01:04 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host home-plus-catalog mixed smoke proof, explains why one fresh same-run dual-host full catalog detail sweep across `/challenges`, all eleven shipped `/challenges/[id]` routes, and `/account` is now the tightest remaining confidence extension, reuses the current dual-host home-plus-catalog mixed proof chain, and explicitly defers authenticated browser work, submission mutations, and deployment work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_CATALOG_DETAIL_SWEEP_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run dual-host full catalog detail sweep proof across `/challenges`, all eleven shipped `/challenges/[id]` routes, and `/account` as the tightest next extension after the completed dual-host home-plus-catalog mixed smoke proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_CATALOG_DETAIL_SWEEP_NEXT_STEP_2026-04-12.md`.
-- [ ] Record one fresh same-run post-parity dual-host full-catalog detail-sweep Chess.com-supported smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_CATALOG_DETAIL_SWEEP_SMOKE_2026-04-12.md`.
+- [x] Record one fresh same-run post-parity dual-host full-catalog detail-sweep Chess.com-supported smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_CATALOG_DETAIL_SWEEP_SMOKE_2026-04-12.md`.
+  - closed_at: 2026-04-12 01:04 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the exact canonical-host and active deployment-host URLs for `/challenges`, all eleven shipped `/challenges/[id]` routes, and `/account`, confirms all twenty-six checks complete during the same proof window, confirms both `/challenges` responses expose the full eleven shipped challenge routes during that same run, and captures concise full-sweep detail evidence plus signed-out protected-route evidence supporting a dual-host full-catalog detail-sweep parity verdict.
   - Verification for completion: committed artifact with both list URLs, all twenty-two exact detail URLs, both exact signed-out `/account` URLs, and the same-run full-catalog parity verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_CATALOG_DETAIL_SWEEP_SMOKE_2026-04-12.md` on 2026-04-12, confirmed both `https://cc-andreas-nordenadlers-projects.vercel.app/challenges` and `https://cc-taupe-kappa.vercel.app/challenges` returned `200` with the same eleven shipped challenge routes during the same 2026-04-11 23:02:10 UTC to 23:02:17 UTC proof window, confirmed all twenty-two exact shipped detail URLs returned `200` with matching Chess.com-supported wording on both hosts, confirmed signed-out `/account` returned the same visible `404` protection shape on both hosts, and verified the artifact exists locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_CATALOG_DETAIL_SWEEP_SMOKE_2026-04-12.md`.
 
 - [x] Define the smallest next post-parity dual-host home-plus-catalog mixed Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_HOME_PLUS_CATALOG_MIXED_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 00:02 Europe/Stockholm
