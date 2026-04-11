@@ -95,6 +95,10 @@ function didSideWin(game: ChessComGame, side: "white" | "black"): boolean {
   return Boolean(opponentResult && WINNING_RESULTS.has(opponentResult));
 }
 
+function didSideLose(game: ChessComGame, side: "white" | "black"): boolean {
+  return didSideWin(game, side === "white" ? "black" : "white");
+}
+
 function getPlayerSideForUsername(game: ChessComGame, chessComUsername: string): "white" | "black" | null {
   const normalizedUsername = normalizeChessComUsername(chessComUsername);
   const whiteName = normalizeChessComUsername(game.white?.username ?? "");
@@ -366,5 +370,23 @@ export async function verifyChessComDrawAsBlackAttempt({
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
     resultRequirement: (game) => isDrawGame(game),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as Black, but the game did not finish as a draw.`,
+  });
+}
+
+export async function verifyChessComLoseAnyGameAttempt({
+  gameUrl,
+  chessComUsername,
+}: {
+  gameUrl: string;
+  chessComUsername: string;
+}): Promise<ChessComVerificationVerdict> {
+  return verifyChessComFinishedGameWithSideRequirement({
+    gameUrl,
+    chessComUsername,
+    requiredSide: "either",
+    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public loss, so this challenge passed.`,
+    sideMismatchSummary: "",
+    resultRequirement: (game, playerSide) => didSideLose(game, playerSide),
+    resultMismatchSummary: `Submitted Chess.com game found, but it did not finish as a loss for ${chessComUsername}.`,
   });
 }

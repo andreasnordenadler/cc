@@ -128,10 +128,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Lose Any Game",
     objective: "Finish and submit one lost game where your saved chess account appears.",
     instruction:
-      "Play a real game, finish it with a loss, and return with the game ID. Lichess is supported here today.",
+      "Play a real game, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 125,
     openingHint:
-      "This adds one narrow loss check using the same finished-game, identity, and winner evidence already in the verifier path.",
+      "This adds one narrow loss check using the same finished-game, identity, and decisive-result evidence already in the verifier path, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "either",
       result: "lose",
