@@ -72,10 +72,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Win as Black",
     objective: "Win one complete game as Black.",
     instruction:
-      "Play a real game as Black and finish it with a win. Return the game ID. Lichess is supported here today.",
+      "Play a real game as Black and finish it with a win. Return the finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 120,
     openingHint:
-      "Aim for clean king safety and trading down into endgame clarity.",
+      "This closes the win-side pair with the same narrow verifier loop already live for White, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "black",
       result: "win",

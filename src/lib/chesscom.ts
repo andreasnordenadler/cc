@@ -312,3 +312,21 @@ export async function verifyChessComWinAsWhiteAttempt({
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as White, but White did not win.`,
   });
 }
+
+export async function verifyChessComWinAsBlackAttempt({
+  gameUrl,
+  chessComUsername,
+}: {
+  gameUrl: string;
+  chessComUsername: string;
+}): Promise<ChessComVerificationVerdict> {
+  return verifyChessComFinishedGameWithSideRequirement({
+    gameUrl,
+    chessComUsername,
+    requiredSide: "black",
+    passSummary: `Verified Chess.com game. ${chessComUsername} won a finished public game as Black, so this challenge passed.`,
+    sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
+    resultRequirement: (game) => didSideWin(game, "black"),
+    resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as Black, but Black did not win.`,
+  });
+}
