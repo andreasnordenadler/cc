@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the current public, auth, list, and detail post-parity checks, explains why the representative submission surface is now the tightest confidence extension, reuses the existing post-parity evidence, and explicitly defers broader product work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_SUBMISSION_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live representative submission-surface smoke proof on `/challenges/win-as-white` as the smallest next confidence extension after the current route-family checks, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_SUBMISSION_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh post-parity live Chess.com-supported submission-surface smoke check in `cc/docs/CHESSCOM_POST_PARITY_SUBMISSION_SMOKE_2026-04-11.md`.
+- [x] Record one fresh post-parity live Chess.com-supported submission-surface smoke check in `cc/docs/CHESSCOM_POST_PARITY_SUBMISSION_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 12:21 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records one active-live representative Chess.com-supported challenge submission surface on the active production target, confirms the route returns successfully, and captures live proof that the shipped submit-loop wording remains visible after the current post-parity route-family proofs.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_SUBMISSION_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-taupe-kappa.vercel.app/challenges/win-as-white` returned `200`, and captured live response text proving the shipped submit-loop wording still tells users to return with a finished game ID or Chess.com game URL on the representative challenge detail route after the current post-parity route-family proofs.
 - [x] Define the smallest next post-parity detail-coverage Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DETAIL_COVERAGE_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 10:00 Europe/Stockholm
   - estimate: 1 focused run
