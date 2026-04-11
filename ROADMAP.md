@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest follow-up after the completed route-by-route dual-host public parity proof chain, explains why one same-run representative public-bundle recheck is now the tightest remaining confidence extension, reuses the current dual-host public-surface evidence, and explicitly defers signed-in browser work and full-catalog crawling.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_PUBLIC_BUNDLE_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host public-bundle parity smoke proof across `/`, `/challenges`, `/challenges/win-as-white`, and `/challenges/lose-as-black` as the tightest next extension after the completed route-by-route parity chain, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_PUBLIC_BUNDLE_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh same-run post-parity dual-host public-bundle Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_PUBLIC_BUNDLE_SMOKE_2026-04-11.md`.
+- [x] Record one fresh same-run post-parity dual-host public-bundle Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_PUBLIC_BUNDLE_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 20:41 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the exact canonical-host and active deployment-host URLs for `/`, `/challenges`, `/challenges/win-as-white`, and `/challenges/lose-as-black`, confirms all eight checks return successfully during the same proof window, and captures shared visible wording supporting a concise dual-host public-bundle parity verdict.
   - Verification for completion: committed artifact with all exact live URLs and bundle verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_PUBLIC_BUNDLE_SMOKE_2026-04-11.md` on 2026-04-11, confirmed all eight exact canonical-host and active deployment-host public-bundle URLs returned `200` during the same 2026-04-11 18:41:47 UTC to 18:41:49 UTC proof window, and captured shared visible Chess.com-supported wording for `/`, `/challenges`, `/challenges/win-as-white`, and `/challenges/lose-as-black` on both hosts.
 
 - [x] Define the smallest next post-parity canonical-host dual-host representative-detail parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_DETAIL_PARITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 19:41 Europe/Stockholm
