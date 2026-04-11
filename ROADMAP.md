@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host full mixed-surface bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 22:21 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host expanded mixed-surface bundle smoke proof, explains why one same-run full mixed bundle across `/`, `/challenges`, `/challenges/win-as-white`, `/challenges/lose-as-black`, and `/account` is now the tightest remaining confidence extension, reuses the current dual-host expanded mixed-surface and public-bundle evidence, and explicitly defers signed-in browser work and full-catalog crawling beyond the existing boundary representative.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host full mixed-surface bundle parity smoke proof across `/`, `/challenges`, `/challenges/win-as-white`, `/challenges/lose-as-black`, and `/account` as the tightest next extension after the completed expanded mixed-surface bundle proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md`.
+- [ ] Record one fresh same-run post-parity dual-host full mixed-surface bundle Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_MIXED_SURFACE_BUNDLE_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host URLs for `/`, `/challenges`, `/challenges/win-as-white`, `/challenges/lose-as-black`, and `/account`, confirms all ten checks complete during the same proof window, and captures concise public plus signed-out protected-route evidence supporting a dual-host full mixed-surface parity verdict.
+  - Verification for completion: committed artifact with all exact live URLs and full mixed-surface verdict.
+
 - [x] Define the smallest next post-parity dual-host mixed-surface expanded bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_EXPANDED_BUNDLE_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 21:44 Europe/Stockholm
   - estimate: 1 focused run
