@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host mixed-surface expanded bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_EXPANDED_BUNDLE_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 21:44 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the dual-host mixed-surface representative bundle smoke proof, explains why one same-run expanded mixed bundle across `/`, `/challenges`, `/challenges/win-as-white`, and `/account` is now the tightest remaining confidence extension, reuses the current dual-host public-bundle and mixed-surface evidence, and explicitly defers signed-in browser work and full-catalog crawling.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_EXPANDED_BUNDLE_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host expanded mixed-surface bundle parity smoke proof across `/`, `/challenges`, `/challenges/win-as-white`, and `/account` as the tightest next extension after the completed representative mixed-surface bundle proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_EXPANDED_BUNDLE_NEXT_STEP_2026-04-11.md`.
+- [ ] Record one fresh same-run post-parity dual-host expanded mixed-surface bundle Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_EXPANDED_BUNDLE_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host URLs for `/`, `/challenges`, `/challenges/win-as-white`, and `/account`, confirms all eight checks complete during the same proof window, and captures concise public plus signed-out protected-route evidence supporting a dual-host expanded mixed-surface parity verdict.
+  - Verification for completion: committed artifact with all exact live URLs and expanded mixed-surface verdict.
+
 - [x] Define the smallest next post-parity dual-host mixed-surface bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 21:03 Europe/Stockholm
   - estimate: 1 focused run
