@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity canonical-host dual-host route-family parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_PARITY_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 19:04 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the dual-host home parity smoke proof, explains why one same-slice dual-host `/challenges` parity recheck is now the tightest remaining public confidence extension, reuses the current canonical-host and deployment-host route-family evidence, and explicitly defers broader crawling or signed-in browser work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_PARITY_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host route-family parity smoke proof on `/challenges` as the tightest next extension after the dual-host home parity check, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_PARITY_NEXT_STEP_2026-04-11.md`.
+- [ ] Record one fresh same-run post-parity dual-host challenge-list Chess.com-supported parity smoke check in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_ROUTE_FAMILY_PARITY_SMOKE_2026-04-11.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host `/challenges` URLs, confirms both return successfully during the same proof window, and captures live proof that the shipped Chess.com-supported challenge-list wording remains visible on both hosts.
+  - Verification for completion: committed artifact with both exact live URLs and parity verdict.
+
 - [x] Define the smallest next post-parity canonical-host dual-host home parity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_CANONICAL_HOST_HOME_PARITY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 18:21 Europe/Stockholm
   - estimate: 1 focused run
