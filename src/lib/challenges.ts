@@ -58,10 +58,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Win as White",
     objective: "Win one complete game as White.",
     instruction:
-      "Start a real game and play as White. Return with a finished game ID. Lichess is supported here today.",
+      "Start a real game and play as White. Return with a finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 100,
     openingHint:
-      "Use this as a starter check: a simple tactical win with your first real game.",
+      "Use this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "white",
       result: "win",
