@@ -142,10 +142,10 @@ export const CHALLENGES: Challenge[] = [
     title: "Lose as White",
     objective: "Finish and submit one lost game where you played as White.",
     instruction:
-      "Play a real game as White, finish it with a loss, and return with the game ID. Lichess is supported here today.",
+      "Play a real game as White, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.",
     reward: 130,
     openingHint:
-      "This adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop.",
+      "This adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop, and it now supports both Lichess and Chess.com.",
     requirement: {
       side: "white",
       result: "lose",

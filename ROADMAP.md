@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-11 05:40 Europe/Stockholm
+Last updated: 2026-04-11 06:00 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -15,6 +15,19 @@ Execution canon:
 - keep scope tight
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
+
+- [x] Define the smallest next Chess.com verifier-backed challenge expansion after the current shipped `lose-any-game` support in `cc/docs/CHESSCOM_NEXT_VERIFIER_SLICE_9_2026-04-11.md`.
+  - closed_at: 2026-04-11 06:00 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next Chess.com challenge to add, explains why it is the smallest reviewable step from the live `lose-any-game` state, names the already-available Chess.com evidence it reuses, and explicitly defers broader Chess.com progression work.
+  - Verification for completion: committed artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_NEXT_VERIFIER_SLICE_9_2026-04-11.md` on 2026-04-11, selected `lose-as-white` as the smallest next Chess.com verifier-backed challenge expansion after the live `lose-any-game` state, and verified it locally with `test -f docs/CHESSCOM_NEXT_VERIFIER_SLICE_9_2026-04-11.md`.
+- [x] Implement exactly one new Chess.com verifier-backed challenge from the approved post-`lose-any-game` slice.
+  - closed_at: 2026-04-11 06:00 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: one existing shipped `lose` challenge gains real `passed`, `failed`, or `pending` Chess.com verdicts using the current single-game public archive loop without widening the surrounding product flow.
+  - Verification for completion: commit + `pnpm lint` + `pnpm build`.
+  - Proof: wired `src/lib/chesscom.ts` and `src/app/actions.ts` so `lose-as-white` now persists real Chess.com `passed` / `failed` / `pending` verdicts via the existing recent public archive loop, and updated `src/lib/challenges.ts` copy to reflect live Chess.com support; verified locally on 2026-04-11 with `pnpm lint` and `pnpm build`.
 
 - [x] Define the smallest next Chess.com verifier-backed challenge expansion after the current shipped `draw-as-black` support in `cc/docs/CHESSCOM_NEXT_VERIFIER_SLICE_8_2026-04-11.md`.
   - closed_at: 2026-04-11 05:20 Europe/Stockholm

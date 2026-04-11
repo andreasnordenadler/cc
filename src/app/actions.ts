@@ -11,6 +11,7 @@ import {
   verifyChessComFinishAsBlackAttempt,
   verifyChessComFinishAsWhiteAttempt,
   verifyChessComLoseAnyGameAttempt,
+  verifyChessComLoseAsWhiteAttempt,
   verifyChessComWinAsBlackAttempt,
   verifyChessComWinAsWhiteAttempt,
 } from "@/lib/chesscom";
@@ -170,6 +171,8 @@ export async function submitChallengeAttempt(formData: FormData) {
                       ? await verifyChessComLoseAnyGameAttempt({ gameUrl: gameId, chessComUsername })
                     : challenge.id === "lose-any-game"
                       ? await verifyLoseAnyGameAttempt({ gameId, lichessUsername })
+                      : challenge.id === "lose-as-white" && isChessComSubmission
+                        ? await verifyChessComLoseAsWhiteAttempt({ gameUrl: gameId, chessComUsername })
                       : challenge.id === "lose-as-white"
                         ? await verifyLoseAsWhiteAttempt({ gameId, lichessUsername })
                         : challenge.id === "lose-as-black"
