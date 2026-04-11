@@ -47,10 +47,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest proof-bearing live follow-up after the current public entry, list, and detail post-parity checks, explains why auth/account coverage is now the tightest confidence extension, reuses the current post-parity evidence, and explicitly defers broader product work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_AUTH_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh active-live `/account` auth-surface smoke proof as the smallest next confidence extension after the public entry, list, and detail checks, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_AUTH_NEXT_STEP_2026-04-11.md`.
-- [ ] Record one fresh post-parity live Chess.com-supported auth/account smoke check in `cc/docs/CHESSCOM_POST_PARITY_AUTH_SMOKE_2026-04-11.md`.
+- [x] Record one fresh post-parity live Chess.com-supported auth/account smoke check in `cc/docs/CHESSCOM_POST_PARITY_AUTH_SMOKE_2026-04-11.md`.
+  - closed_at: 2026-04-11 11:41 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the active live `/account` route behavior on the current production target, confirms the route returns the expected auth/protection response, and captures live proof that the shipped auth surface still references Chess.com-supported account setup after the current public post-parity proofs.
   - Verification for completion: committed artifact with exact live URL and verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_AUTH_SMOKE_2026-04-11.md` on 2026-04-11, confirmed `https://cc-taupe-kappa.vercel.app/account` returned `404` with Clerk protected-route headers (`x-clerk-auth-status: signed-out`, `x-clerk-auth-reason: protect-rewrite, dev-browser-missing`, `x-matched-path: /404`), and captured live Chess.com-aware account-surface evidence from the returned HTML plus shipped `/account` route code.
 
 - [x] Define the smallest next post-parity boundary-detail proof step in `cc/docs/CHESSCOM_POST_PARITY_BOUNDARY_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 09:20 Europe/Stockholm
