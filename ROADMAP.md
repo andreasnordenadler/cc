@@ -17,6 +17,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host catalog-mixed Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_NEXT_STEP_2026-04-11.md`.
+  - closed_at: 2026-04-11 23:01 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host full mixed-surface bundle smoke proof, explains why one same-run dual-host catalog-mixed check across `/challenges`, `/challenges/win-as-white`, `/challenges/lose-as-black`, and `/account` is now the tightest remaining confidence extension, explicitly requires the `/challenges` checks to confirm the full eleven-route catalog on both hosts during the same proof window, reuses the current dual-host mixed-surface and catalog-integrity evidence, and explicitly defers signed-in browser work and full per-detail crawling.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_NEXT_STEP_2026-04-11.md` on 2026-04-11, selected one fresh same-run dual-host catalog-mixed parity smoke proof across `/challenges`, `/challenges/win-as-white`, `/challenges/lose-as-black`, and `/account` with full eleven-route list confirmation on both hosts as the tightest next extension after the completed dual-host full mixed-surface bundle proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_CATALOG_MIXED_NEXT_STEP_2026-04-11.md`.
 - [x] Define the smallest next post-parity dual-host full mixed-surface bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_FULL_MIXED_SURFACE_BUNDLE_NEXT_STEP_2026-04-11.md`.
   - closed_at: 2026-04-11 22:21 Europe/Stockholm
   - estimate: 1 focused run
