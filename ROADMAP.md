@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 11:03 Europe/Stockholm
+Last updated: 2026-04-12 12:23 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -16,6 +16,17 @@ Execution canon:
 - for any non-trivial CC queue item, default to a selective 2-worker pattern: one builder/research lane plus one independent verifier lane, with Sam integrating the result
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
+
+- [x] Define the smallest next post-parity dual-host authenticated submission-mutation Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 12:23 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated full eleven-route read-only parity chain, explains why one narrow signed-in submission mutation on an already-active challenge is now the tightest remaining confidence extension, reuses the current signed-in account plus list plus full detail-surface proof chain, and explicitly defers broader mutation sweeps, deployment work, and verifier rewrites.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one narrow same-run signed-in dual-host submission mutation proof on `/challenges/finish-any-game` as the tightest next extension after the completed authenticated full-catalog read-only parity chain, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser submission-mutation Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records one narrow signed-in mutation proof on the same active challenge surface across the canonical host and active deployment host, names the exact mutated field or action plus exact signed-in URLs, confirms both hosts accept and render the same post-mutation state during one proof window, and ends with a concise authenticated submission-mutation parity verdict.
+  - Verification for completion: committed artifact with exact signed-in URLs, mutation details, one shared proof window, and the parity verdict.
 
 - [x] Define the smallest next post-parity dual-host authenticated triad-plus-list-plus-coverage-plus-boundary-plus-win-pair-plus-finish-pair-plus-loss-pair-plus-draw-pair-plus-generic-loss Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_TRIAD_PLUS_LIST_PLUS_COVERAGE_PLUS_BOUNDARY_PLUS_WIN_PAIR_PLUS_FINISH_PAIR_PLUS_LOSS_PAIR_PLUS_DRAW_PAIR_PLUS_GENERIC_LOSS_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 11:43 Europe/Stockholm
