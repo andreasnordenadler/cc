@@ -17,6 +17,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated triad-plus-list Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_TRIAD_PLUS_LIST_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 07:04 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated challenge-state-triad smoke proof, explains why one fresh same-run signed-in browser parity bundle across `/account`, `/challenges`, `/challenges/finish-any-game`, `/challenges/finish-as-white`, and `/challenges/lose-as-black` on the canonical host and active deployment host is now the tightest remaining confidence extension, reuses the current signed-in account plus full-catalog plus challenge-state-triad proof chain, and explicitly defers submission mutations, broader authenticated crawling, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_TRIAD_PLUS_LIST_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host parity bundle across `/account`, `/challenges`, `/challenges/finish-any-game`, `/challenges/finish-as-white`, and `/challenges/lose-as-black` as the tightest next extension after the completed authenticated challenge-state-triad proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_TRIAD_PLUS_LIST_NEXT_STEP_2026-04-12.md`.
 - [x] Define the smallest next post-parity dual-host authenticated challenge-state-triad Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_STATE_TRIAD_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 06:21 Europe/Stockholm
   - estimate: 1 focused run
