@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated full-catalog submission-mutation bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_SUBMISSION_MUTATION_BUNDLE_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 18:16 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated generic `/challenges/finish-any-game` mutation proof plus the completed side-aware finish-pair, win-pair, loss-pair, and draw-pair mutation proofs and the completed generic-draw and generic-loss mutation proofs, explains why one fresh same-run signed-in dual-host full-catalog submission-mutation bundle is now the tightest remaining confidence extension, reuses the current signed-in account plus list plus all eleven shipped challenge-detail mutation proof chain, and explicitly defers account-setting mutations, broader product mutations, deployment work, and verifier rewrites.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_SUBMISSION_MUTATION_BUNDLE_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host full-catalog submission-mutation bundle across `/account`, `/challenges`, and all eleven shipped `/challenges/[id]` routes as the tightest next extension after the completed authenticated per-route mutation proof chain, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_SUBMISSION_MUTATION_BUNDLE_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser full-catalog submission-mutation bundle Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_SUBMISSION_MUTATION_BUNDLE_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges`, and all eleven shipped `/challenges/[id]` routes, confirms all twenty-six signed-in checks complete during one shared proof window in one browser context, names the exact narrow submitted mutation reused across the bundle, confirms both hosts accept and render matching post-submit states for every shipped challenge route during that run, and ends with a concise authenticated full-catalog submission-mutation parity verdict.
+  - Verification for completion: committed artifact with both signed-in `/account` URLs, both signed-in `/challenges` URLs, all twenty-two exact signed-in detail URLs, one shared proof window, the reused mutation details, and the authenticated full-catalog submission-mutation parity verdict.
+
 - [x] Define the smallest next post-parity dual-host authenticated submission-mutation generic-loss Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_LOSS_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 16:52 Europe/Stockholm
   - estimate: 1 focused run
