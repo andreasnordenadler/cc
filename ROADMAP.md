@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 20:32 Europe/Stockholm
+Last updated: 2026-04-12 22:12 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -17,6 +17,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated account-setting mutation round-trip repeatability streak Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 22:12 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed same-run dual-host authenticated `/account` Chess.com username-setting mutation round-trip repeatability smoke proof, explains why one third fresh repeat round-trip recheck with a new narrow Chess.com username is now the tightest remaining confidence extension, reuses the current signed-in `/account` mutation plus round-trip plus repeatability proof chain, and explicitly defers broader account-setting coverage, backend fixes, deployment work, and any new challenge-detail sweeps.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one more fresh same-run signed-in dual-host `/account` round-trip repeatability recheck with a new narrow Chess.com username to test a three-run streak as the tightest next extension after the completed authenticated account-setting mutation round-trip repeatability smoke proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_NEXT_STEP_2026-04-12.md`.
 - [x] Define the smallest next post-parity dual-host authenticated account-setting mutation round-trip repeatability Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 21:34 Europe/Stockholm
   - estimate: 1 focused run
