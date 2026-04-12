@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated submission-mutation generic-loss Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_LOSS_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 16:52 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated generic `/challenges/finish-any-game` submission-mutation smoke proof plus the completed side-aware finish-pair, win-pair, loss-pair, and draw-pair submission-mutation smoke proofs and the completed generic-draw submission-mutation smoke proof, explains why one fresh same-run signed-in generic loss mutation proof on `/challenges/lose-any-game` is now the tightest remaining confidence extension, reuses the current signed-in account plus list plus proven narrow `gameId` mutation chain, and explicitly defers broader catalog mutation sweeps, account-setting mutations, deployment work, and verifier rewrites.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_LOSS_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host submission-mutation proof on `/challenges/lose-any-game` as the tightest next extension after the completed authenticated generic `/challenges/finish-any-game` mutation proof plus the completed side-aware finish-pair, win-pair, loss-pair, and draw-pair mutation proofs and the completed generic-draw mutation proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_LOSS_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser submission-mutation generic-loss Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_LOSS_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges`, and `/challenges/lose-any-game`, names the exact narrow submitted mutation used on the generic loss route, confirms both hosts accept and render the same post-submit state for that route during one shared proof window, and ends with a concise authenticated submission-mutation generic-loss parity verdict.
+  - Verification for completion: committed artifact with both signed-in `/account` URLs, both signed-in `/challenges` URLs, both exact signed-in generic-loss detail URLs, mutation details, one shared proof window, and the authenticated generic-loss submission-mutation parity verdict.
+
 - [x] Define the smallest next post-parity dual-host authenticated submission-mutation draw-pair Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_DRAW_PAIR_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 15:25 Europe/Stockholm
   - estimate: 1 focused run
