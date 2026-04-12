@@ -1,0 +1,152 @@
+Home
+Challenges
+Account
+Signed in
+
+CHALLENGES
+
+Pick a real game challenge
+
+Start with one simple run, then come back with a Lichess game ID or Chess.com game URL.
+
+COMPLETED
+
+1
+
+80 pts earned across finished challenges.
+
+CURRENT
+
+Lose Any Game
+
+Started Apr 12, 03:53 PM. Check your latest games after you finish one.
+
+NEXT
+
+Finish As White
+
+Complete and submit one finished game where you played as White.
+
+CONTINUE NOW
+
+Current challenge
+ACTIVE
+LOSE
+EITHER
+Lose Any Game
+
+Finish and submit one lost game where your saved chess account appears.
+
+Started Apr 12, 03:53 PM. Check your latest games after you finish one.
+
+125 pts
+Continue challenge
+
+READY TO START
+
+Available challenges
+FINISH
+WHITE
+Finish as White
+
+Complete and submit one finished game where you played as White.
+
+This is the smallest step up from any finished game, keeping the focus on side awareness instead of winning, and it now supports both Lichess and Chess.com.
+
+90 pts
+Open challenge
+FINISH
+BLACK
+Finish as Black
+
+Complete and submit one finished game where you played as Black.
+
+This closes the side-pair for finished-game verification without adding any new game outcome requirement, and it now supports both Lichess and Chess.com.
+
+95 pts
+Open challenge
+WIN
+WHITE
+Win as White
+
+Win one complete game as White.
+
+Use this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.
+
+100 pts
+Open challenge
+WIN
+BLACK
+Win as Black
+
+Win one complete game as Black.
+
+This closes the win-side pair with the same narrow verifier loop already live for White, and it now supports both Lichess and Chess.com.
+
+120 pts
+Open challenge
+DRAW
+EITHER
+Draw Any Game
+
+Finish and submit one drawn game where your saved chess account appears.
+
+This is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic, and it now supports both Lichess and Chess.com.
+
+110 pts
+Open challenge
+DRAW
+WHITE
+Draw as White
+
+Finish and submit one drawn game where you played as White.
+
+This adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.
+
+115 pts
+Open challenge
+DRAW
+BLACK
+Draw as Black
+
+Finish and submit one drawn game where you played as Black.
+
+This closes the side-pair for draw verification using the same single-game verifier path already in production, and it now supports both Lichess and Chess.com.
+
+120 pts
+Open challenge
+LOSE
+WHITE
+Lose as White
+
+Finish and submit one lost game where you played as White.
+
+This adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop, and it now supports both Lichess and Chess.com.
+
+130 pts
+Open challenge
+LOSE
+BLACK
+Lose as Black
+
+Finish and submit one lost game where you played as Black.
+
+This closes the side-pair for loss verification using the same single-game verifier path already reused across the current catalog, and it now supports both Lichess and Chess.com.
+
+135 pts
+Open challenge
+
+ALREADY DONE
+
+Completed challenges
+FINISH
+EITHER
+COMPLETED
+Finish Any Game
+
+Complete and submit any finished game where your public Lichess or Chess.com account appears.
+
+Finished and counted toward your progress total.
+
+80 pts
+View details
