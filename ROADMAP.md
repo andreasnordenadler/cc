@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 16:11 Europe/Stockholm
+Last updated: 2026-04-12 16:35 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -35,9 +35,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated generic `/challenges/finish-any-game` submission-mutation smoke proof plus the completed side-aware finish-pair, win-pair, loss-pair, and draw-pair submission-mutation smoke proofs, explains why one fresh same-run signed-in generic draw mutation proof on `/challenges/draw-any-game` is now the tightest remaining confidence extension, reuses the current signed-in account plus list plus proven narrow `gameId` mutation chain, and explicitly defers generic loss mutations, broader catalog mutation sweeps, deployment work, and verifier rewrites.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_DRAW_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host submission-mutation proof on `/challenges/draw-any-game` as the tightest next extension after the completed authenticated generic `/challenges/finish-any-game` mutation proof plus the completed side-aware finish-pair, win-pair, loss-pair, and draw-pair mutation proofs, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_DRAW_NEXT_STEP_2026-04-12.md`.
-- [ ] Record one fresh same-run dual-host authenticated-browser submission-mutation generic-draw Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_DRAW_SMOKE_2026-04-12.md`.
+- [x] Record one fresh same-run dual-host authenticated-browser submission-mutation generic-draw Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_DRAW_SMOKE_2026-04-12.md`.
+  - closed_at: 2026-04-12 16:35 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges`, and `/challenges/draw-any-game`, names the exact narrow submitted mutation used on the generic draw route, confirms both hosts accept and render the same post-submit state for that route during one shared proof window, and ends with a concise authenticated submission-mutation generic-draw parity verdict.
+  - Verification for completion: committed artifact with both signed-in `/account` URLs, both signed-in `/challenges` URLs, both exact signed-in generic-draw detail URLs, mutation details, one shared proof window, and the authenticated generic-draw submission-mutation parity verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_DRAW_SMOKE_2026-04-12.md` on 2026-04-12, used one signed-in Google Chrome session on the Mac mini to submit the same narrow `gameId` mutation with `https://www.chess.com/game/live/123456789` on `/challenges/draw-any-game` across `https://cc-andreas-nordenadlers-projects.vercel.app` and `https://cc-taupe-kappa.vercel.app` during the shared 2026-04-12 14:33:28 UTC to 14:33:50 UTC proof window, captured matching immediate post-submit server-error behavior on both hosts plus matching signed-in `/account` and `/challenges` context in `tmp/submission-mutation-generic-draw-smoke/`, and confirmed the artifact exists locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_GENERIC_DRAW_SMOKE_2026-04-12.md`.
   - Verification for completion: committed artifact with both signed-in `/account` URLs, both signed-in `/challenges` URLs, both exact signed-in generic-draw detail URLs, mutation details, one shared proof window, and the authenticated generic-draw submission-mutation parity verdict.
 
 - [x] Define the smallest next post-parity dual-host authenticated submission-mutation loss-pair Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_LOSS_PAIR_NEXT_STEP_2026-04-12.md`.
