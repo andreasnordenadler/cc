@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated challenge-state-triad Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_STATE_TRIAD_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 06:21 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated state-diversity smoke proof, explains why one fresh same-run signed-in browser challenge-state-triad parity check across `/challenges/finish-any-game`, `/challenges/finish-as-white`, and `/challenges/lose-as-black` on the canonical host and active deployment host is now the tightest remaining confidence extension, reuses the current signed-in account plus full-catalog plus state-diversity proof chain, and explicitly defers submission mutations, broader authenticated crawling, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_STATE_TRIAD_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host challenge-state-triad parity proof across `/challenges/finish-any-game`, `/challenges/finish-as-white`, and `/challenges/lose-as-black` as the tightest next extension after the completed authenticated state-diversity proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_STATE_TRIAD_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser challenge-state-triad Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_STATE_TRIAD_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/challenges/finish-any-game`, `/challenges/finish-as-white`, and `/challenges/lose-as-black`, confirms all six checks complete during the same proof window in one signed-in browser context, captures shared visible evidence for completed, untouched side-aware, and boundary challenge-detail states on both hosts, and captures a concise authenticated challenge-state-triad parity verdict.
+  - Verification for completion: committed artifact with all exact signed-in URLs, one shared proof window, and the authenticated challenge-state-triad parity verdict.
+
 - [x] Define the smallest next post-parity dual-host authenticated state-diversity Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 05:41 Europe/Stockholm
   - estimate: 1 focused run
