@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the exact evidence checklist for the next dual-host authenticated Chess.com account-setting mutation smoke in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_SMOKE_CHECKLIST_2026-04-12.md`.
+  - closed_at: 2026-04-12 19:15 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact names the exact canonical-host and active deployment-host signed-in `/account` URLs, the single narrow Chess.com username mutation to reuse on both hosts, the required before-submit and after-submit evidence to capture, the shared proof-window requirements, and explicit deferrals for broader account-settings work, backend fixes, deployment work, and any new challenge-detail sweeps.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_SMOKE_CHECKLIST_2026-04-12.md` on 2026-04-12, documented the exact signed-in `/account` URLs, shared narrow Chess.com username mutation scope, required before-submit and after-submit capture set, shared proof-window requirements, and explicit deferrals for broader account-settings work, backend fixes, deployment work, and fresh challenge-detail sweeps, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_SMOKE_CHECKLIST_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser account-setting mutation Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in `/account` URLs, names the exact narrow Chess.com username value submitted on both hosts, confirms both hosts accept and render the same immediate post-submit state during one shared proof window, and ends with a concise authenticated account-setting mutation parity verdict.
+  - Verification for completion: committed artifact with both exact signed-in `/account` URLs, mutation details, one shared proof window, and the authenticated account-setting mutation parity verdict.
+
 - [x] Define the smallest next post-parity dual-host authenticated account-setting mutation Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 18:52 Europe/Stockholm
   - estimate: 1 focused run
