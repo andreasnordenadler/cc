@@ -17,6 +17,12 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated account-setting mutation Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 18:52 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated full-catalog submission-mutation bundle smoke proof, explains why one fresh same-run signed-in dual-host `/account` Chess.com username-setting mutation proof is now the tightest remaining confidence extension, reuses the current signed-in `/account` plus `/challenges` plus full eleven-route authenticated mutation proof chain, and explicitly defers broader account-setting coverage, another catalog mutation sweep, verifier rewrites, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host `/account` Chess.com username-setting mutation proof as the tightest next extension after the completed authenticated full-catalog submission-mutation bundle proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_NEXT_STEP_2026-04-12.md`.
 - [x] Define the smallest next post-parity dual-host authenticated full-catalog submission-mutation bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_SUBMISSION_MUTATION_BUNDLE_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 18:16 Europe/Stockholm
   - estimate: 1 focused run
