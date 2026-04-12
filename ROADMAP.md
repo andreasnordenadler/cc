@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 01:21 Europe/Stockholm
+Last updated: 2026-04-12 02:41 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -16,6 +16,17 @@ Execution canon:
 - for any non-trivial CC queue item, default to a selective 2-worker pattern: one builder/research lane plus one independent verifier lane, with Sam integrating the result
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
+
+- [x] Define the smallest next post-parity dual-host authenticated challenge-detail Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_DETAIL_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 02:41 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated-account parity proof, explains why one narrow signed-in browser parity check on `/challenges/finish-any-game` across the canonical host and active deployment host is now the tightest remaining confidence extension, reuses the current dual-host public plus signed-in `/account` proof chain, and explicitly defers submission mutations, broader authenticated crawling, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_DETAIL_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one narrow signed-in dual-host `/challenges/finish-any-game` browser parity proof as the tightest next extension after the completed dual-host authenticated-account parity proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_DETAIL_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh dual-host authenticated-browser representative Chess.com challenge-detail parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_DETAIL_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host `/challenges/finish-any-game` URLs checked while signed in, names the browser context and proof window, confirms both hosts render the same signed-in representative challenge-detail surface, and captures concise shared visible evidence supporting a dual-host authenticated representative-detail parity verdict.
+  - Verification for completion: committed artifact with both exact signed-in representative-detail URLs and the authenticated parity verdict.
 
 - [x] Define the smallest next post-parity dual-host authenticated-account Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 01:21 Europe/Stockholm
