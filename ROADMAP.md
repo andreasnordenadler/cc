@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated full-catalog detail-sweep Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_DETAIL_SWEEP_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 05:04 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated mini-bundle parity proof, explains why one fresh same-run signed-in browser full catalog detail sweep across `/account`, `/challenges`, and all eleven shipped `/challenges/[id]` routes on the canonical host and active deployment host is now the tightest remaining confidence extension, reuses the current signed-in `/account` plus representative-detail plus boundary-detail plus mini-bundle proof chain, and explicitly defers submission mutations, broader authenticated crawling, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_DETAIL_SWEEP_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host full catalog detail sweep proof across `/account`, `/challenges`, and all eleven shipped `/challenges/[id]` routes as the tightest next extension after the completed authenticated mini-bundle parity proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_DETAIL_SWEEP_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser full-catalog detail-sweep Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_DETAIL_SWEEP_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges`, and all eleven shipped `/challenges/[id]` routes, confirms all twenty-six checks complete during the same proof window in one signed-in browser context, confirms both `/challenges` surfaces expose the full eleven shipped challenge routes during that same run, and captures concise shared visible evidence supporting a dual-host authenticated full-catalog detail-sweep parity verdict.
+  - Verification for completion: committed artifact with both list URLs, all twenty-two exact signed-in detail URLs, both exact signed-in `/account` URLs, one shared proof window, and the authenticated full-catalog parity verdict.
+
 - [x] Define the smallest next post-parity dual-host authenticated boundary-detail Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_BOUNDARY_DETAIL_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 03:42 Europe/Stockholm
   - estimate: 1 focused run
