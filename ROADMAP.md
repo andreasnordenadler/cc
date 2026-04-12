@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 12:23 Europe/Stockholm
+Last updated: 2026-04-12 13:03 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -29,6 +29,17 @@ Execution canon:
   - Acceptance: artifact records one narrow signed-in mutation proof on the same active challenge surface across the canonical host and active deployment host, names the exact mutated field or action plus exact signed-in URLs, confirms both hosts accept and render the same post-mutation state during one proof window, and ends with a concise authenticated submission-mutation parity verdict.
   - Verification for completion: committed artifact with exact signed-in URLs, mutation details, one shared proof window, and the parity verdict.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_SMOKE_2026-04-12.md` on 2026-04-12, used one signed-in Google Chrome session on the Mac mini to submit the same narrow `gameId` field mutation with `https://www.chess.com/game/live/123456789` on `/challenges/finish-any-game` across `https://cc-andreas-nordenadlers-projects.vercel.app` and `https://cc-taupe-kappa.vercel.app` during the shared 2026-04-12 10:45:35 UTC to 10:45:47 UTC proof window, captured matching post-submit authenticated state plus matching `/account` and `/challenges` context in `tmp/submission-mutation-smoke.json`, and confirmed the artifact exists locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_SMOKE_2026-04-12.md`.
+
+- [x] Define the smallest next post-parity dual-host authenticated submission-mutation finish-pair Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_FINISH_PAIR_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 13:03 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated generic submission-mutation smoke proof, explains why one fresh same-run signed-in side-aware finish-pair mutation proof across `/challenges/finish-as-white` and `/challenges/finish-as-black` is now the tightest remaining confidence extension, reuses the current signed-in account plus list plus generic finish mutation proof chain, and explicitly defers broader mutation sweeps, non-finish challenge-family mutations, deployment work, and verifier rewrites.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_FINISH_PAIR_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host submission-mutation proof across `/challenges/finish-as-white` and `/challenges/finish-as-black` as the tightest next extension after the completed authenticated generic `/challenges/finish-any-game` mutation proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_FINISH_PAIR_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser submission-mutation finish-pair Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_FINISH_PAIR_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges`, `/challenges/finish-as-white`, and `/challenges/finish-as-black`, names the exact narrow submitted mutation used on both side-aware finish routes, confirms both hosts accept and render the same post-submit state for both routes during one shared proof window, and ends with a concise authenticated submission-mutation finish-pair parity verdict.
+  - Verification for completion: committed artifact with both signed-in `/account` URLs, both signed-in `/challenges` URLs, all four exact signed-in side-aware finish detail URLs, mutation details, one shared proof window, and the authenticated finish-pair submission-mutation parity verdict.
 
 - [x] Define the smallest next post-parity dual-host authenticated triad-plus-list-plus-coverage-plus-boundary-plus-win-pair-plus-finish-pair-plus-loss-pair-plus-draw-pair-plus-generic-loss Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_TRIAD_PLUS_LIST_PLUS_COVERAGE_PLUS_BOUNDARY_PLUS_WIN_PAIR_PLUS_FINISH_PAIR_PLUS_LOSS_PAIR_PLUS_DRAW_PAIR_PLUS_GENERIC_LOSS_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 11:43 Europe/Stockholm
