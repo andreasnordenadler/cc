@@ -1,0 +1,48 @@
+Home
+Challenges
+Account
+Signed in
+← Back to challenge list
+
+CHALLENGE DETAIL
+
+Win as White
+
+Win one complete game as White.
+
+Start a real game and play as White. Return with a finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.
+Reward: 100 points
+Opening hint: Use this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.
+Your run
+
+Saved Lichess username: and72nor
+
+Saved Chess.com username: not set yet
+
+For this challenge, automated verification currently uses the Lichess path.
+
+Start this challenge
+Update usernames
+Finished Lichess game ID/URL or Chess.com game URL
+Submit for review
+LATEST ATTEMPT
+Pending review
+Pending review
+
+Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.
+
+Game https://www.chess.com/game/live/123456789 • Updated Apr 12, 12:28 PM
+
+This challenge is not active yet.
+
+Attempt history
+Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.
+Game https://www.chess.com/game/live/123456789, pending • Apr 12, 12:28 PM
+Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.
+Game https://www.chess.com/game/live/123456789, pending • Apr 12, 12:28 PM
+Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.
+Game https://www.chess.com/game/live/123456789, pending • Apr 12, 12:27 PM
+Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.
+Game https://www.chess.com/game/live/123456789, pending • Apr 12, 12:27 PM
+Submitted Chess.com game saved, but no Chess.com username is stored yet. Add it in account settings so verification can finish.
+Game https://www.chess.com/game/live/123456789, pending • Apr 12, 12:27 PM

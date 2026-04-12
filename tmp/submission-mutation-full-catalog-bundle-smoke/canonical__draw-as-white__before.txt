@@ -1,0 +1,40 @@
+Home
+Challenges
+Account
+Signed in
+← Back to challenge list
+
+CHALLENGE DETAIL
+
+Draw as White
+
+Finish and submit one drawn game where you played as White.
+
+Play a real game as White, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.
+Reward: 115 points
+Opening hint: This adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.
+Your run
+
+Saved Lichess username: and72nor
+
+Saved Chess.com username: not set yet
+
+For this challenge, automated verification currently uses the Lichess path.
+
+Start this challenge
+Update usernames
+Finished Lichess game ID/URL or Chess.com game URL
+Submit for review
+LATEST ATTEMPT
+Pending review
+No attempt submitted yet
+
+Submit a finished Lichess or Chess.com game to create your first review record.
+
+No latest attempt yet
+
+This challenge is not active yet.
+
+Attempt history
+
+No attempt history yet for this challenge.
