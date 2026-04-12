@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated submission-mutation draw-pair Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_DRAW_PAIR_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 15:25 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated generic submission-mutation smoke proof plus the completed side-aware finish-pair, win-pair, and loss-pair submission-mutation smoke proofs, explains why one fresh same-run signed-in draw-pair mutation proof across `/challenges/draw-as-black` and `/challenges/draw-as-white` is now the tightest remaining confidence extension, reuses the current signed-in account plus list plus proven narrow `gameId` mutation chain, and explicitly defers generic draw mutations, deployment work, and verifier rewrites.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_DRAW_PAIR_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host submission-mutation proof across `/challenges/draw-as-black` and `/challenges/draw-as-white` as the tightest next extension after the completed authenticated generic `/challenges/finish-any-game` mutation proof plus the completed side-aware finish-pair, win-pair, and loss-pair mutation proofs, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_DRAW_PAIR_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser submission-mutation draw-pair Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_DRAW_PAIR_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges`, `/challenges/draw-as-black`, and `/challenges/draw-as-white`, names the exact narrow submitted mutation used on both side-aware draw routes, confirms both hosts accept and render the same post-submit state for both routes during one shared proof window, and ends with a concise authenticated submission-mutation draw-pair parity verdict.
+  - Verification for completion: committed artifact with both signed-in `/account` URLs, both signed-in `/challenges` URLs, all four exact signed-in side-aware draw detail URLs, mutation details, one shared proof window, and the authenticated draw-pair submission-mutation parity verdict.
+
 - [x] Define the smallest next post-parity dual-host authenticated submission-mutation loss-pair Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_SUBMISSION_MUTATION_LOSS_PAIR_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 14:45 Europe/Stockholm
   - estimate: 1 focused run
