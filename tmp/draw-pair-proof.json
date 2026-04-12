@@ -1,0 +1,418 @@
+{
+  "start_utc": "2026-04-12T09:26:35Z",
+  "end_utc": "2026-04-12T09:27:23Z",
+  "results": [
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/account",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to home\n\nACCOUNT\n\nSave your chess usernames\n\nThese identities are used alongside your challenge submissions and automated game checks.\n\nLichess username\nChess.com username\nUpdate usernames\n\nLichess: and72nor\n\nChess.com: not set yet\n\nActive challenge\n\nContinue: Finish Any Game\n\nChallenge is active since Apr 10, 04:40 PM.\n\nOpen challenge\nRecent submissions\nFinish Any Game 1775839236009\nNo completed games found after this challenge was accepted.\nChecked Apr 10, 04:40 PM\nOpen challenge\nFinish Any Game 1775839227091\nVerified: finished as black.\nChecked Apr 10, 04:40 PM\nOpen challenge\nFinish Any Game 1775834368599\nNo completed games found after this challenge was accepted.\nChecked Apr 10, 03:19 PM\nOpen challenge\nFinish Any Game 1775834363566\nNo completed games found after this challenge was accepted.\nChecked Apr 10, 03:19 PM\nOpen challenge",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/",
+        "/challenges/finish-any-game",
+        "/challenges/finish-any-game-1775839236009",
+        "/challenges/finish-any-game-1775839227091",
+        "/challenges/finish-any-game-1775834368599",
+        "/challenges/finish-any-game-1775834363566"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/account",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/account"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\nCHALLENGES\n\nPick a real game challenge\n\nStart with one simple run, then come back with a Lichess game ID or Chess.com game URL.\n\nCOMPLETED\n\n1\n\n80 pts earned across finished challenges.\n\nCURRENT\n\nFinish Any Game\n\nChallenge is active since Apr 10, 04:40 PM.\n\nNEXT\n\nFinish As White\n\nComplete and submit one finished game where you played as White.\n\nCONTINUE NOW\n\nCurrent challenge\nACTIVE\nFINISH\nEITHER\nFinish Any Game\n\nComplete and submit any finished game where your public Lichess or Chess.com account appears.\n\nChallenge is active since Apr 10, 04:40 PM.\n\n80 pts\nContinue challenge\n\nREADY TO START\n\nAvailable challenges\nFINISH\nWHITE\nFinish as White\n\nComplete and submit one finished game where you played as White.\n\nThis is the smallest step up from any finished game, keeping the focus on side awareness instead of winning, and it now supports both Lichess and Chess.com.\n\n90 pts\nOpen challenge\nFINISH\nBLACK\nFinish as Black\n\nComplete and submit one finished game where you played as Black.\n\nThis closes the side-pair for finished-game verification without adding any new game outcome requirement, and it now supports both Lichess and Chess.com.\n\n95 pts\nOpen challenge\nWIN\nWHITE\nWin as White\n\nWin one complete game as White.\n\nUse this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.\n\n100 pts\nOpen challenge\nWIN\nBLACK\nWin as Black\n\nWin one complete game as Black.\n\nThis closes the win-side pair with the same narrow verifier loop already live for White, and it now supports both Lichess and Chess.com.\n\n120 pts\nOpen challenge\nDRAW\nEITHER\nDraw Any Game\n\nFinish and submit one drawn game where your saved chess account appears.\n\nThis is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic, and it now supports both Lichess and Chess.com.\n\n110 pts\nOpen challenge\nDRAW\nWHITE\nDraw as White\n\nFinish and submit one drawn game where you played as White.\n\nThis adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.\n\n115 pts\nOpen challenge\nDRAW\nBLACK\nDraw as Black\n\nFinish and submit one drawn game where you played as Black.\n\nThis closes the side-pair for draw verification using the same single-game verifier path already in production, and it now supports both Lichess and Chess.com.\n\n120 pts\nOpen challenge\nLOSE\nEITHER\nLose Any Game\n\nFinish and submit one lost game where your saved chess account appears.\n\nThis adds one narrow loss check using the same finished-game, identity, and decisive-result evidence already in the verifier path, and it now supports both Lichess and Chess.com.\n\n125 pts\nOpen challenge\nLOSE\nWHITE\nLose as White\n\nFinish and submit one lost game where you played as White.\n\nThis adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop, and it now supports both Lichess and Chess.com.\n\n130 pts\nOpen challenge\nLOSE\nBLACK\nLose as Black\n\nFinish and submit one lost game where you played as Black.\n\nThis closes the side-pair for loss verification using the same single-game verifier path already reused across the current catalog, and it now supports both Lichess and Chess.com.\n\n135 pts\nOpen challenge\n\nALREADY DONE\n\nCompleted challenges\nFINISH\nEITHER\nCOMPLETED\nFinish Any Game\n\nComplete and submit any finished game where your public Lichess or Chess.com account appears.\n\nFinished and counted toward your progress total.\n\n80 pts\nView details",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges/finish-any-game",
+        "/challenges/finish-as-white",
+        "/challenges/finish-as-black",
+        "/challenges/win-as-white",
+        "/challenges/win-as-black",
+        "/challenges/draw-any-game",
+        "/challenges/draw-as-white",
+        "/challenges/draw-as-black",
+        "/challenges/lose-any-game",
+        "/challenges/lose-as-white",
+        "/challenges/lose-as-black",
+        "/challenges/finish-any-game"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-any-game",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nFinish Any Game\n\nComplete and submit any finished game where your public Lichess or Chess.com account appears.\n\nPlay any game and submit the finished Lichess game ID or Chess.com game URL. This proves the loop end-to-end.\nReward: 80 points\nOpening hint: This is the fastest loop sanity check with your saved identity, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nThis challenge accepts a Lichess game ID/URL or a Chess.com game URL.\n\nRestart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nFor this challenge, Chess.com pasted game URLs now work too.\n\nChallenge state: Unable\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/finish-any-game",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-any-game"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nFinish as White\n\nComplete and submit one finished game where you played as White.\n\nStart a real game as White, finish it, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 90 points\nOpening hint: This is the smallest step up from any finished game, keeping the focus on side awareness instead of winning, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/finish-as-white",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nFinish as Black\n\nComplete and submit one finished game where you played as Black.\n\nStart a real game as Black, finish it, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 95 points\nOpening hint: This closes the side-pair for finished-game verification without adding any new game outcome requirement, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/finish-as-black",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/finish-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nLose as Black\n\nFinish and submit one lost game where you played as Black.\n\nPlay a real game as Black, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 135 points\nOpening hint: This closes the side-pair for loss verification using the same single-game verifier path already reused across the current catalog, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/lose-as-black",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nLose as White\n\nFinish and submit one lost game where you played as White.\n\nPlay a real game as White, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 130 points\nOpening hint: This adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/lose-as-white",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/draw-any-game",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nDraw Any Game\n\nFinish and submit one drawn game where your saved chess account appears.\n\nPlay a real game, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 110 points\nOpening hint: This is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/draw-any-game",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/draw-any-game"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/draw-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nDraw as Black\n\nFinish and submit one drawn game where you played as Black.\n\nPlay a real game as Black, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 120 points\nOpening hint: This closes the side-pair for draw verification using the same single-game verifier path already in production, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/draw-as-black",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/draw-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/draw-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nDraw as White\n\nFinish and submit one drawn game where you played as White.\n\nPlay a real game as White, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 115 points\nOpening hint: This adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/draw-as-white",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/draw-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/win-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nWin as White\n\nWin one complete game as White.\n\nStart a real game and play as White. Return with a finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 100 points\nOpening hint: Use this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/win-as-white",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/win-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/win-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nWin as Black\n\nWin one complete game as Black.\n\nPlay a real game as Black and finish it with a win. Return the finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 120 points\nOpening hint: This closes the win-side pair with the same narrow verifier loop already live for White, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "canonical",
+      "host": "https://cc-andreas-nordenadlers-projects.vercel.app",
+      "path": "/challenges/win-as-black",
+      "url": "https://cc-andreas-nordenadlers-projects.vercel.app/challenges/win-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/account",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to home\n\nACCOUNT\n\nSave your chess usernames\n\nThese identities are used alongside your challenge submissions and automated game checks.\n\nLichess username\nChess.com username\nUpdate usernames\n\nLichess: and72nor\n\nChess.com: not set yet\n\nActive challenge\n\nContinue: Finish Any Game\n\nChallenge is active since Apr 10, 04:40 PM.\n\nOpen challenge\nRecent submissions\nFinish Any Game 1775839236009\nNo completed games found after this challenge was accepted.\nChecked Apr 10, 04:40 PM\nOpen challenge\nFinish Any Game 1775839227091\nVerified: finished as black.\nChecked Apr 10, 04:40 PM\nOpen challenge\nFinish Any Game 1775834368599\nNo completed games found after this challenge was accepted.\nChecked Apr 10, 03:19 PM\nOpen challenge\nFinish Any Game 1775834363566\nNo completed games found after this challenge was accepted.\nChecked Apr 10, 03:19 PM\nOpen challenge",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/",
+        "/challenges/finish-any-game",
+        "/challenges/finish-any-game-1775839236009",
+        "/challenges/finish-any-game-1775839227091",
+        "/challenges/finish-any-game-1775834368599",
+        "/challenges/finish-any-game-1775834363566"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/account",
+      "url": "https://cc-taupe-kappa.vercel.app/account"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\nCHALLENGES\n\nPick a real game challenge\n\nStart with one simple run, then come back with a Lichess game ID or Chess.com game URL.\n\nCOMPLETED\n\n1\n\n80 pts earned across finished challenges.\n\nCURRENT\n\nFinish Any Game\n\nChallenge is active since Apr 10, 04:40 PM.\n\nNEXT\n\nFinish As White\n\nComplete and submit one finished game where you played as White.\n\nCONTINUE NOW\n\nCurrent challenge\nACTIVE\nFINISH\nEITHER\nFinish Any Game\n\nComplete and submit any finished game where your public Lichess or Chess.com account appears.\n\nChallenge is active since Apr 10, 04:40 PM.\n\n80 pts\nContinue challenge\n\nREADY TO START\n\nAvailable challenges\nFINISH\nWHITE\nFinish as White\n\nComplete and submit one finished game where you played as White.\n\nThis is the smallest step up from any finished game, keeping the focus on side awareness instead of winning, and it now supports both Lichess and Chess.com.\n\n90 pts\nOpen challenge\nFINISH\nBLACK\nFinish as Black\n\nComplete and submit one finished game where you played as Black.\n\nThis closes the side-pair for finished-game verification without adding any new game outcome requirement, and it now supports both Lichess and Chess.com.\n\n95 pts\nOpen challenge\nWIN\nWHITE\nWin as White\n\nWin one complete game as White.\n\nUse this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.\n\n100 pts\nOpen challenge\nWIN\nBLACK\nWin as Black\n\nWin one complete game as Black.\n\nThis closes the win-side pair with the same narrow verifier loop already live for White, and it now supports both Lichess and Chess.com.\n\n120 pts\nOpen challenge\nDRAW\nEITHER\nDraw Any Game\n\nFinish and submit one drawn game where your saved chess account appears.\n\nThis is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic, and it now supports both Lichess and Chess.com.\n\n110 pts\nOpen challenge\nDRAW\nWHITE\nDraw as White\n\nFinish and submit one drawn game where you played as White.\n\nThis adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.\n\n115 pts\nOpen challenge\nDRAW\nBLACK\nDraw as Black\n\nFinish and submit one drawn game where you played as Black.\n\nThis closes the side-pair for draw verification using the same single-game verifier path already in production, and it now supports both Lichess and Chess.com.\n\n120 pts\nOpen challenge\nLOSE\nEITHER\nLose Any Game\n\nFinish and submit one lost game where your saved chess account appears.\n\nThis adds one narrow loss check using the same finished-game, identity, and decisive-result evidence already in the verifier path, and it now supports both Lichess and Chess.com.\n\n125 pts\nOpen challenge\nLOSE\nWHITE\nLose as White\n\nFinish and submit one lost game where you played as White.\n\nThis adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop, and it now supports both Lichess and Chess.com.\n\n130 pts\nOpen challenge\nLOSE\nBLACK\nLose as Black\n\nFinish and submit one lost game where you played as Black.\n\nThis closes the side-pair for loss verification using the same single-game verifier path already reused across the current catalog, and it now supports both Lichess and Chess.com.\n\n135 pts\nOpen challenge\n\nALREADY DONE\n\nCompleted challenges\nFINISH\nEITHER\nCOMPLETED\nFinish Any Game\n\nComplete and submit any finished game where your public Lichess or Chess.com account appears.\n\nFinished and counted toward your progress total.\n\n80 pts\nView details",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges/finish-any-game",
+        "/challenges/finish-as-white",
+        "/challenges/finish-as-black",
+        "/challenges/win-as-white",
+        "/challenges/win-as-black",
+        "/challenges/draw-any-game",
+        "/challenges/draw-as-white",
+        "/challenges/draw-as-black",
+        "/challenges/lose-any-game",
+        "/challenges/lose-as-white",
+        "/challenges/lose-as-black",
+        "/challenges/finish-any-game"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/finish-any-game",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nFinish Any Game\n\nComplete and submit any finished game where your public Lichess or Chess.com account appears.\n\nPlay any game and submit the finished Lichess game ID or Chess.com game URL. This proves the loop end-to-end.\nReward: 80 points\nOpening hint: This is the fastest loop sanity check with your saved identity, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nThis challenge accepts a Lichess game ID/URL or a Chess.com game URL.\n\nRestart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nFor this challenge, Chess.com pasted game URLs now work too.\n\nChallenge state: Unable\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/finish-any-game",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/finish-any-game"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/finish-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nFinish as White\n\nComplete and submit one finished game where you played as White.\n\nStart a real game as White, finish it, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 90 points\nOpening hint: This is the smallest step up from any finished game, keeping the focus on side awareness instead of winning, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/finish-as-white",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/finish-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/finish-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nFinish as Black\n\nComplete and submit one finished game where you played as Black.\n\nStart a real game as Black, finish it, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 95 points\nOpening hint: This closes the side-pair for finished-game verification without adding any new game outcome requirement, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/finish-as-black",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/finish-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/lose-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nLose as Black\n\nFinish and submit one lost game where you played as Black.\n\nPlay a real game as Black, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 135 points\nOpening hint: This closes the side-pair for loss verification using the same single-game verifier path already reused across the current catalog, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/lose-as-black",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/lose-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/lose-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nLose as White\n\nFinish and submit one lost game where you played as White.\n\nPlay a real game as White, finish it with a loss, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 130 points\nOpening hint: This adds one side-specific loss check on top of the existing loss verifier without widening the single-game review loop, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/lose-as-white",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/lose-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/draw-any-game",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nDraw Any Game\n\nFinish and submit one drawn game where your saved chess account appears.\n\nPlay a real game, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 110 points\nOpening hint: This is the smallest outcome expansion after the existing finish and win checks, without adding side-specific logic, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/draw-any-game",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/draw-any-game"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/draw-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nDraw as Black\n\nFinish and submit one drawn game where you played as Black.\n\nPlay a real game as Black, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 120 points\nOpening hint: This closes the side-pair for draw verification using the same single-game verifier path already in production, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/draw-as-black",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/draw-as-black"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/draw-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nDraw as White\n\nFinish and submit one drawn game where you played as White.\n\nPlay a real game as White, finish it as a draw, and return with the game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 115 points\nOpening hint: This adds one side-specific draw check without widening the loop beyond the current single-game verifier path, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/draw-as-white",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/draw-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/win-as-white",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nWin as White\n\nWin one complete game as White.\n\nStart a real game and play as White. Return with a finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 100 points\nOpening hint: Use this as a starter check: a simple tactical win with your first real game, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/win-as-white",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/win-as-white"
+    },
+    {
+      "title": "Chess",
+      "finalUrl": "https://cc-taupe-kappa.vercel.app/challenges/win-as-black",
+      "text": "Home\nChallenges\nAccount\nSigned in\n\u2190 Back to challenge list\n\nCHALLENGE DETAIL\n\nWin as Black\n\nWin one complete game as Black.\n\nPlay a real game as Black and finish it with a win. Return the finished game ID or Chess.com game URL. Lichess and Chess.com are supported here today.\nReward: 120 points\nOpening hint: This closes the win-side pair with the same narrow verifier loop already live for White, and it now supports both Lichess and Chess.com.\nYour run\n\nSaved Lichess username: and72nor\n\nSaved Chess.com username: not set yet\n\nFor this challenge, automated verification currently uses the Lichess path.\n\nStart this challenge\nUpdate usernames\nFinished Lichess game ID/URL or Chess.com game URL\nSubmit for review\nLATEST ATTEMPT\nPending review\nNo attempt submitted yet\n\nSubmit a finished Lichess or Chess.com game to create your first review record.\n\nNo latest attempt yet\n\nThis challenge is not active yet.\n\nAttempt history\n\nNo attempt history yet for this challenge.",
+      "links": [
+        "/",
+        "/challenges",
+        "/account",
+        "/challenges",
+        "/account"
+      ],
+      "hostName": "active",
+      "host": "https://cc-taupe-kappa.vercel.app",
+      "path": "/challenges/win-as-black",
+      "url": "https://cc-taupe-kappa.vercel.app/challenges/win-as-black"
+    }
+  ]
+}
