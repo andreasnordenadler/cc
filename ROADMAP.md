@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 02:41 Europe/Stockholm
+Last updated: 2026-04-12 04:21 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -29,6 +29,16 @@ Execution canon:
   - Acceptance: artifact records the exact canonical-host and active deployment-host `/challenges/lose-as-black` URLs checked while signed in, names the browser context and proof window, confirms both hosts render the same signed-in boundary challenge-detail surface, and captures concise shared visible evidence supporting a dual-host authenticated boundary-detail parity verdict.
   - Verification for completion: committed artifact with both exact signed-in boundary-detail URLs and the authenticated parity verdict.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_BOUNDARY_DETAIL_SMOKE_2026-04-12.md` on 2026-04-12, verified in a signed-in Google Chrome session on the Mac mini that both `https://cc-andreas-nordenadlers-projects.vercel.app/challenges/lose-as-black` and `https://cc-taupe-kappa.vercel.app/challenges/lose-as-black` rendered the same authenticated boundary challenge-detail surface during the 2026-04-12 02:02:40 UTC to 02:02:47 UTC proof window, including matching loss-specific Chess.com-supported copy, saved identity state, submission controls, and latest-attempt/history evidence, and confirmed the artifact exists locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_BOUNDARY_DETAIL_SMOKE_2026-04-12.md`.
+- [x] Define the smallest next post-parity dual-host authenticated mini-bundle Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_MINI_BUNDLE_NEXT_STEP_2026-04-12.md`.
+  - closed_at: 2026-04-12 04:21 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated boundary-detail parity proof, explains why one fresh same-run signed-in browser parity bundle across `/account`, `/challenges/finish-any-game`, and `/challenges/lose-as-black` on the canonical host and active deployment host is now the tightest remaining confidence extension, reuses the current signed-in `/account` plus representative-detail plus boundary-detail proof chain, and explicitly defers submission mutations, broader authenticated crawling, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_MINI_BUNDLE_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host mini-bundle parity proof across `/account`, `/challenges/finish-any-game`, and `/challenges/lose-as-black` as the tightest next extension after the completed authenticated boundary-detail parity proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_MINI_BUNDLE_NEXT_STEP_2026-04-12.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser mini-bundle Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_MINI_BUNDLE_SMOKE_2026-04-12.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges/finish-any-game`, and `/challenges/lose-as-black`, confirms all six checks complete during the same proof window in one signed-in browser context, and captures concise shared visible evidence supporting a dual-host authenticated mini-bundle parity verdict.
+  - Verification for completion: committed artifact with all exact signed-in URLs, one shared proof window, and the authenticated mini-bundle parity verdict.
 
 - [x] Define the smallest next post-parity dual-host authenticated challenge-detail Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_CHALLENGE_DETAIL_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 02:41 Europe/Stockholm
