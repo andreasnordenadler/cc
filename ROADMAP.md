@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-12 05:24 Europe/Stockholm
+Last updated: 2026-04-12 06:05 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -23,10 +23,12 @@ Execution canon:
   - Acceptance: artifact identifies the exact next smallest follow-up after the completed dual-host authenticated full-catalog detail-sweep parity proof, explains why one fresh same-run signed-in browser state-diversity check across `/account`, `/challenges/finish-any-game`, and `/challenges/finish-as-white` on the canonical host and active deployment host is now the tightest remaining confidence extension, reuses the current signed-in full-catalog proof chain, and explicitly defers submission mutations, broader authenticated crawling, and deployment work.
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_NEXT_STEP_2026-04-12.md` on 2026-04-12, selected one fresh same-run signed-in dual-host state-diversity proof across `/account`, `/challenges/finish-any-game`, and `/challenges/finish-as-white` as the tightest next extension after the completed authenticated full-catalog detail-sweep parity proof, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_NEXT_STEP_2026-04-12.md`.
-- [ ] Record one fresh same-run dual-host authenticated-browser state-diversity Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_SMOKE_2026-04-12.md`.
+- [x] Record one fresh same-run dual-host authenticated-browser state-diversity Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_SMOKE_2026-04-12.md`.
+  - closed_at: 2026-04-12 06:05 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in URLs for `/account`, `/challenges/finish-any-game`, and `/challenges/finish-as-white`, confirms all six checks complete during the same proof window in one signed-in browser context, captures shared visible evidence for a completed challenge surface plus an untouched challenge surface plus the shared signed-in account context on both hosts, and captures a concise authenticated state-diversity parity verdict.
   - Verification for completion: committed artifact with all exact signed-in URLs, one shared proof window, and the authenticated state-diversity parity verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_SMOKE_2026-04-12.md` on 2026-04-12, verified in a signed-in Google Chrome session on the Mac mini that both `https://cc-andreas-nordenadlers-projects.vercel.app` and `https://cc-taupe-kappa.vercel.app` rendered matching authenticated `/account`, `/challenges/finish-any-game`, and `/challenges/finish-as-white` surfaces during the shared 2026-04-12 04:03:23 UTC to 04:03:43 UTC proof window, and confirmed the artifact exists locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_STATE_DIVERSITY_SMOKE_2026-04-12.md`.
 - [x] Define the smallest next post-parity dual-host authenticated full-catalog detail-sweep Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_FULL_CATALOG_DETAIL_SWEEP_NEXT_STEP_2026-04-12.md`.
   - closed_at: 2026-04-12 05:04 Europe/Stockholm
   - estimate: 1 focused run
