@@ -38,4 +38,4 @@ This next step explicitly defers:
 
 ## Acceptance mapping
 
-If the named artifact for the next smoke run records one fresh same-run dual-host signed-in `/account` mutation round-trip repeatability recheck with a new narrow Chess.com username and matching immediate plus post-reload state on both hosts, the strict-queue follow-up is satisfied.
+If the named artifact for the next smoke run records one fresh same-run dual-host signed-in `/account` mutation round-trip recheck with a new narrow Chess.com username and matching immediate plus post-reload state on both hosts, the strict-queue follow-up is satisfied.
