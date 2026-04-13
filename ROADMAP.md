@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-14 01:08 Europe/Stockholm
+Last updated: 2026-04-14 01:31 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -16,6 +16,17 @@ Execution canon:
 - for any non-trivial CC queue item, default to a selective 2-worker pattern: one builder/research lane plus one independent verifier lane, with Sam integrating the result
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
+
+- [x] Record one fresh same-run dual-host authenticated-browser account-setting mutation round-trip repeatability streak extension plus thirty-four-more-run Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_FOUR_SMOKE_2026-04-14.md`.
+  - closed_at: 2026-04-14 01:31 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in `/account` URLs, names one brand new narrow Chess.com username value submitted on both hosts for the thirty-eighth fresh run, confirms both hosts again render the same immediate post-submit state and the same post-reload state during one shared proof window, and ends with a concise authenticated account-setting mutation round-trip repeatability streak extension parity verdict.
+  - Verification for completion: committed artifact with both exact signed-in `/account` URLs, the fresh thirty-eighth-run mutation value, one shared proof window, and the authenticated round-trip repeatability streak extension parity verdict.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_FOUR_SMOKE_2026-04-14.md` on 2026-04-14 from the captured proof set in `tmp/account-setting-mutation-round-trip-repeatability-streak-extension-plus-thirty-four-smoke-20260413T232923Z/`, recorded the fresh Chess.com username `and72norcc13232923zt` across `https://cc-andreas-nordenadlers-projects.vercel.app/account` and `https://cc-taupe-kappa.vercel.app/account` during the shared 2026-04-13 23:29:37 UTC to 23:30:19 UTC proof window, confirmed canonical and active before-submit plus immediate post-submit plus post-reload snapshots are byte-identical, observed both hosts advance from the shared pre-submit value `and72norcc13225218zs` to the shared post-submit and post-reload value `and72norcc13232923zt`, and verified the artifact exists locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_FOUR_SMOKE_2026-04-14.md`.
+- [ ] Define the smallest next post-parity dual-host authenticated account-setting mutation round-trip repeatability streak extension plus thirty-five-more-run Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_FIVE_NEXT_STEP_2026-04-14.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed thirty-eighth-run same-run dual-host authenticated `/account` Chess.com username-setting mutation round-trip repeatability streak extension smoke proof, explains why one more fresh same-run recheck with a brand new narrow Chess.com username is still the tightest remaining confidence extension, reuses the current signed-in `/account` mutation plus round-trip plus repeatability-streak proof chain, and explicitly defers broader account-settings coverage, backend fixes, deployment work, and any new challenge-detail sweeps.
+  - Verification for completion: artifact exists at the named path.
 
 - [x] Record one fresh same-run dual-host authenticated-browser account-setting mutation round-trip repeatability streak extension plus thirty-one-more-run Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_ONE_SMOKE_2026-04-13.md`.
   - closed_at: 2026-04-13 23:31 Europe/Stockholm
