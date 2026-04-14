@@ -1,0 +1,15 @@
+independent verifier: pass
+before bodies: byte-identical
+after_submit bodies: byte-identical
+after_reload bodies: byte-identical
+canonical before url: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active before url: https://cc-taupe-kappa.vercel.app/account
+canonical after submit url: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active after submit url: https://cc-taupe-kappa.vercel.app/account
+canonical after reload url: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active after reload url: https://cc-taupe-kappa.vercel.app/account
+before summary: Chess.com: and72norcc14202956z
+after submit summary: Chess.com: and72norcc14212923z
+after reload summary: Chess.com: and72norcc14212923z
+canonical after reload input: and72norcc14212923z
+active after reload input: and72norcc14212923z
