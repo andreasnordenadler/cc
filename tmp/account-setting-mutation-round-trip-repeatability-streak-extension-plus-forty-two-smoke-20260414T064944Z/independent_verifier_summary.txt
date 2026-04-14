@@ -1,0 +1,14 @@
+Independent verifier summary for /Users/sam/.openclaw/workspace/cc/tmp/account-setting-mutation-round-trip-repeatability-streak-extension-plus-forty-two-smoke-20260414T064944Z
+
+- before snapshots: byte-identical
+- after_submit snapshots: byte-identical
+- after_reload snapshots: byte-identical
+- expected host URLs stayed distinct:
+  - canonical: https://cc-andreas-nordenadlers-projects.vercel.app/account
+  - active: https://cc-taupe-kappa.vercel.app/account
+- Chess.com username values:
+  - before: and72norcc14054923z
+  - after submit: and72norcc14064944z
+  - after reload: and72norcc14064944z
+
+Canonical and active username value files matched at each phase.
