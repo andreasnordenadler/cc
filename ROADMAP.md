@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the strict-queue continuation after the completed `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_SIX_NEXT_STEP_2026-04-14.md` artifact in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_SIX_QUEUE_CONTINUATION_2026-04-14.md`.
+  - closed_at: 2026-04-14 02:49 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact names the next 1 to 2 strict-queue items implied by the latest completed plus-thirty-six next-step proof, keeps the queue minimal and reviewable, confirms the next executable item is still one fresh same-run signed-in dual-host `/account` username mutation round-trip parity recheck with a brand new narrow Chess.com username, and explicitly defers broader coverage, backend fixes, and deployment work.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_SIX_QUEUE_CONTINUATION_2026-04-14.md` on 2026-04-14, recorded the next two minimal strict-queue items after the completed plus-thirty-six next-step proof, confirmed the next executable item remains one fresh same-run signed-in dual-host `/account` username mutation round-trip recheck with a brand new narrow Chess.com username, explicitly deferred broader coverage, backend fixes, deployment work, and new challenge-detail sweeps, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_SIX_QUEUE_CONTINUATION_2026-04-14.md`.
+- [ ] Record one fresh same-run dual-host authenticated-browser account-setting mutation round-trip repeatability streak extension plus thirty-six-more-run Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_SIX_SMOKE_2026-04-14.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact records the exact canonical-host and active deployment-host signed-in `/account` URLs, names one brand new narrow Chess.com username value submitted on both hosts for the fortieth fresh run, confirms both hosts again render the same immediate post-submit state and the same post-reload state during one shared proof window, and ends with a concise authenticated account-setting mutation round-trip repeatability streak extension parity verdict.
+  - Verification for completion: committed artifact with both exact signed-in `/account` URLs, the fresh fortieth-run mutation value, one shared proof window, and the authenticated round-trip repeatability streak extension parity verdict.
+
 - [x] Record one fresh same-run dual-host authenticated-browser account-setting mutation round-trip repeatability streak extension plus thirty-five-more-run Chess.com parity check in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_FIVE_SMOKE_2026-04-14.md`.
   - closed_at: 2026-04-14 02:11 Europe/Stockholm
   - estimate: 1 focused run
