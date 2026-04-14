@@ -1,0 +1,9 @@
+before snapshots: byte-identical
+after_submit snapshots: byte-identical
+after_reload snapshots: byte-identical
+canonical account url before: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active account url before: https://cc-taupe-kappa.vercel.app/account
+canonical account url after submit: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active account url after submit: https://cc-taupe-kappa.vercel.app/account
+canonical account url after reload: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active account url after reload: https://cc-taupe-kappa.vercel.app/account
