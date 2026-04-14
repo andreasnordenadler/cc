@@ -1,0 +1,12 @@
+account_before: byte-identical
+account_after_submit: byte-identical
+account_after_reload: byte-identical
+canonical account_url_before: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active account_url_before: https://cc-taupe-kappa.vercel.app/account
+canonical account_url_after_submit: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active account_url_after_submit: https://cc-taupe-kappa.vercel.app/account
+canonical account_url_after_reload: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active account_url_after_reload: https://cc-taupe-kappa.vercel.app/account
+chesscom_before_value: canonical=and72norcc14064944z | active=and72norcc14064944z
+chesscom_after_submit_value: canonical=and72norcc14082955z | active=and72norcc14082955z
+chesscom_after_reload_value: canonical=and72norcc14082955z | active=and72norcc14082955z
