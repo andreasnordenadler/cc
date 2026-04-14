@@ -1,0 +1,9 @@
+before: byte-identical
+after_submit: byte-identical
+after_reload: byte-identical
+canonical__account_url_before.txt: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active__account_url_before.txt: https://cc-taupe-kappa.vercel.app/account
+canonical__account_url_after_submit.txt: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active__account_url_after_submit.txt: https://cc-taupe-kappa.vercel.app/account
+canonical__account_url_after_reload.txt: https://cc-andreas-nordenadlers-projects.vercel.app/account
+active__account_url_after_reload.txt: https://cc-taupe-kappa.vercel.app/account
