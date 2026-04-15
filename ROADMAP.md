@@ -71,10 +71,12 @@ Execution canon:
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_EIGHT_STANDBY_CHECKPOINT_2026-04-15.md` on 2026-04-15, anchored it to the verified +77 checkpoint artifact, confirmed the lane remains in explicit standby with no new dual-host parity rerun, limited re-entry to a fresh explicit CC request or a concrete regression signal, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_EIGHT_STANDBY_CHECKPOINT_2026-04-15.md`.
 
-- [ ] Record the post-pause +79 standby checkpoint in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_NINE_STANDBY_CHECKPOINT_2026-04-15.md`.
+- [x] Record the post-pause +79 standby checkpoint in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_NINE_STANDBY_CHECKPOINT_2026-04-15.md`.
+  - closed_at: 2026-04-15 12:12 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact anchors to the verified +78 checkpoint, confirms the lane remains in explicit standby with no new dual-host parity rerun, keeps the minimal re-entry condition as either a fresh explicit CC request or a concrete regression signal, and explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps.
   - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_NINE_STANDBY_CHECKPOINT_2026-04-15.md` on 2026-04-15, anchored it to the verified +78 checkpoint artifact, confirmed the lane remains in explicit standby with no new dual-host parity rerun, limited re-entry to a fresh explicit CC request or a concrete regression signal, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_NINE_STANDBY_CHECKPOINT_2026-04-15.md`.
 
 - [x] Record the post-pause +72 standby continuation checkpoint in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_TWO_STANDBY_CONTINUATION_2026-04-15.md`.
   - closed_at: 2026-04-15 10:48 Europe/Stockholm
