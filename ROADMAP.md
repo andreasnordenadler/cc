@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-15 11:28 Europe/Stockholm
+Last updated: 2026-04-15 11:48 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -16,6 +16,18 @@ Execution canon:
 - for any non-trivial CC queue item, default to a selective 2-worker pattern: one builder/research lane plus one independent verifier lane, with Sam integrating the result
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
+
+- [x] Preserve CC standby after the recorded +81 standby checkpoint until Andreas makes a fresh explicit CC request or a concrete regression signal appears.
+  - closed_at: 2026-04-15 11:48 Europe/Stockholm
+  - estimate: 0.1 focused decision pass
+  - Acceptance: roadmap reflects the verified standby posture after the new checkpoint artifact without running new dual-host parity smoke and without broader scope changes.
+  - Verification for completion: top queue reflects the standby posture with proof.
+  - Proof: created and verified `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_EIGHTY_ONE_STANDBY_CHECKPOINT_2026-04-15.md`, preserved explicit standby with no new dual-host parity smoke, and kept re-entry limited to a fresh explicit CC request or a concrete regression signal.
+
+- [x] Record the post-pause +81 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_EIGHTY_ONE_STANDBY_CHECKPOINT_2026-04-15.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +80 checkpoint, confirms the lane remains in explicit standby with no new dual-host parity rerun, keeps the minimal re-entry condition as either a fresh explicit CC request or a concrete regression signal, and explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps.
+  - Verification for completion: artifact exists at the named path.
 
 - [x] Record the post-pause +73 standby checkpoint in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_THREE_STANDBY_CHECKPOINT_2026-04-15.md`.
   - closed_at: 2026-04-15 11:08 Europe/Stockholm
