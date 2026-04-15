@@ -1,0 +1,16 @@
+Independent verification summary for plus-sixty-seven authenticated dual-host /account smoke
+
+Proof directory: tmp/account-setting-mutation-round-trip-repeatability-streak-extension-plus-sixty-seven-smoke-20260415T050945Z/
+Checked at: 2026-04-15T05:28:00Z
+
+Results:
+- canonical and active before-submit account snapshots are byte-identical
+- canonical and active immediate post-submit account snapshots are byte-identical
+- canonical and active post-reload account snapshots are byte-identical
+- canonical host URL stayed https://cc-andreas-nordenadlers-projects.vercel.app/account throughout
+- active host URL stayed https://cc-taupe-kappa.vercel.app/account throughout
+- shared pre-submit Chess.com value: and72norcc15041000z
+- shared submitted and post-reload Chess.com value: and72norcc15050945z
+
+Verdict:
+Independent verifier confirms the fresh seventieth-run dual-host authenticated Chess.com username mutation round-trip parity proof passed.
