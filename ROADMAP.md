@@ -17,6 +17,19 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the post-pause strict-queue continuation after the completed `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_NEXT_STEP_2026-04-15.md` artifact in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_QUEUE_CONTINUATION_2026-04-15.md`.
+  - closed_at: 2026-04-15 10:29 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact names the next 1 to 2 strict-queue items implied by the human-approved +70 standby decision, keeps the queue minimal and reviewable, confirms the immediate executable posture is continued standby until a fresh explicit CC request or regression signal, and explicitly defers further dual-host parity reruns, broader coverage, backend fixes, deployment work, and unrelated sweeps.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_QUEUE_CONTINUATION_2026-04-15.md` on 2026-04-15, recorded the next two minimal post-pause strict-queue items after the +70 human-approved standby decision, confirmed the immediate executable posture remains standby until a fresh explicit CC request or concrete regression signal, explicitly deferred further dual-host parity reruns, broader coverage, backend fixes, deployment work, and unrelated sweeps, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_QUEUE_CONTINUATION_2026-04-15.md`.
+- [x] Preserve the CC lane in standby after the +70 queue-continuation checkpoint until the next explicit CC request or a concrete regression signal.
+  - closed_at: 2026-04-15 10:29 Europe/Stockholm
+  - estimate: 0.1 focused decision pass
+  - Acceptance: roadmap reflects the standby posture after the +70 queue-continuation artifact without running new parity smoke, and no broader scope changes are introduced.
+  - Verification for completion: top queue reflects the standby posture with proof.
+  - Proof: closed the top strict-queue standby item after creating and verifying `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SEVENTY_QUEUE_CONTINUATION_2026-04-15.md`, preserved the no-new-smoke posture, and introduced no broader scope changes.
+
 - [x] Define the strict-queue continuation after the completed `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_NINE_NEXT_STEP_2026-04-15.md` artifact in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_NINE_QUEUE_CONTINUATION_2026-04-15.md`.
   - closed_at: 2026-04-15 09:12 Europe/Stockholm
   - estimate: 1 focused run
