@@ -17,6 +17,17 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Define the smallest next post-parity dual-host authenticated account-setting mutation round-trip repeatability streak extension plus sixty-five-more-run Chess.com proof step in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FIVE_NEXT_STEP_2026-04-15.md`.
+  - closed_at: 2026-04-15 04:28 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact identifies the exact next smallest follow-up after the completed sixty-seventh-run same-run dual-host authenticated `/account` Chess.com username-setting mutation round-trip repeatability streak extension smoke proof, explains why one more fresh same-run recheck with a brand new narrow Chess.com username is still the tightest remaining confidence extension, reuses the current signed-in `/account` mutation plus round-trip plus repeatability-streak proof chain, and explicitly defers broader account-settings coverage, backend fixes, deployment work, and any new challenge-detail sweeps.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FIVE_NEXT_STEP_2026-04-15.md` on 2026-04-15, anchored it to the completed `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FOUR_SMOKE_2026-04-15.md` artifact, kept one more fresh same-run signed-in dual-host `/account` username mutation round-trip parity recheck as the smallest next step, explicitly deferred broader coverage, backend fixes, deployment work, and new challenge-detail sweeps, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FIVE_NEXT_STEP_2026-04-15.md`.
+- [ ] Define the strict-queue continuation after the completed `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FIVE_NEXT_STEP_2026-04-15.md` artifact in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FIVE_QUEUE_CONTINUATION_2026-04-15.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact names the next 1 to 2 strict-queue items implied by the latest completed plus-sixty-five next-step proof, keeps the queue minimal and reviewable, confirms the next executable item is still one fresh same-run signed-in dual-host `/account` username mutation round-trip parity recheck with a brand new narrow Chess.com username, and explicitly defers broader coverage, backend fixes, deployment work, and new challenge-detail sweeps.
+  - Verification for completion: artifact exists at the named path.
+
 - [x] Define the strict-queue continuation after the completed `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FOUR_NEXT_STEP_2026-04-15.md` artifact in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_SIXTY_FOUR_QUEUE_CONTINUATION_2026-04-15.md`.
   - closed_at: 2026-04-15 03:48 Europe/Stockholm
   - estimate: 1 focused run
