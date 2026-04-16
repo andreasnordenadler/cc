@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-16 05:08 Europe/Stockholm
+Last updated: 2026-04-16 05:10 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -17,6 +17,18 @@ Execution canon:
 - mark items done only with proof
 - after closure, start the next item immediately or record a blocker
 
+- [x] Record the post-pause +116 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_SIXTEEN_STANDBY_CHECKPOINT_2026-04-16.md`.
+  - closed_at: 2026-04-16 05:10 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +115 checkpoint, confirms the lane remains in explicit standby with no new dual-host parity rerun, keeps the minimal re-entry condition as either a fresh explicit CC request or a concrete regression signal, and explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_SIXTEEN_STANDBY_CHECKPOINT_2026-04-16.md` on 2026-04-16, anchored it to the verified +115 standby checkpoint artifact, confirmed the lane remains in explicit standby with no new dual-host parity rerun, limited re-entry to a fresh explicit CC request or a concrete regression signal, explicitly deferred broader coverage, backend fixes, deployment work, and unrelated sweeps, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FIFTEEN_STANDBY_CHECKPOINT_2026-04-16.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_SIXTEEN_STANDBY_CHECKPOINT_2026-04-16.md`.
+
+- [ ] Preserve CC standby after the recorded +116 standby checkpoint until Andreas makes a fresh explicit CC request or a concrete regression signal appears.
+  - estimate: 0.1 focused decision pass
+  - Acceptance: roadmap reflects the verified standby posture after the new checkpoint artifact without running new dual-host parity smoke and without broader scope changes.
+  - Verification for completion: top queue reflects the standby posture with proof.
+
 - [x] Record the post-pause +115 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FIFTEEN_STANDBY_CHECKPOINT_2026-04-16.md`.
   - closed_at: 2026-04-16 05:08 Europe/Stockholm
   - estimate: 1 focused run
@@ -24,10 +36,12 @@ Execution canon:
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FIFTEEN_STANDBY_CHECKPOINT_2026-04-16.md` on 2026-04-16, anchored it to the verified +114 standby checkpoint artifact, confirmed the lane remains in explicit standby with no new dual-host parity rerun, limited re-entry to a fresh explicit CC request or a concrete regression signal, explicitly deferred broader coverage, backend fixes, deployment work, and unrelated sweeps, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FOURTEEN_STANDBY_CHECKPOINT_2026-04-16.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FIFTEEN_STANDBY_CHECKPOINT_2026-04-16.md`.
 
-- [ ] Preserve CC standby after the recorded +115 standby checkpoint until Andreas makes a fresh explicit CC request or a concrete regression signal appears.
+- [x] Preserve CC standby after the recorded +115 standby checkpoint until Andreas makes a fresh explicit CC request or a concrete regression signal appears.
+  - closed_at: 2026-04-16 05:10 Europe/Stockholm
   - estimate: 0.1 focused decision pass
   - Acceptance: roadmap reflects the verified standby posture after the new checkpoint artifact without running new dual-host parity smoke and without broader scope changes.
   - Verification for completion: top queue reflects the standby posture with proof.
+  - Proof: closed this item after verifying `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FIFTEEN_STANDBY_CHECKPOINT_2026-04-16.md`, preserved the explicit standby posture with no new dual-host parity smoke, kept re-entry limited to a fresh explicit CC request or a concrete regression signal, and introduced no broader scope changes.
 
 - [x] Record the post-pause +113 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_THIRTEEN_STANDBY_CHECKPOINT_2026-04-16.md`.
   - closed_at: 2026-04-16 04:28 Europe/Stockholm
