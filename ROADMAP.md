@@ -10,6 +10,13 @@ Turn `cc` into an actively advancing autonomous product lane with proof-bearing 
 
 ## STRICT ACTIVE QUEUE
 
+- [x] Define the post-+135 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_THIRTY_SIX_QUEUE_CONTINUATION_2026-04-16.md`.
+  - closed_at: 2026-04-16 16:08 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +135 standby checkpoint, preserves explicit standby with no new dual-host parity rerun, keeps re-entry limited to a fresh explicit CC request or a concrete regression signal, explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps, and proposes the next safe standby checkpoint task without widening scope.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_THIRTY_SIX_QUEUE_CONTINUATION_2026-04-16.md`, anchored it to the verified +135 standby checkpoint artifact, preserved explicit standby with no new dual-host parity rerun, proposed the next safe +136 standby checkpoint task, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_THIRTY_SIX_QUEUE_CONTINUATION_2026-04-16.md`.
+
 - [x] Define the post-+134 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_THIRTY_FIVE_QUEUE_CONTINUATION_2026-04-16.md`.
   - closed_at: 2026-04-16 15:28 Europe/Stockholm
   - estimate: 1 focused run
