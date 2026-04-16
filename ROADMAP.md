@@ -52,10 +52,12 @@ Execution canon:
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_ELEVEN_STANDBY_CHECKPOINT_2026-04-16.md` on 2026-04-16, anchored it to the verified +110 standby checkpoint artifact, confirmed the lane remains in explicit standby with no new dual-host parity rerun, limited re-entry to a fresh explicit CC request or a concrete regression signal, explicitly deferred broader coverage, backend fixes, deployment work, and unrelated sweeps, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_TEN_STANDBY_CHECKPOINT_2026-04-16.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_ELEVEN_STANDBY_CHECKPOINT_2026-04-16.md`.
 
-- [ ] Preserve CC standby after the recorded +111 standby checkpoint until Andreas makes a fresh explicit CC request or a concrete regression signal appears.
+- [x] Preserve CC standby after the recorded +111 standby checkpoint until Andreas makes a fresh explicit CC request or a concrete regression signal appears.
+  - closed_at: 2026-04-16 03:48 Europe/Stockholm
   - estimate: 0.1 focused decision pass
   - Acceptance: roadmap reflects the verified standby posture after the new checkpoint artifact without running new dual-host parity smoke and without broader scope changes.
   - Verification for completion: top queue reflects the standby posture with proof.
+  - Proof: closed this item after verifying `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_ELEVEN_STANDBY_CHECKPOINT_2026-04-16.md`, preserved the explicit standby posture with no new dual-host parity smoke, kept re-entry limited to a fresh explicit CC request or a concrete regression signal, and introduced no broader scope changes.
 
 - [x] Record the post-pause +108 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_EIGHT_STANDBY_CHECKPOINT_2026-04-16.md`.
   - closed_at: 2026-04-16 02:08 Europe/Stockholm
