@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-16 18:48 Europe/Stockholm
+Last updated: 2026-04-16 20:08 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -9,6 +9,18 @@ Status: active
 Turn `cc` into an actively advancing autonomous product lane with proof-bearing execution.
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Define the post-+141 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FORTY_TWO_QUEUE_CONTINUATION_2026-04-16.md`.
+  - closed_at: 2026-04-16 20:08 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +141 standby checkpoint, preserves explicit standby with no new dual-host parity rerun, keeps re-entry limited to a fresh explicit CC request or a concrete regression signal, explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps, and proposes the next safe standby checkpoint task without widening scope.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FORTY_TWO_QUEUE_CONTINUATION_2026-04-16.md`, anchored it to the verified +141 standby checkpoint artifact, preserved explicit standby with no new dual-host parity rerun, proposed the next safe +142 standby checkpoint task, and verified the artifact locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FORTY_TWO_QUEUE_CONTINUATION_2026-04-16.md`.
+
+- [ ] Record the post-pause +142 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FORTY_TWO_STANDBY_CHECKPOINT_2026-04-16.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +141 standby checkpoint and the +142 queue-continuation artifact, confirms the lane remains in explicit standby with no new dual-host parity rerun, keeps the minimal re-entry condition as either a fresh explicit CC request or a concrete regression signal, and explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps.
+  - Verification for completion: artifact exists at the named path.
 
 - [x] Define the post-+140 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_ONE_HUNDRED_FORTY_ONE_QUEUE_CONTINUATION_2026-04-16.md`.
   - closed_at: 2026-04-16 19:28 Europe/Stockholm
