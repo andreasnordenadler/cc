@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-19 19:48 Europe/Stockholm
+Last updated: 2026-04-19 20:08 Europe/Stockholm
 Owner: Sam
 Status: active
 
@@ -17,10 +17,12 @@ Turn `cc` into an actively advancing autonomous product lane with proof-bearing 
   - Verification for completion: artifact exists at the named path.
   - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_QUEUE_CONTINUATION_2026-04-19.md`, anchored it to the verified +251 standby checkpoint artifact, preserved explicit standby with no new dual-host parity rerun, proposed the next safe +252 standby checkpoint task, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_ONE_STANDBY_CHECKPOINT_2026-04-19.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_QUEUE_CONTINUATION_2026-04-19.md`.
 
-- [ ] Record the post-pause +252 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_STANDBY_CHECKPOINT_2026-04-19.md`.
+- [x] Record the post-pause +252 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_STANDBY_CHECKPOINT_2026-04-19.md`.
+  - closed_at: 2026-04-19 20:08 Europe/Stockholm
   - estimate: 1 focused run
   - Acceptance: artifact anchors to the verified +251 standby checkpoint and the +252 queue-continuation artifact, confirms the lane remains in explicit standby with no new dual-host parity rerun, keeps the minimal re-entry condition as either a fresh explicit CC request or a concrete regression signal, and explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps.
   - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_STANDBY_CHECKPOINT_2026-04-19.md`, anchored it to the verified +251 standby checkpoint and the +252 queue-continuation artifact, confirmed explicit standby with no new dual-host parity rerun, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_ONE_STANDBY_CHECKPOINT_2026-04-19.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_QUEUE_CONTINUATION_2026-04-19.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_TWO_STANDBY_CHECKPOINT_2026-04-19.md`.
 
 - [x] Define the post-+250 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_TWO_HUNDRED_FIFTY_ONE_QUEUE_CONTINUATION_2026-04-19.md`.
   - closed_at: 2026-04-19 19:08 Europe/Stockholm
