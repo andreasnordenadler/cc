@@ -10,6 +10,18 @@ Turn `cc` into an actively advancing autonomous product lane with proof-bearing 
 
 ## STRICT ACTIVE QUEUE
 
+- [x] Define the post-+323 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THREE_HUNDRED_TWENTY_FOUR_QUEUE_CONTINUATION_2026-04-21.md`.
+  - closed_at: 2026-04-21 18:10 Europe/Stockholm
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +323 standby checkpoint, preserves explicit standby with no new dual-host parity rerun, keeps re-entry limited to a fresh explicit CC request or a concrete regression signal, explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps, and proposes the next safe +324 standby checkpoint task without widening scope.
+  - Verification for completion: artifact exists at the named path.
+  - Proof: created `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THREE_HUNDRED_TWENTY_FOUR_QUEUE_CONTINUATION_2026-04-21.md`, anchored it to the verified +323 standby checkpoint artifact, preserved explicit standby with no new dual-host parity rerun, proposed the next safe +324 standby checkpoint task, and verified it locally with `test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THREE_HUNDRED_TWENTY_THREE_STANDBY_CHECKPOINT_2026-04-21.md && test -f docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THREE_HUNDRED_TWENTY_FOUR_QUEUE_CONTINUATION_2026-04-21.md`.
+
+- [ ] Record the post-pause +324 standby checkpoint in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THREE_HUNDRED_TWENTY_FOUR_STANDBY_CHECKPOINT_2026-04-21.md`.
+  - estimate: 1 focused run
+  - Acceptance: artifact anchors to the verified +323 standby checkpoint and the +324 queue-continuation artifact, confirms the lane remains in explicit standby with no new dual-host parity rerun, keeps the minimal re-entry condition as either a fresh explicit CC request or a concrete regression signal, and explicitly defers broader coverage, backend fixes, deployment work, and unrelated sweeps.
+  - Verification for completion: artifact exists at the named path.
+
 - [x] Define the post-+322 strict-queue standby continuation in `docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THREE_HUNDRED_TWENTY_THREE_QUEUE_CONTINUATION_2026-04-21.md`.
   - closed_at: 2026-04-21 17:30 Europe/Stockholm
   - estimate: 1 focused run
