@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
-import { saveChessUsernames } from "@/app/actions";
+import { CHALLENGES } from "@/lib/challenges";
 import {
-  challengeBanner,
-  formatChallengeId,
-  formatTime,
   getActiveChallenge,
   getChallengeAttempts,
+  getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
   type UserMetadataRecord,
@@ -15,222 +13,95 @@ import {
 
 export default async function AccountPage() {
   const user = await currentUser();
-  const metadata = user?.publicMetadata
-    ? (user.publicMetadata as UserMetadataRecord)
-    : {};
+  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const attempts = getChallengeAttempts(metadata).slice().reverse();
-  const activeChallengeLabel = activeChallenge
-    ? formatChallengeId(activeChallenge.id)
+  const progress = getChallengeProgress(metadata);
+  const completedSet = new Set(progress.completedChallengeIds);
+  const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
+  const activeChallengeRecord = activeChallenge?.id
+    ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
     : null;
-  const activeChallengeBanner = challengeBanner(activeChallenge);
 
   return (
-    <main style={shellStyle}>
+    <main className="site-shell">
       <SiteNav isSignedIn={Boolean(user)} active="account" />
-      <section style={cardStyle}>
-        <Link href="/" style={backLinkStyle}>← Back to home</Link>
 
-        <p style={eyebrowStyle}>Account</p>
-        <h1 style={titleStyle}>Save your chess usernames</h1>
-        <p style={copyStyle}>
-          These identities are used alongside your challenge submissions and automated game checks.
-        </p>
+      <div className="content-wrap">
+        <section className="hero-card">
+          <span className="eyebrow">Profile / brag shelf</span>
+          <h1>{user?.username || user?.firstName || "Chaos résumé"}</h1>
+          <p className="hero-copy">
+            Proof that your bad chess decisions were at least documented.
+          </p>
+          <div className="stats-row">
+            <span>{progress.totalRewardPoints} pts</span>
+            <span>{progress.totalCompletedChallenges} completed</span>
+            <span>{attempts.length} attempts logged</span>
+          </div>
+        </section>
 
-        <form action={saveChessUsernames} style={{ display: "grid", gap: 12, maxWidth: 420 }}>
-          <label style={{ display: "grid", gap: 8 }}>
-            <span style={labelStyle}>Lichess username</span>
-            <input
-              type="text"
-              name="lichessUsername"
-              defaultValue={lichessUsername}
-              placeholder="e.g. AndreasN"
-              style={inputStyle}
-            />
-          </label>
+        <section className="big-grid">
+          <article className="mission-card">
+            <span className="eyebrow">Current title</span>
+            <h2>{progress.totalRewardPoints > 600 ? "Chaos Merchant" : "Bad Idea Apprentice"}</h2>
+            <p>Earn titles by completing quests that would make a chess coach pause for several seconds.</p>
+          </article>
 
-          <label style={{ display: "grid", gap: 8 }}>
-            <span style={labelStyle}>Chess.com username</span>
-            <input
-              type="text"
-              name="chessComUsername"
-              defaultValue={chessComUsername}
-              placeholder="e.g. AndreasN"
-              style={inputStyle}
-            />
-          </label>
+          <article className="mission-card">
+            <span className="eyebrow">Connected identities</span>
+            <h2>{lichessUsername || chessComUsername ? "Ready for proof" : "No account connected"}</h2>
+            <p>Lichess: {lichessUsername || "not set yet"}</p>
+            <p>Chess.com: {chessComUsername || "not set yet"}</p>
+            <Link href="/connect" className="button primary">Update identities</Link>
+          </article>
 
-          <button type="submit" style={buttonStyle}>
-            {lichessUsername || chessComUsername ? "Update usernames" : "Save usernames"}
-          </button>
-        </form>
+          <article className="mission-card">
+            <span className="eyebrow">Active dare</span>
+            <h2>{activeChallengeRecord?.title ?? "None active"}</h2>
+            <p>{activeChallengeRecord?.objective ?? "Choose a side quest and start making questionable decisions."}</p>
+            <Link href={activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/challenges"} className="button secondary">
+              {activeChallengeRecord ? "Continue dare" : "Pick a bad idea"}
+            </Link>
+          </article>
+        </section>
 
-        <div style={{ display: "grid", gap: 6 }}>
-          <p style={metaStyle}>Lichess: {lichessUsername || "not set yet"}</p>
-          <p style={metaStyle}>Chess.com: {chessComUsername || "not set yet"}</p>
-        </div>
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Badges</span>
+              <h2>Achievement shelf</h2>
+            </div>
+            <span className="badge gold">{completedChallenges.length} unlocked</span>
+          </div>
+          <div className="grid">
+            {CHALLENGES.slice(0, 6).map((challenge) => (
+              <article className="fact" key={challenge.id}>
+                <span>{completedSet.has(challenge.id) ? "Unlocked" : "Locked"}</span>
+                <strong>{challenge.badge}</strong>
+              </article>
+            ))}
+          </div>
+        </section>
 
-        <div style={challengeSectionStyle}>
-          <h2 style={sectionTitleStyle}>Active challenge</h2>
-          {activeChallenge ? (
-            <>
-              <p style={copyStyle}>
-                <strong style={{ color: "#dbeafe" }}>Continue:</strong> {activeChallengeLabel}
-              </p>
-              <p style={metaStyle}>{activeChallengeBanner}</p>
-              <Link href={`/challenges/${activeChallenge.id}`} style={buttonStyle}>
-                Open challenge
-              </Link>
-            </>
-          ) : (
-            <p style={copyStyle}>No active challenge currently tracked. Choose one from the challenge list.</p>
-          )}
-        </div>
-
-        <div style={historyStyle}>
-          <h2 style={sectionTitleStyle}>Recent submissions</h2>
+        <section className="mission-card">
+          <span className="eyebrow">Recent chaos</span>
           {attempts.length ? (
-            <ul style={historyListStyle}>
-              {attempts.map((attempt) => {
-                const challengeId = attempt.challengeId ?? attempt.id?.split(":")[0] ?? "challenge";
-
-                return (
-                  <li key={attempt.id ?? `${challengeId}-${attempt.checkedAt ?? "unknown"}`} style={historyItemStyle}>
-                    <div style={{ display: "grid", gap: 4 }}>
-                      <strong>{formatChallengeId(challengeId)}</strong>
-                      <span style={metaStyle}>{attempt.summary}</span>
-                      <span style={metaStyle}>Checked {formatTime(attempt.checkedAt)}</span>
-                    </div>
-                    <Link href={`/challenges/${challengeId}`} style={historyLinkStyle}>
-                      Open challenge
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="grid">
+              {attempts.slice(0, 6).map((attempt) => (
+                <article className="fact" key={attempt.id ?? `${attempt.challengeId}-${attempt.checkedAt}`}>
+                  <span>{attempt.status ?? "pending"}</span>
+                  <strong>{attempt.summary}</strong>
+                </article>
+              ))}
+            </div>
           ) : (
-            <p style={metaStyle}>No submissions yet. Your latest challenge attempt will show up here after you submit one.</p>
+            <p>No attempts yet. Your first verified side quest will show up here.</p>
           )}
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
-
-const shellStyle = {
-  minHeight: "100vh",
-  padding: "clamp(20px, 3vw, 36px)",
-  background: "#0a0f1f",
-  color: "#f8fafc",
-};
-
-const cardStyle = {
-  width: "100%",
-  maxWidth: 720,
-  margin: "0 auto",
-  borderRadius: 28,
-  border: "1px solid rgba(148,163,184,0.22)",
-  background: "#111827",
-  padding: 24,
-  display: "grid",
-  gap: 16,
-};
-
-const eyebrowStyle = {
-  margin: 0,
-  color: "#93c5fd",
-  textTransform: "uppercase" as const,
-  letterSpacing: "0.12em",
-  fontSize: 12,
-};
-
-const titleStyle = {
-  margin: 0,
-  fontSize: "clamp(1.8rem, 5vw, 2.2rem)",
-  letterSpacing: "-0.02em",
-};
-
-const sectionTitleStyle = {
-  margin: 0,
-  fontSize: "1.3rem",
-};
-
-const labelStyle = {
-  fontWeight: 600,
-  color: "#e2e8f0",
-};
-
-const copyStyle = {
-  margin: 0,
-  color: "#cbd5e1",
-  lineHeight: 1.5,
-};
-
-const inputStyle = {
-  borderRadius: 14,
-  border: "1px solid rgba(148,163,184,0.22)",
-  background: "#1f2937",
-  color: "#f8fafc",
-  padding: "12px 14px",
-};
-
-const buttonStyle = {
-  borderRadius: 999,
-  border: "1px solid rgba(59,130,246,0.32)",
-  background: "#1e3a8a",
-  color: "#dbeafe",
-  padding: "12px 18px",
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const challengeSectionStyle = {
-  display: "grid",
-  gap: 8,
-};
-
-const backLinkStyle = {
-  display: "inline-flex",
-  color: "#93c5fd",
-  textDecoration: "none",
-  fontWeight: 500,
-};
-
-const metaStyle = {
-  margin: 0,
-  color: "#94a3b8",
-  fontSize: 14,
-};
-
-const historyStyle = {
-  display: "grid",
-  gap: 12,
-};
-
-const historyListStyle = {
-  listStyle: "none",
-  margin: 0,
-  padding: 0,
-  display: "grid",
-  gap: 12,
-};
-
-const historyItemStyle = {
-  borderRadius: 18,
-  border: "1px solid rgba(148,163,184,0.18)",
-  background: "#1f2937",
-  padding: 16,
-  display: "flex",
-  gap: 12,
-  justifyContent: "space-between" as const,
-  alignItems: "center" as const,
-  flexWrap: "wrap" as const,
-};
-
-const historyLinkStyle = {
-  color: "#dbeafe",
-  textDecoration: "none",
-  fontWeight: 600,
-};

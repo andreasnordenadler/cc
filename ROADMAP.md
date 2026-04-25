@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-25 23:18 Europe/Stockholm  
+Last updated: 2026-04-25 23:34 Europe/Stockholm  
 Owner: Sam  
 Status: active — three-project focus
 
@@ -40,15 +40,16 @@ Old pre-reset standby roadmap is archived at:
     - No PGN upload, engine-analysis, formal-training, or SaaS-dashboard framing appears.
   - Verification: `pnpm build` passed in `ccdesign`; local `/`, `/concepts/weird-dare-network`, and `/concepts/blundercheck-mobile-first` returned 200 and contained `BlunderCheck` + `Pick your next bad idea`; proof note exists at `ccdesign/docs/BLUNDERCHECK_PHASE_1_PROTOTYPE_REVIEW_2026-04-25.md`.
 
-- [ ] Implement CC v1 Phase 2: replace the real `cc` starter scaffold with a static BlunderCheck MVP shell.
+- [x] Implement CC v1 Phase 2: replace the real `cc` starter scaffold with a static BlunderCheck MVP shell.
   - added_at: 2026-04-25 23:00 Europe/Stockholm
+  - completed_at: 2026-04-25 23:34 Europe/Stockholm
   - estimate: 1-2 focused implementation runs
   - Acceptance:
     - `cc` has real product routes or sections for landing, challenge hub, challenge detail, result/share, and connect-account/onboarding.
     - Starter Next.js copy is removed.
     - Challenge data is modeled in code with the starter challenge library.
     - Visual/copy direction matches `docs/CC_V1_PRODUCT_BRIEF_2026-04-25.md`.
-  - Verification for completion: relevant `pnpm` checks pass in `cc`; local route checks pass; commit/proof note records changed surfaces.
+  - Verification: `pnpm lint` and `pnpm build` passed in `cc`; local route checks passed for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/connect`, `/result`, and `/account`; proof note exists at `docs/BLUNDERCHECK_V1_STATIC_SHELL_2026-04-25.md`.
 
 - [ ] Implement CC v1 Phase 3: design the lightweight Lichess/Chess.com account flow and active challenge state.
   - added_at: 2026-04-25 23:00 Europe/Stockholm

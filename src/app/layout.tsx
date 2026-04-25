@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chess",
-  description: "Play real games on Lichess or Chess.com and track challenge progress.",
+  title: "BlunderCheck — Chess side quests",
+  description: "Chess, but with stupidly hard side quests. Pick a ridiculous challenge, play real games, and prove it worked.",
 };
 
 export default function RootLayout({
