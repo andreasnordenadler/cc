@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-25 23:00 Europe/Stockholm  
+Last updated: 2026-04-25 23:18 Europe/Stockholm  
 Owner: Sam  
 Status: active — three-project focus
 
@@ -28,8 +28,9 @@ Old pre-reset standby roadmap is archived at:
 
 ## STRICT ACTIVE QUEUE
 
-- [ ] Implement CC v1 Phase 1: refine the `ccdesign` Challenge Hub + Completion/Share prototype around the side-quest product core.
+- [x] Implement CC v1 Phase 1: refine the `ccdesign` Challenge Hub + Completion/Share prototype around the side-quest product core.
   - added_at: 2026-04-25 23:00 Europe/Stockholm
+  - completed_at: 2026-04-25 23:18 Europe/Stockholm
   - estimate: 1 focused design/build run
   - Acceptance:
     - Challenge Hub immediately communicates “Pick your next bad idea.”
@@ -37,7 +38,7 @@ Old pre-reset standby roadmap is archived at:
     - Challenge Detail balances funny concept with precise rules for `Queen? Never Heard of Her`.
     - Landing answers the 10-second test: what it is, how it works, why it is fun.
     - No PGN upload, engine-analysis, formal-training, or SaaS-dashboard framing appears.
-  - Verification for completion: `pnpm build` passes in `ccdesign`; local prototype route is verified; concise proof note names the improved product surfaces.
+  - Verification: `pnpm build` passed in `ccdesign`; local `/`, `/concepts/weird-dare-network`, and `/concepts/blundercheck-mobile-first` returned 200 and contained `BlunderCheck` + `Pick your next bad idea`; proof note exists at `ccdesign/docs/BLUNDERCHECK_PHASE_1_PROTOTYPE_REVIEW_2026-04-25.md`.
 
 - [ ] Implement CC v1 Phase 2: replace the real `cc` starter scaffold with a static BlunderCheck MVP shell.
   - added_at: 2026-04-25 23:00 Europe/Stockholm
