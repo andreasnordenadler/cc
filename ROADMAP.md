@@ -142,6 +142,17 @@ Old pre-reset standby roadmap is archived at:
   - Verification: generated one queenless heraldic badge concept, `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`.
   - Proof: badge data now includes heraldic shield/charge/crest/motto/meaning/weirdness fields; `ChallengeBadge` now renders a coat-of-arms-style shield/ribbon token; hub/detail/result/account expose symbolic badge meaning and SQC weirdness; proof note exists at `docs/SQC_HERALDIC_BADGE_DIRECTION_2026-04-26.md`.
 
+- [x] Add Andreas's temporary SQC logo to the real Side Quest Chess shell.
+  - added_at: 2026-04-26 21:02 Europe/Stockholm
+  - completed_at: 2026-04-26 21:08 Europe/Stockholm
+  - source: Andreas shared a temporary logo from ChatGPT for SQC.
+  - Acceptance:
+    - temporary logo asset is saved in the app public assets
+    - landing page and nav use the temporary logo without replacing the product name/copy
+    - implementation remains easy to swap later for a final simplified mark
+  - Verification: `pnpm lint`, `pnpm build`, and local homepage smoke.
+  - Proof: saved `public/sqc-temp-logo.jpg`; `SiteNav` uses it as the temporary brand mark and `/` shows it prominently in the hero.
+
 - [ ] Implement CC v1 Phase 10: wire the Side Quest Chess production domain.
   - added_at: 2026-04-26 16:43 Europe/Stockholm
   - source: Andreas chose the final production name and bought `sidequestchess.com` plus backup `sqchess.com`.

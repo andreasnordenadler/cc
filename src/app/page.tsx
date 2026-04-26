@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
@@ -29,6 +30,9 @@ export default async function Home() {
       <div className="content-wrap">
         <section className="hero-grid">
           <article className="hero-card">
+            <div className="hero-logo-lockup">
+              <Image src="/sqc-temp-logo.jpg" alt="Side Quest Chess temporary logo" width={1200} height={630} priority />
+            </div>
             <span className="eyebrow">Side Quest Chess v1</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">

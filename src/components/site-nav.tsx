@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type ActiveNavItem = "home" | "challenges" | "connect" | "account" | "result";
@@ -12,7 +13,9 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     <header className="site-nav">
       <div className="site-nav-inner">
         <Link href="/" className="brand-lockup" aria-label="Side Quest Chess home">
-          <span className="brand-mark">♟</span>
+          <span className="brand-mark logo-mark" aria-hidden="true">
+            <Image src="/sqc-temp-logo.jpg" alt="" width={120} height={63} priority />
+          </span>
           <span className="brand-text">
             <strong>Side Quest Chess</strong>
             <span>stupidly hard side quests</span>
