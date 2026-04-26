@@ -40,7 +40,7 @@ export default async function Home() {
             </p>
             <div className="button-row hero-actions">
               <Link href="/challenges" className="button primary">Pick a bad idea</Link>
-              <Link href="/result" className="button secondary">See the brag card</Link>
+              <Link href="/badges" className="button secondary">Open badge vault</Link>
             </div>
 
             <div className="steps" aria-label="How Side Quest Chess works">
@@ -79,10 +79,10 @@ export default async function Home() {
           </article>
 
           <article className="mission-card">
-            <span className="eyebrow">Share result</span>
-            <h2>You did it. Somehow.</h2>
-            <p>Success should become a collectible poster/card your friends can laugh at, not a dull table row.</p>
-            <Link href="/result" className="button pink">Preview proof card</Link>
+            <span className="eyebrow">Badge vault</span>
+            <h2>Your nonsense gets heraldry.</h2>
+            <p>Every starter challenge now has a distinct SQC coat of arms with a motto, meaning, and weird little brag identity.</p>
+            <Link href="/badges" className="button pink">Browse badges</Link>
           </article>
         </section>
 

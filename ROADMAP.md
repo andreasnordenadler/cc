@@ -170,6 +170,18 @@ Old pre-reset standby roadmap is archived at:
   - completed_at: 2026-04-26 22:48 Europe/Stockholm
   - 2026-04-26 22:48 Europe/Stockholm: unpinned public smoke is now clean from this environment. Local and Cloudflare DNS resolve `sidequestchess.com` to Vercel A `216.198.79.1`; `https://sidequestchess.com/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/connect`, `/account`, and `/result` all returned live Side Quest Chess content; `www.sidequestchess.com/challenges` 308s to the primary host; `sqchess.com` performs the intended GoDaddy 301 to `sidequestchess.com`. `pnpm lint` and `pnpm build` passed. Proof note updated: `docs/SQC_PRODUCTION_DOMAIN_WIRING_BLOCKED_ON_DNS_2026-04-26.md`.
 
+- [x] Implement CC v1 Phase 11: add a live SQC badge vault for the coat-of-arms challenge collection.
+  - added_at: 2026-04-26 23:40 Europe/Stockholm
+  - completed_at: 2026-04-26 23:48 Europe/Stockholm
+  - estimate: 1 bounded product-loop polish burst
+  - Acceptance:
+    - `/badges` gives every starter challenge a browseable coat-of-arms vault card
+    - homepage and nav expose the badge vault as a first-class product surface
+    - badge cards explain shield, charge, motto, meaning, reward, quest, and earned/unearned state
+    - signed-in users see earned badge count and saved reward points
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/badges`, `/challenges`, and `/result`, production deploy, production smoke for `https://sidequestchess.com/`, `/badges`, `/challenges`, and `/result`, and Vercel 500 scan.
+  - Proof: new route `src/app/badges/page.tsx`, nav/home links, live deployment `https://cc-659ab1nun-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, proof note `docs/SQC_BADGE_VAULT_LIVE_DEPLOY_2026-04-26.md`.
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.

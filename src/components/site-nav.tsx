@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-type ActiveNavItem = "home" | "challenges" | "connect" | "account" | "result";
+type ActiveNavItem = "home" | "challenges" | "badges" | "connect" | "account" | "result";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -25,6 +25,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         <nav className="nav-links" aria-label="Primary">
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Challenges</Link>
+          <Link href="/badges" className={active === "badges" ? "active" : undefined}>Badges</Link>
           <Link href="/connect" className={active === "connect" ? "active" : undefined}>Connect</Link>
           <Link href="/result" className={active === "result" ? "active" : undefined}>Proof card</Link>
           <Link href="/account" className={active === "account" ? "active" : undefined}>Profile</Link>
