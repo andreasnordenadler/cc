@@ -74,6 +74,19 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs`, `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, and `/account`.
   - Proof: rule checker and deterministic fixtures exist in `src/lib/queen-never-heard-of-her.ts` and `tests/queen-never-heard-of-her-fixtures.mjs`; `checkActiveChallenge()` now uses the checker for the canonical challenge; proof note exists at `docs/BLUNDERCHECK_V1_QUEENLESS_VERIFICATION_SPIKE_2026-04-26.md`.
 
+- [x] Implement CC v1 Phase 5: wire the queenless verifier to Lichess latest-game normalization.
+  - added_at: 2026-04-26 13:40 Europe/Stockholm
+  - completed_at: 2026-04-26 13:50 Europe/Stockholm
+  - estimate: 1 bounded integration burst
+  - Acceptance:
+    - active `Queen? Never Heard of Her` checks use real Lichess latest-game data when a Lichess username is stored
+    - Lichess NDJSON/UCI game exports normalize into the existing provider-neutral queen challenge shape
+    - deterministic tests prove UCI captures become queen-loss evidence
+    - keep the no-username fixture fallback so the review prototype remains usable without credentials
+    - document limitations and next adapter step without adding PGN upload or engine-analysis framing
+  - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs`, `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/connect`, `/account`, and `/result`.
+  - Proof: Lichess latest-game adapter and UCI capture normalizer exist in `src/lib/queen-never-heard-of-her.ts`; `/account` active checker now uses real Lichess latest-game lookup when a Lichess username is saved; proof note exists at `docs/BLUNDERCHECK_V1_LICHESS_LATEST_QUEENLESS_ADAPTER_2026-04-26.md`.
+
 ## Proof rules
 
 - Do not claim public/live progress until a live URL is deployed and smoke-verified.

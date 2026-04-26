@@ -58,3 +58,10 @@ For signed-in-gated features, include signed-out explanatory copy so local route
 - Related Files: src/app/challenges/[id]/page.tsx
 
 ---
+
+## 2026-04-26 - PATH-minimal route smoke command failed
+
+- Context: CC autonomous burst route smoke after build.
+- Symptom: shell reported `curl`, `cat`, and `head` as not found, likely because the exec PATH was unexpectedly minimal for that command.
+- Recovery: use absolute system paths such as `/usr/bin/curl`, `/bin/cat`, `/usr/bin/head` for smoke scripts when PATH looks suspicious.
+

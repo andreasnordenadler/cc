@@ -30,6 +30,7 @@ import {
   verifyWinAsWhiteAttempt,
 } from "@/lib/lichess";
 import {
+  checkLatestLichessQueenNeverHeardOfHer,
   evaluateQueenNeverHeardOfHer,
   queenNeverHeardOfHerFixtures,
 } from "@/lib/queen-never-heard-of-her";
@@ -78,8 +79,18 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
   ],
 };
 
-function buildSimulatedCheck(challengeId: string, attemptCount: number) {
+async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string) {
   if (challengeId === "queen-never-heard-of-her") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessQueenNeverHeardOfHer(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
     const fixture = queenNeverHeardOfHerFixtures[attemptCount % queenNeverHeardOfHerFixtures.length];
     const verdict = evaluateQueenNeverHeardOfHer(fixture);
 
@@ -315,7 +326,8 @@ export async function checkActiveChallenge() {
     ? (metadata.challengeAttempts as ChallengeAttempt[])
     : [];
   const now = new Date().toISOString();
-  const check = buildSimulatedCheck(challenge.id, existingAttempts.length);
+  const lichessUsername = getLichessUsername(metadata);
+  const check = await buildLatestGameCheck(challenge.id, existingAttempts.length, lichessUsername);
   const progress = getChallengeProgress(metadata);
   const completedChallengeIds =
     check.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
@@ -360,4 +372,3 @@ export async function checkActiveChallenge() {
   revalidatePath(`/challenges/${challenge.id}`);
   revalidatePath("/result");
 }
-
