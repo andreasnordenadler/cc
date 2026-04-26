@@ -81,3 +81,34 @@ curl -I -L -A 'Mozilla/5.0' https://www.sqchess.com/challenges
 ```
 
 Then mark Phase 10 complete only after `https://sidequestchess.com/` serves the Side Quest Chess app and backup hosts redirect correctly.
+
+## 2026-04-26 20:44 Europe/Stockholm recheck + DNS correction burst
+
+Changed Vercel DNS for the primary domain from the parked GoDaddy/DPS target to explicit Vercel app records:
+
+- Added `A @ 76.76.21.21` for `sidequestchess.com` (`rec_b8a8a1e6034d091fdd434b49`).
+- Added `CNAME www cname.vercel-dns.com` for `www.sidequestchess.com` (`rec_113fed109169edd69cb899cc`).
+- Verified Vercel authoritative DNS now returns:
+  - `sidequestchess.com` A → `76.76.21.21`
+  - `www.sidequestchess.com` CNAME → `cname.vercel-dns.com`
+- Verified Cloudflare public resolver `1.1.1.1` now returns:
+  - `sidequestchess.com` A → `76.76.21.21`
+  - `www.sidequestchess.com` CNAME → `cname.vercel-dns.com`
+- Verified the Vercel edge serves the Side Quest Chess app for the primary host by pinning DNS to `76.76.21.21`:
+  - `/` ✅ contains `Side Quest Chess`
+  - `/challenges` ✅ contains `Side Quest Chess`
+  - `/challenges/queen-never-heard-of-her` ✅ contains `Side Quest Chess`
+  - `/connect` ✅ contains `Side Quest Chess`
+  - `/account` ✅ contains `Side Quest Chess`
+  - `/result` ✅ contains `Side Quest Chess`
+  - `www.sidequestchess.com` ✅ returns Vercel `308` to `https://sidequestchess.com/`
+- Verification rerun:
+  - `pnpm lint` ✅
+  - `pnpm build` ✅
+
+Remaining caveats:
+
+- The local resolver path used by this Mac still returned cached GoDaddy/DPS content immediately after the DNS correction, even though authoritative Vercel DNS and `1.1.1.1` were already correct. Treat this as propagation/cache lag and re-smoke without pinned DNS before final closure.
+- `sqchess.com` is intentionally **not** a Vercel-hosted backup per Andreas's 2026-04-26 20:23 clarification; it should remain a simple GoDaddy redirect to `sidequestchess.com`. A mistaken re-add during this burst was immediately undone with `vercel domains remove sqchess.com --yes`, and `vercel alias list` again shows only `sidequestchess.com` / `www.sidequestchess.com` for the SQC custom domains.
+
+Conclusion: primary-domain DNS has been corrected and Vercel-edge smoke passes; Phase 10 remains open only until unpinned public smoke is clean and the GoDaddy-side `sqchess.com` redirect is confirmed separately.
