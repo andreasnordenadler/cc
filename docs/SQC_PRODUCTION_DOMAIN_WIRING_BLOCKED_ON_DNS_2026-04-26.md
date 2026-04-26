@@ -55,6 +55,20 @@ Alternative: switch nameservers to Vercel:
 - `ns1.vercel-dns.com`
 - `ns2.vercel-dns.com`
 
+## 2026-04-26 19:42 Europe/Stockholm recheck
+
+- `pnpm lint` ✅
+- `pnpm build` ✅
+- Public DNS still does **not** reach Vercel:
+  - `sidequestchess.com` A → `76.223.105.230`, `13.248.243.5`; `curl` serves GoDaddy `DPS/2.0.0`, not the SQC app.
+  - `www.sidequestchess.com` CNAME → `sidequestchess.com`; follows to GoDaddy parking.
+  - `sqchess.com` A → `15.197.148.33`, `3.33.130.190`; still GoDaddy/default parking records.
+  - `www.sqchess.com` CNAME → `sqchess.com`; still not Vercel.
+- Vercel domain inspection still shows all four domains attached to the `cc` project, but nameservers remain at GoDaddy (`domaincontrol.com`) and Vercel reports each domain as not configured properly.
+- Vercel's recommended per-host record remains: `A <host> 76.76.21.21` for `sidequestchess.com`, `www.sidequestchess.com`, `sqchess.com`, and `www.sqchess.com`; nameserver alternative remains `ns1.vercel-dns.com` / `ns2.vercel-dns.com`.
+
+Conclusion: Phase 10 remains blocked only on registrar/DNS changes; the app build and Vercel-side project attachment are healthy.
+
 ## Next step
 
 Update the DNS at the registrar/DNS provider. After propagation, rerun:
