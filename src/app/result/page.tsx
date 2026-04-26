@@ -56,7 +56,7 @@ export default async function ResultPage() {
               <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
             </div>
             <strong>{isPassed ? `Badge unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
-            <p>{challenge.badgeIdentity.heraldry.meaning}</p>
+            <p>{challenge.badgeIdentity.heraldry.meaning} {challenge.badgeIdentity.heraldry.weirdness}</p>
           </article>
 
           <aside className="mission-card">

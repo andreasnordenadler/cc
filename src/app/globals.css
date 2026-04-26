@@ -88,9 +88,10 @@ p { color: var(--muted); line-height: 1.5; }
 .badge-token-copy strong { margin: 0; color: var(--ink); font-size: .98rem; line-height: 1; }
 .badge-token-copy small { color: var(--badge-secondary); font-size: 11px; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
 .badge-token-copy em { color: var(--muted); font-size: 12px; font-style: normal; font-weight: 800; }
+.badge-weirdness { color: color-mix(in srgb, var(--badge-secondary) 82%, var(--ink)); font-size: 11px; font-weight: 850; line-height: 1.25; }
 .result-poster .challenge-badge-token { margin: 16px 0 4px; border-color: rgba(20,13,13,.18); background: rgba(20,13,13,.1); box-shadow: none; }
 .result-poster .badge-token-copy strong { color: #140d0d; }
-.result-poster .badge-token-copy small, .result-poster .badge-token-copy em { color: rgba(20,13,13,.7); }
+.result-poster .badge-token-copy small, .result-poster .badge-token-copy em, .result-poster .badge-weirdness { color: rgba(20,13,13,.7); }
 .result-poster .badge-ribbon { background: rgba(20,13,13,.82); }
 .card-footer strong { color: var(--green); }
 .badge { display: inline-flex; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; }

@@ -9,6 +9,7 @@ export type BadgeIdentity = {
     crest: string;
     motto: string;
     meaning: string;
+    weirdness: string;
   };
   colors: {
     primary: string;
@@ -63,6 +64,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Resilient wing",
         motto: "Glory Without Her",
         meaning: "The broken crown marks the sacrificed queen; the wing means the player still rose and won.",
+        weirdness: "A noble house founded by confidently throwing away the queen.",
       },
       colors: { primary: "#ff5f9f", secondary: "#f5c86a", glow: "rgba(255,95,159,.45)" },
     },
@@ -105,6 +107,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Unlatched gate",
         motto: "No Walls, Still Standing",
         meaning: "The walking king represents refusing shelter; crossed rooks show castles deliberately unused.",
+        weirdness: "Royal cardio, performed under extremely poor advice.",
       },
       colors: { primary: "#76a9ff", secondary: "#60f0af", glow: "rgba(118,169,255,.42)" },
     },
@@ -144,6 +147,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Tiny flame",
         motto: "I Meant That",
         meaning: "The broken piece admits the early blunder; the phoenix spark turns disaster into victory.",
+        weirdness: "A formal apology issued as an opening novelty.",
       },
       colors: { primary: "#ff7a66", secondary: "#f5c86a", glow: "rgba(255,122,102,.42)" },
     },
@@ -183,6 +187,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Lightning cloud",
         motto: "Forward, Unfortunately",
         meaning: "The six pawns mark the reckless early storm; lightning shows chaos converted into attack.",
+        weirdness: "Weather report: tiny soldiers, zero restraint.",
       },
       colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.38)" },
     },
@@ -222,6 +227,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Crescent star",
         motto: "The Horse Decides",
         meaning: "The knight charge owns the final blow; the star marks a stylish mate rather than a normal win.",
+        weirdness: "The horse submitted the final paperwork.",
       },
       colors: { primary: "#a78bfa", secondary: "#ff5f9f", glow: "rgba(167,139,250,.44)" },
     },
@@ -261,6 +267,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Victory laurel",
         motto: "No Towers, No Trouble",
         meaning: "The fallen towers record both lost rooks; the laurel proves the wreckage still ended in victory.",
+        weirdness: "Urban planning disaster, somehow celebrated.",
       },
       colors: { primary: "#f5c86a", secondary: "#ff7a66", glow: "rgba(245,200,106,.46)" },
     },
@@ -300,6 +307,7 @@ export const CHALLENGES: Challenge[] = [
         crest: "Single candle",
         motto: "One Diagonal Remains",
         meaning: "The lone bishop stands for the only remaining minor piece; the candle signals lonely competence.",
+        weirdness: "One diagonal employee surviving the entire department meeting.",
       },
       colors: { primary: "#2dd4bf", secondary: "#76a9ff", glow: "rgba(45,212,191,.4)" },
     },

@@ -93,6 +93,7 @@ export default async function ChallengeDetailPage({
             <div className="note-card">
               <strong>{challenge.badgeIdentity.heraldry.motto}</strong>
               <p>{challenge.badgeIdentity.heraldry.meaning}</p>
+              <p>{challenge.badgeIdentity.heraldry.weirdness}</p>
             </div>
             <div className="note-card">
               <strong>Verifier direction</strong>

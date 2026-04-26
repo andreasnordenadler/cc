@@ -36,6 +36,7 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
         <strong>{identity.name}</strong>
         <small>{identity.rarity}</small>
         <em>{heraldry.charge}</em>
+        <span className="badge-weirdness">{heraldry.weirdness}</span>
       </span>
     </div>
   );

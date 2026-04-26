@@ -5,13 +5,14 @@ Source: Andreas asked that Side Quest Chess badges use **SQC** short-form and be
 
 ## Direction
 
-Every challenge badge should behave like a small coat of arms:
+Every challenge badge should behave like a small coat of arms — but unmistakably an **SQC** coat of arms:
 
 - a shield, not a generic achievement blob
 - a central charge/symbol that represents the challenge
 - a crest or achievement marker above the shield
 - a motto/ribbon that captures the dare
 - a clear meaning so the badge feels earned, not decorative
+- a strange/funny/weird interpretation line so the heraldry never becomes too serious or dusty
 
 ## Inspiration read
 
@@ -54,12 +55,23 @@ Each starter challenge now has heraldic meaning fields:
 - **Rookless Rampage** — fallen twin rooks + laurel: both towers gone, victory remains.
 - **One Bishop to Rule Them All** — solitary bishop + candle: one diagonal piece carries the endgame.
 
+## Weirdness addendum
+
+Andreas clarified that the heraldic system should also reflect the strange, funny, weird nature of SQC. Implemented by adding a `weirdness` line to every badge's heraldic identity and rendering it in badge/detail/result surfaces.
+
+Examples:
+
+- Queenless badge: “A noble house founded by confidently throwing away the queen.”
+- No Castle badge: “Royal cardio, performed under extremely poor advice.”
+- Pawn Storm badge: “Weather report: tiny soldiers, zero restraint.”
+
 ## Verification
 
 Implemented and verified on 2026-04-26:
 
 - `pnpm lint` passed.
 - `pnpm build` passed.
+- Follow-up weirdness pass verified with `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`.
 - Local route smoke passed for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account` with heraldic markers including `Glory Without Her`, `Broken queen crown`, and `No Walls, Still Standing`.
 - Commit: `e0c64be` (`Make SQC badges heraldic challenge arms`).
 - Vercel production deploy: `https://cc-pb2jdvt2g-andreas-nordenadlers-projects.vercel.app`, aliased to `https://cc-taupe-kappa.vercel.app`.

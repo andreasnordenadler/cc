@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-26 17:08 Europe/Stockholm  
+Last updated: 2026-04-26 17:12 Europe/Stockholm  
 Owner: Sam  
 Status: active — three-project focus
 
@@ -140,7 +140,7 @@ Old pre-reset standby roadmap is archived at:
     - generated concept art explores the SQC heraldic badge family without copying the Nordenadler family arms
     - short form **SQC** is acknowledged in docs/product copy where useful
   - Verification: generated one queenless heraldic badge concept, `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`.
-  - Proof: badge data now includes heraldic shield/charge/crest/motto/meaning fields; `ChallengeBadge` now renders a coat-of-arms-style shield/ribbon token; hub/detail/result/account expose symbolic badge meaning; proof note exists at `docs/SQC_HERALDIC_BADGE_DIRECTION_2026-04-26.md`.
+  - Proof: badge data now includes heraldic shield/charge/crest/motto/meaning/weirdness fields; `ChallengeBadge` now renders a coat-of-arms-style shield/ribbon token; hub/detail/result/account expose symbolic badge meaning and SQC weirdness; proof note exists at `docs/SQC_HERALDIC_BADGE_DIRECTION_2026-04-26.md`.
 
 - [ ] Implement CC v1 Phase 10: wire the Side Quest Chess production domain.
   - added_at: 2026-04-26 16:43 Europe/Stockholm
