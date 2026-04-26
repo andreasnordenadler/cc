@@ -181,9 +181,9 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
 } {
   if (!attempt) {
     return {
-      headline: "No attempt submitted yet",
-      detail: "Submit a finished Lichess or Chess.com game to create your first review record.",
-      meta: "No latest attempt yet",
+      headline: "No latest-game check yet",
+      detail: "Start a challenge, play on Lichess or Chess.com, then use Check latest games to create the first review record.",
+      meta: "No latest check yet",
     };
   }
 

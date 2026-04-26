@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
+import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
 import {
+  buildAttemptSummary,
+  challengeBanner,
   getActiveChallenge,
   getChallengeAttempts,
   getChallengeProgress,
   getChessComUsername,
+  getLatestChallengeAttempt,
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -24,6 +28,10 @@ export default async function AccountPage() {
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
     : null;
+  const latestActiveAttempt = activeChallengeRecord
+    ? getLatestChallengeAttempt(metadata, activeChallengeRecord.id)
+    : null;
+  const latestAttemptSummary = buildAttemptSummary(latestActiveAttempt);
 
   return (
     <main className="site-shell">
@@ -84,6 +92,48 @@ export default async function AccountPage() {
               </article>
             ))}
           </div>
+        </section>
+
+        <section className="mission-card active-run-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Active challenge checker</span>
+              <h2>{activeChallengeRecord?.title ?? "Pick a dare first"}</h2>
+            </div>
+            <span className="badge blue">{activeChallenge?.status ?? "idle"}</span>
+          </div>
+          <p>{challengeBanner(activeChallenge)}</p>
+
+          <div className="checker-flow" aria-label="Active challenge verification flow">
+            <div className="flow-step ready">
+              <strong>1. Identity</strong>
+              <p>{lichessUsername || chessComUsername ? `${lichessUsername || chessComUsername} connected` : "Add Lichess or Chess.com on Connect."}</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>2. Play real chess</strong>
+              <p>No upload chore. Finish games on the platform you already use.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>3. Check latest games</strong>
+              <p>BlunderCheck looks for quest evidence and records passed, failed, or pending proof.</p>
+            </div>
+          </div>
+
+          {activeChallengeRecord ? (
+            <form action={checkActiveChallenge} className="button-row">
+              <button type="submit" className="button primary">Check latest games</button>
+              <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">View challenge rules</Link>
+            </form>
+          ) : (
+            <Link href="/challenges" className="button primary">Pick a bad idea</Link>
+          )}
+
+          <article className="note-card latest-check">
+            <span className="eyebrow">Latest check</span>
+            <h3>{latestAttemptSummary.headline}</h3>
+            <p>{latestAttemptSummary.detail}</p>
+            <small>{latestAttemptSummary.meta}</small>
+          </article>
         </section>
 
         <section className="mission-card">

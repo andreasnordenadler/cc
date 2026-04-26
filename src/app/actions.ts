@@ -37,6 +37,56 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+
+const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "failed" | "pending"; summary: string; gameId: string }>> = {
+  "queen-never-heard-of-her": [
+    {
+      status: "failed",
+      gameId: "latest-game-queen-on-board",
+      summary: "Checked the latest eligible game: queen stayed alive past move 15, which is annoyingly responsible chess.",
+    },
+    {
+      status: "pending",
+      gameId: "latest-game-needs-final-position",
+      summary: "Found a queen sacrifice candidate, but the final proof still needs the verifier rule to confirm opponent queen status.",
+    },
+  ],
+  "no-castle-club": [
+    {
+      status: "passed",
+      gameId: "latest-game-king-cardio",
+      summary: "Latest eligible win had zero castling. The king walked around uninsured and BlunderCheck approves.",
+    },
+  ],
+  "the-blunder-gambit": [
+    {
+      status: "failed",
+      gameId: "latest-game-actually-fine",
+      summary: "No early piece hang found in the latest game. Suspiciously competent chess does not count.",
+    },
+  ],
+  "pawn-storm-maniac": [
+    {
+      status: "pending",
+      gameId: "latest-game-pawn-weather",
+      summary: "Detected multiple early pawn moves; verifier still needs the full six-pawn threshold check before awarding chaos points.",
+    },
+  ],
+};
+
+function buildSimulatedCheck(challengeId: string, attemptCount: number) {
+  const challenge = getChallengeById(challengeId);
+  const examples = simulatedChallengeChecks[challengeId] ?? [
+    {
+      status: "pending" as const,
+      gameId: `latest-game-${challengeId}`,
+      summary: `Queued latest-game verification for ${challenge?.title ?? challengeId}. This challenge needs its exact rule detector before auto-awarding points.`,
+    },
+  ];
+
+  return examples[attemptCount % examples.length];
+}
+
 function assertUserId(userId: string | null): string {
   if (!userId) {
     throw new Error("You must be signed in.");
@@ -228,3 +278,71 @@ export async function submitChallengeAttempt(formData: FormData) {
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
 }
+
+export async function checkActiveChallenge() {
+  const { userId, metadata } = await getUserContext();
+  const activeChallenge =
+    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+      ? (metadata.activeChallenge as { id?: string; startedAt?: string })
+      : null;
+
+  if (!activeChallenge?.id) {
+    throw new Error("Start a challenge before checking latest games.");
+  }
+
+  const challenge = getChallengeById(activeChallenge.id);
+
+  if (!challenge) {
+    throw new Error("Unknown active challenge.");
+  }
+
+  const existingAttempts = Array.isArray(metadata.challengeAttempts)
+    ? (metadata.challengeAttempts as ChallengeAttempt[])
+    : [];
+  const now = new Date().toISOString();
+  const check = buildSimulatedCheck(challenge.id, existingAttempts.length);
+  const progress = getChallengeProgress(metadata);
+  const completedChallengeIds =
+    check.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
+      ? [...progress.completedChallengeIds, challenge.id]
+      : progress.completedChallengeIds;
+
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      ...metadata,
+      activeChallenge: {
+        id: challenge.id,
+        status: check.status === "passed" ? "verified" : check.status,
+        startedAt: activeChallenge.startedAt ?? now,
+        verifiedAt: check.status === "passed" ? now : undefined,
+      },
+      challengeAttempts: [
+        ...existingAttempts,
+        {
+          id: `${challenge.id}:${now}`,
+          challengeId: challenge.id,
+          gameId: check.gameId,
+          status: check.status,
+          summary: check.summary,
+          checkedAt: now,
+        },
+      ],
+      challengeProgress: {
+        completedChallengeIds,
+        totalCompletedChallenges: completedChallengeIds.length,
+        totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
+          const completedChallenge = getChallengeById(id);
+          return sum + (completedChallenge?.reward ?? 0);
+        }, 0),
+      },
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/account");
+  revalidatePath("/challenges");
+  revalidatePath(`/challenges/${challenge.id}`);
+  revalidatePath("/result");
+}
+

@@ -51,14 +51,16 @@ Old pre-reset standby roadmap is archived at:
     - Visual/copy direction matches `docs/CC_V1_PRODUCT_BRIEF_2026-04-25.md`.
   - Verification: `pnpm lint` and `pnpm build` passed in `cc`; local route checks passed for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/connect`, `/result`, and `/account`; proof note exists at `docs/BLUNDERCHECK_V1_STATIC_SHELL_2026-04-25.md`.
 
-- [ ] Implement CC v1 Phase 3: design the lightweight Lichess/Chess.com account flow and active challenge state.
+- [x] Implement CC v1 Phase 3: design the lightweight Lichess/Chess.com account flow and active challenge state.
   - added_at: 2026-04-25 23:00 Europe/Stockholm
+  - completed_at: 2026-04-26 10:53 Europe/Stockholm
   - estimate: 1 focused implementation run
   - Acceptance:
     - user can understand connect/select platform flow without technical friction
     - active challenge state shows recent-game checking and success/failure examples
     - no manual PGN or import path exists
   - Verification for completion: build checks + route checks.
+  - Proof: added the active challenge checker to `/account`, challenge-detail latest-check affordances, and a `checkActiveChallenge()` server action that records passed/failed/pending latest-game examples without PGN upload/import framing; verified `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/connect`, `/account`, `/challenges/queen-never-heard-of-her`, and `/result`; proof note exists at `docs/BLUNDERCHECK_V1_ACTIVE_CHALLENGE_FLOW_2026-04-26.md`.
 
 ## Proof rules
 

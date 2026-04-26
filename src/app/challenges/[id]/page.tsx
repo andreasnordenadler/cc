@@ -2,12 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
-import { startChallenge } from "@/app/actions";
+import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { getChallengeById } from "@/lib/challenges";
 import {
+  buildAttemptSummary,
+  challengeBanner,
   getActiveChallenge,
   getChallengeAttempts,
   getChessComUsername,
+  getLatestChallengeAttempt,
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -31,6 +34,8 @@ export default async function ChallengeDetailPage({
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
+  const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
+  const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
 
@@ -95,13 +100,35 @@ export default async function ChallengeDetailPage({
           </div>
 
           {isSignedIn ? (
-            <div className="grid">
-              <Fact label="Lichess" value={lichessUsername || "not set yet"} />
-              <Fact label="Chess.com" value={chessComUsername || "not set yet"} />
-              <Fact label="Attempts" value={`${attempts.length}`} />
-            </div>
+            <>
+              <div className="grid">
+                <Fact label="Lichess" value={lichessUsername || "not set yet"} />
+                <Fact label="Chess.com" value={chessComUsername || "not set yet"} />
+                <Fact label="Attempts" value={`${attempts.length}`} />
+              </div>
+              <div className="run-status">
+                <p>{challengeBanner(isActive ? activeChallenge : null)}</p>
+                {isActive ? (
+                  <form action={checkActiveChallenge} className="button-row">
+                    <button type="submit" className="button primary">Check latest games</button>
+                    <Link href="/account" className="button secondary">Open active run</Link>
+                  </form>
+                ) : (
+                  <p className="muted">Start this side quest to unlock the latest-game checker for this challenge.</p>
+                )}
+                <article className="note-card latest-check">
+                  <span className="eyebrow">Latest check</span>
+                  <h3>{latestAttemptSummary.headline}</h3>
+                  <p>{latestAttemptSummary.detail}</p>
+                  <small>{latestAttemptSummary.meta}</small>
+                </article>
+              </div>
+            </>
           ) : (
-            <p>Browse first. Connect only when you want BlunderCheck to remember this chaos and turn it into proof.</p>
+            <div className="run-status">
+              <p>Browse first. Connect only when you want BlunderCheck to remember this chaos and turn it into proof.</p>
+              <p className="muted">Signed-in runners get a Check latest games button here after starting the dare.</p>
+            </div>
           )}
         </section>
       </div>
