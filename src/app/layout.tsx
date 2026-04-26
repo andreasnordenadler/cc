@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BlunderCheck — Chess side quests",
+  title: "Side Quest Chess — Chess side quests",
   description: "Chess, but with stupidly hard side quests. Pick a ridiculous challenge, play real games, and prove it worked.",
 };
 

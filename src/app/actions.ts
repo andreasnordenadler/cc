@@ -60,7 +60,7 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
     {
       status: "passed",
       gameId: "latest-game-king-cardio",
-      summary: "Latest eligible win had zero castling. The king walked around uninsured and BlunderCheck approves.",
+      summary: "Latest eligible win had zero castling. The king walked around uninsured and Side Quest Chess approves.",
     },
   ],
   "the-blunder-gambit": [

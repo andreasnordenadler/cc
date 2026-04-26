@@ -128,9 +128,20 @@ Old pre-reset standby roadmap is archived at:
   - Verification for completion: generated/design artifact proof + `pnpm lint` + `pnpm build` + local route smoke for `/challenges`, canonical challenge detail, `/result`, and `/account`.
   - Proof: added stable badge identity metadata for every starter challenge plus reusable `ChallengeBadge` UI tokens across hub/detail/home/result; verified `pnpm lint`, `pnpm build`, and local route smoke for `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`; proof note exists at `docs/BLUNDERCHECK_V1_COLLECTIBLE_BADGE_IDENTITY_2026-04-26.md`.
 
+- [ ] Implement CC v1 Phase 9: wire the Side Quest Chess production domain.
+  - added_at: 2026-04-26 16:43 Europe/Stockholm
+  - source: Andreas chose the final production name and bought `sidequestchess.com` plus backup `sqchess.com`.
+  - estimate: 1 bounded domain/deploy setup burst
+  - Acceptance:
+    - Vercel/project configuration recognizes `sidequestchess.com` as the primary production domain
+    - `sqchess.com` is either configured as a redirect/backup or documented with the exact missing DNS/setup step
+    - public product copy and metadata use Side Quest Chess, not BlunderCheck
+    - old `cc-taupe-kappa.vercel.app` remains only a temporary technical alias during transition
+  - Verification for completion: `pnpm lint`, `pnpm build`, production deploy if needed, DNS/domain status evidence, and live smoke checks for the primary domain before claiming it is live.
+
 ## Proof rules
 
-- Do not claim public/live progress until a live URL is deployed and smoke-verified.
+- Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.
 - Design progress is valid when the artifact exists and `ccdesign` builds.
 - Implementation progress is valid when `cc` checks pass and changed routes are inspectable.
 - If the work starts feeling like chess analysis, stop and re-center on side quests.

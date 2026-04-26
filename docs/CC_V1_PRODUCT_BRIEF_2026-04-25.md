@@ -1,12 +1,13 @@
-# CC / BlunderCheck v1 Product Brief
+# CC / Side Quest Chess v1 Product Brief
 
 Created: 2026-04-25 23:00 Europe/Stockholm  
 Owner: Sam  
 Source: Andreas Telegram brief `blundercheck_mockup_brief_for_sam---5de88065-130d-4d1d-8d25-08c44db53dcf.md`
+Production naming update: Andreas chose **Side Quest Chess** on 2026-04-26; primary domain **sidequestchess.com**, backup **sqchess.com**. Former working/mockup name: **BlunderCheck**.
 
 ## 1. Product truth
 
-BlunderCheck / CC is not a chess training dashboard.
+Side Quest Chess / CC is not a chess training dashboard.
 
 It is:
 
@@ -16,7 +17,7 @@ The product should feel like a smart chess friend daring you to do something dum
 
 ## 2. Core promise
 
-> Pick a ridiculous chess challenge, play real games on Lichess or Chess.com, and let BlunderCheck verify whether you pulled it off.
+> Pick a ridiculous chess challenge, play real games on Lichess or Chess.com, and let Side Quest Chess verify whether you pulled it off.
 
 Shorter product promise:
 
@@ -44,7 +45,7 @@ Tone:
 V1 is successful if a new visitor understands within 10 seconds:
 
 1. **What is this?** A chess side-quest/challenge layer.
-2. **How does it work?** Pick challenge → play on Lichess/Chess.com → BlunderCheck checks games.
+2. **How does it work?** Pick challenge → play on Lichess/Chess.com → Side Quest Chess checks games.
 3. **Why is it fun?** The challenges are weird, hard, funny, and shareable.
 
 V1 does not need to be the full community platform. It must prove the loop is desirable.
@@ -56,7 +57,7 @@ V1 does not need to be the full community platform. It must prove the loop is de
 3. Start the challenge.
 4. Connect or identify a Lichess / Chess.com account.
 5. Play normal games on the external chess platform.
-6. BlunderCheck checks recent games automatically.
+6. Side Quest Chess checks recent games automatically.
 7. Get a satisfying success or failure result.
 8. Earn points / badge / streak progress.
 9. Share the result or challenge a friend.
@@ -71,7 +72,7 @@ Priority order:
 3. **Challenge Detail** — funny concept plus exact rules.
 4. **Landing Page** — instant explanation and invitation.
 5. **Connect Account / Onboarding** — friendly and non-technical.
-6. **Active Challenge / Game Check** — bridge between BlunderCheck and real chess games.
+6. **Active Challenge / Game Check** — bridge between Side Quest Chess and real chess games.
 7. **Profile / Achievements / Leaderboard** — identity and progression.
 
 ## 7. Canonical first challenge
@@ -140,7 +141,7 @@ Proof:
 
 ### Phase 2 — Static MVP in `cc`
 
-Goal: replace starter scaffold with a real BlunderCheck web MVP shell.
+Goal: replace starter scaffold with a real Side Quest Chess web MVP shell.
 
 Deliverables:
 - landing page

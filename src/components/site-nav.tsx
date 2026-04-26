@@ -11,10 +11,10 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   return (
     <header className="site-nav">
       <div className="site-nav-inner">
-        <Link href="/" className="brand-lockup" aria-label="BlunderCheck home">
+        <Link href="/" className="brand-lockup" aria-label="Side Quest Chess home">
           <span className="brand-mark">♟</span>
           <span className="brand-text">
-            <strong>BlunderCheck</strong>
+            <strong>Side Quest Chess</strong>
             <span>stupidly hard side quests</span>
           </span>
         </Link>

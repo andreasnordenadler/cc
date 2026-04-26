@@ -1,14 +1,19 @@
-# CC / BlunderCheck
+# CC / Side Quest Chess
 
-CC is the internal project lane for **BlunderCheck**.
+CC is the internal project lane for **Side Quest Chess**. The former working/mockup name was **BlunderCheck**.
 
-BlunderCheck is:
+Side Quest Chess is:
 
 > **Chess, but with stupidly hard side quests.**
 
-Users pick weird chess challenges, play real games on Lichess or Chess.com, and BlunderCheck verifies whether they completed the challenge. Successful attempts earn points, badges, streaks, and shareable proof.
+Users pick weird chess challenges, play real games on Lichess or Chess.com, and Side Quest Chess verifies whether they completed the challenge. Successful attempts earn points, badges, streaks, and shareable proof.
 
 ## Current product canon
+
+- Production name: **Side Quest Chess**
+- Primary domain: **sidequestchess.com**
+- Backup domain: **sqchess.com**
+- Repo/internal lane: **CC**
 
 - Product feel: playful, smart, mischievous, chess-aware, meme-friendly.
 - Core loop: pick challenge → play real chess elsewhere → automatic verification → result → points/badge/share/friend challenge.

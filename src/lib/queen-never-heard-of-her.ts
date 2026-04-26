@@ -156,7 +156,7 @@ export async function checkLatestLichessQueenNeverHeardOfHer(username: string): 
     return {
       status: "pending",
       gameId: "lichess-username-missing",
-      summary: "Add a Lichess username before BlunderCheck can inspect latest queenless attempts.",
+      summary: "Add a Lichess username before Side Quest Chess can inspect latest queenless attempts.",
       evidence: ["No Lichess username is stored."],
     };
   }

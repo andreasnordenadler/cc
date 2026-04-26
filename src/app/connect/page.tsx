@@ -24,7 +24,7 @@ export default async function ConnectPage() {
           <span className="eyebrow">Connect account</span>
           <h1>Connect the account you already embarrass yourself on.</h1>
           <p className="hero-copy">
-            BlunderCheck should check real Lichess/Chess.com games for completed side quests. No PGN uploads, no game-file imports, no engine lecture.
+            Side Quest Chess should check real Lichess/Chess.com games for completed side quests. No PGN uploads, no game-file imports, no engine lecture.
           </p>
         </section>
 
@@ -32,7 +32,7 @@ export default async function ConnectPage() {
           <article className="connect-card active">
             <span className="eyebrow">Lichess</span>
             <h2>Fastest setup</h2>
-            <p>Use your public username so BlunderCheck can connect challenges to real games.</p>
+            <p>Use your public username so Side Quest Chess can connect challenges to real games.</p>
           </article>
 
           <article className="connect-card">
@@ -63,7 +63,7 @@ export default async function ConnectPage() {
           <section className="mission-card">
             <span className="eyebrow">Browse first</span>
             <h2>No pressure account wall.</h2>
-            <p>Start by browsing challenges. Sign in when you want BlunderCheck to remember badges, streaks, and proof cards.</p>
+            <p>Start by browsing challenges. Sign in when you want Side Quest Chess to remember badges, streaks, and proof cards.</p>
             <Link href="/challenges" className="button primary">Browse challenges</Link>
           </section>
         )}

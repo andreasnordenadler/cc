@@ -31,7 +31,7 @@ export default function ShareProofActions({ copy, challengeTitle }: ShareProofAc
 
     try {
       await navigator.share({
-        title: `BlunderCheck: ${challengeTitle}`,
+        title: `Side Quest Chess: ${challengeTitle}`,
         text: copy,
         url: shareUrl,
       });

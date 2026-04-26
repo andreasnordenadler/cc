@@ -115,7 +115,7 @@ export default async function AccountPage() {
             </div>
             <div className="flow-step hot">
               <strong>3. Check latest games</strong>
-              <p>BlunderCheck looks for quest evidence and records passed, failed, or pending proof.</p>
+              <p>Side Quest Chess looks for quest evidence and records passed, failed, or pending proof.</p>
             </div>
           </div>
 

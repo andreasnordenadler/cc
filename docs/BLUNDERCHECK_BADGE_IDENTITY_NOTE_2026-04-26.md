@@ -1,4 +1,4 @@
-# BlunderCheck badge identity note
+# Side Quest Chess badge identity note
 
 Date: 2026-04-26 16:36 Europe/Stockholm  
 Source: Andreas suggested unique badges for every challenge now that Sam has image creation skills.
@@ -9,7 +9,7 @@ Yes: every challenge should have a unique collectible badge.
 
 Reasoning:
 
-- BlunderCheck is about dares, proof, bragging, and repeatable side quests.
+- Side Quest Chess is about dares, proof, bragging, and repeatable side quests.
 - A badge gives each challenge a memorable identity before and after completion.
 - Badges make the result/share screen feel like a collectible proof card instead of a generic status page.
 - Generated image workflows let us explore badge families quickly, while the app can initially use simple stable badge metadata and gradually replace placeholders with final assets.
