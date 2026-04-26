@@ -87,6 +87,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs`, `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/connect`, `/account`, and `/result`.
   - Proof: Lichess latest-game adapter and UCI capture normalizer exist in `src/lib/queen-never-heard-of-her.ts`; `/account` active checker now uses real Lichess latest-game lookup when a Lichess username is saved; proof note exists at `docs/BLUNDERCHECK_V1_LICHESS_LATEST_QUEENLESS_ADAPTER_2026-04-26.md`.
 
+- [x] Implement CC v1 Phase 6: make `/result` reflect the saved latest verifier attempt instead of a static demo proof card.
+  - added_at: 2026-04-26 14:40 Europe/Stockholm
+  - completed_at: 2026-04-26 14:48 Europe/Stockholm
+  - estimate: 1 bounded product-loop polish burst
+  - Acceptance:
+    - result/share screen reads the signed-in user's latest saved challenge attempt when present
+    - passed, failed, pending, and empty states do not falsely claim a static success
+    - share copy uses the matching challenge title/reward/badge context
+    - page links back to `/account` for the latest-games checker and to the active challenge rules
+  - Verification: `pnpm lint`, `pnpm build`, and local route smoke for `/result`, `/account`, and `/challenges/queen-never-heard-of-her`.
+  - Proof: `/result` now uses `currentUser()`, saved public metadata, `getLatestChallengeAttempt()`, `getChallengeProgress()`, and `buildAttemptSummary()` to render a dynamic proof card; proof note exists at `docs/BLUNDERCHECK_V1_DYNAMIC_RESULT_PROOF_CARD_2026-04-26.md`.
+
 ## Proof rules
 
 - Do not claim public/live progress until a live URL is deployed and smoke-verified.

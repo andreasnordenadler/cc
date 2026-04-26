@@ -64,4 +64,29 @@ For signed-in-gated features, include signed-out explanatory copy so local route
 - Context: CC autonomous burst route smoke after build.
 - Symptom: shell reported `curl`, `cat`, and `head` as not found, likely because the exec PATH was unexpectedly minimal for that command.
 - Recovery: use absolute system paths such as `/usr/bin/curl`, `/bin/cat`, `/usr/bin/head` for smoke scripts when PATH looks suspicious.
+## [ERR-20260426-003] route_smoke_curl_missing_again
 
+**Logged**: 2026-04-26T12:48:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Bare `curl` was still unavailable during a CC route-smoke command in the autonomous burst shell.
+
+### Error
+```
+zsh:3: command not found: curl
+```
+
+### Recovery
+Re-ran the route smoke with Python `urllib.request`, confirming `/result`, `/account`, and `/challenges/queen-never-heard-of-her` returned 200.
+
+### Suggested Fix
+Keep using Python or absolute system tool paths for cron/autonomous smoke checks in this environment.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/BLUNDERCHECK_V1_DYNAMIC_RESULT_PROOF_CARD_2026-04-26.md
+
+---

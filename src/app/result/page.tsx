@@ -1,42 +1,69 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
-import { CHALLENGES } from "@/lib/challenges";
+import { CHALLENGES, getChallengeById } from "@/lib/challenges";
+import {
+  buildAttemptSummary,
+  getChallengeProgress,
+  getLatestChallengeAttempt,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 export default async function ResultPage() {
-  const { userId } = await auth();
-  const challenge = CHALLENGES[0];
+  const user = await currentUser();
+  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const latestAttempt = getLatestChallengeAttempt(metadata);
+  const progress = getChallengeProgress(metadata);
+  const challenge = latestAttempt?.challengeId
+    ? getChallengeById(latestAttempt.challengeId) ?? CHALLENGES[0]
+    : CHALLENGES[0];
+  const latestAttemptSummary = buildAttemptSummary(latestAttempt);
+  const isPassed = latestAttempt?.status === "passed";
+  const isPending = latestAttempt?.status === "pending" || !latestAttempt;
+  const proofStatus = isPassed ? "Certified chaos" : isPending ? "Waiting on proof" : "Attempt logged";
+  const posterTitle = isPassed
+    ? "It counts. Somehow."
+    : isPending
+      ? "Proof is warming up."
+      : "Not cursed enough yet.";
+  const posterCopy = latestAttempt
+    ? latestAttempt.summary ?? "Latest BlunderCheck attempt saved."
+    : "Start a dare, play real chess, and BlunderCheck turns the latest check into a shareable proof card.";
+  const gameLabel = latestAttempt?.gameId ?? "latest-game-check";
+  const shareCopy = isPassed
+    ? `I completed “${challenge.title}” on BlunderCheck. ${challenge.badge} unlocked. +${challenge.reward} points.`
+    : latestAttempt
+      ? `I tried “${challenge.title}” on BlunderCheck. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
+      : `I am trying “${challenge.title}” on BlunderCheck — chess side quests for people who enjoy bad ideas.`;
 
   return (
     <main className="site-shell">
-      <SiteNav isSignedIn={Boolean(userId)} active="result" />
+      <SiteNav isSignedIn={Boolean(user)} active="result" />
 
       <div className="content-wrap">
         <section className="hero-grid">
           <article className="result-poster">
             <div className="eyebrow" style={{ color: "#140d0d", background: "rgba(20,13,13,.12)" }}>BlunderCheck proof</div>
-            <h1>You did it. Somehow.</h1>
-            <p>
-              You lost your queen before move 15 and still won. This was either genius or illegal.
-            </p>
+            <h1>{posterTitle}</h1>
+            <p>{posterCopy}</p>
             <div className="proof-grid">
               <Fact label="Challenge" value={challenge.title} />
-              <Fact label="Queen lost" value="Move 11" />
-              <Fact label="Victory" value="Checkmate" />
-              <Fact label="Points" value={`+${challenge.reward}`} />
+              <Fact label="Status" value={proofStatus} />
+              <Fact label="Game" value={gameLabel} />
+              <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
             </div>
-            <strong>“I made a terrible chess decision and BlunderCheck says it counts.”</strong>
+            <strong>“I made a terrible chess decision and BlunderCheck made a receipt.”</strong>
           </article>
 
           <aside className="mission-card">
-            <span className="eyebrow">Why this matters</span>
-            <h2>The result is the viral object.</h2>
+            <span className="eyebrow">Live proof card</span>
+            <h2>The result now follows your latest check.</h2>
             <p>
-              BlunderCheck should make the proof moment feel collectible and shareable. The user is not just completing a task — they are earning evidence of a weird chess story.
+              This screen uses the saved active-challenge attempt instead of a static demo, so the share moment can reflect a real passed, failed, or pending verifier result.
             </p>
             <div className="button-row">
-              <Link href="/challenges" className="button primary">Try another bad idea</Link>
-              <Link href={`/challenges/${challenge.id}`} className="button secondary">View rules</Link>
+              <Link href="/account" className="button primary">Check latest games</Link>
+              <Link href={`/challenges/${challenge.id}`} className="button secondary">View challenge rules</Link>
             </div>
           </aside>
         </section>
@@ -44,14 +71,15 @@ export default async function ResultPage() {
         <section className="big-grid">
           <article className="mission-card">
             <span className="eyebrow">Share copy</span>
-            <h2>I completed “Queen? Never Heard of Her.”</h2>
-            <p>Lost my queen on move 11. Won anyway. +500 points · Brutal challenge · Certified Queenless Maniac.</p>
+            <h2>{isPassed ? `I completed “${challenge.title}.”` : `I tried “${challenge.title}.”`}</h2>
+            <p>{shareCopy}</p>
           </article>
           <article className="mission-card">
-            <span className="eyebrow">Next dare</span>
-            <h2>The Blunder Gambit</h2>
-            <p>Hang a piece early and still win. It was not a mistake. It was branding.</p>
-            <Link href="/challenges/the-blunder-gambit" className="button pink">Accept quest</Link>
+            <span className="eyebrow">Latest check</span>
+            <h2>{latestAttemptSummary.headline}</h2>
+            <p>{latestAttemptSummary.detail}</p>
+            <p className="muted">{latestAttemptSummary.meta}</p>
+            <Link href="/challenges" className="button pink">Try another bad idea</Link>
           </article>
         </section>
       </div>
