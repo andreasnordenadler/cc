@@ -1,9 +1,51 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
-import { getChallengeById } from "@/lib/challenges";
+import { CHALLENGES, getChallengeById } from "@/lib/challenges";
+
+export function generateStaticParams() {
+  return CHALLENGES.map((challenge) => ({ id: challenge.id }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const challenge = getChallengeById(id);
+
+  if (!challenge) {
+    return {
+      title: "Side Quest Chess dare",
+    };
+  }
+
+  const title = `I dare you: ${challenge.title} — Side Quest Chess`;
+  const description = `${challenge.objective} Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
+  const url = `/dare/${challenge.id}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Side Quest Chess",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function DarePage({
   params,

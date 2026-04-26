@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
@@ -5,7 +6,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
-import { getChallengeById } from "@/lib/challenges";
+import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -16,6 +17,47 @@ import {
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
+
+export function generateStaticParams() {
+  return CHALLENGES.map((challenge) => ({ id: challenge.id }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const challenge = getChallengeById(id);
+
+  if (!challenge) {
+    return {
+      title: "Side Quest Chess challenge",
+    };
+  }
+
+  const title = `${challenge.title} — Side Quest Chess`;
+  const description = `${challenge.objective} ${challenge.proofCallout}. Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
+  const url = `/challenges/${challenge.id}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Side Quest Chess",
+      type: "website",
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function ChallengeDetailPage({
   params,

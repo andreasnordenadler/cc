@@ -222,3 +222,49 @@ Quote dynamic route paths in shell commands, prefer Node `fetch` for HTTP smoke 
 - Related Files: src/app/dare/[id]/page.tsx
 
 ---
+
+## [ERR-20260427-001] local_smoke_tooling
+
+**Logged**: 2026-04-27T01:57:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Local route smoke command assumed `curl` existed, but this macOS/OpenClaw environment returned `zsh: command not found: curl`.
+
+### Details
+During the SQC dare-link metadata burst, the first local smoke command used `curl -fsS` and failed because `curl` is unavailable in this shell. Re-ran the same verification with `python3 urllib`, which succeeded.
+
+### Suggested Action
+Prefer `python3 urllib` for HTTP smoke checks in this workspace unless `curl` availability has been explicitly confirmed.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_DARE_LINK_SOCIAL_METADATA_LIVE_DEPLOY_2026-04-27.md
+- Tags: tooling, smoke-check
+
+---
+
+## [ERR-20260427-002] vercel_logs_flag_combination
+
+**Logged**: 2026-04-27T01:58:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment-url> --since 30m` failed because deployment URL mode implies follow mode, and `--follow` does not support filtering.
+
+### Details
+The initial Vercel 500 scan used a deployment URL with `--since`, producing: `The --follow flag does not support filtering. Remove: --since`. Re-ran as `vercel logs <deployment-url> --no-follow --since 30m --status-code 500 --json`, which returned 0 lines.
+
+### Suggested Action
+When filtering Vercel logs for a specific deployment URL, include `--no-follow`.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_DARE_LINK_SOCIAL_METADATA_LIVE_DEPLOY_2026-04-27.md
+- Tags: vercel, logs, deployment-verification
+
+---
