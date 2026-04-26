@@ -99,6 +99,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, and local route smoke for `/result`, `/account`, and `/challenges/queen-never-heard-of-her`.
   - Proof: `/result` now uses `currentUser()`, saved public metadata, `getLatestChallengeAttempt()`, `getChallengeProgress()`, and `buildAttemptSummary()` to render a dynamic proof card; proof note exists at `docs/BLUNDERCHECK_V1_DYNAMIC_RESULT_PROOF_CARD_2026-04-26.md`.
 
+- [x] Implement CC v1 Phase 7: add copy/native-share actions to the dynamic result proof card.
+  - added_at: 2026-04-26 15:40 Europe/Stockholm
+  - completed_at: 2026-04-26 15:47 Europe/Stockholm
+  - estimate: 1 bounded product-loop polish burst
+  - Acceptance:
+    - `/result` has an obvious copy action for the current proof-card text
+    - native sharing is used when the browser supports it, with clipboard fallback
+    - pending/failed/passed result states reuse the same dynamic share text rather than static fake-success copy
+    - no PGN upload, engine-analysis, or manual-import framing appears
+  - Verification: `pnpm lint`, `pnpm build`, and local route smoke for `/result`, `/account`, and `/challenges/queen-never-heard-of-her`.
+  - Proof: `ShareProofActions` adds `Copy receipt` and `Share dare` to `/result`; proof note exists at `docs/BLUNDERCHECK_V1_SHARE_ACTIONS_2026-04-26.md`.
+
 ## Proof rules
 
 - Do not claim public/live progress until a live URL is deployed and smoke-verified.

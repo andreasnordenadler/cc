@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
+import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import {
@@ -69,10 +70,11 @@ export default async function ResultPage() {
         </section>
 
         <section className="big-grid">
-          <article className="mission-card">
+          <article className="mission-card share-card">
             <span className="eyebrow">Share copy</span>
             <h2>{isPassed ? `I completed “${challenge.title}.”` : `I tried “${challenge.title}.”`}</h2>
             <p>{shareCopy}</p>
+            <ShareProofActions copy={shareCopy} challengeTitle={challenge.title} />
           </article>
           <article className="mission-card">
             <span className="eyebrow">Latest check</span>
