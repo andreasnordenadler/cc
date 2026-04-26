@@ -1,4 +1,4 @@
-# SQC production domain wiring — Vercel configured, blocked on DNS
+# SQC production domain wiring — live primary domain verified
 
 Date: 2026-04-26 17:46 Europe/Stockholm  
 Project: CC / Side Quest Chess
@@ -112,3 +112,48 @@ Remaining caveats:
 - `sqchess.com` is intentionally **not** a Vercel-hosted backup per Andreas's 2026-04-26 20:23 clarification; it should remain a simple GoDaddy redirect to `sidequestchess.com`. A mistaken re-add during this burst was immediately undone with `vercel domains remove sqchess.com --yes`, and `vercel alias list` again shows only `sidequestchess.com` / `www.sidequestchess.com` for the SQC custom domains.
 
 Conclusion: primary-domain DNS has been corrected and Vercel-edge smoke passes; Phase 10 remains open only until unpinned public smoke is clean and the GoDaddy-side `sqchess.com` redirect is confirmed separately.
+
+## 2026-04-26 21:45 Europe/Stockholm recheck
+
+- Re-verified project health after the primary DNS correction:
+  - `pnpm lint` ✅
+  - `pnpm build` ✅
+- Public resolver state now shows the primary domain on Vercel nameservers:
+  - `sidequestchess.com` NS → `ns1.vercel-dns.com`, `ns2.vercel-dns.com`
+  - `sidequestchess.com` A → `216.198.79.1`
+- Vercel-edge pinned smoke passes for the primary domain at the currently published Vercel A record (`216.198.79.1`):
+  - `/` ✅ contains `Side Quest Chess`
+  - `/challenges` ✅ contains `Side Quest Chess`
+  - `/challenges/queen-never-heard-of-her` ✅ contains `Side Quest Chess`
+  - `/connect` ✅ contains `Side Quest Chess`
+  - `/account` ✅ contains `Side Quest Chess`
+  - `/result` ✅ contains `Side Quest Chess`
+  - `www.sidequestchess.com` ✅ returns Vercel `308` toward `https://sidequestchess.com/` when pinned to the Vercel edge.
+- Local macOS resolver cache still returns old GoDaddy/DPS addresses for `sidequestchess.com` (`76.223.105.230`, `13.248.243.5`), so unpinned local `curl` can still hit the parked GoDaddy page even though public DNS and Vercel edge are correct.
+- Confirmed the backup `sqchess.com` remains outside Vercel and on GoDaddy nameservers (`ns09.domaincontrol.com`, `ns10.domaincontrol.com`) as intended for the simple registrar-side redirect path. A brief accidental re-add to Vercel during this recheck was removed immediately; `vercel domains inspect sqchess.com` now returns not found again.
+
+Conclusion: primary domain wiring is healthy at public DNS/Vercel-edge level, but Phase 10 remains open until unpinned `https://sidequestchess.com/` smoke is clean from this environment and the GoDaddy-side `sqchess.com` redirect is confirmed.
+
+
+
+## 2026-04-26 22:48 Europe/Stockholm completion recheck
+
+- Re-verified project health:
+  - `pnpm lint` ✅
+  - `pnpm build` ✅
+- DNS is now clean from this environment and Cloudflare public resolver:
+  - `sidequestchess.com` A → `216.198.79.1`
+- Unpinned live primary smoke now passes without resolver pinning:
+  - `https://sidequestchess.com/` ✅ contains `Side Quest Chess`
+  - `/challenges` ✅ contains `Side Quest Chess`
+  - `/challenges/queen-never-heard-of-her` ✅ contains `Side Quest Chess`
+  - `/connect` ✅ contains `Side Quest Chess`
+  - `/account` ✅ contains `Side Quest Chess`
+  - `/result` ✅ contains `Side Quest Chess`
+- Canonical host redirect passes:
+  - `https://www.sidequestchess.com/challenges` → `308` → `https://sidequestchess.com/challenges` → `200`
+- Backup domain behavior is confirmed as intentionally GoDaddy-side forwarding, not Vercel hosting:
+  - `https://sqchess.com/` → `301` → `http://sidequestchess.com` → Vercel canonical redirect → `200` live SQC app
+  - `HEAD https://sqchess.com/challenges` returns `405`, so use GET-based checks for GoDaddy forwarding.
+
+Conclusion: Phase 10 is complete. `sidequestchess.com` is the live primary production domain, `www.sidequestchess.com` canonicalizes to it, and `sqchess.com` forwards to it as the simple backup domain path.
