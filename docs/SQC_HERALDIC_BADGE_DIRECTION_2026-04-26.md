@@ -54,11 +54,14 @@ Each starter challenge now has heraldic meaning fields:
 - **Rookless Rampage** — fallen twin rooks + laurel: both towers gone, victory remains.
 - **One Bishop to Rule Them All** — solitary bishop + candle: one diagonal piece carries the endgame.
 
-## Verification target
+## Verification
 
-This direction is considered implemented when:
+Implemented and verified on 2026-04-26:
 
-- the app renders badges as coat-of-arms-like shields
-- hub/detail/result/account surfaces expose symbolic meaning
-- `pnpm lint` and `pnpm build` pass
-- local route smoke confirms SQC pages render with heraldic badge text
+- `pnpm lint` passed.
+- `pnpm build` passed.
+- Local route smoke passed for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account` with heraldic markers including `Glory Without Her`, `Broken queen crown`, and `No Walls, Still Standing`.
+- Commit: `e0c64be` (`Make SQC badges heraldic challenge arms`).
+- Vercel production deploy: `https://cc-pb2jdvt2g-andreas-nordenadlers-projects.vercel.app`, aliased to `https://cc-taupe-kappa.vercel.app`.
+- Production route smoke passed for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account` with the same markers.
+- Recent Vercel 500 scan found no logs.
