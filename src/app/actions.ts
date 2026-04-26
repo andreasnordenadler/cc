@@ -30,6 +30,10 @@ import {
   verifyWinAsWhiteAttempt,
 } from "@/lib/lichess";
 import {
+  evaluateQueenNeverHeardOfHer,
+  queenNeverHeardOfHerFixtures,
+} from "@/lib/queen-never-heard-of-her";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -75,6 +79,17 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
 };
 
 function buildSimulatedCheck(challengeId: string, attemptCount: number) {
+  if (challengeId === "queen-never-heard-of-her") {
+    const fixture = queenNeverHeardOfHerFixtures[attemptCount % queenNeverHeardOfHerFixtures.length];
+    const verdict = evaluateQueenNeverHeardOfHer(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
   const challenge = getChallengeById(challengeId);
   const examples = simulatedChallengeChecks[challengeId] ?? [
     {
