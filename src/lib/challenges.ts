@@ -1,3 +1,15 @@
+export type BadgeIdentity = {
+  name: string;
+  motif: string;
+  rarity: string;
+  unlockCopy: string;
+  colors: {
+    primary: string;
+    secondary: string;
+    glow: string;
+  };
+};
+
 export type Challenge = {
   id: string;
   title: string;
@@ -10,6 +22,7 @@ export type Challenge = {
   completionRate: string;
   flavor: string;
   badge: string;
+  badgeIdentity: BadgeIdentity;
   proofCallout: string;
   rules: string[];
   requirement: {
@@ -24,7 +37,7 @@ export const CHALLENGES: Challenge[] = [
     title: "Queen? Never Heard of Her",
     objective: "Win after losing your queen before move 15.",
     instruction:
-      "Start this side quest, play normal games on Lichess or Chess.com, and let BlunderCheck look for a win where you were queenless before move 15 while your opponent still had their queen.",
+      "Start this side quest, play normal games on Lichess or Chess.com, and let Side Quest Chess look for a win where you were queenless before move 15 while your opponent still had their queen.",
     openingHint: "The queen is overrated. Probably.",
     reward: 500,
     category: "Blunder Quest",
@@ -32,6 +45,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "4.2% complete",
     flavor: "You are voluntarily entering a game state chess coaches warn children about.",
     badge: "Certified Queenless Maniac",
+    badgeIdentity: {
+      name: "Queenless Gremlin",
+      motif: "♛",
+      rarity: "Brutal relic",
+      unlockCopy: "Win after donating the most important piece like it was pocket lint.",
+      colors: { primary: "#ff5f9f", secondary: "#f5c86a", glow: "rgba(255,95,159,.45)" },
+    },
     proofCallout: "Lost queen before move 15 · still won",
     rules: [
       "You must lose your queen before move 15.",
@@ -60,6 +80,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "31% complete",
     flavor: "No castling. No excuses. Just king anxiety.",
     badge: "Uncastled Menace",
+    badgeIdentity: {
+      name: "King Walk Club",
+      motif: "♔",
+      rarity: "Restriction token",
+      unlockCopy: "Refuse castling, survive the awkwardness, and still win.",
+      colors: { primary: "#76a9ff", secondary: "#60f0af", glow: "rgba(118,169,255,.42)" },
+    },
     proofCallout: "King stayed stressed the whole game",
     rules: [
       "Do not castle kingside or queenside.",
@@ -85,6 +112,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "12% complete",
     flavor: "A terrible opening novelty with a surprisingly good PR team.",
     badge: "I Meant That",
+    badgeIdentity: {
+      name: "Theory Accident",
+      motif: "!?",
+      rarity: "Blunder foil",
+      unlockCopy: "Hang material early and retroactively call it preparation.",
+      colors: { primary: "#ff7a66", secondary: "#f5c86a", glow: "rgba(255,122,102,.42)" },
+    },
     proofCallout: "Piece hung early · opponent still lost",
     rules: [
       "Lose a minor piece or rook in the first 10 moves without equal material back immediately.",
@@ -110,6 +144,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "9.8% complete",
     flavor: "A strategy best described as weather.",
     badge: "Pawn Weather Warning",
+    badgeIdentity: {
+      name: "Pawn Monsoon",
+      motif: "♟",
+      rarity: "Chaos badge",
+      unlockCopy: "Send six pawns into the storm before move 15 and make it work.",
+      colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.38)" },
+    },
     proofCallout: "Six pawns launched before move 15",
     rules: [
       "Move at least six different pawns before move 15.",
@@ -135,6 +176,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "3.7% complete",
     flavor: "Checkmate by horse violence.",
     badge: "Horse Criminal",
+    badgeIdentity: {
+      name: "Horse Felony",
+      motif: "♞",
+      rarity: "Style kill",
+      unlockCopy: "Let the knight deliver the last insult.",
+      colors: { primary: "#a78bfa", secondary: "#ff5f9f", glow: "rgba(167,139,250,.44)" },
+    },
     proofCallout: "Final move was knight mate",
     rules: [
       "Your final move must be a knight move that gives checkmate.",
@@ -160,6 +208,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "0.9% complete",
     flavor: "Structural damage, but make it inspirational.",
     badge: "No Towers, No Problem",
+    badgeIdentity: {
+      name: "Demolition Permit",
+      motif: "♜",
+      rarity: "Absurd artifact",
+      unlockCopy: "Lose both rooks, keep the vibes standing, and win anyway.",
+      colors: { primary: "#f5c86a", secondary: "#ff7a66", glow: "rgba(245,200,106,.46)" },
+    },
     proofCallout: "Both rooks gone · dignity survived",
     rules: [
       "Both of your rooks must be captured or traded away.",
@@ -185,6 +240,13 @@ export const CHALLENGES: Challenge[] = [
     completionRate: "7.1% complete",
     flavor: "One bishop. Too much responsibility.",
     badge: "Diagonal Manager",
+    badgeIdentity: {
+      name: "Bishop HR",
+      motif: "♝",
+      rarity: "Style relic",
+      unlockCopy: "Leave one bishop holding the entire department together.",
+      colors: { primary: "#2dd4bf", secondary: "#76a9ff", glow: "rgba(45,212,191,.4)" },
+    },
     proofCallout: "One bishop remained · job somehow done",
     rules: [
       "At the winning moment, your only remaining minor piece must be one bishop.",

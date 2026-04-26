@@ -1,21 +1,24 @@
 # CC Roadmap
 
-Last updated: 2026-04-26 16:34 Europe/Stockholm  
+Last updated: 2026-04-26 16:43 Europe/Stockholm  
 Owner: Sam  
 Status: active — three-project focus
 
 ## Mission
 
-Build CC / BlunderCheck into a playful chess side-quest product:
+Build CC / Side Quest Chess into a playful chess side-quest product:
 
 > **Chess, but with stupidly hard side quests.**
 
-Users pick ridiculous chess challenges, play real games on Lichess or Chess.com, and BlunderCheck verifies whether they completed the challenge so they can earn points, badges, streaks, and shareable proof.
+Users pick ridiculous chess challenges, play real games on Lichess or Chess.com, and Side Quest Chess verifies whether they completed the challenge so they can earn points, badges, streaks, and shareable proof.
 
 ## Current product canon
 
-- Working public name in mockups: **BlunderCheck**
-- Internal lane name: **CC**
+- Production public name: **Side Quest Chess**
+- Primary domain: **sidequestchess.com**
+- Backup domain: **sqchess.com**
+- Internal lane/repo name: **CC**
+- Former working/mockup name: **BlunderCheck**
 - Correct feel: a smart chess friend daring you to do something dumb
 - Primary loop: pick challenge → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend challenge
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
@@ -38,9 +41,9 @@ Old pre-reset standby roadmap is archived at:
     - Challenge Detail balances funny concept with precise rules for `Queen? Never Heard of Her`.
     - Landing answers the 10-second test: what it is, how it works, why it is fun.
     - No PGN upload, engine-analysis, formal-training, or SaaS-dashboard framing appears.
-  - Verification: `pnpm build` passed in `ccdesign`; local `/`, `/concepts/weird-dare-network`, and `/concepts/blundercheck-mobile-first` returned 200 and contained `BlunderCheck` + `Pick your next bad idea`; proof note exists at `ccdesign/docs/BLUNDERCHECK_PHASE_1_PROTOTYPE_REVIEW_2026-04-25.md`.
+  - Verification: `pnpm build` passed in `ccdesign`; local `/`, `/concepts/weird-dare-network`, and `/concepts/blundercheck-mobile-first` returned 200 and contained `Side Quest Chess` + `Pick your next bad idea`; proof note exists at `ccdesign/docs/BLUNDERCHECK_PHASE_1_PROTOTYPE_REVIEW_2026-04-25.md`.
 
-- [x] Implement CC v1 Phase 2: replace the real `cc` starter scaffold with a static BlunderCheck MVP shell.
+- [x] Implement CC v1 Phase 2: replace the real `cc` starter scaffold with a static Side Quest Chess MVP shell.
   - added_at: 2026-04-25 23:00 Europe/Stockholm
   - completed_at: 2026-04-25 23:34 Europe/Stockholm
   - estimate: 1-2 focused implementation runs
@@ -111,8 +114,9 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, and local route smoke for `/result`, `/account`, and `/challenges/queen-never-heard-of-her`.
   - Proof: `ShareProofActions` adds `Copy receipt` and `Share dare` to `/result`; proof note exists at `docs/BLUNDERCHECK_V1_SHARE_ACTIONS_2026-04-26.md`.
 
-- [ ] Implement CC v1 Phase 8: give every challenge a unique collectible badge identity.
+- [x] Implement CC v1 Phase 8: give every challenge a unique collectible badge identity.
   - added_at: 2026-04-26 16:34 Europe/Stockholm
+  - completed_at: 2026-04-26 16:58 Europe/Stockholm
   - source: Andreas suggested unique badges for every challenge now that Sam has image creation skills.
   - estimate: 1-2 bounded design/build bursts
   - Acceptance:
@@ -122,6 +126,7 @@ Old pre-reset standby roadmap is archived at:
     - visual system supports generated or hand-authored badge assets without blocking product iteration
     - badges feel collectible, playful, and side-quest-native, not corporate achievement icons
   - Verification for completion: generated/design artifact proof + `pnpm lint` + `pnpm build` + local route smoke for `/challenges`, canonical challenge detail, `/result`, and `/account`.
+  - Proof: added stable badge identity metadata for every starter challenge plus reusable `ChallengeBadge` UI tokens across hub/detail/home/result; verified `pnpm lint`, `pnpm build`, and local route smoke for `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`; proof note exists at `docs/BLUNDERCHECK_V1_COLLECTIBLE_BADGE_IDENTITY_2026-04-26.md`.
 
 ## Proof rules
 

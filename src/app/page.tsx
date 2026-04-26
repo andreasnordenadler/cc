@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -28,17 +29,17 @@ export default async function Home() {
       <div className="content-wrap">
         <section className="hero-grid">
           <article className="hero-card">
-            <span className="eyebrow">BlunderCheck v1</span>
+            <span className="eyebrow">Side Quest Chess v1</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
-              Pick a ridiculous challenge, play real games on Lichess or Chess.com, and let BlunderCheck prove whether you actually pulled it off.
+              Pick a ridiculous challenge, play real games on Lichess or Chess.com, and let Side Quest Chess prove whether you actually pulled it off.
             </p>
             <div className="button-row hero-actions">
               <Link href="/challenges" className="button primary">Pick a bad idea</Link>
               <Link href="/result" className="button secondary">See the brag card</Link>
             </div>
 
-            <div className="steps" aria-label="How BlunderCheck works">
+            <div className="steps" aria-label="How Side Quest Chess works">
               <Step num="1" title="Pick" copy="Choose a terrible mission." />
               <Step num="2" title="Play" copy="Use your normal chess site." />
               <Step num="3" title="Prove" copy="We check it and make it shareable." />
@@ -53,7 +54,7 @@ export default async function Home() {
             <ChallengeTeaser challengeId={featuredChallenge.id} />
             <div className="note-card">
               <strong>No PGN homework.</strong>
-              <p>Play real games elsewhere. BlunderCheck is the weird dare layer and proof machine.</p>
+              <p>Play real games elsewhere. Side Quest Chess is the weird dare layer and proof machine.</p>
             </div>
           </aside>
         </section>
@@ -69,7 +70,7 @@ export default async function Home() {
           <article className="mission-card">
             <span className="eyebrow">Automatic proof</span>
             <h2>Play your game. We’ll judge your life choices.</h2>
-            <p>V1 presents the proof loop now: connect Lichess/Chess.com, play normal games, then BlunderCheck checks for side-quest evidence.</p>
+            <p>V1 presents the proof loop now: connect Lichess/Chess.com, play normal games, then Side Quest Chess checks for side-quest evidence.</p>
             <Link href="/connect" className="button secondary">Connect account</Link>
           </article>
 
@@ -98,7 +99,7 @@ export default async function Home() {
             </div>
           ) : (
             <p>
-              You can browse challenges now. Sign in only when you want BlunderCheck to remember your profile, streaks, and proof cards.
+              You can browse challenges now. Sign in only when you want Side Quest Chess to remember your profile, streaks, and proof cards.
             </p>
           )}
         </section>
@@ -116,13 +117,14 @@ function ChallengeTeaser({ challengeId }: { challengeId: string }) {
         <span>{challenge.category}</span>
         <span className="badge danger">{challenge.difficulty}</span>
       </div>
+      <ChallengeBadge challenge={challenge} />
       <h3>{challenge.title}</h3>
       <p>{challenge.objective}</p>
       <em>{challenge.openingHint}</em>
       <div className="proof-line">{challenge.proofCallout}</div>
       <div className="card-footer">
         <strong>+{challenge.reward} pts</strong>
-        <span>{challenge.completionRate}</span>
+        <span>{challenge.badgeIdentity.name}</span>
         <Link href={`/challenges/${challenge.id}`}>Start</Link>
       </div>
     </article>

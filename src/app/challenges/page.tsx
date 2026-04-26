@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import {
@@ -82,10 +83,15 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
         <span>{challenge.category}</span>
         <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
       </div>
-      <h3>{challenge.title}</h3>
-      <p>{challenge.objective}</p>
+      <div className="challenge-card-title-row">
+        <ChallengeBadge challenge={challenge} earned={completed} />
+        <div>
+          <h3>{challenge.title}</h3>
+          <p>{challenge.objective}</p>
+        </div>
+      </div>
       <em>{challenge.openingHint}</em>
-      <div className="proof-line">{challenge.proofCallout}</div>
+      <div className="proof-line">{challenge.badgeIdentity.unlockCopy}</div>
       <div className="badge-row">
         {completed ? <span className="badge green">completed</span> : null}
         {active ? <span className="badge gold">active</span> : null}

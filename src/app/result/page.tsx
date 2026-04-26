@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
+import ChallengeBadge from "@/components/challenge-badge";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
@@ -28,14 +29,14 @@ export default async function ResultPage() {
       ? "Proof is warming up."
       : "Not cursed enough yet.";
   const posterCopy = latestAttempt
-    ? latestAttempt.summary ?? "Latest BlunderCheck attempt saved."
-    : "Start a dare, play real chess, and BlunderCheck turns the latest check into a shareable proof card.";
+    ? latestAttempt.summary ?? "Latest Side Quest Chess attempt saved."
+    : "Start a dare, play real chess, and Side Quest Chess turns the latest check into a shareable proof card.";
   const gameLabel = latestAttempt?.gameId ?? "latest-game-check";
   const shareCopy = isPassed
-    ? `I completed “${challenge.title}” on BlunderCheck. ${challenge.badge} unlocked. +${challenge.reward} points.`
+    ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badge} unlocked. +${challenge.reward} points.`
     : latestAttempt
-      ? `I tried “${challenge.title}” on BlunderCheck. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
-      : `I am trying “${challenge.title}” on BlunderCheck — chess side quests for people who enjoy bad ideas.`;
+      ? `I tried “${challenge.title}” on Side Quest Chess. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
+      : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
 
   return (
     <main className="site-shell">
@@ -44,16 +45,17 @@ export default async function ResultPage() {
       <div className="content-wrap">
         <section className="hero-grid">
           <article className="result-poster">
-            <div className="eyebrow" style={{ color: "#140d0d", background: "rgba(20,13,13,.12)" }}>BlunderCheck proof</div>
+            <div className="eyebrow" style={{ color: "#140d0d", background: "rgba(20,13,13,.12)" }}>Side Quest Chess proof</div>
             <h1>{posterTitle}</h1>
             <p>{posterCopy}</p>
+            <ChallengeBadge challenge={challenge} size="hero" earned={isPassed} />
             <div className="proof-grid">
               <Fact label="Challenge" value={challenge.title} />
               <Fact label="Status" value={proofStatus} />
               <Fact label="Game" value={gameLabel} />
               <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
             </div>
-            <strong>“I made a terrible chess decision and BlunderCheck made a receipt.”</strong>
+            <strong>{isPassed ? `Badge unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
           </article>
 
           <aside className="mission-card">

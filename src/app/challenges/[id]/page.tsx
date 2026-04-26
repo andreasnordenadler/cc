@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { getChallengeById } from "@/lib/challenges";
@@ -47,14 +48,19 @@ export default async function ChallengeDetailPage({
         <Link href="/challenges" className="button secondary">← Back to challenge hub</Link>
 
         <section className="hero-card detail-hero">
-          <div className="badge-row">
-            <span className="eyebrow">{challenge.category}</span>
-            <span className="badge danger">{challenge.difficulty}</span>
-            <span className="badge gold">+{challenge.reward} pts</span>
+          <div className="detail-hero-grid">
+            <div>
+              <div className="badge-row">
+                <span className="eyebrow">{challenge.category}</span>
+                <span className="badge danger">{challenge.difficulty}</span>
+                <span className="badge gold">+{challenge.reward} pts</span>
+              </div>
+              <h1>{challenge.title}</h1>
+              <p className="hero-copy">{challenge.objective}</p>
+              <p>{challenge.flavor}</p>
+            </div>
+            <ChallengeBadge challenge={challenge} size="hero" />
           </div>
-          <h1>{challenge.title}</h1>
-          <p className="hero-copy">{challenge.objective}</p>
-          <p>{challenge.flavor}</p>
           <div className="button-row hero-actions">
             {isSignedIn ? (
               <form action={startChallenge}>
@@ -81,8 +87,9 @@ export default async function ChallengeDetailPage({
 
           <article className="mission-card">
             <span className="eyebrow">Unlock badge</span>
+            <ChallengeBadge challenge={challenge} size="hero" />
             <h2>{challenge.badge}</h2>
-            <p>{challenge.proofCallout}</p>
+            <p>{challenge.badgeIdentity.unlockCopy}</p>
             <div className="note-card">
               <strong>Verifier direction</strong>
               <p>V1 should check Lichess/Chess.com games automatically. No PGN upload/import path belongs on this surface.</p>
@@ -126,7 +133,7 @@ export default async function ChallengeDetailPage({
             </>
           ) : (
             <div className="run-status">
-              <p>Browse first. Connect only when you want BlunderCheck to remember this chaos and turn it into proof.</p>
+              <p>Browse first. Connect only when you want Side Quest Chess to remember this chaos and turn it into proof.</p>
               <p className="muted">Signed-in runners get a Check latest games button here after starting the dare.</p>
             </div>
           )}
