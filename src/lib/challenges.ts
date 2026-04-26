@@ -3,6 +3,13 @@ export type BadgeIdentity = {
   motif: string;
   rarity: string;
   unlockCopy: string;
+  heraldry: {
+    shield: string;
+    charge: string;
+    crest: string;
+    motto: string;
+    meaning: string;
+  };
   colors: {
     primary: string;
     secondary: string;
@@ -50,6 +57,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "♛",
       rarity: "Brutal relic",
       unlockCopy: "Win after donating the most important piece like it was pocket lint.",
+      heraldry: {
+        shield: "Split blue-gold field with a cracked crown over an empty queen square.",
+        charge: "Broken queen crown",
+        crest: "Resilient wing",
+        motto: "Glory Without Her",
+        meaning: "The broken crown marks the sacrificed queen; the wing means the player still rose and won.",
+      },
       colors: { primary: "#ff5f9f", secondary: "#f5c86a", glow: "rgba(255,95,159,.45)" },
     },
     proofCallout: "Lost queen before move 15 · still won",
@@ -85,6 +99,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "♔",
       rarity: "Restriction token",
       unlockCopy: "Refuse castling, survive the awkwardness, and still win.",
+      heraldry: {
+        shield: "Blue-green field crossed by two barred rook towers.",
+        charge: "Walking king",
+        crest: "Unlatched gate",
+        motto: "No Walls, Still Standing",
+        meaning: "The walking king represents refusing shelter; crossed rooks show castles deliberately unused.",
+      },
       colors: { primary: "#76a9ff", secondary: "#60f0af", glow: "rgba(118,169,255,.42)" },
     },
     proofCallout: "King stayed stressed the whole game",
@@ -117,6 +138,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "!?",
       rarity: "Blunder foil",
       unlockCopy: "Hang material early and retroactively call it preparation.",
+      heraldry: {
+        shield: "Red-gold field split by a cracked diagonal blade.",
+        charge: "Broken piece with phoenix spark",
+        crest: "Tiny flame",
+        motto: "I Meant That",
+        meaning: "The broken piece admits the early blunder; the phoenix spark turns disaster into victory.",
+      },
       colors: { primary: "#ff7a66", secondary: "#f5c86a", glow: "rgba(255,122,102,.42)" },
     },
     proofCallout: "Piece hung early · opponent still lost",
@@ -149,6 +177,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "♟",
       rarity: "Chaos badge",
       unlockCopy: "Send six pawns into the storm before move 15 and make it work.",
+      heraldry: {
+        shield: "Green-gold storm field with six pawn drops like rain.",
+        charge: "Six-pawn squall",
+        crest: "Lightning cloud",
+        motto: "Forward, Unfortunately",
+        meaning: "The six pawns mark the reckless early storm; lightning shows chaos converted into attack.",
+      },
       colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.38)" },
     },
     proofCallout: "Six pawns launched before move 15",
@@ -181,6 +216,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "♞",
       rarity: "Style kill",
       unlockCopy: "Let the knight deliver the last insult.",
+      heraldry: {
+        shield: "Purple-pink night field under a checkmate star.",
+        charge: "Knight head",
+        crest: "Crescent star",
+        motto: "The Horse Decides",
+        meaning: "The knight charge owns the final blow; the star marks a stylish mate rather than a normal win.",
+      },
       colors: { primary: "#a78bfa", secondary: "#ff5f9f", glow: "rgba(167,139,250,.44)" },
     },
     proofCallout: "Final move was knight mate",
@@ -213,6 +255,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "♜",
       rarity: "Absurd artifact",
       unlockCopy: "Lose both rooks, keep the vibes standing, and win anyway.",
+      heraldry: {
+        shield: "Gold-red field with two fallen tower silhouettes below a laurel.",
+        charge: "Fallen twin rooks",
+        crest: "Victory laurel",
+        motto: "No Towers, No Trouble",
+        meaning: "The fallen towers record both lost rooks; the laurel proves the wreckage still ended in victory.",
+      },
       colors: { primary: "#f5c86a", secondary: "#ff7a66", glow: "rgba(245,200,106,.46)" },
     },
     proofCallout: "Both rooks gone · dignity survived",
@@ -245,6 +294,13 @@ export const CHALLENGES: Challenge[] = [
       motif: "♝",
       rarity: "Style relic",
       unlockCopy: "Leave one bishop holding the entire department together.",
+      heraldry: {
+        shield: "Teal-blue field with one bright diagonal crossing an empty board.",
+        charge: "Solitary bishop",
+        crest: "Single candle",
+        motto: "One Diagonal Remains",
+        meaning: "The lone bishop stands for the only remaining minor piece; the candle signals lonely competence.",
+      },
       colors: { primary: "#2dd4bf", secondary: "#76a9ff", glow: "rgba(45,212,191,.4)" },
     },
     proofCallout: "One bishop remained · job somehow done",

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-26 16:43 Europe/Stockholm  
+Last updated: 2026-04-26 17:08 Europe/Stockholm  
 Owner: Sam  
 Status: active — three-project focus
 
@@ -128,7 +128,21 @@ Old pre-reset standby roadmap is archived at:
   - Verification for completion: generated/design artifact proof + `pnpm lint` + `pnpm build` + local route smoke for `/challenges`, canonical challenge detail, `/result`, and `/account`.
   - Proof: added stable badge identity metadata for every starter challenge plus reusable `ChallengeBadge` UI tokens across hub/detail/home/result; verified `pnpm lint`, `pnpm build`, and local route smoke for `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`; proof note exists at `docs/BLUNDERCHECK_V1_COLLECTIBLE_BADGE_IDENTITY_2026-04-26.md`.
 
-- [ ] Implement CC v1 Phase 9: wire the Side Quest Chess production domain.
+- [x] Implement CC v1 Phase 9: convert challenge badges into meaningful SQC coat-of-arms badges.
+  - added_at: 2026-04-26 16:56 Europe/Stockholm
+  - completed_at: 2026-04-26 17:08 Europe/Stockholm
+  - source: Andreas wants every Side Quest Chess badge to be a coat of arms inspired by the Nordenadler coat of arms style, where every symbol means something and represents the individual challenge.
+  - estimate: 1-2 bounded design/build bursts
+  - Acceptance:
+    - badge data includes heraldic fields for every starter challenge: shield field, charge, crest, motto, and meaning
+    - badge UI reads as a coat-of-arms/shield rather than a generic token
+    - challenge hub/detail/result/account surfaces expose each badge's symbolic meaning
+    - generated concept art explores the SQC heraldic badge family without copying the Nordenadler family arms
+    - short form **SQC** is acknowledged in docs/product copy where useful
+  - Verification: generated one queenless heraldic badge concept, `pnpm lint`, `pnpm build`, and local route smoke for `/`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, and `/account`.
+  - Proof: badge data now includes heraldic shield/charge/crest/motto/meaning fields; `ChallengeBadge` now renders a coat-of-arms-style shield/ribbon token; hub/detail/result/account expose symbolic badge meaning; proof note exists at `docs/SQC_HERALDIC_BADGE_DIRECTION_2026-04-26.md`.
+
+- [ ] Implement CC v1 Phase 10: wire the Side Quest Chess production domain.
   - added_at: 2026-04-26 16:43 Europe/Stockholm
   - source: Andreas chose the final production name and bought `sidequestchess.com` plus backup `sqchess.com`.
   - estimate: 1 bounded domain/deploy setup burst

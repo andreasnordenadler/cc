@@ -121,7 +121,7 @@ function ChallengeTeaser({ challengeId }: { challengeId: string }) {
       <h3>{challenge.title}</h3>
       <p>{challenge.objective}</p>
       <em>{challenge.openingHint}</em>
-      <div className="proof-line">{challenge.proofCallout}</div>
+      <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · {challenge.badgeIdentity.heraldry.meaning}</div>
       <div className="card-footer">
         <strong>+{challenge.reward} pts</strong>
         <span>{challenge.badgeIdentity.name}</span>

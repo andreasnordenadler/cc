@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge } from "@/app/actions";
@@ -88,6 +89,7 @@ export default async function AccountPage() {
             {CHALLENGES.slice(0, 6).map((challenge) => (
               <article className="fact" key={challenge.id}>
                 <span>{completedSet.has(challenge.id) ? "Unlocked" : "Locked"}</span>
+                <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
                 <strong>{challenge.badge}</strong>
               </article>
             ))}

@@ -91,6 +91,10 @@ export default async function ChallengeDetailPage({
             <h2>{challenge.badge}</h2>
             <p>{challenge.badgeIdentity.unlockCopy}</p>
             <div className="note-card">
+              <strong>{challenge.badgeIdentity.heraldry.motto}</strong>
+              <p>{challenge.badgeIdentity.heraldry.meaning}</p>
+            </div>
+            <div className="note-card">
               <strong>Verifier direction</strong>
               <p>V1 should check Lichess/Chess.com games automatically. No PGN upload/import path belongs on this surface.</p>
             </div>

@@ -91,7 +91,7 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
         </div>
       </div>
       <em>{challenge.openingHint}</em>
-      <div className="proof-line">{challenge.badgeIdentity.unlockCopy}</div>
+      <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · {challenge.badgeIdentity.heraldry.charge}</div>
       <div className="badge-row">
         {completed ? <span className="badge green">completed</span> : null}
         {active ? <span className="badge gold">active</span> : null}

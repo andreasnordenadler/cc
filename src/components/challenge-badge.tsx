@@ -9,6 +9,7 @@ type ChallengeBadgeProps = {
 
 export default function ChallengeBadge({ challenge, size = "compact", earned = false }: ChallengeBadgeProps) {
   const identity = challenge.badgeIdentity;
+  const heraldry = identity.heraldry;
   const className = ["challenge-badge-token", size === "hero" ? "hero" : "", earned ? "earned" : ""]
     .filter(Boolean)
     .join(" ");
@@ -21,13 +22,20 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
         "--badge-secondary": identity.colors.secondary,
         "--badge-glow": identity.colors.glow,
       } as CSSProperties}
-      aria-label={`${identity.name} badge: ${identity.unlockCopy}`}
-      title={`${identity.name} · ${identity.unlockCopy}`}
+      aria-label={`${identity.name} coat of arms: ${heraldry.meaning}`}
+      title={`${identity.name} · ${heraldry.motto} · ${heraldry.meaning}`}
     >
-      <span className="badge-token-motif" aria-hidden="true">{identity.motif}</span>
+      <span className="badge-heraldry" aria-hidden="true">
+        <span className="badge-crest">✦</span>
+        <span className="badge-shield">
+          <span className="badge-token-motif">{identity.motif}</span>
+        </span>
+        <span className="badge-ribbon">{heraldry.motto}</span>
+      </span>
       <span className="badge-token-copy">
         <strong>{identity.name}</strong>
         <small>{identity.rarity}</small>
+        <em>{heraldry.charge}</em>
       </span>
     </div>
   );
