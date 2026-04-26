@@ -50,7 +50,7 @@ async function fetchArchiveMonths(chessComUsername: string): Promise<string[] | 
   const response = await fetch(`https://api.chess.com/pub/player/${encodeURIComponent(chessComUsername)}/games/archives`, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "cc-verifier/0.1 (+https://cc-taupe-kappa.vercel.app)",
+      "User-Agent": "side-quest-chess-verifier/0.1 (+https://sidequestchess.com)",
     },
     cache: "no-store",
   });
@@ -67,7 +67,7 @@ async function fetchMonthlyArchive(url: string): Promise<ChessComGame[] | null> 
   const response = await fetch(url, {
     headers: {
       Accept: "application/json",
-      "User-Agent": "cc-verifier/0.1 (+https://cc-taupe-kappa.vercel.app)",
+      "User-Agent": "side-quest-chess-verifier/0.1 (+https://sidequestchess.com)",
     },
     cache: "no-store",
   });
