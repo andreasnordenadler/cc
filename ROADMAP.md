@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-25 23:34 Europe/Stockholm  
+Last updated: 2026-04-26 16:34 Europe/Stockholm  
 Owner: Sam  
 Status: active — three-project focus
 
@@ -110,6 +110,18 @@ Old pre-reset standby roadmap is archived at:
     - no PGN upload, engine-analysis, or manual-import framing appears
   - Verification: `pnpm lint`, `pnpm build`, and local route smoke for `/result`, `/account`, and `/challenges/queen-never-heard-of-her`.
   - Proof: `ShareProofActions` adds `Copy receipt` and `Share dare` to `/result`; proof note exists at `docs/BLUNDERCHECK_V1_SHARE_ACTIONS_2026-04-26.md`.
+
+- [ ] Implement CC v1 Phase 8: give every challenge a unique collectible badge identity.
+  - added_at: 2026-04-26 16:34 Europe/Stockholm
+  - source: Andreas suggested unique badges for every challenge now that Sam has image creation skills.
+  - estimate: 1-2 bounded design/build bursts
+  - Acceptance:
+    - challenge data includes a stable badge identity for every starter challenge
+    - challenge hub and detail pages show distinct badge art/tokens instead of generic reward copy
+    - result/share proof card uses the completed challenge badge prominently
+    - visual system supports generated or hand-authored badge assets without blocking product iteration
+    - badges feel collectible, playful, and side-quest-native, not corporate achievement icons
+  - Verification for completion: generated/design artifact proof + `pnpm lint` + `pnpm build` + local route smoke for `/challenges`, canonical challenge detail, `/result`, and `/account`.
 
 ## Proof rules
 
