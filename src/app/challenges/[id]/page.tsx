@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { getChallengeById } from "@/lib/challenges";
@@ -73,7 +74,23 @@ export default async function ChallengeDetailPage({
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
             <Link href="/result" className="button secondary">Preview proof card</Link>
+            <Link href={`/dare/${challenge.id}`} className="button secondary">Friend dare page</Link>
           </div>
+        </section>
+
+        <section className="mission-card share-card">
+          <span className="eyebrow">Dare a friend</span>
+          <h2>Send this exact bad idea.</h2>
+          <p>
+            Side Quest Chess works better when the challenge itself is the invite. This copies a direct dare link with the badge reward and rules intact.
+          </p>
+          <ChallengeInviteActions
+            challengeTitle={challenge.title}
+            challengeObjective={challenge.objective}
+            challengePath={`/dare/${challenge.id}`}
+            reward={challenge.reward}
+            badgeName={challenge.badgeIdentity.name}
+          />
         </section>
 
         <section className="big-grid">

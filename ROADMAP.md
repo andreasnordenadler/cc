@@ -182,6 +182,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/badges`, `/challenges`, and `/result`, production deploy, production smoke for `https://sidequestchess.com/`, `/badges`, `/challenges`, and `/result`, and Vercel 500 scan.
   - Proof: new route `src/app/badges/page.tsx`, nav/home links, live deployment `https://cc-659ab1nun-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, proof note `docs/SQC_BADGE_VAULT_LIVE_DEPLOY_2026-04-26.md`.
 
+- [x] Implement CC v1 Phase 12: add challenge-specific friend-dare links.
+  - added_at: 2026-04-27 00:40 Europe/Stockholm
+  - completed_at: 2026-04-27 00:55 Europe/Stockholm
+  - estimate: 1 bounded viral-loop polish burst
+  - Acceptance:
+    - every challenge can be shared as a direct friend dare, not just a generic product link
+    - challenge detail pages expose a friend-dare page and copy/native-share actions
+    - `/dare/[id]` gives recipients a focused accept-the-bad-idea landing page with badge reward, rules, and CTAs
+    - no PGN upload, engine-analysis, or serious training framing appears
+  - Verification: `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/dare/queen-never-heard-of-her`, `/challenges/queen-never-heard-of-her`, `/challenges`, and `/result`, plus Vercel recent log scan.
+  - Proof: new route `src/app/dare/[id]/page.tsx`, new `ChallengeInviteActions` component, challenge detail sharing surface, live deployment `https://cc-r1a7wzod0-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, proof note `docs/SQC_FRIEND_DARE_LINKS_LIVE_DEPLOY_2026-04-27.md`.
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.
