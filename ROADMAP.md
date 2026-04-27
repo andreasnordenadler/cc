@@ -294,6 +294,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/scoreboard`, `/challenges`, and `/proof-log`; production deploy; production smoke for `https://sidequestchess.com/scoreboard`, `/`, `/challenges`, and `/proof-log`; bounded Vercel 500/501/502/503/504 log scan.
   - Proof: new route `src/app/scoreboard/page.tsx`, nav/home links, live deployment `https://cc-cxoaoo4im-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_SCOREBOARD_LIVE_DEPLOY_2026-04-27.md`.
 
+- [ ] Implement CC v1 Phase 21: convert all challenge badges to Andreas's illustrated heraldic badge style.
+  - added_at: 2026-04-27 10:25 Europe/Stockholm
+  - source: Andreas supplied the new `Queen? Never Heard of Her` badge and said this is the style wanted for all badges.
+  - estimate: 1-2 bounded badge-art/product-surface bursts
+  - Acceptance:
+    - supplied queenless badge is saved as the canonical art reference and used by the queenless challenge
+    - every starter challenge gets a matching high-detail illustrated coat-of-arms badge asset, not only CSS token placeholders
+    - badge generation/design prompts follow the new canon: ornate heraldic shield, black/gold linework, saturated challenge accent, weird chess symbolism, motto ribbon, collectible fantasy feel
+    - challenge hub/detail/badges/result/dare/scoreboard surfaces render final image assets consistently with accessible fallback text
+    - generated/final assets are documented so future badges can match the same style
+  - Verification for completion: generated or supplied image assets for all starter challenges, `pnpm lint`, `pnpm build`, local route smoke for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`; production deploy and smoke before claiming live.
+  - 2026-04-27 10:27 Europe/Stockholm: saved Andreas's supplied reference image as `public/badges/queen-never-heard-of-her-style-reference.jpg`, wired it into `badgeIdentity.image` for the queenless challenge, and documented the new badge style canon in `docs/SQC_BADGE_STYLE_CANON_2026-04-27.md`. Remaining work: generate/apply matching illustrated assets for the other starter challenges and verify/deploy.
 
 
 ## Proof rules

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import type { Challenge } from "@/lib/challenges";
 
@@ -26,10 +27,23 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
       title={`${identity.name} · ${heraldry.motto} · ${heraldry.meaning}`}
     >
       <span className="badge-heraldry" aria-hidden="true">
-        <span className="badge-crest">✦</span>
-        <span className="badge-shield">
-          <span className="badge-token-motif">{identity.motif}</span>
-        </span>
+        {identity.image ? (
+          <Image
+            src={identity.image}
+            alt=""
+            width={size === "hero" ? 220 : 96}
+            height={size === "hero" ? 220 : 96}
+            className="badge-reference-art"
+            priority={size === "hero"}
+          />
+        ) : (
+          <>
+            <span className="badge-crest">✦</span>
+            <span className="badge-shield">
+              <span className="badge-token-motif">{identity.motif}</span>
+            </span>
+          </>
+        )}
         <span className="badge-ribbon">{heraldry.motto}</span>
       </span>
       <span className="badge-token-copy">

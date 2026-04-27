@@ -3,6 +3,7 @@ export type BadgeIdentity = {
   motif: string;
   rarity: string;
   unlockCopy: string;
+  image?: string;
   heraldry: {
     shield: string;
     charge: string;
@@ -58,6 +59,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♛",
       rarity: "Brutal relic",
       unlockCopy: "Win after donating the most important piece like it was pocket lint.",
+      image: "/badges/queen-never-heard-of-her-style-reference.jpg",
       heraldry: {
         shield: "Split blue-gold field with a cracked crown over an empty queen square.",
         charge: "Broken queen crown",
