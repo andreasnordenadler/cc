@@ -40,3 +40,7 @@ Andreas supplied a new ornate **Side Quest Chess** crest/logo matching the illus
 ## 15:55 supplied logo replacement
 
 Andreas supplied a new ornate Side Quest Chess logo image. The uploaded PNG had no alpha channel and contained a baked checkerboard background, so I converted it to `public/sqc-logo-v6.png` with outside-only checkerboard removal. QA on dark and magenta backgrounds passed: exterior is transparent, while banner/shield/crest/interior light details remain opaque. Homepage and nav now reference `/sqc-logo-v6.png` with image optimization bypassed. Verification/deploy pending.
+
+## 17:12 homepage logo layout update
+
+Andreas requested removing the large logo from the homepage hero and making the small top-left nav logo use the same supplied transparent SQC crest at 100% larger size. I removed the hero `hero-logo-lockup` image from `src/app/page.tsx`, kept nav on `/sqc-logo-v6.png`, increased the nav logo image attrs from 120 to 240 and CSS `.logo-mark` from 58px to 116px, with `unoptimized` still set. `pnpm lint` and `pnpm build` passed. Production deploy pending.
