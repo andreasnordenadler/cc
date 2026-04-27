@@ -78,7 +78,9 @@ Fix applied:
 - Changed challenge-card title rows to single-column layout so badge and title/objective stack cleanly instead of compressing title text.
 - Verified local PNG signatures/alpha for all v2 badge/logo assets. ✅
 - Verified `pnpm lint`, `pnpm build`, and local route/asset smoke for `/challenges`, `/badges`, `/`, `/sqc-logo-v2.png`, and representative `/badges/v2/*.png`. ✅
-- Production deploy/smoke pending at time of this note.
+- Production deploy completed: `https://cc-bbcjeupzi-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`. ✅
+- Production smoke passed for `/challenges`, `/badges`, `/`, `/sqc-logo-v2.png`, and representative `/badges/v2/*.png`. ✅
+- Vercel 500/501/502/503/504 scan returned no logs in the last 30m. ✅
 
 
 ## Notes
