@@ -48,3 +48,7 @@ Andreas requested removing the large logo from the homepage hero and making the 
 ## 17:20 nav logo black-box cleanup
 
 Andreas reported a black box behind the top-left logo. I created `public/sqc-logo-v7.png` from the supplied transparent crest by removing tiny disconnected alpha specks and cropping to the main connected crest bounds, then updated the nav logo to `/sqc-logo-v7.png` and removed the CSS drop-shadow from `.logo-mark img` so the nav no longer adds a box-like dark backing. Verification/deploy pending.
+
+## 17:48 nav logo black-square asset fix
+
+Andreas screenshot showed the top-left logo still had a black square canvas. I generated `public/sqc-logo-v9.png` from the supplied logo using an outside-only canvas mask, then filled interior holes back to opaque from the original artwork so shield/banner/crest internals remain intact. The nav now references `/sqc-logo-v9.png` with `unoptimized`; `.logo-mark img` still has no drop-shadow. Verification/deploy pending.
