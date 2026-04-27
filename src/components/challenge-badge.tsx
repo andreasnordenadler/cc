@@ -11,8 +11,7 @@ type ChallengeBadgeProps = {
 export default function ChallengeBadge({ challenge, size = "compact", earned = false }: ChallengeBadgeProps) {
   const identity = challenge.badgeIdentity;
   const heraldry = identity.heraldry;
-  const hasIllustratedArt = Boolean(identity.image);
-  const className = ["challenge-badge-token", hasIllustratedArt ? "illustrated" : "", size === "hero" ? "hero" : "", earned ? "earned" : ""]
+  const className = ["challenge-badge-token", size === "hero" ? "hero" : "", earned ? "earned" : ""]
     .filter(Boolean)
     .join(" ");
 
@@ -45,7 +44,7 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
             </span>
           </>
         )}
-        {hasIllustratedArt ? null : <span className="badge-ribbon">{heraldry.motto}</span>}
+        <span className="badge-ribbon">{heraldry.motto}</span>
       </span>
       <span className="badge-token-copy">
         <strong>{identity.name}</strong>
