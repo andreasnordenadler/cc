@@ -46,6 +46,7 @@ export default async function Home() {
               <Link href="/badges" className="button secondary">Open badge vault</Link>
               <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
               <Link href="/rules" className="button secondary">Read the rulebook</Link>
+              <Link href="/share-kit" className="button secondary">Open share kit</Link>
               <Link href="/proof-log" className="button secondary">View proof log</Link>
             </div>
 
@@ -124,6 +125,13 @@ export default async function Home() {
             <h2>Funny dares. Serious receipts.</h2>
             <p>The proof explainer shows how SQC verifies real games without PGN homework, engine dashboards, or fake success copy.</p>
             <Link href="/rules" className="button secondary">Read the rulebook</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Share kit</span>
+            <h2>Every dare, ready to send.</h2>
+            <p>A single page for challenge-specific friend links, daily/random rituals, OG preview targets, and no-excuse invite copy.</p>
+            <Link href="/share-kit" className="button pink">Open share kit</Link>
           </article>
 
           <article className="mission-card">

@@ -349,6 +349,20 @@ Old pre-reset standby roadmap is archived at:
   - Proof: new route `src/app/rules/page.tsx`, nav/home links, live deployment `https://cc-q4nqtxqj9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_RULEBOOK_LIVE_DEPLOY_2026-04-27.md`.
 
 
+
+- [x] Implement CC v1 Phase 23: add a public share kit for starter-deck dare links.
+  - added_at: 2026-04-27 13:40 Europe/Stockholm
+  - completed_at: 2026-04-27 13:50 Europe/Stockholm
+  - estimate: 1 bounded viral-loop deploy burst
+  - Acceptance:
+    - `/share-kit` gives every starter challenge a direct friend-dare share card
+    - homepage and nav expose the share kit as a first-class viral-loop surface
+    - share kit links to daily, random, proof-log, dare pages, and challenge-specific OG preview images
+    - copy/native-share actions stay challenge-specific and avoid generic homepage pitch
+    - no PGN upload, engine-analysis, or serious training framing appears
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/share-kit`, `/`, `/dare/queen-never-heard-of-her`, and `/api/og/dare/queen-never-heard-of-her`; production deploy; production smoke for the same routes plus Vercel production 500 scan.
+  - Proof: new route `src/app/share-kit/page.tsx`, nav/home links, live deployment `https://cc-j5pt254ri-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_SHARE_KIT_LIVE_DEPLOY_2026-04-27.md`.
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.
