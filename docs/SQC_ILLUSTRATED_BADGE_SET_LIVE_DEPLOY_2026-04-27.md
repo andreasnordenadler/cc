@@ -112,7 +112,3 @@ Andreas clarified the final desired look using the Blunder Gambit example: prese
 ## 15:10 cache-bust badge/logo asset paths and bypass optimizer
 
 Production screenshots still showed the old white-matte badge variants despite the source assets being corrected. Root cause is likely cached Next image-optimized variants and reused public asset paths. I copied the corrected assets to cache-busting `/badges/v4/*.png`, copied the logo to `/sqc-logo-v3.png`, updated challenge metadata/logo references, and set badge/logo `next/image` usages to `unoptimized` so the browser receives the actual PNG path rather than cached optimizer output. `pnpm lint` and `pnpm build` passed. Production deploy pending.
-
-## 15:24 black exterior matte removal
-
-Andreas confirmed the updated badges looked good except for remaining black outside/backing around some badge silhouettes. I created cache-busting `/badges/v6/*.png` from the corrected v4 assets and `/sqc-logo-v5.png` from the corrected logo, then removed dark/black exterior matte pixels only when connected to outside transparency. Purple-background QA passed on No Castle, Blunder Gambit, Queenless, Pawn Storm, and the SQC logo: the black exterior backing is gone and interior dark text/linework/art remains readable. Metadata/logo references now point to v6/v5 and continue to bypass the Next image optimizer. Verification/deploy pending.
