@@ -270,6 +270,20 @@ Old pre-reset standby roadmap is archived at:
   - Proof: new route `src/app/proof-log/page.tsx`, nav/home links, live deployment `https://cc-cy3dlov3o-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_PROOF_LOG_LIVE_DEPLOY_2026-04-27.md`.
 
 
+- [x] Implement CC v1 Phase 19: add a starter path for first-time challenge onboarding.
+  - added_at: 2026-04-27 08:40 Europe/Stockholm
+  - completed_at: 2026-04-27 08:55 Europe/Stockholm
+  - estimate: 1 bounded onboarding/product-loop deploy burst
+  - Acceptance:
+    - `/path` gives first-time players one obvious three-step route through the challenge loop
+    - homepage and nav expose the starter path as a first-class entry point
+    - starter steps use existing challenge/badge data and signed-in progress where available
+    - copy stays playful and side-quest-native, with no PGN upload, engine-analysis, or serious training framing
+  - Verification: `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/path`, `/`, `/challenges`, and `/api/og/dare/queen-never-heard-of-her`; Vercel recent 500/501/502/503/504 log scan.
+  - Proof: new route `src/app/path/page.tsx`, nav/home links, live deployment `https://cc-i6zroa8nx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_STARTER_PATH_LIVE_DEPLOY_2026-04-27.md`.
+
+
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.

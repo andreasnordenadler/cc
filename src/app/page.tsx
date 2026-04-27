@@ -42,6 +42,7 @@ export default async function Home() {
               <Link href="/today" className="button primary">Open today’s dare</Link>
               <Link href="/random" className="button pink">Spin a bad idea</Link>
               <Link href="/challenges" className="button secondary">Pick from the hub</Link>
+              <Link href="/path" className="button secondary">Start the path</Link>
               <Link href="/badges" className="button secondary">Open badge vault</Link>
               <Link href="/proof-log" className="button secondary">View proof log</Link>
             </div>
@@ -79,6 +80,13 @@ export default async function Home() {
             <h2>Let fate pick the bad idea.</h2>
             <p>Spin the starter deck, accept the challenge, or send the exact friend-dare link before common sense gets involved.</p>
             <Link href="/random" className="button pink">Spin the deck</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Starter path</span>
+            <h2>Three bad ideas, in survivable order.</h2>
+            <p>A tiny first-run ladder gives new players a clear next dare before they browse the full chaos deck.</p>
+            <Link href="/path" className="button primary">Start the path</Link>
           </article>
 
           <article className="mission-card">
