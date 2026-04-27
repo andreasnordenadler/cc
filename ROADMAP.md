@@ -218,6 +218,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local smoke for `/api/og/dare/queen-never-heard-of-her`, `/dare/queen-never-heard-of-her`, and `/challenges/queen-never-heard-of-her`, production deploy, production smoke for `https://sidequestchess.com/api/og/dare/queen-never-heard-of-her`, `/dare/queen-never-heard-of-her`, `/challenges/queen-never-heard-of-her`, and `/dare/no-castle-club`, metadata tag checks, plus Vercel 500/501/502/503/504 log scan.
   - Proof: dynamic image endpoint `src/app/api/og/dare/[id]/route.tsx`; metadata updates in `src/app/dare/[id]/page.tsx` and `src/app/challenges/[id]/page.tsx`; live deployment `https://cc-803lzzur6-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_DARE_LINK_OG_IMAGE_CARDS_LIVE_DEPLOY_2026-04-27.md`.
 
+- [x] Implement CC v1 Phase 15: add per-receipt sharing to the proof log.
+  - added_at: 2026-04-27 11:40 Europe/Stockholm
+  - completed_at: 2026-04-27 11:54 Europe/Stockholm
+  - estimate: 1 bounded proof-loop polish burst
+  - Acceptance:
+    - saved proof-log attempts expose copy/native-share actions, not only the latest `/result` card
+    - passed, failed, and pending receipt copy reflects the saved attempt status honestly
+    - proof-log sharing links back to `/proof-log` while result-card sharing continues to link to `/result`
+    - no PGN upload, engine-analysis, or serious training framing appears
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/proof-log`, `/result`, and `/scoreboard`, production deploy, production smoke for `https://sidequestchess.com/proof-log`, `/result`, `/scoreboard`, and `/api/og/dare/queen-never-heard-of-her`, plus Vercel production 500 scan.
+  - Proof: reusable `ShareProofActions` now supports custom share destinations/labels; `/proof-log` renders per-receipt share controls for saved attempts; live deployment `https://cc-hg4o1q5g9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_PROOF_LOG_RECEIPT_SHARING_LIVE_DEPLOY_2026-04-27.md`.
+
 - [x] Implement CC v1 Phase 15: add a shared daily dare surface.
   - added_at: 2026-04-27 03:40 Europe/Stockholm
   - completed_at: 2026-04-27 03:45 Europe/Stockholm

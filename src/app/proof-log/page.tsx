@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -79,6 +80,10 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
   const summary = buildAttemptSummary(attempt);
   const status = attempt.status ?? "pending";
   const statusTone = status === "passed" ? "green" : status === "failed" ? "danger" : "gold";
+  const shareCopy =
+    status === "passed"
+      ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked for +${challenge.reward} points.`
+      : `I logged “${challenge.title}” on Side Quest Chess. ${summary.headline}: ${summary.detail}`;
 
   return (
     <article className="challenge-card proof-receipt-card">
@@ -94,6 +99,14 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         </div>
       </div>
       <div className="proof-line">{summary.meta}</div>
+      <ShareProofActions
+        copy={shareCopy}
+        challengeTitle={challenge.title}
+        sharePath="/proof-log"
+        copyLabel="Copy receipt"
+        shareLabel="Share receipt"
+        idleCopy="Copies this saved proof receipt plus the proof-log link, so old attempts can still become group-chat bait."
+      />
       <div className="card-footer">
         <strong>{summary.headline}</strong>
         <span>{challenge.proofCallout}</span>

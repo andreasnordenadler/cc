@@ -268,3 +268,222 @@ When filtering Vercel logs for a specific deployment URL, include `--no-follow`.
 - Tags: vercel, logs, deployment-verification
 
 ---
+
+## [ERR-20260427-001] next_dynamic_og_route_static_params
+
+**Logged**: 2026-04-27T00:45:00Z
+**Priority**: medium
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+Next.js build rejected a dynamic `opengraph-image.tsx` route that exported both `runtime = "edge"` and `generateStaticParams`.
+
+### Error
+```text
+Page "/dare/[id]/opengraph-image" cannot use both `export const runtime = 'edge'` and export `generateStaticParams`.
+```
+
+### Context
+- Command attempted: `pnpm lint && pnpm build`
+- Change attempted: dynamic challenge-specific OG image metadata route for SQC dare links.
+
+### Suggested Fix
+Use a dynamic API route such as `/api/og/dare/[id]` with `ImageResponse`, then point page metadata `openGraph.images` and `twitter.images` at that endpoint.
+
+### Metadata
+- Reproducible: yes
+- Related Files: `src/app/api/og/dare/[id]/route.tsx`, `src/app/dare/[id]/page.tsx`, `src/app/challenges/[id]/page.tsx`
+
+### Resolution
+- **Resolved**: 2026-04-27T00:45:00Z
+- **Notes**: Replaced the metadata route with `/api/og/dare/[id]`; `pnpm lint` and `pnpm build` then passed.
+
+---
+
+## [ERR-20260427-002] vercel_logs_status_code_filter
+
+**Logged**: 2026-04-27T00:45:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs --status-code 5xx` is not accepted by Vercel CLI 50.20.0; the filter requires explicit integer status codes.
+
+### Error
+```text
+Validation error: statusCode must contain only comma-separated integers at "statusCode" (400)
+```
+
+### Context
+- Command attempted: `vercel logs <deployment-url> --no-follow --since 30m --status-code 5xx --json`
+- Goal: scan recent deployment logs for 5xx errors after production deploy.
+
+### Suggested Fix
+Loop explicit codes (`500 501 502 503 504`) or use another supported log filter.
+
+### Metadata
+- Reproducible: yes
+- Related Files: deploy/proof workflow
+
+### Resolution
+- **Resolved**: 2026-04-27T00:45:00Z
+- **Notes**: Re-ran the scan for explicit status codes `500`, `501`, `502`, `503`, and `504`; no matching entries returned.
+
+---
+
+## [ERR-20260427-001] zsh_command_portability
+
+**Logged**: 2026-04-27T01:45:22Z
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+Two smoke/log helper commands failed because they assumed shell names/tools that were not portable in this zsh environment.
+
+### Details
+- `curl`/`grep` were not found through the default PATH during a local smoke script; rerunning with `/usr/bin/curl` and `/usr/bin/grep` succeeded.
+- A production smoke script used `status` as a variable name, but `status` is readonly/special in zsh; rerunning with `http_status` succeeded.
+- `vercel logs <deployment> --since ...` implied follow mode and rejected filtering; using `vercel logs --environment production --since 10m --status-code ... --no-branch --no-follow` succeeded.
+
+### Suggested Action
+For recurring OpenClaw zsh smoke snippets, prefer absolute paths for basic BSD tools when PATH is suspicious, avoid `status` as a variable name, and add `--no-follow` when filtering Vercel logs.
+
+---
+
+## [ERR-20260427-001] local_smoke_curl_missing_and_vercel_logs_flag
+
+**Logged**: 2026-04-27T04:47:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+During CC production verification, `curl` was unavailable in the shell and `vercel logs <deployment> --since 10m` failed because deployment-log streaming does not support filtering unless `--no-follow` is used.
+
+### Error
+```text
+zsh:3: command not found: curl
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Attempted local/production route smoke with `curl`.
+- Attempted Vercel deployment log scan with a positional deployment URL and `--since`, which implicitly enabled follow mode.
+
+### Suggested Fix
+Use Python `urllib.request` for HTTP smoke checks in this environment, or confirm curl exists before using it. For Vercel deployment log scans with filters, include `--no-follow`, e.g. `vercel logs <deployment-url> --no-follow --since 10m --status-code 500`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_DAILY_DARE_SOCIAL_PREVIEW_LIVE_DEPLOY_2026-04-27.md
+
+---
+
+## [ERR-20260427-VERCEL-LOGS-FOLLOW-SINCE] Vercel logs flag mismatch
+
+**Logged**: 2026-04-27T05:47:00+02:00
+**Priority**: low
+
+During the SQC random-dare deploy verification, `vercel logs <deployment-url> --since 10m` failed because deployment URLs imply `--follow`, and Vercel CLI does not allow filtering with follow mode. Use `--no-follow` with deployment URLs when filtering historical logs, e.g. `vercel logs <deployment-url> --no-follow --since 10m --status-code 500`.
+
+## [ERR-20260427-001] Local smoke command used unavailable `curl` shim
+
+**Logged**: 2026-04-27T06:47:00+02:00
+**Priority**: low
+
+During SQC proof-log smoke verification, a zsh command using bare `curl` failed with `command not found` even though `/usr/bin/curl` was available. Retried successfully with `/usr/bin/curl`.
+
+**Do differently**: For scripted smoke loops on this Mac, prefer `/usr/bin/curl` when a previous command has shown PATH/shim weirdness.
+
+## [ERR-20260427-001] local_smoke_path_resolution
+
+**Logged**: 2026-04-27T09:47:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Local smoke command failed because `curl` and `python3` were not found via the shell PATH in this cron exec context.
+
+### Details
+During the SQC scoreboard burst, `pnpm lint` and `pnpm build` passed, but the first route-smoke command used bare `curl` and `python3`, which zsh could not resolve. Retried with `/usr/bin/curl` and `/usr/bin/python3`.
+
+### Suggested Action
+Use absolute paths for common macOS tools in autonomous cron smoke scripts when PATH may be minimal.
+
+### Metadata
+- Source: error
+- Related Files: src/app/scoreboard/page.tsx
+- Tags: smoke, path, cron
+
+---
+
+## [ERR-20260427-002] vercel_logs_since_unsupported
+
+**Logged**: 2026-04-27T09:52:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 15m` failed because this Vercel CLI treats logs as follow-mode and does not support filtering with `--since`.
+
+### Details
+The scoreboard deploy succeeded and live route smoke passed, but the first recent-error scan command failed with: `The --follow flag does not support filtering. Remove: --since`.
+
+### Suggested Action
+For this CC repo/CLI version, use a bounded `timeout` around unfiltered `vercel logs <deployment>` or another supported Vercel API/log command instead of `--since`.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_SCOREBOARD_LIVE_DEPLOY_2026-04-27.md
+- Tags: vercel, logs, cli
+
+---
+
+## [ERR-20260427-001] image_generation_and_shell_path_smoke
+
+**Logged**: 2026-04-27T10:59:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+During SQC badge generation, two image-generation attempts aborted and a local smoke command failed because bare `wc`/`grep` were unavailable in this shell path.
+
+### Details
+Retried the aborted badge generations successfully. Reran the local smoke with `/usr/bin/wc`, `/usr/bin/tr`, and `/usr/bin/grep`, which passed.
+
+### Suggested Action
+For future OpenClaw cron smoke scripts in this environment, prefer absolute `/usr/bin/*` paths for basic Unix tools when command resolution looks narrow; retry transient image-generation aborts once with a shorter prompt.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_ILLUSTRATED_BADGE_SET_LIVE_DEPLOY_2026-04-27.md
+- Tags: openclaw, image-generation, smoke-test
+
+---
+
+## [ERR-20260427-001] shell_path_and_vercel_logs_filters
+
+**Logged**: 2026-04-27T11:56:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+A local smoke command failed because bare `curl`/`grep` were unavailable in this shell PATH, and an initial Vercel log scan mixed deployment-URL implicit follow mode with `--since`.
+
+### Details
+During the SQC proof-log receipt sharing deploy, the first smoke command returned `command not found` for `curl` and `grep`. Retrying with `/usr/bin/curl` and `/usr/bin/grep` succeeded. Separately, `vercel logs <deployment-url> --since 30m` failed because Vercel CLI treats a deployment URL as implicit `--follow`, which does not support filtering. Project-scope `vercel logs --environment production --since 30m --status-code 500 --no-branch --limit 20` succeeded.
+
+### Suggested Action
+For recurring smoke scripts in this environment, use absolute paths for core macOS tools when PATH looks constrained. For filtered Vercel log scans, prefer project-scope logs or add `--no-follow` when querying a specific deployment historically.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_PROOF_LOG_RECEIPT_SHARING_LIVE_DEPLOY_2026-04-27.md
+- Tags: smoke, vercel, path

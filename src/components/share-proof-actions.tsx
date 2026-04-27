@@ -5,14 +5,25 @@ import { useMemo, useState } from "react";
 type ShareProofActionsProps = {
   copy: string;
   challengeTitle: string;
+  sharePath?: string;
+  copyLabel?: string;
+  shareLabel?: string;
+  idleCopy?: string;
 };
 
-export default function ShareProofActions({ copy, challengeTitle }: ShareProofActionsProps) {
+export default function ShareProofActions({
+  copy,
+  challengeTitle,
+  sharePath = "/result",
+  copyLabel = "Copy receipt",
+  shareLabel = "Share dare",
+  idleCopy = "Copies the current result text plus this proof-card link. No PGN upload, no homework.",
+}: ShareProofActionsProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
   const shareUrl = useMemo(() => {
-    if (typeof window === "undefined") return "/result";
-    return `${window.location.origin}/result`;
-  }, []);
+    if (typeof window === "undefined") return sharePath;
+    return `${window.location.origin}${sharePath}`;
+  }, [sharePath]);
 
   async function copyReceipt() {
     try {
@@ -45,8 +56,8 @@ export default function ShareProofActions({ copy, challengeTitle }: ShareProofAc
   return (
     <div className="share-actions" aria-live="polite">
       <div className="button-row">
-        <button type="button" className="button primary" onClick={copyReceipt}>Copy receipt</button>
-        <button type="button" className="button secondary" onClick={shareReceipt}>Share dare</button>
+        <button type="button" className="button primary" onClick={copyReceipt}>{copyLabel}</button>
+        <button type="button" className="button secondary" onClick={shareReceipt}>{shareLabel}</button>
       </div>
       <p className="microcopy">
         {status === "copied"
@@ -55,7 +66,7 @@ export default function ShareProofActions({ copy, challengeTitle }: ShareProofAc
             ? "Share sheet opened. May your opponent never see it coming."
             : status === "failed"
               ? "Could not access sharing here, but the copy above is ready to select manually."
-              : "Copies the current result text plus this proof-card link. No PGN upload, no homework."}
+              : idleCopy}
       </p>
     </div>
   );
