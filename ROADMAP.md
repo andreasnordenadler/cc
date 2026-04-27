@@ -415,6 +415,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs`, `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/no-castle-club`, `/rules`, `/account`, and `/api/og/dare/no-castle-club`, plus Vercel production 500 log scan.
   - Proof: new verifier module `src/lib/no-castle-club.ts`, fixture tests `tests/no-castle-club-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-9859r9iq9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_NO_CASTLE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-27.md`.
 
+- [x] Implement CC v1 Phase 28: promote Pawn Storm Maniac to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 01:40 Europe/Stockholm
+  - completed_at: 2026-04-28 01:55 Europe/Stockholm
+  - estimate: 1 bounded verifier/product-trust burst
+  - Acceptance:
+    - `Pawn Storm Maniac` checks real Lichess latest-game move history for player wins with at least six different player pawns moved before move 15
+    - UCI move normalization counts distinct pawn starts instead of repeated moves by the same pawn
+    - active challenge latest-game checks use the live pawn-storm verifier when a Lichess username is saved, with deterministic fallback fixtures for review
+    - `/verifiers` and verifier badges mark `Pawn Storm Maniac` as live-backed without changing specified-only claims for the remaining starter-deck challenges
+  - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs tests/pawn-storm-maniac-fixtures.mjs`, `pnpm lint`, `pnpm build`, local route smoke, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/pawn-storm-maniac`, `/account`, and `/api/og/dare/pawn-storm-maniac`, plus Vercel production 500 scan.
+  - Proof: new verifier module `src/lib/pawn-storm-maniac.ts`, fixture tests `tests/pawn-storm-maniac-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-bco1q2mwg-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_PAWN_STORM_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`.
+
 - [x] Implement future add-on concept: combo-quests / stacked quests in one game.
   - added_at: 2026-04-27 19:42 Europe/Stockholm
   - completed_at: 2026-04-27 20:40 Europe/Stockholm

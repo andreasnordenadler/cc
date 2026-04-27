@@ -28,10 +28,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Will need early material swing evidence before move 10 plus final result checks, without engine scoring.",
   },
   "pawn-storm-maniac": {
-    state: "spec",
-    summary: "Rule spec ready; pawn-move counter queued",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will count distinct pawn moves before move 15 and combine that with a normal-game win receipt.",
+      "Checks player win, six different player pawns moved before move 15, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "knightmare-mode": {
     state: "spec",

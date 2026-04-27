@@ -40,6 +40,11 @@ import {
   noCastleClubFixtures,
 } from "@/lib/no-castle-club";
 import {
+  checkLatestLichessPawnStormManiac,
+  evaluatePawnStormManiac,
+  pawnStormManiacFixtures,
+} from "@/lib/pawn-storm-maniac";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -119,6 +124,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = noCastleClubFixtures[attemptCount % noCastleClubFixtures.length];
     const verdict = evaluateNoCastleClub(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "pawn-storm-maniac") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessPawnStormManiac(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = pawnStormManiacFixtures[attemptCount % pawnStormManiacFixtures.length];
+    const verdict = evaluatePawnStormManiac(fixture);
 
     return {
       status: verdict.status,
