@@ -59,7 +59,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♛",
       rarity: "Brutal relic",
       unlockCopy: "Win after donating the most important piece like it was pocket lint.",
-      image: "/badges/v3/queen-never-heard-of-her.png",
+      image: "/badges/v4/queen-never-heard-of-her.png",
       heraldry: {
         shield: "Split blue-gold field with a cracked crown over an empty queen square.",
         charge: "Broken queen crown",
@@ -103,7 +103,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♔",
       rarity: "Restriction token",
       unlockCopy: "Refuse castling, survive the awkwardness, and still win.",
-      image: "/badges/v3/no-castle-club-badge.png",
+      image: "/badges/v4/no-castle-club-badge.png",
       heraldry: {
         shield: "Blue-green field crossed by two barred rook towers.",
         charge: "Walking king",
@@ -144,7 +144,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "!?",
       rarity: "Blunder foil",
       unlockCopy: "Hang material early and retroactively call it preparation.",
-      image: "/badges/v3/the-blunder-gambit-badge.png",
+      image: "/badges/v4/the-blunder-gambit-badge.png",
       heraldry: {
         shield: "Red-gold field split by a cracked diagonal blade.",
         charge: "Broken piece with phoenix spark",
@@ -185,7 +185,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♟",
       rarity: "Chaos badge",
       unlockCopy: "Send six pawns into the storm before move 15 and make it work.",
-      image: "/badges/v3/pawn-storm-maniac-badge.png",
+      image: "/badges/v4/pawn-storm-maniac-badge.png",
       heraldry: {
         shield: "Green-gold storm field with six pawn drops like rain.",
         charge: "Six-pawn squall",
@@ -226,7 +226,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♞",
       rarity: "Style kill",
       unlockCopy: "Let the knight deliver the last insult.",
-      image: "/badges/v3/knightmare-mode-badge.png",
+      image: "/badges/v4/knightmare-mode-badge.png",
       heraldry: {
         shield: "Purple-pink night field under a checkmate star.",
         charge: "Knight head",
@@ -267,7 +267,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♜",
       rarity: "Absurd artifact",
       unlockCopy: "Lose both rooks, keep the vibes standing, and win anyway.",
-      image: "/badges/v3/rookless-rampage-badge.png",
+      image: "/badges/v4/rookless-rampage-badge.png",
       heraldry: {
         shield: "Gold-red field with two fallen tower silhouettes below a laurel.",
         charge: "Fallen twin rooks",
@@ -308,7 +308,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♝",
       rarity: "Style relic",
       unlockCopy: "Leave one bishop holding the entire department together.",
-      image: "/badges/v3/one-bishop-to-rule-them-all-badge.png",
+      image: "/badges/v4/one-bishop-to-rule-them-all-badge.png",
       heraldry: {
         shield: "Teal-blue field with one bright diagonal crossing an empty board.",
         charge: "Solitary bishop",

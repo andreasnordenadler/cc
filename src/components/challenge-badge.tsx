@@ -35,6 +35,7 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
             height={size === "hero" ? 220 : 96}
             className="badge-reference-art"
             priority={size === "hero"}
+            unoptimized
           />
         ) : (
           <>
