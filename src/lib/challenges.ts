@@ -103,7 +103,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♔",
       rarity: "Restriction token",
       unlockCopy: "Refuse castling, survive the awkwardness, and still win.",
-      image: "/badges/v7/no-castle-club-badge.png",
+      image: "/badges/v4/no-castle-club-badge.png",
       heraldry: {
         shield: "Blue-green field crossed by two barred rook towers.",
         charge: "Walking king",
@@ -226,7 +226,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♞",
       rarity: "Style kill",
       unlockCopy: "Let the knight deliver the last insult.",
-      image: "/badges/v7/knightmare-mode-badge.png",
+      image: "/badges/v4/knightmare-mode-badge.png",
       heraldry: {
         shield: "Purple-pink night field under a checkmate star.",
         charge: "Knight head",

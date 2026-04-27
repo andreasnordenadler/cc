@@ -112,7 +112,3 @@ Andreas clarified the final desired look using the Blunder Gambit example: prese
 ## 15:10 cache-bust badge/logo asset paths and bypass optimizer
 
 Production screenshots still showed the old white-matte badge variants despite the source assets being corrected. Root cause is likely cached Next image-optimized variants and reused public asset paths. I copied the corrected assets to cache-busting `/badges/v4/*.png`, copied the logo to `/sqc-logo-v3.png`, updated challenge metadata/logo references, and set badge/logo `next/image` usages to `unoptimized` so the browser receives the actual PNG path rather than cached optimizer output. `pnpm lint` and `pnpm build` passed. Production deploy pending.
-
-## 15:29 targeted black-outline removal for two badges only
-
-After rolling back the broad dark-matte pass, Andreas clarified only two badges should be adjusted: No Castle Club and Knightmare Mode. I left the rest of the badge set on `/badges/v4/`, kept the logo on `/sqc-logo-v3.png`, and introduced targeted cache-busting assets only for these two: `/badges/v7/no-castle-club-badge.png` and `/badges/v7/knightmare-mode-badge.png`. These use the earlier conservative exterior-dark cleanup that removes the black field/outline better than v4 without the destructive v6 over-removal. Verification/deploy pending.
