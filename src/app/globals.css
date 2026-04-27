@@ -34,8 +34,8 @@ button, input { font: inherit; }
 .site-nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; }
 .brand-lockup { display: flex; align-items: center; gap: 10px; }
 .brand-mark { width: 40px; height: 40px; border-radius: 15px 15px 15px 5px; display: grid; place-items: center; background: var(--gold); color: #111; box-shadow: 0 14px 30px rgba(245,200,106,.22); font-weight: 950; }
-.logo-mark { width: 58px; height: 42px; overflow: hidden; border-radius: 16px; background: #0c0b12; border: 1px solid rgba(245,200,106,.34); }
-.logo-mark img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.logo-mark { width: 58px; height: 58px; overflow: visible; border-radius: 0; background: transparent; border: 0; display: grid; place-items: center; }
+.logo-mark img { width: 100%; height: 100%; object-fit: contain; object-position: center; filter: drop-shadow(0 12px 18px rgba(0,0,0,.28)); }
 .brand-text strong { display: block; font-size: 18px; }
 .brand-text span { display: block; margin-top: 2px; color: var(--gold); font-size: 10px; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
 .nav-links, .nav-actions, .button-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -47,7 +47,7 @@ button, input { font: inherit; }
 .hero-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(320px, .72fr); gap: 18px; align-items: stretch; }
 .card, .hero-card, .challenge-card, .stat-card, .proof-card, .connect-card, .result-poster, .mission-card { border: 1px solid rgba(255,255,255,.14); border-radius: 30px; background: rgba(255,255,255,.075); box-shadow: 0 28px 80px rgba(0,0,0,.25); }
 .hero-card { padding: clamp(22px, 5vw, 44px); background: radial-gradient(circle at 78% 8%, rgba(255,95,159,.36), transparent 30%), linear-gradient(135deg, rgba(245,200,106,.24), rgba(255,255,255,.07)); }
-.hero-logo-lockup { width: min(360px, 82vw); margin-bottom: 18px; border: 1px solid rgba(245,200,106,.34); border-radius: 26px; overflow: hidden; background: #0c0b12; box-shadow: 0 24px 60px rgba(0,0,0,.32); }
+.hero-logo-lockup { width: min(420px, 86vw); margin-bottom: 18px; overflow: visible; background: transparent; filter: drop-shadow(0 24px 42px rgba(0,0,0,.34)); }
 .hero-logo-lockup img { display: block; width: 100%; height: auto; }
 .eyebrow { display: inline-flex; width: max-content; margin-bottom: 14px; padding: 8px 11px; border-radius: 999px; background: rgba(245,200,106,.14); color: var(--gold); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .12em; }
 h1 { font-size: clamp(3rem, 9vw, 6.8rem); line-height: .82; letter-spacing: -.075em; margin-bottom: 16px; }

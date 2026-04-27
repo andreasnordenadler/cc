@@ -31,7 +31,7 @@ export default async function Home() {
         <section className="hero-grid">
           <article className="hero-card">
             <div className="hero-logo-lockup">
-              <Image src="/sqc-temp-logo.jpg" alt="Side Quest Chess temporary logo" width={1200} height={630} priority />
+              <Image src="/sqc-logo.png" alt="Side Quest Chess crest logo" width={1254} height={1254} priority />
             </div>
             <span className="eyebrow">Side Quest Chess v1</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
@@ -45,6 +45,7 @@ export default async function Home() {
               <Link href="/path" className="button secondary">Start the path</Link>
               <Link href="/badges" className="button secondary">Open badge vault</Link>
               <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
+              <Link href="/rules" className="button secondary">Read the rulebook</Link>
               <Link href="/proof-log" className="button secondary">View proof log</Link>
             </div>
 
@@ -116,6 +117,13 @@ export default async function Home() {
             <h2>Your bad-idea score, in public.</h2>
             <p>Track starter-deck points, earned coat-of-arms badges, and the next dare worth attempting without pretending this is a serious leaderboard.</p>
             <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Rulebook</span>
+            <h2>Funny dares. Serious receipts.</h2>
+            <p>The proof explainer shows how SQC verifies real games without PGN homework, engine dashboards, or fake success copy.</p>
+            <Link href="/rules" className="button secondary">Read the rulebook</Link>
           </article>
 
           <article className="mission-card">
