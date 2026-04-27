@@ -64,3 +64,7 @@ Andreas clarified the file itself had transparency but the nav still showed a bl
 ## 19:39 nav logo removal
 
 Andreas requested removing the logo from the navigation bar as a fun cleanup. I removed the nav image/mark from `src/components/site-nav.tsx` and dropped the now-unused `next/image` import, keeping brand text and nav links intact. Verification/deploy pending.
+
+## 19:47 fixed faint logo background trial
+
+Andreas requested trying the SQC logo as a fixed, barely visible background aligned to the left side of the browser, with everything else unchanged. I added a `body::before` watermark using `/sqc-logo-v11.png`, fixed to the left center, `pointer-events: none`, low opacity (`.035`), and `mix-blend-mode: screen`, without changing page layout or nav content. Verification/deploy pending.
