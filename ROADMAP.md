@@ -415,8 +415,9 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs`, `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/no-castle-club`, `/rules`, `/account`, and `/api/og/dare/no-castle-club`, plus Vercel production 500 log scan.
   - Proof: new verifier module `src/lib/no-castle-club.ts`, fixture tests `tests/no-castle-club-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-9859r9iq9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_NO_CASTLE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-27.md`.
 
-- [ ] Implement future add-on concept: combo-quests / stacked quests in one game.
+- [x] Implement future add-on concept: combo-quests / stacked quests in one game.
   - added_at: 2026-04-27 19:42 Europe/Stockholm
+  - completed_at: 2026-04-27 20:40 Europe/Stockholm
   - source: Andreas suggested letting players stack multiple quests on top of each other and complete them in a single game, mostly as a fun future add-on.
   - estimate: future product design spike before implementation
   - Acceptance:
@@ -426,6 +427,7 @@ Old pre-reset standby roadmap is archived at:
     - explore UI copy such as “combo run”, “quest stack”, or “bad idea pile” while preserving the playful SQC tone
     - keep this as a future add-on, not a blocker for current starter-deck polish
   - Verification: design/spec note first; implementation only after the combo model is validated.
+  - Proof: created `docs/SQC_COMBO_QUESTS_SPEC_2026-04-27.md`, defining the `Quest Stack`/`Combo Run`/`Bad Idea Pile` UX, 2–3 quest selection limits, compatibility rules, starter stack matrix, scoring multipliers, shared normalized-game verifier contract, first shippable Queenless + No Castle Club stack, and non-goals to keep this a future add-on rather than a v1 blocker.
 
 
 ## Proof rules
