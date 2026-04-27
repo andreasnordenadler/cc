@@ -52,3 +52,7 @@ Andreas reported a black box behind the top-left logo. I created `public/sqc-log
 ## 17:48 nav logo black-square asset fix
 
 Andreas screenshot showed the top-left logo still had a black square canvas. I generated `public/sqc-logo-v9.png` from the supplied logo using an outside-only canvas mask, then filled interior holes back to opaque from the original artwork so shield/banner/crest internals remain intact. The nav now references `/sqc-logo-v9.png` with `unoptimized`; `.logo-mark img` still has no drop-shadow. Verification/deploy pending.
+
+## 17:55 direct supplied transparent logo
+
+Andreas supplied the actual transparent-background PNG (`hasAlpha: true`, RGBA). I copied it directly to `public/sqc-logo-v10.png` with no masking/processing and updated the nav logo to use `/sqc-logo-v10.png` with `unoptimized`. This replaces the failed generated cutout attempts. Verification/deploy pending.

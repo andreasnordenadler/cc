@@ -14,7 +14,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
       <div className="site-nav-inner">
         <Link href="/" className="brand-lockup" aria-label="Side Quest Chess home">
           <span className="brand-mark logo-mark" aria-hidden="true">
-            <Image src="/sqc-logo-v9.png" alt="" width={240} height={250} priority unoptimized />
+            <Image src="/sqc-logo-v10.png" alt="" width={240} height={250} priority unoptimized />
           </span>
           <span className="brand-text">
             <strong>Side Quest Chess</strong>
