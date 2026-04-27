@@ -86,3 +86,7 @@ Fix applied:
 ## Notes
 
 Two image-generation attempts aborted during asset creation; both affected prompts were retried successfully. One local smoke command initially failed because this shell did not resolve bare `wc`/`grep`; reran with `/usr/bin/wc` and `/usr/bin/grep` successfully.
+
+## 13:08 outside-only transparency repair
+
+Andreas clarified that transparency should exist only outside the crest, not inside shield/banner/interior artwork. I repaired all `/badges/v2/*.png` and `/sqc-logo-v2.png` masks so only border-connected transparent canvas remains transparent, while internal holes/panels are filled back from the source artwork. I also zeroed RGB under fully transparent pixels to avoid viewer/cache artifacts. Visual QA passed on representative queenless/no-castle/logo assets: no obvious rectangular backgrounds and no interior transparency holes. `pnpm lint` and `pnpm build` passed. Production deploy/smoke pending.
