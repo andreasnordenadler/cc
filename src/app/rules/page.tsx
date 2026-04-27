@@ -72,6 +72,7 @@ export default async function RulesPage() {
           <div className="button-row hero-actions">
             <Link href={`/challenges/${canonicalChallenge.id}`} className="button primary">Try the live verifier</Link>
             <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            <Link href="/verifiers" className="button secondary">Open verifier board</Link>
             <Link href="/challenges" className="button secondary">Browse all dares</Link>
           </div>
         </section>

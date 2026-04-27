@@ -363,6 +363,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/share-kit`, `/`, `/dare/queen-never-heard-of-her`, and `/api/og/dare/queen-never-heard-of-her`; production deploy; production smoke for the same routes plus Vercel production 500 scan.
   - Proof: new route `src/app/share-kit/page.tsx`, nav/home links, live deployment `https://cc-j5pt254ri-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_SHARE_KIT_LIVE_DEPLOY_2026-04-27.md`.
 
+- [x] Implement CC v1 Phase 24: add a public verifier status board.
+  - added_at: 2026-04-27 14:40 Europe/Stockholm
+  - completed_at: 2026-04-27 14:52 Europe/Stockholm
+  - estimate: 1 bounded product-trust deploy burst
+  - Acceptance:
+    - `/verifiers` shows which starter-deck challenges are live-backed, next-adapter, or specified-only
+    - homepage, nav, and rulebook expose the verifier board as a first-class trust surface
+    - the board highlights `Queen? Never Heard of Her` as live-backed without pretending the rest of the starter deck has automated proof yet
+    - no PGN upload, engine-analysis, or fake-success framing appears
+  - Verification: `pnpm lint`, `pnpm build`, local production route smoke for `/`, `/verifiers`, `/rules`, and `/share-kit`; production deploy; production smoke for `https://sidequestchess.com/`, `/verifiers`, `/rules`, `/share-kit`, and `/api/og/dare/queen-never-heard-of-her`; Vercel production 500/501/502/503/504 scan.
+  - Proof: new route `src/app/verifiers/page.tsx`, nav/home/rulebook links, live deployment `https://cc-akx1rr4ir-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_VERIFIER_BOARD_LIVE_DEPLOY_2026-04-27.md`.
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.
