@@ -402,6 +402,32 @@ Old pre-reset standby roadmap is archived at:
 
 
 
+
+- [x] Implement CC v1 Phase 27: promote No Castle Club to a live Lichess latest-game verifier.
+  - added_at: 2026-04-27 18:40 Europe/Stockholm
+  - completed_at: 2026-04-27 18:44 Europe/Stockholm
+  - estimate: 1 bounded verifier/product-trust burst
+  - Acceptance:
+    - `No Castle Club` checks real Lichess latest-game move history for player wins without player castling
+    - UCI castling moves (`e1g1`, `e1c1`, `e8g8`, `e8c8`) normalize into verifier evidence
+    - active challenge latest-game checks use the live no-castle verifier when a Lichess username is saved, with deterministic fallback fixtures for review
+    - `/verifiers` and verifier badges mark `No Castle Club` as live-backed without changing specified-only claims for the rest of the starter deck
+  - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs`, `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/no-castle-club`, `/rules`, `/account`, and `/api/og/dare/no-castle-club`, plus Vercel production 500 log scan.
+  - Proof: new verifier module `src/lib/no-castle-club.ts`, fixture tests `tests/no-castle-club-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-9859r9iq9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_NO_CASTLE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-27.md`.
+
+- [ ] Implement future add-on concept: combo-quests / stacked quests in one game.
+  - added_at: 2026-04-27 19:42 Europe/Stockholm
+  - source: Andreas suggested letting players stack multiple quests on top of each other and complete them in a single game, mostly as a fun future add-on.
+  - estimate: future product design spike before implementation
+  - Acceptance:
+    - define how combo-quests are selected without making the core loop confusing
+    - define scoring/reward rules for stacked quests in one verified game
+    - specify verifier requirements for combining independent challenge predicates against the same game
+    - explore UI copy such as “combo run”, “quest stack”, or “bad idea pile” while preserving the playful SQC tone
+    - keep this as a future add-on, not a blocker for current starter-deck polish
+  - Verification: design/spec note first; implementation only after the combo model is validated.
+
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.
