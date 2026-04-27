@@ -27,6 +27,7 @@ export async function generateMetadata({
   const title = `I dare you: ${challenge.title} — Side Quest Chess`;
   const description = `${challenge.objective} Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
   const url = `/dare/${challenge.id}`;
+  const image = `/api/og/dare/${challenge.id}`;
 
   return {
     title,
@@ -38,11 +39,13 @@ export async function generateMetadata({
       url,
       siteName: "Side Quest Chess",
       type: "website",
+      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} Side Quest Chess dare card` }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description,
+      images: [image],
     },
   };
 }
