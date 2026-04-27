@@ -72,3 +72,7 @@ Andreas requested trying the SQC logo as a fixed, barely visible background alig
 ## 19:52 watermark nudge right
 
 Andreas liked the fixed faint logo background and asked to move it slightly away from the left browser edge. I changed the `body::before` background position from `left 50%` to `34px 50%`, keeping size, opacity, and all layout/content unchanged. Verification/deploy pending.
+
+## 19:56 watermark size doubled
+
+Andreas asked to make the fixed background watermark logo twice as big. I doubled the `body::before` watermark bounds from `min(46vw, 560px)` to `min(92vw, 1120px)` and background image size from `min(44vw, 540px)` to `min(88vw, 1080px)`, keeping position (`34px 50%`), opacity, and layout unchanged. Verification/deploy pending.
