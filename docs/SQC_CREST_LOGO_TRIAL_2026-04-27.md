@@ -44,3 +44,7 @@ Andreas supplied a new ornate Side Quest Chess logo image. The uploaded PNG had 
 ## 17:12 homepage logo layout update
 
 Andreas requested removing the large logo from the homepage hero and making the small top-left nav logo use the same supplied transparent SQC crest at 100% larger size. I removed the hero `hero-logo-lockup` image from `src/app/page.tsx`, kept nav on `/sqc-logo-v6.png`, increased the nav logo image attrs from 120 to 240 and CSS `.logo-mark` from 58px to 116px, with `unoptimized` still set. `pnpm lint` and `pnpm build` passed. Production deploy pending.
+
+## 17:20 nav logo black-box cleanup
+
+Andreas reported a black box behind the top-left logo. I created `public/sqc-logo-v7.png` from the supplied transparent crest by removing tiny disconnected alpha specks and cropping to the main connected crest bounds, then updated the nav logo to `/sqc-logo-v7.png` and removed the CSS drop-shadow from `.logo-mark img` so the nav no longer adds a box-like dark backing. Verification/deploy pending.
