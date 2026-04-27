@@ -6,8 +6,11 @@ Completed the first full illustrated Side Quest Chess starter badge set in Andre
 
 The supplied **Queen? Never Heard of Her** badge remains the canonical style reference, and the six remaining starter challenges now have matching high-detail illustrated coat-of-arms badge assets wired through `badgeIdentity.image`.
 
+Follow-up from Andreas at 11:04 CEST: all badges should have transparent backgrounds, and the crest should not feel like a box inside a box. The runtime badge assets were updated to RGBA PNGs with transparent backgrounds; the original queenless JPEG remains only as the style reference.
+
 ## New badge assets
 
+- `public/badges/queen-never-heard-of-her.png` — transparent runtime asset converted from Andreas's supplied reference
 - `public/badges/no-castle-club-badge.png`
 - `public/badges/the-blunder-gambit-badge.png`
 - `public/badges/pawn-storm-maniac-badge.png`
@@ -18,8 +21,8 @@ The supplied **Queen? Never Heard of Her** badge remains the canonical style ref
 ## Files changed
 
 - `src/lib/challenges.ts` — wired the generated illustrated badge images into the six remaining starter challenge badge identities.
-- `public/badges/*` — added the six illustrated badge PNG assets.
-- `docs/SQC_BADGE_STYLE_CANON_2026-04-27.md` — updated the badge canon with the generated asset set and prompts.
+- `public/badges/*` — added/updated the illustrated badge PNG assets and converted the runtime set to transparent RGBA PNGs.
+- `docs/SQC_BADGE_STYLE_CANON_2026-04-27.md` — updated the badge canon with the generated asset set, transparent-background requirement, no box-inside-box rule, and prompts.
 
 ## Verification
 
@@ -51,6 +54,13 @@ The supplied **Queen? Never Heard of Her** badge remains the canonical style ref
   - 502: 0 in last 30m
   - 503: 0 in last 30m
   - 504: 0 in last 30m
+
+## 11:04 transparency follow-up verification
+
+- All seven runtime badge PNGs now report PNG color type `6` (RGBA alpha). ✅
+- Border alpha checks show the square/card background is not opaque around the badge bounds. ✅
+- `Queen? Never Heard of Her` now points to `public/badges/queen-never-heard-of-her.png`, not the original JPEG reference. ✅
+- The style canon now requires transparent backgrounds and freestanding heraldic composition without box-inside-box framing. ✅
 
 ## Notes
 

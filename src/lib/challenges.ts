@@ -59,7 +59,7 @@ export const CHALLENGES: Challenge[] = [
       motif: "♛",
       rarity: "Brutal relic",
       unlockCopy: "Win after donating the most important piece like it was pocket lint.",
-      image: "/badges/queen-never-heard-of-her-style-reference.jpg",
+      image: "/badges/queen-never-heard-of-her.png",
       heraldry: {
         shield: "Split blue-gold field with a cracked crown over an empty queen square.",
         charge: "Broken queen crown",
