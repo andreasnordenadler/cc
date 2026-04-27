@@ -61,6 +61,10 @@ Follow-up from Andreas at 11:04 CEST: all badges should have transparent backgro
 - Border alpha checks show the square/card background is not opaque around the badge bounds. ✅
 - `Queen? Never Heard of Her` now points to `public/badges/queen-never-heard-of-her.png`, not the original JPEG reference. ✅
 - The style canon now requires transparent backgrounds and freestanding heraldic composition without box-inside-box framing. ✅
+- Local checks after transparency conversion: `pnpm lint`, `pnpm build`, route smoke, and asset alpha smoke passed. ✅
+- Production redeploy after removing the temporary local `sharp` helper dependency from the deployment context: `https://cc-5irr006vl-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`. ✅
+- Production smoke passed for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`, and all seven badge PNGs; each remote PNG reports RGBA alpha. ✅
+- Vercel production error-log scan found no logs in the last 30m. ✅
 
 ## Notes
 
