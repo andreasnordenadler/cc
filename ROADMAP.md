@@ -232,6 +232,18 @@ Old pre-reset standby roadmap is archived at:
   - Proof: new route `src/app/today/page.tsx`, deterministic daily selector in `src/lib/challenges.ts`, nav/home links, live deployment `https://cc-dg9i5ts54-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, proof note `docs/SQC_DAILY_DARE_LIVE_DEPLOY_2026-04-27.md`.
 
 
+- [x] Implement CC v1 Phase 16: add challenge-specific social previews to the daily dare.
+  - added_at: 2026-04-27 04:40 Europe/Stockholm
+  - completed_at: 2026-04-27 04:46 Europe/Stockholm
+  - estimate: 1 bounded viral-loop deploy burst
+  - Acceptance:
+    - `/today` metadata names the current deterministic daily challenge instead of using generic daily-page copy
+    - daily dare Open Graph and Twitter cards reuse the challenge-specific `/api/og/dare/[id]` image
+    - shared daily links preview the exact challenge, reward, and badge target
+    - no PGN upload, engine-analysis, or serious training framing appears
+  - Verification: `pnpm lint`, `pnpm build`, local production smoke for `/today`, `/api/og/dare/queen-never-heard-of-her`, and `/challenges/queen-never-heard-of-her`; production deploy; production smoke for `https://sidequestchess.com/today`, `/api/og/dare/queen-never-heard-of-her`, `/challenges/queen-never-heard-of-her`, and `/dare/queen-never-heard-of-her`; Vercel 500/501/502/503/504 log scan.
+  - Proof: `/today` now uses `generateMetadata()` with the current daily challenge and challenge-specific OG/Twitter image tags; live deployment `https://cc-c5epbz50k-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_DAILY_DARE_SOCIAL_PREVIEW_LIVE_DEPLOY_2026-04-27.md`.
+
 
 ## Proof rules
 

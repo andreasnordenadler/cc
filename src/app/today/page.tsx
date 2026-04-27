@@ -6,23 +6,32 @@ import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { getDailyChallenge } from "@/lib/challenges";
 
-export const metadata: Metadata = {
-  title: "Today’s dare — Side Quest Chess",
-  description: "The shared daily Side Quest Chess dare: one stupidly hard chess side quest for everyone to try today.",
-  alternates: { canonical: "/today" },
-  openGraph: {
-    title: "Today’s dare — Side Quest Chess",
-    description: "One stupidly hard chess side quest for everyone today.",
-    url: "/today",
-    siteName: "Side Quest Chess",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Today’s dare — Side Quest Chess",
-    description: "One stupidly hard chess side quest for everyone today.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const challenge = getDailyChallenge();
+  const title = `Today’s dare: ${challenge.title} — Side Quest Chess`;
+  const description = `${challenge.objective} Try the shared daily SQC side quest for +${challenge.reward} points and the ${challenge.badgeIdentity.name} badge.`;
+  const image = `/api/og/dare/${challenge.id}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: "/today" },
+    openGraph: {
+      title,
+      description,
+      url: "/today",
+      siteName: "Side Quest Chess",
+      type: "website",
+      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} daily Side Quest Chess dare card` }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function TodayPage() {
   const { userId } = await auth();
