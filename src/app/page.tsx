@@ -40,7 +40,8 @@ export default async function Home() {
             </p>
             <div className="button-row hero-actions">
               <Link href="/today" className="button primary">Open today’s dare</Link>
-              <Link href="/challenges" className="button primary">Pick a bad idea</Link>
+              <Link href="/random" className="button pink">Spin a bad idea</Link>
+              <Link href="/challenges" className="button secondary">Pick from the hub</Link>
               <Link href="/badges" className="button secondary">Open badge vault</Link>
             </div>
 
@@ -70,6 +71,13 @@ export default async function Home() {
             <h2>One bad idea for everyone today.</h2>
             <p>The daily dare gives Side Quest Chess a repeatable ritual: same challenge, same badge target, easy to share with friends.</p>
             <Link href="/today" className="button primary">See today’s dare</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Random dare machine</span>
+            <h2>Let fate pick the bad idea.</h2>
+            <p>Spin the starter deck, accept the challenge, or send the exact friend-dare link before common sense gets involved.</p>
+            <Link href="/random" className="button pink">Spin the deck</Link>
           </article>
 
           <article className="mission-card">

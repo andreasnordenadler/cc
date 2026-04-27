@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-type ActiveNavItem = "home" | "today" | "challenges" | "badges" | "connect" | "account" | "result";
+type ActiveNavItem = "home" | "today" | "random" | "challenges" | "badges" | "connect" | "account" | "result";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -25,6 +25,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         <nav className="nav-links" aria-label="Primary">
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/today" className={active === "today" ? "active" : undefined}>Today</Link>
+          <Link href="/random" className={active === "random" ? "active" : undefined}>Random</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Challenges</Link>
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Badges</Link>
           <Link href="/connect" className={active === "connect" ? "active" : undefined}>Connect</Link>
@@ -37,7 +38,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
             <span className="nav-pill">Signed in</span>
           ) : (
             <>
-              <Link href="/challenges" className="button secondary">Browse</Link>
+              <Link href="/random" className="button secondary">Spin</Link>
               <Link href="/connect" className="button primary">Connect</Link>
             </>
           )}
