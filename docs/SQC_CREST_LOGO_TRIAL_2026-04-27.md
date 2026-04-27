@@ -68,3 +68,7 @@ Andreas requested removing the logo from the navigation bar as a fun cleanup. I 
 ## 19:47 fixed faint logo background trial
 
 Andreas requested trying the SQC logo as a fixed, barely visible background aligned to the left side of the browser, with everything else unchanged. I added a `body::before` watermark using `/sqc-logo-v11.png`, fixed to the left center, `pointer-events: none`, low opacity (`.035`), and `mix-blend-mode: screen`, without changing page layout or nav content. Verification/deploy pending.
+
+## 19:52 watermark nudge right
+
+Andreas liked the fixed faint logo background and asked to move it slightly away from the left browser edge. I changed the `body::before` background position from `left 50%` to `34px 50%`, keeping size, opacity, and all layout/content unchanged. Verification/deploy pending.
