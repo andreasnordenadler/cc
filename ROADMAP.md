@@ -282,6 +282,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/path`, `/`, `/challenges`, and `/api/og/dare/queen-never-heard-of-her`; Vercel recent 500/501/502/503/504 log scan.
   - Proof: new route `src/app/path/page.tsx`, nav/home links, live deployment `https://cc-i6zroa8nx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_STARTER_PATH_LIVE_DEPLOY_2026-04-27.md`.
 
+- [x] Implement CC v1 Phase 20: add a public quest scoreboard for starter-deck progress.
+  - added_at: 2026-04-27 09:40 Europe/Stockholm
+  - completed_at: 2026-04-27 09:55 Europe/Stockholm
+  - estimate: 1 bounded product-loop deploy burst
+  - Acceptance:
+    - `/scoreboard` summarizes starter-deck score, deck value, badge progress, difficulty spread, and recommended next dare
+    - signed-in users see saved Clerk public-metadata progress where available while signed-out users still get useful deck-level context
+    - homepage and nav expose the scoreboard as a first-class Side Quest Chess surface
+    - copy stays playful and side-quest-native, with no PGN upload, engine-analysis, or serious training framing
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/scoreboard`, `/challenges`, and `/proof-log`; production deploy; production smoke for `https://sidequestchess.com/scoreboard`, `/`, `/challenges`, and `/proof-log`; bounded Vercel 500/501/502/503/504 log scan.
+  - Proof: new route `src/app/scoreboard/page.tsx`, nav/home links, live deployment `https://cc-cxoaoo4im-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_SCOREBOARD_LIVE_DEPLOY_2026-04-27.md`.
+
 
 
 ## Proof rules

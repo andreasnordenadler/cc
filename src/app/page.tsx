@@ -44,6 +44,7 @@ export default async function Home() {
               <Link href="/challenges" className="button secondary">Pick from the hub</Link>
               <Link href="/path" className="button secondary">Start the path</Link>
               <Link href="/badges" className="button secondary">Open badge vault</Link>
+              <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
               <Link href="/proof-log" className="button secondary">View proof log</Link>
             </div>
 
@@ -108,6 +109,13 @@ export default async function Home() {
             <h2>Your nonsense gets heraldry.</h2>
             <p>Every starter challenge now has a distinct SQC coat of arms with a motto, meaning, and weird little brag identity.</p>
             <Link href="/badges" className="button pink">Browse badges</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Scoreboard</span>
+            <h2>Your bad-idea score, in public.</h2>
+            <p>Track starter-deck points, earned coat-of-arms badges, and the next dare worth attempting without pretending this is a serious leaderboard.</p>
+            <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
           </article>
 
           <article className="mission-card">
