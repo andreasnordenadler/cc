@@ -375,6 +375,33 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local production route smoke for `/`, `/verifiers`, `/rules`, and `/share-kit`; production deploy; production smoke for `https://sidequestchess.com/`, `/verifiers`, `/rules`, `/share-kit`, and `/api/og/dare/queen-never-heard-of-her`; Vercel production 500/501/502/503/504 scan.
   - Proof: new route `src/app/verifiers/page.tsx`, nav/home/rulebook links, live deployment `https://cc-akx1rr4ir-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_VERIFIER_BOARD_LIVE_DEPLOY_2026-04-27.md`.
 
+- [x] Implement CC v1 Phase 25: surface verifier status badges on challenge selection/detail pages.
+  - added_at: 2026-04-27 16:40 Europe/Stockholm
+  - completed_at: 2026-04-27 16:47 Europe/Stockholm
+  - estimate: 1 bounded product-trust deploy burst
+  - Acceptance:
+    - challenge hub cards show whether each dare is live-backed, next-adapter, or specified-only
+    - challenge detail pages show the same verifier state in the hero and explain the exact evidence/promise
+    - `/verifiers` remains the shared source of truth for verifier status copy
+    - no PGN upload, engine-analysis, or fake-success framing appears
+  - Verification: `pnpm lint`, `pnpm build`, local production smoke for `/challenges`, `/challenges/queen-never-heard-of-her`, and `/verifiers`; production deploy; production smoke for `https://sidequestchess.com/challenges`, `/challenges/queen-never-heard-of-her`, `/verifiers`, and `/rules`; bounded Vercel error-log scan.
+  - Proof: new shared verifier status module `src/lib/verifier-status.ts`, hub/detail verifier badges and copy, live deployment `https://cc-nymyueqmx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_VERIFIER_STATUS_BADGES_LIVE_DEPLOY_2026-04-27.md`.
+
+
+- [x] Implement CC v1 Phase 26: carry verifier-status honesty onto daily/random/share entry surfaces.
+  - added_at: 2026-04-27 17:40 Europe/Stockholm
+  - completed_at: 2026-04-27 17:50 Europe/Stockholm
+  - estimate: 1 bounded product-trust deploy burst
+  - Acceptance:
+    - `/today` shows the current daily dare's verifier state and evidence promise
+    - `/random` updates verifier state copy with the selected roulette challenge
+    - `/share-kit` shows live-backed / next-adapter / specified states on every starter-deck invite card
+    - copy stays playful and honest without implying fake automated proof for specified-only challenges
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/today`, `/random`, and `/share-kit`, production deploy, production smoke for `https://sidequestchess.com/today`, `/random`, `/share-kit`, and `/challenges/queen-never-heard-of-her`, plus bounded Vercel error-log scan.
+  - Proof: verifier status copy now appears on daily, random, and share-kit entry surfaces; live deployment `https://cc-j5ij7v9lr-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_VERIFIER_STATUS_ENTRY_SURFACES_LIVE_DEPLOY_2026-04-27.md`.
+
+
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.

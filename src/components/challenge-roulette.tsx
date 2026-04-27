@@ -5,6 +5,7 @@ import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import type { Challenge } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
 type ChallengeRouletteProps = {
   challenges: Challenge[];
@@ -16,6 +17,8 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
   const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [spinCount, setSpinCount] = useState(0);
   const selectedChallenge = challenges[selectedIndex] ?? challenges[0];
+  const verifierStatus = getVerifierStatus(selectedChallenge);
+  const verifierLabel = getVerifierStateLabel(verifierStatus);
 
   const remainingCount = useMemo(
     () => challenges.filter((challenge) => challenge.id !== selectedChallenge.id).length,
@@ -40,6 +43,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
             <span className="eyebrow">Random dare machine</span>
             <span className="badge gold">+{selectedChallenge.reward} pts</span>
             <span className="badge danger">{selectedChallenge.difficulty}</span>
+            <span className={verifierLabel.className}>{verifierLabel.label}</span>
           </div>
           <h1>{selectedChallenge.title}</h1>
           <p className="hero-copy">{selectedChallenge.objective}</p>
@@ -50,7 +54,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
             <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Open friend dare</Link>
           </div>
           <p className="microcopy roulette-count">
-            {remainingCount} other cursed options remain in the starter deck. No analysis dashboard, no PGN chores — just pick the bit and go play.
+            {remainingCount} other cursed options remain in the starter deck. {verifierStatus.summary}: {verifierLabel.promise}
           </p>
         </div>
         <ChallengeBadge challenge={selectedChallenge} size="hero" />
@@ -71,6 +75,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
           <span className="eyebrow">Send the bit</span>
           <h2>Dare one friend before you overthink it.</h2>
           <p>{selectedChallenge.openingHint}</p>
+          <p><strong>Proof promise:</strong> {verifierStatus.evidence}</p>
           <ChallengeInviteActions
             challengeTitle={selectedChallenge.title}
             challengeObjective={selectedChallenge.objective}

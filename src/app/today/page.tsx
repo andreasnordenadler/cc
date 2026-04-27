@@ -5,6 +5,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { getDailyChallenge } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
 export async function generateMetadata(): Promise<Metadata> {
   const challenge = getDailyChallenge();
@@ -36,6 +37,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TodayPage() {
   const { userId } = await auth();
   const challenge = getDailyChallenge();
+  const verifierStatus = getVerifierStatus(challenge);
+  const verifierLabel = getVerifierStateLabel(verifierStatus);
   const dateLabel = new Intl.DateTimeFormat("en", {
     weekday: "long",
     month: "short",
@@ -55,6 +58,7 @@ export default async function TodayPage() {
                 <span className="eyebrow">Daily side quest · {dateLabel}</span>
                 <span className="badge gold">+{challenge.reward} pts</span>
                 <span className="badge danger">{challenge.difficulty}</span>
+                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <h1>Today’s bad idea: {challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>
@@ -98,6 +102,8 @@ export default async function TodayPage() {
           <article className="mission-card">
             <span className="eyebrow">What counts</span>
             <h2>Funny, but verifiable.</h2>
+            <p><strong>{verifierStatus.summary}.</strong> {verifierLabel.promise}</p>
+            <p>{verifierStatus.evidence}</p>
             <ul className="rules-list">
               {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
             </ul>

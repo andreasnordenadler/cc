@@ -4,6 +4,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
 export const metadata: Metadata = {
   title: "Share Kit — Side Quest Chess",
@@ -99,17 +100,23 @@ export default function ShareKitPage() {
         </section>
 
         <section className="challenge-grid" aria-label="Starter deck share cards">
-          {CHALLENGES.map((challenge) => (
+          {CHALLENGES.map((challenge) => {
+            const verifierStatus = getVerifierStatus(challenge);
+            const verifierLabel = getVerifierStateLabel(verifierStatus);
+
+            return (
             <article key={challenge.id} className="challenge-card">
               <div className="card-meta">
                 <span>{challenge.category}</span>
                 <span className="badge danger">{challenge.difficulty}</span>
+                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <ChallengeBadge challenge={challenge} />
               <h3>{challenge.title}</h3>
               <p>{challenge.objective}</p>
               <em>{challenge.openingHint}</em>
               <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · +{challenge.reward} pts</div>
+              <p className="microcopy"><strong>{verifierStatus.summary}.</strong> {verifierLabel.promise}</p>
               <div className="button-row">
                 <Link href={`/dare/${challenge.id}`} className="button secondary">Open dare page</Link>
                 <Link href={`/api/og/dare/${challenge.id}`} className="button secondary">Preview card</Link>
@@ -122,7 +129,8 @@ export default function ShareKitPage() {
                 badgeName={challenge.badgeIdentity.name}
               />
             </article>
-          ))}
+            );
+          })}
         </section>
       </div>
     </main>

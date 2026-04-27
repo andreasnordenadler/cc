@@ -3,6 +3,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -76,12 +77,15 @@ export default async function ChallengesPage() {
 
 function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
   const difficultyTone = challenge.difficulty === "Brutal" || challenge.difficulty === "Absurd" ? "danger" : "blue";
+  const verifierStatus = getVerifierStatus(challenge);
+  const verifierLabel = getVerifierStateLabel(verifierStatus);
 
   return (
     <article className={`challenge-card ${featured ? "featured" : ""}`}>
       <div className="card-meta">
         <span>{challenge.category}</span>
         <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
+        <span className={verifierLabel.className}>{verifierLabel.label}</span>
       </div>
       <div className="challenge-card-title-row">
         <ChallengeBadge challenge={challenge} earned={completed} />
@@ -91,7 +95,8 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
         </div>
       </div>
       <em>{challenge.openingHint}</em>
-      <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · {challenge.badgeIdentity.heraldry.charge}</div>
+      <div className="proof-line">{verifierStatus.summary}</div>
+      <p className="muted">{verifierLabel.promise}</p>
       <div className="badge-row">
         {completed ? <span className="badge green">completed</span> : null}
         {active ? <span className="badge gold">active</span> : null}

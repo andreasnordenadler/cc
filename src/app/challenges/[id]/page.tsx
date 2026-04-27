@@ -7,6 +7,7 @@ import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -85,6 +86,8 @@ export default async function ChallengeDetailPage({
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
+  const verifierStatus = getVerifierStatus(challenge);
+  const verifierLabel = getVerifierStateLabel(verifierStatus);
 
   return (
     <main className="site-shell">
@@ -100,6 +103,7 @@ export default async function ChallengeDetailPage({
                 <span className="eyebrow">{challenge.category}</span>
                 <span className="badge danger">{challenge.difficulty}</span>
                 <span className="badge gold">+{challenge.reward} pts</span>
+                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <h1>{challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>
@@ -158,8 +162,10 @@ export default async function ChallengeDetailPage({
               <p>{challenge.badgeIdentity.heraldry.weirdness}</p>
             </div>
             <div className="note-card">
-              <strong>Verifier direction</strong>
-              <p>V1 should check Lichess/Chess.com games automatically. No PGN upload/import path belongs on this surface.</p>
+              <strong>{verifierStatus.summary}</strong>
+              <p>{verifierStatus.evidence}</p>
+              <p>{verifierLabel.promise}</p>
+              <Link href="/verifiers">Open verifier board</Link>
             </div>
           </article>
         </section>
