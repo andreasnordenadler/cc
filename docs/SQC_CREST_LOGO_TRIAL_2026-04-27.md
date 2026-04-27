@@ -36,3 +36,7 @@ Andreas supplied a new ornate **Side Quest Chess** crest/logo matching the illus
   - `/sqc-logo.png` returned 200 and reports PNG RGBA color type 6
 - Vercel 500/501/502/503/504 scan ✅
   - no logs found in the last 30m
+
+## 15:55 supplied logo replacement
+
+Andreas supplied a new ornate Side Quest Chess logo image. The uploaded PNG had no alpha channel and contained a baked checkerboard background, so I converted it to `public/sqc-logo-v6.png` with outside-only checkerboard removal. QA on dark and magenta backgrounds passed: exterior is transparent, while banner/shield/crest/interior light details remain opaque. Homepage and nav now reference `/sqc-logo-v6.png` with image optimization bypassed. Verification/deploy pending.
