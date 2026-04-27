@@ -60,3 +60,7 @@ Andreas supplied the actual transparent-background PNG (`hasAlpha: true`, RGBA).
 ## 18:03 edge-connected black field removal
 
 Andreas clarified the file itself had transparency but the nav still showed a black square. I identified an opaque near-black field in the supplied logo and generated `public/sqc-logo-v11.png` by removing only near-pure black pixels connected to the image edge, preserving internal dark shield/chessboard/outline artwork. Magenta QA confirmed the rectangular black box is gone while dark crest details remain. Nav now references `/sqc-logo-v11.png` with `unoptimized`. Verification/deploy pending.
+
+## 19:39 nav logo removal
+
+Andreas requested removing the logo from the navigation bar as a fun cleanup. I removed the nav image/mark from `src/components/site-nav.tsx` and dropped the now-unused `next/image` import, keeping brand text and nav links intact. Verification/deploy pending.
