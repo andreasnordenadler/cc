@@ -94,3 +94,5 @@ Andreas clarified that transparency should exist only outside the crest, not ins
 ## 13:35 illustrated badge wrapper fix
 
 Andreas showed the live `/challenges` page still reading as non-transparent because the transparent crest assets were being placed inside `ChallengeBadge`'s glowing rounded token wrapper. I changed illustrated badge rendering to add an `illustrated` class, remove the synthetic ribbon/rounded card/background/border/shadow wrapper for image-backed badges, and let the crest art float directly inside the challenge card. `pnpm lint`/`pnpm build` and deploy proof pending.
+
+Production deploy completed: `https://cc-mq6gsf2ze-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`. Production smoke confirmed `/challenges` and `/badges` include `challenge-badge-token illustrated` and `/badges/v2/` references, representative badge PNG served 200, and Vercel 500/501/502/503/504 scan returned no logs.
