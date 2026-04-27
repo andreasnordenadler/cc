@@ -16,10 +16,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Checks queen loss before move 15, opponent queen still present, legal time class, standard chess, minimum game length, and player win.",
   },
   "no-castle-club": {
-    state: "next",
-    summary: "Next provider adapter target",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Needs move-history normalization that proves a win without kingside or queenside castling for the player.",
+      "Checks player win, zero player castling, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "the-blunder-gambit": {
     state: "spec",

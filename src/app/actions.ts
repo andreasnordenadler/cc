@@ -35,6 +35,11 @@ import {
   queenNeverHeardOfHerFixtures,
 } from "@/lib/queen-never-heard-of-her";
 import {
+  checkLatestLichessNoCastleClub,
+  evaluateNoCastleClub,
+  noCastleClubFixtures,
+} from "@/lib/no-castle-club";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -93,6 +98,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = queenNeverHeardOfHerFixtures[attemptCount % queenNeverHeardOfHerFixtures.length];
     const verdict = evaluateQueenNeverHeardOfHer(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "no-castle-club") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessNoCastleClub(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = noCastleClubFixtures[attemptCount % noCastleClubFixtures.length];
+    const verdict = evaluateNoCastleClub(fixture);
 
     return {
       status: verdict.status,
