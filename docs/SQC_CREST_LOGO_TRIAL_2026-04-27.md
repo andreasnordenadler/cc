@@ -56,3 +56,7 @@ Andreas screenshot showed the top-left logo still had a black square canvas. I g
 ## 17:55 direct supplied transparent logo
 
 Andreas supplied the actual transparent-background PNG (`hasAlpha: true`, RGBA). I copied it directly to `public/sqc-logo-v10.png` with no masking/processing and updated the nav logo to use `/sqc-logo-v10.png` with `unoptimized`. This replaces the failed generated cutout attempts. Verification/deploy pending.
+
+## 18:03 edge-connected black field removal
+
+Andreas clarified the file itself had transparency but the nav still showed a black square. I identified an opaque near-black field in the supplied logo and generated `public/sqc-logo-v11.png` by removing only near-pure black pixels connected to the image edge, preserving internal dark shield/chessboard/outline artwork. Magenta QA confirmed the rectangular black box is gone while dark crest details remain. Nav now references `/sqc-logo-v11.png` with `unoptimized`. Verification/deploy pending.
