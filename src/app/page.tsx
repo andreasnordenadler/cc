@@ -43,6 +43,7 @@ export default async function Home() {
               <Link href="/random" className="button pink">Spin a bad idea</Link>
               <Link href="/challenges" className="button secondary">Pick from the hub</Link>
               <Link href="/badges" className="button secondary">Open badge vault</Link>
+              <Link href="/proof-log" className="button secondary">View proof log</Link>
             </div>
 
             <div className="steps" aria-label="How Side Quest Chess works">
@@ -99,6 +100,13 @@ export default async function Home() {
             <h2>Your nonsense gets heraldry.</h2>
             <p>Every starter challenge now has a distinct SQC coat of arms with a motto, meaning, and weird little brag identity.</p>
             <Link href="/badges" className="button pink">Browse badges</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Proof log</span>
+            <h2>Your receipts, without the spreadsheet energy.</h2>
+            <p>Every latest-game check now has a home: passed, failed, or pending side-quest evidence tied back to the exact dare.</p>
+            <Link href="/proof-log" className="button secondary">View proof log</Link>
           </article>
         </section>
 

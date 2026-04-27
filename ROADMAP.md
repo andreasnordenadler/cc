@@ -257,6 +257,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local production smoke for `/random`, `/`, `/challenges`, and `/api/og/dare/queen-never-heard-of-her`; production deploy; production smoke for `https://sidequestchess.com/random`, `/`, `/challenges`, `/dare/queen-never-heard-of-her`, and `/api/og/dare/queen-never-heard-of-her`; Vercel 500/501/502/503/504 log scan.
   - Proof: new route `src/app/random/page.tsx`, new client component `src/components/challenge-roulette.tsx`, nav/home CTAs, live deployment `https://cc-4p4vzgdv8-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_RANDOM_DARE_MACHINE_LIVE_DEPLOY_2026-04-27.md`.
 
+- [x] Implement CC v1 Phase 18: add a saved proof-log surface for verifier receipts.
+  - added_at: 2026-04-27 06:40 Europe/Stockholm
+  - completed_at: 2026-04-27 06:47 Europe/Stockholm
+  - estimate: 1 bounded product-loop deploy burst
+  - Acceptance:
+    - `/proof-log` gives signed-in players a receipt history for saved latest-game verifier attempts
+    - passed, failed, pending, and empty states stay honest and do not imply fake success
+    - homepage and nav expose the proof log as part of the share/proof loop
+    - no PGN upload, engine-analysis, or serious training framing appears
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/proof-log`, `/result`, `/account`, and `/challenges`; production deploy; production smoke for `https://sidequestchess.com/`, `/proof-log`, `/result`, `/account`, and `/challenges`; Vercel 500/501/502/503/504 log scan.
+  - Proof: new route `src/app/proof-log/page.tsx`, nav/home links, live deployment `https://cc-cy3dlov3o-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_PROOF_LOG_LIVE_DEPLOY_2026-04-27.md`.
+
 
 ## Proof rules
 
