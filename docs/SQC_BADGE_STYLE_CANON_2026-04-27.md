@@ -31,4 +31,19 @@ Queenless-specific notes:
 
 ## Product implementation note
 
-The supplied queenless image is now used directly as the first real badge art. The existing CSS coat-of-arms tokens remain as fallback placeholders for badges that do not yet have final illustrated assets.
+The supplied queenless image is used directly as the first real badge art. On 2026-04-27, the remaining six starter challenges received matching generated illustrated PNG assets and are now wired through `badgeIdentity.image`:
+
+- `no-castle-club` → `public/badges/no-castle-club-badge.png`
+- `the-blunder-gambit` → `public/badges/the-blunder-gambit-badge.png`
+- `pawn-storm-maniac` → `public/badges/pawn-storm-maniac-badge.png`
+- `knightmare-mode` → `public/badges/knightmare-mode-badge.png`
+- `rookless-rampage` → `public/badges/rookless-rampage-badge.png`
+- `one-bishop-to-rule-them-all` → `public/badges/one-bishop-to-rule-them-all-badge.png`
+
+The CSS coat-of-arms token renderer remains as an accessible/fallback path for future challenges that do not yet have final illustrated assets.
+
+## Reusable generation prompt shape
+
+Use the supplied queenless badge as a **style reference only**, then vary challenge symbolism:
+
+> Create a matching Side Quest Chess collectible illustrated heraldic badge asset for the challenge `[challenge title]`. Use the provided queenless badge image only as a style reference, not as content to copy. Square badge artwork, ornate heraldic shield, black and gold linework, saturated `[challenge accent]` palette, fantasy collectible feel. Symbolism: `[specific chess symbols and joke mythology]`. Motto ribbon text `[short motto]`. Centered high-detail badge, crisp readable silhouette, no app UI, no people, no photorealism.

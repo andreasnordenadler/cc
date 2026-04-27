@@ -294,8 +294,9 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/scoreboard`, `/challenges`, and `/proof-log`; production deploy; production smoke for `https://sidequestchess.com/scoreboard`, `/`, `/challenges`, and `/proof-log`; bounded Vercel 500/501/502/503/504 log scan.
   - Proof: new route `src/app/scoreboard/page.tsx`, nav/home links, live deployment `https://cc-cxoaoo4im-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_SCOREBOARD_LIVE_DEPLOY_2026-04-27.md`.
 
-- [ ] Implement CC v1 Phase 21: convert all challenge badges to Andreas's illustrated heraldic badge style.
+- [x] Implement CC v1 Phase 21: convert all challenge badges to Andreas's illustrated heraldic badge style.
   - added_at: 2026-04-27 10:25 Europe/Stockholm
+  - completed_at: 2026-04-27 10:59 Europe/Stockholm
   - source: Andreas supplied the new `Queen? Never Heard of Her` badge and said this is the style wanted for all badges.
   - estimate: 1-2 bounded badge-art/product-surface bursts
   - Acceptance:
@@ -305,7 +306,8 @@ Old pre-reset standby roadmap is archived at:
     - challenge hub/detail/badges/result/dare/scoreboard surfaces render final image assets consistently with accessible fallback text
     - generated/final assets are documented so future badges can match the same style
   - Verification for completion: generated or supplied image assets for all starter challenges, `pnpm lint`, `pnpm build`, local route smoke for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`; production deploy and smoke before claiming live.
-  - 2026-04-27 10:27 Europe/Stockholm: saved Andreas's supplied reference image as `public/badges/queen-never-heard-of-her-style-reference.jpg`, wired it into `badgeIdentity.image` for the queenless challenge, and documented the new badge style canon in `docs/SQC_BADGE_STYLE_CANON_2026-04-27.md`. Verified `pnpm lint`, `pnpm build`, local smoke for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`, deployed production `https://cc-bb3hx0ed1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, production smoke passed for the same routes plus the image asset, and Vercel production error log scan returned no logs. Remaining work: generate/apply matching illustrated assets for the other starter challenges.
+  - 2026-04-27 10:27 Europe/Stockholm: saved Andreas's supplied reference image as `public/badges/queen-never-heard-of-her-style-reference.jpg`, wired it into `badgeIdentity.image` for the queenless challenge, and documented the new badge style canon in `docs/SQC_BADGE_STYLE_CANON_2026-04-27.md`. Verified `pnpm lint`, `pnpm build`, local smoke for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`, deployed production `https://cc-bb3hx0ed1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, production smoke passed for the same routes plus the image asset, and Vercel production error log scan returned no logs.
+  - 2026-04-27 10:59 Europe/Stockholm: generated six matching illustrated heraldic badge assets for the rest of the starter deck (`No Castle Club`, `The Blunder Gambit`, `Pawn Storm Maniac`, `Knightmare Mode`, `Rookless Rampage`, and `One Bishop to Rule Them All`), saved them under `public/badges/`, wired them into `badgeIdentity.image`, and updated the badge style canon. Verified `pnpm lint`, `pnpm build`, local smoke for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`, and representative badge assets; deployed production `https://cc-egss59ks7-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; production smoke passed for those routes plus all six new badge PNGs; Vercel 500/501/502/503/504 scan returned 0 in 30m. Proof note: `docs/SQC_ILLUSTRATED_BADGE_SET_LIVE_DEPLOY_2026-04-27.md`.
 
 
 ## Proof rules
