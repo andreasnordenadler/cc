@@ -487,3 +487,26 @@ For recurring smoke scripts in this environment, use absolute paths for core mac
 - Source: error
 - Related Files: docs/SQC_PROOF_LOG_RECEIPT_SHARING_LIVE_DEPLOY_2026-04-27.md
 - Tags: smoke, vercel, path
+
+## [ERR-20260427-001] local_smoke_shell_tooling
+
+**Logged**: 2026-04-27T12:55:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+`curl` and GNU `timeout` were not available in this zsh environment during CC production/local smoke checks.
+
+### Details
+A local smoke command using `curl` failed with `command not found: curl`; a later bounded Vercel logs command using `timeout` also failed. Node 22 global `fetch` and Vercel CLI `--no-follow` worked as replacements.
+
+### Suggested Action
+For recurring OpenClaw smoke checks on this Mac, prefer small Node `fetch` scripts over shelling to `curl`, and use Vercel CLI `--no-follow` instead of wrapping `vercel logs` with `timeout`.
+
+### Metadata
+- Source: error
+- Related Files: src/app/rules/page.tsx
+- Tags: smoke-checks, shell-tooling, vercel
+
+---
