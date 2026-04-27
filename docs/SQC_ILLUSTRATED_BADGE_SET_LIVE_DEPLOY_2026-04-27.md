@@ -66,6 +66,21 @@ Follow-up from Andreas at 11:04 CEST: all badges should have transparent backgro
 - Production smoke passed for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`, and all seven badge PNGs; each remote PNG reports RGBA alpha. ✅
 - Vercel production error-log scan found no logs in the last 30m. ✅
 
+## 12:57 cache-bust + card alignment follow-up
+
+Andreas reported the app still showed non-transparent-looking badge squares and misaligned challenge-card title text. Root cause: the deployed page was still referencing the same public image filenames, so browser/Vercel image caches could continue showing older baked-background files; additionally the compact badge/title row used two columns, leaving long challenge titles squeezed into a narrow column.
+
+Fix applied:
+
+- Created cache-busting transparent runtime paths under `public/badges/v2/` for all seven starter badge PNGs.
+- Updated all `badgeIdentity.image` paths to `/badges/v2/...`.
+- Created cache-busting logo path `public/sqc-logo-v2.png` and updated nav/home references.
+- Changed challenge-card title rows to single-column layout so badge and title/objective stack cleanly instead of compressing title text.
+- Verified local PNG signatures/alpha for all v2 badge/logo assets. ✅
+- Verified `pnpm lint`, `pnpm build`, and local route/asset smoke for `/challenges`, `/badges`, `/`, `/sqc-logo-v2.png`, and representative `/badges/v2/*.png`. ✅
+- Production deploy/smoke pending at time of this note.
+
+
 ## Notes
 
 Two image-generation attempts aborted during asset creation; both affected prompts were retried successfully. One local smoke command initially failed because this shell did not resolve bare `wc`/`grep`; reran with `/usr/bin/wc` and `/usr/bin/grep` successfully.

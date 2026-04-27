@@ -31,7 +31,7 @@ export default async function Home() {
         <section className="hero-grid">
           <article className="hero-card">
             <div className="hero-logo-lockup">
-              <Image src="/sqc-logo.png" alt="Side Quest Chess crest logo" width={1254} height={1254} priority />
+              <Image src="/sqc-logo-v2.png" alt="Side Quest Chess crest logo" width={1254} height={1254} priority />
             </div>
             <span className="eyebrow">Side Quest Chess v1</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
