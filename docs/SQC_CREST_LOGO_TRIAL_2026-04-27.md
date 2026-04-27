@@ -28,4 +28,11 @@ Andreas supplied a new ornate **Side Quest Chess** crest/logo matching the illus
 - PNG alpha check ✅
   - `public/sqc-logo.png` has PNG signature and color type 6 (RGBA)
 
-Production deploy/smoke pending.
+- Production deploy ✅
+  - Vercel deployment: `https://cc-1a714podf-andreas-nordenadlers-projects.vercel.app`
+  - Aliased to: `https://sidequestchess.com`
+- Production smoke ✅
+  - `/` returned 200 and referenced `/sqc-logo.png`
+  - `/sqc-logo.png` returned 200 and reports PNG RGBA color type 6
+- Vercel 500/501/502/503/504 scan ✅
+  - no logs found in the last 30m

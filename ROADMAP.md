@@ -324,14 +324,29 @@ Old pre-reset standby roadmap is archived at:
   - 2026-04-27 10:59 Europe/Stockholm: generated six matching illustrated heraldic badge assets for the rest of the starter deck (`No Castle Club`, `The Blunder Gambit`, `Pawn Storm Maniac`, `Knightmare Mode`, `Rookless Rampage`, and `One Bishop to Rule Them All`), saved them under `public/badges/`, wired them into `badgeIdentity.image`, and updated the badge style canon. Verified `pnpm lint`, `pnpm build`, local smoke for `/badges`, `/challenges`, `/challenges/queen-never-heard-of-her`, `/result`, `/dare/queen-never-heard-of-her`, `/scoreboard`, and representative badge assets; deployed production `https://cc-egss59ks7-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; production smoke passed for those routes plus all six new badge PNGs; Vercel 500/501/502/503/504 scan returned 0 in 30m. Proof note: `docs/SQC_ILLUSTRATED_BADGE_SET_LIVE_DEPLOY_2026-04-27.md`.
   - 2026-04-27 11:12 Europe/Stockholm: Andreas clarified all badges should have transparent backgrounds and the crest should not feel like a box inside a box. Converted all seven starter badge assets to RGBA PNG runtime assets, switched the queenless challenge from the original JPEG reference to transparent `public/badges/queen-never-heard-of-her.png`, and updated the style canon/prompt rules accordingly. Verified `pnpm lint`, `pnpm build`, local route/asset alpha smoke, deployed production `https://cc-5irr006vl-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, production route smoke passed, all seven remote badge PNGs report RGBA alpha, and Vercel production error-log scan returned no logs. Verification/deploy proof is recorded in `docs/SQC_ILLUSTRATED_BADGE_SET_LIVE_DEPLOY_2026-04-27.md`.
 
-- [ ] Try Andreas's new ornate transparent SQC crest logo in the real shell.
+- [x] Try Andreas's new ornate transparent SQC crest logo in the real shell.
   - added_at: 2026-04-27 12:41 Europe/Stockholm
+  - completed_at: 2026-04-27 12:50 Europe/Stockholm
   - source: Andreas shared a new Side Quest Chess crest logo matching the quest badges and asked to try it for fun.
   - Acceptance:
     - save the supplied logo as a real transparent PNG runtime asset, not a baked checkerboard/card image
     - replace the old temporary logo in nav and homepage hero with the new crest logo
     - adjust logo framing so the crest floats instead of sitting inside a dark rounded card
     - verify lint/build, local route and asset smoke, production deploy, production smoke, and Vercel error logs before claiming live
+  - Verification: `pnpm lint`, `pnpm build`, local smoke for `/` and `/sqc-logo.png`, local PNG alpha check, production deploy `https://cc-1a714podf-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, production smoke for `/` and `/sqc-logo.png`, and Vercel 500/501/502/503/504 scan clean.
+  - Proof: runtime asset `public/sqc-logo.png`; nav/home wired to the new crest; proof note `docs/SQC_CREST_LOGO_TRIAL_2026-04-27.md`.
+
+- [x] Implement CC v1 Phase 22: add a public rulebook/proof explainer.
+  - added_at: 2026-04-27 12:40 Europe/Stockholm
+  - completed_at: 2026-04-27 12:58 Europe/Stockholm
+  - estimate: 1 bounded product-trust deploy burst
+  - Acceptance:
+    - `/rules` explains the Side Quest Chess proof loop in plain language
+    - homepage and nav expose the rulebook as a first-class trust/product surface
+    - copy reinforces no PGN homework, no engine dashboard, and no fake-success receipts
+    - current verifier status makes clear that `Queen? Never Heard of Her` is live-backed while future verifiers follow the same pattern
+  - Verification: `pnpm lint`, `pnpm build`, local route smoke for `/`, `/rules`, `/challenges`, and `/proof-log`, production deploy, production smoke for `https://sidequestchess.com/`, `/rules`, `/challenges`, `/proof-log`, and the existing queenless OG image endpoint, plus Vercel production 500 scan.
+  - Proof: new route `src/app/rules/page.tsx`, nav/home links, live deployment `https://cc-q4nqtxqj9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_RULEBOOK_LIVE_DEPLOY_2026-04-27.md`.
 
 
 ## Proof rules
