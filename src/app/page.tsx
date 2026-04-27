@@ -39,6 +39,7 @@ export default async function Home() {
               Pick a ridiculous challenge, play real games on Lichess or Chess.com, and let Side Quest Chess prove whether you actually pulled it off.
             </p>
             <div className="button-row hero-actions">
+              <Link href="/today" className="button primary">Open today’s dare</Link>
               <Link href="/challenges" className="button primary">Pick a bad idea</Link>
               <Link href="/badges" className="button secondary">Open badge vault</Link>
             </div>
@@ -64,6 +65,13 @@ export default async function Home() {
         </section>
 
         <section className="big-grid" aria-label="Product surfaces">
+          <article className="mission-card daily-card">
+            <span className="eyebrow">Daily side quest</span>
+            <h2>One bad idea for everyone today.</h2>
+            <p>The daily dare gives Side Quest Chess a repeatable ritual: same challenge, same badge target, easy to share with friends.</p>
+            <Link href="/today" className="button primary">See today’s dare</Link>
+          </article>
+
           <article className="mission-card">
             <span className="eyebrow">Challenge Hub</span>
             <h2>Pick your next bad idea.</h2>

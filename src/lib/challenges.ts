@@ -328,3 +328,10 @@ export const CHALLENGES: Challenge[] = [
 export function getChallengeById(id: string): Challenge | undefined {
   return CHALLENGES.find((challenge) => challenge.id === id);
 }
+
+export function getDailyChallenge(date = new Date()): Challenge {
+  const dayKey = date.toISOString().slice(0, 10);
+  const seed = [...dayKey].reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 7), 0);
+
+  return CHALLENGES[seed % CHALLENGES.length];
+}
