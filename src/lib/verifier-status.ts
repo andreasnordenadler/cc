@@ -29,9 +29,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "queen-never-heard-of-her": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks queen loss before move 15, opponent queen still present, legal time class, standard chess, minimum game length, and player win.",
+      "Checks queen loss before move 15, opponent queen still present, legal time class, standard chess, minimum game length, and player win from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "no-castle-club": {
     state: "live",

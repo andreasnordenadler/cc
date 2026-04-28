@@ -45,7 +45,7 @@ export default async function VerifiersPage() {
 
         <section className="grid" aria-label="Verifier summary">
           <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every starter dare now has an automated latest-game verifier instead of a fake-success or upload-your-PGN workaround." />
-          <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="The beginner path plus No Castle Club can read either Lichess UCI evidence or Chess.com PGN evidence today." />
+          <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="The beginner path plus No Castle Club and Queen? Never Heard of Her can read either Lichess UCI evidence or Chess.com PGN evidence today." />
           <Fact label="Lichess-only next" value={`${lichessOnlyCount} quests`} copy="The remaining live-backed dares are honest Lichess checks first, with Chess.com parity queued after beta-flow hardening." />
         </section>
 

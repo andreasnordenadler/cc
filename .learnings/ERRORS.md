@@ -1095,3 +1095,294 @@ Use a portable shell pattern for bounded log watches on macOS: start the streami
 - Related Files: docs/SQC_EARLY_KING_WALK_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md
 
 ---
+
+## [ERR-20260428-001] node-strip-types-import-alias
+
+**Logged**: 2026-04-28T13:49:00Z
+**Priority**: medium
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`node --experimental-strip-types --test` cannot resolve Next.js `@/lib/*` path aliases inside source modules imported directly by tests.
+
+### Details
+Adding a runtime import from `src/lib/chesscom.ts` to `@/lib/knights-before-coffee` made direct Node fixture tests fail with `ERR_MODULE_NOT_FOUND`.
+
+### Suggested Action
+For source modules imported directly by Node strip-types tests, prefer relative runtime imports (or keep testable helpers dependency-free) unless a resolver/loader is added.
+
+### Metadata
+- Source: error
+- Related Files: src/lib/chesscom.ts, tests/chesscom-knights-before-coffee-fixtures.mjs
+- Tags: node-test, imports, nextjs-alias
+
+---
+
+## [ERR-20260428-002] macos-timeout-command-missing
+
+**Logged**: 2026-04-28T14:00:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+GNU `timeout` is not available by default on this macOS host.
+
+### Details
+A bounded Vercel log-watch command using `timeout 20s ...` failed with `zsh:1: command not found: timeout`.
+
+### Suggested Action
+Use OpenClaw exec/process timeouts or a small Python subprocess wrapper instead of GNU `timeout` on this machine.
+
+### Metadata
+- Source: error
+- Tags: macos, shell, vercel
+
+---
+
+## [ERR-20260428-001] chesscom_bishop_fixture_expectation
+
+**Logged**: 2026-04-28T16:55:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Initial Chess.com Bishop Field Trip fixture expected only one black bishop home from the observed `and72nor` PGN, but the SAN shade heuristic correctly detected both black original bishops before the queen/win check failed.
+
+### Resolution
+Updated the test expectation to `["c8", "f8"]` and verified the broader suite passed.
+
+---
+
+## [ERR-20260428-002] vercel_logs_timeout_since_flags
+
+**Logged**: 2026-04-28T16:55:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A bounded Vercel log command used unavailable macOS `timeout`, then retried with a deployment URL plus `--since`, which this Vercel CLI treats as implicit follow + unsupported filtering.
+
+### Resolution
+Used `vercel logs <deployment-url> --no-follow --level error --limit 20` for a non-streaming deployment error check.
+
+---
+
+## [ERR-20260428-001] vercel_logs_since_filter
+
+**Logged**: 2026-04-28T17:46:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 10m` failed because this CLI version treats filtered logs as incompatible with follow mode.
+
+### Details
+During SQC deployment verification, `vercel logs https://cc-bil366uw1-andreas-nordenadlers-projects.vercel.app --since 10m` returned: `The --follow flag does not support filtering. Remove: --since`.
+
+### Suggested Action
+For bounded SQC post-deploy scans, avoid `--since` with this Vercel CLI path; use a supported non-follow log invocation or rely on bounded live route smoke when logs filtering is unavailable.
+
+### Metadata
+- Source: error
+- Related Files: none
+- Tags: vercel,deploy-verify,cli
+
+---
+
+## [ERR-20260428-001] vercel_logs_timeout_command
+
+**Logged**: 2026-04-28T18:47:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+Used GNU `timeout` in zsh on macOS while scanning Vercel logs; this host does not have `timeout` installed.
+
+### Details
+The command `timeout 30s vercel logs ...` failed with `zsh:1: command not found: timeout`. OpenClaw `exec` already supports a `timeout` parameter, so wrapping with GNU timeout is unnecessary and less portable on Darwin.
+
+### Suggested Action
+Use the tool-level `timeout` parameter for bounded log scans, or use macOS-compatible shells without GNU-only utilities.
+
+### Metadata
+- Source: error
+- Related Files: .learnings/ERRORS.md
+- Tags: macos, vercel, shell-portability
+
+---
+
+## [ERR-20260428-002] vercel_logs_implicit_follow_with_since
+
+**Logged**: 2026-04-28T18:48:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs <url> --since ...` failed because Vercel CLI treats positional deployment URLs as implicit follow mode, and follow mode cannot be combined with filters.
+
+### Details
+For recent filtered scans, avoid passing the deployment/domain URL positionally. Use linked project filters such as `vercel logs --environment production --level error --since 10m --no-branch --limit 50`.
+
+### Suggested Action
+For bounded production error scans, prefer project-scoped filtered logs without a positional URL, or add `--no-follow` when querying a specific deployment historically.
+
+### Metadata
+- Source: error
+- Related Files: .learnings/ERRORS.md
+- Tags: vercel, logs, cli
+
+---
+
+## [ERR-20260428-001] lint-after-copy-edit
+
+**Logged**: 2026-04-28T17:46:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+A copy-only beta page edit missed a trailing comma and caused ESLint/TypeScript parsing to fail before build.
+
+### Error
+```
+src/app/beta/page.tsx 23:4 error Parsing error: ',' expected
+```
+
+### Context
+- Command attempted: `pnpm lint && pnpm build`
+- Related file: `src/app/beta/page.tsx`
+- Cause: direct string replacement changed an object property without preserving the comma delimiter.
+
+### Suggested Fix
+After manual string replacements inside TS/TSX object literals, inspect the nearby block before running full checks.
+
+### Metadata
+- Reproducible: yes
+- Related Files: src/app/beta/page.tsx
+
+### Resolution
+- **Resolved**: 2026-04-28T17:46:00Z
+- **Notes**: Restored the missing comma and re-ran verification.
+
+---
+
+## [ERR-20260428-002] curl-not-installed-during-smoke
+
+**Logged**: 2026-04-28T17:49:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A production smoke script assumed `curl` was available, but this host shell could not find it.
+
+### Error
+```
+zsh:7: command not found: curl
+```
+
+### Context
+- Command attempted: production smoke for `/verifiers`, `/beta`, and `/connect` after Vercel deploy.
+- Environment: OpenClaw workspace on Sam’s Mac mini.
+
+### Suggested Fix
+Use Node 22 built-in `fetch` or Python urllib for deploy smoke checks instead of assuming curl exists.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: n/a
+
+### Resolution
+- **Resolved**: 2026-04-28T17:49:00Z
+- **Notes**: Re-ran the smoke checks with a Node `fetch` script.
+
+---
+
+## [ERR-20260428-003] vercel-logs-follow-filter-conflict
+
+**Logged**: 2026-04-28T17:51:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment-url> --since 10m` failed because deployment URL mode implies follow and the CLI rejects filters with follow.
+
+### Error
+```
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Command attempted: bounded production log scan after SQC deploy.
+- Vercel CLI: 50.20.0.
+
+### Suggested Fix
+Use `--no-follow` when filtering a specific deployment URL, e.g. `vercel logs <url> --no-follow --level error --since 10m`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: n/a
+
+### Resolution
+- **Resolved**: 2026-04-28T17:51:00Z
+- **Notes**: Re-ran with `--no-follow` and level filtering.
+
+---
+
+## [ERR-20260428-001] node_strip_types_extensionless_import
+
+**Logged**: 2026-04-28T21:48:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A targeted Node strip-types test failed after adding a runtime extensionless relative import inside `src/lib/chesscom.ts`.
+
+### Error
+`ERR_MODULE_NOT_FOUND` for `./queen-never-heard-of-her` when running `pnpm exec node --experimental-strip-types --test tests/chesscom-queen-never-heard-of-her-fixtures.mjs`.
+
+### Context
+Node's strip-types test runner resolves runtime imports differently than the Next.js bundler. Avoid adding new runtime extensionless imports to modules directly loaded by these `.mjs` tests unless the test command handles specifier resolution.
+
+### Suggested Fix
+Keep shared verifier helpers local or test-compatible, or add a test-compatible import strategy deliberately.
+
+### Metadata
+- Reproducible: yes
+- Related Files: src/lib/chesscom.ts, tests/chesscom-queen-never-heard-of-her-fixtures.mjs
+
+---
+
+## [ERR-20260428-002] vercel_logs_command_shape
+
+**Logged**: 2026-04-28T21:50:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+Two initial Vercel log-watch attempts used unsupported/non-portable CLI assumptions.
+
+### Error
+`vercel logs --since 10m` returned `The --follow flag does not support filtering`; local shell also lacked GNU `timeout`.
+
+### Context
+Vercel CLI log streaming on this Mac should be bounded with a small Python `subprocess` timeout rather than GNU `timeout` or `--since` filtering.
+
+### Suggested Fix
+Use a Python timeout wrapper for bounded Vercel log checks on macOS.
+
+### Metadata
+- Reproducible: yes
+- Related Files: deployment verification commands
+
+---

@@ -12,6 +12,7 @@ import {
   checkLatestChessComEarlyKingWalk,
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComNoCastleClub,
+  checkLatestChessComQueenNeverHeardOfHer,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
   verifyChessComFinishAsWhiteAttempt,
@@ -247,6 +248,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "queen-never-heard-of-her") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessQueenNeverHeardOfHer(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComQueenNeverHeardOfHer(chessComUsername);
 
       return {
         status: verdict.status,

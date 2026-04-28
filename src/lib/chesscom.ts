@@ -3,6 +3,31 @@ export type ChessComVerificationVerdict = {
   summary: string;
 };
 
+type QueenChallengeSide = "white" | "black";
+
+type QueenChallengeCaptureEvent = {
+  ply: number;
+  capturedPiece: "queen" | "rook" | "bishop" | "knight" | "pawn" | "king";
+  capturedColor: QueenChallengeSide;
+};
+
+type QueenChallengeGame = {
+  id: string;
+  playerColor: QueenChallengeSide;
+  winner: "white" | "black" | "draw" | "unknown";
+  moveCount: number;
+  variant?: "standard" | string;
+  timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  captures: QueenChallengeCaptureEvent[];
+};
+
+type QueenChallengeVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
 type ChessComNoCastleGame = {
   id: string;
   playerColor: "white" | "black";
@@ -78,6 +103,13 @@ type ChessComEarlyKingWalkVerdict = {
   evidence: string[];
 };
 
+type ChessComPiece = QueenChallengeCaptureEvent["capturedPiece"];
+
+type ChessComBoardPiece = {
+  color: QueenChallengeSide;
+  piece: ChessComPiece;
+};
+
 type ChessComPlayer = {
   username?: string;
   result?: string;
@@ -115,6 +147,13 @@ const WINNING_RESULTS = new Set([
   "abandoned",
   "lose",
 ]);
+
+const INITIAL_CHESSCOM_BOARD: Record<string, ChessComBoardPiece> = {
+  a1: { color: "white", piece: "rook" }, b1: { color: "white", piece: "knight" }, c1: { color: "white", piece: "bishop" }, d1: { color: "white", piece: "queen" }, e1: { color: "white", piece: "king" }, f1: { color: "white", piece: "bishop" }, g1: { color: "white", piece: "knight" }, h1: { color: "white", piece: "rook" },
+  a2: { color: "white", piece: "pawn" }, b2: { color: "white", piece: "pawn" }, c2: { color: "white", piece: "pawn" }, d2: { color: "white", piece: "pawn" }, e2: { color: "white", piece: "pawn" }, f2: { color: "white", piece: "pawn" }, g2: { color: "white", piece: "pawn" }, h2: { color: "white", piece: "pawn" },
+  a7: { color: "black", piece: "pawn" }, b7: { color: "black", piece: "pawn" }, c7: { color: "black", piece: "pawn" }, d7: { color: "black", piece: "pawn" }, e7: { color: "black", piece: "pawn" }, f7: { color: "black", piece: "pawn" }, g7: { color: "black", piece: "pawn" }, h7: { color: "black", piece: "pawn" },
+  a8: { color: "black", piece: "rook" }, b8: { color: "black", piece: "knight" }, c8: { color: "black", piece: "bishop" }, d8: { color: "black", piece: "queen" }, e8: { color: "black", piece: "king" }, f8: { color: "black", piece: "bishop" }, g8: { color: "black", piece: "knight" }, h8: { color: "black", piece: "rook" },
+};
 
 function normalizeChessComUsername(value: string): string {
   return value.trim().toLowerCase();
@@ -302,6 +341,127 @@ function chessComTargetSquareFromSan(token: string): string | null {
   return match?.[1] ?? null;
 }
 
+function cloneChessComBoard() {
+  return Object.fromEntries(Object.entries(INITIAL_CHESSCOM_BOARD).map(([square, piece]) => [square, { ...piece }]));
+}
+
+function chessComPromotionPieceFromSan(token: string): ChessComPiece | null {
+  const match = token.match(/=([QRBN])/);
+  if (!match) return null;
+  if (match[1] === "Q") return "queen";
+  if (match[1] === "R") return "rook";
+  if (match[1] === "B") return "bishop";
+  return "knight";
+}
+
+function chessComSourceHintFromSan(token: string, piece: ChessComPiece): string {
+  const normalized = token
+    .replace(/[+#?!]+$/g, "")
+    .replace(/^\.{1,3}/, "")
+    .replace(/=.*$/, "");
+  const target = chessComTargetSquareFromSan(normalized);
+  if (!target) return "";
+  const prefix = normalized.slice(piece === "pawn" ? 0 : 1, normalized.lastIndexOf(target)).replace("x", "");
+  return prefix.replace(/[^a-h1-8]/g, "");
+}
+
+function chessComCanPieceReach(piece: ChessComPiece, from: string, to: string, color: QueenChallengeSide, board: Record<string, ChessComBoardPiece>) {
+  const fileDelta = to.charCodeAt(0) - from.charCodeAt(0);
+  const rankDelta = Number(to[1]) - Number(from[1]);
+  const absFile = Math.abs(fileDelta);
+  const absRank = Math.abs(rankDelta);
+
+  if (piece === "knight") return (absFile === 1 && absRank === 2) || (absFile === 2 && absRank === 1);
+  if (piece === "king") return absFile <= 1 && absRank <= 1;
+
+  if (piece === "pawn") {
+    const direction = color === "white" ? 1 : -1;
+    const startRank = color === "white" ? "2" : "7";
+    const targetOccupied = Boolean(board[to]);
+    if (absFile === 1 && rankDelta === direction) return true;
+    if (fileDelta === 0 && rankDelta === direction && !targetOccupied) return true;
+    if (fileDelta === 0 && from[1] === startRank && rankDelta === direction * 2 && !targetOccupied) return true;
+    return false;
+  }
+
+  const diagonal = absFile === absRank;
+  const straight = fileDelta === 0 || rankDelta === 0;
+  if (piece === "bishop" && !diagonal) return false;
+  if (piece === "rook" && !straight) return false;
+  if (piece === "queen" && !diagonal && !straight) return false;
+
+  const fileStep = Math.sign(fileDelta);
+  const rankStep = Math.sign(rankDelta);
+  let file = from.charCodeAt(0) + fileStep;
+  let rank = Number(from[1]) + rankStep;
+  while (`${String.fromCharCode(file)}${rank}` !== to) {
+    if (board[`${String.fromCharCode(file)}${rank}`]) return false;
+    file += fileStep;
+    rank += rankStep;
+  }
+  return true;
+}
+
+function applyChessComSanMove(
+  board: Record<string, ChessComBoardPiece>,
+  token: string,
+  ply: number,
+): QueenChallengeCaptureEvent | null {
+  const color: QueenChallengeSide = ply % 2 === 1 ? "white" : "black";
+  const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
+
+  if (normalized === "O-O" || normalized === "O-O-O") {
+    const rank = color === "white" ? "1" : "8";
+    const kingFrom = `e${rank}`;
+    const kingTo = normalized === "O-O" ? `g${rank}` : `c${rank}`;
+    const rookFrom = normalized === "O-O" ? `h${rank}` : `a${rank}`;
+    const rookTo = normalized === "O-O" ? `f${rank}` : `d${rank}`;
+    board[kingTo] = board[kingFrom];
+    board[rookTo] = board[rookFrom];
+    delete board[kingFrom];
+    delete board[rookFrom];
+    return null;
+  }
+
+  const to = chessComTargetSquareFromSan(normalized);
+  if (!to) return null;
+
+  const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
+  const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
+  const candidates = Object.entries(board)
+    .filter(([, piece]) => piece.color === color && piece.piece === movingPiece)
+    .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
+    .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
+
+  const from = candidates[0]?.[0];
+  if (!from) return null;
+
+  const captured = board[to];
+  let capture: QueenChallengeCaptureEvent | null = captured
+    ? { ply, capturedPiece: captured.piece, capturedColor: captured.color }
+    : null;
+
+  if (!captured && movingPiece === "pawn" && from[0] !== to[0]) {
+    const capturedPawnSquare = `${to[0]}${from[1]}`;
+    const enPassantCapture = board[capturedPawnSquare];
+    if (enPassantCapture) {
+      capture = { ply, capturedPiece: enPassantCapture.piece, capturedColor: enPassantCapture.color };
+      delete board[capturedPawnSquare];
+    }
+  }
+
+  delete board[from];
+  board[to] = { color, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
+  return capture;
+}
+
+function chessComQueenChallengeCapturesFromSan(sanMoves: string[]): QueenChallengeCaptureEvent[] {
+  const board = cloneChessComBoard();
+  return sanMoves
+    .map((token, index) => applyChessComSanMove(board, token, index + 1))
+    .filter((capture): capture is QueenChallengeCaptureEvent => Boolean(capture));
+}
+
 function chessComSquareShade(square: string): "dark" | "light" {
   const file = square.charCodeAt(0) - "a".charCodeAt(0) + 1;
   const rank = Number(square[1]);
@@ -384,6 +544,72 @@ function chessComBishopFieldTripFromSan(sanMoves: string[], playerColor: "white"
 
 function chessComColorName(color: "white" | "black") {
   return color === "white" ? "White" : "Black";
+}
+
+function chessComOpponentOf(color: QueenChallengeSide): QueenChallengeSide {
+  return color === "white" ? "black" : "white";
+}
+
+function chessComMoveNumberFromPly(ply: number): number {
+  return Math.ceil(ply / 2);
+}
+
+function evaluateChessComQueenNeverHeardOfHer(game: QueenChallengeGame): QueenChallengeVerdict {
+  const playerColor = game.playerColor;
+  const opponentColor = chessComOpponentOf(playerColor);
+  const playerQueenLoss = game.captures.find(
+    (capture) => capture.capturedPiece === "queen" && capture.capturedColor === playerColor,
+  );
+  const opponentQueenLossBeforePlayerLoss = playerQueenLoss
+    ? game.captures.find(
+        (capture) =>
+          capture.capturedPiece === "queen" &&
+          capture.capturedColor === opponentColor &&
+          capture.ply <= playerQueenLoss.ply,
+      )
+    : undefined;
+  const evidence: string[] = [];
+
+  if (game.variant && game.variant !== "standard") {
+    return { status: "failed", gameId: game.id, summary: "Variants are fun, but this side quest only counts standard chess games.", evidence: [`Variant was ${game.variant}.`] };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return { status: "failed", gameId: game.id, summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.", evidence: [`Time class was ${game.timeClass}.`] };
+  }
+
+  if (game.moveCount < 10) {
+    return { status: "failed", gameId: game.id, summary: "The game ended before the minimum 10-move proof threshold.", evidence: [`Game length was ${game.moveCount} moves.`] };
+  }
+
+  if (game.winner !== playerColor) {
+    return { status: "failed", gameId: game.id, summary: "The queenless arc only counts if the player still wins afterwards.", evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as QueenChallengeSide)}.`] };
+  }
+
+  if (!playerQueenLoss) {
+    return { status: "failed", gameId: game.id, summary: "No player queen loss was detected, which is annoyingly responsible chess.", evidence: [`${chessComColorName(playerColor)} queen stayed on the board in the normalized capture feed.`] };
+  }
+
+  const queenLossMove = chessComMoveNumberFromPly(playerQueenLoss.ply);
+  evidence.push(`${chessComColorName(playerColor)} queen was captured on move ${queenLossMove}.`);
+
+  if (queenLossMove >= 15) {
+    return { status: "failed", gameId: game.id, summary: "The queen went missing, but too late for this particular bad idea.", evidence: [...evidence, "Queen must be lost before move 15."] };
+  }
+
+  if (opponentQueenLossBeforePlayerLoss) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Both queens were already off, so the opponent did not still have theirs at the proof moment.",
+      evidence: [...evidence, `${chessComColorName(opponentColor)} queen was also gone by move ${chessComMoveNumberFromPly(opponentQueenLossBeforePlayerLoss.ply)}.`],
+    };
+  }
+
+  evidence.push(`${chessComColorName(opponentColor)} queen was still present when the queenless run began.`);
+  evidence.push(`${chessComColorName(playerColor)} won after ${game.moveCount} moves.`);
+
+  return { status: "passed", gameId: game.id, summary: "Queen lost before move 15, opponent queen still alive, player still won. Certified queenless nonsense.", evidence };
 }
 
 function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCastleVerdict {
@@ -511,6 +737,84 @@ export async function checkLatestChessComNoCastleClub(username: string): Promise
 
       if (normalizedGames.length) {
         return evaluateChessComNoCastleClub(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+
+export function normalizeChessComQueenNeverHeardOfHerGame(game: ChessComGame, username: string): QueenChallengeGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    captures: chessComQueenChallengeCapturesFromSan(sanMoves),
+  };
+}
+
+export async function checkLatestChessComQueenNeverHeardOfHer(username: string): Promise<QueenChallengeVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest queenless attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComQueenNeverHeardOfHerGame(game, username))
+        .filter((game): game is QueenChallengeGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComQueenNeverHeardOfHer(normalizedGames[0]);
       }
     }
 
