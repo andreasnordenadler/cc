@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 12:38 Europe/Stockholm
+Last updated: 2026-04-28 12:45 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -24,6 +24,7 @@ Users pick ridiculous chess challenges, play real games on Lichess or Chess.com,
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
 - Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
 - Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. Treat near-term releases as private/friends beta readiness, not public-launch pressure.
+- Chess.com test account: Andreas supplied Chess.com username `and72nor` for API testing and future Chess.com quest validation work.
 
 Canonical brief:
 - `docs/CC_V1_PRODUCT_BRIEF_2026-04-25.md`
@@ -43,6 +44,16 @@ Old pre-reset standby roadmap is archived at:
   - Verification: PNG alpha conversion, visual QA, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/challenges`, `/badges`, the three badge routes, and direct PNG asset routes.
 
 ## STRICT ACTIVE QUEUE
+
+- [ ] Build Chess.com latest-game validation path using Andreas test account `and72nor`.
+  - added_at: 2026-04-28 12:45 Europe/Stockholm
+  - source: Andreas supplied Chess.com username `and72nor` to test the Chess.com API for quest validation.
+  - Acceptance:
+    - Chess.com public archives are fetched safely with SQC User-Agent and clear pending/error states.
+    - Latest eligible Chess.com games can be normalized into the same verifier input shape used by Lichess where practical.
+    - At least one existing win-required quest can be verified from Chess.com without requiring a pasted game URL.
+    - Fixture/test coverage uses real observed Chess.com archive shape from `and72nor` without storing private data beyond public game metadata.
+  - Initial probe: `https://api.chess.com/pub/player/and72nor` and `/games/archives` returned 200; public archives include 2023/04 and 2024/01, with January 2024 games exposing `url`, `pgn`, `white/black.result`, `end_time`, `time_class`, and `rules`.
 
 - [ ] Prepare SQC for polished friends/private beta before any public launch push.
   - added_at: 2026-04-28 12:38 Europe/Stockholm
