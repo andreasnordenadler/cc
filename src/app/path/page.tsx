@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Starter path — Side Quest Chess",
   description:
-    "A three-dare beginner path for Side Quest Chess: simple weirdness first, then two gentle escalations.",
+    "A three-dare beginner path for Side Quest Chess: simple weirdness first, then two gentle win-required escalations.",
   alternates: { canonical: "/path" },
   openGraph: {
     title: "Starter path — Side Quest Chess",
@@ -109,7 +109,7 @@ export default async function StarterPathPage() {
             <span className="badge green">v1 onboarding</span>
           </div>
           <p>
-            The product can still stay mischievous while giving beginners one obvious way in: move only knights first, develop both bishops before the queen, then try one early king walk without turning the product into chess homework.
+            The product can still stay mischievous while giving beginners one obvious way in: move only knights first and win, develop both bishops before the queen and win, then try one early king walk and win without turning the product into chess homework.
           </p>
         </section>
       </div>

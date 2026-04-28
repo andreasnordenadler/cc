@@ -13,19 +13,19 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
     state: "spec",
     summary: "Beginner quest specified; verifier next",
     evidence:
-      "Will check that the player’s first four moves are all knight moves, then that the game finished in standard chess.",
+      "Will check that the player’s first four moves are all knight moves, then that the player won a standard chess game.",
   },
   "bishop-field-trip": {
     state: "spec",
     summary: "Beginner quest specified; verifier next",
     evidence:
-      "Will check that both player bishops moved before the player queen moved, then that the game finished in standard chess.",
+      "Will check that both player bishops moved before the player queen moved, then that the player won a standard chess game.",
   },
   "early-king-walk": {
     state: "spec",
     summary: "Beginner quest specified; verifier next",
     evidence:
-      "Will check a non-castling king move before the player’s move 12, then that the game finished in standard chess.",
+      "Will check a non-castling king move before the player’s move 12, then that the player won a standard chess game.",
   },
   "queen-never-heard-of-her": {
     state: "live",

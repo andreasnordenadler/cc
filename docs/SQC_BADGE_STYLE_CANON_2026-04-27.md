@@ -50,3 +50,9 @@ The CSS coat-of-arms token renderer remains as an accessible/fallback path for f
 Use the supplied queenless badge as a **style reference only**, then vary challenge symbolism:
 
 > Create a matching Side Quest Chess collectible illustrated heraldic badge asset for the challenge `[challenge title]`. Use the provided queenless badge image only as a style reference, not as content to copy. Transparent-background PNG asset, ornate freestanding heraldic shield, black and gold linework, saturated `[challenge accent]` palette, fantasy collectible feel. No square card background. No box-inside-a-box framing. Symbolism: `[specific chess symbols and joke mythology]`. Motto ribbon text `[short motto]`. Centered high-detail badge, crisp readable silhouette, no app UI, no people, no photorealism.
+
+On 2026-04-28, three beginner path badges were added in the same illustrated coat-of-arms style:
+
+- `Knights Before Coffee` → `public/badges/knights-before-coffee-badge.png`
+- `Bishop Field Trip` → `public/badges/bishop-field-trip-badge.png`
+- `Early King Walk` → `public/badges/early-king-walk-badge.png`

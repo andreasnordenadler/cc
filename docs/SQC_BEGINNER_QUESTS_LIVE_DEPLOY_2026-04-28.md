@@ -31,3 +31,12 @@ Added three beginner Side Quest Chess quests and rewired the starter path to use
 - `/account` HTTP 200 and contains `Quest launcher` + `live verifiers`.
 - `/verifiers` HTTP 200 and contains `Knights Before Coffee` + `Specified`.
 - 500/502/503/504 scan in recent production logs returned no matching entries.
+
+## Follow-up correction — win required + badges
+Andreas clarified that every SQC quest should require a win. The three beginner quests now require wins in objectives, rules, proof callouts, and metadata requirements. Generated and wired illustrated coat-of-arms badge assets for all three beginner quests:
+
+- `public/badges/knights-before-coffee-badge.png`
+- `public/badges/bishop-field-trip-badge.png`
+- `public/badges/early-king-walk-badge.png`
+
+Image QA passed for ornate/centered/usable coat-of-arms styling; `Bishop Field Trip` has tiny permission-slip text that may be less readable at small sizes, but the main badge/motto composition is usable.

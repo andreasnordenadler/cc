@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 11:12 Europe/Stockholm
+Last updated: 2026-04-28 11:36 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -22,6 +22,7 @@ Users pick ridiculous chess challenges, play real games on Lichess or Chess.com,
 - Correct feel: a smart chess friend daring you to do something dumb
 - Primary loop: pick challenge → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend challenge
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
+- Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
 
 Canonical brief:
 - `docs/CC_V1_PRODUCT_BRIEF_2026-04-25.md`
@@ -30,6 +31,17 @@ Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Correct beginner quests to require wins and add illustrated coat-of-arms assets.
+  - added_at: 2026-04-28 11:27 Europe/Stockholm
+  - completed_at: 2026-04-28 11:36 Europe/Stockholm
+  - source: Andreas clarified that every quest should require a win and asked for the new quests to get coat-of-arms badges like the others.
+  - Acceptance:
+    - New beginner quest objectives/rules/proof callouts require winning, not just finishing.
+    - SQC canon records that quests should require wins by default.
+    - Each new beginner quest has a generated illustrated coat-of-arms badge wired into challenge metadata.
+    - Badge assets follow the existing SQC badge style canon.
+  - Verification: generated badge QA, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/path`, `/challenges`, the three new detail pages, `/badges`, and `/account`.
 
 - [x] Introduce three beginner quests and make the starter path use them.
   - added_at: 2026-04-28 11:05 Europe/Stockholm
