@@ -60,6 +60,11 @@ import {
   oneBishopToRuleThemAllFixtures,
 } from "@/lib/one-bishop-to-rule-them-all";
 import {
+  blunderGambitFixtures,
+  checkLatestLichessBlunderGambit,
+  evaluateBlunderGambit,
+} from "@/lib/the-blunder-gambit";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -244,6 +249,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = oneBishopToRuleThemAllFixtures[attemptCount % oneBishopToRuleThemAllFixtures.length];
     const verdict = evaluateOneBishopToRuleThemAll(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "the-blunder-gambit") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessBlunderGambit(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = blunderGambitFixtures[attemptCount % blunderGambitFixtures.length];
+    const verdict = evaluateBlunderGambit(fixture);
 
     return {
       status: verdict.status,

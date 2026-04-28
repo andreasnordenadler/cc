@@ -31,6 +31,18 @@ Old pre-reset standby roadmap is archived at:
 
 ## STRICT ACTIVE QUEUE
 
+- [x] Implement CC v1 Phase 32: promote The Blunder Gambit to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 08:40 Europe/Stockholm
+  - completed_at: 2026-04-28 08:50 Europe/Stockholm
+  - estimate: 1 bounded verifier/product-trust burst
+  - Acceptance:
+    - `The Blunder Gambit` checks real Lichess latest-game move history for player wins after an early unbalanced knight/bishop/rook loss by move 10.
+    - UCI move normalization derives capture evidence without PGN upload, engine analysis, or fake-success framing.
+    - Active challenge latest-game checks use the live Blunder Gambit verifier when a Lichess username is saved, with deterministic fallback fixtures for review.
+    - `/verifiers` and verifier badges mark `The Blunder Gambit` as live-backed, completing live-backed status across the starter deck.
+  - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs tests/pawn-storm-maniac-fixtures.mjs tests/knightmare-mode-fixtures.mjs tests/rookless-rampage-fixtures.mjs tests/one-bishop-to-rule-them-all-fixtures.mjs tests/the-blunder-gambit-fixtures.mjs`, `pnpm lint`, `pnpm build`, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/the-blunder-gambit`, `/account`, and `/api/og/dare/the-blunder-gambit`, plus bounded Vercel production error-log scan.
+  - Proof: new verifier module `src/lib/the-blunder-gambit.ts`, fixture tests `tests/the-blunder-gambit-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-op1r9vtsq-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; production smoke passed for `/verifiers`, `/challenges/the-blunder-gambit`, `/account`, and `/api/og/dare/the-blunder-gambit`; Vercel production error-log scan returned 0 error log lines; proof note `docs/SQC_BLUNDER_GAMBIT_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`.
+
 - [x] Enlarge the right-side chessboard watermark squares 5x.
   - added_at: 2026-04-28 08:27 Europe/Stockholm
   - completed_at: 2026-04-28 08:28 Europe/Stockholm

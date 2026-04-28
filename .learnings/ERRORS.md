@@ -958,3 +958,10 @@ Use absolute system paths such as `/usr/bin/curl` and `/usr/bin/head` for smoke 
 Use a bounded `timeout` around `vercel logs <deployment>` and grep the streamed output, or skip with an explicit blocker if logs are unavailable.
 
 ---
+
+## [ERR-20260428-001] Smoke/log command assumptions in CC burst
+
+**Logged**: 2026-04-28T08:46:00+02:00
+**Priority**: low
+
+During the SQC Blunder Gambit verifier deploy smoke, `curl` was unavailable in this environment and `vercel logs <deployment> --since 30m` failed because deployment arguments imply `--follow` unless `--no-follow` is provided. Use Python `urllib` for HTTP smoke when `curl` is missing, and use `vercel logs --environment production --level error --since 30m --no-branch` (or deployment URL with `--no-follow`) for bounded log scans.

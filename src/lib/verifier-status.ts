@@ -22,10 +22,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Checks player win, zero player castling, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "the-blunder-gambit": {
-    state: "spec",
-    summary: "Rule spec ready; material-loss detector queued",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will need early material swing evidence before move 10 plus final result checks, without engine scoring.",
+      "Checks player win, early unbalanced knight/bishop/rook loss by move 10, no equal immediate reply, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "pawn-storm-maniac": {
     state: "live",
