@@ -43,6 +43,7 @@ export default async function Home() {
               <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
               <Link href="/rules" className="button secondary">Read the rulebook</Link>
               <Link href="/verifiers" className="button secondary">Open verifier board</Link>
+              <Link href="/beta" className="button secondary">Private beta notes</Link>
               <Link href="/share-kit" className="button secondary">Open share kit</Link>
               <Link href="/proof-log" className="button secondary">View proof log</Link>
             </div>
@@ -122,6 +123,13 @@ export default async function Home() {
             <h2>Funny dares. Serious receipts.</h2>
             <p>The proof explainer shows how SQC verifies real games without PGN homework, engine dashboards, or fake success copy.</p>
             <Link href="/rules" className="button secondary">Read the rulebook</Link>
+          </article>
+
+          <article className="mission-card">
+            <span className="eyebrow">Private beta</span>
+            <h2>Test the loop before launch hype.</h2>
+            <p>A beta note now explains what is ready, how to test, what chess data SQC uses, and how friends should report confusing verifier outcomes.</p>
+            <Link href="/beta" className="button primary">Open beta notes</Link>
           </article>
 
           <article className="mission-card">

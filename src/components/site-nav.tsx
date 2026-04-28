@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
-type ActiveNavItem = "home" | "today" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log";
+type ActiveNavItem = "home" | "today" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log" | "beta";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -29,6 +29,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           <Link href="/scoreboard" className={active === "scoreboard" ? "active" : undefined}>Score</Link>
           <Link href="/rules" className={active === "rules" ? "active" : undefined}>Rules</Link>
           <Link href="/verifiers" className={active === "verifiers" ? "active" : undefined}>Verifiers</Link>
+          <Link href="/beta" className={active === "beta" ? "active" : undefined}>Beta</Link>
           <Link href="/share-kit" className={active === "share-kit" ? "active" : undefined}>Share kit</Link>
           <Link href="/connect" className={active === "connect" ? "active" : undefined}>Connect</Link>
           <Link href="/result" className={active === "result" ? "active" : undefined}>Proof card</Link>
