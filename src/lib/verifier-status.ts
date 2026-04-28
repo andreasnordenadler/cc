@@ -46,10 +46,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Checks player win, both original player rooks captured before move 20, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "one-bishop-to-rule-them-all": {
-    state: "spec",
-    summary: "Rule spec ready; bishop-survival detector queued",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will prove only one bishop remained after move 12 and that the surviving bishop stayed on board through victory.",
+      "Checks player win, exactly one final player bishop, zero final player knights, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
 };
 

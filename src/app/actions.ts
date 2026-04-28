@@ -55,6 +55,11 @@ import {
   rooklessRampageFixtures,
 } from "@/lib/rookless-rampage";
 import {
+  checkLatestLichessOneBishopToRuleThemAll,
+  evaluateOneBishopToRuleThemAll,
+  oneBishopToRuleThemAllFixtures,
+} from "@/lib/one-bishop-to-rule-them-all";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -109,6 +114,13 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
       status: "failed",
       gameId: "latest-game-tower-still-standing",
       summary: "The latest game still had at least one original rook standing before move 20. Demolition permit denied.",
+    },
+  ],
+  "one-bishop-to-rule-them-all": [
+    {
+      status: "failed",
+      gameId: "latest-game-too-much-middle-management",
+      summary: "The latest game did not end with exactly one bishop as your only minor piece. The department is not lonely enough yet.",
     },
   ],
 };
@@ -211,6 +223,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = rooklessRampageFixtures[attemptCount % rooklessRampageFixtures.length];
     const verdict = evaluateRooklessRampage(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "one-bishop-to-rule-them-all") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessOneBishopToRuleThemAll(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = oneBishopToRuleThemAllFixtures[attemptCount % oneBishopToRuleThemAllFixtures.length];
+    const verdict = evaluateOneBishopToRuleThemAll(fixture);
 
     return {
       status: verdict.status,

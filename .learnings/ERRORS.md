@@ -510,3 +510,451 @@ For recurring OpenClaw smoke checks on this Mac, prefer small Node `fetch` scrip
 - Tags: smoke-checks, shell-tooling, vercel
 
 ---
+
+## [ERR-20260427-001] local_smoke_curl_missing
+
+**Logged**: 2026-04-27T13:43:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+Local smoke command assumed `curl`, but this environment's shell path did not provide it.
+
+### Error
+```text
+zsh:4: command not found: curl
+```
+
+### Context
+- Attempted route smoke for the Side Quest Chess `/share-kit` burst.
+- Switched to Python `urllib.request` for local HTTP smoke checks.
+
+### Suggested Fix
+Prefer Python/Node HTTP smoke helpers in this repo when `curl` availability is uncertain.
+
+### Metadata
+- Reproducible: yes
+- Related Files: none
+
+---
+
+## [ERR-20260427-002] vercel_logs_since_flag_misuse
+
+**Logged**: 2026-04-27T13:47:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+Tried to scan Vercel logs with `--since 30m`, but this CLI version treated filtering as incompatible with follow mode.
+
+### Error
+```text
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Attempted post-deploy error scan for Side Quest Chess share-kit deployment.
+- Route smoke had already passed.
+
+### Suggested Fix
+Check `vercel logs --help` before assuming flags; use the CLI-supported recent log syntax or bounded timeout without unsupported filters.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: none
+
+---
+
+## [ERR-20260427-003] git_push_remote_ref_advanced
+
+**Logged**: 2026-04-27T13:52:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: git
+
+### Summary
+`git push` for the SQC share-kit commit was rejected because remote `main` advanced after the local base commit.
+
+### Error
+```text
+cannot lock ref 'refs/heads/main': is at 777bf2ec... but expected d615b7a...
+```
+
+### Context
+- Local share-kit commit was created on an older main while another burst/session had pushed newer commits.
+- Plan: rebase with autostash to preserve unrelated local dirty files, then push again.
+
+### Suggested Fix
+Before committing autonomous bursts in busy repos, fetch first or use a rebase/autostash push path when remote advances.
+
+### Metadata
+- Reproducible: yes in concurrent work
+- Related Files: git history
+
+---
+
+## [ERR-20260427-001] local_smoke_next_start_cli_args
+
+**Logged**: 2026-04-27T14:49:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Local production smoke initially failed because `pnpm start -- --port 3123` passed `--port` as a project directory to Next.js.
+
+### Details
+For this Next.js app, `next start` should be run directly as `pnpm exec next start -p <port>` for ad-hoc local production smoke checks. The retry succeeded and route smoke passed.
+
+### Suggested Action
+Use `pnpm exec next start -p 3123` for future bounded CC production-mode local smokes.
+
+### Metadata
+- Source: error
+- Related Files: package.json
+- Tags: nextjs, smoke-test, cli
+
+---
+
+## [ERR-20260427-CC-SMOKE-CLI]
+
+**Logged**: 2026-04-27T16:47:00+02:00
+**Context**: CC / Side Quest Chess verifier-status badge deploy verification.
+**What happened**: Two smoke/log commands used wrong assumptions: `pnpm start -- --port 3047` made Next treat `--port` as a project directory, and `vercel logs --since 30m` failed because this CLI version treats logs as follow-mode and does not support that filter.
+**Impact**: No product impact; verification was rerun successfully with `pnpm exec next start -p 3047` and bounded `timeout 20s vercel logs ...`.
+**Do differently**: For local Next production smoke in this repo, use `pnpm exec next start -p <port>`. For Vercel log scans, wrap `vercel logs <deployment>` in `timeout` instead of relying on `--since`.
+
+## [ERR-20260427-002] vercel_deploy_ready_after_cli_error
+
+**Logged**: 2026-04-27T17:44:30+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel --prod --yes` returned exit code 1 with `Deployment not found`, but `vercel inspect` showed the deployment continued building and became Ready/aliased shortly after.
+
+### Details
+The CC deploy URL was `https://cc-j5ij7v9lr-andreas-nordenadlers-projects.vercel.app`. The CLI command exited before the deployment reached Ready, while a follow-up inspect confirmed status Ready and aliases for `sidequestchess.com`.
+
+### Suggested Action
+When Vercel CLI returns this transient error after printing a production URL, inspect that URL before retrying or declaring failure.
+
+### Metadata
+- Source: error
+- Tags: vercel, deploy, transient
+
+---
+
+## [ERR-20260427-003] vercel_logs_since_flag_unsupported
+
+**Logged**: 2026-04-27T17:49:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs https://sidequestchess.com --since 30m` failed because this Vercel CLI treats logs as follow-mode and does not support filtering.
+
+### Details
+The command returned: `The --follow flag does not support filtering. Remove: --since`.
+
+### Suggested Action
+For bounded deploy scans in this environment, use a short `timeout` around unfiltered `vercel logs` or inspect deployment logs instead of passing `--since`.
+
+### Metadata
+- Source: error
+- Tags: vercel, logs
+
+---
+
+## [ERR-20260427-001] no-castle-test-assertion-wording
+
+**Logged**: 2026-04-27T16:44:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A new No Castle Club fixture test failed because the assertion expected `castled` while the product summary used `castle`.
+
+### Error
+```
+assert.match(..., /castled/) failed for: "The king took the sensible kingside castle. Club membership denied."
+```
+
+### Context
+- Command attempted: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs && pnpm lint && pnpm build`
+- The implementation behavior was fine; the test regex was too narrow for the intended copy.
+
+### Suggested Fix
+Use resilient assertions for product-copy tests when exact tense is not the contract.
+
+### Metadata
+- Reproducible: yes
+- Related Files: tests/no-castle-club-fixtures.mjs
+
+---
+
+## [ERR-20260427-002] smoke-command-path-resolution
+
+**Logged**: 2026-04-27T16:47:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A production smoke command failed because `curl` and `python3` were not found in the shell PATH for that exec invocation.
+
+### Error
+```
+zsh:4: command not found: curl
+zsh:4: command not found: python3
+```
+
+### Context
+- Command attempted: route smoke loop for `https://sidequestchess.com` after Vercel deployment.
+- Retried with absolute tool paths.
+
+### Suggested Fix
+Use `/usr/bin/curl` and `/usr/bin/python3` in smoke scripts when PATH resolution is suspicious.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: docs/SQC_NO_CASTLE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-27.md
+
+---
+
+## [ERR-20260427-003] vercel-logs-follow-filter-conflict
+
+**Logged**: 2026-04-27T16:46:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment-url> --since 30m` failed because deployment URL arguments imply follow mode, which cannot be combined with filtering.
+
+### Error
+```
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Command attempted after production deploy for bounded error-log scan.
+- Correct pattern is `vercel logs --environment production --level error --since 30m --no-branch --limit N` for filtered historical logs.
+
+### Suggested Fix
+Avoid positional deployment URL when using filtered Vercel log scans.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_NO_CASTLE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-27.md
+
+---
+
+## [ERR-20260427-004] git-status-outside-repo-path
+
+**Logged**: 2026-04-27T16:48:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: git
+
+### Summary
+`git status` failed when asked to include a workspace memory file outside the `cc` repository.
+
+### Error
+```
+fatal: /Users/sam/.openclaw/workspace/memory/2026-04-27.md: is outside repository at /Users/sam/.openclaw/workspace/cc
+```
+
+### Context
+- Command attempted to verify changed project files and a workspace memory file in one repo-scoped status call.
+
+### Suggested Fix
+Check repository files and workspace-level memory files separately.
+
+### Metadata
+- Reproducible: yes
+- Related Files: memory/2026-04-27.md
+
+---
+
+## [ERR-20260427-001] vercel_logs_since_with_deployment_arg
+
+**Logged**: 2026-04-27T21:40:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs sidequestchess.com --since 30m` failed because deployment/URL log streaming implies `--follow`, and this CLI version does not allow filtering with follow.
+
+### Suggested Action
+For bounded production error scans, use project-scoped non-follow filters instead: `vercel logs --environment production --since 30m --status-code 500 --no-follow --limit 20`.
+
+---
+
+## [ERR-20260428-001] pawn_storm_fixture_move_count
+
+**Logged**: 2026-04-28T01:40:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Initial Pawn Storm Maniac normalizer test expected a pass, but the UCI fixture had fewer than the 20 moves required by the verifier.
+
+### Details
+The verifier correctly rejected the fixture as too short. The test fixture was extended past 20 moves while preserving six distinct player pawn starts before move 15.
+
+### Suggested Action
+When creating move-list verifier fixtures, count total plies against the minimum move threshold before asserting the challenge predicate.
+
+---
+
+## [ERR-20260428-002] shell_path_coreutils_missing
+
+**Logged**: 2026-04-28T01:40:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A local smoke command failed because the non-login zsh environment could not find common utilities (`curl`, `grep`, `tr`, `head`) by bare name.
+
+### Details
+The verification command used bare utility names in a compact loop and produced `command not found`. Retrying with absolute system paths is the safe local workaround for this environment.
+
+### Suggested Action
+Use absolute paths for core smoke-check utilities when PATH looks unreliable in cron/autonomous bursts.
+
+---
+
+## [ERR-20260428-003] vercel_logs_since_unsupported
+
+**Logged**: 2026-04-28T01:40:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 30m` failed because this Vercel CLI treats logs as follow-mode and does not support that filter.
+
+### Details
+The CLI returned: `The --follow flag does not support filtering. Remove: --since`. Use the project/deployment dashboard or an unfiltered bounded timeout instead when scanning immediately after deploy.
+
+### Suggested Action
+Avoid `--since` with this Vercel CLI logs command in autonomous deploy proof scripts.
+
+---
+
+## [ERR-20260428-001] local_smoke_missing_path_tools
+
+**Logged**: 2026-04-28T03:48:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+Local smoke command failed because this shell could not resolve `curl` or `grep` from PATH.
+
+### Details
+During a CC autonomous burst, the route-smoke one-liner used bare `curl`/`grep`; zsh returned `command not found` for both.
+
+### Suggested Action
+For this Mac/OpenClaw environment, use absolute paths like `/usr/bin/curl` and `/usr/bin/grep`, or check `command -v` before route-smoke snippets.
+
+### Metadata
+- Source: error
+- Related Files: ROADMAP.md
+- Tags: smoke, shell-path, openclaw
+
+---
+
+## [ERR-20260428-002] vercel_logs_follow_since_conflict
+
+**Logged**: 2026-04-28T03:51:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs <deployment-url> --since 30m` failed because deployment URLs imply follow mode, which conflicts with filtering.
+
+### Details
+Vercel CLI 50.20.0 reported: `The --follow flag does not support filtering. Remove: --since`.
+
+### Suggested Action
+For bounded filtered scans, use linked-project filters without a deployment URL, or pass `--no-follow` when targeting a deployment.
+
+### Metadata
+- Source: error
+- Tags: vercel, logs, deploy-verify
+
+---
+
+## [ERR-20260428-001] local smoke port collision
+
+**Logged**: 2026-04-28T03:55:00Z
+**Priority**: low
+
+Local CC smoke attempted `pnpm start --port 3111`, but port 3111 was already in use by an unrelated server returning 404s, so the readiness loop failed.
+
+**Resolution**: Retry one-off local smoke on a less likely high port and check the start log when readiness returns unexpected 404s.
+
+## [ERR-20260428-002] Vercel logs implicit follow filtering
+
+**Logged**: 2026-04-28T04:01:00Z
+**Priority**: low
+
+`vercel logs <deployment-url> --since 30m` failed because deployment-url mode implies `--follow`, and this CLI does not allow filtering while following.
+
+**Resolution**: Use `vercel logs --environment production --since 30m --level error --no-branch` or add `--no-follow` when querying a specific deployment URL.
+
+## [ERR-20260428-001] one-bishop-verifier-fixture
+
+**Logged**: 2026-04-28T05:45:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Initial One Bishop verifier UCI normalizer fixture failed because the crafted move sequence left the original b1 knight on the board.
+
+### Resolution
+Updated the fixture move sequence to remove both white knights and one bishop before asserting the final single-bishop state.
+
+---
+
+## [ERR-20260428-002] local-route-smoke-path
+
+**Logged**: 2026-04-28T05:47:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+Local route smoke failed because the non-login shell did not have `curl`/`head` on PATH.
+
+### Resolution
+Use absolute system paths such as `/usr/bin/curl` and `/usr/bin/head` for smoke scripts in this environment.
+
+---
+
+## [ERR-20260428-003] vercel-logs-since-flag
+
+**Logged**: 2026-04-28T05:52:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 30m` failed because the installed Vercel CLI treats logs as follow mode and does not support `--since` filtering there.
+
+### Resolution
+Use a bounded `timeout` around `vercel logs <deployment>` and grep the streamed output, or skip with an explicit blocker if logs are unavailable.
+
+---
