@@ -40,3 +40,14 @@ Andreas clarified that every SQC quest should require a win. The three beginner 
 - `public/badges/early-king-walk-badge.png`
 
 Image QA passed for ornate/centered/usable coat-of-arms styling; `Bishop Field Trip` has tiny permission-slip text that may be less readable at small sizes, but the main badge/motto composition is usable.
+
+## Follow-up production deploy — win required + badges
+- Commit: `177a928` (`Require wins and badge beginner quests`)
+- Deployment: `https://cc-b936g8ods-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+- `pnpm lint` passed.
+- `pnpm build` passed.
+- Generated image QA passed for all three new beginner coat-of-arms assets.
+- Live smoke passed for `/path`, `/challenges`, `/challenges/knights-before-coffee`, `/challenges/bishop-field-trip`, `/challenges/early-king-walk`, `/badges`, and `/account`.
+- Badge asset smoke passed for `/badges/knights-before-coffee-badge.png`, `/badges/bishop-field-trip-badge.png`, and `/badges/early-king-walk-badge.png` (HTTP 200 `image/png`).
+- 500/502/503/504 scan in recent production logs returned no matching entries.
