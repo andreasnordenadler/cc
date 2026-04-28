@@ -134,6 +134,7 @@ p { color: var(--muted); line-height: 1.5; }
 .badge.gold { background: var(--gold); }
 .badge.blue { background: var(--blue); }
 .badge.green { background: var(--green); }
+.badge.success { background: var(--green); }
 
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }

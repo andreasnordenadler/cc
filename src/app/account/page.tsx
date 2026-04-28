@@ -2,8 +2,9 @@ import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
-import { checkActiveChallenge } from "@/app/actions";
+import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -117,6 +118,47 @@ export default async function AccountPage() {
               {activeChallengeRecord ? "Continue dare" : "Pick a bad idea"}
             </Link>
           </article>
+        </section>
+
+        <section className="mission-card quest-launch-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Quest launcher</span>
+              <h2>Pick a live-backed dare without leaving the test drive.</h2>
+            </div>
+            <span className="badge green">{CHALLENGES.length} live verifiers</span>
+          </div>
+          <p>
+            Every starter dare can now be selected directly from the account page, so the login → profile → quest → latest-game check loop is testable from one place.
+          </p>
+          <div className="grid">
+            {CHALLENGES.map((challenge) => {
+              const verifierStatus = getVerifierStatus(challenge);
+              const verifierLabel = getVerifierStateLabel(verifierStatus);
+              const isActiveChallenge = activeChallengeRecord?.id === challenge.id;
+
+              return (
+                <article className="fact" key={challenge.id}>
+                  <span>{challenge.difficulty} · +{challenge.reward} pts</span>
+                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
+                  <strong>{challenge.title}</strong>
+                  <p>{challenge.objective}</p>
+                  <span className={verifierLabel.className}>{verifierLabel.label}</span>
+                  {user ? (
+                    <form action={startChallenge} className="button-row">
+                      <input type="hidden" name="challengeId" value={challenge.id} />
+                      <button type="submit" className={isActiveChallenge ? "button secondary" : "button primary"}>
+                        {isActiveChallenge ? "Active now" : "Make active"}
+                      </button>
+                      <Link href={`/challenges/${challenge.id}`} className="button secondary">Rules</Link>
+                    </form>
+                  ) : (
+                    <Link href={`/challenges/${challenge.id}`} className="button secondary">Preview rules</Link>
+                  )}
+                </article>
+              );
+            })}
+          </div>
         </section>
 
         <section className="mission-card">

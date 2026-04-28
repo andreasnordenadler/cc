@@ -31,6 +31,17 @@ Old pre-reset standby roadmap is archived at:
 
 ## STRICT ACTIVE QUEUE
 
+- [x] Add an account-page quest launcher so the test-drive flow can start any live-backed starter dare from `/account`.
+  - added_at: 2026-04-28 10:40 Europe/Stockholm
+  - completed_at: 2026-04-28 10:47 Europe/Stockholm
+  - source: continue the SQC account test-drive path so Andreas can test profile setup, quest selection, latest-game checking, and result review without route hunting.
+  - Acceptance:
+    - `/account` shows every starter dare with badge art, difficulty, reward points, and live-backed verifier status.
+    - Signed-in runners can make a quest active directly from `/account`; signed-out visitors get rule-preview links.
+    - Existing auth, verifier rules, metadata shape, and result receipts are unchanged.
+  - Verification: `pnpm lint`, `pnpm build`, production deploy, live `/account` smoke on deploy URL and `sidequestchess.com`, `/challenges` and `/result` smoke, and bounded Vercel deployment log watch.
+  - Proof: added `docs/SQC_ACCOUNT_QUEST_LAUNCHER_LIVE_DEPLOY_2026-04-28.md`; live deployment `https://cc-blg3xvowx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; `/account` live smoke confirmed `Quest launcher`, `Pick a live-backed dare`, and `Preview rules`; `/challenges` and `/result` returned HTTP 200; Vercel deployment log stream showed no fresh error output during the bounded watch.
+
 - [x] Add an account-page end-to-end test-drive checklist for the SQC login/profile/quest/result loop.
   - added_at: 2026-04-28 09:40 Europe/Stockholm
   - completed_at: 2026-04-28 09:52 Europe/Stockholm
