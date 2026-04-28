@@ -454,6 +454,19 @@ Old pre-reset standby roadmap is archived at:
   - Proof: created `docs/SQC_COMBO_QUESTS_SPEC_2026-04-27.md`, defining the `Quest Stack`/`Combo Run`/`Bad Idea Pile` UX, 2–3 quest selection limits, compatibility rules, starter stack matrix, scoring multipliers, shared normalized-game verifier contract, first shippable Queenless + No Castle Club stack, and non-goals to keep this a future add-on rather than a v1 blocker.
 
 
+
+- [x] Implement CC v1 Phase 30: promote Rookless Rampage to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 05:40 Europe/Stockholm
+  - completed_at: 2026-04-28 05:58 Europe/Stockholm
+  - estimate: 1 bounded verifier/product-trust burst
+  - Acceptance:
+    - `Rookless Rampage` checks real Lichess latest-game move history for player wins after both original player rooks disappear before move 20
+    - UCI move normalization tracks original rook identity even after rook movement/castling, so captures of moved rooks still count
+    - active challenge latest-game checks use the live Rookless verifier when a Lichess username is saved, with deterministic fallback fixtures for review
+    - `/verifiers` and verifier badges mark `Rookless Rampage` as live-backed without changing specified-only claims for the remaining starter-deck challenges
+  - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs tests/pawn-storm-maniac-fixtures.mjs tests/knightmare-mode-fixtures.mjs tests/rookless-rampage-fixtures.mjs`, `pnpm lint`, `pnpm build`, local route smoke, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/rookless-rampage`, `/account`, and `/api/og/dare/rookless-rampage`, plus Vercel production error-log scan.
+  - Proof: new verifier module `src/lib/rookless-rampage.ts`, fixture tests `tests/rookless-rampage-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-gzih5276z-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; production smoke passed for `/verifiers`, `/challenges/rookless-rampage`, `/account`, and `/api/og/dare/rookless-rampage`; proof note `docs/SQC_ROOKLESS_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`.
+
 ## Proof rules
 
 - Do not claim public/live/domain progress until a live URL is deployed and smoke-verified.

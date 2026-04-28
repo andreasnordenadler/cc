@@ -40,10 +40,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Checks player win by checkmate, final move made by the player, final move piece was a knight, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "rookless-rampage": {
-    state: "spec",
-    summary: "Rule spec ready; rook-loss timeline queued",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will prove both rooks disappeared before move 20 while the final receipt still records a player win.",
+      "Checks player win, both original player rooks captured before move 20, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "one-bishop-to-rule-them-all": {
     state: "spec",

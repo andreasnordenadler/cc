@@ -50,6 +50,11 @@ import {
   knightmareModeFixtures,
 } from "@/lib/knightmare-mode";
 import {
+  checkLatestLichessRooklessRampage,
+  evaluateRooklessRampage,
+  rooklessRampageFixtures,
+} from "@/lib/rookless-rampage";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -97,6 +102,13 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
       status: "failed",
       gameId: "latest-game-not-horse-paperwork",
       summary: "The latest game did not end with a knight checkmate. The horse remains dramatic, but uncredited.",
+    },
+  ],
+  "rookless-rampage": [
+    {
+      status: "failed",
+      gameId: "latest-game-tower-still-standing",
+      summary: "The latest game still had at least one original rook standing before move 20. Demolition permit denied.",
     },
   ],
 };
@@ -178,6 +190,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = knightmareModeFixtures[attemptCount % knightmareModeFixtures.length];
     const verdict = evaluateKnightmareMode(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "rookless-rampage") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessRooklessRampage(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = rooklessRampageFixtures[attemptCount % rooklessRampageFixtures.length];
+    const verdict = evaluateRooklessRampage(fixture);
 
     return {
       status: verdict.status,
