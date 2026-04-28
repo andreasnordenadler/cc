@@ -32,6 +32,17 @@ Old pre-reset standby roadmap is archived at:
 
 ## STRICT ACTIVE QUEUE
 
+- [x] Promote Knights Before Coffee to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 11:40 Europe/Stockholm
+  - completed_at: 2026-04-28 11:49 Europe/Stockholm
+  - source: autonomous bounded burst after Andreas clarified beginner quests should be win-required and visually badged; highest visible next value was making the first beginner quest actually live-backed.
+  - Acceptance:
+    - `Knights Before Coffee` latest-game checks normalize Lichess move feeds and verify the first four player moves were knight moves.
+    - The quest still requires a player win, standard chess, and the existing bullet/blitz/rapid v1 eligibility posture.
+    - `/verifiers`, `/account`, and the challenge detail page show it as live-backed rather than specified-only.
+  - Verification: `pnpm --dir /Users/sam/.openclaw/workspace/cc exec node --experimental-strip-types --test tests/knights-before-coffee-fixtures.mjs`, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/verifiers`, `/challenges/knights-before-coffee`, `/account`, and `/path`, plus bounded Vercel deployment log watch.
+  - Proof: added `docs/SQC_KNIGHTS_BEFORE_COFFEE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`; live deployment `https://cc-aeb041pe2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `Knights Before Coffee`, `Live-backed`, and `first four player moves` on production surfaces.
+
 - [x] Correct beginner quests to require wins and add illustrated coat-of-arms assets.
   - added_at: 2026-04-28 11:27 Europe/Stockholm
   - completed_at: 2026-04-28 11:36 Europe/Stockholm

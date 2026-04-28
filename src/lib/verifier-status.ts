@@ -10,10 +10,10 @@ export type VerifierStatus = {
 
 export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   "knights-before-coffee": {
-    state: "spec",
-    summary: "Beginner quest specified; verifier next",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will check that the player’s first four moves are all knight moves, then that the player won a standard chess game.",
+      "Checks player win, first four player moves all being knight moves, legal time class, and standard chess from normalized Lichess moves.",
   },
   "bishop-field-trip": {
     state: "spec",

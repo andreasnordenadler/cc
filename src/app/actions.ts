@@ -66,6 +66,11 @@ import {
   evaluateBlunderGambit,
 } from "@/lib/the-blunder-gambit";
 import {
+  checkLatestLichessKnightsBeforeCoffee,
+  evaluateKnightsBeforeCoffee,
+  knightsBeforeCoffeeFixtures,
+} from "@/lib/knights-before-coffee";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -132,6 +137,27 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
 };
 
 async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string) {
+  if (challengeId === "knights-before-coffee") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessKnightsBeforeCoffee(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = knightsBeforeCoffeeFixtures[attemptCount % knightsBeforeCoffeeFixtures.length];
+    const verdict = evaluateKnightsBeforeCoffee(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
   if (challengeId === "queen-never-heard-of-her") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessQueenNeverHeardOfHer(lichessUsername);
