@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 11:55 Europe/Stockholm
+Last updated: 2026-04-28 12:38 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -23,6 +23,7 @@ Users pick ridiculous chess challenges, play real games on Lichess or Chess.com,
 - Primary loop: pick challenge → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend challenge
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
 - Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
+- Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. Treat near-term releases as private/friends beta readiness, not public-launch pressure.
 
 Canonical brief:
 - `docs/CC_V1_PRODUCT_BRIEF_2026-04-25.md`
@@ -42,6 +43,16 @@ Old pre-reset standby roadmap is archived at:
   - Verification: PNG alpha conversion, visual QA, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/challenges`, `/badges`, the three badge routes, and direct PNG asset routes.
 
 ## STRICT ACTIVE QUEUE
+
+- [ ] Prepare SQC for polished friends/private beta before any public launch push.
+  - added_at: 2026-04-28 12:38 Europe/Stockholm
+  - source: Andreas said he is not in a hurry to launch and would rather do a proper launch with rich features and a great clear UI.
+  - Acceptance:
+    - Public-launch language is avoided until the product has a richer feature set and clearer first-user UI.
+    - Roadmap prioritizes private/friends beta hardening, onboarding clarity, E2E test reliability, and UI simplification before launch marketing.
+    - Remaining specified beginner quest verifiers are promoted or clearly marked so users know what is live-backed today.
+    - Trust basics are present before broader public traffic: privacy/data note, contact/support, and clear Lichess-first explanation.
+  - Verification: future completion requires live deploy proof plus Andreas/user E2E test feedback.
 
 - [x] Promote Knights Before Coffee to a live Lichess latest-game verifier.
   - added_at: 2026-04-28 11:40 Europe/Stockholm
