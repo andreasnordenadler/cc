@@ -12,6 +12,7 @@ import {
   checkLatestChessComEarlyKingWalk,
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComNoCastleClub,
+  checkLatestChessComPawnStormManiac,
   checkLatestChessComQueenNeverHeardOfHer,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
@@ -310,6 +311,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "pawn-storm-maniac") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessPawnStormManiac(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComPawnStormManiac(chessComUsername);
 
       return {
         status: verdict.status,

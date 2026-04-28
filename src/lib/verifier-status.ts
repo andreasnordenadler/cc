@@ -47,9 +47,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "pawn-storm-maniac": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, six different player pawns moved before move 15, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
+      "Checks player win, six different player pawns moved before move 15, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "knightmare-mode": {
     state: "live",

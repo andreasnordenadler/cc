@@ -1,3 +1,5 @@
+import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
+
 export type ChessComVerificationVerdict = {
   status: "passed" | "failed" | "pending";
   summary: string;
@@ -97,6 +99,13 @@ type ChessComEarlyKingWalkGame = {
 };
 
 type ChessComEarlyKingWalkVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
+type ChessComPawnStormManiacVerdict = {
   status: "passed" | "failed" | "pending";
   gameId: string;
   summary: string;
@@ -453,6 +462,61 @@ function applyChessComSanMove(
   delete board[from];
   board[to] = { color, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
   return capture;
+}
+
+
+function applyChessComSanPawnStormMove(
+  board: Record<string, ChessComBoardPiece>,
+  token: string,
+  ply: number,
+): PawnStormMoveEvent | null {
+  const color: QueenChallengeSide = ply % 2 === 1 ? "white" : "black";
+  const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
+
+  if (normalized === "O-O" || normalized === "O-O-O") {
+    const rank = color === "white" ? "1" : "8";
+    const kingFrom = `e${rank}`;
+    const kingTo = normalized === "O-O" ? `g${rank}` : `c${rank}`;
+    const rookFrom = normalized === "O-O" ? `h${rank}` : `a${rank}`;
+    const rookTo = normalized === "O-O" ? `f${rank}` : `d${rank}`;
+    board[kingTo] = board[kingFrom];
+    board[rookTo] = board[rookFrom];
+    delete board[kingFrom];
+    delete board[rookFrom];
+    return null;
+  }
+
+  const to = chessComTargetSquareFromSan(normalized);
+  if (!to) return null;
+
+  const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
+  const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
+  const candidates = Object.entries(board)
+    .filter(([, piece]) => piece.color === color && piece.piece === movingPiece)
+    .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
+    .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
+
+  const from = candidates[0]?.[0];
+  if (!from) return null;
+
+  const pawnMove: PawnStormMoveEvent | null = movingPiece === "pawn"
+    ? { ply, color, from, to, pawnFile: from[0] }
+    : null;
+
+  if (movingPiece === "pawn" && from[0] !== to[0] && !board[to]) {
+    delete board[`${to[0]}${from[1]}`];
+  }
+
+  delete board[from];
+  board[to] = { color, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
+  return pawnMove;
+}
+
+function chessComPawnStormMovesFromSan(sanMoves: string[]): PawnStormMoveEvent[] {
+  const board = cloneChessComBoard();
+  return sanMoves
+    .map((token, index) => applyChessComSanPawnStormMove(board, token, index + 1))
+    .filter((event): event is PawnStormMoveEvent => Boolean(event));
 }
 
 function chessComQueenChallengeCapturesFromSan(sanMoves: string[]): QueenChallengeCaptureEvent[] {
@@ -1087,6 +1151,137 @@ export async function checkLatestChessComEarlyKingWalk(username: string): Promis
 
       if (normalizedGames.length) {
         return evaluateChessComEarlyKingWalk(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+
+
+
+function evaluateChessComPawnStormManiac(game: PawnStormGame): ChessComPawnStormManiacVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return { status: "failed", gameId: game.id, summary: "Variants are fun, but Pawn Storm Maniac only counts standard chess games.", evidence: [`Variant was ${game.variant}.`] };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return { status: "failed", gameId: game.id, summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.", evidence: [`Time class was ${game.timeClass}.`] };
+  }
+
+  if (game.moveCount < 20) {
+    return { status: "failed", gameId: game.id, summary: "The game ended before the minimum 20-move chaos-proof threshold.", evidence: [`Game length was ${game.moveCount} moves.`] };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Pawn Storm Maniac only counts if the pawn-weather player still wins.",
+      evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+    };
+  }
+
+  const earlyPlayerPawnMoves = game.pawnMoves.filter(
+    (move) => move.color === game.playerColor && chessComMoveNumberFromPly(move.ply) <= 15,
+  );
+  const distinctPawnStarts = Array.from(new Set(earlyPlayerPawnMoves.map((move) => move.from))).sort();
+
+  if (distinctPawnStarts.length < 6) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: `Only ${distinctPawnStarts.length} different player pawns moved before move 15. The storm was more of a drizzle.`,
+      evidence: [
+        `${chessComColorName(game.playerColor)} moved ${distinctPawnStarts.length}/6 different pawns before move 15.`,
+        distinctPawnStarts.length ? `Pawn starts: ${distinctPawnStarts.join(", ")}.` : "No early player pawn moves were detected.",
+      ],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Six-pawn storm confirmed before move 15, followed by an actual win. Terrible weather, excellent receipt.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} moved ${distinctPawnStarts.length} different pawns before move 15.`,
+      `Pawn starts: ${distinctPawnStarts.slice(0, 6).join(", ")}.`,
+      `${chessComColorName(game.playerColor)} still won after ${game.moveCount} moves.`,
+    ],
+  };
+}
+
+export function normalizeChessComPawnStormManiacGame(game: ChessComGame, username: string): PawnStormGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    pawnMoves: chessComPawnStormMovesFromSan(sanMoves),
+  };
+}
+
+export async function checkLatestChessComPawnStormManiac(username: string): Promise<ChessComPawnStormManiacVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest pawn-storm attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComPawnStormManiacGame(game, username))
+        .filter((game): game is PawnStormGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComPawnStormManiac(normalizedGames[0]);
       }
     }
 
