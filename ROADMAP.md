@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 12:50 Europe/Stockholm
+Last updated: 2026-04-28 16:05 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -71,6 +71,7 @@ Old pre-reset standby roadmap is archived at:
   - Verification: future completion requires live deploy proof plus Andreas/user E2E test feedback.
   - 2026-04-28 12:50 Europe/Stockholm progress: promoted `Bishop Field Trip` from specified-only to live-backed Lichess latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_BISHOP_FIELD_TRIP_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`. `Early King Walk` remains the only specified-only beginner verifier.
   - 2026-04-28 14:45 Europe/Stockholm progress: promoted `Early King Walk` from specified-only to live-backed Lichess latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_EARLY_KING_WALK_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`. All three beginner starter quests are now live-backed on Lichess.
+  - 2026-04-28 16:05 Europe/Stockholm progress: promoted `Knights Before Coffee` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_KNIGHTS_BEFORE_COFFEE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. The private-beta verifier path now has two dual-host quests: `Knights Before Coffee` and `No Castle Club`.
 
 - [x] Promote Early King Walk to a live Lichess latest-game verifier.
   - added_at: 2026-04-28 14:40 Europe/Stockholm

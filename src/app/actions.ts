@@ -8,6 +8,7 @@ import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
   verifyChessComDrawAsWhiteAttempt,
+  checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComNoCastleClub,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
@@ -151,6 +152,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "knights-before-coffee") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessKnightsBeforeCoffee(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComKnightsBeforeCoffee(chessComUsername);
 
       return {
         status: verdict.status,

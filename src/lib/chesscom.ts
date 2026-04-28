@@ -24,6 +24,23 @@ type ChessComNoCastleVerdict = {
   evidence: string[];
 };
 
+type ChessComKnightsBeforeCoffeeGame = {
+  id: string;
+  playerColor: "white" | "black";
+  winner: "white" | "black" | "draw" | "unknown";
+  moveCount: number;
+  variant?: "standard" | string;
+  timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  firstFourPlayerMovePieces: Array<"pawn" | "knight" | "bishop" | "rook" | "queen" | "king">;
+};
+
+type ChessComKnightsBeforeCoffeeVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
 type ChessComPlayer = {
   username?: string;
   result?: string;
@@ -214,6 +231,31 @@ function chessComCastlingFromSan(token: string, ply: number) {
   };
 }
 
+function chessComPieceFromSan(token: string): ChessComKnightsBeforeCoffeeGame["firstFourPlayerMovePieces"][number] {
+  const normalized = token
+    .replace(/[+#?!]+$/g, "")
+    .replace(/^\.{1,3}/, "")
+    .replace(/^[KQRBN]?x/, (capture) => capture.slice(0, -1))
+    .replace(/=.*$/, "");
+
+  if (normalized.startsWith("N")) return "knight";
+  if (normalized.startsWith("B")) return "bishop";
+  if (normalized.startsWith("R")) return "rook";
+  if (normalized.startsWith("Q")) return "queen";
+  if (normalized.startsWith("K") || normalized.replace(/0/g, "O").startsWith("O-O")) return "king";
+  return "pawn";
+}
+
+function chessComPlayerMovePiecesFromSan(
+  sanMoves: string[],
+  playerColor: "white" | "black",
+): ChessComKnightsBeforeCoffeeGame["firstFourPlayerMovePieces"] {
+  return sanMoves
+    .filter((_, index) => (playerColor === "white" ? index % 2 === 0 : index % 2 === 1))
+    .slice(0, 4)
+    .map(chessComPieceFromSan);
+}
+
 function chessComColorName(color: "white" | "black") {
   return color === "white" ? "White" : "Black";
 }
@@ -343,6 +385,146 @@ export async function checkLatestChessComNoCastleClub(username: string): Promise
 
       if (normalizedGames.length) {
         return evaluateChessComNoCastleClub(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+
+function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGame): ChessComKnightsBeforeCoffeeVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Variants are fun, but Knights Before Coffee only counts standard chess games.",
+      evidence: [`Variant was ${game.variant}.`],
+    };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
+      evidence: [`Time class was ${game.timeClass}.`],
+    };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Knights Before Coffee only counts if the horse-first player wins.",
+      evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+    };
+  }
+
+  if (game.firstFourPlayerMovePieces.length < 4) {
+    return {
+      status: "pending",
+      gameId: game.id,
+      summary: "The latest Chess.com game ended before four player moves could be checked.",
+      evidence: [`Only ${game.firstFourPlayerMovePieces.length} player moves were available.`],
+    };
+  }
+
+  const firstNonKnightIndex = game.firstFourPlayerMovePieces.findIndex((piece) => piece !== "knight");
+
+  if (firstNonKnightIndex !== -1) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "The first four player moves were not all knight moves.",
+      evidence: [
+        `Move ${firstNonKnightIndex + 1} was a ${game.firstFourPlayerMovePieces[firstNonKnightIndex]}.`,
+        `First four player moves: ${game.firstFourPlayerMovePieces.join(", ")}.`,
+      ],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Horse-first opening confirmed: the first four player moves were knights, and the player won anyway.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} won the normalized Chess.com game.`,
+      "The first four player moves were knight moves.",
+    ],
+  };
+}
+
+export function normalizeChessComKnightsBeforeCoffeeGame(game: ChessComGame, username: string): ChessComKnightsBeforeCoffeeGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    firstFourPlayerMovePieces: chessComPlayerMovePiecesFromSan(sanMoves, playerColor),
+  };
+}
+
+export async function checkLatestChessComKnightsBeforeCoffee(username: string): Promise<ChessComKnightsBeforeCoffeeVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest horse-first attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComKnightsBeforeCoffeeGame(game, username))
+        .filter((game): game is ChessComKnightsBeforeCoffeeGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComKnightsBeforeCoffee(normalizedGames[0]);
       }
     }
 
