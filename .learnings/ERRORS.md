@@ -1068,3 +1068,30 @@ For CC tests that directly import TS modules with `node --experimental-strip-typ
 - Source: error
 - Related Files: src/lib/chesscom.ts, tests/chesscom-no-castle-club-fixtures.mjs
 - Tags: node-strip-types, next-build, vercel-logs
+## [ERR-20260428-001] macos_timeout_missing
+
+**Logged**: 2026-04-28T14:45:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`timeout` is not installed in the macOS shell environment used for CC deployment log watches.
+
+### Error
+```text
+zsh:1: command not found: timeout
+```
+
+### Context
+- Attempted to bound `vercel logs` with `timeout 25s ...` during SQC production verification.
+- Re-ran successfully using a background process with `sleep` and `kill`.
+
+### Suggested Fix
+Use a portable shell pattern for bounded log watches on macOS: start the streaming command in the background, `sleep N`, then `kill $pid` and inspect captured output.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_EARLY_KING_WALK_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md
+
+---

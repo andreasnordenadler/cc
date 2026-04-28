@@ -22,10 +22,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Checks player win, both original bishops moving before the player queen, legal time class, and standard chess from normalized Lichess moves.",
   },
   "early-king-walk": {
-    state: "spec",
-    summary: "Beginner quest specified; verifier next",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will check a non-castling king move before the player’s move 12, then that the player won a standard chess game.",
+      "Checks player win, a non-castling king move before the player’s move 12, legal time class, and standard chess from normalized Lichess moves.",
   },
   "queen-never-heard-of-her": {
     state: "live",

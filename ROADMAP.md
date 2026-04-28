@@ -70,6 +70,19 @@ Old pre-reset standby roadmap is archived at:
     - Trust basics are present before broader public traffic: privacy/data note, contact/support, and clear Lichess-first explanation.
   - Verification: future completion requires live deploy proof plus Andreas/user E2E test feedback.
   - 2026-04-28 12:50 Europe/Stockholm progress: promoted `Bishop Field Trip` from specified-only to live-backed Lichess latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_BISHOP_FIELD_TRIP_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`. `Early King Walk` remains the only specified-only beginner verifier.
+  - 2026-04-28 14:45 Europe/Stockholm progress: promoted `Early King Walk` from specified-only to live-backed Lichess latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_EARLY_KING_WALK_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`. All three beginner starter quests are now live-backed on Lichess.
+
+- [x] Promote Early King Walk to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 14:40 Europe/Stockholm
+  - completed_at: 2026-04-28 14:45 Europe/Stockholm
+  - source: friends/private beta hardening item; `Early King Walk` was the remaining specified-only beginner quest after Knights Before Coffee and Bishop Field Trip were promoted.
+  - Acceptance:
+    - `Early King Walk` latest-game checks normalize Lichess move feeds and verify a non-castling king move before the player's move 12.
+    - Castling is tracked but does not count as the king walk.
+    - The quest requires a player win, standard chess, and the existing bullet/blitz/rapid v1 eligibility posture.
+    - `/verifiers`, `/account`, and the challenge detail page show it as live-backed rather than specified-only.
+  - Verification: `pnpm exec node --experimental-strip-types --test tests/early-king-walk-fixtures.mjs`, `pnpm exec node --experimental-strip-types --test tests/*.mjs`, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/verifiers`, `/challenges/early-king-walk`, `/account`, and `/path`, plus bounded Vercel deployment log watch.
+  - Proof: added `docs/SQC_EARLY_KING_WALK_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`; live deployment `https://cc-ibigalde1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `Early King Walk`, `Live-backed Lichess latest-game verifier`, `non-castling king move`, and `Castling does not count` on production surfaces.
 
 - [x] Promote Bishop Field Trip to a live Lichess latest-game verifier.
   - added_at: 2026-04-28 12:40 Europe/Stockholm

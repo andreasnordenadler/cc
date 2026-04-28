@@ -77,6 +77,11 @@ import {
   evaluateBishopFieldTrip,
 } from "@/lib/bishop-field-trip";
 import {
+  checkLatestLichessEarlyKingWalk,
+  earlyKingWalkFixtures,
+  evaluateEarlyKingWalk,
+} from "@/lib/early-king-walk";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -177,6 +182,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = bishopFieldTripFixtures[attemptCount % bishopFieldTripFixtures.length];
     const verdict = evaluateBishopFieldTrip(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "early-king-walk") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessEarlyKingWalk(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = earlyKingWalkFixtures[attemptCount % earlyKingWalkFixtures.length];
+    const verdict = evaluateEarlyKingWalk(fixture);
 
     return {
       status: verdict.status,
