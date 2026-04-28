@@ -1,3 +1,4 @@
+import type { KnightmareFinalMove, KnightmareGame, KnightmareVerdict } from "./knightmare-mode";
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
 import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 
@@ -119,6 +120,8 @@ type ChessComRooklessRampageVerdict = {
   summary: string;
   evidence: string[];
 };
+
+type ChessComKnightmareModeVerdict = KnightmareVerdict;
 
 type ChessComPiece = QueenChallengeCaptureEvent["capturedPiece"];
 
@@ -615,6 +618,73 @@ function chessComRooklessLossesFromSan(sanMoves: string[]): RooklessLossEvent[] 
   return sanMoves
     .map((token, index) => applyChessComSanRooklessMove(board, token, index + 1))
     .filter((event): event is RooklessLossEvent => Boolean(event));
+}
+
+function applyChessComSanFinalMove(
+  board: Record<string, ChessComBoardPiece>,
+  token: string,
+  ply: number,
+): KnightmareFinalMove | null {
+  const color: QueenChallengeSide = ply % 2 === 1 ? "white" : "black";
+  const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
+
+  if (normalized === "O-O" || normalized === "O-O-O") {
+    const rank = color === "white" ? "1" : "8";
+    const kingFrom = `e${rank}`;
+    const kingTo = normalized === "O-O" ? `g${rank}` : `c${rank}`;
+    const rookFrom = normalized === "O-O" ? `h${rank}` : `a${rank}`;
+    const rookTo = normalized === "O-O" ? `f${rank}` : `d${rank}`;
+    board[kingTo] = board[kingFrom];
+    board[rookTo] = board[rookFrom];
+    delete board[kingFrom];
+    delete board[rookFrom];
+    return { ply, color, from: kingFrom, to: kingTo, piece: "king" };
+  }
+
+  const to = chessComTargetSquareFromSan(normalized);
+  if (!to) return null;
+
+  const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
+  const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
+  const candidates = Object.entries(board)
+    .filter(([, piece]) => piece && piece.color === color && piece.piece === movingPiece)
+    .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
+    .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
+
+  const from = candidates[0]?.[0];
+  if (!from) return null;
+
+  if (movingPiece === "pawn" && from[0] !== to[0] && !board[to]) {
+    delete board[`${to[0]}${from[1]}`];
+  }
+
+  delete board[from];
+  board[to] = { color, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
+
+  return { ply, color, from, to, piece: movingPiece };
+}
+
+function chessComFinalMoveFromSan(sanMoves: string[]): KnightmareFinalMove | undefined {
+  const board = cloneChessComBoard();
+  let finalMove: KnightmareFinalMove | null = null;
+
+  sanMoves.forEach((token, index) => {
+    finalMove = applyChessComSanFinalMove(board, token, index + 1) ?? finalMove;
+  });
+
+  return finalMove ?? undefined;
+}
+
+function getChessComEndStatus(game: ChessComGame): KnightmareGame["status"] {
+  const whiteResult = game.white?.result?.toLowerCase();
+  const blackResult = game.black?.result?.toLowerCase();
+
+  if (whiteResult === "checkmated" || blackResult === "checkmated") return "mate";
+  if (whiteResult === "resigned" || blackResult === "resigned") return "resign";
+  if (whiteResult === "timeout" || blackResult === "timeout") return "outoftime";
+  if (whiteResult === "stalemate" || blackResult === "stalemate") return "stalemate";
+  if (whiteResult && blackResult && DRAW_RESULTS.has(whiteResult) && DRAW_RESULTS.has(blackResult)) return "draw";
+  return "unknown";
 }
 
 function chessComQueenChallengeCapturesFromSan(sanMoves: string[]): QueenChallengeCaptureEvent[] {
@@ -1386,6 +1456,135 @@ export async function checkLatestChessComRooklessRampage(username: string): Prom
       gameId: "chesscom-no-recent-games",
       summary: `No recent public bullet/blitz/rapid Chess.com games were found for ${username}.`,
       evidence: ["The latest-games adapter returned no normalizable games with PGN move text."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+
+export function normalizeChessComKnightmareModeGame(game: ChessComGame, username: string): KnightmareGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    status: getChessComEndStatus(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    finalMove: chessComFinalMoveFromSan(sanMoves),
+  };
+}
+
+function evaluateChessComKnightmareMode(game: KnightmareGame): ChessComKnightmareModeVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return { status: "failed", gameId: game.id, summary: "Variants are fun, but Knightmare Mode only counts standard chess games.", evidence: [`Variant was ${game.variant}.`] };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return { status: "failed", gameId: game.id, summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.", evidence: [`Time class was ${game.timeClass}.`] };
+  }
+
+  if (game.moveCount < 10) {
+    return { status: "failed", gameId: game.id, summary: "The game ended before the minimum 10-move Knightmare proof threshold.", evidence: [`Game length was ${game.moveCount} moves.`] };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return { status: "failed", gameId: game.id, summary: "Knightmare Mode only counts if the horse-crime player wins.", evidence: [`Winner was ${game.winner}.`] };
+  }
+
+  if (game.status !== "mate") {
+    return { status: "failed", gameId: game.id, summary: "The latest win did not end by checkmate, so the horse did not get the final paperwork.", evidence: [`Game status was ${game.status ?? "unknown"}.`] };
+  }
+
+  if (!game.finalMove) {
+    return { status: "pending", gameId: game.id, summary: "The verifier could not identify the final move from the normalized Chess.com PGN.", evidence: ["No final SAN move was available after normalization."] };
+  }
+
+  if (game.finalMove.color !== game.playerColor) {
+    return { status: "failed", gameId: game.id, summary: "The mating move was not made by the Side Quest Chess player.", evidence: [`Final move belonged to ${game.finalMove.color}.`] };
+  }
+
+  if (game.finalMove.piece !== "knight") {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: `Checkmate happened, but the final blow came from a ${game.finalMove.piece}, not a knight. The horse is filing a complaint.`,
+      evidence: [`Final move: ${game.finalMove.from}${game.finalMove.to} by ${game.finalMove.piece}.`],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Knight checkmate confirmed. The horse got the final word and Side Quest Chess has the receipt.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} won by checkmate.`,
+      `Final move ${game.finalMove.from}${game.finalMove.to} was made by a knight.`,
+      `Game lasted ${game.moveCount} moves.`,
+    ],
+  };
+}
+
+export async function checkLatestChessComKnightmareMode(username: string): Promise<ChessComKnightmareModeVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest Knightmare attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComKnightmareModeGame(game, username))
+        .filter((game): game is KnightmareGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComKnightmareMode(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
     };
   } catch {
     return {

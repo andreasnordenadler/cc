@@ -11,6 +11,7 @@ import {
   checkLatestChessComBishopFieldTrip,
   checkLatestChessComEarlyKingWalk,
   checkLatestChessComKnightsBeforeCoffee,
+  checkLatestChessComKnightmareMode,
   checkLatestChessComNoCastleClub,
   checkLatestChessComPawnStormManiac,
   checkLatestChessComQueenNeverHeardOfHer,
@@ -343,6 +344,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "knightmare-mode") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessKnightmareMode(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComKnightmareMode(chessComUsername);
 
       return {
         status: verdict.status,

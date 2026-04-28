@@ -53,9 +53,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "knightmare-mode": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win by checkmate, final move made by the player, final move piece was a knight, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
+      "Checks player win by checkmate, final move made by the player, final move piece was a knight, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "rookless-rampage": {
     state: "live",
