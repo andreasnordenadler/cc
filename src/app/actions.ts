@@ -9,6 +9,7 @@ import {
   verifyChessComDrawAsBlackAttempt,
   verifyChessComDrawAsWhiteAttempt,
   checkLatestChessComBishopFieldTrip,
+  checkLatestChessComEarlyKingWalk,
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComNoCastleClub,
   verifyChessComFinishAnyGameAttempt,
@@ -215,6 +216,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "early-king-walk") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessEarlyKingWalk(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComEarlyKingWalk(chessComUsername);
 
       return {
         status: verdict.status,

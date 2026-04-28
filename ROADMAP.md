@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 16:05 Europe/Stockholm
+Last updated: 2026-04-28 17:55 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -73,6 +73,19 @@ Old pre-reset standby roadmap is archived at:
   - 2026-04-28 14:45 Europe/Stockholm progress: promoted `Early King Walk` from specified-only to live-backed Lichess latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_EARLY_KING_WALK_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`. All three beginner starter quests are now live-backed on Lichess.
   - 2026-04-28 16:05 Europe/Stockholm progress: promoted `Knights Before Coffee` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_KNIGHTS_BEFORE_COFFEE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. The private-beta verifier path now has two dual-host quests: `Knights Before Coffee` and `No Castle Club`.
   - 2026-04-28 16:55 Europe/Stockholm progress: promoted `Bishop Field Trip` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_BISHOP_FIELD_TRIP_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. The private-beta verifier path now has three dual-host quests: `Bishop Field Trip`, `Knights Before Coffee`, and `No Castle Club`; `Early King Walk` remains the next Lichess-only beginner adapter candidate.
+  - 2026-04-28 17:55 Europe/Stockholm progress: promoted `Early King Walk` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_EARLY_KING_WALK_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. All three beginner quests now support both Lichess and Chess.com latest-game checks; the private-beta verifier path now has four dual-host quests: `Bishop Field Trip`, `Early King Walk`, `Knights Before Coffee`, and `No Castle Club`.
+
+- [x] Promote Early King Walk to dual-host Lichess + Chess.com latest-game verification.
+  - added_at: 2026-04-28 17:40 Europe/Stockholm
+  - completed_at: 2026-04-28 17:55 Europe/Stockholm
+  - source: friends/private beta hardening item; after `Bishop Field Trip` reached Chess.com parity, `Early King Walk` was the remaining Lichess-only beginner quest.
+  - Acceptance:
+    - Chess.com PGN SAN moves normalize into the same Early King Walk verifier shape used by Lichess.
+    - Castling is detected but does not count as a king walk.
+    - The quest still requires player win, standard chess, and the existing bullet/blitz/rapid v1 eligibility posture.
+    - `/verifiers`, `/account`, and the challenge detail page show dual-host live-backed verifier copy.
+  - Verification: `pnpm exec node --experimental-strip-types --test tests/chesscom-early-king-walk-fixtures.mjs`, `pnpm exec node --experimental-strip-types --test tests/*.mjs`, `pnpm lint`, `pnpm build`, direct adapter smoke for Chess.com username `and72nor`, production deploy, live smoke for `/verifiers`, `/challenges/early-king-walk`, `/account`, and preview `/verifiers`, plus Vercel production error-log scan.
+  - Proof: added `docs/SQC_CHESSCOM_EARLY_KING_WALK_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`; live deployment `https://cc-bil366uw1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `Early King Walk`, `Live-backed Lichess + Chess.com latest-game verifier`, `Chess.com PGN`, `non-castling king move`, `Quest launcher`, and `Chess.com:` on production surfaces.
 
 - [x] Promote Early King Walk to a live Lichess latest-game verifier.
   - added_at: 2026-04-28 14:40 Europe/Stockholm

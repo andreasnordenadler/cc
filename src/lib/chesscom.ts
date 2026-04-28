@@ -60,6 +60,24 @@ type ChessComBishopFieldTripVerdict = {
   evidence: string[];
 };
 
+type ChessComEarlyKingWalkGame = {
+  id: string;
+  playerColor: "white" | "black";
+  winner: "white" | "black" | "draw" | "unknown";
+  moveCount: number;
+  variant?: "standard" | string;
+  timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  earlyKingWalkMove?: number;
+  castledBeforeKingWalk: boolean;
+};
+
+type ChessComEarlyKingWalkVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
 type ChessComPlayer = {
   username?: string;
   result?: string;
@@ -298,6 +316,33 @@ function chessComBishopHomeForTargetSquare(playerColor: "white" | "black", targe
   }
 
   return shade === "light" ? "c8" : "f8";
+}
+
+function chessComEarlyKingWalkFromSan(sanMoves: string[], playerColor: "white" | "black") {
+  let playerMoveNumber = 0;
+  let earlyKingWalkMove: number | undefined;
+  let castledBeforeKingWalk = false;
+
+  sanMoves.forEach((token, index) => {
+    const isPlayerMove = playerColor === "white" ? index % 2 === 0 : index % 2 === 1;
+
+    if (!isPlayerMove) {
+      return;
+    }
+
+    playerMoveNumber += 1;
+    const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
+
+    if ((normalized === "O-O" || normalized === "O-O-O") && earlyKingWalkMove === undefined) {
+      castledBeforeKingWalk = true;
+    }
+
+    if (normalized.startsWith("K") && normalized !== "O-O" && normalized !== "O-O-O" && earlyKingWalkMove === undefined) {
+      earlyKingWalkMove = playerMoveNumber;
+    }
+  });
+
+  return { earlyKingWalkMove, castledBeforeKingWalk };
 }
 
 function chessComBishopFieldTripFromSan(sanMoves: string[], playerColor: "white" | "black") {
@@ -624,6 +669,139 @@ export async function checkLatestChessComKnightsBeforeCoffee(username: string): 
     };
   }
 }
+
+function evaluateChessComEarlyKingWalk(game: ChessComEarlyKingWalkGame): ChessComEarlyKingWalkVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Variants are fun, but Early King Walk only counts standard chess games.",
+      evidence: [`Variant was ${game.variant}.`],
+    };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
+      evidence: [`Time class was ${game.timeClass}.`],
+    };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Early King Walk only counts if the walking-king player wins.",
+      evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+    };
+  }
+
+  if (!game.earlyKingWalkMove || game.earlyKingWalkMove >= 12) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "The monarch did not take a non-castling walk before player move 12.",
+      evidence: [
+        game.earlyKingWalkMove
+          ? `The first non-castling king move was player move ${game.earlyKingWalkMove}.`
+          : "No non-castling king move was detected.",
+        game.castledBeforeKingWalk ? "Castling happened, but castling does not count as the walk." : "Castling was not counted as a king walk.",
+      ],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Early king walk confirmed: the Chess.com PGN shows a non-castling king move before move 12, and the player won.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} moved the king on player move ${game.earlyKingWalkMove}.`,
+      `${chessComColorName(game.playerColor)} won after ${game.moveCount} moves.`,
+    ],
+  };
+}
+
+export function normalizeChessComEarlyKingWalkGame(game: ChessComGame, username: string): ChessComEarlyKingWalkGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+  const kingWalk = chessComEarlyKingWalkFromSan(sanMoves, playerColor);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    ...kingWalk,
+  };
+}
+
+export async function checkLatestChessComEarlyKingWalk(username: string): Promise<ChessComEarlyKingWalkVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest royal strolls.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComEarlyKingWalkGame(game, username))
+        .filter((game): game is ChessComEarlyKingWalkGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComEarlyKingWalk(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+
 function evaluateChessComBishopFieldTrip(game: ChessComBishopFieldTripGame): ChessComBishopFieldTripVerdict {
   if (game.variant && game.variant !== "standard") {
     return {

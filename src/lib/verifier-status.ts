@@ -23,9 +23,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "early-king-walk": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, a non-castling king move before the player’s move 12, legal time class, and standard chess from normalized Lichess moves.",
+      "Checks player win, a non-castling king move before the player’s move 12, legal time class, and standard chess from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "queen-never-heard-of-her": {
     state: "live",
