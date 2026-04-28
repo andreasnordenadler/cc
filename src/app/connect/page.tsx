@@ -38,7 +38,7 @@ export default async function ConnectPage() {
           <article className="connect-card">
             <span className="eyebrow">Chess.com</span>
             <h2>Username tracking</h2>
-            <p>Use your Chess.com username for beginner-path, No Castle Club, Queen? Never Heard of Her, and Pawn Storm Maniac checks today, with more parity coming as the beta hardens.</p>
+            <p>Use your Chess.com username for beginner-path, No Castle Club, Queen? Never Heard of Her, Pawn Storm Maniac, and Rookless Rampage checks today, with more parity coming as the beta hardens.</p>
           </article>
         </section>
 

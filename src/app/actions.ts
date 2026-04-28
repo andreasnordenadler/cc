@@ -14,6 +14,7 @@ import {
   checkLatestChessComNoCastleClub,
   checkLatestChessComPawnStormManiac,
   checkLatestChessComQueenNeverHeardOfHer,
+  checkLatestChessComRooklessRampage,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
   verifyChessComFinishAsWhiteAttempt,
@@ -363,6 +364,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "rookless-rampage") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessRooklessRampage(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComRooklessRampage(chessComUsername);
 
       return {
         status: verdict.status,

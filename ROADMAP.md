@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 22:40 Europe/Stockholm
+Last updated: 2026-04-29 00:55 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -78,6 +78,8 @@ Old pre-reset standby roadmap is archived at:
   - 2026-04-28 19:52 Europe/Stockholm progress: tightened `/verifiers`, `/beta`, and `/connect` private-beta copy so the product accurately surfaces four dual-host latest-game quests today (all beginner quests plus No Castle Club) and names the remaining Lichess-only parity lane; proof doc `docs/SQC_PRIVATE_BETA_DUAL_HOST_STATUS_COPY_LIVE_DEPLOY_2026-04-28.md`. Deployed to `https://sidequestchess.com`; live smoke confirmed `/verifiers`, `/beta`, and `/connect` return 200 with the updated dual-host strings.
   - 2026-04-28 21:52 Europe/Stockholm progress: promoted `Queen? Never Heard of Her` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_QUEEN_NEVER_HEARD_OF_HER_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. The private-beta verifier path now has five dual-host quests: the three beginner quests, `No Castle Club`, and `Queen? Never Heard of Her`.
   - 2026-04-28 22:40 Europe/Stockholm progress: promoted `Pawn Storm Maniac` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_PAWN_STORM_MANIAC_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. The private-beta verifier path now has six dual-host quests: the three beginner quests, `No Castle Club`, `Queen? Never Heard of Her`, and `Pawn Storm Maniac`.
+  - 2026-04-28 23:40 Europe/Stockholm progress: promoted `Rookless Rampage` from Lichess-only to dual-host Lichess + Chess.com latest-game verification locally; proof doc `docs/SQC_CHESSCOM_ROOKLESS_RAMPAGE_LATEST_GAME_ADAPTER_LOCAL_PROOF_2026-04-28.md`. The private-beta verifier path reached seven dual-host quests in the local build.
+  - 2026-04-29 00:55 Europe/Stockholm progress: deployed the Rookless Rampage Chess.com latest-game adapter from a clean isolated worktree to avoid shipping unrelated dirty checkout files; proof doc `docs/SQC_CHESSCOM_ROOKLESS_RAMPAGE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-29.md`. The private-beta verifier path now has seven dual-host quests live on `https://sidequestchess.com`: the three beginner quests, `No Castle Club`, `Queen? Never Heard of Her`, `Pawn Storm Maniac`, and `Rookless Rampage`.
 
 - [x] Promote Early King Walk to dual-host Lichess + Chess.com latest-game verification.
   - added_at: 2026-04-28 17:40 Europe/Stockholm

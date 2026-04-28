@@ -1,4 +1,5 @@
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
+import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 
 export type ChessComVerificationVerdict = {
   status: "passed" | "failed" | "pending";
@@ -106,6 +107,13 @@ type ChessComEarlyKingWalkVerdict = {
 };
 
 type ChessComPawnStormManiacVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
+type ChessComRooklessRampageVerdict = {
   status: "passed" | "failed" | "pending";
   gameId: string;
   summary: string;
@@ -438,7 +446,7 @@ function applyChessComSanMove(
   const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
   const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
   const candidates = Object.entries(board)
-    .filter(([, piece]) => piece.color === color && piece.piece === movingPiece)
+    .filter(([, piece]) => piece && piece.color === color && piece.piece === movingPiece)
     .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
     .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
 
@@ -492,7 +500,7 @@ function applyChessComSanPawnStormMove(
   const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
   const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
   const candidates = Object.entries(board)
-    .filter(([, piece]) => piece.color === color && piece.piece === movingPiece)
+    .filter(([, piece]) => piece && piece.color === color && piece.piece === movingPiece)
     .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
     .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
 
@@ -517,6 +525,96 @@ function chessComPawnStormMovesFromSan(sanMoves: string[]): PawnStormMoveEvent[]
   return sanMoves
     .map((token, index) => applyChessComSanPawnStormMove(board, token, index + 1))
     .filter((event): event is PawnStormMoveEvent => Boolean(event));
+}
+
+
+type ChessComRooklessBoardPiece = ChessComBoardPiece & { origin?: RooklessLossEvent["origin"] };
+
+function cloneChessComRooklessBoard(): Record<string, ChessComRooklessBoardPiece> {
+  const board = Object.fromEntries(
+    Object.entries(INITIAL_CHESSCOM_BOARD).map(([square, piece]) => [square, { ...piece }]),
+  ) as Record<string, ChessComRooklessBoardPiece>;
+
+  board.a1.origin = "a1";
+  board.h1.origin = "h1";
+  board.a8.origin = "a8";
+  board.h8.origin = "h8";
+
+  return board;
+}
+
+function recordChessComRooklessCapture(
+  captured: ChessComRooklessBoardPiece | undefined,
+  capturedAt: string,
+  mover: ChessComRooklessBoardPiece,
+  ply: number,
+): RooklessLossEvent | null {
+  if (captured?.piece !== "rook" || !captured.origin) {
+    return null;
+  }
+
+  return {
+    ply,
+    color: captured.color,
+    origin: captured.origin,
+    square: capturedAt,
+    capturedBy: mover.color,
+  };
+}
+
+function applyChessComSanRooklessMove(
+  board: Record<string, ChessComRooklessBoardPiece>,
+  token: string,
+  ply: number,
+): RooklessLossEvent | null {
+  const color: QueenChallengeSide = ply % 2 === 1 ? "white" : "black";
+  const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
+
+  if (normalized === "O-O" || normalized === "O-O-O") {
+    const rank = color === "white" ? "1" : "8";
+    const kingFrom = `e${rank}`;
+    const kingTo = normalized === "O-O" ? `g${rank}` : `c${rank}`;
+    const rookFrom = normalized === "O-O" ? `h${rank}` : `a${rank}`;
+    const rookTo = normalized === "O-O" ? `f${rank}` : `d${rank}`;
+    board[kingTo] = board[kingFrom];
+    board[rookTo] = board[rookFrom];
+    delete board[kingFrom];
+    delete board[rookFrom];
+    return null;
+  }
+
+  const to = chessComTargetSquareFromSan(normalized);
+  if (!to) return null;
+
+  const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
+  const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
+  const candidates = Object.entries(board)
+    .filter(([, piece]) => piece && piece.color === color && piece.piece === movingPiece)
+    .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
+    .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
+
+  const from = candidates[0]?.[0];
+  if (!from) return null;
+
+  const moving = board[from];
+  let loss = recordChessComRooklessCapture(board[to], to, moving, ply);
+
+  if (movingPiece === "pawn" && from[0] !== to[0] && !board[to]) {
+    const capturedPawnSquare = `${to[0]}${from[1]}`;
+    loss = loss ?? recordChessComRooklessCapture(board[capturedPawnSquare], capturedPawnSquare, moving, ply);
+    delete board[capturedPawnSquare];
+  }
+
+  delete board[from];
+  board[to] = { ...moving, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
+  return loss;
+}
+
+function chessComRooklessLossesFromSan(sanMoves: string[]): RooklessLossEvent[] {
+  const board = cloneChessComRooklessBoard();
+  return sanMoves
+    .map((token, index) => applyChessComSanRooklessMove(board, token, index + 1))
+    .filter((event): event is RooklessLossEvent => Boolean(event));
 }
 
 function chessComQueenChallengeCapturesFromSan(sanMoves: string[]): QueenChallengeCaptureEvent[] {
@@ -1171,6 +1269,133 @@ export async function checkLatestChessComEarlyKingWalk(username: string): Promis
 }
 
 
+
+
+
+function chessComRooklessColorName(color: RooklessGame["winner"]) {
+  if (color === "white") return "White";
+  if (color === "black") return "Black";
+  return color;
+}
+
+function evaluateChessComRooklessRampage(game: RooklessGame): ChessComRooklessRampageVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return { status: "failed", gameId: game.id, summary: "Variants are fun, but Rookless Rampage only counts standard chess games.", evidence: [`Variant was ${game.variant}.`] };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return { status: "failed", gameId: game.id, summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.", evidence: [`Time class was ${game.timeClass}.`] };
+  }
+
+  if (game.moveCount < 20) {
+    return { status: "failed", gameId: game.id, summary: "The game ended before the minimum 20-move demolition-proof threshold.", evidence: [`Game length was ${game.moveCount} moves.`] };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return { status: "failed", gameId: game.id, summary: "Rookless Rampage only counts if the player loses both towers and still wins.", evidence: [`Winner was ${chessComRooklessColorName(game.winner)}.`] };
+  }
+
+  const targetOrigins = game.playerColor === "white" ? ["a1", "h1"] : ["a8", "h8"];
+  const earlyLosses = game.rookLosses.filter(
+    (loss) => loss.color === game.playerColor && targetOrigins.includes(loss.origin) && chessComMoveNumberFromPly(loss.ply) <= 20,
+  );
+  const lostOrigins = Array.from(new Set(earlyLosses.map((loss) => loss.origin))).sort();
+
+  if (lostOrigins.length < 2) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: `Only ${lostOrigins.length}/2 original rooks disappeared before move 20. The towers are not demolished enough yet.`,
+      evidence: [
+        `${chessComRooklessColorName(game.playerColor)} lost ${lostOrigins.length}/2 original rooks before move 20.`,
+        lostOrigins.length ? `Lost rook origins: ${lostOrigins.join(", ")}.` : "No early original-rook losses were detected.",
+      ],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Both rooks disappeared early and the wreckage still turned into a win. Rookless Rampage confirmed.",
+    evidence: [
+      `${chessComRooklessColorName(game.playerColor)} lost both original rooks before move 20.`,
+      `Lost rook origins: ${lostOrigins.join(", ")}.`,
+      `${chessComRooklessColorName(game.playerColor)} still won after ${game.moveCount} moves.`,
+    ],
+  };
+}
+
+export function normalizeChessComRooklessRampageGame(game: ChessComGame, username: string): RooklessGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+  const sanMoves = game.pgn ? extractSanMoveTokens(game.pgn) : [];
+
+  if (!playerColor || !sanMoves.length) {
+    return null;
+  }
+
+  return {
+    id: game.url ?? game.uuid ?? "chesscom-latest-game",
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    rookLosses: chessComRooklessLossesFromSan(sanMoves),
+  };
+}
+
+export async function checkLatestChessComRooklessRampage(username: string): Promise<ChessComRooklessRampageVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest rookless rampage attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-archives-unavailable",
+        summary: `Chess.com public archives are not available for ${username} yet.`,
+        evidence: ["Chess.com did not return any public archive months."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+      const normalizedGames = (games ?? [])
+        .filter(isFinishedGame)
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComRooklessRampageGame(game, username))
+        .filter((game): game is RooklessGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComRooklessRampage(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-recent-games",
+      summary: `No recent public bullet/blitz/rapid Chess.com games were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable games with PGN move text."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
 
 function evaluateChessComPawnStormManiac(game: PawnStormGame): ChessComPawnStormManiacVerdict {
   if (game.variant && game.variant !== "standard") {

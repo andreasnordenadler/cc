@@ -59,9 +59,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "rookless-rampage": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, both original player rooks captured before move 20, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
+      "Checks player win, both original player rooks captured before move 20, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "one-bishop-to-rule-them-all": {
     state: "live",
