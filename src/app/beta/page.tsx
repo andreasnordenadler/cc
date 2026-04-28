@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 const betaChecklist = [
   {
     title: "Connect a chess identity",
-    copy: "Add a Lichess username first if you have one; Chess.com is also supported for the beginner quests and No Castle Club.",
+    copy: "Add either chess username. The beginner path plus No Castle Club now works on Lichess or Chess.com; the rest of the chaos deck is Lichess-backed while Chess.com parity expands.",
     href: "/connect",
     action: "Connect username",
   },
@@ -81,7 +81,7 @@ export default async function BetaPage() {
         <section className="grid" aria-label="Private beta status">
           <Fact label="Launch posture" value="private beta" copy="The product should feel useful and legible for friends before any wider public launch push." />
           <Fact label="Beginner path" value={`${beginnerCount} quests`} copy="The first-run path starts with easier, abnormal, win-required dares instead of throwing people straight into peak chaos." />
-          <Fact label="Verifier posture" value="honest receipts" copy="Passed, failed, and pending states are all expected beta outcomes; fake success copy is not." />
+          <Fact label="Verifier posture" value="4 dual-host quests" copy="All three beginner quests plus No Castle Club can produce latest-game receipts from Lichess or Chess.com today." />
         </section>
 
         <section className="big-grid" aria-label="Private beta checklist">

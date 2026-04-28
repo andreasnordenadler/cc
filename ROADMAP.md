@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 17:55 Europe/Stockholm
+Last updated: 2026-04-28 19:52 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -75,6 +75,7 @@ Old pre-reset standby roadmap is archived at:
   - 2026-04-28 16:55 Europe/Stockholm progress: promoted `Bishop Field Trip` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_BISHOP_FIELD_TRIP_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. The private-beta verifier path now has three dual-host quests: `Bishop Field Trip`, `Knights Before Coffee`, and `No Castle Club`; `Early King Walk` remains the next Lichess-only beginner adapter candidate.
   - 2026-04-28 17:55 Europe/Stockholm progress: promoted `Early King Walk` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_EARLY_KING_WALK_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`. All three beginner quests now support both Lichess and Chess.com latest-game checks; the private-beta verifier path now has four dual-host quests: `Bishop Field Trip`, `Early King Walk`, `Knights Before Coffee`, and `No Castle Club`.
   - 2026-04-28 18:50 Europe/Stockholm progress: added a dedicated `/beta` friends/private beta notes surface with tester checklist, public-game-data explanation, no-password trust warning, and support/reporting guidance; proof doc `docs/SQC_PRIVATE_BETA_TRUST_NOTES_LIVE_DEPLOY_2026-04-28.md`. Deployed to `https://sidequestchess.com`; smoke confirmed `/beta`, `/`, and `/connect` return 200 and live content includes the new trust/support strings.
+  - 2026-04-28 19:52 Europe/Stockholm progress: tightened `/verifiers`, `/beta`, and `/connect` private-beta copy so the product accurately surfaces four dual-host latest-game quests today (all beginner quests plus No Castle Club) and names the remaining Lichess-only parity lane; proof doc `docs/SQC_PRIVATE_BETA_DUAL_HOST_STATUS_COPY_LIVE_DEPLOY_2026-04-28.md`. Deployed to `https://sidequestchess.com`; live smoke confirmed `/verifiers`, `/beta`, and `/connect` return 200 with the updated dual-host strings.
 
 - [x] Promote Early King Walk to dual-host Lichess + Chess.com latest-game verification.
   - added_at: 2026-04-28 17:40 Europe/Stockholm
