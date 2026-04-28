@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-26 17:12 Europe/Stockholm  
+Last updated: 2026-04-28 08:24 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -30,6 +30,16 @@ Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Add right-side fading chessboard watermark to the Side Quest Chess landing background.
+  - added_at: 2026-04-28 08:19 Europe/Stockholm
+  - completed_at: 2026-04-28 08:24 Europe/Stockholm
+  - source: Andreas asked for a chess-board pattern watermark aligned to the right side, fading out toward the middle, while keeping the existing left logo watermark.
+  - Acceptance:
+    - Right side of the viewport has a subtle chessboard pattern watermark.
+    - Pattern fades toward the middle and does not interfere with content or clicks.
+    - Existing left SQC logo watermark remains unchanged.
+  - Verification: `pnpm lint`, `pnpm build`, production deploy smoke confirming CSS contains the right-side chessboard pseudo-element.
 
 - [x] Implement CC v1 Phase 1: refine the `ccdesign` Challenge Hub + Completion/Share prototype around the side-quest product core.
   - added_at: 2026-04-25 23:00 Europe/Stockholm
