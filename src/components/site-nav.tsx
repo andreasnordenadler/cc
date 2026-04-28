@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
-type ActiveNavItem = "home" | "today" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "result" | "proof-log";
+type ActiveNavItem = "home" | "today" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -32,16 +33,25 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           <Link href="/connect" className={active === "connect" ? "active" : undefined}>Connect</Link>
           <Link href="/result" className={active === "result" ? "active" : undefined}>Proof card</Link>
           <Link href="/proof-log" className={active === "proof-log" ? "active" : undefined}>Proof log</Link>
-          <Link href="/account" className={active === "account" ? "active" : undefined}>Profile</Link>
+          <Link href="/account" className={active === "account" ? "active" : undefined}>Account</Link>
+          <Link href="/profile" className={active === "profile" ? "active" : undefined}>Edit profile</Link>
         </nav>
 
         <div className="nav-actions">
           {isSignedIn ? (
-            <span className="nav-pill">Signed in</span>
+            <>
+              <Link href="/profile" className="button secondary">Edit profile</Link>
+              <UserButton />
+            </>
           ) : (
             <>
               <Link href="/random" className="button secondary">Spin</Link>
-              <Link href="/connect" className="button primary">Connect</Link>
+              <SignInButton mode="modal" fallbackRedirectUrl="/account">
+                <button type="button" className="button secondary">Sign in</button>
+              </SignInButton>
+              <SignUpButton mode="modal" fallbackRedirectUrl="/profile">
+                <button type="button" className="button primary">Connect</button>
+              </SignUpButton>
             </>
           )}
         </div>

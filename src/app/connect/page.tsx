@@ -61,10 +61,13 @@ export default async function ConnectPage() {
           </section>
         ) : (
           <section className="mission-card">
-            <span className="eyebrow">Browse first</span>
-            <h2>No pressure account wall.</h2>
-            <p>Start by browsing challenges. Sign in when you want Side Quest Chess to remember badges, streaks, and proof cards.</p>
-            <Link href="/challenges" className="button primary">Browse challenges</Link>
+            <span className="eyebrow">Login needed</span>
+            <h2>Sign in to save your chess usernames.</h2>
+            <p>The verifier can browse public games, but SQC needs a saved runner profile to remember your Lichess username, active quest, badges, and proof cards.</p>
+            <div className="button-row">
+              <Link href="/sign-in" className="button primary">Sign in to connect</Link>
+              <Link href="/profile" className="button secondary">Profile setup</Link>
+            </div>
           </section>
         )}
 

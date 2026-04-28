@@ -2,6 +2,7 @@
 
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getChallengeById } from "@/lib/challenges";
 import {
   verifyChessComDrawAnyGameAttempt,
@@ -330,6 +331,31 @@ export async function saveChessUsernames(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/account");
   revalidatePath("/challenges");
+}
+
+export async function saveRunnerProfile(formData: FormData) {
+  const { userId, metadata } = await getUserContext();
+  const runnerDisplayName = String(formData.get("runnerDisplayName") ?? "").trim().slice(0, 60);
+  const runnerBio = String(formData.get("runnerBio") ?? "").trim().slice(0, 180);
+  const lichessUsername = String(formData.get("lichessUsername") ?? "").trim();
+  const chessComUsername = String(formData.get("chessComUsername") ?? "").trim();
+
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      ...metadata,
+      runnerDisplayName,
+      runnerBio,
+      lichessUsername,
+      chessComUsername,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/account");
+  revalidatePath("/profile");
+  revalidatePath("/connect");
+  redirect("/account?profile=saved");
 }
 
 export async function startChallenge(formData: FormData) {

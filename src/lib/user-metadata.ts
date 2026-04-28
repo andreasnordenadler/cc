@@ -32,6 +32,14 @@ export function getChessComUsername(metadata: UserMetadataRecord): string {
   return typeof metadata.chessComUsername === "string" ? metadata.chessComUsername : "";
 }
 
+export function getRunnerDisplayName(metadata: UserMetadataRecord): string {
+  return typeof metadata.runnerDisplayName === "string" ? metadata.runnerDisplayName : "";
+}
+
+export function getRunnerBio(metadata: UserMetadataRecord): string {
+  return typeof metadata.runnerBio === "string" ? metadata.runnerBio : "";
+}
+
 export function getActiveChallenge(metadata: UserMetadataRecord): ActiveChallenge | null {
   if (
     typeof metadata.activeChallenge === "object" &&

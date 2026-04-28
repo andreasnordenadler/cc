@@ -13,6 +13,8 @@ import {
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
+  getRunnerBio,
+  getRunnerDisplayName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -22,6 +24,8 @@ export default async function AccountPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
+  const runnerDisplayName = getRunnerDisplayName(metadata) || user?.username || user?.firstName || "Chaos résumé";
+  const runnerBio = getRunnerBio(metadata);
   const attempts = getChallengeAttempts(metadata).slice().reverse();
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
@@ -41,10 +45,18 @@ export default async function AccountPage() {
       <div className="content-wrap">
         <section className="hero-card">
           <span className="eyebrow">Profile / brag shelf</span>
-          <h1>{user?.username || user?.firstName || "Chaos résumé"}</h1>
+          <h1>{runnerDisplayName}</h1>
           <p className="hero-copy">
-            Proof that your bad chess decisions were at least documented.
+            {runnerBio || "Proof that your bad chess decisions were at least documented."}
           </p>
+          {user ? (
+            <Link href="/profile" className="button secondary">Edit profile and usernames</Link>
+          ) : (
+            <div className="button-row hero-actions">
+              <Link href="/sign-in" className="button primary">Sign in to test the full loop</Link>
+              <Link href="/profile" className="button secondary">Preview profile setup</Link>
+            </div>
+          )}
           <div className="stats-row">
             <span>{progress.totalRewardPoints} pts</span>
             <span>{progress.totalCompletedChallenges} completed</span>

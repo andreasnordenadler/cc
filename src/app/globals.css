@@ -201,3 +201,9 @@ p { color: var(--muted); line-height: 1.5; }
   .steps { grid-template-columns: 1fr; }
   h1 { font-size: clamp(2.8rem, 15vw, 4.6rem); }
 }
+.auth-wrap { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); align-items: start; }
+.auth-card { display: grid; place-items: center; padding: 18px; border: 1px solid rgba(255,255,255,.14); border-radius: 30px; background: rgba(255,255,255,.075); }
+.auth-copy-card h1 { font-size: clamp(2.7rem, 7vw, 5.4rem); }
+.input-card textarea { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 17px; background: rgba(0,0,0,.24); color: var(--ink); padding: 13px 14px; resize: vertical; }
+.wide-form { max-width: 760px; }
+@media (min-width: 860px) { .auth-wrap { display: grid; } }

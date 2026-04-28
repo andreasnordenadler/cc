@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 08:28 Europe/Stockholm
+Last updated: 2026-04-28 09:28 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -30,6 +30,17 @@ Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Make the login/profile setup path testable for end-to-end SQC UX.
+  - added_at: 2026-04-28 09:20 Europe/Stockholm
+  - completed_at: 2026-04-28 09:28 Europe/Stockholm
+  - source: Andreas wants to test logging in, editing profile, adding Lichess username, doing quests, and checking results.
+  - Acceptance:
+    - Dedicated `/sign-in` and `/sign-up` routes exist for Clerk auth.
+    - Nav exposes explicit Sign in / Connect actions when signed out and a profile/user menu when signed in.
+    - `/profile` lets a signed-in runner save display name, brag line, Lichess username, and Chess.com username.
+    - `/account` links to profile editing and keeps the quest/check/result loop visible.
+  - Verification: `pnpm lint`, `pnpm build`, production smoke for `/sign-in`, `/sign-up`, `/profile`, `/account`, and `/connect`.
 
 - [x] Implement CC v1 Phase 32: promote The Blunder Gambit to a live Lichess latest-game verifier.
   - added_at: 2026-04-28 08:40 Europe/Stockholm
