@@ -993,3 +993,51 @@ For bounded post-deploy scans, use a supported logs invocation for this CLI vers
 - Related Files: .learnings/ERRORS.md
 
 ---
+
+## [ERR-20260428-001] vercel_logs_cli_flags
+
+**Logged**: 2026-04-28T10:50:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+Vercel CLI 50.20.0 rejected the log flags I initially tried during a post-deploy smoke check.
+
+### Error
+```text
+vercel logs https://sidequestchess.com --prod --since 30m
+Error: unknown or unexpected option: --prod
+
+vercel logs https://cc-blg3xvowx-andreas-nordenadlers-projects.vercel.app --since 30m
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Project: CC / Side Quest Chess
+- Goal: bounded post-deploy production log scan after `vercel --prod --yes`.
+- Working fallback: stream deployment logs briefly with `vercel logs <deployment-url>` and manually stop after a short watch window.
+
+### Suggested Fix
+For this installed Vercel CLI, avoid `--prod` and `--since` on `vercel logs`; use the concrete deployment URL and bounded streaming instead.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_ACCOUNT_QUEST_LAUNCHER_LIVE_DEPLOY_2026-04-28.md
+
+---
+
+## 2026-04-28 — Bishop Field Trip fixture expected the wrong black move number
+- Context: while adding the SQC Bishop Field Trip verifier, the first fixture test run failed because the test expected Black queen's first move as player move 2.
+- Cause: the UCI fixture had Black moves `e7e5`, `g8f6`, then `d8e7`, so the queen move was correctly player move 3.
+- Fix: corrected the fixture assertion to expect move 3 and reran the targeted test.
+
+## 2026-04-28 — Vercel logs command rejected `--since` filtering
+- Context: after deploying SQC Bishop Field Trip, attempted `vercel logs <deployment-url> --since 30m` for a bounded production log scan.
+- Cause: this installed Vercel CLI reports that logs run in follow mode and `--follow` does not support filtering, so `--since` is not accepted.
+- Fix: use a bounded timeout around plain `vercel logs <deployment-url>` or another supported Vercel log command instead of `--since` on this host.
+
+## 2026-04-28 — macOS host has no GNU `timeout`
+- Context: tried to bound `vercel logs` with `timeout 20s` after the CLI rejected `--since`.
+- Cause: this Darwin host does not provide GNU `timeout` by default.
+- Fix: use a small Node child-process wrapper or OpenClaw process polling instead of assuming `timeout` exists.

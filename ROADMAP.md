@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 12:45 Europe/Stockholm
+Last updated: 2026-04-28 12:50 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -64,6 +64,18 @@ Old pre-reset standby roadmap is archived at:
     - Remaining specified beginner quest verifiers are promoted or clearly marked so users know what is live-backed today.
     - Trust basics are present before broader public traffic: privacy/data note, contact/support, and clear Lichess-first explanation.
   - Verification: future completion requires live deploy proof plus Andreas/user E2E test feedback.
+  - 2026-04-28 12:50 Europe/Stockholm progress: promoted `Bishop Field Trip` from specified-only to live-backed Lichess latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_BISHOP_FIELD_TRIP_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`. `Early King Walk` remains the only specified-only beginner verifier.
+
+- [x] Promote Bishop Field Trip to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 12:40 Europe/Stockholm
+  - completed_at: 2026-04-28 12:50 Europe/Stockholm
+  - source: friends/private beta hardening item; next visible value was making the second beginner quest honest and live-backed.
+  - Acceptance:
+    - `Bishop Field Trip` latest-game checks normalize Lichess move feeds and verify both original player bishops moved before the player queen moved.
+    - The quest requires a player win, standard chess, and the existing bullet/blitz/rapid v1 eligibility posture.
+    - `/verifiers`, `/account`, and the challenge detail page show it as live-backed rather than specified-only.
+  - Verification: `pnpm exec node --experimental-strip-types --test tests/bishop-field-trip-fixtures.mjs`, `pnpm exec node --experimental-strip-types --test tests/*.mjs`, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/verifiers`, `/challenges/bishop-field-trip`, `/account`, and `/path`, plus bounded Vercel deployment log watch.
+  - Proof: added `docs/SQC_BISHOP_FIELD_TRIP_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`; live deployment `https://cc-1jcho73px-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `Bishop Field Trip`, `Live-backed`, and bishop/queen rule copy on production surfaces.
 
 - [x] Promote Knights Before Coffee to a live Lichess latest-game verifier.
   - added_at: 2026-04-28 11:40 Europe/Stockholm

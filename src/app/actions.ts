@@ -71,6 +71,11 @@ import {
   knightsBeforeCoffeeFixtures,
 } from "@/lib/knights-before-coffee";
 import {
+  bishopFieldTripFixtures,
+  checkLatestLichessBishopFieldTrip,
+  evaluateBishopFieldTrip,
+} from "@/lib/bishop-field-trip";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -150,6 +155,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = knightsBeforeCoffeeFixtures[attemptCount % knightsBeforeCoffeeFixtures.length];
     const verdict = evaluateKnightsBeforeCoffee(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "bishop-field-trip") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessBishopFieldTrip(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = bishopFieldTripFixtures[attemptCount % bishopFieldTripFixtures.length];
+    const verdict = evaluateBishopFieldTrip(fixture);
 
     return {
       status: verdict.status,
