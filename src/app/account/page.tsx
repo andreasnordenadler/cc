@@ -64,6 +64,36 @@ export default async function AccountPage() {
           </div>
         </section>
 
+        <section className="mission-card test-drive-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">End-to-end test drive</span>
+              <h2>Try the full SQC loop in five minutes.</h2>
+            </div>
+            <span className="badge gold">manual QA path</span>
+          </div>
+          <div className="checker-flow" aria-label="Side Quest Chess manual test flow">
+            <div className="flow-step ready">
+              <strong>1. Profile</strong>
+              <p>Save a display name, brag line, and Lichess username.</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>2. Quest</strong>
+              <p>Pick any starter dare and make it your active challenge.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>3. Proof</strong>
+              <p>Check latest games, then review the result receipt and share card.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href="/profile" className="button primary">Start profile setup</Link>
+            <Link href={activeChallengeRecord ? "/result" : "/challenges"} className="button secondary">
+              {activeChallengeRecord ? "Review latest result" : "Pick first quest"}
+            </Link>
+          </div>
+        </section>
+
         <section className="big-grid">
           <article className="mission-card">
             <span className="eyebrow">Current title</span>

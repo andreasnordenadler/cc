@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 09:28 Europe/Stockholm
+Last updated: 2026-04-28 09:52 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -30,6 +30,16 @@ Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Add an account-page end-to-end test-drive checklist for the SQC login/profile/quest/result loop.
+  - added_at: 2026-04-28 09:40 Europe/Stockholm
+  - completed_at: 2026-04-28 09:52 Europe/Stockholm
+  - source: Andreas wants to test logging in, editing profile, adding Lichess username, doing quests, and checking results.
+  - Acceptance:
+    - `/account` exposes a visible manual QA path for profile setup, quest selection, latest-game check, and result receipt review.
+    - The checklist links directly to profile setup and either first quest selection or the latest result, without changing auth, verifier rules, or metadata shape.
+  - Verification: `pnpm lint`, `pnpm build`, production deploy, live `/account` smoke on deploy URL and `sidequestchess.com`, `/profile` and `/result` smoke, and Vercel production error-log scan.
+  - Proof: added `docs/SQC_ACCOUNT_TEST_DRIVE_CHECKLIST_LIVE_DEPLOY_2026-04-28.md`; live deployment `https://cc-rdms177zk-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; `/account` live smoke confirmed `Try the full SQC loop in five minutes.` and `manual QA path`; `/profile` and `/result` returned HTTP 200; Vercel production error-log scan returned no logs.
 
 - [x] Make the login/profile setup path testable for end-to-end SQC UX.
   - added_at: 2026-04-28 09:20 Europe/Stockholm

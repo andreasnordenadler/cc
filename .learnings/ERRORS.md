@@ -965,3 +965,31 @@ Use a bounded `timeout` around `vercel logs <deployment>` and grep the streamed 
 **Priority**: low
 
 During the SQC Blunder Gambit verifier deploy smoke, `curl` was unavailable in this environment and `vercel logs <deployment> --since 30m` failed because deployment arguments imply `--follow` unless `--no-follow` is provided. Use Python `urllib` for HTTP smoke when `curl` is missing, and use `vercel logs --environment production --level error --since 30m --no-branch` (or deployment URL with `--no-follow`) for bounded log scans.
+
+## [ERR-20260428-001] vercel_logs_since_flag
+
+**Logged**: 2026-04-28T09:48:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs https://sidequestchess.com --since 10m` failed because the CLI treated logs as follow mode and does not support filtering with `--since`.
+
+### Error
+```text
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Command attempted during Side Quest Chess production smoke/error-log scan.
+- Vercel CLI version in local run: 50.20.0.
+
+### Suggested Fix
+For bounded post-deploy scans, use a supported logs invocation for this CLI version or rely on route smoke plus deployment build output when filtered logs are unavailable.
+
+### Metadata
+- Reproducible: yes
+- Related Files: .learnings/ERRORS.md
+
+---
