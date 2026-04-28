@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 11:36 Europe/Stockholm
+Last updated: 2026-04-28 11:55 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -29,6 +29,17 @@ Canonical brief:
 
 Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
+
+- [x] Remove white square matte from the three beginner quest badge assets.
+  - added_at: 2026-04-28 11:50 Europe/Stockholm
+  - completed_at: 2026-04-28 11:55 Europe/Stockholm
+  - source: Andreas screenshot showed white square backgrounds on only the three new beginner badges.
+  - Acceptance:
+    - Only `Knights Before Coffee`, `Bishop Field Trip`, and `Early King Walk` badge assets are changed.
+    - Exterior white/off-white matte connected to the image edge is transparent.
+    - Interior cream/white crest details remain preserved.
+    - Paths are cache-busted so production does not keep serving stale white-square assets.
+  - Verification: PNG alpha conversion, visual QA, `pnpm lint`, `pnpm build`, production deploy, live smoke for `/challenges`, `/badges`, the three badge routes, and direct PNG asset routes.
 
 ## STRICT ACTIVE QUEUE
 

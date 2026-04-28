@@ -68,7 +68,7 @@ export const CHALLENGES: Challenge[] = [
         weirdness: "A chess opening chosen by stable management.",
       },
       colors: { primary: "#f5c86a", secondary: "#76a9ff", glow: "rgba(245,200,106,.38)" },
-      image: "/badges/knights-before-coffee-badge.png",
+      image: "/badges/v6/knights-before-coffee-badge.png",
     },
     proofCallout: "First four player moves were knight moves · won the game",
     rules: [
@@ -109,7 +109,7 @@ export const CHALLENGES: Challenge[] = [
         weirdness: "A school trip for pieces that only walk sideways diagonally.",
       },
       colors: { primary: "#2dd4bf", secondary: "#f5c86a", glow: "rgba(45,212,191,.36)" },
-      image: "/badges/bishop-field-trip-badge.png",
+      image: "/badges/v6/bishop-field-trip-badge.png",
     },
     proofCallout: "Both bishops moved before queen moved · won the game",
     rules: [
@@ -150,7 +150,7 @@ export const CHALLENGES: Challenge[] = [
         weirdness: "A royal constitutional crisis in one square.",
       },
       colors: { primary: "#76a9ff", secondary: "#a78bfa", glow: "rgba(118,169,255,.4)" },
-      image: "/badges/early-king-walk-badge.png",
+      image: "/badges/v6/early-king-walk-badge.png",
     },
     proofCallout: "King moved before move 12 · won the game",
     rules: [

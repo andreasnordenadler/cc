@@ -51,3 +51,6 @@ Image QA passed for ornate/centered/usable coat-of-arms styling; `Bishop Field T
 - Live smoke passed for `/path`, `/challenges`, `/challenges/knights-before-coffee`, `/challenges/bishop-field-trip`, `/challenges/early-king-walk`, `/badges`, and `/account`.
 - Badge asset smoke passed for `/badges/knights-before-coffee-badge.png`, `/badges/bishop-field-trip-badge.png`, and `/badges/early-king-walk-badge.png` (HTTP 200 `image/png`).
 - 500/502/503/504 scan in recent production logs returned no matching entries.
+
+## Follow-up correction — remove white square matte
+Andreas reported visible white square backgrounds on only the three new beginner badges. I removed exterior white/off-white matte connected to the badge image edges while preserving interior cream/white artwork, then cache-busted the runtime paths to `/badges/v6/...` for those three assets only.
