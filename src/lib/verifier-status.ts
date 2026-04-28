@@ -34,10 +34,10 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
       "Checks player win, six different player pawns moved before move 15, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "knightmare-mode": {
-    state: "spec",
-    summary: "Rule spec ready; mate-piece detector queued",
+    state: "live",
+    summary: "Live-backed Lichess latest-game verifier",
     evidence:
-      "Will identify the final checking move and prove the knight delivered mate rather than merely appearing nearby.",
+      "Checks player win by checkmate, final move made by the player, final move piece was a knight, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
   },
   "rookless-rampage": {
     state: "spec",

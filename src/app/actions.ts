@@ -45,6 +45,11 @@ import {
   pawnStormManiacFixtures,
 } from "@/lib/pawn-storm-maniac";
 import {
+  checkLatestLichessKnightmareMode,
+  evaluateKnightmareMode,
+  knightmareModeFixtures,
+} from "@/lib/knightmare-mode";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -85,6 +90,13 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
       status: "pending",
       gameId: "latest-game-pawn-weather",
       summary: "Detected multiple early pawn moves; verifier still needs the full six-pawn threshold check before awarding chaos points.",
+    },
+  ],
+  "knightmare-mode": [
+    {
+      status: "failed",
+      gameId: "latest-game-not-horse-paperwork",
+      summary: "The latest game did not end with a knight checkmate. The horse remains dramatic, but uncredited.",
     },
   ],
 };
@@ -145,6 +157,27 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = pawnStormManiacFixtures[attemptCount % pawnStormManiacFixtures.length];
     const verdict = evaluatePawnStormManiac(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "knightmare-mode") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessKnightmareMode(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    const fixture = knightmareModeFixtures[attemptCount % knightmareModeFixtures.length];
+    const verdict = evaluateKnightmareMode(fixture);
 
     return {
       status: verdict.status,

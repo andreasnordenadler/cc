@@ -427,6 +427,18 @@ Old pre-reset standby roadmap is archived at:
   - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs tests/pawn-storm-maniac-fixtures.mjs`, `pnpm lint`, `pnpm build`, local route smoke, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/pawn-storm-maniac`, `/account`, and `/api/og/dare/pawn-storm-maniac`, plus Vercel production 500 scan.
   - Proof: new verifier module `src/lib/pawn-storm-maniac.ts`, fixture tests `tests/pawn-storm-maniac-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-bco1q2mwg-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_PAWN_STORM_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`.
 
+- [x] Implement CC v1 Phase 29: promote Knightmare Mode to a live Lichess latest-game verifier.
+  - added_at: 2026-04-28 03:40 Europe/Stockholm
+  - completed_at: 2026-04-28 03:53 Europe/Stockholm
+  - estimate: 1 bounded verifier/product-trust burst
+  - Acceptance:
+    - `Knightmare Mode` checks real Lichess latest-game move history for player wins by checkmate where the final move was made by a knight
+    - UCI move normalization identifies the final moving piece without engine analysis or PGN upload
+    - active challenge latest-game checks use the live Knightmare verifier when a Lichess username is saved, with deterministic fallback fixtures for review
+    - `/verifiers` and verifier badges mark `Knightmare Mode` as live-backed without changing specified-only claims for the remaining starter-deck challenges
+  - Verification: `node --experimental-strip-types --test tests/queen-never-heard-of-her-fixtures.mjs tests/no-castle-club-fixtures.mjs tests/pawn-storm-maniac-fixtures.mjs tests/knightmare-mode-fixtures.mjs`, `pnpm lint`, `pnpm build`, local route smoke, production deploy, production smoke for `https://sidequestchess.com/verifiers`, `/challenges/knightmare-mode`, `/account`, and `/api/og/dare/knightmare-mode`, plus Vercel production error-log scan.
+  - Proof: new verifier module `src/lib/knightmare-mode.ts`, fixture tests `tests/knightmare-mode-fixtures.mjs`, active checker wiring in `src/app/actions.ts`, status update in `src/lib/verifier-status.ts`; live deployment `https://cc-ndyrk85qn-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; proof note `docs/SQC_KNIGHTMARE_LICHESS_VERIFIER_LIVE_DEPLOY_2026-04-28.md`.
+
 - [x] Implement future add-on concept: combo-quests / stacked quests in one game.
   - added_at: 2026-04-27 19:42 Europe/Stockholm
   - completed_at: 2026-04-27 20:40 Europe/Stockholm
