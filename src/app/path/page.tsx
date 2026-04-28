@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Starter path — Side Quest Chess",
   description:
-    "A three-dare starter path for Side Quest Chess: start sensible-ish, get weird, then chase the cursed queenless badge.",
+    "A three-dare beginner path for Side Quest Chess: simple weirdness first, then two gentle escalations.",
   alternates: { canonical: "/path" },
   openGraph: {
     title: "Starter path — Side Quest Chess",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
 };
 
-const STARTER_PATH_IDS = ["no-castle-club", "the-blunder-gambit", "queen-never-heard-of-her"];
+const STARTER_PATH_IDS = ["knights-before-coffee", "bishop-field-trip", "early-king-walk"];
 
 export default async function StarterPathPage() {
   const { userId } = await auth();
@@ -70,7 +70,7 @@ export default async function StarterPathPage() {
               </div>
               <h1>Three bad ideas, in survivable order.</h1>
               <p className="hero-copy">
-                New players should not have to choose from chaos soup. This path starts with a simple restriction, escalates into a proud blunder, then points at the cursed queenless badge once the loop makes sense.
+                New players should not have to choose from chaos soup. This path starts with a tiny knight-only ritual, escalates into bishop restraint, then ends with one slightly suspicious king walk once the loop makes sense.
               </p>
               <div className="button-row hero-actions">
                 <Link href={`/challenges/${nextChallenge.id}`} className="button primary">Start next step</Link>
@@ -109,7 +109,7 @@ export default async function StarterPathPage() {
             <span className="badge green">v1 onboarding</span>
           </div>
           <p>
-            The product can still stay mischievous while giving beginners one obvious way in: win without castling, survive a deliberate early disaster, then chase the signature queenless proof card.
+            The product can still stay mischievous while giving beginners one obvious way in: move only knights first, develop both bishops before the queen, then try one early king walk without turning the product into chess homework.
           </p>
         </section>
       </div>

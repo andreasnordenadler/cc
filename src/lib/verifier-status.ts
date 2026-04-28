@@ -9,6 +9,24 @@ export type VerifierStatus = {
 };
 
 export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
+  "knights-before-coffee": {
+    state: "spec",
+    summary: "Beginner quest specified; verifier next",
+    evidence:
+      "Will check that the player’s first four moves are all knight moves, then that the game finished in standard chess.",
+  },
+  "bishop-field-trip": {
+    state: "spec",
+    summary: "Beginner quest specified; verifier next",
+    evidence:
+      "Will check that both player bishops moved before the player queen moved, then that the game finished in standard chess.",
+  },
+  "early-king-walk": {
+    state: "spec",
+    summary: "Beginner quest specified; verifier next",
+    evidence:
+      "Will check a non-castling king move before the player’s move 12, then that the game finished in standard chess.",
+  },
   "queen-never-heard-of-her": {
     state: "live",
     summary: "Live-backed Lichess latest-game verifier",
@@ -72,7 +90,11 @@ export const verifierStateLabels: Record<VerifierState, { label: string; classNa
 };
 
 export function getVerifierStatus(challenge: Pick<Challenge, "id">) {
-  return verifierStatusByChallenge[challenge.id] ?? verifierStatusByChallenge["the-blunder-gambit"];
+  return verifierStatusByChallenge[challenge.id] ?? {
+    state: "spec",
+    summary: "Verifier not specified yet",
+    evidence: "This challenge needs an explicit verifier contract before it can create automated receipts.",
+  };
 }
 
 export function getVerifierStateLabel(status: VerifierStatus) {

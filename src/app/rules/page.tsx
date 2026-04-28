@@ -78,7 +78,7 @@ export default async function RulesPage() {
         </section>
 
         <section className="grid" aria-label="Verification scorecard">
-          <Fact label="Starter deck" value={`${CHALLENGES.length} quests`} copy="Every dare has rules, reward points, and a collectible coat-of-arms badge." />
+          <Fact label="Starter deck" value={`${CHALLENGES.length} quests`} copy="Every dare has rules, reward points, and a collectible coat-of-arms badge, including the beginner path." />
           <Fact label="Deck value" value={`${totalReward} pts`} copy="The point score is brag fuel, not a serious rating system." />
           <Fact label="Proof tone" value="Honest chaos" copy="Pass, fail, and pending states all stay shareable without pretending every attempt succeeded." />
         </section>

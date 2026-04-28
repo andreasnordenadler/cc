@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 09:52 Europe/Stockholm
+Last updated: 2026-04-28 11:12 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -30,6 +30,18 @@ Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Introduce three beginner quests and make the starter path use them.
+  - added_at: 2026-04-28 11:05 Europe/Stockholm
+  - completed_at: 2026-04-28 11:12 Europe/Stockholm
+  - source: Andreas asked for three beginner quests: one very simple but still abnormal, then two gentle increases in difficulty.
+  - Acceptance:
+    - Add a very simple beginner quest based on moving only knights for the first four moves.
+    - Add a second slightly harder but still easy beginner quest.
+    - Add a third beginner stretch quest.
+    - Starter path uses the beginner quests instead of jumping directly into harder live-backed dares.
+    - Verifier status is honest when a new beginner quest is specified but not automated yet.
+  - Verification: `pnpm lint`, `pnpm build`, production deploy, live smoke for `/path`, `/challenges`, each new challenge detail route, and `/account`.
 
 - [x] Add an account-page quest launcher so the test-drive flow can start any live-backed starter dare from `/account`.
   - added_at: 2026-04-28 10:40 Europe/Stockholm

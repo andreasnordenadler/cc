@@ -30,6 +30,7 @@ export default async function AccountPage() {
   const attempts = getChallengeAttempts(metadata).slice().reverse();
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
+  const liveVerifierCount = CHALLENGES.filter((challenge) => getVerifierStatus(challenge).state === "live").length;
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
@@ -124,12 +125,12 @@ export default async function AccountPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Quest launcher</span>
-              <h2>Pick a live-backed dare without leaving the test drive.</h2>
+              <h2>Pick a dare without leaving the test drive.</h2>
             </div>
-            <span className="badge green">{CHALLENGES.length} live verifiers</span>
+            <span className="badge green">{liveVerifierCount} live verifiers</span>
           </div>
           <p>
-            Every starter dare can now be selected directly from the account page, so the login → profile → quest → latest-game check loop is testable from one place.
+            Every starter dare can now be selected directly from the account page. Beginner quests are intentionally easier to understand; live-backed quests can create automated latest-game receipts today.
           </p>
           <div className="grid">
             {CHALLENGES.map((challenge) => {
