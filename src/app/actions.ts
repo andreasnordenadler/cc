@@ -8,6 +8,7 @@ import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
   verifyChessComDrawAsWhiteAttempt,
+  checkLatestChessComNoCastleClub,
   verifyChessComFinishAnyGameAttempt,
   verifyChessComFinishAsBlackAttempt,
   verifyChessComFinishAsWhiteAttempt,
@@ -141,7 +142,7 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
   ],
 };
 
-async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string) {
+async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
   if (challengeId === "knights-before-coffee") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessKnightsBeforeCoffee(lichessUsername);
@@ -208,6 +209,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "no-castle-club") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessNoCastleClub(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComNoCastleClub(chessComUsername);
 
       return {
         status: verdict.status,
@@ -582,7 +593,8 @@ export async function checkActiveChallenge() {
     : [];
   const now = new Date().toISOString();
   const lichessUsername = getLichessUsername(metadata);
-  const check = await buildLatestGameCheck(challenge.id, existingAttempts.length, lichessUsername);
+  const chessComUsername = getChessComUsername(metadata);
+  const check = await buildLatestGameCheck(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
   const progress = getChallengeProgress(metadata);
   const completedChallengeIds =
     check.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)

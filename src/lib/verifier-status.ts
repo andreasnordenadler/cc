@@ -35,9 +35,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "no-castle-club": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, zero player castling, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
+      "Checks player win, zero player castling, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "the-blunder-gambit": {
     state: "live",
@@ -75,7 +75,7 @@ export const verifierStateLabels: Record<VerifierState, { label: string; classNa
   live: {
     label: "Live-backed",
     className: "badge success",
-    promise: "Can create an honest pass/fail/pending receipt from a connected Lichess username today.",
+    promise: "Can create an honest pass/fail/pending receipt from a connected supported chess username today.",
   },
   next: {
     label: "Next adapter",

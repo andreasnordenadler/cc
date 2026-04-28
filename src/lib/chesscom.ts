@@ -3,15 +3,39 @@ export type ChessComVerificationVerdict = {
   summary: string;
 };
 
+type ChessComNoCastleGame = {
+  id: string;
+  playerColor: "white" | "black";
+  winner: "white" | "black" | "draw" | "unknown";
+  moveCount: number;
+  variant?: "standard" | string;
+  timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  castling: Array<{
+    ply: number;
+    color: "white" | "black";
+    side: "kingside" | "queenside";
+  }>;
+};
+
+type ChessComNoCastleVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
 type ChessComPlayer = {
   username?: string;
   result?: string;
 };
 
-type ChessComGame = {
+export type ChessComGame = {
   url?: string;
   uuid?: string;
   end_time?: number;
+  pgn?: string;
+  rules?: string;
+  time_class?: string;
   white?: ChessComPlayer;
   black?: ChessComPlayer;
 };
@@ -99,6 +123,16 @@ function didSideLose(game: ChessComGame, side: "white" | "black"): boolean {
   return didSideWin(game, side === "white" ? "black" : "white");
 }
 
+function getWinningSide(game: ChessComGame): "white" | "black" | "draw" | "unknown" {
+  const whiteResult = game.white?.result?.toLowerCase();
+  const blackResult = game.black?.result?.toLowerCase();
+
+  if (whiteResult === "win") return "white";
+  if (blackResult === "win") return "black";
+  if (whiteResult && blackResult && DRAW_RESULTS.has(whiteResult) && DRAW_RESULTS.has(blackResult)) return "draw";
+  return "unknown";
+}
+
 function getPlayerSideForUsername(game: ChessComGame, chessComUsername: string): "white" | "black" | null {
   const normalizedUsername = normalizeChessComUsername(chessComUsername);
   const whiteName = normalizeChessComUsername(game.white?.username ?? "");
@@ -139,6 +173,193 @@ async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Prom
   }
 
   return undefined;
+}
+
+function normalizeChessComTimeClass(value?: string): ChessComNoCastleGame["timeClass"] {
+  const normalized = value?.toLowerCase();
+  return normalized === "bullet" || normalized === "blitz" || normalized === "rapid" || normalized === "classical" || normalized === "daily"
+    ? normalized
+    : "unknown";
+}
+
+function extractSanMoveTokens(pgn: string): string[] {
+  const body = pgn.includes("\n\n") ? pgn.split(/\r?\n\r?\n/).slice(1).join("\n") : pgn;
+  let moveText = body.replace(/\{[^}]*\}/g, " ").replace(/;[^\n]*/g, " ");
+
+  // Chess.com public PGNs rarely include variations, but strip simple nesting defensively.
+  while (/\([^()]*\)/.test(moveText)) {
+    moveText = moveText.replace(/\([^()]*\)/g, " ");
+  }
+
+  return moveText
+    .replace(/\d+\.(\.\.)?/g, " ")
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean)
+    .filter((token) => !/^\$\d+$/.test(token))
+    .filter((token) => !["1-0", "0-1", "1/2-1/2", "*"].includes(token));
+}
+
+function chessComCastlingFromSan(token: string, ply: number) {
+  const normalized = token.replace(/[+#?!]+$/g, "").replace(/0/g, "O");
+
+  if (normalized !== "O-O" && normalized !== "O-O-O") {
+    return null;
+  }
+
+  return {
+    ply,
+    color: ply % 2 === 1 ? ("white" as const) : ("black" as const),
+    side: normalized === "O-O" ? ("kingside" as const) : ("queenside" as const),
+  };
+}
+
+function chessComColorName(color: "white" | "black") {
+  return color === "white" ? "White" : "Black";
+}
+
+function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCastleVerdict {
+  const playerCastling = game.castling.find((event) => event.color === game.playerColor);
+  const opponentCastling = game.castling.find((event) => event.color !== game.playerColor);
+
+  if (game.variant && game.variant !== "standard") {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Variants are fun, but No Castle Club only counts standard chess games.",
+      evidence: [`Variant was ${game.variant}.`],
+    };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
+      evidence: [`Time class was ${game.timeClass}.`],
+    };
+  }
+
+  if (game.moveCount < 10) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "The game ended before the minimum 10-move proof threshold.",
+      evidence: [`Game length was ${game.moveCount} moves.`],
+    };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "No Castle Club only counts if the uncastled player still wins.",
+      evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+    };
+  }
+
+  if (playerCastling) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: `The king took the sensible ${playerCastling.side} castle. Club membership denied.`,
+      evidence: [`${chessComColorName(game.playerColor)} castled ${playerCastling.side} on move ${Math.ceil(playerCastling.ply / 2)}.`],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Win confirmed with zero player castling. The king stayed uninsured and somehow survived.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} never castled in the normalized Chess.com PGN move feed.`,
+      `${chessComColorName(game.playerColor)} won after ${game.moveCount} moves.`,
+      opponentCastling
+        ? `${chessComColorName(opponentCastling.color)} castled ${opponentCastling.side}; opponent shelter is allowed.`
+        : "No castling by either side was detected.",
+    ],
+  };
+}
+
+export function normalizeChessComNoCastleClubGame(game: ChessComGame, username: string): ChessComNoCastleGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+  const castling = sanMoves
+    .map((token, index) => chessComCastlingFromSan(token, index + 1))
+    .filter((event): event is NonNullable<ReturnType<typeof chessComCastlingFromSan>> => Boolean(event));
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    castling,
+  };
+}
+
+export async function checkLatestChessComNoCastleClub(username: string): Promise<ChessComNoCastleVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest no-castle attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComNoCastleClubGame(game, username))
+        .filter((game): game is ChessComNoCastleGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComNoCastleClub(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
 }
 
 async function verifyChessComFinishedGameWithSideRequirement({

@@ -42,7 +42,7 @@ export default async function VerifiersPage() {
         </section>
 
         <section className="grid" aria-label="Verifier summary">
-          <Fact label="Live verifier" value={`${liveCount} quest`} copy="Queen? Never Heard of Her already uses deterministic rules and Lichess latest-game evidence." />
+          <Fact label="Live verifier" value={`${liveCount} quest`} copy="No Castle Club now has the first dual-host latest-game path: Lichess UCI or Chess.com PGN evidence." />
           <Fact label="Queued specs" value={`${queuedCount} quests`} copy="The rest of the starter deck has explicit rule contracts before implementation, so receipts stay honest." />
           <Fact label="Proof promise" value="No fake wins" copy="Failed or pending checks are product states, not embarrassing errors to hide." />
         </section>

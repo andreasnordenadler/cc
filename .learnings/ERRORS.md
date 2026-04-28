@@ -1041,3 +1041,30 @@ For this installed Vercel CLI, avoid `--prod` and `--since` on `vercel logs`; us
 - Context: tried to bound `vercel logs` with `timeout 20s` after the CLI rejected `--since`.
 - Cause: this Darwin host does not provide GNU `timeout` by default.
 - Fix: use a small Node child-process wrapper or OpenClaw process polling instead of assuming `timeout` exists.
+
+## [ERR-20260428-001] Node strip-types alias import and Vercel logs flag mismatch
+
+**Logged**: 2026-04-28T13:48:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests | deploy
+
+### Summary
+During the Chess.com latest-game adapter burst, two verification commands failed before being corrected.
+
+### Details
+- `node --experimental-strip-types --test tests/chesscom-no-castle-club-fixtures.mjs` could not resolve an `@/lib/...` import inside a directly imported TS module.
+- Changing to a `.ts` relative import fixed Node but failed `next build` because `allowImportingTsExtensions` is not enabled.
+- `vercel logs ... --since 30m` failed because this Vercel CLI treats logs as follow-mode and does not support filtering with `--since`.
+
+### Resolution
+- Removed the cross-module static import from `src/lib/chesscom.ts` and kept the scoped Chess.com No Castle evaluation self-contained so both Node strip-types tests and Next typecheck pass.
+- Used a bounded plain `vercel logs <deployment-url>` stream instead of `--since` for deployment log watching.
+
+### Suggested Action
+For CC tests that directly import TS modules with `node --experimental-strip-types`, avoid `@/` aliases and `.ts` extension imports in production modules unless the project test runner changes to a resolver-aware runner.
+
+### Metadata
+- Source: error
+- Related Files: src/lib/chesscom.ts, tests/chesscom-no-castle-club-fixtures.mjs
+- Tags: node-strip-types, next-build, vercel-logs

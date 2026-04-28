@@ -45,8 +45,9 @@ Old pre-reset standby roadmap is archived at:
 
 ## STRICT ACTIVE QUEUE
 
-- [ ] Build Chess.com latest-game validation path using Andreas test account `and72nor`.
+- [x] Build Chess.com latest-game validation path using Andreas test account `and72nor`.
   - added_at: 2026-04-28 12:45 Europe/Stockholm
+  - completed_at: 2026-04-28 13:47 Europe/Stockholm
   - source: Andreas supplied Chess.com username `and72nor` to test the Chess.com API for quest validation.
   - Acceptance:
     - Chess.com public archives are fetched safely with SQC User-Agent and clear pending/error states.
@@ -54,6 +55,10 @@ Old pre-reset standby roadmap is archived at:
     - At least one existing win-required quest can be verified from Chess.com without requiring a pasted game URL.
     - Fixture/test coverage uses real observed Chess.com archive shape from `and72nor` without storing private data beyond public game metadata.
   - Initial probe: `https://api.chess.com/pub/player/and72nor` and `/games/archives` returned 200; public archives include 2023/04 and 2024/01, with January 2024 games exposing `url`, `pgn`, `white/black.result`, `end_time`, `time_class`, and `rules`.
+  - Proof: added first dual-host latest-game adapter for `No Castle Club`; Chess.com public archive + PGN SAN normalization now creates honest pass/fail/pending receipts without pasted game URLs when a Chess.com username is saved and no Lichess username is present.
+  - Verification: `pnpm exec node --experimental-strip-types --test tests/chesscom-no-castle-club-fixtures.mjs`, `pnpm exec node --experimental-strip-types --test tests/*.mjs`, `pnpm lint`, `pnpm build`, direct adapter smoke for `and72nor`, production deploy, live smoke for `/verifiers`, `/challenges/no-castle-club`, and `/account`, plus bounded Vercel deployment log watch.
+  - Live deployment: `https://cc-41g7wl377-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+  - Proof doc: `docs/SQC_CHESSCOM_NO_CASTLE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`.
 
 - [ ] Prepare SQC for polished friends/private beta before any public launch push.
   - added_at: 2026-04-28 12:38 Europe/Stockholm
