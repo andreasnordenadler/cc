@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-28 08:24 Europe/Stockholm
+Last updated: 2026-04-28 08:28 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -30,6 +30,15 @@ Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
 ## STRICT ACTIVE QUEUE
+
+- [x] Enlarge the right-side chessboard watermark squares 5x.
+  - added_at: 2026-04-28 08:27 Europe/Stockholm
+  - completed_at: 2026-04-28 08:28 Europe/Stockholm
+  - source: Andreas liked the right-side chessboard watermark and asked for squares five times larger.
+  - Acceptance:
+    - Checker tile size increases from 56px to 280px.
+    - Fade, right alignment, and existing left SQC logo watermark remain intact.
+  - Verification: `pnpm lint`, `pnpm build`, production CSS smoke confirming `280px 280px`.
 
 - [x] Add right-side fading chessboard watermark to the Side Quest Chess landing background.
   - added_at: 2026-04-28 08:19 Europe/Stockholm

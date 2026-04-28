@@ -47,8 +47,8 @@ body::after {
     linear-gradient(90deg, transparent 0%, rgba(6,5,7,.16) 38%, rgba(255,247,232,.08) 100%),
     linear-gradient(45deg, rgba(245,200,106,.16) 25%, transparent 25% 75%, rgba(245,200,106,.16) 75%),
     linear-gradient(45deg, rgba(245,200,106,.16) 25%, transparent 25% 75%, rgba(245,200,106,.16) 75%);
-  background-position: 0 0, 0 0, 28px 28px;
-  background-size: auto, 56px 56px, 56px 56px;
+  background-position: 0 0, 0 0, 140px 140px;
+  background-size: auto, 280px 280px, 280px 280px;
   opacity: .34;
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.08) 16%, rgba(0,0,0,.62) 54%, #000 100%);
   mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,.08) 16%, rgba(0,0,0,.62) 54%, #000 100%);
