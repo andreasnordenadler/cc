@@ -8,6 +8,7 @@ import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
   verifyChessComDrawAsWhiteAttempt,
+  checkLatestChessComBishopFieldTrip,
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComNoCastleClub,
   verifyChessComFinishAnyGameAttempt,
@@ -183,6 +184,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "bishop-field-trip") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessBishopFieldTrip(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComBishopFieldTrip(chessComUsername);
 
       return {
         status: verdict.status,

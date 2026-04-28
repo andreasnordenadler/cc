@@ -17,9 +17,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "bishop-field-trip": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, both original bishops moving before the player queen, legal time class, and standard chess from normalized Lichess moves.",
+      "Checks player win, both original bishops moving before the player queen, legal time class, and standard chess from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "early-king-walk": {
     state: "live",

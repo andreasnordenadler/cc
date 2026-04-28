@@ -41,6 +41,25 @@ type ChessComKnightsBeforeCoffeeVerdict = {
   evidence: string[];
 };
 
+type ChessComBishopFieldTripGame = {
+  id: string;
+  playerColor: "white" | "black";
+  winner: "white" | "black" | "draw" | "unknown";
+  moveCount: number;
+  variant?: "standard" | string;
+  timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  bothBishopsMovedBeforeQueen: boolean;
+  movedBishopHomeSquaresBeforeQueen: string[];
+  queenMovedOnPlayerMove?: number;
+};
+
+type ChessComBishopFieldTripVerdict = {
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  evidence: string[];
+};
+
 type ChessComPlayer = {
   username?: string;
   result?: string;
@@ -254,6 +273,68 @@ function chessComPlayerMovePiecesFromSan(
     .filter((_, index) => (playerColor === "white" ? index % 2 === 0 : index % 2 === 1))
     .slice(0, 4)
     .map(chessComPieceFromSan);
+}
+
+function chessComTargetSquareFromSan(token: string): string | null {
+  const normalized = token
+    .replace(/[+#?!]+$/g, "")
+    .replace(/^\.{1,3}/, "")
+    .replace(/=.*$/, "");
+  const match = normalized.match(/([a-h][1-8])$/);
+  return match?.[1] ?? null;
+}
+
+function chessComSquareShade(square: string): "dark" | "light" {
+  const file = square.charCodeAt(0) - "a".charCodeAt(0) + 1;
+  const rank = Number(square[1]);
+  return (file + rank) % 2 === 0 ? "dark" : "light";
+}
+
+function chessComBishopHomeForTargetSquare(playerColor: "white" | "black", targetSquare: string) {
+  const shade = chessComSquareShade(targetSquare);
+
+  if (playerColor === "white") {
+    return shade === "dark" ? "c1" : "f1";
+  }
+
+  return shade === "light" ? "c8" : "f8";
+}
+
+function chessComBishopFieldTripFromSan(sanMoves: string[], playerColor: "white" | "black") {
+  const movedBishopHomes = new Set<string>();
+  let playerMoveNumber = 0;
+  let queenMovedOnPlayerMove: number | undefined;
+
+  sanMoves.forEach((token, index) => {
+    const isPlayerMove = playerColor === "white" ? index % 2 === 0 : index % 2 === 1;
+
+    if (!isPlayerMove) {
+      return;
+    }
+
+    playerMoveNumber += 1;
+    const piece = chessComPieceFromSan(token);
+
+    if (!queenMovedOnPlayerMove && piece === "bishop") {
+      const targetSquare = chessComTargetSquareFromSan(token);
+      if (targetSquare) {
+        movedBishopHomes.add(chessComBishopHomeForTargetSquare(playerColor, targetSquare));
+      }
+    }
+
+    if (piece === "queen" && queenMovedOnPlayerMove === undefined) {
+      queenMovedOnPlayerMove = playerMoveNumber;
+    }
+  });
+
+  const homeSquares = playerColor === "white" ? ["c1", "f1"] : ["c8", "f8"];
+  const movedBishopHomeSquaresBeforeQueen = homeSquares.filter((square) => movedBishopHomes.has(square));
+
+  return {
+    bothBishopsMovedBeforeQueen: movedBishopHomeSquaresBeforeQueen.length === 2,
+    movedBishopHomeSquaresBeforeQueen,
+    queenMovedOnPlayerMove,
+  };
 }
 
 function chessComColorName(color: "white" | "black") {
@@ -525,6 +606,140 @@ export async function checkLatestChessComKnightsBeforeCoffee(username: string): 
 
       if (normalizedGames.length) {
         return evaluateChessComKnightsBeforeCoffee(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+function evaluateChessComBishopFieldTrip(game: ChessComBishopFieldTripGame): ChessComBishopFieldTripVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Variants are fun, but Bishop Field Trip only counts standard chess games.",
+      evidence: [`Variant was ${game.variant}.`],
+    };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
+      evidence: [`Time class was ${game.timeClass}.`],
+    };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Bishop Field Trip only counts if the bishop-tour player wins.",
+      evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+    };
+  }
+
+  if (!game.bothBishopsMovedBeforeQueen) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Both original bishops need to leave home before the queen gets involved.",
+      evidence: [
+        `Moved bishop homes before queen: ${game.movedBishopHomeSquaresBeforeQueen.length ? game.movedBishopHomeSquaresBeforeQueen.join(", ") : "none"}.`,
+        game.queenMovedOnPlayerMove
+          ? `Queen first moved on player move ${game.queenMovedOnPlayerMove}.`
+          : "The player queen did not move in the normalized Chess.com PGN.",
+      ],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Bishop field trip confirmed: both original bishops left home before the queen moved, and the player won anyway.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} won the normalized Chess.com game.`,
+      `Original bishop homes moved before queen: ${game.movedBishopHomeSquaresBeforeQueen.join(", ")}.`,
+      game.queenMovedOnPlayerMove
+        ? `Queen first moved on player move ${game.queenMovedOnPlayerMove}.`
+        : "The queen never moved, which still keeps the bishop field trip valid.",
+    ],
+  };
+}
+
+export function normalizeChessComBishopFieldTripGame(game: ChessComGame, username: string): ChessComBishopFieldTripGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+  const bishopTrip = chessComBishopFieldTripFromSan(sanMoves, playerColor);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    ...bishopTrip,
+  };
+}
+
+export async function checkLatestChessComBishopFieldTrip(username: string): Promise<ChessComBishopFieldTripVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest bishop field trips.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComBishopFieldTripGame(game, username))
+        .filter((game): game is ChessComBishopFieldTripGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComBishopFieldTrip(normalizedGames[0]);
       }
     }
 
