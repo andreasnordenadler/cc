@@ -59,6 +59,26 @@ const fiveMinuteScript = [
   },
 ];
 
+
+const feedbackBrief = [
+  {
+    label: "Challenge",
+    copy: "Name the dare you tested and whether you used the beginner path, account quest launcher, or challenge page.",
+  },
+  {
+    label: "Chess source",
+    copy: "Say Lichess or Chess.com, include the public username, and paste the game link if the receipt looked wrong.",
+  },
+  {
+    label: "Receipt outcome",
+    copy: "Report passed, failed, or pending, then add one sentence on whether the result felt fair and understandable.",
+  },
+  {
+    label: "Screenshot",
+    copy: "If anything is confusing, send a screenshot of the account preflight, result card, or verifier copy that caused the confusion.",
+  },
+];
+
 const trustNotes = [
   {
     label: "Data used",
@@ -159,6 +179,28 @@ export default async function BetaPage() {
                 <strong>{challenge.title}</strong>
                 <p>{challenge.objective}</p>
                 <Link href={`/challenges/${challenge.id}`} className="button secondary">Open rules</Link>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Feedback packet</span>
+              <h2>Tell testers exactly what useful feedback looks like.</h2>
+            </div>
+            <span className="badge blue">challenge · source · receipt</span>
+          </div>
+          <p>
+            Private-beta reports should be small but diagnostic: one tested dare, one chess source, one receipt outcome, and the exact place where the loop became unclear.
+          </p>
+          <div className="grid" aria-label="Useful private beta feedback packet">
+            {feedbackBrief.map((item) => (
+              <article className="fact" key={item.label}>
+                <span>Include</span>
+                <strong>{item.label}</strong>
+                <p>{item.copy}</p>
               </article>
             ))}
           </div>
