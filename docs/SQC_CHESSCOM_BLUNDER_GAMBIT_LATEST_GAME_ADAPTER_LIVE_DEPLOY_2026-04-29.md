@@ -23,7 +23,7 @@ Project: CC / Side Quest Chess
 
 Production deploy completed via Vercel.
 
-- Preview/production deployment URL: `https://cc-299efwx2j-andreas-nordenadlers-projects.vercel.app`
+- Preview/production deployment URL: `https://cc-5haztb5fn-andreas-nordenadlers-projects.vercel.app`
 - Production alias: `https://sidequestchess.com`
 - Vercel build completed successfully and aliased the deployment to production.
 
