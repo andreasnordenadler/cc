@@ -39,6 +39,10 @@ export default async function AccountPage() {
     ? getLatestChallengeAttempt(metadata, activeChallengeRecord.id)
     : null;
   const latestAttemptSummary = buildAttemptSummary(latestActiveAttempt);
+  const hasChessIdentity = Boolean(lichessUsername || chessComUsername);
+  const hasActiveDare = Boolean(activeChallengeRecord);
+  const hasLatestReceipt = Boolean(latestActiveAttempt);
+  const betaPreflightCleared = [Boolean(user), hasChessIdentity, hasActiveDare, hasLatestReceipt].filter(Boolean).length;
 
   return (
     <main className="site-shell">
@@ -93,6 +97,45 @@ export default async function AccountPage() {
             <Link href={activeChallengeRecord ? "/result" : "/challenges"} className="button secondary">
               {activeChallengeRecord ? "Review latest result" : "Pick first quest"}
             </Link>
+          </div>
+        </section>
+
+        <section className="mission-card beta-preflight-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Private beta preflight</span>
+              <h2>{betaPreflightCleared}/4 tester steps ready</h2>
+            </div>
+            <span className={betaPreflightCleared === 4 ? "badge green" : "badge blue"}>
+              {betaPreflightCleared === 4 ? "ready to share" : "guided setup"}
+            </span>
+          </div>
+          <p>
+            Use this as the friend-test checklist before sending a result screenshot: sign in, connect one chess identity, make a dare active, then generate a latest-game receipt.
+          </p>
+          <div className="checker-flow" aria-label="Private beta readiness checklist">
+            <div className={user ? "flow-step ready" : "flow-step"}>
+              <strong>{user ? "✓ Signed in" : "1. Sign in"}</strong>
+              <p>{user ? "The beta run can save profile details and receipts." : "Create a beta runner profile so the loop can remember progress."}</p>
+            </div>
+            <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
+              <strong>{hasChessIdentity ? "✓ Chess identity set" : "2. Add Lichess or Chess.com"}</strong>
+              <p>{hasChessIdentity ? `Using ${lichessUsername || chessComUsername} for latest-game checks.` : "One public username is enough; no passwords or game uploads."}</p>
+            </div>
+            <div className={hasActiveDare ? "flow-step ready" : "flow-step"}>
+              <strong>{hasActiveDare ? "✓ Dare active" : "3. Pick a dare"}</strong>
+              <p>{hasActiveDare ? `${activeChallengeRecord?.title} is ready for the proof loop.` : "Choose one of the ten dual-host starter quests."}</p>
+            </div>
+            <div className={hasLatestReceipt ? "flow-step hot" : "flow-step"}>
+              <strong>{hasLatestReceipt ? "✓ Receipt generated" : "4. Check latest games"}</strong>
+              <p>{hasLatestReceipt ? "The result page has a pass, fail, or pending receipt to review." : "Run one latest-game check after a real game so feedback is visible."}</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href={hasChessIdentity ? "/challenges" : "/connect"} className="button primary">
+              {hasChessIdentity ? "Pick or change dare" : "Connect chess identity"}
+            </Link>
+            <Link href="/beta" className="button secondary">Open tester script</Link>
           </div>
         </section>
 
