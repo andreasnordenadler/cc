@@ -105,6 +105,30 @@ const friendInvite = `Want to test Side Quest Chess?
 4. Play a real game on your chess site, then return to Account and verify latest game.
 5. Send back the challenge, chess source, receipt outcome, and anything confusing.`;
 
+
+const betaExitCriteria = [
+  {
+    label: "First 10 seconds",
+    value: "Concept lands fast",
+    copy: "A new tester can explain the loop as pick a weird win, play on their chess site, then return for an honest proof receipt.",
+  },
+  {
+    label: "Account preflight",
+    value: "No setup mystery",
+    copy: "The tester knows which username is saved, which quest is active, and where to run latest-game verification after playing.",
+  },
+  {
+    label: "Receipt clarity",
+    value: "Every result has a next move",
+    copy: "Passed means share proof, failed means check the rule explanation, and pending means send the public username plus latest game link.",
+  },
+  {
+    label: "Friend handoff",
+    value: "One message can recruit a tester",
+    copy: "The beta invite and feedback template are specific enough that Andreas can ask for useful tests without writing a fresh brief each time.",
+  },
+];
+
 const retestGuide = [
   {
     label: "Passed",
@@ -273,6 +297,25 @@ export default async function BetaPage() {
             <span>Copy / paste invite</span>
             <strong>Send this when you want a friend to run the private-beta loop.</strong>
             <pre>{friendInvite}</pre>
+          </div>
+        </section>
+
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Private-beta green lights</span>
+              <h2>Use these checks before inviting a wider tester circle.</h2>
+            </div>
+            <span className="badge green">clarity gates</span>
+          </div>
+          <p>
+            The goal is not public-launch volume yet. The next invite wave is ready when a friend can understand the loop quickly, complete setup without route hunting, and know what to send back after any receipt outcome.
+          </p>
+          <div className="grid" aria-label="Private beta green-light criteria">
+            {betaExitCriteria.map((item) => (
+              <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
+            ))}
           </div>
         </section>
 
