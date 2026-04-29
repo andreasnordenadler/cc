@@ -31,14 +31,14 @@ export default async function ConnectPage() {
         <section className="big-grid">
           <article className="connect-card active">
             <span className="eyebrow">Lichess</span>
-            <h2>Fastest setup</h2>
-            <p>Use your public username so Side Quest Chess can connect challenges to real games.</p>
+            <h2>Full starter-deck support</h2>
+            <p>Save your public Lichess username and every current starter-deck quest can use latest-game checks for honest pass, fail, or pending receipts.</p>
           </article>
 
           <article className="connect-card">
             <span className="eyebrow">Chess.com</span>
-            <h2>Username tracking</h2>
-            <p>Use your Chess.com username for beginner-path, No Castle Club, Queen? Never Heard of Her, Pawn Storm Maniac, Knightmare Mode, Rookless Rampage, and One Bishop to Rule Them All checks today, with more parity coming as the beta hardens.</p>
+            <h2>Full starter-deck support</h2>
+            <p>Save your Chess.com username and every current starter-deck quest can use latest-game checks too — no provider-specific dare hunting, PGN upload, or password sharing.</p>
           </article>
         </section>
 
@@ -63,7 +63,7 @@ export default async function ConnectPage() {
           <section className="mission-card">
             <span className="eyebrow">Login needed</span>
             <h2>Sign in to save your chess usernames.</h2>
-            <p>The verifier can browse public games, but SQC needs a saved runner profile to remember your Lichess username, active quest, badges, and proof cards.</p>
+            <p>The verifier can browse public games, but SQC needs a saved runner profile to remember your chess usernames, active quest, badges, and proof cards.</p>
             <div className="button-row">
               <Link href="/sign-in" className="button primary">Sign in to connect</Link>
               <Link href="/profile" className="button secondary">Profile setup</Link>
