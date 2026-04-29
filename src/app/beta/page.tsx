@@ -79,6 +79,15 @@ const feedbackBrief = [
   },
 ];
 
+const feedbackTemplate = `Challenge tested:
+Chess source: Lichess / Chess.com
+Public username:
+Game link, if useful:
+Receipt outcome: passed / failed / pending
+Did the result feel fair? yes / no, because…
+Most confusing moment:
+Screenshot attached? yes / no`;
+
 const trustNotes = [
   {
     label: "Data used",
@@ -203,6 +212,11 @@ export default async function BetaPage() {
                 <p>{item.copy}</p>
               </article>
             ))}
+          </div>
+          <div className="fact beta-template-card" aria-label="Copyable private beta feedback template">
+            <span>Copy / paste template</span>
+            <strong>One message is enough when it has the right fields.</strong>
+            <pre>{feedbackTemplate}</pre>
           </div>
         </section>
 
