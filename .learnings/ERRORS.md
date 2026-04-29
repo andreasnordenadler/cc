@@ -1493,3 +1493,49 @@ For every isolated CC worktree deploy, copy the canonical `.vercel/project.json`
 - Tags: vercel, worktree, deployment
 
 ---
+
+## [ERR-20260429-2042] pnpm_lint_missing_node_modules_in_clean_worktree
+
+**Logged**: 2026-04-29T20:43:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`pnpm lint` failed in a fresh CC isolated git worktree because `node_modules` was not installed there (`eslint: command not found`).
+
+### Details
+Clean worktrees under `cc/.worktrees/*` do not inherit the parent checkout's `node_modules`. Run `pnpm install --frozen-lockfile` before lint/build in a new worktree.
+
+### Suggested Action
+For future CC clean-worktree bursts, install dependencies first or verify `node_modules/.bin/eslint` exists before running checks.
+
+### Metadata
+- Source: error
+- Related Files: package.json, pnpm-lock.yaml
+- Tags: pnpm, worktree, lint
+
+---
+
+## [ERR-20260429-2047] vercel_logs_since_flag_unsupported
+
+**Logged**: 2026-04-29T20:47:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment-url> --since 5m` failed because this Vercel CLI treats logs as follow-mode by default and does not support filtering with `--since`.
+
+### Details
+For quick post-deploy verification in this CC project, use direct route smoke checks as the smallest reliable proof, or inspect Vercel logs without unsupported filters.
+
+### Suggested Action
+Do not add `--since` to `vercel logs` in this CLI unless help output confirms support for non-follow filtered logs.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_PRIVATE_BETA_FIRST_WAVE_SCORECARD_LIVE_DEPLOY_2026-04-29.md
+- Tags: vercel, logs, deploy-verify
+
+---

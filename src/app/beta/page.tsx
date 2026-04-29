@@ -171,6 +171,39 @@ const firstWavePlan = [
   },
 ];
 
+const firstWaveScorecard = [
+  {
+    label: "Tester",
+    value: "Who ran it?",
+    copy: "Write the friend name or handle, then mark whether they tested Lichess, Chess.com, or both.",
+  },
+  {
+    label: "Quest",
+    value: "Which dare?",
+    copy: "Capture the exact challenge and whether the tester started from /path, /account, or a direct challenge page.",
+  },
+  {
+    label: "Receipt",
+    value: "Pass / fail / pending",
+    copy: "Record the latest-game outcome plus one fairness sentence so failures and pending states become useful signal instead of noise.",
+  },
+  {
+    label: "Friction",
+    value: "One fix candidate",
+    copy: "Note the first confusing moment only. If there is no confusion, mark the loop clean and count it toward the two-clean-loop green light.",
+  },
+];
+
+const firstWaveScorecardTemplate = `Tester:
+Chess site tested: Lichess / Chess.com / both
+Quest tested:
+Entry route: /path /account /challenge
+Receipt outcome: passed / failed / pending
+Fairness note:
+First confusing moment:
+Clean loop? yes / no
+Follow-up needed:`;
+
 const trustNotes = [
   {
     label: "Data used",
@@ -379,6 +412,29 @@ export default async function BetaPage() {
           </div>
         </section>
 
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">First-wave scorecard</span>
+              <h2>Track the first friend tests as evidence, not vibes.</h2>
+            </div>
+            <span className="badge blue">clean loop log</span>
+          </div>
+          <p>
+            After each friend runs the private-beta loop, capture one compact scorecard. This gives Andreas a concrete view of whether the next wave is ready: two clean loops, both chess providers covered, and every confusing moment tied to a specific fix candidate.
+          </p>
+          <div className="grid" aria-label="Private beta first-wave scorecard fields">
+            {firstWaveScorecard.map((item) => (
+              <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
+            ))}
+          </div>
+          <div className="fact beta-template-card" aria-label="Copyable private beta first-wave scorecard">
+            <span>Copy / paste scorecard</span>
+            <strong>Use this once per tester so the green-light decision is based on comparable reports.</strong>
+            <pre>{firstWaveScorecardTemplate}</pre>
+          </div>
+        </section>
 
         <section className="mission-card">
           <div className="section-head">
