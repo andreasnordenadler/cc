@@ -204,6 +204,41 @@ First confusing moment:
 Clean loop? yes / no
 Follow-up needed:`;
 
+const samRunBetaPass = [
+  {
+    label: "First-10-second read",
+    value: "Explain the loop unaided",
+    copy: "Open the site cold and write whether the next action is obvious: pick a weird win, play on Lichess or Chess.com, then return for a receipt.",
+  },
+  {
+    label: "Setup friction",
+    value: "Identity → dare → proof",
+    copy: "Run the signed-in path from account preflight through one active dare and note the first place where a tester might route-hunt or hesitate.",
+  },
+  {
+    label: "Receipt interpretation",
+    value: "Pass / fail / pending clarity",
+    copy: "Check whether every result explains what happened, whether it felt fair, and what the tester should do next without asking Andreas.",
+  },
+  {
+    label: "Fix priority",
+    value: "One highest-friction fix",
+    copy: "End each Sam-run beta pass with exactly one recommended product fix so internal testing turns into launch-readiness work, not notes for their own sake.",
+  },
+];
+
+const samRunBetaTemplate = `Sam-run beta pass:
+Date/time:
+Entry route tested: / /beta /account /path /challenge
+Chess site simulated: Lichess / Chess.com / both
+Quest tested:
+First-10-second clarity: clear / unclear, because…
+Setup friction score: 1-5
+Receipt clarity score: 1-5
+First confusing moment:
+Highest-priority fix:
+Ready for friend wave? yes / no`;
+
 const trustNotes = [
   {
     label: "Data used",
@@ -433,6 +468,29 @@ export default async function BetaPage() {
             <span>Copy / paste scorecard</span>
             <strong>Use this once per tester so the green-light decision is based on comparable reports.</strong>
             <pre>{firstWaveScorecardTemplate}</pre>
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Sam-run beta pass</span>
+              <h2>Use internal testing when friend feedback will be sparse.</h2>
+            </div>
+            <span className="badge gold">clarity + friction</span>
+          </div>
+          <p>
+            External testers are useful, but the private beta should not wait on them. This pass gives Sam a repeatable way to act as the first beta tester: score clarity, setup friction, receipt interpretation, and the one fix that would most improve launch readiness.
+          </p>
+          <div className="grid" aria-label="Sam-run private beta pass checklist">
+            {samRunBetaPass.map((item) => (
+              <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
+            ))}
+          </div>
+          <div className="fact beta-template-card" aria-label="Copyable Sam-run beta pass template">
+            <span>Copy / paste internal pass</span>
+            <strong>Use this when Sam runs the beta loop without waiting for friend testers.</strong>
+            <pre>{samRunBetaTemplate}</pre>
           </div>
         </section>
 

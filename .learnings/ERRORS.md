@@ -1539,3 +1539,10 @@ Do not add `--since` to `vercel logs` in this CLI unless help output confirms su
 - Tags: vercel, logs, deploy-verify
 
 ---
+
+## [ERR-20260429-2342] Worktree missing node_modules before lint
+
+**Logged**: 2026-04-29T23:42:00+02:00
+**Priority**: low
+
+A fresh isolated git worktree for CC did not have `node_modules`, so `pnpm lint` failed with `eslint: command not found`. Run `pnpm install --frozen-lockfile` in clean worktrees before verification.
