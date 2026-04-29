@@ -105,6 +105,24 @@ const friendInvite = `Want to test Side Quest Chess?
 4. Play a real game on your chess site, then return to Account and verify latest game.
 5. Send back the challenge, chess source, receipt outcome, and anything confusing.`;
 
+const retestGuide = [
+  {
+    label: "Passed",
+    value: "Share the proof card",
+    copy: "If the receipt passes, send the challenge name plus the proof link or screenshot. That confirms the happy path works for your chess site.",
+  },
+  {
+    label: "Failed",
+    value: "Check whether the failure feels fair",
+    copy: "A failed quest is useful if the explanation matches the game. Report it only if the result seems wrong or the wording makes the rule hard to understand.",
+  },
+  {
+    label: "Pending",
+    value: "Send the username and game link",
+    copy: "Pending usually means there was no eligible recent public game yet. Send the public username and latest game link so the beta can distinguish normal waiting from a verifier gap.",
+  },
+];
+
 const trustNotes = [
   {
     label: "Data used",
@@ -255,6 +273,24 @@ export default async function BetaPage() {
             <span>Copy / paste invite</span>
             <strong>Send this when you want a friend to run the private-beta loop.</strong>
             <pre>{friendInvite}</pre>
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">After the receipt</span>
+              <h2>Make passed, failed, and pending outcomes all useful.</h2>
+            </div>
+            <span className="badge blue">no dead ends</span>
+          </div>
+          <p>
+            The beta should not leave testers guessing after verification. Use the outcome to decide whether to share proof, validate the failure explanation, or send a public game link for debugging.
+          </p>
+          <div className="grid" aria-label="Private beta retest guidance">
+            {retestGuide.map((item) => (
+              <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
+            ))}
           </div>
         </section>
 

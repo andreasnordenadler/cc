@@ -1441,3 +1441,32 @@ Use Python urllib or another available HTTP client for smoke checks in this envi
 Run `pnpm install --frozen-lockfile` in clean SQC worktrees before local verification, or reuse an already prepared worktree when safe.
 
 ---
+
+## [ERR-20260429-001] clean_worktree_missing_node_modules
+
+**Logged**: 2026-04-29T15:50:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`pnpm lint` failed in a newly-created clean CC worktree because dependencies were not installed there.
+
+### Error
+```text
+sh: eslint: command not found
+WARN Local package.json exists, but node_modules missing, did you mean to install?
+```
+
+### Context
+- Command attempted: `pnpm lint && pnpm build`
+- Worktree: `.worktrees/beta-retake-guidance`
+
+### Suggested Fix
+Run `pnpm install --frozen-lockfile` in clean deployment worktrees before lint/build checks.
+
+### Metadata
+- Reproducible: yes
+- Related Files: package.json, pnpm-lock.yaml
+
+---
