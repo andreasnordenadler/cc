@@ -1,4 +1,5 @@
 import type { KnightmareFinalMove, KnightmareGame, KnightmareVerdict } from "./knightmare-mode";
+import type { OneBishopGame, OneBishopVerdict } from "./one-bishop-to-rule-them-all";
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
 import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 
@@ -122,6 +123,7 @@ type ChessComRooklessRampageVerdict = {
 };
 
 type ChessComKnightmareModeVerdict = KnightmareVerdict;
+type ChessComOneBishopVerdict = OneBishopVerdict;
 
 type ChessComPiece = QueenChallengeCaptureEvent["capturedPiece"];
 
@@ -673,6 +675,59 @@ function chessComFinalMoveFromSan(sanMoves: string[]): KnightmareFinalMove | und
   });
 
   return finalMove ?? undefined;
+}
+
+function chessComFinalMinorPiecesFromSan(sanMoves: string[], playerColor: QueenChallengeSide): OneBishopGame["finalMinorPieces"] {
+  const board = cloneChessComBoard();
+
+  sanMoves.forEach((token, index) => {
+    applyChessComSanMove(board, token, index + 1);
+  });
+
+  return Object.entries(board)
+    .filter(([, piece]) => piece.color === playerColor && (piece.piece === "bishop" || piece.piece === "knight"))
+    .map(([square, piece]) => ({ kind: piece.piece as "bishop" | "knight", square }))
+    .sort((a, b) => a.square.localeCompare(b.square));
+}
+
+function evaluateChessComOneBishopToRuleThemAll(game: OneBishopGame): ChessComOneBishopVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return { status: "failed", gameId: game.id, summary: "Variants are fun, but One Bishop to Rule Them All only counts standard chess games.", evidence: [`Variant was ${game.variant}.`] };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return { status: "failed", gameId: game.id, summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.", evidence: [`Time class was ${game.timeClass}.`] };
+  }
+
+  if (game.moveCount < 15) {
+    return { status: "failed", gameId: game.id, summary: "The game ended before the minimum 15-move one-bishop proof threshold.", evidence: [`Game length was ${game.moveCount} moves.`] };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return { status: "failed", gameId: game.id, summary: "One Bishop to Rule Them All only counts if the lonely diagonal manager also wins.", evidence: [`Winner was ${chessComColorName(game.winner as QueenChallengeSide)}.`] };
+  }
+
+  const bishops = game.finalMinorPieces.filter((piece) => piece.kind === "bishop");
+  const knights = game.finalMinorPieces.filter((piece) => piece.kind === "knight");
+
+  if (bishops.length !== 1 || knights.length !== 0 || game.finalMinorPieces.length !== 1) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: `Final minor-piece department had ${bishops.length} bishop(s) and ${knights.length} knight(s). That is not lonely enough.`,
+      evidence: [`${chessComColorName(game.playerColor)} final minor pieces: ${game.finalMinorPieces.map((piece) => `${piece.kind} on ${piece.square}`).join(", ") || "none"}.`],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Exactly one bishop was the entire minor-piece department at victory. One Bishop to Rule Them All confirmed.",
+    evidence: [
+      `${chessComColorName(game.playerColor)} won after ${game.moveCount} moves.`,
+      `The only final minor piece was a bishop on ${bishops[0].square}.`,
+    ],
+  };
 }
 
 function getChessComEndStatus(game: ChessComGame): KnightmareGame["status"] {
@@ -1412,6 +1467,84 @@ export function normalizeChessComRooklessRampageGame(game: ChessComGame, usernam
     timeClass: normalizeChessComTimeClass(game.time_class),
     rookLosses: chessComRooklessLossesFromSan(sanMoves),
   };
+}
+
+export function normalizeChessComOneBishopToRuleThemAllGame(game: ChessComGame, username: string): OneBishopGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    finalMinorPieces: chessComFinalMinorPiecesFromSan(sanMoves, playerColor),
+  };
+}
+
+export async function checkLatestChessComOneBishopToRuleThemAll(username: string): Promise<ChessComOneBishopVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest one-bishop attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComOneBishopToRuleThemAllGame(game, username))
+        .filter((game): game is OneBishopGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComOneBishopToRuleThemAll(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
 }
 
 export async function checkLatestChessComRooklessRampage(username: string): Promise<ChessComRooklessRampageVerdict> {

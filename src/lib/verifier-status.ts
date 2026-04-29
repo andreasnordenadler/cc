@@ -65,9 +65,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "one-bishop-to-rule-them-all": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, exactly one final player bishop, zero final player knights, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
+      "Checks player win, exactly one final player bishop, zero final player knights, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
 };
 

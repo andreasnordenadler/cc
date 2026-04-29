@@ -13,6 +13,7 @@ import {
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComKnightmareMode,
   checkLatestChessComNoCastleClub,
+  checkLatestChessComOneBishopToRuleThemAll,
   checkLatestChessComPawnStormManiac,
   checkLatestChessComQueenNeverHeardOfHer,
   checkLatestChessComRooklessRampage,
@@ -406,6 +407,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "one-bishop-to-rule-them-all") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessOneBishopToRuleThemAll(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComOneBishopToRuleThemAll(chessComUsername);
 
       return {
         status: verdict.status,
