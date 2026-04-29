@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-29 01:55 Europe/Stockholm
+Last updated: 2026-04-29 04:40 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -82,6 +82,7 @@ Old pre-reset standby roadmap is archived at:
   - 2026-04-29 00:55 Europe/Stockholm progress: deployed the Rookless Rampage Chess.com latest-game adapter from a clean isolated worktree to avoid shipping unrelated dirty checkout files; proof doc `docs/SQC_CHESSCOM_ROOKLESS_RAMPAGE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-29.md`. The private-beta verifier path now has seven dual-host quests live on `https://sidequestchess.com`: the three beginner quests, `No Castle Club`, `Queen? Never Heard of Her`, `Pawn Storm Maniac`, and `Rookless Rampage`.
   - 2026-04-29 01:55 Europe/Stockholm progress: promoted `Knightmare Mode` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and prepared it in the same clean isolated deploy worktree; proof doc `docs/SQC_CHESSCOM_KNIGHTMARE_MODE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-29.md`. The private-beta verifier path now has eight dual-host quests: the three beginner quests, `No Castle Club`, `Queen? Never Heard of Her`, `Pawn Storm Maniac`, `Knightmare Mode`, and `Rookless Rampage`.
   - 2026-04-29 03:46 Europe/Stockholm progress: promoted `One Bishop to Rule Them All` from Lichess-only to dual-host Lichess + Chess.com latest-game verification and deployed it to `https://sidequestchess.com`; proof doc `docs/SQC_CHESSCOM_ONE_BISHOP_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-29.md`. The private-beta verifier path now has nine dual-host quests: the three beginner quests, `No Castle Club`, `Queen? Never Heard of Her`, `Pawn Storm Maniac`, `Knightmare Mode`, `Rookless Rampage`, and `One Bishop to Rule Them All`.
+  - 2026-04-29 04:40 Europe/Stockholm progress: promoted `The Blunder Gambit` from Lichess-only to dual-host Lichess + Chess.com latest-game verification; proof doc `docs/SQC_CHESSCOM_BLUNDER_GAMBIT_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-29.md`. The private-beta verifier path now has ten dual-host quests: the three beginner quests, `No Castle Club`, `Queen? Never Heard of Her`, `Pawn Storm Maniac`, `Knightmare Mode`, `Rookless Rampage`, `One Bishop to Rule Them All`, and `The Blunder Gambit`.
 
 - [x] Promote Early King Walk to dual-host Lichess + Chess.com latest-game verification.
   - added_at: 2026-04-28 17:40 Europe/Stockholm

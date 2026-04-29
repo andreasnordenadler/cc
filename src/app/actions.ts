@@ -9,6 +9,7 @@ import {
   verifyChessComDrawAsBlackAttempt,
   verifyChessComDrawAsWhiteAttempt,
   checkLatestChessComBishopFieldTrip,
+  checkLatestChessComBlunderGambit,
   checkLatestChessComEarlyKingWalk,
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComKnightmareMode,
@@ -438,6 +439,16 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
   if (challengeId === "the-blunder-gambit") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessBlunderGambit(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComBlunderGambit(chessComUsername);
 
       return {
         status: verdict.status,

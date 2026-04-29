@@ -1,3 +1,4 @@
+import type { BlunderGambitCaptureEvent, BlunderGambitGame, BlunderGambitPiece, BlunderGambitVerdict } from "./the-blunder-gambit";
 import type { KnightmareFinalMove, KnightmareGame, KnightmareVerdict } from "./knightmare-mode";
 import type { OneBishopGame, OneBishopVerdict } from "./one-bishop-to-rule-them-all";
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
@@ -124,6 +125,7 @@ type ChessComRooklessRampageVerdict = {
 
 type ChessComKnightmareModeVerdict = KnightmareVerdict;
 type ChessComOneBishopVerdict = OneBishopVerdict;
+type ChessComBlunderGambitVerdict = BlunderGambitVerdict;
 
 type ChessComPiece = QueenChallengeCaptureEvent["capturedPiece"];
 
@@ -740,6 +742,224 @@ function getChessComEndStatus(game: ChessComGame): KnightmareGame["status"] {
   if (whiteResult === "stalemate" || blackResult === "stalemate") return "stalemate";
   if (whiteResult && blackResult && DRAW_RESULTS.has(whiteResult) && DRAW_RESULTS.has(blackResult)) return "draw";
   return "unknown";
+}
+
+
+
+function chessComBlunderGambitColorName(color: BlunderGambitGame["winner"]) {
+  if (color === "white") return "White";
+  if (color === "black") return "Black";
+  return color;
+}
+
+function chessComBlunderGambitMoveNumberFromPly(ply: number): number {
+  return Math.ceil(ply / 2);
+}
+
+function evaluateChessComBlunderGambit(game: BlunderGambitGame): ChessComBlunderGambitVerdict {
+  if (game.variant && game.variant !== "standard") {
+    return { status: "failed", gameId: game.id, summary: "Variants are fun, but The Blunder Gambit only counts standard chess games.", evidence: [`Variant was ${game.variant}.`] };
+  }
+
+  if (!["bullet", "blitz", "rapid", "unknown"].includes(game.timeClass ?? "unknown")) {
+    return { status: "failed", gameId: game.id, summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.", evidence: [`Time class was ${game.timeClass}.`] };
+  }
+
+  if (game.moveCount < 15) {
+    return { status: "failed", gameId: game.id, summary: "The game ended before the minimum 15-move PR-recovery threshold.", evidence: [`Game length was ${game.moveCount} moves.`] };
+  }
+
+  if (game.winner !== game.playerColor) {
+    return { status: "failed", gameId: game.id, summary: "The Blunder Gambit only counts if the player who hung material still wins.", evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComBlunderGambitColorName(game.winner)}.`] };
+  }
+
+  const pieceValues: Record<BlunderGambitPiece, number> = { king: 99, queen: 9, rook: 5, bishop: 3, knight: 3, pawn: 1 };
+  const blunderPieces = new Set<BlunderGambitPiece>(["knight", "bishop", "rook"]);
+  const earlyPlayerLosses = game.captures.filter(
+    (capture) =>
+      capture.color !== game.playerColor &&
+      capture.capturedColor === game.playerColor &&
+      blunderPieces.has(capture.capturedPiece) &&
+      chessComBlunderGambitMoveNumberFromPly(capture.ply) <= 10,
+  );
+
+  const qualifyingLoss = earlyPlayerLosses.find((loss) => {
+    const immediateReply = game.captures.find(
+      (capture) => capture.color === game.playerColor && capture.ply === loss.ply + 1,
+    );
+
+    return !immediateReply || pieceValues[immediateReply.capturedPiece] < pieceValues[loss.capturedPiece];
+  });
+
+  if (!qualifyingLoss) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "No early unbalanced piece hang was found. Suspiciously competent chess does not count.",
+      evidence: earlyPlayerLosses.length
+        ? ["Early piece losses were immediately balanced by equal-or-better material on the next move."]
+        : ["No player knight, bishop, or rook was captured by move 10."],
+    };
+  }
+
+  return {
+    status: "passed",
+    gameId: game.id,
+    summary: "Early material hang confirmed, immediate compensation denied, and the blunder artist still won. Branding saved the opening.",
+    evidence: [
+      `${chessComBlunderGambitColorName(game.playerColor)} lost a ${qualifyingLoss.capturedPiece} on move ${chessComBlunderGambitMoveNumberFromPly(qualifyingLoss.ply)}.`,
+      "No equal-or-better material was won back on the immediate reply.",
+      `${chessComBlunderGambitColorName(game.playerColor)} still won after ${game.moveCount} moves.`,
+    ],
+  };
+}
+
+function applyChessComSanBlunderGambitMove(
+  board: Record<string, ChessComBoardPiece>,
+  token: string,
+  ply: number,
+): BlunderGambitCaptureEvent | null {
+  const color: QueenChallengeSide = ply % 2 === 1 ? "white" : "black";
+  const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
+
+  if (normalized === "O-O" || normalized === "O-O-O") {
+    const rank = color === "white" ? "1" : "8";
+    const kingFrom = `e${rank}`;
+    const kingTo = normalized === "O-O" ? `g${rank}` : `c${rank}`;
+    const rookFrom = normalized === "O-O" ? `h${rank}` : `a${rank}`;
+    const rookTo = normalized === "O-O" ? `f${rank}` : `d${rank}`;
+    board[kingTo] = board[kingFrom];
+    board[rookTo] = board[rookFrom];
+    delete board[kingFrom];
+    delete board[rookFrom];
+    return null;
+  }
+
+  const to = chessComTargetSquareFromSan(normalized);
+  if (!to) return null;
+
+  const movingPiece = chessComPieceFromSan(normalized) as ChessComPiece;
+  const sourceHint = chessComSourceHintFromSan(normalized, movingPiece);
+  const candidates = Object.entries(board)
+    .filter(([, piece]) => piece && piece.color === color && piece.piece === movingPiece)
+    .filter(([square]) => !sourceHint || sourceHint.split("").every((hint) => square.includes(hint)))
+    .filter(([square]) => chessComCanPieceReach(movingPiece, square, to, color, board));
+
+  const from = candidates[0]?.[0];
+  if (!from) return null;
+
+  let capturedSquare = to;
+  let captured = board[to];
+
+  if (movingPiece === "pawn" && from[0] !== to[0] && !captured) {
+    capturedSquare = `${to[0]}${from[1]}`;
+    captured = board[capturedSquare];
+  }
+
+  const captureEvent = captured
+    ? {
+        ply,
+        color,
+        from,
+        to,
+        capturedColor: captured.color,
+        capturedPiece: captured.piece as BlunderGambitPiece,
+      }
+    : null;
+
+  if (captured) {
+    delete board[capturedSquare];
+  }
+
+  delete board[from];
+  board[to] = { color, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
+
+  return captureEvent;
+}
+
+function chessComBlunderGambitCapturesFromSan(sanMoves: string[]): BlunderGambitCaptureEvent[] {
+  const board = cloneChessComBoard();
+  return sanMoves
+    .map((token, index) => applyChessComSanBlunderGambitMove(board, token, index + 1))
+    .filter((event): event is BlunderGambitCaptureEvent => Boolean(event));
+}
+
+export function normalizeChessComBlunderGambitGame(game: ChessComGame, username: string): BlunderGambitGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    captures: chessComBlunderGambitCapturesFromSan(sanMoves),
+  };
+}
+
+export async function checkLatestChessComBlunderGambit(username: string): Promise<ChessComBlunderGambitVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest Blunder Gambit attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComBlunderGambitGame(game, username))
+        .filter((game): game is BlunderGambitGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluateChessComBlunderGambit(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
 }
 
 function chessComQueenChallengeCapturesFromSan(sanMoves: string[]): QueenChallengeCaptureEvent[] {

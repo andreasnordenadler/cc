@@ -41,9 +41,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   },
   "the-blunder-gambit": {
     state: "live",
-    summary: "Live-backed Lichess latest-game verifier",
+    summary: "Live-backed Lichess + Chess.com latest-game verifier",
     evidence:
-      "Checks player win, early unbalanced knight/bishop/rook loss by move 10, no equal immediate reply, legal time class, standard chess, and minimum game length from normalized Lichess moves.",
+      "Checks player win, early unbalanced knight/bishop/rook loss by move 10, no equal immediate reply, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "pawn-storm-maniac": {
     state: "live",
