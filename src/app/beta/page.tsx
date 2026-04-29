@@ -97,6 +97,14 @@ Did the result feel fair? yes — I moved a pawn before the fourth knight move.
 Most confusing moment: I was not sure whether a casual game counted.
 Screenshot attached? yes`;
 
+const friendInvite = `Want to test Side Quest Chess?
+
+1. Open https://sidequestchess.com/beta
+2. Sign in and save either your Lichess or Chess.com username.
+3. Pick one weird win-required quest from the beginner path or full deck.
+4. Play a real game on your chess site, then return to Account and verify latest game.
+5. Send back the challenge, chess source, receipt outcome, and anything confusing.`;
+
 const trustNotes = [
   {
     label: "Data used",
@@ -229,6 +237,24 @@ export default async function BetaPage() {
             <pre>{feedbackTemplate}</pre>
             <span>Example report</span>
             <pre>{feedbackExample}</pre>
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Friend invite</span>
+              <h2>Copy one short note when asking someone to test.</h2>
+            </div>
+            <span className="badge pink">ready to send</span>
+          </div>
+          <p>
+            This keeps the ask crisp: one username, one quest, one real game, one receipt, one useful report.
+          </p>
+          <div className="fact beta-template-card" aria-label="Copyable private beta friend invite">
+            <span>Copy / paste invite</span>
+            <strong>Send this when you want a friend to run the private-beta loop.</strong>
+            <pre>{friendInvite}</pre>
           </div>
         </section>
 
