@@ -1470,3 +1470,26 @@ Run `pnpm install --frozen-lockfile` in clean deployment worktrees before lint/b
 - Related Files: package.json, pnpm-lock.yaml
 
 ---
+
+## [ERR-20260429-001] vercel_worktree_auto_link
+
+**Logged**: 2026-04-29T19:42:00+02:00
+**Priority**: medium
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A Vercel production deploy from a clean CC worktree auto-linked a temporary project because `.vercel/project.json` was missing.
+
+### Details
+The intended target was the canonical `cc` Vercel project / `sidequestchess.com`. Running `vercel --prod --yes` before copying the canonical project link created/deployed `burst-20260429-1742` instead. The canonical deploy was corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and rerunning `vercel --prod --yes`, which aliased `https://sidequestchess.com` correctly.
+
+### Suggested Action
+For every isolated CC worktree deploy, copy the canonical `.vercel/project.json` before the first Vercel command, matching the existing workspace TOOLS.md note.
+
+### Metadata
+- Source: error
+- Related Files: /Users/sam/.openclaw/workspace/TOOLS.md, .vercel/project.json
+- Tags: vercel, worktree, deployment
+
+---

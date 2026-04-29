@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-04-29 06:40 Europe/Stockholm
+Last updated: 2026-04-29 19:42 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -95,6 +95,7 @@ Old pre-reset standby roadmap is archived at:
   - 2026-04-29 16:42 Europe/Stockholm progress: added a ready-to-send `/beta` friend invite block so Andreas can ask a tester to run the exact private-beta loop without rewriting instructions; proof doc `docs/SQC_PRIVATE_BETA_FRIEND_INVITE_LIVE_DEPLOY_2026-04-29.md`. Deployed to `https://sidequestchess.com` via `https://cc-8c26ysnlt-andreas-nordenadlers-projects.vercel.app`; local proof passed `pnpm lint` and `pnpm build`, live smoke confirmed preview/canonical `/beta` return 200 with `Want to test Side Quest Chess?`, while `/account` and `/connect` returned 200.
   - 2026-04-29 17:52 Europe/Stockholm progress: added `/beta` receipt outcome guidance so friends know what to do after passed, failed, or pending latest-game checks instead of treating non-passes as dead ends; proof doc `docs/SQC_PRIVATE_BETA_RECEIPT_OUTCOME_GUIDANCE_LIVE_DEPLOY_2026-04-29.md`. Deployed to `https://sidequestchess.com` via `https://cc-i2wvz0bk5-andreas-nordenadlers-projects.vercel.app`; local proof passed `pnpm install --frozen-lockfile`, `pnpm lint`, and `pnpm build`, and live smoke confirmed preview/canonical `/beta` plus canonical `/account` and `/connect` return 200 with the new outcome-guidance strings.
   - 2026-04-29 18:42 Europe/Stockholm progress: added `/beta` private-beta green-light criteria so Andreas can decide when the next wider friend-tester wave is ready; proof doc `docs/SQC_PRIVATE_BETA_GREEN_LIGHT_CRITERIA_LIVE_DEPLOY_2026-04-29.md`. Deployed to `https://sidequestchess.com` via `https://cc-iygvu1eey-andreas-nordenadlers-projects.vercel.app`; local proof passed `pnpm install --frozen-lockfile`, `pnpm lint`, and `pnpm build`, and live smoke confirmed preview/canonical `/beta` plus canonical `/account` return 200 with the new green-light strings.
+  - 2026-04-29 19:42 Europe/Stockholm progress: added a `/beta` first tester wave plan so the next private-beta invite round stays small, diagnostic, dual-provider, and gated by two clean tester loops before widening. Proof doc: `docs/SQC_PRIVATE_BETA_FIRST_TESTER_WAVE_PLAN_LIVE_DEPLOY_2026-04-29.md`.
 
 - [x] Promote Early King Walk to dual-host Lichess + Chess.com latest-game verification.
   - added_at: 2026-04-28 17:40 Europe/Stockholm

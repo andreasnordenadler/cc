@@ -147,6 +147,30 @@ const retestGuide = [
   },
 ];
 
+
+const firstWavePlan = [
+  {
+    label: "Wave size",
+    value: "3-5 friends first",
+    copy: "Start with a tiny group so every confusing receipt, setup snag, or rule mismatch can be understood before the next invite wave.",
+  },
+  {
+    label: "Tester mix",
+    value: "Both chess sites",
+    copy: "Include at least one Lichess-first and one Chess.com-first tester so dual-host receipts get real coverage instead of only Sam's fixtures.",
+  },
+  {
+    label: "Best first quest",
+    value: "Beginner path",
+    copy: "Ask most testers to begin with the survivable starter path, then let one chaos-friendly tester try a harder deck quest for edge-case feedback.",
+  },
+  {
+    label: "Escalate only if",
+    value: "Two clean loops",
+    copy: "Invite a wider circle after at least two testers can connect, play, verify, and send a useful report without route-hunting help.",
+  },
+];
+
 const trustNotes = [
   {
     label: "Data used",
@@ -336,6 +360,25 @@ export default async function BetaPage() {
             ))}
           </div>
         </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">First tester wave</span>
+              <h2>Keep the next invite round small and diagnostic.</h2>
+            </div>
+            <span className="badge gold">3-5 testers</span>
+          </div>
+          <p>
+            Now that the beta page has the invite, feedback template, outcome guidance, and green-light gates, the next useful move is a deliberately small tester wave that covers both chess providers without creating noisy launch pressure.
+          </p>
+          <div className="grid" aria-label="Private beta first tester wave plan">
+            {firstWavePlan.map((item) => (
+              <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
+            ))}
+          </div>
+        </section>
+
 
         <section className="mission-card">
           <div className="section-head">
