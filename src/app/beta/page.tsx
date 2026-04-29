@@ -58,6 +58,7 @@ const trustNotes = [
 export default async function BetaPage() {
   const { userId } = await auth();
   const beginnerCount = CHALLENGES.filter((challenge) => challenge.category === "Beginner").length;
+  const fullDeckCount = CHALLENGES.length;
 
   return (
     <main className="site-shell">
@@ -93,6 +94,29 @@ export default async function BetaPage() {
               <Link href={item.href} className="button secondary">{item.action}</Link>
             </article>
           ))}
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Live beta deck</span>
+              <h2>All {fullDeckCount} starter-deck quests are dual-host now.</h2>
+            </div>
+            <span className="badge green">Lichess + Chess.com</span>
+          </div>
+          <p>
+            This is the current private-beta proof surface: every listed quest can be made active, played on either supported chess site, and checked from latest public games without a pasted PGN or game URL.
+          </p>
+          <div className="grid">
+            {CHALLENGES.map((challenge) => (
+              <article className="fact" key={challenge.id}>
+                <span>{challenge.category} · {challenge.difficulty}</span>
+                <strong>{challenge.title}</strong>
+                <p>{challenge.objective}</p>
+                <Link href={`/challenges/${challenge.id}`} className="button secondary">Open rules</Link>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mission-card">

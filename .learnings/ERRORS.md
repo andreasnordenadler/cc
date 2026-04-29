@@ -1402,3 +1402,12 @@ Use a Python timeout wrapper for bounded Vercel log checks on macOS.
 - Context: Tried to scan recent deployment logs with `vercel logs <deploy-url> --since 10m`.
 - Result: Vercel CLI 50.20.0 returned `The --follow flag does not support filtering. Remove: --since`.
 - Fix: Use a bounded `timeout` around plain `vercel logs <deploy-url>` for post-deploy watches, or use provider UI/API if time filtering is needed.
+
+## [ERR-20260429-0942] Worktree deploy linked wrong Vercel project
+
+**Logged**: 2026-04-29T09:58:00+02:00
+**Priority**: medium
+
+In an isolated CC worktree, `npx vercel --prod --yes` auto-created and deployed to a throwaway Vercel project (`autoburst-20260429-0942`) because `.vercel/project.json` was not the canonical `cc` project link. Corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and redeploying; canonical deploy aliased to `https://sidequestchess.com`.
+
+**Do differently**: before any CC worktree Vercel deploy, verify `.vercel/project.json` contains `"projectName":"cc"` / project `prj_z4w2lp0MV5hJEhc3m7PN2CuH3d5w`.
