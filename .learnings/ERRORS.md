@@ -1411,3 +1411,33 @@ Use a Python timeout wrapper for bounded Vercel log checks on macOS.
 In an isolated CC worktree, `npx vercel --prod --yes` auto-created and deployed to a throwaway Vercel project (`autoburst-20260429-0942`) because `.vercel/project.json` was not the canonical `cc` project link. Corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and redeploying; canonical deploy aliased to `https://sidequestchess.com`.
 
 **Do differently**: before any CC worktree Vercel deploy, verify `.vercel/project.json` contains `"projectName":"cc"` / project `prj_z4w2lp0MV5hJEhc3m7PN2CuH3d5w`.
+
+## [ERR-20260429-001] curl_missing_in_sqc_worktree
+
+**Logged**: 2026-04-29T13:49:00Z
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+Attempted SQC live smoke with `curl`, but this Mac shell reported `command not found: curl`.
+
+### Suggested Action
+Use Python urllib or another available HTTP client for smoke checks in this environment instead of assuming curl is installed.
+
+---
+
+## [ERR-20260429-002] sqc_worktree_missing_node_modules
+
+**Logged**: 2026-04-29T13:55:00Z
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+`pnpm lint && pnpm build` failed in a fresh SQC deployment worktree because `node_modules` was not installed, so `eslint` was unavailable.
+
+### Suggested Action
+Run `pnpm install --frozen-lockfile` in clean SQC worktrees before local verification, or reuse an already prepared worktree when safe.
+
+---

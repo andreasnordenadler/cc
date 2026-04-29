@@ -88,6 +88,15 @@ Did the result feel fair? yes / no, because…
 Most confusing moment:
 Screenshot attached? yes / no`;
 
+const feedbackExample = `Challenge tested: Knights Before Coffee
+Chess source: Chess.com
+Public username: sampletester
+Game link, if useful: https://www.chess.com/game/live/...
+Receipt outcome: failed
+Did the result feel fair? yes — I moved a pawn before the fourth knight move.
+Most confusing moment: I was not sure whether a casual game counted.
+Screenshot attached? yes`;
+
 const trustNotes = [
   {
     label: "Data used",
@@ -216,7 +225,10 @@ export default async function BetaPage() {
           <div className="fact beta-template-card" aria-label="Copyable private beta feedback template">
             <span>Copy / paste template</span>
             <strong>One message is enough when it has the right fields.</strong>
+            <p>Copy the blank version first; if a tester is unsure how much detail to send, the example below shows the right level of context without turning feedback into homework.</p>
             <pre>{feedbackTemplate}</pre>
+            <span>Example report</span>
+            <pre>{feedbackExample}</pre>
           </div>
         </section>
 
