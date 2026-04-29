@@ -21,12 +21,14 @@ Project: CC / Side Quest Chess
 
 ## Deployment proof
 
-Pending production deploy and live smoke in this burst.
+Production deploy completed via Vercel.
+
+- Preview/production deployment URL: `https://cc-299efwx2j-andreas-nordenadlers-projects.vercel.app`
+- Production alias: `https://sidequestchess.com`
+- Vercel build completed successfully and aliased the deployment to production.
 
 ## Live smoke checklist
 
-Pending:
-
-- `https://sidequestchess.com/verifiers` contains `The Blunder Gambit`, `Chess.com PGN`, and `Live-backed Lichess + Chess.com latest-game verifier`.
-- `https://sidequestchess.com/challenges/the-blunder-gambit` contains `The Blunder Gambit`, `Chess.com`, and early material-hang copy.
-- `https://sidequestchess.com/account` returns 200 after deploy.
+- `https://sidequestchess.com/verifiers` — 200; contains `The Blunder Gambit`, `Chess.com PGN`, and `Live-backed Lichess + Chess.com latest-game verifier`.
+- `https://sidequestchess.com/challenges/the-blunder-gambit` — 200; contains `The Blunder Gambit`, `Chess.com`, and early material-hang copy.
+- `https://sidequestchess.com/account` — 200.
