@@ -37,6 +37,28 @@ const betaChecklist = [
   },
 ];
 
+
+const fiveMinuteScript = [
+  {
+    title: "1. Add one username",
+    copy: "Open Connect, save either a Lichess or Chess.com username, and confirm the account page shows the saved identity before starting a quest.",
+    href: "/connect",
+    action: "Save identity",
+  },
+  {
+    title: "2. Pick a survivable weird win",
+    copy: "Use the beginner path if you want the cleanest first pass, or pick any deck quest now that the full set has dual-host latest-game checking.",
+    href: "/path",
+    action: "Choose quest",
+  },
+  {
+    title: "3. Bring back one receipt",
+    copy: "After a real game, return to Account and run latest-game verification. A good beta report says whether the proof card passed, failed honestly, or got confusing.",
+    href: "/account",
+    action: "Verify latest game",
+  },
+];
+
 const trustNotes = [
   {
     label: "Data used",
@@ -94,6 +116,29 @@ export default async function BetaPage() {
               <Link href={item.href} className="button secondary">{item.action}</Link>
             </article>
           ))}
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">5-minute tester script</span>
+              <h2>Give friends one exact loop to run, not a vague app tour.</h2>
+            </div>
+            <span className="badge green">identity → quest → receipt</span>
+          </div>
+          <p>
+            If a tester only has a few minutes, this is the smallest useful pass: connect one public chess identity, choose one win-required dare, then bring back one latest-game receipt and report where the loop felt unclear.
+          </p>
+          <div className="big-grid" aria-label="Five-minute private beta tester script">
+            {fiveMinuteScript.map((item) => (
+              <article className="mission-card" key={item.title}>
+                <span className="eyebrow">Tester script</span>
+                <h2>{item.title}</h2>
+                <p>{item.copy}</p>
+                <Link href={item.href} className="button secondary">{item.action}</Link>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="mission-card">
