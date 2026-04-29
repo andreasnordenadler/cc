@@ -1386,3 +1386,19 @@ Use a Python timeout wrapper for bounded Vercel log checks on macOS.
 - Related Files: deployment verification commands
 
 ---
+
+## 2026-04-29 — Missing comma in beta copy edit
+- Context: While updating SQC private-beta copy in an isolated worktree, `pnpm lint` failed with `Parsing error: ',' expected` in `src/app/beta/page.tsx`.
+- Cause: Manual exact-text replacement removed the comma after a string property in the `betaChecklist` object.
+- Fix: Restored the comma and reran checks.
+- Prevention: For object-literal copy edits, inspect the edited hunk before running the full build.
+
+## 2026-04-29 — Curl unavailable in SQC deploy smoke shell
+- Context: After deploying SQC beta-copy polish, a smoke script using `curl` failed with `zsh: command not found: curl`.
+- Fix: Used Python `urllib.request` for HTTP/status/content smoke checks instead.
+- Prevention: In this environment, prefer Python HTTP smoke scripts when `curl` availability has not been confirmed.
+
+## 2026-04-29 — Vercel logs CLI rejected `--since`
+- Context: Tried to scan recent deployment logs with `vercel logs <deploy-url> --since 10m`.
+- Result: Vercel CLI 50.20.0 returned `The --follow flag does not support filtering. Remove: --since`.
+- Fix: Use a bounded `timeout` around plain `vercel logs <deploy-url>` for post-deploy watches, or use provider UI/API if time filtering is needed.

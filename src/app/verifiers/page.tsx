@@ -24,6 +24,12 @@ export default async function VerifiersPage() {
   const liveCount = liveStatuses.filter((status) => status.state === "live").length;
   const dualHostCount = liveStatuses.filter((status) => status.summary.includes("Lichess + Chess.com")).length;
   const lichessOnlyCount = liveStatuses.filter((status) => status.summary.includes("Lichess latest-game")).length;
+  const parityLabel = lichessOnlyCount === 0 ? "Full deck parity" : "Lichess-only next";
+  const parityValue = lichessOnlyCount === 0 ? "0 left" : `${lichessOnlyCount} quests`;
+  const parityCopy =
+    lichessOnlyCount === 0
+      ? "Every current starter-deck dare now has dual-host latest-game checking for both Lichess and Chess.com."
+      : "The remaining live-backed dares are honest Lichess checks first, with Chess.com parity queued after beta-flow hardening.";
 
   return (
     <main className="site-shell">
@@ -45,8 +51,8 @@ export default async function VerifiersPage() {
 
         <section className="grid" aria-label="Verifier summary">
           <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every starter dare now has an automated latest-game verifier instead of a fake-success or upload-your-PGN workaround." />
-          <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="The beginner path plus No Castle Club, Queen? Never Heard of Her, Pawn Storm Maniac, Knightmare Mode, Rookless Rampage, and One Bishop to Rule Them All can read either Lichess UCI evidence or Chess.com PGN evidence today." />
-          <Fact label="Lichess-only next" value={`${lichessOnlyCount} quests`} copy="The remaining live-backed dares are honest Lichess checks first, with Chess.com parity queued after beta-flow hardening." />
+          <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="Every current starter-deck dare can read either Lichess UCI evidence or Chess.com PGN evidence today." />
+          <Fact label={parityLabel} value={parityValue} copy={parityCopy} />
         </section>
 
         <section className="big-grid" aria-label="Starter deck verifier statuses">
