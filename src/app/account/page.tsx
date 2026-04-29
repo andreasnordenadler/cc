@@ -77,15 +77,15 @@ export default async function AccountPage() {
           <div className="checker-flow" aria-label="Side Quest Chess manual test flow">
             <div className="flow-step ready">
               <strong>1. Profile</strong>
-              <p>Save a display name, brag line, and Lichess username.</p>
+              <p>Save a display name, brag line, and either chess username.</p>
             </div>
             <div className="flow-step ready">
               <strong>2. Quest</strong>
-              <p>Pick any starter dare and make it your active challenge.</p>
+              <p>Pick any starter dare; all ten can verify Lichess or Chess.com games.</p>
             </div>
             <div className="flow-step hot">
               <strong>3. Proof</strong>
-              <p>Check latest games, then review the result receipt and share card.</p>
+              <p>Check latest games, then review the pass, fail, or pending receipt.</p>
             </div>
           </div>
           <div className="button-row">
@@ -130,7 +130,7 @@ export default async function AccountPage() {
             <span className="badge green">{liveVerifierCount} live verifiers</span>
           </div>
           <p>
-            Every starter dare can now be selected directly from the account page. Beginner quests are intentionally easier to understand; live-backed quests can create automated latest-game receipts today.
+            Every starter dare can now be selected directly from the account page. Beginner quests are intentionally easier to understand; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
           </p>
           <div className="grid">
             {CHALLENGES.map((challenge) => {
