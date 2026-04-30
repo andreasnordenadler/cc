@@ -1571,3 +1571,95 @@ For future SQC isolated worktree deploys, run `pnpm install --frozen-lockfile` b
 - Tags: vercel, worktree, cc, deployment
 
 ---
+
+## [ERR-20260430-1448] vercel_logs_since_flag_incompatibility
+
+**Logged**: 2026-04-30 14:48 Europe/Stockholm
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs <deployment-url> --since 30m` failed because this Vercel CLI mode treats logs as a follow stream and does not support `--since` filtering.
+
+### Details
+During the SQC challenge-detail proof-path deploy smoke, the deploy and route smoke passed, but the first bounded log scan command exited with: `The --follow flag does not support filtering. Remove: --since`.
+
+### Suggested Action
+For bounded Vercel deploy log checks, run `vercel logs <deployment-url>` under an external time-bound wrapper instead of adding `--since`.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_CHALLENGE_DETAIL_FIRST_PROOF_PATH_LIVE_DEPLOY_2026-04-30.md
+- Tags: vercel, logs, deploy-smoke
+
+---
+
+## [ERR-20260430-1449] zsh_status_readonly_variable
+
+**Logged**: 2026-04-30 14:49 Europe/Stockholm
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A retry script assigned to `status` in zsh, which is a read-only shell variable.
+
+### Details
+The Vercel log-scan retry used `status=$?` under zsh and failed with `read-only variable: status`.
+
+### Suggested Action
+Use `rc` or run small shell control scripts under `bash -lc` when capturing command exit codes in this environment.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_CHALLENGE_DETAIL_FIRST_PROOF_PATH_LIVE_DEPLOY_2026-04-30.md
+- Tags: zsh, shell, deploy-smoke
+
+---
+
+## [ERR-20260430-1450] macos_timeout_command_missing
+
+**Logged**: 2026-04-30 14:50 Europe/Stockholm
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`timeout` is not available by default on this macOS environment.
+
+### Details
+A bounded Vercel log-scan retry attempted `timeout 25s vercel logs ...` and failed with `bash: timeout: command not found`.
+
+### Suggested Action
+Use a small Node wrapper with `child_process.spawn` and `setTimeout(...kill...)` for bounded stream commands on this Mac.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_CHALLENGE_DETAIL_FIRST_PROOF_PATH_LIVE_DEPLOY_2026-04-30.md
+- Tags: macos, shell, bounded-streams
+
+---
+
+## [ERR-20260430-1451] zsh_glob_bracket_path
+
+**Logged**: 2026-04-30 14:51 Europe/Stockholm
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`git add src/app/challenges/[id]/page.tsx ...` failed in zsh because the bracketed dynamic route segment was interpreted as a glob.
+
+### Details
+The first commit attempt failed with `zsh:1: no matches found: src/app/challenges/[id]/page.tsx`.
+
+### Suggested Action
+Quote Next.js dynamic route paths in shell commands, e.g. `git add 'src/app/challenges/[id]/page.tsx'`.
+
+### Metadata
+- Source: error
+- Related Files: src/app/challenges/[id]/page.tsx
+- Tags: zsh, nextjs, git
+
+---

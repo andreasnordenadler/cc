@@ -127,6 +127,28 @@ export default async function ChallengeDetailPage({
           </div>
         </section>
 
+        <section className="mission-card" aria-label="First proof path">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">First proof path</span>
+              <h2>What to do after you accept this quest.</h2>
+            </div>
+            <span className="badge green">live-backed</span>
+          </div>
+          <p>
+            The clean loop is intentionally small: start this exact dare, win one eligible public game on Lichess or Chess.com, then ask SQC to check your latest games for a receipt.
+          </p>
+          <div className="grid">
+            <Fact label="1 · Start" value="Make this the active dare so the checker knows which weird rule to judge." />
+            <Fact label="2 · Play" value="Play a real public game on your saved Lichess or Chess.com username and try to satisfy the rule while winning." />
+            <Fact label="3 · Check" value="Return here or to your account page, run Check latest games, and read the pass, fail, or pending receipt." />
+          </div>
+          <div className="button-row">
+            <Link href="/connect" className="button secondary">Set chess username</Link>
+            <Link href="/result" className="button secondary">Open latest receipt</Link>
+          </div>
+        </section>
+
         <section className="mission-card share-card">
           <span className="eyebrow">Dare a friend</span>
           <h2>Send this exact bad idea.</h2>
