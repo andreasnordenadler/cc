@@ -11,6 +11,23 @@ import {
 } from "@/lib/user-metadata";
 
 const categories = ["All", "Blunder", "Restrictions", "Chaos", "Style", "Friends", "Near-impossible"];
+const betaStarterRoute = [
+  {
+    label: "First weird win",
+    challengeId: "knights-before-coffee",
+    why: "Smallest rule load: make four knight moves first, then win. Best for confirming the proof loop before chasing harder nonsense.",
+  },
+  {
+    label: "Cleanest verifier read",
+    challengeId: "no-castle-club",
+    why: "Easy to understand from a receipt: the player won, and the king never castled. Good for Lichess/Chess.com confidence checks.",
+  },
+  {
+    label: "Chaos stretch",
+    challengeId: "queen-never-heard-of-her",
+    why: "Use after the setup works. The rule is absurd, shareable, and quickly reveals whether failed receipts feel fair.",
+  },
+];
 
 export default async function ChallengesPage() {
   const { userId } = await auth();
@@ -58,6 +75,36 @@ export default async function ChallengesPage() {
             <Link href={`/challenges/${currentChallenge.id}`} className="button primary">Continue challenge</Link>
           </section>
         ) : null}
+
+        <section className="mission-card" aria-label="Private beta starter route">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Private beta starter route</span>
+              <h2>Three picks that remove choice paralysis.</h2>
+            </div>
+            <span className="badge blue">recommended order</span>
+          </div>
+          <p>
+            If a tester asks “which one should I try?”, start here: one survivable proof loop, one clean verifier sanity check, then one genuinely cursed shareable attempt.
+          </p>
+          <div className="grid">
+            {betaStarterRoute.map((step, index) => {
+              const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
+              const verifierStatus = getVerifierStatus(challenge);
+
+              return (
+                <article className="fact" key={step.challengeId}>
+                  <span>Step {index + 1} · {step.label}</span>
+                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
+                  <strong>{challenge.title}</strong>
+                  <p>{step.why}</p>
+                  <p className="muted">{verifierStatus.summary}</p>
+                  <Link href={`/challenges/${challenge.id}`} className="button secondary">Start this pick</Link>
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
         <section className="big-grid" aria-label="Available challenges">
           {CHALLENGES.map((challenge, index) => (
