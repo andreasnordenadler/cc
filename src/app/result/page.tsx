@@ -37,6 +37,29 @@ export default async function ResultPage() {
     : latestAttempt
       ? `I tried “${challenge.title}” on Side Quest Chess. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
       : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
+  const receiptNextStep = isPassed
+    ? {
+        label: "Passed",
+        title: "This one is share-ready.",
+        copy: "Send the proof card or copy the share text. The beta signal to capture is whether the pass felt earned and easy to understand.",
+        action: "Review share copy",
+        href: "/result",
+      }
+    : isPending
+      ? {
+          label: "Pending",
+          title: "Bring one public game link.",
+          copy: "Pending usually means SQC did not find an eligible recent public game yet. For beta feedback, include the chess username and latest game URL so the verifier gap is diagnosable.",
+          action: "Check account preflight",
+          href: "/account",
+        }
+      : {
+          label: "Failed",
+          title: "Decide whether the fail felt fair.",
+          copy: "A failed receipt is healthy when the rule explanation matches the game. Report it only if the receipt feels wrong, vague, or harder to act on than the quest rule itself.",
+          action: "Review challenge rule",
+          href: `/challenges/${challenge.id}`,
+        };
 
   return (
     <main className="site-shell">
@@ -70,6 +93,37 @@ export default async function ResultPage() {
               <Link href={`/challenges/${challenge.id}`} className="button secondary">View challenge rules</Link>
             </div>
           </aside>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Receipt next step</span>
+              <h2>{receiptNextStep.title}</h2>
+            </div>
+            <span className={isPassed ? "badge green" : isPending ? "badge blue" : "badge gold"}>
+              {receiptNextStep.label}
+            </span>
+          </div>
+          <p>{receiptNextStep.copy}</p>
+          <div className="checker-flow" aria-label="Latest receipt interpretation guide">
+            <div className={isPassed ? "flow-step ready" : "flow-step"}>
+              <strong>Passed</strong>
+              <p>Share proof and record whether the success copy felt earned.</p>
+            </div>
+            <div className={!isPassed && !isPending ? "flow-step hot" : "flow-step"}>
+              <strong>Failed</strong>
+              <p>Check whether the rule mismatch is obvious and fair.</p>
+            </div>
+            <div className={isPending ? "flow-step hot" : "flow-step"}>
+              <strong>Pending</strong>
+              <p>Send username plus public game link if it should have found a game.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href={receiptNextStep.href} className="button primary">{receiptNextStep.action}</Link>
+            <Link href="/beta" className="button secondary">Open beta feedback template</Link>
+          </div>
         </section>
 
         <section className="big-grid">
