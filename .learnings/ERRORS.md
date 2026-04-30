@@ -1546,3 +1546,28 @@ Do not add `--since` to `vercel logs` in this CLI unless help output confirms su
 **Priority**: low
 
 A fresh isolated git worktree for CC did not have `node_modules`, so `pnpm lint` failed with `eslint: command not found`. Run `pnpm install --frozen-lockfile` in clean worktrees before verification.
+
+## [ERR-20260430-001] cc_worktree_verification_and_deploy_context
+
+**Logged**: 2026-04-30T03:52:00+02:00
+**Priority**: medium
+**Status**: resolved
+**Area**: infra
+
+### Summary
+Clean SQC deploy worktree initially had no `node_modules`, and first Vercel deploy auto-linked a throwaway project instead of canonical `cc`.
+
+### Details
+- `pnpm lint` failed with `eslint: command not found` because the isolated worktree had not run `pnpm install --frozen-lockfile`.
+- `vercel --prod --yes` from the isolated worktree created/deployed project `autoburst-20260430-0342` because `.vercel/project.json` was absent.
+- Corrected by installing dependencies, copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json`, and redeploying to canonical project `cc`.
+
+### Suggested Action
+For future SQC isolated worktree deploys, run `pnpm install --frozen-lockfile` before local gates and copy the canonical `.vercel/project.json` before any Vercel deploy.
+
+### Metadata
+- Source: error
+- Related Files: `.vercel/project.json`, `src/app/result/page.tsx`
+- Tags: vercel, worktree, cc, deployment
+
+---

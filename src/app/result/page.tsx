@@ -60,6 +60,14 @@ export default async function ResultPage() {
           action: "Review challenge rule",
           href: `/challenges/${challenge.id}`,
         };
+  const betaReceiptSnapshot = [
+    `Challenge: ${challenge.title}`,
+    `Receipt status: ${receiptNextStep.label}`,
+    `Latest check: ${latestAttemptSummary.headline} — ${latestAttemptSummary.detail}`,
+    `Game/source: ${gameLabel}`,
+    `Next action: ${receiptNextStep.title}`,
+    "Fairness note: Did this receipt make the next move obvious?",
+  ].join("\n");
 
   return (
     <main className="site-shell">
@@ -140,6 +148,20 @@ export default async function ResultPage() {
             <p className="muted">{latestAttemptSummary.meta}</p>
             <Link href="/challenges" className="button pink">Try another bad idea</Link>
           </article>
+        </section>
+
+        <section className="mission-card beta-template-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Beta report shortcut</span>
+              <h2>Copy the receipt facts before the moment gets fuzzy.</h2>
+            </div>
+            <Link href="/beta" className="button secondary">Full template</Link>
+          </div>
+          <p>
+            Private-beta testers can paste this with a screenshot or game URL, so the useful signal is captured without asking them to reconstruct the whole run.
+          </p>
+          <pre>{betaReceiptSnapshot}</pre>
         </section>
       </div>
     </main>
