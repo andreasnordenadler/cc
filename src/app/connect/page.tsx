@@ -14,6 +14,7 @@ export default async function ConnectPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const isSignedIn = Boolean(user);
+  const hasChessIdentity = Boolean(lichessUsername || chessComUsername);
 
   return (
     <main className="site-shell">
@@ -55,7 +56,7 @@ export default async function ConnectPage() {
                 <input type="text" name="chessComUsername" defaultValue={chessComUsername} placeholder="e.g. ForkMaster3000" />
               </label>
               <button type="submit" className="button primary">
-                {lichessUsername || chessComUsername ? "Update identities" : "Save identities"}
+                {hasChessIdentity ? "Update identities" : "Save identities"}
               </button>
             </form>
           </section>
@@ -70,6 +71,39 @@ export default async function ConnectPage() {
             </div>
           </section>
         )}
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Connection handoff</span>
+              <h2>{hasChessIdentity ? "Identity saved. Pick a dare next." : "Save one username, then choose a quest."}</h2>
+            </div>
+            <span className={hasChessIdentity ? "badge green" : "badge blue"}>
+              {hasChessIdentity ? "ready for proof" : "setup step"}
+            </span>
+          </div>
+          <p>
+            The connect page is only step one: after a public username is saved, start one live-backed quest, play and win one eligible public game, then return for the latest-game receipt.
+          </p>
+          <div className="checker-flow" aria-label="Post-connection proof path">
+            <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
+              <strong>{hasChessIdentity ? "✓ Chess identity saved" : "1. Save identity"}</strong>
+              <p>{hasChessIdentity ? `${lichessUsername || chessComUsername} can be checked from public game history.` : "Add either Lichess or Chess.com. No password, upload, or PGN chore."}</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>2. Start a quest</strong>
+              <p>Choose a live-backed dare before playing so the proof loop knows what to look for.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>3. Check receipt</strong>
+              <p>After the game, SQC records pass, fail, or pending proof with next-step guidance.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href="/challenges" className="button primary">Choose a quest</Link>
+            <Link href="/result" className="button secondary">View latest receipt</Link>
+          </div>
+        </section>
 
         <section className="note-card">
           <strong>Product rule</strong>
