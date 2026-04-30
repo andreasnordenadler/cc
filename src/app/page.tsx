@@ -68,6 +68,26 @@ export default async function Home() {
           </aside>
         </section>
 
+        <section className="card mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Private beta quickstart</span>
+              <h2>Run the first tester loop without route hunting.</h2>
+            </div>
+            <span className="badge gold">5 min</span>
+          </div>
+          <div className="grid">
+            <Fact label="1 · Set identity" value="Open /account, add Lichess or Chess.com, and confirm the preflight checklist." />
+            <Fact label="2 · Pick the starter route" value="Use the three-quest beta route on /challenges instead of browsing the full chaos deck cold." />
+            <Fact label="3 · Check the receipt" value="After a real game, open /result and copy the beta report if anything feels unfair or confusing." />
+          </div>
+          <div className="button-row">
+            <Link href="/account" className="button primary">Start account preflight</Link>
+            <Link href="/challenges" className="button secondary">Open starter route</Link>
+            <Link href="/result" className="button secondary">Check latest receipt</Link>
+          </div>
+        </section>
+
         <section className="big-grid" aria-label="Product surfaces">
           <article className="mission-card daily-card">
             <span className="eyebrow">Daily side quest</span>
