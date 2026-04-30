@@ -60,6 +60,26 @@ export default async function Home() {
           </aside>
         </section>
 
+        <section className="card mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">First run checklist</span>
+              <h2>Start, play, and check proof without route hunting.</h2>
+            </div>
+            <span className="badge gold">3 steps</span>
+          </div>
+          <div className="grid">
+            <Fact label="1 · Save chess identity" value="Add Lichess or Chess.com once so SQC can check your latest eligible game." />
+            <Fact label="2 · Choose one quest" value="Start from the challenge hub and pick a live-backed dare before playing." />
+            <Fact label="3 · Read the receipt" value="After the game, check the result page for pass, fail, or pending proof guidance." />
+          </div>
+          <div className="button-row">
+            <Link href="/connect" className="button primary">Connect chess account</Link>
+            <Link href="/challenges" className="button secondary">Choose a quest</Link>
+            <Link href="/result" className="button secondary">View latest receipt</Link>
+          </div>
+        </section>
+
         <section className="big-grid" aria-label="Launch-ready routes">
           <article className="mission-card daily-card">
             <span className="eyebrow">Start here</span>
