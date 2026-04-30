@@ -29,6 +29,24 @@ const betaStarterRoute = [
   },
 ];
 
+const proofLoopSteps = [
+  {
+    label: "1 · Accept",
+    value: "Pick one dare",
+    copy: "Start from the recommended route or any quest card. Side Quest Chess saves the active challenge so the account page knows what receipt to check next.",
+  },
+  {
+    label: "2 · Play",
+    value: "Win on your chess site",
+    copy: "Use a normal public Lichess or Chess.com game. No PGN upload, engine dashboard, or fake sandbox game required.",
+  },
+  {
+    label: "3 · Prove",
+    value: "Run latest-game check",
+    copy: "Return to Account for an honest passed, failed, or pending receipt with the next action spelled out for beta feedback.",
+  },
+];
+
 export default async function ChallengesPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
@@ -103,6 +121,32 @@ export default async function ChallengesPage() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section className="mission-card" aria-label="Latest-game proof loop">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Latest-game proof loop</span>
+              <h2>Accept, play, prove — no PGN homework.</h2>
+            </div>
+            <span className="badge green">private beta path</span>
+          </div>
+          <p>
+            The challenge hub now explains the whole tester loop before someone commits to a dare, so the next action is clear even before sign-in.
+          </p>
+          <div className="grid">
+            {proofLoopSteps.map((step) => (
+              <article className="fact" key={step.label}>
+                <span>{step.label}</span>
+                <strong>{step.value}</strong>
+                <p>{step.copy}</p>
+              </article>
+            ))}
+          </div>
+          <div className="card-footer">
+            <strong>Ready after a real game?</strong>
+            <Link href="/account">Verify latest game</Link>
           </div>
         </section>
 

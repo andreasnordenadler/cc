@@ -1663,3 +1663,49 @@ Quote Next.js dynamic route paths in shell commands, e.g. `git add 'src/app/chal
 - Tags: zsh, nextjs, git
 
 ---
+
+## [ERR-20260430-1648] cc_worktree_lint_without_node_modules
+
+**Logged**: 2026-04-30T16:48:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`pnpm lint` failed in a fresh isolated CC worktree because `node_modules` was not installed there.
+
+### Details
+The command returned `sh: eslint: command not found` with pnpm's missing-node_modules warning. Running `pnpm install --frozen-lockfile` in the worktree resolved it, after which `pnpm lint` and `pnpm build` passed.
+
+### Suggested Action
+For clean CC deploy worktrees, run `pnpm install --frozen-lockfile` before lint/build unless dependencies are already present in that worktree.
+
+### Metadata
+- Source: error
+- Related Files: package.json, pnpm-lock.yaml
+- Tags: cc, pnpm, worktree, lint
+
+---
+
+## [ERR-20260430-1651] cc_vercel_log_scan_cli_gotchas
+
+**Logged**: 2026-04-30T16:51:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+Two bounded Vercel log-scan attempts had CLI/environment gotchas in the CC deploy worktree.
+
+### Details
+The local zsh environment did not have GNU `timeout`, and `vercel logs <deployment> --since 10m` failed because this Vercel CLI treats logs as follow-mode and does not support filtering with `--since`. Running `vercel logs <deployment>` with the exec-level timeout streamed from the fresh deployment and emitted no runtime error lines before the bounded timeout killed the stream.
+
+### Suggested Action
+For CC deploy proof, use OpenClaw exec/process timeout around plain `vercel logs <deployment>` instead of shell `timeout` or `--since` filtering.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_CHALLENGE_HUB_PROOF_LOOP_GUIDANCE_LIVE_DEPLOY_2026-04-30.md
+- Tags: cc, vercel, logs, smoke
+
+---
