@@ -21,7 +21,7 @@ Added a `First run checklist` block to the Side Quest Chess homepage so a new pl
 - `pnpm lint` ✅
 - `pnpm build` ✅
 - Production deploy ✅
-  - Deploy URL: `https://cc-9mtv3gdyd-andreas-nordenadlers-projects.vercel.app`
+  - Deploy URL: `https://cc-i098a76ma-andreas-nordenadlers-projects.vercel.app`
   - Canonical alias: `https://sidequestchess.com`
 - Live smoke ✅
   - Deploy URL `/` returned 200 and contained `First run checklist`, `Start, play, and check proof without route hunting`, and `Connect chess account`.
