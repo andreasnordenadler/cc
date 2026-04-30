@@ -23,7 +23,8 @@ Users pick ridiculous chess challenges, play real games on Lichess or Chess.com,
 - Primary loop: pick challenge → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend challenge
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
 - Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
-- Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. Treat near-term releases as private/friends beta readiness, not public-launch pressure.
+- Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. SQC launch-readiness is the default priority unless another project has an outage/data-risk blocker.
+- Beta tester functionality canon: Andreas explicitly said no more beta tester functionality is needed and that the beta tester side looks good as-is. Do not add more beta-admin, tester-instruction, feedback-template, invite, or beta-reporting functionality by default. Shift SQC effort toward core product usability, clarity, friction removal, quest loop quality, and launch-readiness improvements.
 - Chess.com test account: Andreas supplied Chess.com username `and72nor` for API testing and future Chess.com quest validation work.
 
 Canonical brief:
@@ -60,14 +61,14 @@ Old pre-reset standby roadmap is archived at:
   - Live deployment: `https://cc-41g7wl377-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
   - Proof doc: `docs/SQC_CHESSCOM_NO_CASTLE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`.
 
-- [ ] Prepare SQC for polished friends/private beta before any public launch push.
+- [ ] Prepare SQC for polished launch readiness without adding more beta-tester functionality.
   - added_at: 2026-04-28 12:38 Europe/Stockholm
   - source: Andreas said he is not in a hurry to launch and would rather do a proper launch with rich features and a great clear UI.
   - Acceptance:
-    - Public-launch language is avoided until the product has a richer feature set and clearer first-user UI.
-    - Roadmap prioritizes private/friends beta hardening, onboarding clarity, E2E test reliability, and UI simplification before launch marketing.
-    - Remaining specified beginner quest verifiers are promoted or clearly marked so users know what is live-backed today.
-    - Trust basics are present before broader public traffic: privacy/data note, contact/support, and clear Lichess-first explanation.
+    - First-time public launch path is clear: pick quest → connect chess account → play real game → get receipt/badge.
+    - Homepage and challenge hub emphasize the core product loop over secondary/admin/beta surfaces.
+    - Roadmap prioritizes onboarding clarity, E2E reliability, UI simplification, quest-loop quality, and launch polish.
+    - Trust basics are present before broader public traffic: privacy/data note, contact/support, and clear Lichess/Chess.com explanation.
   - Verification: future completion requires live deploy proof plus Andreas/user E2E test feedback.
   - 2026-04-30 01:50 Europe/Stockholm progress: tightened `/connect` provider copy so private-beta testers see accurate full starter-deck support on both Lichess and Chess.com instead of stale partial Chess.com parity wording; proof doc `docs/SQC_CONNECT_DUAL_HOST_COPY_LIVE_DEPLOY_2026-04-30.md`. Verification: `pnpm lint`, `pnpm build`, production deploy to `https://cc-73nvty5ae-andreas-nordenadlers-projects.vercel.app`, live smoke for `/connect` on deploy URL and `https://sidequestchess.com`, plus `/beta` smoke on the primary domain.
   - 2026-04-30 02:58 Europe/Stockholm progress: added `/result` receipt next-step guidance so private-beta testers know what to do after passed, failed, or pending latest-game checks; proof doc `docs/SQC_RESULT_RECEIPT_NEXT_STEP_GUIDANCE_LIVE_DEPLOY_2026-04-30.md`. Verification: `pnpm lint`, `pnpm build`, production deploy to `https://cc-g4q52l8qr-andreas-nordenadlers-projects.vercel.app`, live smoke for preview/canonical `/result`, canonical `/beta`, `/account`, and `/connect`, plus a Vercel error-log scan.

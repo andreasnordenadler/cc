@@ -76,16 +76,16 @@ export default async function ChallengesPage() {
           </section>
         ) : null}
 
-        <section className="mission-card" aria-label="Private beta starter route">
+        <section className="mission-card" aria-label="Recommended starter route">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Private beta starter route</span>
+              <span className="eyebrow">Recommended starter route</span>
               <h2>Three picks that remove choice paralysis.</h2>
             </div>
-            <span className="badge blue">recommended order</span>
+            <span className="badge blue">start here</span>
           </div>
           <p>
-            If a tester asks “which one should I try?”, start here: one survivable proof loop, one clean verifier sanity check, then one genuinely cursed shareable attempt.
+            New here? Start with one survivable proof loop, one clean verifier confidence check, then one genuinely cursed shareable attempt.
           </p>
           <div className="grid">
             {betaStarterRoute.map((step, index) => {
