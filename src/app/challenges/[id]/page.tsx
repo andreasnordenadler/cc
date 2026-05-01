@@ -38,7 +38,7 @@ export async function generateMetadata({
   }
 
   const title = `${challenge.title} — Side Quest Chess`;
-  const description = `${challenge.objective} ${challenge.proofCallout}. Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
+  const description = `${challenge.objective} ${challenge.proofCallout}. Win on Lichess or Chess.com, then verify your latest public game for +${challenge.reward} points.`;
   const url = `/challenges/${challenge.id}`;
   const image = `/api/og/dare/${challenge.id}`;
 
@@ -130,13 +130,13 @@ export default async function ChallengeDetailPage({
         <section className="mission-card" aria-label="First proof path">
           <div className="section-head">
             <div>
-              <span className="eyebrow">First proof path</span>
-              <h2>What to do after you accept this quest.</h2>
+              <span className="eyebrow">Before you start</span>
+              <h2>One dare, one real win, one latest-game check.</h2>
             </div>
-            <span className="badge green">live-backed</span>
+            <span className="badge green">no PGN upload</span>
           </div>
           <p>
-            The clean loop is intentionally small: start this exact dare, win one eligible public game on Lichess or Chess.com, then ask SQC to check your latest games for a receipt.
+            Use this quick contract before committing: the quest only counts after a win, Side Quest Chess checks your latest public game from Lichess or Chess.com, and the receipt explains pass, fail, or wait without making you inspect PGNs.
           </p>
           <div className="grid">
             <Fact label="1 · Start" value="Make this the active dare so the checker knows which weird rule to judge." />
