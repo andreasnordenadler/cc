@@ -1709,3 +1709,18 @@ For CC deploy proof, use OpenClaw exec/process timeout around plain `vercel logs
 - Tags: cc, vercel, logs, smoke
 
 ---
+
+## [ERR-20260501-004] SQC smoke assertion drift
+
+**Logged**: 2026-05-01T14:23:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A live content smoke assertion expected the older phrase `win one eligible public game`, but the deployed copy says `Win a public game` / `win`. HTTP route smokes had passed; the failure was the assertion string, not the deployment.
+
+### Resolution
+Use content markers that match the final shipped copy exactly.
+
+---
