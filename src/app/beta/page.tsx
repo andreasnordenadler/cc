@@ -253,7 +253,7 @@ const trustNotes = [
   {
     label: "Support",
     value: "Tell Andreas what broke",
-    copy: "For this friends/private beta, send rough edges, confusing copy, wrong verifier outcomes, or badge/UI glitches directly to Andreas with the challenge name and game link.",
+    copy: "For this friends/private beta, send rough edges, confusing copy, wrong verifier outcomes, or badge/UI glitches directly to Andreas with the challenge name and game link. The support page spells out the minimum useful report.",
   },
 ];
 
@@ -278,6 +278,7 @@ export default async function BetaPage() {
             <Link href="/path" className="button pink">Try beginner path</Link>
             <Link href="/verifiers" className="button secondary">See live verifiers</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
+            <Link href="/support" className="button secondary">Support & privacy</Link>
           </div>
         </section>
 

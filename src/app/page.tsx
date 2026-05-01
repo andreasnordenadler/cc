@@ -130,6 +130,7 @@ export default async function Home() {
             <div className="button-row">
               <Link href="/rules" className="button secondary">Read rules</Link>
               <Link href="/verifiers" className="button secondary">Open verifier board</Link>
+              <Link href="/support" className="button secondary">Support & privacy</Link>
             </div>
           </article>
         </section>
