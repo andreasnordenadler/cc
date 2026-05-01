@@ -32,6 +32,14 @@ export default async function AccountPage() {
   const completedSet = new Set(progress.completedChallengeIds);
   const liveVerifierCount = CHALLENGES.filter((challenge) => getVerifierStatus(challenge).state === "live").length;
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
+  const betaStarterChallengeIds = [
+    "knights-before-coffee",
+    "no-castle-club",
+    "queen-never-heard-of-her",
+  ];
+  const betaStarterChallenges = betaStarterChallengeIds
+    .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
+    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
     : null;
@@ -136,6 +144,46 @@ export default async function AccountPage() {
               {hasChessIdentity ? "Pick or change dare" : "Connect chess identity"}
             </Link>
             <Link href="/beta" className="button secondary">Open tester script</Link>
+          </div>
+        </section>
+
+        <section className="mission-card account-beta-starter-route">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">First tester route</span>
+              <h2>Start with three dares, not the whole deck.</h2>
+            </div>
+            <span className="badge gold">choice-saver</span>
+          </div>
+          <p>
+            For a first private-beta pass, run the smallest useful ladder from the account page: one easy proof loop, one clean verifier check, then one memorable chaos attempt.
+          </p>
+          <div className="grid" aria-label="Account private beta starter route">
+            {betaStarterChallenges.map((challenge, index) => {
+              const verifierStatus = getVerifierStatus(challenge);
+              const isActiveChallenge = activeChallengeRecord?.id === challenge.id;
+
+              return (
+                <article className="fact" key={challenge.id}>
+                  <span>Step {index + 1} · {challenge.difficulty}</span>
+                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
+                  <strong>{challenge.title}</strong>
+                  <p>{challenge.objective}</p>
+                  <p className="muted">{verifierStatus.summary}</p>
+                  {user ? (
+                    <form action={startChallenge} className="button-row">
+                      <input type="hidden" name="challengeId" value={challenge.id} />
+                      <button type="submit" className={isActiveChallenge ? "button secondary" : "button primary"}>
+                        {isActiveChallenge ? "Active now" : "Make active"}
+                      </button>
+                      <Link href={`/challenges/${challenge.id}`} className="button secondary">Rules</Link>
+                    </form>
+                  ) : (
+                    <Link href={`/challenges/${challenge.id}`} className="button secondary">Preview rules</Link>
+                  )}
+                </article>
+              );
+            })}
           </div>
         </section>
 
