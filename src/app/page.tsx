@@ -61,11 +61,11 @@ export default async function Home() {
             </div>
             <div className="quest-list" aria-label="Recommended first quests">
               {recommendedQuests.map((quest) => (
-                <Link key={quest.id} href={`/challenges/${quest.id}`} className="quest-list-item quest-list-item-with-logo">
-                  <span className="quest-list-logo" aria-hidden="true">
+                <Link key={quest.id} href={`/challenges/${quest.id}`} className="quest-list-item quest-list-item-with-logo clean-quest-logo-card">
+                  <span className="quest-list-logo clean-quest-logo" aria-hidden="true">
                     <ChallengeBadge challenge={quest} earned />
                   </span>
-                  <span className="quest-list-copy">
+                  <span className="quest-list-copy clean-quest-copy">
                     <small className="quest-list-difficulty">{quest.difficulty}</small>
                     <strong>{quest.title}</strong>
                     <small>{quest.objective}</small>

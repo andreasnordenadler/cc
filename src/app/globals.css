@@ -255,3 +255,17 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-list-copy { display: grid; gap: 5px; min-width: 0; }
 .quest-list-item .quest-list-difficulty { width: max-content; padding: 5px 8px; border-radius: 999px; background: rgba(255,122,102,.16); color: var(--danger); font-size: 10px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
 @media (max-width: 520px) { .quest-list-logo { width: 58px; min-height: 58px; } .quest-list-logo .challenge-badge-token { width: 52px; } .quest-list-logo .badge-reference-art { width: 48px; height: 48px; } }
+
+
+/* SQC feedback: recommended quest logos should float cleanly, with text underneath. */
+.clean-quest-logo-card { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 8px; padding: 16px 14px; }
+.clean-quest-logo { width: auto; min-height: 0; padding: 0; border-radius: 0; background: transparent; }
+.clean-quest-logo .challenge-badge-token { width: auto; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.clean-quest-logo .challenge-badge-token::before { display: none; }
+.clean-quest-logo .badge-reference-art { width: 88px; height: 88px; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.28)); }
+.clean-quest-logo .badge-shield { width: 62px; height: 72px; box-shadow: inset 0 0 0 3px rgba(255,255,255,.22), inset 0 -14px 24px rgba(0,0,0,.24), 0 12px 22px rgba(0,0,0,.24); }
+.clean-quest-logo .badge-token-motif { width: 42px; height: 42px; font-size: 25px; }
+.clean-quest-copy { justify-items: center; }
+.clean-quest-copy strong { font-size: 1.02rem; line-height: 1.05; }
+.clean-quest-copy small:not(.quest-list-difficulty) { max-width: 28ch; }
+@media (max-width: 520px) { .clean-quest-logo .badge-reference-art { width: 76px; height: 76px; } }
