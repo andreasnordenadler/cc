@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 
@@ -11,10 +10,10 @@ type SiteNavProps = {
 
 export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   return (
-    <header className="site-nav">
+    <header className="site-nav softer-site-nav">
       <div className="site-nav-inner">
-        <Link href="/" className="brand-lockup" aria-label="Side Quest Chess home">
-          <Image src="/sqc-logo.png" alt="Side Quest Chess" width={1254} height={1254} priority className="brand-logo" />
+        <Link href="/" className="brand-lockup text-brand" aria-label="Side Quest Chess home">
+          <strong>SQC</strong>
         </Link>
 
         <nav className="nav-links" aria-label="Primary">

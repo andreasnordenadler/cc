@@ -224,3 +224,21 @@ p { color: var(--muted); line-height: 1.5; }
 .input-card textarea { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 17px; background: rgba(0,0,0,.24); color: var(--ink); padding: 13px 14px; resize: vertical; }
 .wide-form { max-width: 760px; }
 @media (min-width: 860px) { .auth-wrap { display: grid; } }
+
+/* Feedback 2 homepage cleanup: no giant logo, softer nav, fewer boxes, clearer quest list. */
+.softer-site-nav { background: rgba(255,255,255,.075); border-color: rgba(245,200,106,.2); box-shadow: 0 18px 54px rgba(0,0,0,.18); }
+.text-brand { min-width: 60px; justify-content: center; padding: 10px 13px; border-radius: 999px; background: rgba(245,200,106,.16); color: var(--gold); font-size: 18px; letter-spacing: .08em; }
+.clean-home-hero { grid-template-columns: minmax(0, .96fr) minmax(320px, .84fr); }
+.simplified-home-hero { background: radial-gradient(circle at 82% 6%, rgba(245,200,106,.22), transparent 28%), linear-gradient(135deg, rgba(255,255,255,.085), rgba(255,95,159,.085)); }
+.plain-loop-copy { margin-top: 16px; color: var(--green); font-weight: 850; }
+.recommended-quests-panel { align-content: start; gap: 16px; }
+.recommended-quests-panel h2 { font-size: clamp(1.55rem, 3vw, 2.45rem); }
+.quest-list { display: grid; gap: 10px; }
+.quest-list-item { display: grid; gap: 5px; padding: 14px; border-radius: 20px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.11); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.quest-list-item:hover, .quest-list-item:focus-visible { transform: translateY(-1px); border-color: rgba(245,200,106,.4); background: rgba(245,200,106,.1); outline: none; }
+.quest-list-item span { width: max-content; padding: 5px 8px; border-radius: 999px; background: rgba(255,122,102,.16); color: var(--danger); font-size: 10px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
+.quest-list-item strong { color: var(--ink); font-size: 1.05rem; }
+.quest-list-item small { color: var(--muted); line-height: 1.35; }
+.compact-run-card { background: rgba(255,255,255,.055); }
+.quieter-secondary-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+@media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } }

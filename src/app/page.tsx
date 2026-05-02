@@ -1,7 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -12,6 +10,12 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+const recommendedQuestIds = [
+  "knights-before-coffee",
+  "no-castle-club",
+  "queen-never-heard-of-her",
+];
+
 export default async function Home() {
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
@@ -21,7 +25,9 @@ export default async function Home() {
   const activeQuest = getActiveChallenge(metadata);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
-  const featuredQuest = CHALLENGES[0];
+  const recommendedQuests = recommendedQuestIds
+    .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
+    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
   const activeQuestRecord = activeQuest?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
@@ -32,87 +38,62 @@ export default async function Home() {
       <SiteNav isSignedIn={isSignedIn} active="home" />
 
       <div className="content-wrap">
-        <section className="hero-grid launch-home-hero">
+        <section className="hero-grid launch-home-hero clean-home-hero">
           <article className="hero-card simplified-home-hero">
-            <div className="hero-logo-lockup compact">
-              <Image src="/sqc-logo.png" alt="Side Quest Chess" width={1254} height={1254} priority />
-            </div>
-            <span className="eyebrow">Play normal chess. Complete weird quests.</span>
+            <span className="eyebrow">Side Quest Chess</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
               Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card.
             </p>
             <div className="button-row hero-actions">
               <Link href="/challenges" className="button primary">Start a quest</Link>
-              <Link href="/connect" className="button pink">Connect chess account</Link>
-              <Link href="/result" className="button secondary">View proof card</Link>
+              <Link href="/connect" className="button secondary">Connect account</Link>
             </div>
-
-            <div className="steps clear-steps" aria-label="How Side Quest Chess works">
-              <Step num="1" title="Pick" copy="Choose one weird quest." />
-              <Step num="2" title="Play" copy="Win on Lichess or Chess.com." />
-              <Step num="3" title="Prove" copy="Get points, badge progress, and a receipt." />
-            </div>
+            <p className="plain-loop-copy">Pick → play → prove. No PGN uploads. No chess-site passwords.</p>
           </article>
 
-          <aside className="side-card card featured-quest-panel">
-            <div className="spread">
-              <span className="eyebrow">Recommended first quest</span>
-              <span className="badge danger">{featuredQuest.difficulty}</span>
+          <aside className="side-card card recommended-quests-panel">
+            <div>
+              <span className="eyebrow">Recommended first quests</span>
+              <h2>Start with one of these.</h2>
+              <p>Three clear routes before the full chaos deck.</p>
             </div>
-            <ChallengeTeaser challengeId={featuredQuest.id} />
+            <div className="quest-list" aria-label="Recommended first quests">
+              {recommendedQuests.map((quest) => (
+                <Link key={quest.id} href={`/challenges/${quest.id}`} className="quest-list-item">
+                  <span>{quest.difficulty}</span>
+                  <strong>{quest.title}</strong>
+                  <small>{quest.objective}</small>
+                </Link>
+              ))}
+            </div>
+            <Link href="/today" className="button secondary">Or open today’s quest</Link>
           </aside>
         </section>
 
         {isSignedIn ? (
-          <section className="card mission-card home-status-card">
+          <section className="card mission-card home-status-card compact-run-card">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Your run</span>
-                <h2>{activeQuestRecord ? "Continue your current quest." : "Pick your first quest."}</h2>
+                <span className="eyebrow">Current run</span>
+                <h2>{activeQuestRecord ? activeQuestRecord.title : "No active quest yet."}</h2>
               </div>
               <span className="badge gold readable-points">{progress.totalRewardPoints} points</span>
             </div>
             <div className="grid lean-status-grid">
               <Fact label="Chess account" value={connectedIdentity || "Add Lichess or Chess.com"} />
-              <Fact label="Current quest" value={activeQuestRecord?.title ?? "None yet"} />
               <Fact label="Completed quests" value={`${progress.totalCompletedChallenges}`} />
             </div>
             <div className="button-row">
               <Link href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"} className="button primary">
                 {activeQuestRecord ? "Continue quest" : "Choose a quest"}
               </Link>
-              <Link href="/account" className="button secondary">Open my account</Link>
+              <Link href="/account" className="button secondary">Account details</Link>
             </div>
           </section>
-        ) : (
-          <section className="card mission-card first-run-card">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">First run</span>
-                <h2>Try the loop in three clicks.</h2>
-              </div>
-            </div>
-            <div className="grid lean-status-grid">
-              <Fact label="Start" value="Pick one quest" />
-              <Fact label="Connect" value="Save your chess username" />
-              <Fact label="Return" value="Check the proof card" />
-            </div>
-            <div className="button-row">
-              <Link href="/challenges" className="button primary">Browse quests</Link>
-              <Link href="/connect" className="button secondary">Connect account</Link>
-            </div>
-          </section>
-        )}
+        ) : null}
 
-        <section className="big-grid home-secondary-grid" aria-label="Useful Side Quest Chess routes">
-          <article className="mission-card">
-            <span className="eyebrow">Daily quest</span>
-            <h2>One bad idea for today.</h2>
-            <p>A simple daily reason to come back without browsing every route.</p>
-            <Link href="/today" className="button secondary">Open today’s quest</Link>
-          </article>
-
+        <section className="big-grid home-secondary-grid quieter-secondary-grid" aria-label="Useful Side Quest Chess routes">
           <article className="mission-card">
             <span className="eyebrow">Badges</span>
             <h2>Collect proof you survived.</h2>
@@ -129,39 +110,6 @@ export default async function Home() {
         </section>
       </div>
     </main>
-  );
-}
-
-function ChallengeTeaser({ challengeId }: { challengeId: string }) {
-  const challenge = CHALLENGES.find((item) => item.id === challengeId) ?? CHALLENGES[0];
-
-  return (
-    <article className="challenge-card featured">
-      <div className="card-meta">
-        <span>{challenge.category}</span>
-        <span className="badge danger">{challenge.difficulty}</span>
-      </div>
-      <ChallengeBadge challenge={challenge} />
-      <h3>{challenge.title}</h3>
-      <p>{challenge.objective}</p>
-      <em>{challenge.openingHint}</em>
-      <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · {challenge.badgeIdentity.heraldry.meaning}</div>
-      <div className="card-footer">
-        <strong>+{challenge.reward} points</strong>
-        <span>{challenge.badgeIdentity.name}</span>
-        <Link href={`/challenges/${challenge.id}`}>Start</Link>
-      </div>
-    </article>
-  );
-}
-
-function Step({ num, title, copy }: { num: string; title: string; copy: string }) {
-  return (
-    <div className="step">
-      <strong>{num}</strong>
-      <span>{title}</span>
-      <p>{copy}</p>
-    </div>
   );
 }
 
