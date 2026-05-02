@@ -1,5 +1,5 @@
+import Image from "next/image";
 import Link from "next/link";
-import ChallengeBadge from "@/components/challenge-badge";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -61,12 +61,38 @@ export default async function Home() {
             </div>
             <div className="quest-list" aria-label="Recommended first quests">
               {recommendedQuests.map((quest) => (
-                <Link key={quest.id} href={`/challenges/${quest.id}`} className="quest-list-item quest-list-item-with-logo clean-quest-logo-card">
-                  <span className="quest-list-logo clean-quest-logo" aria-hidden="true">
-                    <ChallengeBadge challenge={quest} earned />
-                  </span>
-                  <span className="quest-list-copy clean-quest-copy">
-                    <small className="quest-list-difficulty">{quest.difficulty}</small>
+                <Link
+                  key={quest.id}
+                  href={`/challenges/${quest.id}`}
+                  className="quest-list-item final-bare-quest-card"
+                  style={{
+                    gridTemplateColumns: "1fr",
+                    justifyItems: "center",
+                    textAlign: "center",
+                    background: "transparent",
+                    borderColor: "transparent",
+                    boxShadow: "none",
+                    padding: "12px 8px",
+                  }}
+                >
+                  {quest.badgeIdentity.image ? (
+                    <Image
+                      src={quest.badgeIdentity.image}
+                      alt=""
+                      width={112}
+                      height={112}
+                      className="final-bare-quest-logo"
+                      style={{
+                        width: "88px",
+                        height: "88px",
+                        objectFit: "contain",
+                        filter: "drop-shadow(0 12px 18px rgba(0,0,0,.28))",
+                      }}
+                      unoptimized
+                    />
+                  ) : null}
+                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "5px", background: "transparent" }}>
+                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{quest.difficulty}</small>
                     <strong>{quest.title}</strong>
                     <small>{quest.objective}</small>
                   </span>
