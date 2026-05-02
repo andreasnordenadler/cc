@@ -64,6 +64,8 @@ Old pre-reset standby roadmap is archived at:
 - [ ] Prepare SQC for polished launch readiness without adding more beta-tester functionality.
   - added_at: 2026-04-28 12:38 Europe/Stockholm
   - source: Andreas said he is not in a hurry to launch and would rather do a proper launch with rich features and a great clear UI.
+  - 2026-05-02 16:42 Europe/Stockholm requested launch-polish subtask: use the current SQC logo as the site favicon/app icon, with build proof and live route verification.
+  - 2026-05-02 16:50 Europe/Stockholm progress: shipped SQC-logo favicon/app-icon set (`favicon.ico`, `icon.png`, `apple-icon.png`) from current `public/sqc-logo.png`; proof doc `docs/SQC_LOGO_FAVICON_LAUNCH_POLISH_2026-05-02.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-chom8qw7y-andreas-nordenadlers-projects.vercel.app`, alias to `https://sidequestchess.com`, and live smoke for `/`, `/favicon.ico`, `/icon.png`, and `/apple-icon.png`.
   - Acceptance:
     - First-time public launch path is clear: pick quest → connect chess account → play real game → get receipt/badge.
     - Homepage and challenge hub emphasize the core product loop over secondary/admin/beta surfaces.
