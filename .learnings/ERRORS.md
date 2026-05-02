@@ -1724,3 +1724,17 @@ A live content smoke assertion expected the older phrase `win one eligible publi
 Use content markers that match the final shipped copy exactly.
 
 ---
+
+## [ERR-20260502-001] clean worktree missing dependencies before verification
+
+**Logged**: 2026-05-02T02:52:00+02:00
+**Context**: SQC beta simplification deploy worktree.
+**Failure**: `pnpm lint && pnpm build` failed because the isolated git worktree had no `node_modules` (`eslint: command not found`).
+**Fix**: Run `pnpm install --frozen-lockfile` in newly-created deploy worktrees before lint/build.
+
+## [ERR-20260502-002] Vercel logs CLI does not accept --since in deployment follow mode
+
+**Logged**: 2026-05-02T03:00:00+02:00
+**Context**: SQC post-deploy smoke for `cc-hdwpy0ppc`.
+**Failure**: `vercel logs <deployment> --since 10m` failed with `The --follow flag does not support filtering. Remove: --since`.
+**Fix**: Use `--no-follow` for filtered historical Vercel log scans, e.g. `vercel logs --environment production --level error --since 10m --no-follow --no-branch --limit 20`.
