@@ -16,7 +16,7 @@ Completed before deploy:
 - `pnpm build` ✅
 
 Completed after deploy:
-- production deploy: `https://cc-raa9yncyx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com` ✅
+- production deploy: `https://cc-luvgvuna8-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com` ✅
 - live smoke for deploy `/`: `Home` rendered before `Quests`, `Support` still present, removed wordmark classes/text absent ✅
 - live smoke for canonical `/`: `Home` rendered before `Quests`, `Support` still present, removed wordmark classes/text absent ✅
 - Vercel deployment error-log scan: no logs found / no errors emitted ✅
