@@ -65,6 +65,7 @@ Old pre-reset standby roadmap is archived at:
   - added_at: 2026-04-28 12:38 Europe/Stockholm
   - source: Andreas said he is not in a hurry to launch and would rather do a proper launch with rich features and a great clear UI.
   - 2026-05-02 16:42 Europe/Stockholm requested launch-polish subtask: use the current SQC logo as the site favicon/app icon, with build proof and live route verification.
+  - 2026-05-02 18:46 Europe/Stockholm progress: deployed the current SQC logo as the browser favicon, 512px app icon, and 180px Apple touch icon; proof doc `docs/SQC_LOGO_FAVICON_LAUNCH_POLISH_2026-05-02.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-ef1mvpbl2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for `/`, `/favicon.ico`, `/icon.png`, and `/apple-icon.png` on deploy and canonical domains, plus bounded Vercel logs watch with no emitted runtime errors.
   - Acceptance:
     - Public-launch language is avoided until the product has a richer feature set and clearer first-user UI.
     - Roadmap prioritizes private/friends beta hardening, onboarding clarity, E2E test reliability, and UI simplification before launch marketing.

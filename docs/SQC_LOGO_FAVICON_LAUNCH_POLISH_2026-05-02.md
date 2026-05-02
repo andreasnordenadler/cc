@@ -20,4 +20,10 @@ Andreas asked whether the SQC logo could be used as the favicon. This is small l
 
 ## Live proof
 
-Pending production deploy + live icon route smoke.
+- Production deploy succeeded: `https://cc-ef1mvpbl2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke passed for deploy and canonical `/` routes.
+- Live icon route smoke passed on both deploy and canonical domains:
+  - `/favicon.ico` → HTTP 200, `image/vnd.microsoft.icon`, 11,084 bytes, ICO magic `0000010003001010`.
+  - `/icon.png` → HTTP 200, `image/png`, 538,626 bytes, PNG magic `89504e470d0a1a0a`.
+  - `/apple-icon.png` → HTTP 200, `image/png`, 79,356 bytes, PNG magic `89504e470d0a1a0a`.
+- Bounded `vercel logs` watch emitted no runtime errors before timeout.
