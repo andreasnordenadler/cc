@@ -278,3 +278,9 @@ p { color: var(--muted); line-height: 1.5; }
 .clean-quest-logo .badge-shield { background: linear-gradient(135deg, var(--badge-primary) 0 48%, #151019 48% 52%, var(--badge-secondary) 52% 100%); }
 .quest-list-item .quest-list-difficulty { background: transparent; padding: 0; border-radius: 0; color: var(--danger); }
 .clean-quest-copy { background: transparent; }
+
+
+/* SQC top-bar wordmark refinement. */
+.wordmark-brand { padding: 0; background: transparent; border-radius: 0; min-width: 0; }
+.nav-wordmark { display: block; width: clamp(190px, 22vw, 360px); height: auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,.24)); }
+@media (max-width: 720px) { .nav-wordmark { width: clamp(160px, 48vw, 260px); } }
