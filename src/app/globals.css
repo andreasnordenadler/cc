@@ -284,3 +284,8 @@ p { color: var(--muted); line-height: 1.5; }
 .wordmark-brand { padding: 0; background: transparent; border-radius: 0; min-width: 0; }
 .nav-wordmark { display: block; width: clamp(190px, 22vw, 360px); height: auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,.24)); }
 @media (max-width: 720px) { .nav-wordmark { width: clamp(160px, 48vw, 260px); } }
+
+
+/* SQC top-bar wordmark fit: smaller picture wordmark using logo-like serif treatment. */
+.nav-wordmark { width: clamp(150px, 15vw, 230px); max-width: 230px; height: auto; object-fit: contain; }
+@media (max-width: 720px) { .nav-wordmark { width: clamp(132px, 38vw, 190px); } }

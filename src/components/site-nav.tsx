@@ -14,7 +14,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     <header className="site-nav softer-site-nav">
       <div className="site-nav-inner">
         <Link href="/" className="brand-lockup wordmark-brand" aria-label="Side Quest Chess home">
-          <Image src="/sqc-wordmark.svg" alt="Side Quest Chess" width={720} height={120} priority className="nav-wordmark" />
+          <Image src="/sqc-wordmark.png" alt="Side Quest Chess" width={980} height={150} priority className="nav-wordmark" />
         </Link>
 
         <nav className="nav-links" aria-label="Primary">
