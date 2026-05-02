@@ -12,13 +12,6 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   return (
     <header className="site-nav">
       <div className="site-nav-inner">
-        <Link href="/" className="brand-lockup" aria-label="Side Quest Chess home">
-          <span className="brand-text">
-            <strong>Side Quest Chess</strong>
-            <span>stupidly hard side quests</span>
-          </span>
-        </Link>
-
         <nav className="nav-links" aria-label="Primary">
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/today" className={active === "today" ? "active" : undefined}>Today</Link>
