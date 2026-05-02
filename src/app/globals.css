@@ -269,3 +269,12 @@ p { color: var(--muted); line-height: 1.5; }
 .clean-quest-copy strong { font-size: 1.02rem; line-height: 1.05; }
 .clean-quest-copy small:not(.quest-list-difficulty) { max-width: 28ch; }
 @media (max-width: 520px) { .clean-quest-logo .badge-reference-art { width: 76px; height: 76px; } }
+
+
+/* SQC feedback: bare recommended quests, no square cards, no text pill, no badge circle. */
+.quest-list-item.clean-quest-logo-card { background: transparent; border-color: transparent; box-shadow: none; padding: 12px 8px; }
+.quest-list-item.clean-quest-logo-card:hover, .quest-list-item.clean-quest-logo-card:focus-visible { background: rgba(255,255,255,.035); border-color: rgba(245,200,106,.16); }
+.clean-quest-logo .badge-token-motif { background: transparent; box-shadow: none; border-radius: 0; color: var(--badge-secondary); text-shadow: 0 5px 14px rgba(0,0,0,.34); }
+.clean-quest-logo .badge-shield { background: linear-gradient(135deg, var(--badge-primary) 0 48%, #151019 48% 52%, var(--badge-secondary) 52% 100%); }
+.quest-list-item .quest-list-difficulty { background: transparent; padding: 0; border-radius: 0; color: var(--danger); }
+.clean-quest-copy { background: transparent; }
