@@ -24,6 +24,7 @@ Users pick ridiculous chess challenges, play real games on Lichess or Chess.com,
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
 - Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
 - Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. Treat near-term releases as private/friends beta readiness, not public-launch pressure.
+- Beta tester functionality canon: Andreas explicitly said no more beta tester functionality is needed and that the beta tester side looks good as-is. Do not add more beta-admin, tester-instruction, feedback-template, invite, or beta-reporting functionality by default. Shift SQC effort toward core product usability, clarity, friction removal, quest loop quality, and launch-readiness improvements.
 - Chess.com test account: Andreas supplied Chess.com username `and72nor` for API testing and future Chess.com quest validation work.
 
 Canonical brief:
@@ -63,6 +64,7 @@ Old pre-reset standby roadmap is archived at:
 - [ ] Prepare SQC for polished friends/private beta before any public launch push.
   - added_at: 2026-04-28 12:38 Europe/Stockholm
   - source: Andreas said he is not in a hurry to launch and would rather do a proper launch with rich features and a great clear UI.
+  - 2026-05-02 16:42 Europe/Stockholm requested launch-polish subtask: use the current SQC logo as the site favicon/app icon, with build proof and live route verification.
   - Acceptance:
     - Public-launch language is avoided until the product has a richer feature set and clearer first-user UI.
     - Roadmap prioritizes private/friends beta hardening, onboarding clarity, E2E test reliability, and UI simplification before launch marketing.
