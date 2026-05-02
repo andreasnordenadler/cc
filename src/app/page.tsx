@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ChallengeBadge from "@/components/challenge-badge";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -60,10 +61,15 @@ export default async function Home() {
             </div>
             <div className="quest-list" aria-label="Recommended first quests">
               {recommendedQuests.map((quest) => (
-                <Link key={quest.id} href={`/challenges/${quest.id}`} className="quest-list-item">
-                  <span>{quest.difficulty}</span>
-                  <strong>{quest.title}</strong>
-                  <small>{quest.objective}</small>
+                <Link key={quest.id} href={`/challenges/${quest.id}`} className="quest-list-item quest-list-item-with-logo">
+                  <span className="quest-list-logo" aria-hidden="true">
+                    <ChallengeBadge challenge={quest} earned />
+                  </span>
+                  <span className="quest-list-copy">
+                    <small className="quest-list-difficulty">{quest.difficulty}</small>
+                    <strong>{quest.title}</strong>
+                    <small>{quest.objective}</small>
+                  </span>
                 </Link>
               ))}
             </div>

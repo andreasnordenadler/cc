@@ -242,3 +242,16 @@ p { color: var(--muted); line-height: 1.5; }
 .compact-run-card { background: rgba(255,255,255,.055); }
 .quieter-secondary-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 @media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } }
+
+
+/* Recommended first quests: show badge/logo art beside each quest. */
+.quest-list-item-with-logo { grid-template-columns: auto minmax(0,1fr); align-items: center; }
+.quest-list-logo { display: grid; place-items: center; width: 72px; min-height: 72px; padding: 4px; border-radius: 18px; background: rgba(255,255,255,.055); }
+.quest-list-logo .challenge-badge-token { width: 64px; min-width: 0; grid-template-columns: 1fr; justify-items: center; gap: 0; padding: 5px; border-radius: 18px; box-shadow: none; }
+.quest-list-logo .badge-token-copy, .quest-list-logo .badge-ribbon, .quest-list-logo .badge-crest { display: none; }
+.quest-list-logo .badge-shield { width: 42px; height: 50px; }
+.quest-list-logo .badge-token-motif { width: 29px; height: 29px; font-size: 18px; }
+.quest-list-logo .badge-reference-art { width: 58px; height: 58px; object-fit: contain; }
+.quest-list-copy { display: grid; gap: 5px; min-width: 0; }
+.quest-list-item .quest-list-difficulty { width: max-content; padding: 5px 8px; border-radius: 999px; background: rgba(255,122,102,.16); color: var(--danger); font-size: 10px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
+@media (max-width: 520px) { .quest-list-logo { width: 58px; min-height: 58px; } .quest-list-logo .challenge-badge-token { width: 52px; } .quest-list-logo .badge-reference-art { width: 48px; height: 48px; } }
