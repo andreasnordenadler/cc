@@ -75,15 +75,15 @@ export default async function ConnectPage() {
         <section className="mission-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Connection handoff</span>
-              <h2>{hasChessIdentity ? "Identity saved. Pick a dare next." : "Save one username, then choose a quest."}</h2>
+              <span className="eyebrow">Private beta connection handoff</span>
+              <h2>{hasChessIdentity ? "Identity saved. Run the first proof loop." : "Save one username, then follow the tester route."}</h2>
             </div>
             <span className={hasChessIdentity ? "badge green" : "badge blue"}>
               {hasChessIdentity ? "ready for proof" : "setup step"}
             </span>
           </div>
           <p>
-            The connect page is only step one: after a public username is saved, start one live-backed quest, play and win one eligible public game, then return for the latest-game receipt.
+            The connect page is only step one: after a public username is saved, use the private-beta starter route, play and win one eligible public game, then return for one honest latest-game receipt.
           </p>
           <div className="checker-flow" aria-label="Post-connection proof path">
             <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
@@ -91,8 +91,8 @@ export default async function ConnectPage() {
               <p>{hasChessIdentity ? `${lichessUsername || chessComUsername} can be checked from public game history.` : "Add either Lichess or Chess.com. No password, upload, or PGN chore."}</p>
             </div>
             <div className="flow-step ready">
-              <strong>2. Start a quest</strong>
-              <p>Choose a live-backed dare before playing so the proof loop knows what to look for.</p>
+              <strong>2. Start a tester-route quest</strong>
+              <p>Use the guided starter picks before browsing the whole chaos deck cold.</p>
             </div>
             <div className="flow-step hot">
               <strong>3. Check receipt</strong>
@@ -100,7 +100,8 @@ export default async function ConnectPage() {
             </div>
           </div>
           <div className="button-row">
-            <Link href="/challenges" className="button primary">Choose a quest</Link>
+            <Link href="/account" className="button primary">Open account preflight</Link>
+            <Link href="/challenges" className="button secondary">Open starter route</Link>
             <Link href="/result" className="button secondary">View latest receipt</Link>
           </div>
         </section>
