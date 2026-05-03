@@ -141,6 +141,8 @@ p { color: var(--muted); line-height: 1.5; }
 .big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .mission-card { padding: 18px; }
 .mission-card strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
+.beta-trust-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: end; background: linear-gradient(135deg, rgba(96,240,175,.12), rgba(245,200,106,.08), rgba(255,255,255,.06)); }
+.beta-trust-strip p { max-width: 760px; }
 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-size: 12px; font-weight: 850; }
 
@@ -202,6 +204,7 @@ p { color: var(--muted); line-height: 1.5; }
   .hero-grid { grid-template-columns: 1fr; }
   .detail-hero-grid { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
+  .beta-trust-strip { grid-template-columns: 1fr; align-items: stretch; }
   h1 { font-size: clamp(2.8rem, 15vw, 4.6rem); }
 }
 .auth-wrap { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); align-items: start; }

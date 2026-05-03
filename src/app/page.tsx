@@ -88,6 +88,20 @@ export default async function Home() {
           </div>
         </section>
 
+        <section className="card mission-card beta-trust-strip" aria-label="Private beta trust basics">
+          <div>
+            <span className="eyebrow">Private beta trust basics</span>
+            <h2>Real games, public data, no password nonsense.</h2>
+            <p>
+              Side Quest Chess checks public Lichess and Chess.com game records only. Testers should never share chess-site passwords, and confusing receipts should be reported with the copied beta packet plus a screenshot.
+            </p>
+          </div>
+          <div className="button-row">
+            <Link href="/rules" className="button secondary">Read proof rules</Link>
+            <Link href="/beta" className="button primary">Open support packet</Link>
+          </div>
+        </section>
+
         <section className="big-grid" aria-label="Product surfaces">
           <article className="mission-card daily-card">
             <span className="eyebrow">Daily side quest</span>
