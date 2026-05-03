@@ -46,7 +46,8 @@ export default async function Home() {
               Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/challenges" className="button primary">Start a quest</Link>
+              <Link href="/path" className="button primary">Start starter path</Link>
+              <Link href="/challenges" className="button secondary">Browse quests</Link>
               <Link href="/connect" className="button secondary">Connect account</Link>
             </div>
             <p className="plain-loop-copy">Pick → play → prove. No PGN uploads. No chess-site passwords.</p>
@@ -54,8 +55,8 @@ export default async function Home() {
 
           <aside className="side-card card recommended-quests-panel">
             <div>
-              <h2>Start with one of these.</h2>
-              <p>Three clear routes before the full chaos deck.</p>
+              <h2>Start with the starter path.</h2>
+              <p>Three clear quests before the full chaos deck.</p>
             </div>
             <div className="quest-list" aria-label="Recommended first quests">
               {recommendedQuests.map((quest) => (
@@ -97,7 +98,10 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
-            <Link href="/today" className="button secondary">Or open today’s quest</Link>
+            <div className="button-row">
+              <Link href="/path" className="button primary">Open starter path</Link>
+              <Link href="/today" className="button secondary">Or open today’s quest</Link>
+            </div>
           </aside>
         </section>
 
