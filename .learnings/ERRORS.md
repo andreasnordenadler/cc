@@ -1755,3 +1755,59 @@ During the SQC homepage trust-card burst, `git push` from the dirty main checkou
 **Symptom**: `eslint: command not found` because the new Git worktree had no `node_modules` yet.
 **Resolution**: Ran `pnpm install --frozen-lockfile` in the worktree, then reran verification.
 **Prevention**: For fresh CC/SQC worktrees, install dependencies before lint/build.
+
+## [ERR-20260503-002] vercel_logs_since_filter
+
+**Logged**: 2026-05-03T13:00:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 10m` failed because this installed Vercel CLI treats logs as follow-mode and does not support `--since` filtering.
+
+### Error
+```text
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Command attempted after production deploy for SQC share-kit burst.
+- The live smoke had already passed; this was an optional bounded log scan.
+
+### Suggested Fix
+Use unfiltered `vercel logs <deployment>` with a short timeout, or another supported Vercel log command syntax for this CLI version.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_SHARE_KIT_TEN_SECOND_FRIEND_DARE_LOCAL_PROOF_2026-05-03.md
+
+---
+
+## [ERR-20260503-003] macos_timeout_missing
+
+**Logged**: 2026-05-03T13:01:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+The GNU `timeout` command is not available in this macOS shell when trying to bound `vercel logs`.
+
+### Error
+```text
+zsh:31: command not found: timeout
+```
+
+### Context
+- Command attempted: `timeout 15 vercel logs <deployment>`
+- Environment: Darwin/macOS workspace.
+
+### Suggested Fix
+Use Python `subprocess.run(..., timeout=N)` or OpenClaw exec `timeout` parameter instead of relying on GNU `timeout` on macOS.
+
+### Metadata
+- Reproducible: yes
+
+---
+
