@@ -1955,3 +1955,26 @@ For public route smoke checks, assert signed-out copy unless explicitly testing 
 - Tags: vercel, smoke, sqc
 
 ---
+
+## [ERR-20260503-001] cc_worktree_verify_missing_node_modules_and_vercel_logs_flags
+
+**Logged**: 2026-05-03T21:00:00Z
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+A clean CC git worktree failed `pnpm lint` before dependencies were installed, and a manual `vercel logs` scan used unsupported/default-follow flags before switching to the project log scan script.
+
+### Details
+Fresh worktrees do not share `node_modules`; run `pnpm install --frozen-lockfile` before lint/build. For Vercel 500 checks, prefer `node /Users/sam/.openclaw/workspace/skills/deploy-verify/scripts/vercel-500-scan.mjs --project cc --since 30m` instead of ad-hoc `vercel logs` flags.
+
+### Suggested Action
+For future CC deploy proof bursts, bootstrap the worktree with `.vercel/project.json` plus `pnpm install --frozen-lockfile`, then use the existing deploy-verify log scan script for recent 500s.
+
+### Metadata
+- Source: error
+- Related Files: .vercel/project.json, /Users/sam/.openclaw/workspace/skills/deploy-verify/scripts/vercel-500-scan.mjs
+- Tags: cc, vercel, worktree, deploy-proof
+
+---
