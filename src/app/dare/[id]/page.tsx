@@ -75,7 +75,7 @@ export default async function DarePage({
         <section className="hero-grid">
           <article className="hero-card detail-hero">
             <span className="eyebrow">Friend quest received</span>
-            <h1>You have been dared.</h1>
+            <h1>A friend sent you a quest.</h1>
             <p className="hero-copy">
               Someone thinks you should try <strong>{challenge.title}</strong>: {challenge.objective}
             </p>
@@ -115,12 +115,12 @@ export default async function DarePage({
             <span className="eyebrow">Proof path</span>
             <h2>Play normally, then let SQC check the mess.</h2>
             <p>
-              Accepting a dare should feel simple: save the quest, play one eligible public game on Lichess or Chess.com, then come back for the receipt.
+              Accepting a friend quest should feel simple: save the quest, play one eligible public game on Lichess or Chess.com, then come back for the receipt.
             </p>
             <div className="checker-flow" aria-label="Friend quest proof path">
               <div className="flow-step ready">
                 <strong>1 · Accept</strong>
-                <p>Save this exact dare as your active quest right from the friend page.</p>
+                <p>Save this exact friend quest as your active quest right from this page.</p>
               </div>
               <div className="flow-step hot">
                 <strong>2 · Play</strong>

@@ -135,7 +135,7 @@ export default async function ResultPage() {
             <ShareProofActions copy={shareCopy} challengeTitle={challenge.title} />
           </article>
           <article className="mission-card share-card">
-            <span className="eyebrow">Dare the next person</span>
+            <span className="eyebrow">Send the next quest</span>
             <h2>Turn this receipt into the next bad decision.</h2>
             <p>
               After a pass, fail, or pending check, send the exact same quest to a friend so the loop continues with a quest-specific invite instead of a generic homepage pitch.
