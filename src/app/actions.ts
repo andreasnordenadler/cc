@@ -472,7 +472,7 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     {
       status: "pending" as const,
       gameId: `latest-game-${challengeId}`,
-      summary: `Queued latest-game verification for ${challenge?.title ?? challengeId}. This challenge needs its exact rule detector before auto-awarding points.`,
+      summary: `Queued latest-game verification for ${challenge?.title ?? challengeId}. This quest needs its exact rule detector before auto-awarding points.`,
     },
   ];
 
@@ -552,7 +552,7 @@ export async function startChallenge(formData: FormData) {
   const challenge = getChallengeById(challengeId);
 
   if (!challenge) {
-    throw new Error("Unknown challenge.");
+    throw new Error("Unknown quest.");
   }
 
   const client = await clerkClient();
@@ -579,7 +579,7 @@ export async function submitChallengeAttempt(formData: FormData) {
   const challenge = getChallengeById(challengeId);
 
   if (!challenge) {
-    throw new Error("Unknown challenge.");
+    throw new Error("Unknown quest.");
   }
 
   if (!rawGameId) {
@@ -650,7 +650,7 @@ export async function submitChallengeAttempt(formData: FormData) {
                           : {
                               status: "pending" as const,
                               summary: lichessUsername || chessComUsername
-                                ? `Submitted ${gameId} for ${lichessUsername || chessComUsername}. Automated verification is not active for this challenge yet.`
+                                ? `Submitted ${gameId} for ${lichessUsername || chessComUsername}. Automated verification is not active for this quest yet.`
                                 : `Submitted ${gameId}. Add your chess username in account settings for cleaner review context.`,
                             };
   const completedChallengeIds =
@@ -704,13 +704,13 @@ export async function checkActiveChallenge() {
       : null;
 
   if (!activeChallenge?.id) {
-    throw new Error("Start a challenge before checking latest games.");
+    throw new Error("Start a quest before checking latest games.");
   }
 
   const challenge = getChallengeById(activeChallenge.id);
 
   if (!challenge) {
-    throw new Error("Unknown active challenge.");
+    throw new Error("Unknown active quest.");
   }
 
   const existingAttempts = Array.isArray(metadata.challengeAttempts)

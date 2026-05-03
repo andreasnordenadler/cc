@@ -101,14 +101,14 @@ async function verifyFinishAttempt({
     if (requiredSide === "either") {
       return {
         status: "passed",
-        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game, so this challenge passed.`,
+        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game, so this quest passed.`,
       };
     }
 
     const requiredSideLabel = requiredSide === "white" ? "White" : "Black";
     return {
       status: "passed",
-      summary: `Verified ${gameId}. ${lichessUsername} finished that Lichess game as ${requiredSideLabel}, so this challenge passed.`,
+      summary: `Verified ${gameId}. ${lichessUsername} finished that Lichess game as ${requiredSideLabel}, so this quest passed.`,
     };
   } catch {
     return {
@@ -212,14 +212,14 @@ async function verifyDrawAttempt({
     if (requiredSide === "either") {
       return {
         status: "passed",
-        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game with no winning side, so this draw challenge passed.`,
+        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game with no winning side, so this draw quest passed.`,
       };
     }
 
     const requiredSideLabel = requiredSide === "white" ? "White" : "Black";
     return {
       status: "passed",
-      summary: `Verified ${gameId}. ${lichessUsername} drew that finished Lichess game as ${requiredSideLabel}, so this challenge passed.`,
+      summary: `Verified ${gameId}. ${lichessUsername} drew that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
     };
   } catch {
     return {
@@ -306,7 +306,7 @@ async function verifyLoseAttempt({
     if (!game.winner) {
       return {
         status: "failed",
-        summary: `Submitted ${gameId}. ${lichessUsername} appears in that finished game, but it did not end with a winner, so this loss challenge failed.`,
+        summary: `Submitted ${gameId}. ${lichessUsername} appears in that finished game, but it did not end with a winner, so this loss quest failed.`,
       };
     }
 
@@ -331,13 +331,13 @@ async function verifyLoseAttempt({
     if (requiredSide === "either") {
       return {
         status: "passed",
-        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss challenge passed.`,
+        summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss quest passed.`,
       };
     }
 
     return {
       status: "passed",
-      summary: `Verified ${gameId}. ${lichessUsername} lost that finished Lichess game as ${requiredSideLabel}, so this challenge passed.`,
+      summary: `Verified ${gameId}. ${lichessUsername} lost that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
     };
   } catch {
     return {
@@ -440,7 +440,7 @@ async function verifyWinAttempt({
 
     return {
       status: "passed",
-      summary: `Verified ${gameId}. ${lichessUsername} won that finished Lichess game as ${requiredSideLabel}, so this challenge passed.`,
+      summary: `Verified ${gameId}. ${lichessUsername} won that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
     };
   } catch {
     return {

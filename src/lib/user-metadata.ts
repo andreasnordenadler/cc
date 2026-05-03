@@ -149,14 +149,14 @@ export function challengeBanner(challenge: ActiveChallenge | null): string {
   }
 
   if (challenge.status === "suggested") {
-    return "Suggested next challenge. Open it and start verifying when you are ready.";
+    return "Suggested next quest. Open it and start verifying when you are ready.";
   }
 
   if (challenge.status === "accepted") {
     return `Started ${formatTime(challenge.startedAt)}. Check your latest games after you finish one.`;
   }
 
-  return `Challenge is active since ${formatTime(challenge.startedAt)}.`;
+  return `Quest is active since ${formatTime(challenge.startedAt)}.`;
 }
 
 export function formatChallengeId(id: string): string {
@@ -190,7 +190,7 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
   if (!attempt) {
     return {
       headline: "No latest-game check yet",
-      detail: "Start a challenge, play on Lichess or Chess.com, then use Check latest games to create the first review record.",
+      detail: "Start a quest, play on Lichess or Chess.com, then use Check latest games to create the first review record.",
       meta: "No latest check yet",
     };
   }

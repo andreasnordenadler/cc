@@ -34,10 +34,10 @@ export default async function ScoreboardPage() {
           <span className="eyebrow">Quest scoreboard</span>
           <h1>Your bad-idea score, in public.</h1>
           <p className="hero-copy">
-            Track the starter deck, reward points, badge progress, and the next dare worth attempting. It is not a serious leaderboard. That is the point.
+            Track the starter deck, reward points, badge progress, and the next quest worth attempting. It is not a serious leaderboard. That is the point.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/today" className="button primary">Open today’s dare</Link>
+            <Link href="/today" className="button primary">Open today’s quest</Link>
             <Link href="/random" className="button pink">Spin a new quest</Link>
             <Link href="/proof-log" className="button secondary">Review receipts</Link>
           </div>
@@ -53,7 +53,7 @@ export default async function ScoreboardPage() {
           <article className="mission-card active-run-card">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Recommended next dare</span>
+                <span className="eyebrow">Recommended next quest</span>
                 <h2>{nextQuest.title}</h2>
               </div>
               <span className="badge danger">{nextQuest.difficulty}</span>
@@ -67,7 +67,7 @@ export default async function ScoreboardPage() {
             </div>
             <div className="button-row hero-actions">
               <Link href={`/challenges/${nextQuest.id}`} className="button primary">Open rules</Link>
-              <Link href={`/dare/${nextQuest.id}`} className="button secondary">Share as dare</Link>
+              <Link href={`/dare/${nextQuest.id}`} className="button secondary">Share as quest</Link>
             </div>
           </article>
 

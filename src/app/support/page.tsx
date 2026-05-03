@@ -71,7 +71,7 @@ export default async function SupportPage() {
       <div className="content-wrap">
         <section className="hero-card">
           <span className="eyebrow">Support & privacy</span>
-          <h1>Funny dares, boringly clear trust rules.</h1>
+          <h1>Funny quests, boringly clear trust rules.</h1>
           <p className="hero-copy">
             Side Quest Chess private beta should be easy to test without guessing what data is used or what to send back when a receipt looks odd.
           </p>
@@ -83,7 +83,7 @@ export default async function SupportPage() {
         </section>
 
         <section className="grid" aria-label="Support summary">
-          <Fact label="Best report" value="Challenge + site + receipt" copy="One useful report names the quest, chess site, public username, receipt outcome, and first confusing moment." />
+          <Fact label="Best report" value="Quest + site + receipt" copy="One useful report names the quest, chess site, public username, receipt outcome, and first confusing moment." />
           <Fact label="Privacy posture" value="public game data only" copy="SQC checks public games from a saved username. It does not need chess-site passwords, PGN uploads, or engine analysis." />
           <Fact label="Beta contact" value="send it to Andreas" copy="During friends/private beta, route confusing receipts, broken flows, and UI glitches directly to Andreas with the details below." />
         </section>

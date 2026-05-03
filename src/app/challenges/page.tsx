@@ -32,8 +32,8 @@ const betaStarterRoute = [
 const proofLoopSteps = [
   {
     label: "1 · Accept",
-    value: "Pick one dare",
-    copy: "Start from the recommended route or any quest card. Side Quest Chess saves the active challenge so the account page knows what receipt to check next.",
+    value: "Pick one quest",
+    copy: "Start from the recommended route or any quest card. Side Quest Chess saves the active quest so the account page knows what receipt to check next.",
   },
   {
     label: "2 · Play",
@@ -64,19 +64,19 @@ export default async function ChallengesPage() {
 
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">Challenge Hub</span>
+          <span className="eyebrow">Quest Hub</span>
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
-            These are not lessons. They are chess dares with proof attached. Start one, play real games on Lichess or Chess.com, and come back when the bad idea has evidence.
+            These are not lessons. They are chess quests with proof attached. Start one, play real games on Lichess or Chess.com, and come back when the bad idea has evidence.
           </p>
-          <div className="chip-row" aria-label="Challenge categories">
+          <div className="chip-row" aria-label="Quest categories">
             {categories.map((category) => <span className="chip" key={category}>{category}</span>)}
           </div>
         </section>
 
-        <section className="grid" aria-label="Challenge status">
+        <section className="grid" aria-label="Quest status">
           <Fact label="Completed" value={`${progress.totalCompletedChallenges}`} copy={`${progress.totalRewardPoints} points banked`} />
-          <Fact label="Active dare" value={currentChallenge?.title ?? "None yet"} copy={currentChallenge?.proofCallout ?? "Choose one and start causing problems."} />
+          <Fact label="Active quest" value={currentChallenge?.title ?? "None yet"} copy={currentChallenge?.proofCallout ?? "Choose one and start causing problems."} />
           <Fact label="Most failed" value="Queen? Never Heard of Her" copy="Perfect. That means the premise is working." />
         </section>
 
@@ -90,7 +90,7 @@ export default async function ChallengesPage() {
               <span className="badge green">active</span>
             </div>
             <p>{currentChallenge.objective}</p>
-            <Link href={`/challenges/${currentChallenge.id}`} className="button primary">Continue challenge</Link>
+            <Link href={`/challenges/${currentChallenge.id}`} className="button primary">Continue quest</Link>
           </section>
         ) : null}
 
@@ -150,7 +150,7 @@ export default async function ChallengesPage() {
           </div>
         </section>
 
-        <section className="big-grid" aria-label="Available challenges">
+        <section className="big-grid" aria-label="Available quests">
           {CHALLENGES.map((challenge, index) => (
             <ChallengeCard
               key={challenge.id}

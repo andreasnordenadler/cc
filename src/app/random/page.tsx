@@ -5,21 +5,21 @@ import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getDailyChallenge } from "@/lib/challenges";
 
 export const metadata: Metadata = {
-  title: "Random dare machine — Side Quest Chess",
-  description: "Spin up a random Side Quest Chess dare, accept the bad idea, and send the exact friend-dare link.",
+  title: "Random quest machine — Side Quest Chess",
+  description: "Spin up a random Side Quest Chess quest, accept the bad idea, and send the exact friend-quest link.",
   alternates: { canonical: "/random" },
   openGraph: {
-    title: "Random dare machine — Side Quest Chess",
-    description: "Spin up a random chess side quest, accept the bad idea, and dare a friend to do the same cursed thing.",
+    title: "Random quest machine — Side Quest Chess",
+    description: "Spin up a random chess side quest, accept the bad idea, and send it to a friend to do the same cursed thing.",
     url: "/random",
     siteName: "Side Quest Chess",
     type: "website",
-    images: [{ url: "/api/og/dare/queen-never-heard-of-her", width: 1200, height: 630, alt: "Side Quest Chess random dare machine preview" }],
+    images: [{ url: "/api/og/dare/queen-never-heard-of-her", width: 1200, height: 630, alt: "Side Quest Chess random quest machine preview" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Random dare machine — Side Quest Chess",
-    description: "Spin up a random chess side quest and send the exact friend-dare link.",
+    title: "Random quest machine — Side Quest Chess",
+    description: "Spin up a random chess side quest and send the exact friend-quest link.",
     images: ["/api/og/dare/queen-never-heard-of-her"],
   },
 };
@@ -39,12 +39,12 @@ export default async function RandomDarePage() {
           <article className="stat-card mission-card">
             <span className="eyebrow">One-click premise</span>
             <h3>Spin first, justify later.</h3>
-            <p>The page makes the challenge choice feel like a dare, not a settings screen.</p>
+            <p>The page makes the quest choice feel like a ritual, not a settings screen.</p>
           </article>
           <article className="stat-card mission-card">
             <span className="eyebrow">Exact links</span>
-            <h3>Every result has a friend-dare URL.</h3>
-            <p>The CTA points recipients straight at the same challenge, badge, reward, and rules.</p>
+            <h3>Every result has a friend-quest URL.</h3>
+            <p>The CTA points recipients straight at the same quest, badge, reward, and rules.</p>
           </article>
           <article className="stat-card mission-card">
             <span className="eyebrow">Still verifiable</span>

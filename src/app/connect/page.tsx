@@ -39,7 +39,7 @@ export default async function ConnectPage() {
           <article className="connect-card">
             <span className="eyebrow">Chess.com</span>
             <h2>Full starter-deck support</h2>
-            <p>Save your Chess.com username and every current starter-deck quest can use latest-game checks too — no provider-specific dare hunting, PGN upload, or password sharing.</p>
+            <p>Save your Chess.com username and every current starter-deck quest can use latest-game checks too — no provider-specific quest hunting, PGN upload, or password sharing.</p>
           </article>
         </section>
 

@@ -10,7 +10,7 @@ export default function SignUpPage() {
           <span className="eyebrow">Create runner profile</span>
           <h1>Make a profile for your chess side quests.</h1>
           <p className="hero-copy">
-            One lightweight account. Add your Lichess username, pick a dare, play real chess, and let SQC check the receipt.
+            One lightweight account. Add your Lichess username, pick a quest, play real chess, and let SQC check the receipt.
           </p>
         </section>
         <section className="auth-card" aria-label="Sign up form">

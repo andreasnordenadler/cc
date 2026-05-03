@@ -40,7 +40,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
       <div className="detail-hero-grid">
         <div>
           <div className="badge-row">
-            <span className="eyebrow">Random dare machine</span>
+            <span className="eyebrow">Random quest machine</span>
             <span className="badge gold">+{selectedChallenge.reward} pts</span>
             <span className="badge danger">{selectedChallenge.difficulty}</span>
             <span className={verifierLabel.className}>{verifierLabel.label}</span>
@@ -51,7 +51,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
           <div className="button-row hero-actions">
             <button type="button" className="button pink" onClick={spinNextDare}>Spin another bad idea</button>
             <Link href={`/challenges/${selectedChallenge.id}`} className="button primary">Accept this quest</Link>
-            <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Open friend dare</Link>
+            <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Open friend quest</Link>
           </div>
           <p className="microcopy roulette-count">
             {remainingCount} other cursed options remain in the starter deck. {verifierStatus.summary}: {verifierLabel.promise}
@@ -73,7 +73,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
 
         <article className="mission-card share-card">
           <span className="eyebrow">Send the bit</span>
-          <h2>Dare one friend before you overthink it.</h2>
+          <h2>Send one quest before you overthink it.</h2>
           <p>{selectedChallenge.openingHint}</p>
           <p><strong>Proof promise:</strong> {verifierStatus.evidence}</p>
           <ChallengeInviteActions

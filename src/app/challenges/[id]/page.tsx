@@ -33,7 +33,7 @@ export async function generateMetadata({
 
   if (!challenge) {
     return {
-      title: "Side Quest Chess challenge",
+      title: "Side Quest Chess quest",
     };
   }
 
@@ -52,7 +52,7 @@ export async function generateMetadata({
       url,
       siteName: "Side Quest Chess",
       type: "website",
-      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} Side Quest Chess challenge card` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} Side Quest Chess quest card` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -94,7 +94,7 @@ export default async function ChallengeDetailPage({
       <SiteNav isSignedIn={isSignedIn} active="challenges" />
 
       <div className="content-wrap">
-        <Link href="/challenges" className="button secondary">← Back to challenge hub</Link>
+        <Link href="/challenges" className="button secondary">← Back to quest hub</Link>
 
         <section className="hero-card detail-hero">
           <div className="detail-hero-grid">
@@ -123,7 +123,7 @@ export default async function ChallengeDetailPage({
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
             <Link href="/result" className="button secondary">Preview proof card</Link>
-            <Link href={`/dare/${challenge.id}`} className="button secondary">Friend dare page</Link>
+            <Link href={`/dare/${challenge.id}`} className="button secondary">Friend quest page</Link>
           </div>
         </section>
 
@@ -131,7 +131,7 @@ export default async function ChallengeDetailPage({
           <div className="section-head">
             <div>
               <span className="eyebrow">Before you start</span>
-              <h2>One dare, one real win, one latest-game check.</h2>
+              <h2>One quest, one real win, one latest-game check.</h2>
             </div>
             <span className="badge green">no PGN upload</span>
           </div>
@@ -139,7 +139,7 @@ export default async function ChallengeDetailPage({
             Use this quick contract before committing: the quest only counts after a win, Side Quest Chess checks your latest public game from Lichess or Chess.com, and the receipt explains pass, fail, or wait without making you inspect PGNs.
           </p>
           <div className="grid">
-            <Fact label="1 · Start" value="Make this the active dare so the checker knows which weird rule to judge." />
+            <Fact label="1 · Start" value="Make this the active quest so the checker knows which weird rule to judge." />
             <Fact label="2 · Play" value="Play a real public game on your saved Lichess or Chess.com username and try to satisfy the rule while winning." />
             <Fact label="3 · Check" value="Return here or to your account page, run Check latest games, and read the pass, fail, or pending receipt." />
           </div>
@@ -150,10 +150,10 @@ export default async function ChallengeDetailPage({
         </section>
 
         <section className="mission-card share-card">
-          <span className="eyebrow">Dare a friend</span>
+          <span className="eyebrow">Send this quest</span>
           <h2>Send this exact bad idea.</h2>
           <p>
-            Side Quest Chess works better when the challenge itself is the invite. This copies a direct dare link with the badge reward and rules intact.
+            Side Quest Chess works better when the quest itself is the invite. This copies a direct quest link with the badge reward and rules intact.
           </p>
           <ChallengeInviteActions
             challengeTitle={challenge.title}
@@ -196,7 +196,7 @@ export default async function ChallengeDetailPage({
           <div className="section-head">
             <div>
               <span className="eyebrow">Your run</span>
-              <h2>{isActive ? "This dare is active" : "Not active yet"}</h2>
+              <h2>{isActive ? "This quest is active" : "Not active yet"}</h2>
             </div>
             <span className="badge blue">{challenge.completionRate}</span>
           </div>
@@ -216,7 +216,7 @@ export default async function ChallengeDetailPage({
                     <Link href="/account" className="button secondary">Open active run</Link>
                   </form>
                 ) : (
-                  <p className="muted">Start this side quest to unlock the latest-game checker for this challenge.</p>
+                  <p className="muted">Start this side quest to unlock the latest-game checker for this quest.</p>
                 )}
                 <article className="note-card latest-check">
                   <span className="eyebrow">Latest check</span>
@@ -229,7 +229,7 @@ export default async function ChallengeDetailPage({
           ) : (
             <div className="run-status">
               <p>Browse first. Connect only when you want Side Quest Chess to remember this chaos and turn it into proof.</p>
-              <p className="muted">Signed-in runners get a Check latest games button here after starting the dare.</p>
+              <p className="muted">Signed-in runners get a Check latest games button here after starting the quest.</p>
             </div>
           )}
         </section>

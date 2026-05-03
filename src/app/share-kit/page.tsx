@@ -9,18 +9,18 @@ import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status"
 export const metadata: Metadata = {
   title: "Share Kit — Side Quest Chess",
   description:
-    "Challenge-specific Side Quest Chess dare links, preview targets, and friend-copy for every starter side quest.",
+    "Quest-specific Side Quest Chess links, preview targets, and friend-copy for every starter side quest.",
   alternates: { canonical: "/share-kit" },
   openGraph: {
     title: "Side Quest Chess share kit",
-    description: "Every stupidly hard chess side quest, ready to dare a friend with exact challenge links.",
+    description: "Every stupidly hard chess side quest, ready to send to a friend with exact quest links.",
     url: "/share-kit",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Side Quest Chess share kit",
-    description: "Send exact friend-dare links for the SQC starter deck.",
+    description: "Send exact friend-quest links for the SQC starter deck.",
   },
 };
 
@@ -38,17 +38,17 @@ export default function ShareKitPage() {
             <span className="eyebrow">SQC share kit</span>
             <h1>Every bad idea, packaged for one-tap peer pressure.</h1>
             <p className="hero-copy">
-              Use this page when the product needs to spread: challenge-specific friend-dare links, daily and random rituals, and proof-preview targets in one place.
+              Use this page when the product needs to spread: quest-specific friend-quest links, daily and random rituals, and proof-preview targets in one place.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/today" className="button primary">Share today’s dare</Link>
-              <Link href="/random" className="button pink">Spin a random dare</Link>
-              <Link href={`/dare/${featured.id}`} className="button secondary">Open featured dare</Link>
+              <Link href="/today" className="button primary">Share today’s quest</Link>
+              <Link href="/random" className="button pink">Spin a random quest</Link>
+              <Link href={`/dare/${featured.id}`} className="button secondary">Open featured quest</Link>
             </div>
 
             <div className="steps" aria-label="What the share kit covers">
-              <Step num="1" title="Direct" copy="Every challenge has its own friend-dare URL." />
-              <Step num="2" title="Previewable" copy="Dare links carry challenge-specific social cards." />
+              <Step num="1" title="Direct" copy="Every quest has its own friend-quest URL." />
+              <Step num="2" title="Previewable" copy="Quest links carry quest-specific social cards." />
               <Step num="3" title="Honest" copy="No fake wins, PGN homework, or serious training vibes." />
             </div>
           </article>
@@ -63,7 +63,7 @@ export default function ShareKitPage() {
             <p>{featured.objective}</p>
             <div className="note-card">
               <strong>Best first share:</strong>
-              <p>Lead with the queenless dare. It explains the whole product in one gloriously questionable chess decision.</p>
+              <p>Lead with the queenless quest. It explains the whole product in one gloriously questionable chess decision.</p>
             </div>
           </aside>
         </section>
@@ -71,16 +71,16 @@ export default function ShareKitPage() {
         <section className="big-grid" aria-label="Reusable sharing rituals">
           <article className="mission-card daily-card">
             <span className="eyebrow">Daily ritual</span>
-            <h2>Same dare for everyone today.</h2>
-            <p>Best for group chat chaos: one canonical challenge of the day, same badge target, same bad idea.</p>
-            <Link href="/today" className="button primary">Open daily dare</Link>
+            <h2>Same quest for everyone today.</h2>
+            <p>Best for group chat chaos: one canonical quest of the day, same badge target, same bad idea.</p>
+            <Link href="/today" className="button primary">Open daily quest</Link>
           </article>
 
           <article className="mission-card">
             <span className="eyebrow">Random ritual</span>
             <h2>Let the machine choose violence.</h2>
-            <p>Best for quick starts: spin the starter deck, then send the exact dare that lands.</p>
-            <Link href="/random" className="button pink">Open random dare</Link>
+            <p>Best for quick starts: spin the starter deck, then send the exact quest that lands.</p>
+            <Link href="/random" className="button pink">Open random quest</Link>
           </article>
 
           <article className="mission-card">
@@ -93,7 +93,7 @@ export default function ShareKitPage() {
 
         <section className="section-head">
           <div>
-            <span className="eyebrow">Challenge-specific dares</span>
+            <span className="eyebrow">Quest-specific links</span>
             <h2>Starter deck invite cards</h2>
           </div>
           <span className="badge gold">{CHALLENGES.length} links</span>
@@ -118,7 +118,7 @@ export default function ShareKitPage() {
               <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · +{challenge.reward} pts</div>
               <p className="microcopy"><strong>{verifierStatus.summary}.</strong> {verifierLabel.promise}</p>
               <div className="button-row">
-                <Link href={`/dare/${challenge.id}`} className="button secondary">Open dare page</Link>
+                <Link href={`/dare/${challenge.id}`} className="button secondary">Open quest page</Link>
                 <Link href={`/api/og/dare/${challenge.id}`} className="button secondary">Preview card</Link>
               </div>
               <ChallengeInviteActions

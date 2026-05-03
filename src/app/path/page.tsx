@@ -13,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Starter path — Side Quest Chess",
   description:
-    "A three-dare beginner path for Side Quest Chess: simple weirdness first, then two gentle win-required escalations.",
+    "A three-quest beginner path for Side Quest Chess: simple weirdness first, then two gentle win-required escalations.",
   alternates: { canonical: "/path" },
   openGraph: {
     title: "Starter path — Side Quest Chess",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Starter path — Side Quest Chess",
-    description: "A three-dare first run for people ready to make chess worse on purpose.",
+    description: "A three-quest first run for people ready to make chess worse on purpose.",
     images: ["/api/og/dare/queen-never-heard-of-her"],
   },
 };
@@ -75,7 +75,7 @@ export default async function StarterPathPage() {
               <div className="button-row hero-actions">
                 <Link href={`/challenges/${nextChallenge.id}`} className="button primary">Start next step</Link>
                 <Link href="/connect" className="button secondary">Connect proof account</Link>
-                <Link href="/challenges" className="button secondary">Browse all dares</Link>
+                <Link href="/challenges" className="button secondary">Browse all quests</Link>
               </div>
             </div>
             <ChallengeBadge challenge={nextChallenge} size="hero" earned={completedSet.has(nextChallenge.id)} />
@@ -84,7 +84,7 @@ export default async function StarterPathPage() {
 
         <section className="grid" aria-label="Starter path summary">
           <Fact label="Path progress" value={`${completedStarterCount}/3`} copy="A tiny onboarding arc, not a curriculum." />
-          <Fact label="Next dare" value={nextChallenge.title} copy={nextChallenge.objective} />
+          <Fact label="Next quest" value={nextChallenge.title} copy={nextChallenge.objective} />
           <Fact label="Proof loop" value="Pick → play → check" copy="No PGN upload. The app checks latest games after you play elsewhere." />
         </section>
 
@@ -104,7 +104,7 @@ export default async function StarterPathPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Why this path exists</span>
-              <h2>It turns first-time confusion into a dare ladder.</h2>
+              <h2>It turns first-time confusion into a quest ladder.</h2>
             </div>
             <span className="badge green">v1 onboarding</span>
           </div>

@@ -33,7 +33,7 @@ export default async function BadgesPage() {
         <section className="grid" aria-label="Badge vault status">
           <Fact label="Badges designed" value={`${CHALLENGES.length}`} copy="Each starter quest has its own SQC coat-of-arms identity." />
           <Fact label="Earned by you" value={`${earnedCount}`} copy={userId ? `${progress.totalRewardPoints} points banked so far.` : "Sign in when you want the vault to remember your chaos."} />
-          <Fact label="Style rule" value="No generic trophies" copy="Every charge, crest, motto, and joke maps back to a specific challenge." />
+          <Fact label="Style rule" value="No generic trophies" copy="Every charge, crest, motto, and joke maps back to a specific quest." />
         </section>
 
         <section className="big-grid" aria-label="Side Quest Chess badge collection">

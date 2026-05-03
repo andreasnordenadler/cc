@@ -2291,7 +2291,7 @@ async function verifyChessComFinishedGameWithSideRequirement({
     if (resultRequirement && !resultRequirement(game, playerSide)) {
       return {
         status: "failed",
-        summary: resultMismatchSummary ?? "Submitted Chess.com game found, but it does not satisfy this challenge.",
+        summary: resultMismatchSummary ?? "Submitted Chess.com game found, but it does not satisfy this quest.",
       };
     }
 
@@ -2318,7 +2318,7 @@ export async function verifyChessComFinishAnyGameAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "either",
-    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public game, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public game, so this quest passed.`,
     sideMismatchSummary: "",
   });
 }
@@ -2334,7 +2334,7 @@ export async function verifyChessComFinishAsWhiteAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "white",
-    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public game as White, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public game as White, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as Black instead of White.`,
   });
 }
@@ -2350,7 +2350,7 @@ export async function verifyChessComFinishAsBlackAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "black",
-    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public game as Black, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public game as Black, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
   });
 }
@@ -2366,7 +2366,7 @@ export async function verifyChessComWinAsWhiteAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "white",
-    passSummary: `Verified Chess.com game. ${chessComUsername} won a finished public game as White, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} won a finished public game as White, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as Black instead of White.`,
     resultRequirement: (game) => didSideWin(game, "white"),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as White, but White did not win.`,
@@ -2384,7 +2384,7 @@ export async function verifyChessComWinAsBlackAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "black",
-    passSummary: `Verified Chess.com game. ${chessComUsername} won a finished public game as Black, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} won a finished public game as Black, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
     resultRequirement: (game) => didSideWin(game, "black"),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as Black, but Black did not win.`,
@@ -2402,7 +2402,7 @@ export async function verifyChessComDrawAnyGameAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "either",
-    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public draw, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public draw, so this quest passed.`,
     sideMismatchSummary: "",
     resultRequirement: (game) => isDrawGame(game),
     resultMismatchSummary: `Submitted Chess.com game found, but it did not finish as a draw.`,
@@ -2420,7 +2420,7 @@ export async function verifyChessComDrawAsWhiteAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "white",
-    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public draw as White, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public draw as White, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as Black instead of White.`,
     resultRequirement: (game) => isDrawGame(game),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as White, but the game did not finish as a draw.`,
@@ -2438,7 +2438,7 @@ export async function verifyChessComDrawAsBlackAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "black",
-    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public draw as Black, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} finished a public draw as Black, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
     resultRequirement: (game) => isDrawGame(game),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as Black, but the game did not finish as a draw.`,
@@ -2456,7 +2456,7 @@ export async function verifyChessComLoseAnyGameAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "either",
-    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public loss, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} appears in a finished public loss, so this quest passed.`,
     sideMismatchSummary: "",
     resultRequirement: (game, playerSide) => didSideLose(game, playerSide),
     resultMismatchSummary: `Submitted Chess.com game found, but it did not finish as a loss for ${chessComUsername}.`,
@@ -2474,7 +2474,7 @@ export async function verifyChessComLoseAsWhiteAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "white",
-    passSummary: `Verified Chess.com game. ${chessComUsername} lost a finished public game as White, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} lost a finished public game as White, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as Black instead of White.`,
     resultRequirement: (game) => didSideLose(game, "white"),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as White, but White did not lose.`,
@@ -2492,7 +2492,7 @@ export async function verifyChessComLoseAsBlackAttempt({
     gameUrl,
     chessComUsername,
     requiredSide: "black",
-    passSummary: `Verified Chess.com game. ${chessComUsername} lost a finished public game as Black, so this challenge passed.`,
+    passSummary: `Verified Chess.com game. ${chessComUsername} lost a finished public game as Black, so this quest passed.`,
     sideMismatchSummary: `Submitted Chess.com game found, but saved username ${chessComUsername} appears as White instead of Black.`,
     resultRequirement: (game) => didSideLose(game, "black"),
     resultMismatchSummary: `Submitted Chess.com game found, and ${chessComUsername} appears as Black, but Black did not lose.`,

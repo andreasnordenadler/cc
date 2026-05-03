@@ -91,7 +91,7 @@ export async function GET(
               fontWeight: 800,
             }}
           >
-            <span>SQC friend dare</span>
+            <span>SQC friend quest</span>
             <span style={{ color: "#f8f4e8", opacity: 0.72 }}>+{challenge.reward} pts</span>
           </div>
           <div style={{ fontSize: 78, lineHeight: 0.94, fontWeight: 950, letterSpacing: -3 }}>

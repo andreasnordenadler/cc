@@ -30,7 +30,7 @@ export default async function ResultPage() {
       : "Not cursed enough yet.";
   const posterCopy = latestAttempt
     ? latestAttempt.summary ?? "Latest Side Quest Chess attempt saved."
-    : "Start a dare, play real chess, and Side Quest Chess turns the latest check into a shareable proof card.";
+    : "Start a quest, play real chess, and Side Quest Chess turns the latest check into a shareable proof card.";
   const gameLabel = latestAttempt?.gameId ?? "latest-game-check";
   const shareCopy = isPassed
     ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badge} unlocked. +${challenge.reward} points.`
@@ -57,11 +57,11 @@ export default async function ResultPage() {
           label: "Failed",
           title: "Decide whether the fail felt fair.",
           copy: "A failed receipt is healthy when the rule explanation matches the game. Report it only if the receipt feels wrong, vague, or harder to act on than the quest rule itself.",
-          action: "Review challenge rule",
+          action: "Review quest rule",
           href: `/challenges/${challenge.id}`,
         };
   const betaReceiptSnapshot = [
-    `Challenge: ${challenge.title}`,
+    `Quest: ${challenge.title}`,
     `Receipt status: ${receiptNextStep.label}`,
     `Latest check: ${latestAttemptSummary.headline} — ${latestAttemptSummary.detail}`,
     `Game/source: ${gameLabel}`,
@@ -81,7 +81,7 @@ export default async function ResultPage() {
             <p>{posterCopy}</p>
             <ChallengeBadge challenge={challenge} size="hero" earned={isPassed} />
             <div className="proof-grid">
-              <Fact label="Challenge" value={challenge.title} />
+              <Fact label="Quest" value={challenge.title} />
               <Fact label="Status" value={proofStatus} />
               <Fact label="Game" value={gameLabel} />
               <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
@@ -94,11 +94,11 @@ export default async function ResultPage() {
             <span className="eyebrow">Live proof card</span>
             <h2>The result now follows your latest check.</h2>
             <p>
-              This screen uses the saved active-challenge attempt instead of a static demo, so the share moment can reflect a real passed, failed, or pending verifier result.
+              This screen uses the saved active-quest attempt instead of a static demo, so the share moment can reflect a real passed, failed, or pending verifier result.
             </p>
             <div className="button-row">
               <Link href="/account" className="button primary">Check latest games</Link>
-              <Link href={`/challenges/${challenge.id}`} className="button secondary">View challenge rules</Link>
+              <Link href={`/challenges/${challenge.id}`} className="button secondary">View quest rules</Link>
             </div>
           </aside>
         </section>
@@ -146,7 +146,7 @@ export default async function ResultPage() {
             <h2>{latestAttemptSummary.headline}</h2>
             <p>{latestAttemptSummary.detail}</p>
             <p className="muted">{latestAttemptSummary.meta}</p>
-            <Link href="/challenges" className="button pink">Try another bad idea</Link>
+            <Link href="/challenges" className="button pink">Try another quest</Link>
           </article>
         </section>
 

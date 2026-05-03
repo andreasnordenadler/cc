@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 const betaChecklist = [
   {
     title: "Connect a chess identity",
-    copy: "Add either chess username. Every current starter-deck quest now works on Lichess or Chess.com, so beta testers can use their real chess home instead of hunting for a provider-specific dare.",
+    copy: "Add either chess username. Every current starter-deck quest now works on Lichess or Chess.com, so beta testers can use their real chess home instead of hunting for a provider-specific quest.",
     href: "/connect",
     action: "Connect username",
   },
@@ -51,7 +51,7 @@ const trustNotes = [
   {
     label: "Support",
     value: "Tell Andreas what broke",
-    copy: "For this friends/private beta, send rough edges, confusing copy, wrong verifier outcomes, or badge/UI glitches directly to Andreas with the challenge name and game link. The support page spells out the minimum useful report.",
+    copy: "For this friends/private beta, send rough edges, confusing copy, wrong verifier outcomes, or badge/UI glitches directly to Andreas with the quest name and game link. The support page spells out the minimum useful report.",
   },
 ];
 
@@ -81,7 +81,7 @@ export default async function BetaPage() {
 
         <section className="grid" aria-label="Private beta status">
           <Fact label="Launch posture" value="private beta" copy="The product should feel useful and legible for friends before any wider public launch push." />
-          <Fact label="Beginner path" value={`${beginnerCount} quests`} copy="The first-run path starts with easier, abnormal, win-required dares instead of throwing people straight into peak chaos." />
+          <Fact label="Beginner path" value={`${beginnerCount} quests`} copy="The first-run path starts with easier, abnormal, win-required quests instead of throwing people straight into peak chaos." />
           <Fact label="Verifier posture" value="full dual-host deck" copy="All ten current starter-deck quests can produce latest-game receipts from Lichess or Chess.com today." />
         </section>
 

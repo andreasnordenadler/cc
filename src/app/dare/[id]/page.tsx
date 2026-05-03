@@ -20,11 +20,11 @@ export async function generateMetadata({
 
   if (!challenge) {
     return {
-      title: "Side Quest Chess dare",
+      title: "Side Quest Chess quest",
     };
   }
 
-  const title = `I dare you: ${challenge.title} — Side Quest Chess`;
+  const title = `Quest for you: ${challenge.title} — Side Quest Chess`;
   const description = `${challenge.objective} Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
   const url = `/dare/${challenge.id}`;
   const image = `/api/og/dare/${challenge.id}`;
@@ -39,7 +39,7 @@ export async function generateMetadata({
       url,
       siteName: "Side Quest Chess",
       type: "website",
-      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} Side Quest Chess dare card` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} Side Quest Chess quest card` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -69,7 +69,7 @@ export default async function DarePage({
       <div className="content-wrap">
         <section className="hero-grid">
           <article className="hero-card detail-hero">
-            <span className="eyebrow">Friend dare received</span>
+            <span className="eyebrow">Friend quest received</span>
             <h1>You have been dared.</h1>
             <p className="hero-copy">
               Someone thinks you should try <strong>{challenge.title}</strong>: {challenge.objective}
@@ -100,9 +100,9 @@ export default async function DarePage({
 
           <article className="mission-card share-card">
             <span className="eyebrow">Escalate responsibly</span>
-            <h2>Dare someone else.</h2>
+            <h2>Send this quest on.</h2>
             <p>
-              Copy the same challenge-specific invite and make the group chat worse in a very measurable way.
+              Copy the same quest-specific invite and make the group chat worse in a very measurable way.
             </p>
             <ChallengeInviteActions
               challengeTitle={challenge.title}

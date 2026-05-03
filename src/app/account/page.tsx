@@ -93,7 +93,7 @@ export default async function AccountPage() {
             </div>
             <div className="flow-step ready">
               <strong>2. Quest</strong>
-              <p>Pick any starter dare; all ten can verify Lichess or Chess.com games.</p>
+              <p>Pick any starter quest; all ten can verify Lichess or Chess.com games.</p>
             </div>
             <div className="flow-step hot">
               <strong>3. Proof</strong>
@@ -119,7 +119,7 @@ export default async function AccountPage() {
             </span>
           </div>
           <p>
-            Use this as the friend-test checklist before sending a result screenshot: sign in, connect one chess identity, make a dare active, then generate a latest-game receipt.
+            Use this as the friend-test checklist before sending a result screenshot: sign in, connect one chess identity, make a quest active, then generate a latest-game receipt.
           </p>
           <div className="checker-flow" aria-label="Private beta readiness checklist">
             <div className={user ? "flow-step ready" : "flow-step"}>
@@ -131,7 +131,7 @@ export default async function AccountPage() {
               <p>{hasChessIdentity ? `Using ${lichessUsername || chessComUsername} for latest-game checks.` : "One public username is enough; no passwords or game uploads."}</p>
             </div>
             <div className={hasActiveDare ? "flow-step ready" : "flow-step"}>
-              <strong>{hasActiveDare ? "✓ Dare active" : "3. Pick a dare"}</strong>
+              <strong>{hasActiveDare ? "✓ Quest active" : "3. Pick a quest"}</strong>
               <p>{hasActiveDare ? `${activeChallengeRecord?.title} is ready for the proof loop.` : "Choose one of the ten dual-host starter quests."}</p>
             </div>
             <div className={hasLatestReceipt ? "flow-step hot" : "flow-step"}>
@@ -141,7 +141,7 @@ export default async function AccountPage() {
           </div>
           <div className="button-row">
             <Link href={hasChessIdentity ? "/challenges" : "/connect"} className="button primary">
-              {hasChessIdentity ? "Pick or change dare" : "Connect chess identity"}
+              {hasChessIdentity ? "Pick or change quest" : "Connect chess identity"}
             </Link>
             <Link href="/beta" className="button secondary">Open tester script</Link>
           </div>
@@ -151,7 +151,7 @@ export default async function AccountPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">First tester route</span>
-              <h2>Start with three dares, not the whole deck.</h2>
+              <h2>Start with three quests, not the whole deck.</h2>
             </div>
             <span className="badge gold">choice-saver</span>
           </div>
@@ -203,11 +203,11 @@ export default async function AccountPage() {
           </article>
 
           <article className="mission-card">
-            <span className="eyebrow">Active dare</span>
+            <span className="eyebrow">Active quest</span>
             <h2>{activeChallengeRecord?.title ?? "None active"}</h2>
             <p>{activeChallengeRecord?.objective ?? "Choose a side quest and start making questionable decisions."}</p>
             <Link href={activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/challenges"} className="button secondary">
-              {activeChallengeRecord ? "Continue dare" : "Pick a bad idea"}
+              {activeChallengeRecord ? "Continue quest" : "Pick a bad idea"}
             </Link>
           </article>
         </section>
@@ -216,12 +216,12 @@ export default async function AccountPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Quest launcher</span>
-              <h2>Pick a dare without leaving the test drive.</h2>
+              <h2>Pick a quest without leaving the test drive.</h2>
             </div>
             <span className="badge green">{liveVerifierCount} live verifiers</span>
           </div>
           <p>
-            Every starter dare can now be selected directly from the account page. Beginner quests are intentionally easier to understand; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
+            Every starter quest can now be selected directly from the account page. Beginner quests are intentionally easier to understand; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
           </p>
           <div className="grid">
             {CHALLENGES.map((challenge) => {
@@ -275,14 +275,14 @@ export default async function AccountPage() {
         <section className="mission-card active-run-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Active challenge checker</span>
-              <h2>{activeChallengeRecord?.title ?? "Pick a dare first"}</h2>
+              <span className="eyebrow">Active quest checker</span>
+              <h2>{activeChallengeRecord?.title ?? "Pick a quest first"}</h2>
             </div>
             <span className="badge blue">{activeChallenge?.status ?? "idle"}</span>
           </div>
           <p>{challengeBanner(activeChallenge)}</p>
 
-          <div className="checker-flow" aria-label="Active challenge verification flow">
+          <div className="checker-flow" aria-label="Active quest verification flow">
             <div className="flow-step ready">
               <strong>1. Identity</strong>
               <p>{lichessUsername || chessComUsername ? `${lichessUsername || chessComUsername} connected` : "Add Lichess or Chess.com on Connect."}</p>
@@ -300,7 +300,7 @@ export default async function AccountPage() {
           {activeChallengeRecord ? (
             <form action={checkActiveChallenge} className="button-row">
               <button type="submit" className="button primary">Check latest games</button>
-              <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">View challenge rules</Link>
+              <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">View quest rules</Link>
             </form>
           ) : (
             <Link href="/challenges" className="button primary">Pick a bad idea</Link>

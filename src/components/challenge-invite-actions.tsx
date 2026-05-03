@@ -22,7 +22,7 @@ export default function ChallengeInviteActions({
     if (typeof window === "undefined") return challengePath;
     return `${window.location.origin}${challengePath}`;
   }, [challengePath]);
-  const inviteCopy = `I dare you to try “${challengeTitle}” on Side Quest Chess: ${challengeObjective} Unlock ${badgeName} for +${reward} points if you survive it.`;
+  const inviteCopy = `Try this quest “${challengeTitle}” on Side Quest Chess: ${challengeObjective} Unlock ${badgeName} for +${reward} points if you survive it.`;
 
   async function copyInvite() {
     try {
@@ -41,7 +41,7 @@ export default function ChallengeInviteActions({
 
     try {
       await navigator.share({
-        title: `Side Quest Chess dare: ${challengeTitle}`,
+        title: `Side Quest Chess quest: ${challengeTitle}`,
         text: inviteCopy,
         url: shareUrl,
       });
@@ -55,17 +55,17 @@ export default function ChallengeInviteActions({
   return (
     <div className="share-actions" aria-live="polite">
       <div className="button-row">
-        <button type="button" className="button primary" onClick={copyInvite}>Copy friend dare</button>
-        <button type="button" className="button secondary" onClick={shareInvite}>Share challenge</button>
+        <button type="button" className="button primary" onClick={copyInvite}>Copy friend quest</button>
+        <button type="button" className="button secondary" onClick={shareInvite}>Share quest</button>
       </div>
       <p className="microcopy">
         {status === "copied"
-          ? "Dare copied — now make one friend question your chess judgment."
+          ? "Quest copied — now make one friend question your chess judgment."
           : status === "shared"
             ? "Share sheet opened. This is how bad ideas become tournaments."
             : status === "failed"
-              ? "Could not access sharing here, but the dare text above is ready to select manually."
-              : "Copies a challenge-specific dare link, not a generic homepage pitch."}
+              ? "Could not access sharing here, but the quest text above is ready to select manually."
+              : "Copies a quest-specific link, not a generic homepage pitch."}
       </p>
     </div>
   );

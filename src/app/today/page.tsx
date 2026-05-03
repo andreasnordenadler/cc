@@ -9,7 +9,7 @@ import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status"
 
 export async function generateMetadata(): Promise<Metadata> {
   const challenge = getDailyChallenge();
-  const title = `Today’s dare: ${challenge.title} — Side Quest Chess`;
+  const title = `Today’s quest: ${challenge.title} — Side Quest Chess`;
   const description = `${challenge.objective} Try the shared daily SQC side quest for +${challenge.reward} points and the ${challenge.badgeIdentity.name} badge.`;
   const image = `/api/og/dare/${challenge.id}`;
 
@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
       url: "/today",
       siteName: "Side Quest Chess",
       type: "website",
-      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} daily Side Quest Chess dare card` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${challenge.title} daily Side Quest Chess quest card` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -60,12 +60,12 @@ export default async function TodayPage() {
                 <span className="badge danger">{challenge.difficulty}</span>
                 <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
-              <h1>Today’s bad idea: {challenge.title}</h1>
+              <h1>Today’s quest: {challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>
               <p>{challenge.flavor}</p>
               <div className="button-row hero-actions">
-                <Link href={`/challenges/${challenge.id}`} className="button primary">Start today’s dare</Link>
-                <Link href={`/dare/${challenge.id}`} className="button secondary">Open friend-dare page</Link>
+                <Link href={`/challenges/${challenge.id}`} className="button primary">Start today’s quest</Link>
+                <Link href={`/dare/${challenge.id}`} className="button secondary">Open friend-quest page</Link>
               </div>
             </div>
             <ChallengeBadge challenge={challenge} size="hero" />
@@ -75,9 +75,9 @@ export default async function TodayPage() {
         <section className="big-grid">
           <article className="mission-card share-card">
             <span className="eyebrow">Make it social</span>
-            <h2>Dare someone to do the same cursed thing today.</h2>
+            <h2>Quest with someone today.</h2>
             <p>
-              The daily page creates a simple ritual: everyone sees the same quest, then shares the exact challenge page instead of a generic homepage link.
+              The daily page creates a simple ritual: everyone sees the same quest, then shares the exact quest page instead of a generic homepage link.
             </p>
             <ChallengeInviteActions
               challengeTitle={challenge.title}

@@ -7,18 +7,18 @@ import { CHALLENGES } from "@/lib/challenges";
 export const metadata: Metadata = {
   title: "How proof works — Side Quest Chess",
   description:
-    "The Side Quest Chess rulebook explains how weird chess dares are verified from real Lichess and Chess.com games without PGN homework or engine dashboards.",
+    "The Side Quest Chess rulebook explains how weird chess quests are verified from real Lichess and Chess.com games without PGN homework or engine dashboards.",
   openGraph: {
     title: "How proof works — Side Quest Chess",
     description:
-      "Pick a weird dare, play normal games, and let Side Quest Chess look for proof-worthy evidence.",
+      "Pick a weird quest, play normal games, and let Side Quest Chess look for proof-worthy evidence.",
     url: "/rules",
   },
 };
 
 const proofSteps = [
   {
-    title: "Pick a dare",
+    title: "Pick a quest",
     copy: "Choose a side quest with clear rules, a badge, and a reward. The joke can be stupid; the success condition still has to be precise.",
   },
   {
@@ -27,7 +27,7 @@ const proofSteps = [
   },
   {
     title: "Check the latest games",
-    copy: "When you ask for proof, SQC reads your connected username’s recent public games and looks for the challenge-specific evidence.",
+    copy: "When you ask for proof, SQC reads your connected username’s recent public games and looks for the quest-specific evidence.",
   },
   {
     title: "Share the receipt",
@@ -65,7 +65,7 @@ export default async function RulesPage() {
       <div className="content-wrap">
         <section className="hero-card">
           <span className="eyebrow">SQC rulebook</span>
-          <h1>Funny dares. Serious receipts.</h1>
+          <h1>Funny quests. Serious receipts.</h1>
           <p className="hero-copy">
             Side Quest Chess only works if the proof feels trustworthy. The rulebook makes the loop explicit: choose a weird objective, play real games elsewhere, then let SQC verify the receipt without turning into homework.
           </p>
@@ -73,12 +73,12 @@ export default async function RulesPage() {
             <Link href={`/challenges/${canonicalChallenge.id}`} className="button primary">Try the live verifier</Link>
             <Link href="/proof-log" className="button secondary">Open proof log</Link>
             <Link href="/verifiers" className="button secondary">Open verifier board</Link>
-            <Link href="/challenges" className="button secondary">Browse all dares</Link>
+            <Link href="/challenges" className="button secondary">Browse all quests</Link>
           </div>
         </section>
 
         <section className="grid" aria-label="Verification scorecard">
-          <Fact label="Starter deck" value={`${CHALLENGES.length} quests`} copy="Every dare has rules, reward points, and a collectible coat-of-arms badge, including the beginner path." />
+          <Fact label="Starter deck" value={`${CHALLENGES.length} quests`} copy="Every quest has rules, reward points, and a collectible coat-of-arms badge, including the beginner path." />
           <Fact label="Deck value" value={`${totalReward} pts`} copy="The point score is brag fuel, not a serious rating system." />
           <Fact label="Proof tone" value="Honest chaos" copy="Pass, fail, and pending states all stay shareable without pretending every attempt succeeded." />
         </section>

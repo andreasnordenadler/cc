@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-01 14:18 Europe/Stockholm
+Last updated: 2026-05-03 10:22 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -10,7 +10,7 @@ Build CC / Side Quest Chess into a playful chess side-quest product:
 
 > **Chess, but with stupidly hard side quests.**
 
-Users pick ridiculous chess challenges, play real games on Lichess or Chess.com, and Side Quest Chess verifies whether they completed the challenge so they can earn points, badges, streaks, and shareable proof.
+Users pick ridiculous chess quests, play real games on Lichess or Chess.com, and Side Quest Chess verifies whether they completed the quest so they can earn points, badges, streaks, and shareable proof.
 
 ## Current product canon
 
@@ -19,8 +19,8 @@ Users pick ridiculous chess challenges, play real games on Lichess or Chess.com,
 - Backup domain: **sqchess.com**
 - Internal lane/repo name: **CC**
 - Former working/mockup name: **BlunderCheck**
-- Correct feel: a smart chess friend daring you to do something dumb
-- Primary loop: pick challenge → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend challenge
+- Correct feel: a smart chess friend sending you something dumb to try
+- Primary loop: pick quest → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend quest
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
 - Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
 - Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. SQC launch-readiness is the default priority unless another project has an outage/data-risk blocker.
@@ -88,6 +88,7 @@ Old pre-reset standby roadmap is archived at:
   - 2026-05-03 03:20 Europe/Stockholm progress: tightened the homepage trust card so first-time testers see public chess-data-only verification, an explicit no-password warning, and direct links to support/privacy plus proof rules; proof doc `docs/SQC_HOMEPAGE_PRIVATE_BETA_TRUST_CARD_LIVE_DEPLOY_2026-05-03.md`. Verification: `pnpm lint`, `pnpm build`, production deploy to `https://cc-dsfmecjgo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/`, canonical `/support`, and canonical `/rules`, trust-string content assertions, and Vercel error-log check.
   - 2026-05-03 05:18 Europe/Stockholm progress: tightened `/connect` private-beta handoff so testers move from username setup into account preflight, starter-route selection, and one latest-game receipt instead of treating connection as the end of setup; proof doc `docs/SQC_CONNECT_PRIVATE_BETA_HANDOFF_TIGHTENING_LIVE_DEPLOY_2026-05-03.md`. Verification: `pnpm lint`, `pnpm build`, production deploy from latest `origin/main` to `https://cc-b7h94co4k-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/connect`, canonical `/account`, canonical `/beta`, canonical `/support`, and Vercel production 500 scan with no logs found.
   - 2026-05-03 05:58 Europe/Stockholm progress: added a copyable `/support` packet so friends/private-beta testers can paste one diagnosable note when setup, receipt, rule, or UI moments go wrong; proof doc `docs/SQC_SUPPORT_COPYABLE_PACKET_LIVE_DEPLOY_2026-05-03.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-ha6qrn5cb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/support`, canonical `/`, and canonical `/beta`, plus live content assertions for the copyable support packet fields.
+  - 2026-05-03 10:22 Europe/Stockholm requested launch-polish terminology pass: enforce visible SQC wording as `quest` instead of `dare` or `challenge` across product copy, metadata/share text, verifier/result messages, nav labels, and support/beta/account surfaces. Proof doc: `docs/SQC_QUEST_TERMINOLOGY_COPY_PASS_2026-05-03.md`.
   - Acceptance:
     - First-time public launch path is clear: pick quest → connect chess account → play real game → get receipt/badge.
     - Homepage and challenge hub emphasize the core product loop over secondary/admin/beta surfaces.

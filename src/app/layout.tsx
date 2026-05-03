@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://sidequestchess.com"),
   title: "Side Quest Chess — Chess side quests",
-  description: "Chess, but with stupidly hard side quests. Pick a ridiculous challenge, play real games, and prove it worked.",
+  description: "Chess, but with stupidly hard side quests. Pick a ridiculous quest, play real games, and prove it worked.",
 };
 
 export default function RootLayout({
