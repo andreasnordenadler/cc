@@ -1831,3 +1831,33 @@ fatal: /Users/sam/.openclaw/workspace/memory/2026-05-03.md: is outside repositor
 Commit repo docs separately, and update workspace memory outside the project git operation.
 
 ---
+
+## [ERR-20260503-1344] pnpm_lint_missing_node_modules
+
+**Logged**: 2026-05-03T13:44:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`pnpm lint` failed in a fresh CC worktree because `node_modules` was missing and `eslint` was not installed locally.
+
+### Resolution
+Run `pnpm install --frozen-lockfile` before lint/build in newly-created isolated CC worktrees.
+
+---
+
+## [ERR-20260503-1345] macos_timeout_missing
+
+**Logged**: 2026-05-03T13:45:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A bounded Vercel log command used GNU `timeout`, which is not available by default in this macOS/zsh environment.
+
+### Resolution
+Use tool-level timeouts/yield windows or native command flags instead of shell `timeout` on this host.
+
+---
