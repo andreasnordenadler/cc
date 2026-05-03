@@ -3,7 +3,6 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
-import { getVerifierStatus } from "@/lib/verifier-status";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -35,7 +34,6 @@ export default async function ChallengesPage() {
   const activeChallenge = getActiveChallenge(metadata);
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
-  const liveVerifierCount = CHALLENGES.filter((challenge) => getVerifierStatus(challenge).state === "live").length;
   const currentChallenge = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
@@ -51,16 +49,6 @@ export default async function ChallengesPage() {
           <p className="hero-copy">
             These are not lessons. They are chess quests with proof attached. Start one, play real games on Lichess or Chess.com, and come back when the bad idea has evidence.
           </p>
-        </section>
-
-        <section className="grid" aria-label="Quest status">
-          <Fact label="Completed" value={`${progress.totalCompletedChallenges}`} copy={`${progress.totalRewardPoints} points banked`} />
-          <Fact label="Active quest" value={currentChallenge?.title ?? "None yet"} copy={currentChallenge?.proofCallout ?? "Choose one and start causing problems."} />
-          <Fact
-            label="Automated proof deck"
-            value={`${liveVerifierCount}/${CHALLENGES.length} quests`}
-            copy="Every starter quest can check latest games on Lichess or Chess.com today."
-          />
         </section>
 
         {currentChallenge ? (
@@ -158,12 +146,3 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
   );
 }
 
-function Fact({ label, value, copy }: { label: string; value: string; copy: string }) {
-  return (
-    <article className="stat-card mission-card">
-      <span className="eyebrow">{label}</span>
-      <h3>{value}</h3>
-      <p>{copy}</p>
-    </article>
-  );
-}
