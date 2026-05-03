@@ -141,7 +141,6 @@ export default function ShareKitPage() {
               <div className="card-meta">
                 <span>{challenge.category}</span>
                 <span className="badge danger">{challenge.difficulty}</span>
-                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <ChallengeBadge challenge={challenge} />
               <h3>{challenge.title}</h3>

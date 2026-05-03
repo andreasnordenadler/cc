@@ -73,7 +73,7 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
 
 export const verifierStateLabels: Record<VerifierState, { label: string; className: string; promise: string }> = {
   live: {
-    label: "Live-backed",
+    label: "Verified",
     className: "badge success",
     promise: "Latest-game verifier is live."
   },

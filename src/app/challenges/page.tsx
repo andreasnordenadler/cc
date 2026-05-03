@@ -3,7 +3,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
-import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
+import { getVerifierStatus } from "@/lib/verifier-status";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -79,7 +79,7 @@ export default async function ChallengesPage() {
           <Fact label="Completed" value={`${progress.totalCompletedChallenges}`} copy={`${progress.totalRewardPoints} points banked`} />
           <Fact label="Active quest" value={currentChallenge?.title ?? "None yet"} copy={currentChallenge?.proofCallout ?? "Choose one and start causing problems."} />
           <Fact
-            label="Live-backed deck"
+            label="Automated proof deck"
             value={`${liveVerifierCount}/${CHALLENGES.length} quests`}
             copy="Every starter quest can check latest games on Lichess or Chess.com today."
           />
@@ -179,15 +179,11 @@ export default async function ChallengesPage() {
 
 function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
   const difficultyTone = challenge.difficulty === "Brutal" || challenge.difficulty === "Absurd" ? "danger" : "blue";
-  const verifierStatus = getVerifierStatus(challenge);
-  const verifierLabel = getVerifierStateLabel(verifierStatus);
-
   return (
     <article className={`challenge-card ${featured ? "featured" : ""}`}>
       <div className="card-meta">
         <span>{challenge.category}</span>
         <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
-        <span className={verifierLabel.className}>{verifierLabel.label}</span>
       </div>
       <div className="challenge-card-title-row">
         <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />

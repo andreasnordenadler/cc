@@ -61,7 +61,6 @@ export default async function TodayPage() {
                 <span className="eyebrow">Daily side quest · {dateLabel}</span>
                 <span className="badge gold">+{challenge.reward} pts</span>
                 <span className="badge danger">{challenge.difficulty}</span>
-                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <h1>Today’s quest: {challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>

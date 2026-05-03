@@ -4,7 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
-import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
+import { getVerifierStatus } from "@/lib/verifier-status";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -225,8 +225,6 @@ export default async function AccountPage() {
           </p>
           <div className="grid">
             {CHALLENGES.map((challenge) => {
-              const verifierStatus = getVerifierStatus(challenge);
-              const verifierLabel = getVerifierStateLabel(verifierStatus);
               const isActiveChallenge = activeChallengeRecord?.id === challenge.id;
 
               return (
@@ -235,7 +233,6 @@ export default async function AccountPage() {
                   <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
                   <strong>{challenge.title}</strong>
                   <p>{challenge.objective}</p>
-                  <span className={verifierLabel.className}>{verifierLabel.label}</span>
                   {user ? (
                     <form action={startChallenge} className="button-row">
                       <input type="hidden" name="challengeId" value={challenge.id} />

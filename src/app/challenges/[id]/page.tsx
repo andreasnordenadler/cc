@@ -103,7 +103,6 @@ export default async function ChallengeDetailPage({
                 <span className="eyebrow">{challenge.category}</span>
                 <span className="badge danger">{challenge.difficulty}</span>
                 <span className="badge gold">+{challenge.reward} pts</span>
-                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <h1>{challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>

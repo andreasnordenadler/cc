@@ -73,7 +73,6 @@ function VerifierCard({ challenge }: { challenge: Challenge }) {
     <article className="mission-card challenge-card">
       <div className="card-meta">
         <span>{challenge.category}</span>
-        <span className={state.className}>{state.label}</span>
       </div>
       <ChallengeBadge challenge={challenge} />
       <h2>{challenge.title}</h2>

@@ -43,7 +43,6 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
             <span className="eyebrow">Random quest machine</span>
             <span className="badge gold">+{selectedChallenge.reward} pts</span>
             <span className="badge danger">{selectedChallenge.difficulty}</span>
-            <span className={verifierLabel.className}>{verifierLabel.label}</span>
           </div>
           <h1>{selectedChallenge.title}</h1>
           <p className="hero-copy">{selectedChallenge.objective}</p>

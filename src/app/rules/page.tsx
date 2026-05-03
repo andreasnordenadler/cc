@@ -37,7 +37,7 @@ const proofSteps = [
 
 const verifierStatuses = [
   {
-    label: "Live-backed now",
+    label: "Automated now",
     title: "Queen? Never Heard of Her",
     copy: "The canonical quest already has a deterministic rule checker plus Lichess latest-game normalization for queen loss before move 15, opponent queen present, legal time classes, and a win.",
   },
