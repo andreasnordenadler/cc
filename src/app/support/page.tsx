@@ -51,6 +51,16 @@ const privacyNotes = [
   },
 ];
 
+const betaSupportTemplate = `Side Quest Chess beta support note
+Quest:
+Chess site: Lichess / Chess.com
+Public username:
+Game link, if relevant:
+Receipt outcome: passed / failed / pending / did not reach receipt
+What felt wrong or confusing:
+What I expected instead:
+Screenshot attached: yes / no`;
+
 export default async function SupportPage() {
   const { userId } = await auth();
 
@@ -93,6 +103,24 @@ export default async function SupportPage() {
             {supportSteps.map((item) => (
               <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
             ))}
+          </div>
+        </section>
+
+        <section className="mission-card beta-template-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Copyable support packet</span>
+              <h2>One pasteable note for friends who hit a rough edge.</h2>
+            </div>
+            <span className="badge blue">diagnosable fast</span>
+          </div>
+          <p>
+            If a tester gets stuck, this keeps the report lightweight but complete enough to debug the exact quest, provider, receipt state, and confusing moment.
+          </p>
+          <pre>{betaSupportTemplate}</pre>
+          <div className="button-row">
+            <Link href="/result" className="button primary">Open latest receipt</Link>
+            <Link href="/beta" className="button secondary">Back to beta guide</Link>
           </div>
         </section>
 
