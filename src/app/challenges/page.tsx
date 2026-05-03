@@ -10,7 +10,6 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-const categories = ["All", "Blunder", "Restrictions", "Chaos", "Style", "Friends", "Near-impossible"];
 const betaStarterRoute = [
   {
     label: "First weird win",
@@ -70,9 +69,6 @@ export default async function ChallengesPage() {
           <p className="hero-copy">
             These are not lessons. They are chess quests with proof attached. Start one, play real games on Lichess or Chess.com, and come back when the bad idea has evidence.
           </p>
-          <div className="chip-row" aria-label="Quest categories">
-            {categories.map((category) => <span className="chip" key={category}>{category}</span>)}
-          </div>
         </section>
 
         <section className="grid" aria-label="Quest status">
@@ -102,38 +98,6 @@ export default async function ChallengesPage() {
             <Link href={`/challenges/${currentChallenge.id}`} className="button primary">Continue quest</Link>
           </section>
         ) : null}
-
-        <section className="mission-card" aria-label="Recommended starter route">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Recommended starter route</span>
-              <h2>Three picks that remove choice paralysis.</h2>
-            </div>
-            <span className="badge blue">start here</span>
-          </div>
-          <p>
-            New here? This is the same three-step ladder as Starter path, so the homepage, nav, account preflight, and quest hub all point beginners at one consistent first run.
-          </p>
-          <div className="note-card">
-            <strong>Full deck proof is live.</strong>
-            <p>All ten current starter quests use the same latest-game flow on Lichess or Chess.com, so this route lowers first-run choice pressure without hiding partial verifier coverage.</p>
-          </div>
-          <div className="grid">
-            {betaStarterRoute.map((step, index) => {
-              const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
-
-              return (
-                <article className="fact" key={step.challengeId}>
-                  <span>Step {index + 1} · {step.label}</span>
-                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} presentation="art" />
-                  <strong>{challenge.title}</strong>
-                  <p>{step.why}</p>
-                  <Link href={`/challenges/${challenge.id}`} className="button secondary">Open step rules</Link>
-                </article>
-              );
-            })}
-          </div>
-        </section>
 
         <section className="mission-card" aria-label="Latest-game proof loop">
           <div className="section-head">
@@ -171,6 +135,38 @@ export default async function ChallengesPage() {
               active={currentChallenge?.id === challenge.id}
             />
           ))}
+        </section>
+
+        <section className="mission-card" aria-label="Recommended starter route">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Recommended starter route</span>
+              <h2>Three picks that remove choice paralysis.</h2>
+            </div>
+            <span className="badge blue">start here</span>
+          </div>
+          <p>
+            New here? This is the same three-step ladder as Starter path, so the homepage, nav, account preflight, and quest hub all point beginners at one consistent first run.
+          </p>
+          <div className="note-card">
+            <strong>Full deck proof is live.</strong>
+            <p>All ten current starter quests use the same latest-game flow on Lichess or Chess.com, so this route lowers first-run choice pressure without hiding partial verifier coverage.</p>
+          </div>
+          <div className="grid">
+            {betaStarterRoute.map((step, index) => {
+              const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
+
+              return (
+                <article className="fact" key={step.challengeId}>
+                  <span>Step {index + 1} · {step.label}</span>
+                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} presentation="art" />
+                  <strong>{challenge.title}</strong>
+                  <p>{step.why}</p>
+                  <Link href={`/challenges/${challenge.id}`} className="button secondary">Open step rules</Link>
+                </article>
+              );
+            })}
+          </div>
         </section>
       </div>
     </main>
