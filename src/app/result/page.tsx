@@ -123,7 +123,25 @@ export default async function ResultPage() {
           </div>
           <div className="button-row">
             <Link href={receiptNextStep.href} className="button primary">{receiptNextStep.action}</Link>
+            <Link href="/support" className="button pink">Report confusing receipt</Link>
             <Link href="/proof-log" className="button secondary">Open proof log</Link>
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Beta support shortcut</span>
+              <h2>If the receipt feels unfair, capture the useful details.</h2>
+            </div>
+            <span className="badge blue">quest + game link</span>
+          </div>
+          <p>
+            Private-beta testers now have a direct path from the latest receipt to the support packet, so wrong or confusing pass/fail/pending outcomes can be reported with the quest, provider, username, game link, and expected result.
+          </p>
+          <div className="button-row">
+            <Link href="/support" className="button primary">Open support packet</Link>
+            <Link href={`/challenges/${challenge.id}`} className="button secondary">Recheck quest rules</Link>
           </div>
         </section>
 
