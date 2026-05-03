@@ -65,6 +65,7 @@ export default async function TodayPage() {
               <p>{challenge.flavor}</p>
               <div className="button-row hero-actions">
                 <Link href={`/challenges/${challenge.id}`} className="button primary">Start today’s quest</Link>
+                <Link href="/connect" className="button secondary">Connect chess account</Link>
                 <Link href={`/dare/${challenge.id}`} className="button secondary">Open friend-quest page</Link>
               </div>
             </div>
@@ -74,11 +75,16 @@ export default async function TodayPage() {
 
         <section className="big-grid">
           <article className="mission-card share-card">
-            <span className="eyebrow">Make it social</span>
-            <h2>Quest with someone today.</h2>
+            <span className="eyebrow">Daily loop</span>
+            <h2>One shared quest, one real game, one receipt.</h2>
             <p>
-              The daily page creates a simple ritual: everyone sees the same quest, then shares the exact quest page instead of a generic homepage link.
+              Today is the low-friction ritual: connect a public chess username, play and win one eligible Lichess or Chess.com game for this quest, then check the latest-game receipt.
             </p>
+            <div className="button-row">
+              <Link href="/connect" className="button secondary">Connect account</Link>
+              <Link href="/result" className="button secondary">Check receipt</Link>
+              <Link href="/proof-log" className="button secondary">Proof log</Link>
+            </div>
             <ChallengeInviteActions
               challengeTitle={challenge.title}
               challengeObjective={challenge.objective}

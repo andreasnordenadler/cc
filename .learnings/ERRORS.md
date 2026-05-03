@@ -1861,3 +1861,26 @@ A bounded Vercel log command used GNU `timeout`, which is not available by defau
 Use tool-level timeouts/yield windows or native command flags instead of shell `timeout` on this host.
 
 ---
+
+## [ERR-20260503-001] vercel_worktree_project_link
+
+**Logged**: 2026-05-03T14:44:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: infra
+
+### Summary
+An isolated CC worktree deployed to a temporary Vercel project because `.vercel/` did not exist before copying the canonical `project.json`.
+
+### Details
+The script used `cp cc/.vercel/project.json WT/.vercel/project.json 2>/dev/null || true`; because `WT/.vercel/` was missing, the copy silently failed. `vercel --prod --yes` then auto-linked and created a new temporary project named after the worktree. The deploy was repeated successfully after `mkdir -p .vercel` and copying the canonical `cc` project link.
+
+### Suggested Action
+For CC isolated worktrees, always run `mkdir -p .vercel && cp /Users/sam/.openclaw/workspace/cc/.vercel/project.json .vercel/project.json && cat .vercel/project.json` before any Vercel deploy.
+
+### Metadata
+- Source: error
+- Related Files: .vercel/project.json, TOOLS.md
+- Tags: vercel, worktree, deploy
+
+---
