@@ -1932,3 +1932,26 @@ For fast SQC visual hotfixes, fetch immediately before commit/push, and rebase i
 - Related Files: src/app/challenges/page.tsx, src/app/globals.css
 - Tags: git, vercel, sqc
 ---
+
+## [ERR-20260503-001] cc_vercel_logs_and_smoke_assertions
+
+**Logged**: 2026-05-03T21:52:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+During SQC deploy verification, two non-product command checks needed correction: a signed-out smoke assertion expected signed-in copy, and `vercel logs --since` is not supported by the installed CLI.
+
+### Details
+The deployed `/challenges/knights-before-coffee` route correctly rendered signed-out `Connect to start`, but the first smoke expected signed-in `Start this bad idea`. The corrected smoke passed. Also, `vercel logs https://sidequestchess.com --since 15m` returned a CLI flag error; a bounded plain `vercel logs` watch emitted no output.
+
+### Suggested Action
+For public route smoke checks, assert signed-out copy unless explicitly testing authenticated state. For Vercel log watches in this environment, avoid `--since` with `vercel logs`; use a bounded plain watch or `vercel inspect` plus route smoke instead.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_DARE_DIRECT_ACCEPT_LIVE_DEPLOY_2026-05-03.md
+- Tags: vercel, smoke, sqc
+
+---
