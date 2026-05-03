@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
@@ -132,6 +133,20 @@ export default async function ResultPage() {
             <h2>{isPassed ? `I completed “${challenge.title}.”` : `I tried “${challenge.title}.”`}</h2>
             <p>{shareCopy}</p>
             <ShareProofActions copy={shareCopy} challengeTitle={challenge.title} />
+          </article>
+          <article className="mission-card share-card">
+            <span className="eyebrow">Dare the next person</span>
+            <h2>Turn this receipt into the next bad decision.</h2>
+            <p>
+              After a pass, fail, or pending check, send the exact same quest to a friend so the loop continues with a quest-specific invite instead of a generic homepage pitch.
+            </p>
+            <ChallengeInviteActions
+              challengeTitle={challenge.title}
+              challengeObjective={challenge.objective}
+              challengePath={`/dare/${challenge.id}`}
+              reward={challenge.reward}
+              badgeName={challenge.badgeIdentity.name}
+            />
           </article>
           <article className="mission-card">
             <span className="eyebrow">Latest check</span>
