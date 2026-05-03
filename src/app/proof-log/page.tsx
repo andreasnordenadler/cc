@@ -84,6 +84,33 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
     status === "passed"
       ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked for +${challenge.reward} points.`
       : `I logged “${challenge.title}” on Side Quest Chess. ${summary.headline}: ${summary.detail}`;
+  const nextStep =
+    status === "passed"
+      ? {
+          label: "Share or dare back",
+          copy: "This receipt is brag-ready. Copy it, then send the same quest to someone who deserves worse chess decisions.",
+          primaryLabel: "Open share kit",
+          primaryHref: "/share-kit",
+          secondaryLabel: "Send this quest",
+          secondaryHref: `/dare/${challenge.id}`,
+        }
+      : status === "failed"
+        ? {
+            label: "Check whether the miss feels fair",
+            copy: "Failed receipts should make the missed rule obvious. If this one feels wrong, capture it with the support packet before the game context disappears.",
+            primaryLabel: "Review rules",
+            primaryHref: `/challenges/${challenge.id}`,
+            secondaryLabel: "Report confusing receipt",
+            secondaryHref: "/support",
+          }
+        : {
+            label: "Create a clearer latest-game check",
+            copy: "Pending receipts usually need one eligible public game or a saved chess username. Fix the preflight, then come back to refresh the receipt.",
+            primaryLabel: "Check account preflight",
+            primaryHref: "/account",
+            secondaryLabel: "Open support packet",
+            secondaryHref: "/support",
+          };
 
   return (
     <article className="challenge-card proof-receipt-card">
@@ -99,6 +126,14 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         </div>
       </div>
       <div className="proof-line">{summary.meta}</div>
+      <div className="note-card">
+        <strong>{nextStep.label}</strong>
+        <p>{nextStep.copy}</p>
+        <div className="button-row">
+          <Link href={nextStep.primaryHref} className="button secondary">{nextStep.primaryLabel}</Link>
+          <Link href={nextStep.secondaryHref} className="button secondary">{nextStep.secondaryLabel}</Link>
+        </div>
+      </div>
       <ShareProofActions
         copy={shareCopy}
         challengeTitle={challenge.title}
