@@ -121,7 +121,6 @@ export default async function ChallengesPage() {
           <div className="grid">
             {betaStarterRoute.map((step, index) => {
               const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
-              const verifierStatus = getVerifierStatus(challenge);
 
               return (
                 <article className="fact" key={step.challengeId}>
@@ -129,7 +128,6 @@ export default async function ChallengesPage() {
                   <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} presentation="art" />
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
-                  <div className="proof-line">{verifierStatus.summary}</div>
                   <Link href={`/challenges/${challenge.id}`} className="button secondary">Open step rules</Link>
                 </article>
               );
@@ -199,7 +197,6 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
           <em>{challenge.openingHint}</em>
         </div>
       </div>
-      <div className="proof-line">{verifierStatus.summary}</div>
       <div className="badge-row">
         {completed ? <span className="badge green">completed</span> : null}
         {active ? <span className="badge gold">active</span> : null}
