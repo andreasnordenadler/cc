@@ -83,7 +83,7 @@ export default async function ConnectPage() {
             </span>
           </div>
           <p>
-            The connect page is only step one: after a public username is saved, use the private-beta starter route, play and win one eligible public game, then return for one honest latest-game receipt.
+            The connect page is only step one: after a public username is saved, use the starter path, play and win one eligible public game, then return for one honest latest-game receipt.
           </p>
           <div className="checker-flow" aria-label="Post-connection proof path">
             <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
@@ -101,7 +101,7 @@ export default async function ConnectPage() {
           </div>
           <div className="button-row">
             <Link href="/account" className="button primary">Open account preflight</Link>
-            <Link href="/challenges" className="button secondary">Open starter route</Link>
+            <Link href="/path" className="button secondary">Open starter path</Link>
             <Link href="/result" className="button secondary">View latest receipt</Link>
           </div>
         </section>

@@ -14,8 +14,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
       <div className="site-nav-inner">
         <nav className="nav-links" aria-label="Primary">
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
-          <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Quests</Link>
           <Link href="/path" className={active === "path" ? "active" : undefined}>Starter path</Link>
+          <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Quests</Link>
           <Link href="/today" className={active === "today" ? "active" : undefined}>Today</Link>
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Badges</Link>
           <Link href="/support" className={active === "support" ? "active" : undefined}>Support</Link>

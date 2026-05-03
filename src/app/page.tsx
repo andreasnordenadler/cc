@@ -13,8 +13,8 @@ import {
 
 const recommendedQuestIds = [
   "knights-before-coffee",
-  "no-castle-club",
-  "queen-never-heard-of-her",
+  "bishop-field-trip",
+  "early-king-walk",
 ];
 
 export default async function Home() {

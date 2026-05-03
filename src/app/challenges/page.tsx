@@ -18,14 +18,14 @@ const betaStarterRoute = [
     why: "Smallest rule load: make four knight moves first, then win. Best for confirming the proof loop before chasing harder nonsense.",
   },
   {
-    label: "Cleanest verifier read",
-    challengeId: "no-castle-club",
-    why: "Easy to understand from a receipt: the player won, and the king never castled. Good for Lichess/Chess.com confidence checks.",
+    label: "Bishop restraint",
+    challengeId: "bishop-field-trip",
+    why: "A gentle second step: develop both bishops before the queen, then win. It teaches constraints without feeling like homework.",
   },
   {
-    label: "Chaos stretch",
-    challengeId: "queen-never-heard-of-her",
-    why: "Use after the setup works. The rule is absurd, shareable, and quickly reveals whether failed receipts feel fair.",
+    label: "King-walk stretch",
+    challengeId: "early-king-walk",
+    why: "The first suspicious escalation: move the king early without castling, then still win. Weird enough to be memorable, readable enough to verify.",
   },
 ];
 
@@ -103,7 +103,7 @@ export default async function ChallengesPage() {
             <span className="badge blue">start here</span>
           </div>
           <p>
-            New here? Start with one survivable proof loop, one clean verifier confidence check, then one genuinely cursed shareable attempt.
+            New here? This is the same three-step ladder as Starter path, so the homepage, nav, account preflight, and quest hub all point beginners at one consistent first run.
           </p>
           <div className="grid">
             {betaStarterRoute.map((step, index) => {
@@ -117,7 +117,7 @@ export default async function ChallengesPage() {
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
                   <p className="muted">{verifierStatus.summary}</p>
-                  <Link href={`/challenges/${challenge.id}`} className="button secondary">Start this pick</Link>
+                  <Link href={`/challenges/${challenge.id}`} className="button secondary">Open step rules</Link>
                 </article>
               );
             })}
