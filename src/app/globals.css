@@ -97,6 +97,8 @@ p { color: var(--muted); line-height: 1.5; }
 
 .side-card { padding: 18px; display: grid; gap: 12px; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,95,159,.08)); }
 .challenge-card { padding: 18px; display: grid; gap: 10px; }
+.clickable-quest-card { cursor: pointer; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.clickable-quest-card:hover, .clickable-quest-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.105); outline: none; }
 .challenge-card.featured { background: linear-gradient(135deg, rgba(245,200,106,.25), rgba(255,95,159,.13), rgba(118,169,255,.1)); }
 .challenge-card-title-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
 .challenge-card-title-row > div { min-width: 0; display: grid; gap: 8px; }
