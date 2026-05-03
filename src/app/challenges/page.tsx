@@ -92,7 +92,7 @@ export default async function ChallengesPage() {
                 <span className="eyebrow">Active quest</span>
                 <div className="active-quest-title-row">
                   <span className="clean-quest-logo active-quest-badge" aria-hidden="true">
-                    <ChallengeBadge challenge={currentChallenge} earned={completedSet.has(currentChallenge.id)} />
+                    <ChallengeBadge challenge={currentChallenge} earned={completedSet.has(currentChallenge.id)} presentation="art" />
                   </span>
                   <h2>{currentChallenge.title}</h2>
                 </div>
@@ -126,10 +126,10 @@ export default async function ChallengesPage() {
               return (
                 <article className="fact" key={step.challengeId}>
                   <span>Step {index + 1} · {step.label}</span>
-                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
+                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} presentation="art" />
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
-                  <p className="muted">{verifierStatus.summary}</p>
+                  <div className="proof-line">{verifierStatus.summary}</div>
                   <Link href={`/challenges/${challenge.id}`} className="button secondary">Open step rules</Link>
                 </article>
               );
@@ -192,15 +192,14 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
         <span className={verifierLabel.className}>{verifierLabel.label}</span>
       </div>
       <div className="challenge-card-title-row">
-        <ChallengeBadge challenge={challenge} earned={completed} />
+        <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />
         <div>
           <h3>{challenge.title}</h3>
           <p>{challenge.objective}</p>
+          <em>{challenge.openingHint}</em>
         </div>
       </div>
-      <em>{challenge.openingHint}</em>
       <div className="proof-line">{verifierStatus.summary}</div>
-      <p className="muted">{verifierLabel.promise}</p>
       <div className="badge-row">
         {completed ? <span className="badge green">completed</span> : null}
         {active ? <span className="badge gold">active</span> : null}

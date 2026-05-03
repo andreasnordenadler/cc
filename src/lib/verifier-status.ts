@@ -75,7 +75,7 @@ export const verifierStateLabels: Record<VerifierState, { label: string; classNa
   live: {
     label: "Live-backed",
     className: "badge success",
-    promise: "Can create an honest pass/fail/pending receipt from a connected supported chess username today.",
+    promise: "Latest-game verifier is live."
   },
   next: {
     label: "Next adapter",

@@ -98,12 +98,12 @@ p { color: var(--muted); line-height: 1.5; }
 .side-card { padding: 18px; display: grid; gap: 12px; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,95,159,.08)); }
 .challenge-card { padding: 18px; display: grid; gap: 10px; }
 .challenge-card.featured { background: linear-gradient(135deg, rgba(245,200,106,.25), rgba(255,95,159,.13), rgba(118,169,255,.1)); }
-.challenge-card-title-row { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
-.challenge-card-title-row > div { min-width: 0; }
+.challenge-card-title-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+.challenge-card-title-row > div { min-width: 0; display: grid; gap: 8px; }
 .challenge-card-title-row h3 { overflow-wrap: anywhere; }
 .card-meta, .card-footer, .badge-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .card-meta span:first-child { color: var(--gold); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
-.challenge-card em { color: var(--ink); font-style: normal; font-weight: 850; }
+.challenge-card em { color: var(--ink); font-style: normal; font-weight: 850; line-height: 1.35; }
 .proof-line { padding: 10px 11px; border-radius: 16px; background: rgba(96,240,175,.1); color: var(--green); font-size: 12px; font-weight: 900; }
 .challenge-badge-token { --badge-primary: var(--pink); --badge-secondary: var(--gold); --badge-glow: rgba(255,95,159,.42); position: relative; isolation: isolate; display: inline-grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: min(100%, 300px); padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--badge-secondary) 34%, rgba(255,255,255,.16)); border-radius: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--badge-primary) 18%, transparent), rgba(255,255,255,.06)); box-shadow: 0 18px 34px var(--badge-glow); overflow: hidden; }
 .challenge-badge-token::before { content: ""; position: absolute; inset: -45% auto auto 36%; width: 150px; height: 150px; border-radius: 999px; background: radial-gradient(circle, color-mix(in srgb, var(--badge-secondary) 52%, transparent), transparent 68%); z-index: -1; }
@@ -120,6 +120,13 @@ p { color: var(--muted); line-height: 1.5; }
 .challenge-badge-token.hero .badge-reference-art { width: min(220px, 70vw); height: auto; max-height: 220px; }
 .challenge-badge-token.hero .badge-ribbon { max-width: 210px; font-size: 10px; padding: 5px 12px; }
 .challenge-badge-token.hero .badge-crest { width: 38px; height: 28px; font-size: 24px; }
+.challenge-badge-art { --badge-primary: var(--pink); --badge-secondary: var(--gold); --badge-glow: rgba(255,95,159,.42); display: inline-grid; place-items: center; width: 104px; min-width: 104px; filter: drop-shadow(0 16px 22px var(--badge-glow)); }
+.challenge-badge-art .badge-reference-art { width: 104px; height: 104px; object-fit: contain; filter: none; }
+.challenge-badge-art .badge-shield { width: 76px; height: 88px; }
+.challenge-badge-art .badge-token-motif { width: 52px; height: 52px; font-size: 31px; }
+.challenge-badge-art.earned { filter: drop-shadow(0 0 16px color-mix(in srgb, var(--badge-secondary) 60%, transparent)) drop-shadow(0 16px 22px var(--badge-glow)); }
+.challenge-badge-art.hero { width: min(220px, 70vw); min-width: 0; }
+.challenge-badge-art.hero .badge-reference-art { width: min(220px, 70vw); height: auto; max-height: 220px; }
 .badge-token-copy { display: grid; gap: 3px; min-width: 0; }
 .badge-token-copy strong { margin: 0; color: var(--ink); font-size: .98rem; line-height: 1; }
 .badge-token-copy small { color: var(--badge-secondary); font-size: 11px; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
@@ -144,9 +151,10 @@ p { color: var(--muted); line-height: 1.5; }
 .mission-card strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
 .active-quest-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .active-quest-title-row h2 { margin-bottom: 0; }
-.active-quest-badge .badge-reference-art { width: 74px; height: 74px; }
-.active-quest-badge .badge-shield { width: 52px; height: 60px; }
-.active-quest-badge .badge-token-motif { width: 35px; height: 35px; font-size: 21px; }
+.active-quest-badge.challenge-badge-art, .active-quest-badge .challenge-badge-art { width: 86px; min-width: 86px; }
+.active-quest-badge.challenge-badge-art .badge-reference-art, .active-quest-badge .challenge-badge-art .badge-reference-art { width: 86px; height: 86px; }
+.active-quest-badge .badge-shield { width: 58px; height: 68px; }
+.active-quest-badge .badge-token-motif { width: 39px; height: 39px; font-size: 23px; }
 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-size: 12px; font-weight: 850; }
 
