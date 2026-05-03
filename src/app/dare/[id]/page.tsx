@@ -98,6 +98,32 @@ export default async function DarePage({
             </ul>
           </article>
 
+          <article className="mission-card">
+            <span className="eyebrow">Proof path</span>
+            <h2>Play normally, then let SQC check the mess.</h2>
+            <p>
+              Accepting a dare should feel simple: save the quest, play one eligible public game on Lichess or Chess.com, then come back for the receipt.
+            </p>
+            <div className="checker-flow" aria-label="Friend quest proof path">
+              <div className="flow-step ready">
+                <strong>1 · Accept</strong>
+                <p>Open the full quest page and make this side quest active.</p>
+              </div>
+              <div className="flow-step hot">
+                <strong>2 · Play</strong>
+                <p>Use your normal chess site. No PGN upload or password sharing.</p>
+              </div>
+              <div className="flow-step ready">
+                <strong>3 · Prove</strong>
+                <p>Run the latest-game check and share the honest receipt.</p>
+              </div>
+            </div>
+            <div className="button-row">
+              <Link href="/account" className="button primary">Save and check quest</Link>
+              <Link href="/result" className="button secondary">Open receipt</Link>
+            </div>
+          </article>
+
           <article className="mission-card share-card">
             <span className="eyebrow">Escalate responsibly</span>
             <h2>Send this quest on.</h2>
