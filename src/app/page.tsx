@@ -133,11 +133,16 @@ export default async function Home() {
             <Link href="/badges" className="button secondary">View badges</Link>
           </article>
 
-          <article className="mission-card">
-            <span className="eyebrow">Trust</span>
-            <h2>Public games only.</h2>
-            <p>SQC never needs your chess-site password or PGN uploads.</p>
-            <Link href="/support" className="button secondary">Support & privacy</Link>
+          <article className="mission-card homepage-trust-card">
+            <span className="eyebrow">Trust basics</span>
+            <h2>Public games only. No password nonsense.</h2>
+            <p>
+              Side Quest Chess checks public Lichess and Chess.com game records only. Testers should never share chess-site passwords; confusing receipts belong in the support packet with a screenshot.
+            </p>
+            <div className="button-row">
+              <Link href="/support" className="button secondary">Support & privacy</Link>
+              <Link href="/rules" className="button secondary">Proof rules</Link>
+            </div>
           </article>
         </section>
       </div>
