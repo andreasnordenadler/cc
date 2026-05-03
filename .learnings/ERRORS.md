@@ -1910,3 +1910,25 @@ Run `pnpm install --frozen-lockfile` immediately after creating a clean CC workt
 - Related Files: package.json, pnpm-lock.yaml
 
 ---
+
+## [ERR-20260503-001] git_push_non_fast_forward_and_vercel_logs_flag
+
+**Logged**: 2026-05-03T19:54:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+SQC hotfix push from a clean worktree was rejected because `origin/main` advanced after the worktree was created; a Vercel logs command also failed because this CLI treats `--since` as filtering with follow.
+
+### Details
+Resolved by fetching/rebasing the single local commit onto current `origin/main`, rerunning `pnpm lint` and `pnpm build`, then pushing successfully. For logs, avoid `vercel logs <deployment> --since ...` in this installed CLI unless using a supported non-following mode.
+
+### Suggested Action
+For fast SQC visual hotfixes, fetch immediately before commit/push, and rebase if `origin/main` moves. Use deployment inspect/readiness and route smoke as the primary quick deploy gate when Vercel logs CLI behavior is incompatible.
+
+### Metadata
+- Source: command failure
+- Related Files: src/app/challenges/page.tsx, src/app/globals.css
+- Tags: git, vercel, sqc
+---
