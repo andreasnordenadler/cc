@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-03 14:44 Europe/Stockholm
+Last updated: 2026-05-03 16:50 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -81,6 +81,7 @@ Old pre-reset standby roadmap is archived at:
   - 2026-05-02 23:53 Europe/Stockholm requested top-bar polish: remove signed-in `Start quest` button and replace the `SQC` text pill with a transparent SIDE QUEST CHESS wordmark graphic matching the logo direction.
   - 2026-05-03 00:04 Europe/Stockholm progress: shipped top-nav wordmark polish; proof doc `docs/SQC_TOP_NAV_WORDMARK_POLISH_2026-05-02.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, prebuilt production deploy to `https://cc-bhb7famne-andreas-nordenadlers-projects.vercel.app`, manual alias set for apex/www, live smoke confirming `sqc-wordmark.svg`/`nav-wordmark`, absence of `Start quest`, and direct SVG route.
   - 2026-05-03 15:58 Europe/Stockholm autonomous launch-polish progress: shipped `/today` readiness preflight so the daily quest explains the three-step verification loop before users leave for Lichess/Chess.com: save identity, play today’s exact quest, then check latest games from Account/result. Proof doc `docs/SQC_TODAY_READINESS_PREFLIGHT_2026-05-03.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-oaepqesku-andreas-nordenadlers-projects.vercel.app`, alias to `https://sidequestchess.com`, live smoke for deploy `/today`, canonical `/today`, canonical `/account`, and Vercel 500 scan with 0 recent errors.
+  - 2026-05-03 16:50 Europe/Stockholm progress: made `/today` less route-hunty by letting signed-in runners make the daily quest active directly from the Today page while signed-out visitors keep a clean connect-first path; proof doc `docs/SQC_TODAY_DIRECT_ACTIVE_QUEST_START_LIVE_DEPLOY_2026-05-03.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-hip003wwf-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/today`, canonical `/challenges`, canonical `/account`, and Vercel deploy inspect status `Ready`.
   - 2026-05-02 23:58 Europe/Stockholm requested top-bar refinement: previous wordmark was clipped/not showing properly; make it a smaller picture wordmark with a logo-like serif treatment so it fits better.
   - 2026-05-03 00:10 Europe/Stockholm progress: shipped smaller PNG top-nav wordmark; proof doc `docs/SQC_TOP_NAV_WORDMARK_FIT_REFINEMENT_2026-05-02.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, prebuilt production deploy to `https://cc-1mo1cnifk-andreas-nordenadlers-projects.vercel.app`, manual alias set for apex/www, live smoke confirming `sqc-wordmark.png`/`nav-wordmark`, absence of old SVG and `Start quest`, and direct PNG route.
   - 2026-05-03 00:23 Europe/Stockholm requested launch-polish subtask: remove the visible “Side Quest Chess” top-bar brand/text-image and leave replacement branding for later.

@@ -1884,3 +1884,29 @@ For CC isolated worktrees, always run `mkdir -p .vercel && cp /Users/sam/.opencl
 - Tags: vercel, worktree, deploy
 
 ---
+
+## [ERR-20260503-001] worktree-lint-without-node-modules
+
+**Logged**: 2026-05-03T16:50:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Fresh SQC deploy worktrees need `pnpm install --frozen-lockfile` before running lint/build.
+
+### Error
+`pnpm lint` failed with `sh: eslint: command not found` because node_modules were not installed in the new worktree.
+
+### Context
+- Command attempted first: `pnpm lint && pnpm build`
+- Worktree: `cc/.worktrees/autoburst-20260503-1644`
+
+### Suggested Fix
+Run `pnpm install --frozen-lockfile` immediately after creating a clean CC worktree, then run lint/build.
+
+### Metadata
+- Reproducible: yes
+- Related Files: package.json, pnpm-lock.yaml
+
+---

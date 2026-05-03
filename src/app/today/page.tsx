@@ -4,6 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
+import { startChallenge } from "@/app/actions";
 import { getDailyChallenge } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
@@ -66,8 +67,16 @@ export default async function TodayPage() {
               <p className="hero-copy">{challenge.objective}</p>
               <p>{challenge.flavor}</p>
               <div className="button-row hero-actions">
-                <Link href={`/challenges/${challenge.id}`} className="button primary">Start today’s quest</Link>
-                <Link href="/connect" className="button secondary">Connect chess account</Link>
+                {userId ? (
+                  <form action={startChallenge}>
+                    <input type="hidden" name="challengeId" value={challenge.id} />
+                    <button type="submit" className="button primary">Make today’s quest active</button>
+                  </form>
+                ) : (
+                  <Link href="/connect" className="button primary">Connect to start today’s quest</Link>
+                )}
+                {userId ? <Link href="/connect" className="button secondary">Update chess account</Link> : null}
+                <Link href={`/challenges/${challenge.id}`} className="button secondary">Read exact rules</Link>
                 <Link href={`/dare/${challenge.id}`} className="button secondary">Open friend-quest page</Link>
               </div>
             </div>
@@ -101,7 +110,13 @@ export default async function TodayPage() {
             </div>
           </div>
           <div className="button-row">
-            <Link href={accountActionHref} className="button primary">{accountActionLabel}</Link>
+            {userId ? (
+              <form action={startChallenge}>
+                <input type="hidden" name="challengeId" value={challenge.id} />
+                <button type="submit" className="button primary">Set today as active quest</button>
+              </form>
+            ) : null}
+            <Link href={accountActionHref} className={userId ? "button secondary" : "button primary"}>{accountActionLabel}</Link>
             <Link href={`/challenges/${challenge.id}`} className="button secondary">Read exact rules</Link>
             <Link href="/result" className="button secondary">View latest receipt</Link>
           </div>
