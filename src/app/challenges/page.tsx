@@ -54,6 +54,7 @@ export default async function ChallengesPage() {
   const activeChallenge = getActiveChallenge(metadata);
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
+  const liveVerifierCount = CHALLENGES.filter((challenge) => getVerifierStatus(challenge).state === "live").length;
   const currentChallenge = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
@@ -77,7 +78,11 @@ export default async function ChallengesPage() {
         <section className="grid" aria-label="Quest status">
           <Fact label="Completed" value={`${progress.totalCompletedChallenges}`} copy={`${progress.totalRewardPoints} points banked`} />
           <Fact label="Active quest" value={currentChallenge?.title ?? "None yet"} copy={currentChallenge?.proofCallout ?? "Choose one and start causing problems."} />
-          <Fact label="Most failed" value="Queen? Never Heard of Her" copy="Perfect. That means the premise is working." />
+          <Fact
+            label="Live-backed deck"
+            value={`${liveVerifierCount}/${CHALLENGES.length} quests`}
+            copy="Every starter quest can check latest games on Lichess or Chess.com today."
+          />
         </section>
 
         {currentChallenge ? (
@@ -105,6 +110,10 @@ export default async function ChallengesPage() {
           <p>
             New here? This is the same three-step ladder as Starter path, so the homepage, nav, account preflight, and quest hub all point beginners at one consistent first run.
           </p>
+          <div className="note-card">
+            <strong>Full deck proof is live.</strong>
+            <p>All ten current starter quests use the same latest-game flow on Lichess or Chess.com, so this route lowers first-run choice pressure without hiding partial verifier coverage.</p>
+          </div>
           <div className="grid">
             {betaStarterRoute.map((step, index) => {
               const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
