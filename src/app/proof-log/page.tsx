@@ -29,7 +29,7 @@ export default async function ProofLogPage() {
           <span className="eyebrow">Proof log</span>
           <h1>Your side-quest receipts.</h1>
           <p className="hero-copy">
-            Every latest-game check becomes a receipt here: passed, failed, or still pending. No PGN homework, no engine lecture — just a running record of the bad ideas Side Quest Chess has judged.
+            Every latest-game check becomes a receipt here: passed, failed, or still pending. No manual uploads, no engine lecture — just a running record of the bad ideas Side Quest Chess has judged.
           </p>
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Check latest games</Link>

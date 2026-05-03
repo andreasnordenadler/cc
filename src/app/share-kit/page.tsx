@@ -49,7 +49,7 @@ export default function ShareKitPage() {
             <div className="steps" aria-label="What the share kit covers">
               <Step num="1" title="Direct" copy="Every quest has its own friend-quest URL." />
               <Step num="2" title="Previewable" copy="Quest links carry quest-specific social cards." />
-              <Step num="3" title="Honest" copy="No fake wins, PGN homework, or serious training vibes." />
+              <Step num="3" title="Honest" copy="No fake wins, manual uploads, or serious training vibes." />
             </div>
           </article>
 

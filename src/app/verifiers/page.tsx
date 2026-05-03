@@ -40,7 +40,7 @@ export default async function VerifiersPage() {
           <span className="eyebrow">Verifier board</span>
           <h1>Every weird quest needs an honest receipt.</h1>
           <p className="hero-copy">
-            This board separates what Side Quest Chess can verify live from what is still a public rule contract. No fake glory, no PGN homework, no engine-dashboard drift.
+            This board separates what Side Quest Chess can verify live from what is still a public rule contract. No fake glory, no manual uploads, no engine-dashboard drift.
           </p>
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Run the live checker</Link>
