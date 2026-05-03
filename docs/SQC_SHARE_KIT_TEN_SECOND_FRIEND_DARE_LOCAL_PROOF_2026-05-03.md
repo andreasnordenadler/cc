@@ -1,4 +1,4 @@
-# SQC share kit ten-second friend dare live deploy proof — 2026-05-03
+# SQC share kit ten-second friend quest live deploy proof — 2026-05-03
 
 ## Change
 
@@ -19,11 +19,13 @@ Added a new `/share-kit` section that makes the friend-share loop clearer and mo
 - `pnpm lint` ✅
 - `pnpm build` ✅
 - Static output assertion: `.next/server/app/share-kit.html` contains `10-second friend quest`, `Invite → receipt`, and `/dare/queen-never-heard-of-her` ✅
-- Production deploy: `https://cc-bfiyskf4b-andreas-nordenadlers-projects.vercel.app` ✅
+- Production deploy: `https://cc-3p74z1o07-andreas-nordenadlers-projects.vercel.app` ✅
 - Aliased canonical domain: `https://sidequestchess.com` ✅
 - Live smoke:
-  - `https://cc-bfiyskf4b-andreas-nordenadlers-projects.vercel.app/share-kit` 200 with `10-second friend quest`, `Invite → receipt`, `/dare/queen-never-heard-of-her`, and `Send the queenless quest` ✅
+  - `https://cc-3p74z1o07-andreas-nordenadlers-projects.vercel.app/share-kit` 200 with `10-second friend quest`, `Invite → receipt`, `/dare/queen-never-heard-of-her`, and `Send the queenless quest` ✅
   - `https://sidequestchess.com/share-kit` 200 with the same assertions ✅
+  - `https://sidequestchess.com/path` 200 with `Knights Before Coffee`, `Bishop Field Trip`, and `Early King Walk` preserved from latest main ✅
+  - `https://sidequestchess.com/challenges` 200 ✅
   - `https://sidequestchess.com/dare/queen-never-heard-of-her` 200 ✅
   - `https://sidequestchess.com/result` 200 ✅
   - `https://sidequestchess.com/proof-log` 200 ✅
@@ -31,4 +33,4 @@ Added a new `/share-kit` section that makes the friend-share loop clearer and mo
 
 ## Notes
 
-Built and deployed from an isolated clean worktree at `cc/.worktrees/autoburst-20260503-quick-share` to avoid disturbing the already-dirty primary checkout.
+Built from latest `origin/main`, committed as `f3941c7`, pushed to `main`, and deployed from an isolated clean worktree at `cc/.worktrees/autoburst-20260503-quick-share` to avoid disturbing the already-dirty primary checkout.

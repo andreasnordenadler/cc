@@ -1811,3 +1811,23 @@ Use Python `subprocess.run(..., timeout=N)` or OpenClaw exec `timeout` parameter
 
 ---
 
+
+## [ERR-20260503-004] git_add_absolute_file_outside_repo
+
+**Logged**: 2026-05-03T13:08:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: git
+
+### Summary
+Tried to `git add` workspace memory from inside the CC worktree, but the memory file is outside the repository.
+
+### Error
+```text
+fatal: /Users/sam/.openclaw/workspace/memory/2026-05-03.md: is outside repository
+```
+
+### Suggested Fix
+Commit repo docs separately, and update workspace memory outside the project git operation.
+
+---
