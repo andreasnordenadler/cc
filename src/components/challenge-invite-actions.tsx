@@ -22,7 +22,7 @@ export default function ChallengeInviteActions({
     if (typeof window === "undefined") return challengePath;
     return `${window.location.origin}${challengePath}`;
   }, [challengePath]);
-  const inviteCopy = `I dare you to try “${challengeTitle}” on Side Quest Chess: ${challengeObjective} Unlock ${badgeName} for +${reward} points if you survive it.`;
+  const inviteCopy = `Try this quest on Side Quest Chess: “${challengeTitle}”. ${challengeObjective} Unlock ${badgeName} for +${reward} points if you survive it.`;
 
   async function copyInvite() {
     try {

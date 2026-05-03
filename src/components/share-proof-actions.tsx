@@ -16,7 +16,7 @@ export default function ShareProofActions({
   challengeTitle,
   sharePath = "/result",
   copyLabel = "Copy receipt",
-  shareLabel = "Share dare",
+  shareLabel = "Share quest",
   idleCopy = "Copies the current result text plus this proof-card link. No PGN upload, no homework.",
 }: ShareProofActionsProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");

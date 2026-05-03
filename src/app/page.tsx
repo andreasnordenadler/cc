@@ -32,10 +32,10 @@ export default async function Home() {
             <span className="eyebrow">Side Quest Chess v1</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
-              Pick a ridiculous challenge, play real games on Lichess or Chess.com, and let Side Quest Chess prove whether you actually pulled it off.
+              Pick a ridiculous quest, play real games on Lichess or Chess.com, and let Side Quest Chess prove whether you actually pulled it off.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/today" className="button primary">Open today’s dare</Link>
+              <Link href="/today" className="button primary">Open today’s quest</Link>
               <Link href="/random" className="button pink">Spin a bad idea</Link>
               <Link href="/challenges" className="button secondary">Pick from the hub</Link>
               <Link href="/path" className="button secondary">Start the path</Link>
@@ -63,7 +63,7 @@ export default async function Home() {
             <ChallengeTeaser challengeId={featuredChallenge.id} />
             <div className="note-card">
               <strong>No PGN homework.</strong>
-              <p>Play real games elsewhere. Side Quest Chess is the weird dare layer and proof machine.</p>
+              <p>Play real games elsewhere. Side Quest Chess is the weird quest layer and proof machine.</p>
             </div>
           </aside>
         </section>
@@ -104,31 +104,31 @@ export default async function Home() {
 
         <section className="big-grid" aria-label="Product surfaces">
           <article className="mission-card daily-card">
-            <span className="eyebrow">Daily side quest</span>
+            <span className="eyebrow">Daily quest</span>
             <h2>One bad idea for everyone today.</h2>
-            <p>The daily dare gives Side Quest Chess a repeatable ritual: same challenge, same badge target, easy to share with friends.</p>
-            <Link href="/today" className="button primary">See today’s dare</Link>
+            <p>The daily quest gives Side Quest Chess a repeatable ritual: same quest, same badge target, easy to share with friends.</p>
+            <Link href="/today" className="button primary">See today’s quest</Link>
           </article>
 
           <article className="mission-card">
-            <span className="eyebrow">Random dare machine</span>
+            <span className="eyebrow">Random quest machine</span>
             <h2>Let fate pick the bad idea.</h2>
-            <p>Spin the starter deck, accept the challenge, or send the exact friend-dare link before common sense gets involved.</p>
+            <p>Spin the starter deck, accept the quest, or send the exact friend-quest link before common sense gets involved.</p>
             <Link href="/random" className="button pink">Spin the deck</Link>
           </article>
 
           <article className="mission-card">
             <span className="eyebrow">Starter path</span>
             <h2>Three bad ideas, in survivable order.</h2>
-            <p>A tiny first-run ladder gives new players a clear next dare before they browse the full chaos deck.</p>
+            <p>A tiny first-run ladder gives new players a clear next quest before they browse the full chaos deck.</p>
             <Link href="/path" className="button primary">Start the path</Link>
           </article>
 
           <article className="mission-card">
-            <span className="eyebrow">Challenge Hub</span>
+            <span className="eyebrow">Quest Hub</span>
             <h2>Pick your next bad idea.</h2>
-            <p>Browse weird chess dares by chaos level, difficulty, and brag value. The hub is the product center — not an account dashboard.</p>
-            <Link href="/challenges" className="button primary">Open challenge hub</Link>
+            <p>Browse weird chess quests by chaos level, difficulty, and brag value. The hub is the product center — not an account dashboard.</p>
+            <Link href="/challenges" className="button primary">Open quest hub</Link>
           </article>
 
           <article className="mission-card">
@@ -141,20 +141,20 @@ export default async function Home() {
           <article className="mission-card">
             <span className="eyebrow">Badge vault</span>
             <h2>Your nonsense gets heraldry.</h2>
-            <p>Every starter challenge now has a distinct SQC coat of arms with a motto, meaning, and weird little brag identity.</p>
+            <p>Every starter quest now has a distinct SQC coat of arms with a motto, meaning, and weird little brag identity.</p>
             <Link href="/badges" className="button pink">Browse badges</Link>
           </article>
 
           <article className="mission-card">
             <span className="eyebrow">Scoreboard</span>
             <h2>Your bad-idea score, in public.</h2>
-            <p>Track starter-deck points, earned coat-of-arms badges, and the next dare worth attempting without pretending this is a serious leaderboard.</p>
+            <p>Track starter-deck points, earned coat-of-arms badges, and the next quest worth attempting without pretending this is a serious leaderboard.</p>
             <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
           </article>
 
           <article className="mission-card">
             <span className="eyebrow">Rulebook</span>
-            <h2>Funny dares. Serious receipts.</h2>
+            <h2>Funny quests. Serious receipts.</h2>
             <p>The proof explainer shows how SQC verifies real games without PGN homework, engine dashboards, or fake success copy.</p>
             <Link href="/rules" className="button secondary">Read the rulebook</Link>
           </article>
@@ -169,21 +169,21 @@ export default async function Home() {
           <article className="mission-card">
             <span className="eyebrow">Verifier board</span>
             <h2>Live proof, not fake glory.</h2>
-            <p>See which starter dares are live-backed today, which adapters are next, and what evidence each weird receipt will need.</p>
+            <p>See which starter quests are live-backed today, which adapters are next, and what evidence each weird receipt will need.</p>
             <Link href="/verifiers" className="button secondary">Open verifier board</Link>
           </article>
 
           <article className="mission-card">
             <span className="eyebrow">Share kit</span>
-            <h2>Every dare, ready to send.</h2>
-            <p>A single page for challenge-specific friend links, daily/random rituals, OG preview targets, and no-excuse invite copy.</p>
+            <h2>Every quest, ready to send.</h2>
+            <p>A single page for quest-specific friend links, daily/random rituals, OG preview targets, and no-excuse invite copy.</p>
             <Link href="/share-kit" className="button pink">Open share kit</Link>
           </article>
 
           <article className="mission-card">
             <span className="eyebrow">Proof log</span>
             <h2>Your receipts, without the spreadsheet energy.</h2>
-            <p>Every latest-game check now has a home: passed, failed, or pending side-quest evidence tied back to the exact dare.</p>
+            <p>Every latest-game check now has a home: passed, failed, or pending side-quest evidence tied back to the exact quest.</p>
             <Link href="/proof-log" className="button secondary">View proof log</Link>
           </article>
         </section>
@@ -200,12 +200,12 @@ export default async function Home() {
           {isSignedIn ? (
             <div className="grid">
               <Fact label="Connected identity" value={[lichessUsername, chessComUsername].filter(Boolean).join(" / ") || "Not set yet"} />
-              <Fact label="Active dare" value={activeChallenge?.id ? activeChallenge.id.replaceAll("-", " ") : "None yet"} />
+              <Fact label="Active quest" value={activeChallenge?.id ? activeChallenge.id.replaceAll("-", " ") : "None yet"} />
               <Fact label="Completed" value={`${progress.totalCompletedChallenges} quests`} />
             </div>
           ) : (
             <p>
-              You can browse challenges now. Sign in only when you want Side Quest Chess to remember your profile, streaks, and proof cards.
+              You can browse quests now. Sign in only when you want Side Quest Chess to remember your profile, streaks, and proof cards.
             </p>
           )}
         </section>

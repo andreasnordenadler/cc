@@ -40,7 +40,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
       <div className="detail-hero-grid">
         <div>
           <div className="badge-row">
-            <span className="eyebrow">Random dare machine</span>
+            <span className="eyebrow">Random quest machine</span>
             <span className="badge gold">+{selectedChallenge.reward} pts</span>
             <span className="badge danger">{selectedChallenge.difficulty}</span>
             <span className={verifierLabel.className}>{verifierLabel.label}</span>

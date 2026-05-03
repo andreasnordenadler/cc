@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Side Quest Chess share kit",
-    description: "Send exact friend-dare links for the SQC starter deck.",
+    description: "Send exact friend-quest links for the SQC starter deck.",
   },
 };
 
@@ -38,17 +38,17 @@ export default function ShareKitPage() {
             <span className="eyebrow">SQC share kit</span>
             <h1>Every bad idea, packaged for one-tap peer pressure.</h1>
             <p className="hero-copy">
-              Use this page when the product needs to spread: challenge-specific friend-dare links, daily and random rituals, and proof-preview targets in one place.
+              Use this page when the product needs to spread: quest-specific friend-quest links, daily and random rituals, and proof-preview targets in one place.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/today" className="button primary">Share today’s dare</Link>
+              <Link href="/today" className="button primary">Share today’s quest</Link>
               <Link href="/random" className="button pink">Spin a random dare</Link>
               <Link href={`/dare/${featured.id}`} className="button secondary">Open featured dare</Link>
             </div>
 
             <div className="steps" aria-label="What the share kit covers">
-              <Step num="1" title="Direct" copy="Every challenge has its own friend-dare URL." />
-              <Step num="2" title="Previewable" copy="Dare links carry challenge-specific social cards." />
+              <Step num="1" title="Direct" copy="Every quest has its own friend-quest URL." />
+              <Step num="2" title="Previewable" copy="Quest links carry quest-specific social cards." />
               <Step num="3" title="Honest" copy="No fake wins, PGN homework, or serious training vibes." />
             </div>
           </article>

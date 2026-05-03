@@ -93,7 +93,7 @@ export function getVerifierStatus(challenge: Pick<Challenge, "id">) {
   return verifierStatusByChallenge[challenge.id] ?? {
     state: "spec",
     summary: "Verifier not specified yet",
-    evidence: "This challenge needs an explicit verifier contract before it can create automated receipts.",
+    evidence: "This quest needs an explicit verifier contract before it can create automated receipts.",
   };
 }
 

@@ -203,7 +203,7 @@ export default async function AccountPage() {
           </article>
 
           <article className="mission-card">
-            <span className="eyebrow">Active dare</span>
+            <span className="eyebrow">Active quest</span>
             <h2>{activeChallengeRecord?.title ?? "None active"}</h2>
             <p>{activeChallengeRecord?.objective ?? "Choose a side quest and start making questionable decisions."}</p>
             <Link href={activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/challenges"} className="button secondary">
