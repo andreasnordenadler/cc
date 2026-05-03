@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
+import { startChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 
 export function generateStaticParams() {
@@ -62,9 +64,12 @@ export default async function DarePage({
     notFound();
   }
 
+  const { userId } = await auth();
+  const isSignedIn = Boolean(userId);
+
   return (
     <main className="site-shell">
-      <SiteNav isSignedIn={false} active="challenges" />
+      <SiteNav isSignedIn={isSignedIn} active="challenges" />
 
       <div className="content-wrap">
         <section className="hero-grid">
@@ -75,7 +80,15 @@ export default async function DarePage({
               Someone thinks you should try <strong>{challenge.title}</strong>: {challenge.objective}
             </p>
             <div className="button-row hero-actions">
-              <Link href={`/challenges/${challenge.id}`} className="button primary">Accept this bad idea</Link>
+              {isSignedIn ? (
+                <form action={startChallenge}>
+                  <input type="hidden" name="challengeId" value={challenge.id} />
+                  <button type="submit" className="button primary">Accept and save this quest</button>
+                </form>
+              ) : (
+                <Link href="/connect" className="button primary">Connect to accept quest</Link>
+              )}
+              <Link href={`/challenges/${challenge.id}`} className="button secondary">Read full rules</Link>
               <Link href="/challenges" className="button secondary">Browse safer nonsense</Link>
             </div>
           </article>
@@ -107,7 +120,7 @@ export default async function DarePage({
             <div className="checker-flow" aria-label="Friend quest proof path">
               <div className="flow-step ready">
                 <strong>1 · Accept</strong>
-                <p>Open the full quest page and make this side quest active.</p>
+                <p>Save this exact dare as your active quest right from the friend page.</p>
               </div>
               <div className="flow-step hot">
                 <strong>2 · Play</strong>
@@ -119,7 +132,14 @@ export default async function DarePage({
               </div>
             </div>
             <div className="button-row">
-              <Link href="/account" className="button primary">Save and check quest</Link>
+              {isSignedIn ? (
+                <form action={startChallenge}>
+                  <input type="hidden" name="challengeId" value={challenge.id} />
+                  <button type="submit" className="button primary">Make this my active quest</button>
+                </form>
+              ) : (
+                <Link href="/connect" className="button primary">Connect to save quest</Link>
+              )}
               <Link href="/result" className="button secondary">Open receipt</Link>
             </div>
           </article>
