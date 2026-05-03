@@ -142,6 +142,11 @@ p { color: var(--muted); line-height: 1.5; }
 .big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .mission-card { padding: 18px; }
 .mission-card strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
+.active-quest-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.active-quest-title-row h2 { margin-bottom: 0; }
+.active-quest-badge .badge-reference-art { width: 74px; height: 74px; }
+.active-quest-badge .badge-shield { width: 52px; height: 60px; }
+.active-quest-badge .badge-token-motif { width: 35px; height: 35px; font-size: 21px; }
 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-size: 12px; font-weight: 850; }
 

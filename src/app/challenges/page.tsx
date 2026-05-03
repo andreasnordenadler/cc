@@ -86,13 +86,17 @@ export default async function ChallengesPage() {
         </section>
 
         {currentChallenge ? (
-          <section className="mission-card">
+          <section className="mission-card active-quest-card">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Continue now</span>
-                <h2>{currentChallenge.title}</h2>
+                <span className="eyebrow">Active quest</span>
+                <div className="active-quest-title-row">
+                  <span className="clean-quest-logo active-quest-badge" aria-hidden="true">
+                    <ChallengeBadge challenge={currentChallenge} earned={completedSet.has(currentChallenge.id)} />
+                  </span>
+                  <h2>{currentChallenge.title}</h2>
+                </div>
               </div>
-              <span className="badge green">active</span>
             </div>
             <p>{currentChallenge.objective}</p>
             <Link href={`/challenges/${currentChallenge.id}`} className="button primary">Continue quest</Link>
