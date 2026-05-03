@@ -41,7 +41,6 @@ export default async function Home() {
       <div className="content-wrap">
         <section className="hero-grid launch-home-hero clean-home-hero">
           <article className="hero-card simplified-home-hero">
-            <span className="eyebrow">Side Quest Chess</span>
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
               Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card.
@@ -55,7 +54,6 @@ export default async function Home() {
 
           <aside className="side-card card recommended-quests-panel">
             <div>
-              <span className="eyebrow">Recommended first quests</span>
               <h2>Start with one of these.</h2>
               <p>Three clear routes before the full chaos deck.</p>
             </div>
@@ -127,14 +125,12 @@ export default async function Home() {
 
         <section className="big-grid home-secondary-grid quieter-secondary-grid" aria-label="Useful Side Quest Chess routes">
           <article className="mission-card">
-            <span className="eyebrow">Badges</span>
             <h2>Collect proof you survived.</h2>
             <p>Completed quests unlock heraldic badge progress and bragging rights.</p>
             <Link href="/badges" className="button secondary">View badges</Link>
           </article>
 
           <article className="mission-card homepage-trust-card">
-            <span className="eyebrow">Trust basics</span>
             <h2>Public games only. No password nonsense.</h2>
             <p>
               Side Quest Chess checks public Lichess and Chess.com game records only. Testers should never share chess-site passwords; confusing receipts belong in the support packet with a screenshot.

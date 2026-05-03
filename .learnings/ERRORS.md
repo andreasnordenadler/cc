@@ -1747,3 +1747,11 @@ Use content markers that match the final shipped copy exactly.
 During the SQC homepage trust-card burst, `git push` from the dirty main checkout was rejected as non-fast-forward. A follow-up `git pull --rebase --autostash` was blocked by an untracked file that would be overwritten. I switched to a clean worktree from `origin/main`, but initially deployed from it before copying the canonical `.vercel/project.json`, causing Vercel to auto-link/create a temporary `homepage-trust-push` project. I corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and redeploying the canonical `cc` project.
 
 **Do differently**: For SQC isolated worktrees, copy canonical `.vercel/project.json` before any Vercel command, and prefer pushing from a clean `origin/main` worktree when the main checkout has unrelated dirty/untracked files.
+
+## [ERR-20260503-001] Missing node_modules in fresh SQC worktree
+
+**Logged**: 2026-05-03T10:18:00+02:00
+**Command**: `pnpm lint && pnpm build`
+**Symptom**: `eslint: command not found` because the new Git worktree had no `node_modules` yet.
+**Resolution**: Ran `pnpm install --frozen-lockfile` in the worktree, then reran verification.
+**Prevention**: For fresh CC/SQC worktrees, install dependencies before lint/build.
