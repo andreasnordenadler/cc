@@ -133,7 +133,7 @@ export default async function ChallengesPage() {
             <span className="badge green">private beta path</span>
           </div>
           <p>
-            The challenge hub now explains the whole tester loop before someone commits to a dare, so the next action is clear even before sign-in.
+            The quest hub now explains the whole tester loop before someone commits to a quest, so the next action is clear even before sign-in.
           </p>
           <div className="grid">
             {proofLoopSteps.map((step) => (
