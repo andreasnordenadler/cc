@@ -456,10 +456,11 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
   return (
     <Link
       href={`/challenges/${challenge.id}`}
-      className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""}`}
+      className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""} ${completed ? "completed-quest-card" : ""}`}
       aria-current={active ? "true" : undefined}
     >
       {active ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
+      {completed && !active ? <span className="completed-quest-stamp" aria-label="Completed quest" /> : null}
       <div className="card-meta quest-card-meta">
         <strong className="quest-points">+{challenge.reward} pts</strong>
         <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>
@@ -472,11 +473,7 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
           <em>{challenge.openingHint}</em>
         </div>
       </div>
-      {completed ? (
-        <div className="card-footer quest-state-row">
-          <span className="badge green">completed</span>
-        </div>
-      ) : null}
+
     </Link>
   );
 }
