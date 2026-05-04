@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
-import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
@@ -180,87 +179,7 @@ export default async function ChallengeDetailPage({
           </div>
         </section>
 
-        <section className="mission-card quest-detail-badge-card">
-          <div>
-            <span className="eyebrow">Badge reward</span>
-            <h2>{challenge.badge}</h2>
-            <p>{challenge.badgeIdentity.unlockCopy}</p>
-          </div>
-          <ChallengeBadge challenge={challenge} earned={isCompleted} size="hero" presentation="art" />
-          <div className="note-card">
-            <strong>{challenge.badgeIdentity.heraldry.motto}</strong>
-            <p>{challenge.badgeIdentity.heraldry.meaning}</p>
-            <p>{challenge.badgeIdentity.heraldry.weirdness}</p>
-          </div>
-        </section>
 
-        <section className="mission-card share-card quest-detail-section">
-          <span className="eyebrow">Send this quest</span>
-          <h2>Send this exact bad idea.</h2>
-          <p>
-            Side Quest Chess works better when the quest itself is the invite. This copies a direct quest link with the badge reward and rules intact.
-          </p>
-          <ChallengeInviteActions
-            challengeTitle={challenge.title}
-            challengeObjective={challenge.objective}
-            challengePath={`/dare/${challenge.id}`}
-            reward={challenge.reward}
-            badgeName={challenge.badgeIdentity.name}
-          />
-        </section>
-
-        <section className="mission-card quest-detail-section">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Your run</span>
-              <h2>{isCompleted ? "Completed and ready to brag" : isActive ? "This quest is active" : "Not active yet"}</h2>
-            </div>
-            <span className={`badge ${isCompleted ? "gold" : "blue"}`}>{isCompleted ? "completed" : challenge.completionRate}</span>
-          </div>
-
-          {isSignedIn ? (
-            <>
-              <div className="grid">
-                <Fact label="Lichess" value={lichessUsername || "not set yet"} />
-                <Fact label="Chess.com" value={chessComUsername || "not set yet"} />
-                <Fact label="Attempts" value={`${attempts.length}`} />
-                {isCompleted ? <Fact label="Reward banked" value={`+${challenge.reward} pts`} /> : null}
-              </div>
-              <div className="run-status">
-                <p>{challengeBanner(isActive ? activeChallenge : null)}</p>
-                {isActive ? (
-                  <div className="button-row">
-                    <Link href="/account" className="button secondary">Open active run</Link>
-                  </div>
-                ) : (
-                  <p className="muted">Start this side quest to unlock the latest-game checker for this quest.</p>
-                )}
-                {isCompleted ? (
-                  <article className="note-card latest-check">
-                    <span className="eyebrow">Completed quest</span>
-                    <h3>Badge earned. Receipt ready.</h3>
-                    <p>This quest is already in your completed set. Share the dare, compare proof cards, or pick the next bad idea when you want another run.</p>
-                    <div className="button-row">
-                      <Link href="/proof-log" className="button secondary">Open proof log</Link>
-                      <Link href="/challenges" className="button secondary">Pick another quest</Link>
-                    </div>
-                  </article>
-                ) : null}
-                <article className="note-card latest-check">
-                  <span className="eyebrow">Latest check</span>
-                  <h3>{latestAttemptSummary.headline}</h3>
-                  <p>{latestAttemptSummary.detail}</p>
-                  <small>{latestAttemptSummary.meta}</small>
-                </article>
-              </div>
-            </>
-          ) : (
-            <div className="run-status">
-              <p>Browse first. Connect only when you want Side Quest Chess to remember this chaos and turn it into proof.</p>
-              <p className="muted">Signed-in runners get a Check latest games button here after starting the quest.</p>
-            </div>
-          )}
-        </section>
       </div>
     </main>
   );
