@@ -97,12 +97,14 @@ p { color: var(--muted); line-height: 1.5; }
 .step p { margin-top: 5px; font-size: 13px; }
 
 .side-card { padding: 18px; display: grid; gap: 12px; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,95,159,.08)); }
-.challenge-card { padding: 18px; display: grid; gap: 10px; }
+.challenge-card { position: relative; min-height: 318px; height: 100%; padding: 18px; display: grid; gap: 10px; grid-template-rows: auto 1fr auto; overflow: visible; }
 .clickable-quest-card { cursor: pointer; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .clickable-quest-card:hover, .clickable-quest-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.105); outline: none; }
 .challenge-card.featured { background: linear-gradient(135deg, rgba(245,200,106,.25), rgba(255,95,159,.13), rgba(118,169,255,.1)); }
 .challenge-card.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 16% 10%, rgba(96,240,175,.28), transparent 34%), linear-gradient(135deg, rgba(96,240,175,.14), rgba(245,200,106,.12), rgba(255,255,255,.07)); box-shadow: 0 0 0 2px rgba(96,240,175,.28), 0 30px 90px rgba(0,0,0,.34), 0 0 42px rgba(96,240,175,.16); }
+.starter-route-card { position: relative; min-height: 300px; height: 100%; display: grid; grid-template-rows: auto auto auto 1fr auto; overflow: visible; }
 .starter-route-card.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 18% 12%, rgba(96,240,175,.24), transparent 38%), rgba(96,240,175,.12); box-shadow: 0 0 0 2px rgba(96,240,175,.24), 0 22px 56px rgba(0,0,0,.26); }
+.active-quest-stamp { position: absolute; right: 18px; bottom: 12px; z-index: 4; width: 128px; height: 58px; background: url('/active-quest-stamp.svg') center / contain no-repeat; filter: drop-shadow(0 14px 18px rgba(0,0,0,.35)); pointer-events: none; }
 .challenge-card-title-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
 .challenge-card-title-row > div { min-width: 0; display: grid; gap: 8px; }
 .challenge-card-title-row h3 { overflow-wrap: anywhere; }
@@ -145,8 +147,7 @@ p { color: var(--muted); line-height: 1.5; }
 .result-poster .badge-token-copy small, .result-poster .badge-token-copy em, .result-poster .badge-weirdness { color: rgba(20,13,13,.7); }
 .result-poster .badge-ribbon { background: rgba(20,13,13,.82); }
 .card-footer strong { color: var(--green); }
-.quest-state-row { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.11); justify-content: space-between; }
-.active-quest-inline { display: inline-flex; align-items: center; min-height: 28px; padding: 6px 10px; border-radius: 999px; background: rgba(96,240,175,.16); color: var(--green); border: 1px solid rgba(96,240,175,.38); font-size: 11px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
+.quest-state-row { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.11); justify-content: flex-start; }
 .link-button { appearance: none; border: 0; background: transparent; color: var(--gold); font-weight: 950; cursor: pointer; padding: 0; text-decoration: none; }
 .link-button:hover, .link-button:focus-visible { color: var(--ink); text-decoration: underline; outline: none; }
 .badge { display: inline-flex; align-items: center; justify-content: center; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; text-align: center; }
@@ -161,7 +162,7 @@ p { color: var(--muted); line-height: 1.5; }
 
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-.big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-auto-rows: 1fr; align-items: stretch; }
 .mission-card { padding: 18px; }
 .mission-card strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
 .active-quest-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }

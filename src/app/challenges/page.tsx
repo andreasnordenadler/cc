@@ -97,6 +97,7 @@ export default async function ChallengesPage() {
                   key={step.challengeId}
                   aria-current={isActive ? "true" : undefined}
                 >
+                  {isActive ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
                   <div className="card-meta quest-card-meta">
                     <strong className="quest-points">+{challenge.reward} pts</strong>
                     <span className={`badge difficulty-badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
@@ -104,10 +105,9 @@ export default async function ChallengesPage() {
                   <ChallengeBadge challenge={challenge} earned={isCompleted} presentation="art" />
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
-                  {(isActive || isCompleted) ? (
+                  {isCompleted ? (
                     <div className="card-footer quest-state-row">
-                      {isActive ? <span className="active-quest-inline">Active quest</span> : <span />}
-                      {isCompleted ? <span className="badge green">completed</span> : null}
+                      <span className="badge green">completed</span>
                     </div>
                   ) : null}
                 </Link>
@@ -153,6 +153,7 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
       className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""}`}
       aria-current={active ? "true" : undefined}
     >
+      {active ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
       <div className="card-meta quest-card-meta">
         <strong className="quest-points">+{challenge.reward} pts</strong>
         <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>
@@ -165,10 +166,9 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
           <em>{challenge.openingHint}</em>
         </div>
       </div>
-      {(active || completed) ? (
+      {completed ? (
         <div className="card-footer quest-state-row">
-          {active ? <span className="active-quest-inline">Active quest</span> : <span />}
-          {completed ? <span className="badge green">completed</span> : null}
+          <span className="badge green">completed</span>
         </div>
       ) : null}
     </Link>
