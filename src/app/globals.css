@@ -150,12 +150,12 @@ p { color: var(--muted); line-height: 1.5; }
 .link-button { appearance: none; border: 0; background: transparent; color: var(--gold); font-weight: 950; cursor: pointer; padding: 0; text-decoration: none; }
 .link-button:hover, .link-button:focus-visible { color: var(--ink); text-decoration: underline; outline: none; }
 .badge { display: inline-flex; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; }
-.badge.danger { background: var(--danger); }
-.badge.gold { background: var(--gold); }
-.badge.orange { background: var(--orange); }
-.badge.blue { background: var(--blue); }
-.badge.green { background: var(--green); }
-.badge.success { background: var(--green); }
+.badge.danger { background: var(--danger); color: #111; }
+.badge.gold { background: var(--gold); color: #111; }
+.badge.orange { background: var(--orange); color: #111; }
+.badge.blue { background: var(--blue); color: #111; }
+.badge.green { background: var(--green); color: #111; }
+.badge.success { background: var(--green); color: #111; }
 
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
