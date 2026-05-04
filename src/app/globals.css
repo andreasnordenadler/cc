@@ -162,7 +162,7 @@ p { color: var(--muted); line-height: 1.5; }
 
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-.big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); grid-auto-rows: 1fr; align-items: stretch; }
+.big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); grid-auto-rows: 1fr; align-items: stretch; }
 .mission-card { padding: 18px; }
 .mission-card strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
 .quest-filter-panel { display: grid; gap: 18px; }
