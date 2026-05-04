@@ -65,7 +65,11 @@ export default async function ChallengesPage() {
               </div>
             </div>
             <p>{currentChallenge.objective}</p>
-            <Link href={`/challenges/${currentChallenge.id}`} className="button primary">Continue quest</Link>
+            <div className="button-row">
+              <Link href="/account" className="button primary">Run latest-game check</Link>
+              <Link href={`/challenges/${currentChallenge.id}`} className="button secondary">Review quest rules</Link>
+              <Link href={`/dare/${currentChallenge.id}`} className="button pink">Share this dare</Link>
+            </div>
           </section>
         ) : null}
 

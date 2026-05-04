@@ -2117,3 +2117,65 @@ A bounded Vercel log check tried to use GNU `timeout`, which is not available by
 Use the OpenClaw exec timeout parameter instead of shell `timeout` on macOS.
 
 ---
+
+## [ERR-20260504-001] pnpm lint before install in fresh worktree
+
+**Logged**: 2026-05-04T13:52:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`pnpm lint && pnpm build` failed in a fresh SQC detached worktree because `node_modules` was not installed and `eslint` was missing.
+
+### Details
+Fresh `/private/tmp/sqc-burst-20260504-1344` worktree had `package.json` and lockfile but no dependencies. The correct retry path is `pnpm install --frozen-lockfile` before local verification.
+
+### Suggested Action
+For SQC clean/deploy worktrees, run `pnpm install --frozen-lockfile` before lint/build unless dependency presence has already been verified.
+
+### Metadata
+- Source: error
+- Related Files: package.json, pnpm-lock.yaml
+- Tags: pnpm, worktree, verification
+
+## [ERR-20260504-002] vercel logs --since unsupported by installed CLI mode
+
+**Logged**: 2026-05-04T13:57:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+SQC deploy smoke routes passed, but `vercel logs <deployment> --since 30m` failed because this Vercel CLI treats the command as follow-mode and says `--follow` does not support filtering.
+
+### Details
+The command emitted: `Error: The --follow flag does not support filtering. Remove: --since`. This made the combined smoke/log command exit non-zero even though HTTP route assertions were green.
+
+### Suggested Action
+For SQC deploy checks with the current Vercel CLI, use a supported logs invocation (for example bounded `vercel logs <deployment>` with timeout/no `--since`) or project log scripts instead of assuming `--since` works.
+
+### Metadata
+- Source: error
+- Related Files: .vercel/project.json
+- Tags: vercel, deploy-verify, logs
+
+## [ERR-20260504-003] GNU timeout unavailable on macOS shell
+
+**Logged**: 2026-05-04T13:58:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A deploy log retry used `timeout`, but this macOS environment does not provide GNU `timeout` by default.
+
+### Details
+The shell emitted `zsh: command not found: timeout`. Use the OpenClaw exec tool's `timeout` parameter instead of shell-level `timeout` on this host.
+
+### Suggested Action
+Prefer tool-managed command timeouts for bounded commands in macOS worktrees.
+
+### Metadata
+- Source: error
+- Tags: macos, shell, verification
