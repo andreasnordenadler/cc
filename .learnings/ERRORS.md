@@ -2211,3 +2211,41 @@ Run `pnpm install --frozen-lockfile` before lint/build in isolated CC worktrees.
 - Tags: pnpm, worktree, lint
 
 ---
+
+## [ERR-20260504-002] vercel_logs_since_filter_unsupported
+
+**Logged**: 2026-05-04T16:52:00+02:00
+**Priority**: low
+**Status**: handled
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 10m` failed because this Vercel CLI treats logs as follow-mode and does not support `--since` filtering there.
+
+### Suggested Action
+For bounded deploy watches, use a timeout-wrapped `vercel logs <deployment>` stream and scan captured output instead of adding `--since`.
+
+### Metadata
+- Source: error
+- Tags: vercel, logs, deploy-smoke
+
+---
+
+## [ERR-20260504-003] macos_timeout_not_available
+
+**Logged**: 2026-05-04T16:53:00+02:00
+**Priority**: low
+**Status**: handled
+**Area**: infra
+
+### Summary
+`timeout` was not available in the macOS zsh environment while trying to bound a Vercel log watch.
+
+### Suggested Action
+Use the OpenClaw exec tool's `timeout` parameter for bounded long-running commands on this host instead of shelling out to GNU `timeout`.
+
+### Metadata
+- Source: error
+- Tags: macos, shell, vercel
+
+---
