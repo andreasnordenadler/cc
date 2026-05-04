@@ -163,23 +163,21 @@ export default async function ChallengeDetailPage({
           </section>
         ) : null}
 
-        <section className="mission-card quest-detail-section" aria-label="Quest objective">
-          <span className="eyebrow">What you need to do</span>
-          <h2>Win with this exact constraint.</h2>
-          <p>{challenge.instruction}</p>
-          <div className="checker-flow quest-detail-flow">
-            <Fact label="1 · Start" value="Make this your one active quest so the checker knows which weird rule to judge." />
-            <Fact label="2 · Play" value="Play a real public Lichess or Chess.com game and try to satisfy the rule while winning." />
-            <Fact label="3 · Check" value="Return here or to your account page, run Check latest games, and read the receipt." />
-          </div>
-        </section>
-
         <section className="mission-card quest-detail-section">
           <span className="eyebrow">Rules</span>
           <h2>Funny, but rule-clear.</h2>
+          <p>{challenge.instruction}</p>
           <ul className="rules-list">
             {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
           </ul>
+          <div className="quest-run-flow">
+            <span className="eyebrow">How to run it</span>
+            <div className="checker-flow quest-detail-flow">
+              <Fact label="1 · Start" value="Make this your one active quest so the checker knows which weird rule to judge." />
+              <Fact label="2 · Play" value="Play a real public Lichess or Chess.com game and try to satisfy the rule while winning." />
+              <Fact label="3 · Refresh" value="Return here, refresh quest status, and read the latest receipt." />
+            </div>
+          </div>
         </section>
 
         <section className="mission-card quest-detail-badge-card">

@@ -246,6 +246,7 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-detail-section { display: grid; gap: 14px; }
 .quest-detail-flow { margin-top: 2px; }
 .quest-detail-flow .fact { background: rgba(0,0,0,.18); }
+.quest-run-flow { display: grid; gap: 10px; margin-top: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.11); }
 .quest-detail-main-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .quest-detail-badge-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; }
 .quest-detail-badge-card .note-card { grid-column: 1 / -1; }
