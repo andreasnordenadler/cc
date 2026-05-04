@@ -242,6 +242,7 @@ p { color: var(--muted); line-height: 1.5; }
 .provider-status-card { display: grid; gap: 4px; align-content: start; }
 .provider-status-card small { color: var(--muted); font-weight: 800; line-height: 1.35; }
 .quest-status-receipt { border-color: rgba(245,200,106,.24); background: rgba(245,200,106,.08); }
+.quest-status-refresh { justify-self: start; }
 .quest-detail-section { display: grid; gap: 14px; }
 .quest-detail-flow { margin-top: 2px; }
 .quest-detail-flow .fact { background: rgba(0,0,0,.18); }

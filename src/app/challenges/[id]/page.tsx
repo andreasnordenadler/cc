@@ -147,9 +147,6 @@ export default async function ChallengeDetailPage({
                 <h2>Latest-game checker</h2>
                 <p>{challengeBanner(activeChallenge)}</p>
               </div>
-              <form action={checkActiveChallenge}>
-                <button type="submit" className="button primary">Refresh</button>
-              </form>
             </div>
             <div className="quest-status-grid">
               <ProviderStatusCard provider="Lichess" username={lichessUsername} latestAttempt={latestLichessAttempt} />
@@ -163,6 +160,9 @@ export default async function ChallengeDetailPage({
               <p>{latestAttemptSummary.detail}</p>
               <small>{latestAttemptSummary.meta}</small>
             </article>
+            <form action={checkActiveChallenge} className="quest-status-refresh">
+              <button type="submit" className="button primary">Refresh</button>
+            </form>
           </section>
         ) : null}
 
