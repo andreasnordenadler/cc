@@ -102,7 +102,7 @@ export default async function ChallengeDetailPage({
       <SiteNav isSignedIn={isSignedIn} active="challenges" />
 
       <div className="content-wrap quest-detail-wrap">
-        <Link href="/challenges" className="button secondary back-to-hub">← Back to quest hub</Link>
+        <Link href="/challenges" className="button secondary back-to-hub">← Back to Quest Hub</Link>
 
         <section className={`hero-card detail-hero quest-detail-hero ${isActive ? "active-quest-card" : ""} ${isCompleted ? "completed-quest-card" : ""}`}>
           {isActive ? <span className="active-quest-stamp detail-state-stamp" aria-label="Active quest" /> : null}

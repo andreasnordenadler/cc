@@ -2249,3 +2249,18 @@ Use the OpenClaw exec tool's `timeout` parameter for bounded long-running comman
 - Tags: macos, shell, vercel
 
 ---
+
+## [ERR-20260504-001] git push non-fast-forward
+
+**Logged**: 2026-05-04T19:20:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: git
+
+### Summary
+Push from detached SQC worktree was rejected because origin/main advanced after the local commit.
+
+### Resolution
+Fetch/rebase or cherry-pick onto updated origin/main before pushing detached worktree commits.
+
+---
