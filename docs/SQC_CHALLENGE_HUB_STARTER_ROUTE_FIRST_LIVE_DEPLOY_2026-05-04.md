@@ -14,7 +14,12 @@ Private beta testers should not hit the whole chaos deck before seeing the guide
 - `pnpm lint` ✅
 - `pnpm build` ✅
 - Local runtime smoke attempted but blocked by missing Clerk publishable key in the isolated shell; production env smoke is required after deploy.
-- Pending live deploy/smoke: production `/challenges` should render `Recommended starter route` before `Full quest deck`, with `/account` and `/result` still returning 200.
+- Production deploy ✅ `https://cc-386fr0677-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke ✅ deploy `/challenges` returned 200 and rendered `Recommended starter route` before `Full quest deck`
+- Live smoke ✅ canonical `/challenges` returned 200 and rendered `Recommended starter route` before `Full quest deck`
+- Live smoke ✅ canonical `/account` returned 200
+- Live smoke ✅ canonical `/result` returned 200
+- Bounded Vercel log watch: no runtime log lines emitted during a 25s post-deploy stream before the intentional tool timeout.
 
 ## Files
 

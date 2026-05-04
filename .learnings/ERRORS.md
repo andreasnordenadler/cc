@@ -2024,3 +2024,12 @@ For bounded deploy checks, use an unfiltered short log stream with timeout or th
 **Failure**: Local server booted, but route requests failed because the isolated shell did not have Clerk `publishableKey` env configured.
 **Resolution**: Treat local runtime smoke as blocked in this environment; use `pnpm build` plus Vercel production deploy/live smoke where env is configured.
 **Prevention**: For SQC authenticated Next routes, prefer deploy/live smoke unless the worktree has Clerk env loaded.
+
+## [ERR-20260504-003] Repeated Vercel logs CLI filter/timeout gotcha during SQC deploy proof
+
+**Logged**: 2026-05-04T07:00:00+02:00
+**Project**: CC / Side Quest Chess
+**Commands**: `vercel logs <deployment> --since 20m` and `timeout 25 vercel logs ...`
+**Failure**: Vercel CLI rejected `--since` because logs streaming does not support filtering; macOS shell also lacked GNU `timeout`.
+**Resolution**: Used OpenClaw exec's own timeout around unfiltered `vercel logs <deployment>`; the stream emitted no runtime log lines before the bounded timeout.
+**Prevention**: For Vercel post-deploy log watches on this Mac, do not use `--since` or shell `timeout`; rely on tool-level timeout for bounded streams.
