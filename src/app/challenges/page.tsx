@@ -48,7 +48,6 @@ export default async function ChallengesPage() {
               <span className="eyebrow">Recommended starter route</span>
               <h2>Three picks that remove choice paralysis.</h2>
             </div>
-            <span className="badge blue">start here</span>
           </div>
           <p>
             New here? Start with these three quests if you want the smoothest first run: one simple win, one clean constraint, then one slightly suspicious king walk.
