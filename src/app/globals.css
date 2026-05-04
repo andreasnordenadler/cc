@@ -259,6 +259,12 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-switch-crest-card .challenge-badge-art.hero .badge-reference-art { width: min(150px, 34vw); max-height: 150px; }
 .quest-switch-arrow { color: var(--gold); font-size: 2rem; font-weight: 1000; }
 .quest-switch-actions { justify-content: flex-end; }
+.quest-deactivate-dialog { width: min(620px, 100%); }
+.quest-deactivate-crest-card { display: grid; justify-items: center; gap: 8px; margin: 4px 0 2px; padding: 18px; border-radius: 28px; border: 1px solid rgba(96,240,175,.24); background: radial-gradient(circle at 50% 0%, rgba(96,240,175,.13), transparent 42%), rgba(255,255,255,.065); text-align: center; }
+.quest-deactivate-crest-card .challenge-badge-art.hero { width: min(160px, 38vw); }
+.quest-deactivate-crest-card .challenge-badge-art.hero .badge-reference-art { width: min(160px, 38vw); max-height: 160px; }
+.quest-deactivate-crest-card strong { margin: 0; font-size: 1.1rem; line-height: 1.1; }
+.quest-deactivate-crest-card span { color: var(--muted); font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
 .rules-list { list-style: none; display: grid; gap: 9px; margin-top: 2px; }
 .rules-list li { padding: 12px; border-radius: 18px; background: rgba(255,255,255,.07); color: var(--muted); }
 .rules-list li::before { content: "✓"; color: var(--green); font-weight: 950; margin-right: 8px; }

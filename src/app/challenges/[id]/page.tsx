@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
-import { checkActiveChallenge, startChallenge } from "@/app/actions";
+import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 import {
@@ -132,14 +133,9 @@ export default async function ChallengeDetailPage({
             ) : (
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
-            <Link href={`/dare/${challenge.id}`} className="button secondary">Send to friend</Link>
+            <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Quest</Link>
             {isCompleted ? <Link href="/proof-log" className="button secondary">Proof log</Link> : null}
-            {isSignedIn && isActive ? (
-              <form action={startChallenge}>
-                <input type="hidden" name="challengeId" value={challenge.id} />
-                <button type="submit" className="button secondary">Restart</button>
-              </form>
-            ) : null}
+            {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
           </div>
         </section>
 

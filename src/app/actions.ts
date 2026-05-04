@@ -568,8 +568,35 @@ export async function startChallenge(formData: FormData) {
   });
 
   revalidatePath("/");
+  revalidatePath("/account");
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
+}
+
+export async function deactivateActiveChallenge(formData: FormData) {
+  const { userId, metadata } = await getUserContext();
+  const challengeId = String(formData.get("challengeId") ?? "");
+  const activeChallenge =
+    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+      ? (metadata.activeChallenge as { id?: string })
+      : null;
+
+  if (!activeChallenge?.id || activeChallenge.id !== challengeId) {
+    throw new Error("That quest is not currently active.");
+  }
+
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      ...metadata,
+      activeChallenge: null,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/account");
+  revalidatePath("/challenges");
+  revalidatePath(`/challenges/${challengeId}`);
 }
 
 export async function submitChallengeAttempt(formData: FormData) {
