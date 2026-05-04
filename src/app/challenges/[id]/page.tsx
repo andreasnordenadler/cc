@@ -9,7 +9,6 @@ import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
-import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -99,8 +98,6 @@ export default async function ChallengeDetailPage({
     activeChallenge?.id && activeChallenge.id !== challenge.id && !progress.completedChallengeIds.includes(activeChallenge.id)
       ? getChallengeById(activeChallenge.id)
       : null;
-  const verifierStatus = getVerifierStatus(challenge);
-  const verifierLabel = getVerifierStateLabel(verifierStatus);
 
   return (
     <main className="site-shell">
@@ -177,25 +174,12 @@ export default async function ChallengeDetailPage({
           </div>
         </section>
 
-        <section className="big-grid quest-detail-main-grid">
-          <article className="mission-card quest-detail-section">
-            <span className="eyebrow">Rules</span>
-            <h2>Funny, but rule-clear.</h2>
-            <ul className="rules-list">
-              {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
-            </ul>
-          </article>
-
-          <article className="mission-card quest-detail-section verifier-summary-card">
-            <span className="eyebrow">Proof check</span>
-            <h2>{verifierStatus.summary}</h2>
-            <p>{verifierStatus.evidence}</p>
-            <p>{verifierLabel.promise}</p>
-            <div className="button-row">
-              <Link href="/verifiers" className="button secondary">Open verifier board</Link>
-              <Link href="/result" className="button secondary">{isCompleted ? "Open proof card" : "Preview proof card"}</Link>
-            </div>
-          </article>
+        <section className="mission-card quest-detail-section">
+          <span className="eyebrow">Rules</span>
+          <h2>Funny, but rule-clear.</h2>
+          <ul className="rules-list">
+            {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
+          </ul>
         </section>
 
         <section className="mission-card quest-detail-badge-card">

@@ -247,7 +247,6 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-detail-flow { margin-top: 2px; }
 .quest-detail-flow .fact { background: rgba(0,0,0,.18); }
 .quest-detail-main-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-.verifier-summary-card { border-color: rgba(96,240,175,.2); background: radial-gradient(circle at 80% 0%, rgba(96,240,175,.12), transparent 34%), rgba(255,255,255,.075); }
 .quest-detail-badge-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; }
 .quest-detail-badge-card .note-card { grid-column: 1 / -1; }
 .quest-detail-badge-card .challenge-badge-art.hero { width: min(210px, 48vw); }
