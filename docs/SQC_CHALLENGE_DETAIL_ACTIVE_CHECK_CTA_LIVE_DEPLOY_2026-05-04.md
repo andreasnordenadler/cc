@@ -24,15 +24,15 @@ Private/friends beta testers should not accidentally restart or feel sent backwa
 
 ## Deployment
 
-- Commit: `05b52ae` (`Polish active quest detail CTA`)
+- Commit: `61fe386` (`Polish active quest detail CTA`)
 - Pushed to `origin/main`.
-- Production deploy: `https://cc-af9moz8bq-andreas-nordenadlers-projects.vercel.app`
+- Production deploy: `https://cc-52gpgnydw-andreas-nordenadlers-projects.vercel.app`
 - Aliased to: `https://sidequestchess.com` and `https://www.sidequestchess.com`
-- Vercel inspect: deployment `dpl_97oWM88PpHySJ3o29QuvvMuQqBdQ`, status `Ready`.
+- Vercel inspect: deployment `dpl_6HS9ZQy8y9PgysqZfb8fT1wHhWXD`, status `Ready`.
 
 ## Live smoke checklist
 
-- `https://cc-af9moz8bq-andreas-nordenadlers-projects.vercel.app/challenges/knights-before-coffee` returned 200 ✅
+- `https://cc-52gpgnydw-andreas-nordenadlers-projects.vercel.app/challenges/knights-before-coffee` returned 200 ✅
 - `https://sidequestchess.com/challenges/knights-before-coffee` returned 200 ✅
 - `https://sidequestchess.com/challenges` returned 200 ✅
 - `https://sidequestchess.com/result` returned 200 ✅
