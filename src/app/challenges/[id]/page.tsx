@@ -5,6 +5,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
+import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
@@ -89,6 +90,10 @@ export default async function ChallengeDetailPage({
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
   const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+  const unfinishedActiveChallenge =
+    activeChallenge?.id && activeChallenge.id !== challenge.id && !progress.completedChallengeIds.includes(activeChallenge.id)
+      ? getChallengeById(activeChallenge.id)
+      : null;
   const verifierStatus = getVerifierStatus(challenge);
   const verifierLabel = getVerifierStateLabel(verifierStatus);
 
@@ -122,10 +127,7 @@ export default async function ChallengeDetailPage({
                   <button type="submit" className="button primary">Check latest games</button>
                 </form>
               ) : (
-                <form action={startChallenge}>
-                  <input type="hidden" name="challengeId" value={challenge.id} />
-                  <button type="submit" className="button primary">Start quest</button>
-                </form>
+                <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
               )
             ) : (
               <Link href="/connect" className="button primary">Connect to start</Link>
