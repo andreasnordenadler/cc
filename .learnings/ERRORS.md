@@ -2179,3 +2179,12 @@ Prefer tool-managed command timeouts for bounded commands in macOS worktrees.
 ### Metadata
 - Source: error
 - Tags: macos, shell, verification
+
+## [ERR-20260504-001] `curl` unavailable on SQC smoke-check host
+
+**Logged**: 2026-05-04T15:44:00+02:00
+**Priority**: low
+
+During SQC live deploy smoke verification, a shell smoke script failed because `curl` is not installed in this OpenClaw runtime (`zsh: command not found: curl`). Retried successfully with a Python `urllib.request` smoke script instead.
+
+**Do differently**: prefer Python/Node HTTP checks in this workspace unless `curl` availability has been verified first.
