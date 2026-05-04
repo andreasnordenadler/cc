@@ -233,7 +233,7 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-detail-flavor { color: var(--ink); font-weight: 900; }
 .quest-detail-hero .challenge-badge-art.hero { justify-self: center; width: min(240px, 62vw); }
 .quest-detail-hero .challenge-badge-art.hero .badge-reference-art { width: min(240px, 62vw); max-height: 240px; }
-.detail-state-stamp { left: min(42%, 330px); top: 108px; width: min(76%, 270px); }
+.detail-state-stamp { left: min(42%, 330px); top: 138px; width: min(76%, 270px); }
 .quest-detail-hero .active-quest-stamp.detail-state-stamp { z-index: 7; transform: rotate(-10deg); }
 .quest-detail-actions { margin-top: 0; }
 .quest-detail-section { display: grid; gap: 14px; }
@@ -296,7 +296,7 @@ p { color: var(--muted); line-height: 1.5; }
   .hero-grid { grid-template-columns: 1fr; }
   .detail-hero-grid { grid-template-columns: 1fr; }
   .quest-detail-hero-grid, .quest-detail-badge-card { grid-template-columns: 1fr; }
-  .detail-state-stamp { left: 38px; top: 104px; width: min(76%, 220px); }
+  .detail-state-stamp { left: 38px; top: 124px; width: min(76%, 220px); }
   .quest-switch-crests { grid-template-columns: 1fr; }
   .quest-switch-arrow { transform: rotate(90deg); justify-self: center; }
   .steps { grid-template-columns: 1fr; }
