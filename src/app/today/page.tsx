@@ -4,7 +4,6 @@ import { auth } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
-import { startChallenge } from "@/app/actions";
 import { getDailyChallenge } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
@@ -40,8 +39,6 @@ export default async function TodayPage() {
   const challenge = getDailyChallenge();
   const verifierStatus = getVerifierStatus(challenge);
   const verifierLabel = getVerifierStateLabel(verifierStatus);
-  const accountActionHref = userId ? "/account" : "/connect";
-  const accountActionLabel = userId ? "Open account preflight" : "Connect username";
   const dateLabel = new Intl.DateTimeFormat("en", {
     weekday: "long",
     month: "short",
@@ -61,21 +58,13 @@ export default async function TodayPage() {
                 <span className="eyebrow">Daily side quest · {dateLabel}</span>
                 <span className="badge gold">+{challenge.reward} pts</span>
                 <span className="badge danger">{challenge.difficulty}</span>
+                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <h1>Today’s quest: {challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>
               <p>{challenge.flavor}</p>
               <div className="button-row hero-actions">
-                {userId ? (
-                  <form action={startChallenge}>
-                    <input type="hidden" name="challengeId" value={challenge.id} />
-                    <button type="submit" className="button primary">Make today’s quest active</button>
-                  </form>
-                ) : (
-                  <Link href="/connect" className="button primary">Connect to start today’s quest</Link>
-                )}
-                {userId ? <Link href="/connect" className="button secondary">Update chess account</Link> : null}
-                <Link href={`/challenges/${challenge.id}`} className="button secondary">Read exact rules</Link>
+                <Link href={`/challenges/${challenge.id}`} className="button primary">Start today’s quest</Link>
                 <Link href={`/dare/${challenge.id}`} className="button secondary">Open friend-quest page</Link>
               </div>
             </div>
@@ -83,56 +72,13 @@ export default async function TodayPage() {
           </div>
         </section>
 
-        <section className="mission-card" aria-label="Today quest readiness checklist">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Today readiness</span>
-              <h2>Do these three things before the receipt.</h2>
-            </div>
-            <span className="badge green">latest-game loop</span>
-          </div>
-          <p>
-            The daily quest now gives testers a plain preflight before they leave for Lichess or Chess.com, so the shared ritual does not turn into route hunting.
-          </p>
-          <div className="checker-flow" aria-label="Daily quest readiness steps">
-            <div className="flow-step ready">
-              <strong>1 · Save identity</strong>
-              <p>Add the public Lichess or Chess.com username SQC should check. No chess-site password, ever.</p>
-            </div>
-            <div className="flow-step hot">
-              <strong>2 · Play this quest</strong>
-              <p>Win one eligible public game while following today’s exact rule: {challenge.proofCallout.toLowerCase()}.</p>
-            </div>
-            <div className="flow-step ready">
-              <strong>3 · Run the receipt</strong>
-              <p>Return to Account and check latest games; the result page explains passed, failed, or pending.</p>
-            </div>
-          </div>
-          <div className="button-row">
-            {userId ? (
-              <form action={startChallenge}>
-                <input type="hidden" name="challengeId" value={challenge.id} />
-                <button type="submit" className="button primary">Set today as active quest</button>
-              </form>
-            ) : null}
-            <Link href={accountActionHref} className={userId ? "button secondary" : "button primary"}>{accountActionLabel}</Link>
-            <Link href={`/challenges/${challenge.id}`} className="button secondary">Read exact rules</Link>
-            <Link href="/result" className="button secondary">View latest receipt</Link>
-          </div>
-        </section>
-
         <section className="big-grid">
           <article className="mission-card share-card">
-            <span className="eyebrow">Daily loop</span>
-            <h2>One shared quest, one real game, one receipt.</h2>
+            <span className="eyebrow">Make it social</span>
+            <h2>Quest with someone today.</h2>
             <p>
-              Today is the low-friction ritual: connect a public chess username, play and win one eligible Lichess or Chess.com game for this quest, then check the latest-game receipt.
+              The daily page creates a simple ritual: everyone sees the same quest, then shares the exact quest page instead of a generic homepage link.
             </p>
-            <div className="button-row">
-              <Link href="/connect" className="button secondary">Connect account</Link>
-              <Link href={accountActionHref} className="button secondary">Check latest games</Link>
-              <Link href="/proof-log" className="button secondary">Proof log</Link>
-            </div>
             <ChallengeInviteActions
               challengeTitle={challenge.title}
               challengeObjective={challenge.objective}

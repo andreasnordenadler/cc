@@ -1,46 +1,30 @@
+# Learnings
 
-## [LRN-20260504-001] correction
+Corrections, insights, and knowledge gaps captured during development.
 
-**Logged**: 2026-05-04T19:24:00+02:00
-**Priority**: low
-**Status**: pending
-**Area**: frontend
-
-### Summary
-SQC back-link label should use title case: `Back to Quest Hub` with B/Q/H capitalized.
-
-### Details
-Andreas corrected the challenge detail back button from `Back to quest hub` to `Back to Quest Hub`.
-
-### Suggested Action
-Preserve title-case treatment for this navigation label in future SQC polish work.
-
-### Metadata
-- Source: user_feedback
-- Related Files: src/app/challenges/[id]/page.tsx
-- Tags: sqc, copy, casing
+**Categories**: correction | insight | knowledge_gap | best_practice
 
 ---
 
-## [LRN-20260504-002] correction
+## [LRN-20260426-001] best_practice
 
-**Logged**: 2026-05-04T19:42:00+02:00
-**Priority**: low
+**Logged**: 2026-04-26T20:48:00+02:00
+**Priority**: medium
 **Status**: pending
-**Area**: frontend
+**Area**: infra
 
 ### Summary
-For SQC active quest detail actions, `Restart` is ambiguous/risky; prefer `Deactivate` with confirmation, and use `Share this Quest` instead of `Send to friend`.
+Before touching domain backup configuration, check the latest same-day memory tail for fresh user clarifications.
 
 ### Details
-Andreas flagged the active quest hero action row as needing clearer intent. Deactivation should be explicit and confirmed before clearing the active quest.
+During SQC Phase 10, memory already recorded Andreas's clarification that `sqchess.com` should stay a simple GoDaddy redirect to `sidequestchess.com`, not a Vercel-hosted backup. A burst briefly re-added `sqchess.com`/`www.sqchess.com` to Vercel before noticing the clarification; the mistaken Vercel add was immediately removed.
 
 ### Suggested Action
-Use clearer verb-first product copy and add confirmation dialogs for actions that clear/switch active quest state.
+For active domain/deploy tasks, inspect the relevant same-day memory tail in addition to roadmap/control docs before making external configuration changes.
 
 ### Metadata
-- Source: user_feedback
-- Related Files: src/app/challenges/[id]/page.tsx, src/components/deactivate-quest-control.tsx
-- Tags: sqc, ux-copy, confirmation
+- Source: self_review
+- Related Files: ROADMAP.md, docs/SQC_PRODUCTION_DOMAIN_WIRING_BLOCKED_ON_DNS_2026-04-26.md
+- Tags: dns, vercel, memory
 
 ---

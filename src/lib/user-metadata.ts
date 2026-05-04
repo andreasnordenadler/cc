@@ -19,7 +19,6 @@ export type ChallengeAttempt = {
   id?: string;
   challengeId?: string;
   gameId?: string;
-  provider?: "lichess" | "chess.com" | "fixture";
   status?: string;
   summary?: string;
   checkedAt?: string;

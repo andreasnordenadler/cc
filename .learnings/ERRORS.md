@@ -1387,83 +1387,189 @@ Use a Python timeout wrapper for bounded Vercel log checks on macOS.
 
 ---
 
-## 2026-04-29 — Missing comma in beta copy edit
-- Context: While updating SQC private-beta copy in an isolated worktree, `pnpm lint` failed with `Parsing error: ',' expected` in `src/app/beta/page.tsx`.
-- Cause: Manual exact-text replacement removed the comma after a string property in the `betaChecklist` object.
-- Fix: Restored the comma and reran checks.
-- Prevention: For object-literal copy edits, inspect the edited hunk before running the full build.
+## [ERR-20260429-001] exec_wrong_workdir
 
-## 2026-04-29 — Curl unavailable in SQC deploy smoke shell
-- Context: After deploying SQC beta-copy polish, a smoke script using `curl` failed with `zsh: command not found: curl`.
-- Fix: Used Python `urllib.request` for HTTP/status/content smoke checks instead.
-- Prevention: In this environment, prefer Python HTTP smoke scripts when `curl` availability has not been confirmed.
+**Logged**: 2026-04-29T02:45:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tooling
 
-## 2026-04-29 — Vercel logs CLI rejected `--since`
-- Context: Tried to scan recent deployment logs with `vercel logs <deploy-url> --since 10m`.
-- Result: Vercel CLI 50.20.0 returned `The --follow flag does not support filtering. Remove: --since`.
-- Fix: Use a bounded `timeout` around plain `vercel logs <deploy-url>` for post-deploy watches, or use provider UI/API if time filtering is needed.
+### Summary
+A Python patch command failed because it was launched without the intended CC repo working directory.
 
-## [ERR-20260429-0942] Worktree deploy linked wrong Vercel project
+### Details
+The command tried to read `src/lib/chesscom.ts` from the default workspace root instead of `/Users/sam/.openclaw/workspace/cc`, causing `FileNotFoundError` before any file writes.
 
-**Logged**: 2026-04-29T09:58:00+02:00
+### Suggested Action
+For project file patches during autonomous bursts, always set the repo `workdir` explicitly on `exec` calls.
+
+---
+
+## [ERR-20260429-001] worktree_missing_node_modules
+
+**Logged**: 2026-04-29T05:46:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`pnpm lint` failed in a fresh CC deployment worktree because `node_modules` was absent and `eslint` was not installed there.
+
+### Details
+The isolated worktree was intentionally clean for a safe Vercel deploy, but unlike the shared checkout it had no dependencies installed. Targeted Node fixture tests ran, then `pnpm lint` failed with `sh: eslint: command not found` and pnpm warned that `node_modules` was missing.
+
+### Resolution
+Ran `pnpm install --frozen-lockfile` in the worktree, then reran `pnpm lint` and `pnpm build` successfully before deploying.
+
+### Suggested Action
+For future clean-worktree deploys, run `pnpm install --frozen-lockfile` before lint/build unless dependencies were already restored.
+
+### Metadata
+- Source: error
+- Related Files: .worktrees/onebishop-deploy
+- Tags: pnpm, worktree, deploy
+
+---
+
+## [ERR-20260429-002] clean_worktree_push_non_fast_forward
+
+**Logged**: 2026-04-29T05:49:00+02:00
 **Priority**: medium
+**Status**: resolved
+**Area**: infra
 
-In an isolated CC worktree, `npx vercel --prod --yes` auto-created and deployed to a throwaway Vercel project (`autoburst-20260429-0942`) because `.vercel/project.json` was not the canonical `cc` project link. Corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and redeploying; canonical deploy aliased to `https://sidequestchess.com`.
+### Summary
+Attempted to push a clean-worktree verifier deploy commit, but `origin/main` had advanced and the push was rejected non-fast-forward.
 
-**Do differently**: before any CC worktree Vercel deploy, verify `.vercel/project.json` contains `"projectName":"cc"` / project `prj_z4w2lp0MV5hJEhc3m7PN2CuH3d5w`.
+### Details
+A rebase attempt revealed the remote already contained newer verifier commits (`One Bishop`, `Knightmare`, `Blunder Gambit`) and conflict markers appeared in `ROADMAP.md`, the One Bishop proof doc, and `src/lib/chesscom.ts`. This also meant the first production deploy from the older isolated worktree risked omitting the newer Blunder Gambit verifier state.
 
-## [ERR-20260429-001] curl_missing_in_sqc_worktree
+### Resolution
+Aborted the rebase, reset the deployment worktree hard to latest `origin/main`, reran `pnpm lint` and `pnpm build`, redeployed production, and smoke-checked both One Bishop and Blunder Gambit live routes.
 
-**Logged**: 2026-04-29T13:49:00Z
+### Suggested Action
+Before deploying from a long-lived clean worktree, always `git fetch origin main` and verify the worktree is based on current `origin/main`; if the remote advanced, deploy latest remote rather than pushing/rebasing stale duplicated changes.
+
+### Metadata
+- Source: error
+- Related Files: ROADMAP.md, src/lib/chesscom.ts
+- Tags: git, vercel, worktree, deployment
+
+---
+
+## [ERR-20260430-001] vercel-deploy-stale-dirty-checkout
+
+**Logged**: 2026-04-30T05:05:00+02:00
+**Priority**: high
+**Status**: pending
+**Area**: infra
+
+### Summary
+A Vercel production deploy from the dirty main checkout first failed because `.worktrees/` made the request body too large, then risked regressing newer `origin/main` changes because local `main` was behind remote.
+
+### Error
+```
+vercel --prod --yes
+Error: Request body too large. Limit: 10mb
+```
+
+### Context
+- Project: CC / Side Quest Chess.
+- Local checkout contained large `.worktrees/` and was behind `origin/main`.
+- Recovery: deployed clean isolated worktree from `origin/main` (`a2e401e`) and verified production alias restored the latest full dual-host deck.
+
+### Suggested Fix
+For SQC production deploys, fetch first and prefer a clean worktree from `origin/main` (or the exact intended commit) with `.vercel/project.json` copied in. Do not deploy from a stale dirty checkout just because local tests pass.
+
+### Metadata
+- Reproducible: yes
+- Related Files: .vercelignore, .worktrees/
+- Tags: vercel, deployment, worktree, dirty-checkout
+
+---
+
+## [ERR-20260430-001] autonomous_sqc_deploy_verification
+
+**Logged**: 2026-04-30T14:00:00+02:00
+**Priority**: medium
+**Status**: resolved
+**Area**: infra
+
+### Summary
+A deploy smoke command assumed `curl` existed on this host, but the shell returned `command not found`; a later `git push` from the dirty root checkout was rejected because `origin/main` had advanced.
+
+### Error
+```text
+zsh:9: command not found: curl
+git push rejected: non-fast-forward
+```
+
+### Context
+- During an SQC autonomous burst after a Vercel deployment.
+- Replaced curl smoke checks with a Node `fetch` script.
+- Resolved git divergence by moving integration to a clean worktree based on `origin/main`, committing there, and pushing `HEAD:main`.
+
+### Suggested Fix
+For SQC/CC deploy bursts, prefer Node fetch smoke scripts over assuming `curl`, and integrate/push from a clean `origin/main` worktree when the root checkout is dirty or behind.
+
+### Metadata
+- Reproducible: yes
+- Related Files: ROADMAP.md, src/app/page.tsx
+
+---
+
+## [ERR-20260501-001] git_push_non_fast_forward_during_sqc_burst
+
+**Logged**: 2026-05-01T21:08:00+02:00
+**Priority**: medium
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`git push origin main` from the dirty primary CC checkout was rejected because `origin/main` had advanced.
+
+### Error
+```text
+! [rejected] main -> main (fetch first)
+error: failed to push some refs
+```
+
+### Context
+- During an autonomous SQC burst, local `main` had an account-page starter-route commit while remote `main` already had newer SQC launch-readiness commits.
+- To avoid disturbing dirty local checkout state, resolved by creating a clean worktree from `origin/main`, cherry-picking the change, resolving the roadmap conflict, re-running install/lint/build, pushing `HEAD:main`, and redeploying from the merged worktree.
+
+### Suggested Fix
+For CC bursts when `git status` is already dirty or remote may be active, prefer a clean `origin/main` worktree before committing/pushing/deploying.
+
+### Metadata
+- Reproducible: yes
+- Related Files: ROADMAP.md, src/app/account/page.tsx
+
+---
+
+## [ERR-20260502-001] isolated_worktree_dependency_bootstrap
+
+**Logged**: 2026-05-02T18:50:00+02:00
 **Priority**: low
 **Status**: pending
 **Area**: infra
 
 ### Summary
-Attempted SQC live smoke with `curl`, but this Mac shell reported `command not found: curl`.
-
-### Suggested Action
-Use Python urllib or another available HTTP client for smoke checks in this environment instead of assuming curl is installed.
-
----
-
-## [ERR-20260429-002] sqc_worktree_missing_node_modules
-
-**Logged**: 2026-04-29T13:55:00Z
-**Priority**: low
-**Status**: pending
-**Area**: tests
-
-### Summary
-`pnpm lint && pnpm build` failed in a fresh SQC deployment worktree because `node_modules` was not installed, so `eslint` was unavailable.
-
-### Suggested Action
-Run `pnpm install --frozen-lockfile` in clean SQC worktrees before local verification, or reuse an already prepared worktree when safe.
-
----
-
-## [ERR-20260429-001] clean_worktree_missing_node_modules
-
-**Logged**: 2026-04-29T15:50:00Z
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-`pnpm lint` failed in a newly-created clean CC worktree because dependencies were not installed there.
+Running `pnpm lint` in a fresh isolated CC worktree failed because `node_modules` was absent.
 
 ### Error
-```text
+```
 sh: eslint: command not found
 WARN Local package.json exists, but node_modules missing, did you mean to install?
 ```
 
 ### Context
 - Command attempted: `pnpm lint && pnpm build`
-- Worktree: `.worktrees/beta-retake-guidance`
+- Worktree: `cc/.worktrees/sqc-icon-deploy-20260502`
+- Resolved by running `pnpm install --frozen-lockfile` before lint/build.
 
 ### Suggested Fix
-Run `pnpm install --frozen-lockfile` in clean deployment worktrees before lint/build checks.
+For clean SQC deploy worktrees, run `pnpm install --frozen-lockfile` before `pnpm lint`/`pnpm build` unless `node_modules` is explicitly copied or present.
 
 ### Metadata
 - Reproducible: yes
@@ -1471,844 +1577,99 @@ Run `pnpm install --frozen-lockfile` in clean deployment worktrees before lint/b
 
 ---
 
-## [ERR-20260429-001] vercel_worktree_auto_link
+## [ERR-20260502-002] vercel_logs_filter_timeout_macos
 
-**Logged**: 2026-04-29T19:42:00+02:00
-**Priority**: medium
-**Status**: resolved
+**Logged**: 2026-05-02T18:50:00+02:00
+**Priority**: low
+**Status**: pending
 **Area**: infra
 
 ### Summary
-A Vercel production deploy from a clean CC worktree auto-linked a temporary project because `.vercel/project.json` was missing.
+Two log-scan helper assumptions failed during SQC deploy verification: `vercel logs --since` is unsupported with follow-mode behavior, and macOS does not provide GNU `timeout` by default.
 
-### Details
-The intended target was the canonical `cc` Vercel project / `sidequestchess.com`. Running `vercel --prod --yes` before copying the canonical project link created/deployed `burst-20260429-1742` instead. The canonical deploy was corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and rerunning `vercel --prod --yes`, which aliased `https://sidequestchess.com` correctly.
+### Error
+```
+Error: The --follow flag does not support filtering. Remove: --since
+zsh:1: command not found: timeout
+```
 
-### Suggested Action
-For every isolated CC worktree deploy, copy the canonical `.vercel/project.json` before the first Vercel command, matching the existing workspace TOOLS.md note.
+### Context
+- Intended bounded Vercel runtime log watch after production deploy.
+- Resolved by running `vercel logs <deployment>` under the OpenClaw exec timeout instead.
+
+### Suggested Fix
+Use OpenClaw `exec` timeout for bounded Vercel log watches on macOS; do not rely on GNU `timeout` or `vercel logs --since`.
 
 ### Metadata
-- Source: error
-- Related Files: /Users/sam/.openclaw/workspace/TOOLS.md, .vercel/project.json
-- Tags: vercel, worktree, deployment
+- Reproducible: yes
+- Related Files: docs/SQC_LOGO_FAVICON_LAUNCH_POLISH_2026-05-02.md
 
 ---
 
-## [ERR-20260429-2042] pnpm_lint_missing_node_modules_in_clean_worktree
+## [ERR-20260504-001] vercel logs filter flags
 
-**Logged**: 2026-04-29T20:43:00+02:00
+**Logged**: 2026-05-04T23:05:00+02:00
 **Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-`pnpm lint` failed in a fresh CC isolated git worktree because `node_modules` was not installed there (`eslint: command not found`).
-
-### Details
-Clean worktrees under `cc/.worktrees/*` do not inherit the parent checkout's `node_modules`. Run `pnpm install --frozen-lockfile` before lint/build in a new worktree.
-
-### Suggested Action
-For future CC clean-worktree bursts, install dependencies first or verify `node_modules/.bin/eslint` exists before running checks.
-
-### Metadata
-- Source: error
-- Related Files: package.json, pnpm-lock.yaml
-- Tags: pnpm, worktree, lint
-
----
-
-## [ERR-20260429-2047] vercel_logs_since_flag_unsupported
-
-**Logged**: 2026-04-29T20:47:00+02:00
-**Priority**: low
-**Status**: resolved
+**Status**: pending
 **Area**: infra
 
 ### Summary
-`vercel logs <deployment-url> --since 5m` failed because this Vercel CLI treats logs as follow-mode by default and does not support filtering with `--since`.
+`vercel logs <deployment> --since 10m --limit 50` failed because this Vercel CLI treats logs as follow-mode and does not support filtering flags there.
 
 ### Details
-For quick post-deploy verification in this CC project, use direct route smoke checks as the smallest reliable proof, or inspect Vercel logs without unsupported filters.
+During SQC deploy verification, the CLI returned: `The --follow flag does not support filtering. Remove: --since, --limit`.
 
 ### Suggested Action
-Do not add `--since` to `vercel logs` in this CLI unless help output confirms support for non-follow filtered logs.
+For bounded post-deploy checks, use an unfiltered short `vercel logs <deployment>`/provider dashboard method or rely on live route smoke if logs filtering is unavailable.
 
 ### Metadata
 - Source: error
-- Related Files: docs/SQC_PRIVATE_BETA_FIRST_WAVE_SCORECARD_LIVE_DEPLOY_2026-04-29.md
+- Related Files: docs/SQC_NAV_SUPPORT_QUEST_LANGUAGE_LAUNCH_POLISH_2026-05-04.md
 - Tags: vercel, logs, deploy-verify
 
 ---
 
-## [ERR-20260429-2342] Worktree missing node_modules before lint
+## [ERR-20260504-002] git push non-fast-forward
 
-**Logged**: 2026-04-29T23:42:00+02:00
-**Priority**: low
-
-A fresh isolated git worktree for CC did not have `node_modules`, so `pnpm lint` failed with `eslint: command not found`. Run `pnpm install --frozen-lockfile` in clean worktrees before verification.
-
-## [ERR-20260430-001] cc_worktree_verification_and_deploy_context
-
-**Logged**: 2026-04-30T03:52:00+02:00
-**Priority**: medium
-**Status**: resolved
-**Area**: infra
-
-### Summary
-Clean SQC deploy worktree initially had no `node_modules`, and first Vercel deploy auto-linked a throwaway project instead of canonical `cc`.
-
-### Details
-- `pnpm lint` failed with `eslint: command not found` because the isolated worktree had not run `pnpm install --frozen-lockfile`.
-- `vercel --prod --yes` from the isolated worktree created/deployed project `autoburst-20260430-0342` because `.vercel/project.json` was absent.
-- Corrected by installing dependencies, copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json`, and redeploying to canonical project `cc`.
-
-### Suggested Action
-For future SQC isolated worktree deploys, run `pnpm install --frozen-lockfile` before local gates and copy the canonical `.vercel/project.json` before any Vercel deploy.
-
-### Metadata
-- Source: error
-- Related Files: `.vercel/project.json`, `src/app/result/page.tsx`
-- Tags: vercel, worktree, cc, deployment
-
----
-
-## [ERR-20260430-1448] vercel_logs_since_flag_incompatibility
-
-**Logged**: 2026-04-30 14:48 Europe/Stockholm
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-`vercel logs <deployment-url> --since 30m` failed because this Vercel CLI mode treats logs as a follow stream and does not support `--since` filtering.
-
-### Details
-During the SQC challenge-detail proof-path deploy smoke, the deploy and route smoke passed, but the first bounded log scan command exited with: `The --follow flag does not support filtering. Remove: --since`.
-
-### Suggested Action
-For bounded Vercel deploy log checks, run `vercel logs <deployment-url>` under an external time-bound wrapper instead of adding `--since`.
-
-### Metadata
-- Source: error
-- Related Files: docs/SQC_CHALLENGE_DETAIL_FIRST_PROOF_PATH_LIVE_DEPLOY_2026-04-30.md
-- Tags: vercel, logs, deploy-smoke
-
----
-
-## [ERR-20260430-1449] zsh_status_readonly_variable
-
-**Logged**: 2026-04-30 14:49 Europe/Stockholm
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-A retry script assigned to `status` in zsh, which is a read-only shell variable.
-
-### Details
-The Vercel log-scan retry used `status=$?` under zsh and failed with `read-only variable: status`.
-
-### Suggested Action
-Use `rc` or run small shell control scripts under `bash -lc` when capturing command exit codes in this environment.
-
-### Metadata
-- Source: error
-- Related Files: docs/SQC_CHALLENGE_DETAIL_FIRST_PROOF_PATH_LIVE_DEPLOY_2026-04-30.md
-- Tags: zsh, shell, deploy-smoke
-
----
-
-## [ERR-20260430-1450] macos_timeout_command_missing
-
-**Logged**: 2026-04-30 14:50 Europe/Stockholm
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-`timeout` is not available by default on this macOS environment.
-
-### Details
-A bounded Vercel log-scan retry attempted `timeout 25s vercel logs ...` and failed with `bash: timeout: command not found`.
-
-### Suggested Action
-Use a small Node wrapper with `child_process.spawn` and `setTimeout(...kill...)` for bounded stream commands on this Mac.
-
-### Metadata
-- Source: error
-- Related Files: docs/SQC_CHALLENGE_DETAIL_FIRST_PROOF_PATH_LIVE_DEPLOY_2026-04-30.md
-- Tags: macos, shell, bounded-streams
-
----
-
-## [ERR-20260430-1451] zsh_glob_bracket_path
-
-**Logged**: 2026-04-30 14:51 Europe/Stockholm
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-`git add src/app/challenges/[id]/page.tsx ...` failed in zsh because the bracketed dynamic route segment was interpreted as a glob.
-
-### Details
-The first commit attempt failed with `zsh:1: no matches found: src/app/challenges/[id]/page.tsx`.
-
-### Suggested Action
-Quote Next.js dynamic route paths in shell commands, e.g. `git add 'src/app/challenges/[id]/page.tsx'`.
-
-### Metadata
-- Source: error
-- Related Files: src/app/challenges/[id]/page.tsx
-- Tags: zsh, nextjs, git
-
----
-
-## [ERR-20260430-1648] cc_worktree_lint_without_node_modules
-
-**Logged**: 2026-04-30T16:48:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-`pnpm lint` failed in a fresh isolated CC worktree because `node_modules` was not installed there.
-
-### Details
-The command returned `sh: eslint: command not found` with pnpm's missing-node_modules warning. Running `pnpm install --frozen-lockfile` in the worktree resolved it, after which `pnpm lint` and `pnpm build` passed.
-
-### Suggested Action
-For clean CC deploy worktrees, run `pnpm install --frozen-lockfile` before lint/build unless dependencies are already present in that worktree.
-
-### Metadata
-- Source: error
-- Related Files: package.json, pnpm-lock.yaml
-- Tags: cc, pnpm, worktree, lint
-
----
-
-## [ERR-20260430-1651] cc_vercel_log_scan_cli_gotchas
-
-**Logged**: 2026-04-30T16:51:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-Two bounded Vercel log-scan attempts had CLI/environment gotchas in the CC deploy worktree.
-
-### Details
-The local zsh environment did not have GNU `timeout`, and `vercel logs <deployment> --since 10m` failed because this Vercel CLI treats logs as follow-mode and does not support filtering with `--since`. Running `vercel logs <deployment>` with the exec-level timeout streamed from the fresh deployment and emitted no runtime error lines before the bounded timeout killed the stream.
-
-### Suggested Action
-For CC deploy proof, use OpenClaw exec/process timeout around plain `vercel logs <deployment>` instead of shell `timeout` or `--since` filtering.
-
-### Metadata
-- Source: error
-- Related Files: docs/SQC_CHALLENGE_HUB_PROOF_LOOP_GUIDANCE_LIVE_DEPLOY_2026-04-30.md
-- Tags: cc, vercel, logs, smoke
-
----
-
-## [ERR-20260501-004] SQC smoke assertion drift
-
-**Logged**: 2026-05-01T14:23:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-A live content smoke assertion expected the older phrase `win one eligible public game`, but the deployed copy says `Win a public game` / `win`. HTTP route smokes had passed; the failure was the assertion string, not the deployment.
-
-### Resolution
-Use content markers that match the final shipped copy exactly.
-
----
-
-## [ERR-20260502-001] clean worktree missing dependencies before verification
-
-**Logged**: 2026-05-02T02:52:00+02:00
-**Context**: SQC beta simplification deploy worktree.
-**Failure**: `pnpm lint && pnpm build` failed because the isolated git worktree had no `node_modules` (`eslint: command not found`).
-**Fix**: Run `pnpm install --frozen-lockfile` in newly-created deploy worktrees before lint/build.
-
-## [ERR-20260502-002] Vercel logs CLI does not accept --since in deployment follow mode
-
-**Logged**: 2026-05-02T03:00:00+02:00
-**Context**: SQC post-deploy smoke for `cc-hdwpy0ppc`.
-**Failure**: `vercel logs <deployment> --since 10m` failed with `The --follow flag does not support filtering. Remove: --since`.
-**Fix**: Use `--no-follow` for filtered historical Vercel log scans, e.g. `vercel logs --environment production --level error --since 10m --no-follow --no-branch --limit 20`.
-
-## [ERR-20260503-001] Git/Vercel worktree deploy pitfalls during SQC burst
-
-**Logged**: 2026-05-03T03:25:00+02:00
-**Priority**: medium
-
-During the SQC homepage trust-card burst, `git push` from the dirty main checkout was rejected as non-fast-forward. A follow-up `git pull --rebase --autostash` was blocked by an untracked file that would be overwritten. I switched to a clean worktree from `origin/main`, but initially deployed from it before copying the canonical `.vercel/project.json`, causing Vercel to auto-link/create a temporary `homepage-trust-push` project. I corrected by copying `/Users/sam/.openclaw/workspace/cc/.vercel/project.json` into the worktree and redeploying the canonical `cc` project.
-
-**Do differently**: For SQC isolated worktrees, copy canonical `.vercel/project.json` before any Vercel command, and prefer pushing from a clean `origin/main` worktree when the main checkout has unrelated dirty/untracked files.
-
-## [ERR-20260503-001] Missing node_modules in fresh SQC worktree
-
-**Logged**: 2026-05-03T10:18:00+02:00
-**Command**: `pnpm lint && pnpm build`
-**Symptom**: `eslint: command not found` because the new Git worktree had no `node_modules` yet.
-**Resolution**: Ran `pnpm install --frozen-lockfile` in the worktree, then reran verification.
-**Prevention**: For fresh CC/SQC worktrees, install dependencies before lint/build.
-
-## [ERR-20260503-002] vercel_logs_since_filter
-
-**Logged**: 2026-05-03T13:00:00+02:00
-**Priority**: low
-**Status**: pending
-**Area**: infra
-
-### Summary
-`vercel logs <deployment> --since 10m` failed because this installed Vercel CLI treats logs as follow-mode and does not support `--since` filtering.
-
-### Error
-```text
-Error: The --follow flag does not support filtering. Remove: --since
-```
-
-### Context
-- Command attempted after production deploy for SQC share-kit burst.
-- The live smoke had already passed; this was an optional bounded log scan.
-
-### Suggested Fix
-Use unfiltered `vercel logs <deployment>` with a short timeout, or another supported Vercel log command syntax for this CLI version.
-
-### Metadata
-- Reproducible: yes
-- Related Files: docs/SQC_SHARE_KIT_TEN_SECOND_FRIEND_DARE_LOCAL_PROOF_2026-05-03.md
-
----
-
-## [ERR-20260503-003] macos_timeout_missing
-
-**Logged**: 2026-05-03T13:01:00+02:00
-**Priority**: low
-**Status**: pending
-**Area**: infra
-
-### Summary
-The GNU `timeout` command is not available in this macOS shell when trying to bound `vercel logs`.
-
-### Error
-```text
-zsh:31: command not found: timeout
-```
-
-### Context
-- Command attempted: `timeout 15 vercel logs <deployment>`
-- Environment: Darwin/macOS workspace.
-
-### Suggested Fix
-Use Python `subprocess.run(..., timeout=N)` or OpenClaw exec `timeout` parameter instead of relying on GNU `timeout` on macOS.
-
-### Metadata
-- Reproducible: yes
-
----
-
-
-## [ERR-20260503-004] git_add_absolute_file_outside_repo
-
-**Logged**: 2026-05-03T13:08:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: git
-
-### Summary
-Tried to `git add` workspace memory from inside the CC worktree, but the memory file is outside the repository.
-
-### Error
-```text
-fatal: /Users/sam/.openclaw/workspace/memory/2026-05-03.md: is outside repository
-```
-
-### Suggested Fix
-Commit repo docs separately, and update workspace memory outside the project git operation.
-
----
-
-## [ERR-20260503-1344] pnpm_lint_missing_node_modules
-
-**Logged**: 2026-05-03T13:44:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-`pnpm lint` failed in a fresh CC worktree because `node_modules` was missing and `eslint` was not installed locally.
-
-### Resolution
-Run `pnpm install --frozen-lockfile` before lint/build in newly-created isolated CC worktrees.
-
----
-
-## [ERR-20260503-1345] macos_timeout_missing
-
-**Logged**: 2026-05-03T13:45:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-A bounded Vercel log command used GNU `timeout`, which is not available by default in this macOS/zsh environment.
-
-### Resolution
-Use tool-level timeouts/yield windows or native command flags instead of shell `timeout` on this host.
-
----
-
-## [ERR-20260503-001] vercel_worktree_project_link
-
-**Logged**: 2026-05-03T14:44:00+02:00
+**Logged**: 2026-05-04T23:10:00+02:00
 **Priority**: medium
 **Status**: pending
 **Area**: infra
 
 ### Summary
-An isolated CC worktree deployed to a temporary Vercel project because `.vercel/` did not exist before copying the canonical `project.json`.
+`git push` from SQC main was rejected because remote `main` had new commits.
 
 ### Details
-The script used `cp cc/.vercel/project.json WT/.vercel/project.json 2>/dev/null || true`; because `WT/.vercel/` was missing, the copy silently failed. `vercel --prod --yes` then auto-linked and created a new temporary project named after the worktree. The deploy was repeated successfully after `mkdir -p .vercel` and copying the canonical `cc` project link.
+The push returned non-fast-forward. The right follow-up is to fetch/rebase or inspect remote commits before pushing, while preserving unrelated dirty local files.
 
 ### Suggested Action
-For CC isolated worktrees, always run `mkdir -p .vercel && cp /Users/sam/.openclaw/workspace/cc/.vercel/project.json .vercel/project.json && cat .vercel/project.json` before any Vercel deploy.
+Before autonomous commits on busy repos, run `git fetch` and check `git status -sb`/ahead-behind to reduce late push conflicts.
 
 ### Metadata
 - Source: error
-- Related Files: .vercel/project.json, TOOLS.md
-- Tags: vercel, worktree, deploy
+- Related Files: ROADMAP.md, docs/SQC_NAV_SUPPORT_QUEST_LANGUAGE_LAUNCH_POLISH_2026-05-04.md
+- Tags: git, push, rebase
 
 ---
 
-## [ERR-20260503-001] worktree-lint-without-node-modules
+## [ERR-20260504-003] Vercel free deployment quota reached during restore
 
-**Logged**: 2026-05-03T16:50:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-Fresh SQC deploy worktrees need `pnpm install --frozen-lockfile` before running lint/build.
-
-### Error
-`pnpm lint` failed with `sh: eslint: command not found` because node_modules were not installed in the new worktree.
-
-### Context
-- Command attempted first: `pnpm lint && pnpm build`
-- Worktree: `cc/.worktrees/autoburst-20260503-1644`
-
-### Suggested Fix
-Run `pnpm install --frozen-lockfile` immediately after creating a clean CC worktree, then run lint/build.
-
-### Metadata
-- Reproducible: yes
-- Related Files: package.json, pnpm-lock.yaml
-
----
-
-## [ERR-20260503-001] git_push_non_fast_forward_and_vercel_logs_flag
-
-**Logged**: 2026-05-03T19:54:00+02:00
-**Priority**: low
-**Status**: resolved
+**Logged**: 2026-05-04T23:44:00+02:00
+**Priority**: high
+**Status**: mitigated
 **Area**: infra
 
 ### Summary
-SQC hotfix push from a clean worktree was rejected because `origin/main` advanced after the worktree was created; a Vercel logs command also failed because this CLI treats `--since` as filtering with follow.
+A restore deploy from a clean `origin/main` worktree failed with `api-deployments-free-per-day` because the Vercel free deployment quota was exhausted.
 
 ### Details
-Resolved by fetching/rebasing the single local commit onto current `origin/main`, rerunning `pnpm lint` and `pnpm build`, then pushing successfully. For logs, avoid `vercel logs <deployment> --since ...` in this installed CLI unless using a supported non-following mode.
+The safe mitigation was to re-alias the already-existing latest remote-main deployment (`cc-c9r44q3y8...`) back to `sidequestchess.com`, which succeeded without creating a new deployment.
 
 ### Suggested Action
-For fast SQC visual hotfixes, fetch immediately before commit/push, and rebase if `origin/main` moves. Use deployment inspect/readiness and route smoke as the primary quick deploy gate when Vercel logs CLI behavior is incompatible.
-
-### Metadata
-- Source: command failure
-- Related Files: src/app/challenges/page.tsx, src/app/globals.css
-- Tags: git, vercel, sqc
----
-
-## [ERR-20260503-001] cc_vercel_logs_and_smoke_assertions
-
-**Logged**: 2026-05-03T21:52:00+02:00
-**Priority**: low
-**Status**: pending
-**Area**: infra
-
-### Summary
-During SQC deploy verification, two non-product command checks needed correction: a signed-out smoke assertion expected signed-in copy, and `vercel logs --since` is not supported by the installed CLI.
-
-### Details
-The deployed `/challenges/knights-before-coffee` route correctly rendered signed-out `Connect to start`, but the first smoke expected signed-in `Start this bad idea`. The corrected smoke passed. Also, `vercel logs https://sidequestchess.com --since 15m` returned a CLI flag error; a bounded plain `vercel logs` watch emitted no output.
-
-### Suggested Action
-For public route smoke checks, assert signed-out copy unless explicitly testing authenticated state. For Vercel log watches in this environment, avoid `--since` with `vercel logs`; use a bounded plain watch or `vercel inspect` plus route smoke instead.
+When quota is exhausted, prefer `vercel alias set <known-good-deployment> sidequestchess.com` over another deploy, then smoke the canonical domain.
 
 ### Metadata
 - Source: error
-- Related Files: docs/SQC_DARE_DIRECT_ACCEPT_LIVE_DEPLOY_2026-05-03.md
-- Tags: vercel, smoke, sqc
-
----
-
-## [ERR-20260503-001] cc_worktree_verify_missing_node_modules_and_vercel_logs_flags
-
-**Logged**: 2026-05-03T21:00:00Z
-**Priority**: low
-**Status**: pending
-**Area**: infra
-
-### Summary
-A clean CC git worktree failed `pnpm lint` before dependencies were installed, and a manual `vercel logs` scan used unsupported/default-follow flags before switching to the project log scan script.
-
-### Details
-Fresh worktrees do not share `node_modules`; run `pnpm install --frozen-lockfile` before lint/build. For Vercel 500 checks, prefer `node /Users/sam/.openclaw/workspace/skills/deploy-verify/scripts/vercel-500-scan.mjs --project cc --since 30m` instead of ad-hoc `vercel logs` flags.
-
-### Suggested Action
-For future CC deploy proof bursts, bootstrap the worktree with `.vercel/project.json` plus `pnpm install --frozen-lockfile`, then use the existing deploy-verify log scan script for recent 500s.
-
-### Metadata
-- Source: error
-- Related Files: .vercel/project.json, /Users/sam/.openclaw/workspace/skills/deploy-verify/scripts/vercel-500-scan.mjs
-- Tags: cc, vercel, worktree, deploy-proof
-
----
-
-## [ERR-20260504-001] vercel_logs_since_flag
-
-**Logged**: 2026-05-04T01:00:00Z
-**Priority**: low
-**Status**: pending
-**Area**: infra
-
-### Summary
-`vercel logs <deployment> --since 15m` failed because the installed Vercel CLI treats `--since` as unsupported filtering for that command path.
-
-### Error
-```text
-Error: The --follow flag does not support filtering. Remove: --since
-```
-
-### Context
-- Command attempted after SQC production deploy smoke: `vercel logs https://cc-nj5q94pjs-andreas-nordenadlers-projects.vercel.app --since 15m`
-- The CLI emitted a filtering/follow conflict even though `--follow` was not explicitly passed.
-
-### Suggested Fix
-For bounded deploy checks, use an unfiltered short log stream with timeout or the Vercel API/list output if recent filtering is required.
-
-### Metadata
-- Reproducible: yes
-- Related Files: docs/SQC_PROOF_LOG_RECEIPT_STATE_CLARITY_LIVE_DEPLOY_2026-05-04.md
-
----
-
-## [ERR-20260504-001] Fresh isolated CC worktree missing node_modules before verification
-
-**Logged**: 2026-05-04T06:49:00+02:00
-**Project**: CC / Side Quest Chess
-**Command**: `pnpm lint && pnpm build`
-**Failure**: `eslint: command not found` because the newly-created isolated worktree had no `node_modules` yet.
-**Resolution**: Ran `pnpm install --frozen-lockfile` first, then `pnpm lint` and `pnpm build` passed.
-**Prevention**: For fresh CC/SQC worktrees, run/install dependencies before the first lint/build gate.
-
-## [ERR-20260504-002] CC local next-start smoke missing Clerk publishable key
-
-**Logged**: 2026-05-04T06:53:00+02:00
-**Project**: CC / Side Quest Chess
-**Command**: `pnpm exec next start -p 4294` followed by local curl smoke
-**Failure**: Local server booted, but route requests failed because the isolated shell did not have Clerk `publishableKey` env configured.
-**Resolution**: Treat local runtime smoke as blocked in this environment; use `pnpm build` plus Vercel production deploy/live smoke where env is configured.
-**Prevention**: For SQC authenticated Next routes, prefer deploy/live smoke unless the worktree has Clerk env loaded.
-
-## [ERR-20260504-003] Repeated Vercel logs CLI filter/timeout gotcha during SQC deploy proof
-
-**Logged**: 2026-05-04T07:00:00+02:00
-**Project**: CC / Side Quest Chess
-**Commands**: `vercel logs <deployment> --since 20m` and `timeout 25 vercel logs ...`
-**Failure**: Vercel CLI rejected `--since` because logs streaming does not support filtering; macOS shell also lacked GNU `timeout`.
-**Resolution**: Used OpenClaw exec's own timeout around unfiltered `vercel logs <deployment>`; the stream emitted no runtime log lines before the bounded timeout.
-**Prevention**: For Vercel post-deploy log watches on this Mac, do not use `--since` or shell `timeout`; rely on tool-level timeout for bounded streams.
-
-## [ERR-20260504-001] worktree_pnpm_lint_missing_node_modules
-
-**Logged**: 2026-05-04T07:52:00+02:00
-**Priority**: low
-**Status**: pending
-**Area**: tests
-
-### Summary
-`pnpm lint` failed in a fresh SQC git worktree because dependencies were not installed there.
-
-### Error
-```text
-sh: eslint: command not found
-WARN Local package.json exists, but node_modules missing, did you mean to install?
-```
-
-### Context
-- Command attempted: `pnpm lint && pnpm build`
-- Worktree: `.worktrees/autoburst-first-run`
-- Cause: clean worktree did not have its own `node_modules`.
-
-### Suggested Fix
-Run `pnpm install --frozen-lockfile` before lint/build in newly-created SQC worktrees.
-
-### Metadata
-- Reproducible: yes
-- Related Files: package.json, pnpm-lock.yaml
-
----
-
-## [ERR-20260504-0844] Worktree lint before dependency install
-
-**Logged**: 2026-05-04T06:50:00Z
-**Project**: CC / Side Quest Chess
-**Command**: `pnpm lint && pnpm build`
-**Error**: fresh detached worktree had no `node_modules`, so `eslint` was not found.
-**Resolution**: ran `pnpm install --frozen-lockfile` first, then `pnpm lint` and `pnpm build` passed.
-**Prevent**: for clean SQC worktrees, run `pnpm install --frozen-lockfile` before lint/build unless `node_modules` is already present.
-
-## [ERR-20260504-001] pnpm_lint_missing_node_modules
-
-**Logged**: 2026-05-04T10:50:00Z
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-`pnpm lint && pnpm build` failed in a fresh CC worktree because `node_modules` was not installed, so `eslint` was unavailable.
-
-### Resolution
-Run `pnpm install --frozen-lockfile` before verification in newly-created CC worktrees.
-
----
-
-## [ERR-20260504-002] sqc_smoke_overasserted_signed_in_content_and_vercel_logs_since
-
-**Logged**: 2026-05-04T10:56:00Z
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-Initial SQC smoke asserted signed-in-only `Active quest` copy from a signed-out `/challenges` request, and `vercel logs --since` is unsupported by the installed CLI.
-
-### Resolution
-Use signed-out-visible assertions for unauthenticated smoke checks and run a bounded unfiltered `vercel logs <deployment-url>` check instead.
-
----
-
-## [ERR-20260504-003] macos_missing_timeout_command
-
-**Logged**: 2026-05-04T10:57:00Z
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-A bounded Vercel log check tried to use GNU `timeout`, which is not available by default on this macOS host.
-
-### Resolution
-Use the OpenClaw exec timeout parameter instead of shell `timeout` on macOS.
-
----
-
-## [ERR-20260504-001] pnpm lint before install in fresh worktree
-
-**Logged**: 2026-05-04T13:52:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: tests
-
-### Summary
-`pnpm lint && pnpm build` failed in a fresh SQC detached worktree because `node_modules` was not installed and `eslint` was missing.
-
-### Details
-Fresh `/private/tmp/sqc-burst-20260504-1344` worktree had `package.json` and lockfile but no dependencies. The correct retry path is `pnpm install --frozen-lockfile` before local verification.
-
-### Suggested Action
-For SQC clean/deploy worktrees, run `pnpm install --frozen-lockfile` before lint/build unless dependency presence has already been verified.
-
-### Metadata
-- Source: error
-- Related Files: package.json, pnpm-lock.yaml
-- Tags: pnpm, worktree, verification
-
-## [ERR-20260504-002] vercel logs --since unsupported by installed CLI mode
-
-**Logged**: 2026-05-04T13:57:00+02:00
-**Priority**: low
-**Status**: pending
-**Area**: infra
-
-### Summary
-SQC deploy smoke routes passed, but `vercel logs <deployment> --since 30m` failed because this Vercel CLI treats the command as follow-mode and says `--follow` does not support filtering.
-
-### Details
-The command emitted: `Error: The --follow flag does not support filtering. Remove: --since`. This made the combined smoke/log command exit non-zero even though HTTP route assertions were green.
-
-### Suggested Action
-For SQC deploy checks with the current Vercel CLI, use a supported logs invocation (for example bounded `vercel logs <deployment>` with timeout/no `--since`) or project log scripts instead of assuming `--since` works.
-
-### Metadata
-- Source: error
-- Related Files: .vercel/project.json
-- Tags: vercel, deploy-verify, logs
-
-## [ERR-20260504-003] GNU timeout unavailable on macOS shell
-
-**Logged**: 2026-05-04T13:58:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-A deploy log retry used `timeout`, but this macOS environment does not provide GNU `timeout` by default.
-
-### Details
-The shell emitted `zsh: command not found: timeout`. Use the OpenClaw exec tool's `timeout` parameter instead of shell-level `timeout` on this host.
-
-### Suggested Action
-Prefer tool-managed command timeouts for bounded commands in macOS worktrees.
-
-### Metadata
-- Source: error
-- Tags: macos, shell, verification
-
-## [ERR-20260504-001] `curl` unavailable on SQC smoke-check host
-
-**Logged**: 2026-05-04T15:44:00+02:00
-**Priority**: low
-
-During SQC live deploy smoke verification, a shell smoke script failed because `curl` is not installed in this OpenClaw runtime (`zsh: command not found: curl`). Retried successfully with a Python `urllib.request` smoke script instead.
-
-**Do differently**: prefer Python/Node HTTP checks in this workspace unless `curl` availability has been verified first.
-
-## [ERR-20260504-001] pnpm_lint_missing_node_modules_in_clean_worktree
-
-**Logged**: 2026-05-04T16:50:00+02:00
-**Priority**: low
-**Status**: handled
-**Area**: tests
-
-### Summary
-`pnpm lint` failed in a freshly-created isolated CC worktree because `node_modules` was absent there.
-
-### Details
-The worktree checkout was clean from `origin/main`; dependencies were not installed in that worktree, so `eslint` was not available.
-
-### Suggested Action
-Run `pnpm install --frozen-lockfile` before lint/build in isolated CC worktrees.
-
-### Metadata
-- Source: error
-- Related Files: package.json, pnpm-lock.yaml
-- Tags: pnpm, worktree, lint
-
----
-
-## [ERR-20260504-002] vercel_logs_since_filter_unsupported
-
-**Logged**: 2026-05-04T16:52:00+02:00
-**Priority**: low
-**Status**: handled
-**Area**: infra
-
-### Summary
-`vercel logs <deployment> --since 10m` failed because this Vercel CLI treats logs as follow-mode and does not support `--since` filtering there.
-
-### Suggested Action
-For bounded deploy watches, use a timeout-wrapped `vercel logs <deployment>` stream and scan captured output instead of adding `--since`.
-
-### Metadata
-- Source: error
-- Tags: vercel, logs, deploy-smoke
-
----
-
-## [ERR-20260504-003] macos_timeout_not_available
-
-**Logged**: 2026-05-04T16:53:00+02:00
-**Priority**: low
-**Status**: handled
-**Area**: infra
-
-### Summary
-`timeout` was not available in the macOS zsh environment while trying to bound a Vercel log watch.
-
-### Suggested Action
-Use the OpenClaw exec tool's `timeout` parameter for bounded long-running commands on this host instead of shelling out to GNU `timeout`.
-
-### Metadata
-- Source: error
-- Tags: macos, shell, vercel
-
----
-
-## [ERR-20260504-001] git push non-fast-forward
-
-**Logged**: 2026-05-04T19:20:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: git
-
-### Summary
-Push from detached SQC worktree was rejected because origin/main advanced after the local commit.
-
-### Resolution
-Fetch/rebase or cherry-pick onto updated origin/main before pushing detached worktree commits.
-
----
-
-## [ERR-20260504-001] isolated_worktree_missing_dependencies
-
-**Logged**: 2026-05-04T20:52:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-`pnpm lint && pnpm build` failed in a fresh SQC git worktree because `node_modules` was not installed there.
-
-### Resolution
-Ran `pnpm install --frozen-lockfile`, then `pnpm lint` and `pnpm build` passed.
-
----
-
-## [ERR-20260504-002] vercel_logs_prod_option
-
-**Logged**: 2026-05-04T20:52:00+02:00
-**Priority**: low
-**Status**: resolved
-**Area**: infra
-
-### Summary
-`vercel logs cc --prod --since 30m` failed because the installed Vercel CLI does not support `--prod` for logs.
-
-### Resolution
-Used `vercel logs --environment production --since 30m --status-code 500 --no-branch --limit 20`, which returned no logs.
-
----
-
-## [ERR-20260504-003] vercel deploy daily limit
-
-**Logged**: 2026-05-04T20:11:00+02:00
-**Priority**: medium
-**Status**: blocked
-**Area**: deploy
-
-### Summary
-Vercel production deploy failed with free-tier daily deployment limit: `Resource is limited - try again in 24 hours (more than 100, code: api-deployments-free-per-day)`.
-
-### Impact
-Code is committed and pushed to `origin/main`, but this specific change could not be manually deployed immediately.
-
-### Suggested Action
-Avoid excessive manual production deploys during tight UI polish loops; batch small visual changes before deploying when possible.
+- Tags: vercel, quota, alias, production-restore
 
 ---

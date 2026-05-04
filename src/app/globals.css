@@ -9,7 +9,6 @@
   --pink: #ff5f9f;
   --green: #60f0af;
   --blue: #76a9ff;
-  --orange: #e87922;
   --danger: #ff7a66;
 }
 
@@ -61,7 +60,6 @@ button, input { font: inherit; }
 .site-nav { position: sticky; top: 12px; z-index: 20; width: min(1120px, 100%); margin: 0 auto 22px; border: 1px solid var(--line); border-radius: 26px; background: rgba(6,5,7,.76); backdrop-filter: blur(18px); }
 .site-nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; }
 .brand-lockup { display: flex; align-items: center; gap: 10px; }
-.brand-logo { display: block; width: clamp(76px, 10vw, 112px); height: auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,.28)); }
 .brand-mark { width: 40px; height: 40px; border-radius: 15px 15px 15px 5px; display: grid; place-items: center; background: var(--gold); color: #111; box-shadow: 0 14px 30px rgba(245,200,106,.22); font-weight: 950; }
 .logo-mark { width: 116px; height: 116px; overflow: visible; border-radius: 0; background: transparent; border: 0; display: grid; place-items: center; flex: 0 0 116px; }
 .logo-mark img { width: 100%; height: 100%; object-fit: contain; object-position: center; filter: none; }
@@ -97,30 +95,14 @@ p { color: var(--muted); line-height: 1.5; }
 .step p { margin-top: 5px; font-size: 13px; }
 
 .side-card { padding: 18px; display: grid; gap: 12px; background: linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,95,159,.08)); }
-.challenge-card { position: relative; min-height: 270px; height: 100%; padding: 18px; display: grid; gap: 10px; grid-template-rows: auto 1fr auto; overflow: visible; }
-.clickable-quest-card { cursor: pointer; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
-.clickable-quest-card:hover, .clickable-quest-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.105); outline: none; }
+.challenge-card { padding: 18px; display: grid; gap: 10px; }
 .challenge-card.featured { background: linear-gradient(135deg, rgba(245,200,106,.25), rgba(255,95,159,.13), rgba(118,169,255,.1)); }
-.challenge-card.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 16% 10%, rgba(96,240,175,.28), transparent 34%), linear-gradient(135deg, rgba(96,240,175,.14), rgba(245,200,106,.12), rgba(255,255,255,.07)); box-shadow: 0 0 0 2px rgba(96,240,175,.28), 0 30px 90px rgba(0,0,0,.34), 0 0 42px rgba(96,240,175,.16); }
-.challenge-card.completed-quest-card { border-color: rgba(245,200,106,.72); background: radial-gradient(circle at 16% 10%, rgba(245,200,106,.22), transparent 34%), linear-gradient(135deg, rgba(245,200,106,.14), rgba(255,255,255,.07)); box-shadow: 0 0 0 2px rgba(245,200,106,.2), 0 30px 90px rgba(0,0,0,.32), 0 0 42px rgba(245,200,106,.12); }
-.starter-route-card { position: relative; min-height: 260px; height: 100%; display: grid; grid-template-rows: auto auto auto 1fr auto; overflow: visible; }
-.starter-route-card.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 18% 12%, rgba(96,240,175,.24), transparent 38%), rgba(96,240,175,.12); box-shadow: 0 0 0 2px rgba(96,240,175,.24), 0 22px 56px rgba(0,0,0,.26); }
-.active-quest-stamp { position: absolute; left: 72px; top: 92px; z-index: 6; width: min(78%, 250px); transform: rotate(-10deg); border: 4px solid rgba(96,240,175,.9); border-radius: 18px; color: #60f0af; background: transparent; box-shadow: 0 18px 42px rgba(0,0,0,.36), inset 0 0 0 2px rgba(96,240,175,.28); padding: 13px 16px; text-align: center; font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: clamp(1rem, 2vw, 1.55rem); font-weight: 1000; letter-spacing: .14em; line-height: 1; text-transform: uppercase; pointer-events: none; }
-.active-quest-stamp::before { content: "ACTIVE QUEST"; }
-.completed-quest-stamp { position: absolute; left: 72px; top: 92px; z-index: 4; width: 150px; height: 68px; background: url('/completed-quest-stamp.svg?v=1') center / contain no-repeat; filter: drop-shadow(0 10px 14px rgba(0,0,0,.28)); pointer-events: none; }
-.coming-soon-quest-card { border-style: dashed; border-color: rgba(245,200,106,.28); background: linear-gradient(135deg, rgba(255,255,255,.055), rgba(245,200,106,.055)); overflow: hidden; cursor: default; }
-.coming-soon-quest-card::after { content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(135deg, rgba(6,5,7,.16), rgba(6,5,7,.42)); }
-.coming-soon-card-content { display: grid; grid-template-rows: auto 1fr; gap: 10px; height: 100%; filter: blur(3px) grayscale(.22); opacity: .58; transform: scale(.995); }
-.coming-soon-stamp { position: absolute; left: 50%; top: 50%; z-index: 5; width: min(78%, 250px); transform: translate(-50%, -50%) rotate(-10deg); border: 4px solid rgba(255,122,102,.86); border-radius: 18px; color: #ff7a66; background: transparent; box-shadow: 0 18px 42px rgba(0,0,0,.36), inset 0 0 0 2px rgba(255,122,102,.26); padding: 13px 16px; text-align: center; font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: clamp(1rem, 2vw, 1.55rem); font-weight: 1000; letter-spacing: .14em; text-transform: uppercase; pointer-events: none; }
-.challenge-card-title-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
-.challenge-card-title-row > div { min-width: 0; display: grid; gap: 8px; }
+.challenge-card-title-row { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
+.challenge-card-title-row > div { min-width: 0; }
 .challenge-card-title-row h3 { overflow-wrap: anywhere; }
 .card-meta, .card-footer, .badge-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
 .card-meta span:first-child { color: var(--gold); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
-.card-meta.quest-card-meta { justify-content: space-between; }
-.card-meta.quest-card-meta span:first-child { color: #111; font-size: 11px; text-transform: none; letter-spacing: 0; }
-.quest-points { color: var(--green); font-size: 15px; font-weight: 1000; letter-spacing: -.02em; }
-.challenge-card em { color: var(--ink); font-style: normal; font-weight: 850; line-height: 1.35; }
+.challenge-card em { color: var(--ink); font-style: normal; font-weight: 850; }
 .proof-line { padding: 10px 11px; border-radius: 16px; background: rgba(96,240,175,.1); color: var(--green); font-size: 12px; font-weight: 900; }
 .challenge-badge-token { --badge-primary: var(--pink); --badge-secondary: var(--gold); --badge-glow: rgba(255,95,159,.42); position: relative; isolation: isolate; display: inline-grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px; width: min(100%, 300px); padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--badge-secondary) 34%, rgba(255,255,255,.16)); border-radius: 24px; background: linear-gradient(135deg, color-mix(in srgb, var(--badge-primary) 18%, transparent), rgba(255,255,255,.06)); box-shadow: 0 18px 34px var(--badge-glow); overflow: hidden; }
 .challenge-badge-token::before { content: ""; position: absolute; inset: -45% auto auto 36%; width: 150px; height: 150px; border-radius: 999px; background: radial-gradient(circle, color-mix(in srgb, var(--badge-secondary) 52%, transparent), transparent 68%); z-index: -1; }
@@ -137,13 +119,6 @@ p { color: var(--muted); line-height: 1.5; }
 .challenge-badge-token.hero .badge-reference-art { width: min(220px, 70vw); height: auto; max-height: 220px; }
 .challenge-badge-token.hero .badge-ribbon { max-width: 210px; font-size: 10px; padding: 5px 12px; }
 .challenge-badge-token.hero .badge-crest { width: 38px; height: 28px; font-size: 24px; }
-.challenge-badge-art { --badge-primary: var(--pink); --badge-secondary: var(--gold); --badge-glow: rgba(255,95,159,.42); display: inline-grid; place-items: center; width: 104px; min-width: 104px; filter: drop-shadow(0 16px 22px var(--badge-glow)); }
-.challenge-badge-art .badge-reference-art { width: 104px; height: 104px; object-fit: contain; filter: none; }
-.challenge-badge-art .badge-shield { width: 76px; height: 88px; }
-.challenge-badge-art .badge-token-motif { width: 52px; height: 52px; font-size: 31px; }
-.challenge-badge-art.earned { filter: drop-shadow(0 0 16px color-mix(in srgb, var(--badge-secondary) 60%, transparent)) drop-shadow(0 16px 22px var(--badge-glow)); }
-.challenge-badge-art.hero { width: min(220px, 70vw); min-width: 0; }
-.challenge-badge-art.hero .badge-reference-art { width: min(220px, 70vw); height: auto; max-height: 220px; }
 .badge-token-copy { display: grid; gap: 3px; min-width: 0; }
 .badge-token-copy strong { margin: 0; color: var(--ink); font-size: .98rem; line-height: 1; }
 .badge-token-copy small { color: var(--badge-secondary); font-size: 11px; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
@@ -154,55 +129,22 @@ p { color: var(--muted); line-height: 1.5; }
 .result-poster .badge-token-copy small, .result-poster .badge-token-copy em, .result-poster .badge-weirdness { color: rgba(20,13,13,.7); }
 .result-poster .badge-ribbon { background: rgba(20,13,13,.82); }
 .card-footer strong { color: var(--green); }
-.quest-state-row { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.11); justify-content: flex-start; }
-.link-button { appearance: none; border: 0; background: transparent; color: var(--gold); font-weight: 950; cursor: pointer; padding: 0; text-decoration: none; }
-.link-button:hover, .link-button:focus-visible { color: var(--ink); text-decoration: underline; outline: none; }
-.badge { display: inline-flex; align-items: center; justify-content: center; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; text-align: center; }
-.difficulty-badge { min-width: 72px; }
-.badge.danger { background: var(--danger); color: #111; }
-.badge.gold { background: var(--gold); color: #111; }
-.badge.orange { background: var(--orange); color: #111; }
-.badge.absurd { background: #08070a; color: var(--danger); border: 1px solid rgba(255,122,102,.55); }
-.badge.blue { background: var(--blue); color: #111; }
-.badge.green { background: var(--green); color: #111; }
-.badge.success { background: var(--green); color: #111; }
+.badge { display: inline-flex; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; }
+.badge.danger { background: var(--danger); }
+.badge.gold { background: var(--gold); }
+.badge.blue { background: var(--blue); }
+.badge.green { background: var(--green); }
+.badge.success { background: var(--green); }
 
 .section-head { display: flex; align-items: end; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-.big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); grid-auto-rows: 1fr; align-items: stretch; }
+.big-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 .mission-card { padding: 18px; }
 .mission-card strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
-.quest-filter-panel { display: grid; gap: 18px; }
-.quest-filter-panel h2 { margin-bottom: 0; }
-.quest-filter-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; }
-.quest-filter-grid label { display: grid; gap: 7px; }
-.quest-filter-grid label span { color: var(--muted); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .09em; }
-.quest-filter-grid select { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 16px; background: rgba(10,8,12,.72); color: var(--ink); padding: 12px 13px; font-weight: 900; }
-.quest-filter-count { min-height: 45px; padding: 10px 12px; border-radius: 16px; background: rgba(96,240,175,.1); border: 1px solid rgba(96,240,175,.18); color: var(--green); display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
-.quest-filter-count strong { margin: 0; font-size: 1.3rem; }
-.quest-filter-count span { color: var(--green); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .08em; }
-.quest-filter-count small { width: 100%; color: rgba(255,255,255,.68); font-size: 11px; font-weight: 850; text-align: center; text-transform: uppercase; letter-spacing: .08em; }
-.active-quest-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-.active-quest-title-row h2 { margin-bottom: 0; }
-.active-quest-badge.challenge-badge-art, .active-quest-badge .challenge-badge-art { width: 86px; min-width: 86px; }
-.active-quest-badge.challenge-badge-art .badge-reference-art, .active-quest-badge .challenge-badge-art .badge-reference-art { width: 86px; height: 86px; }
-.active-quest-badge .badge-shield { width: 58px; height: 68px; }
-.active-quest-badge .badge-token-motif { width: 39px; height: 39px; font-size: 23px; }
+.beta-trust-strip { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: end; background: linear-gradient(135deg, rgba(96,240,175,.12), rgba(245,200,106,.08), rgba(255,255,255,.06)); }
+.beta-trust-strip p { max-width: 760px; }
 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-size: 12px; font-weight: 850; }
-
-
-/* Homepage simplification from beta feedback: fewer nested cards, logo-led brand, clearer terms. */
-.simplified-home-hero { position: relative; overflow: hidden; }
-.hero-logo-lockup.compact { width: min(210px, 56vw); margin-bottom: 10px; }
-.launch-home-hero .side-card { align-content: start; }
-.clear-steps .step { background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.1); }
-.clear-steps .step strong { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 999px; background: var(--gold); color: #111; font-size: 18px; }
-.home-status-card, .first-run-card { background: rgba(255,255,255,.06); }
-.lean-status-grid .fact { background: rgba(0,0,0,.18); }
-.readable-points { font-size: 13px; letter-spacing: .02em; }
-.home-secondary-grid .mission-card { background: rgba(255,255,255,.055); }
-.featured-quest-panel .challenge-card { box-shadow: none; }
 
 .connect-card { padding: 20px; display: grid; gap: 12px; }
 .connect-card.active { outline: 2px solid rgba(245,200,106,.45); }
@@ -224,55 +166,7 @@ p { color: var(--muted); line-height: 1.5; }
 
 .detail-hero { padding: clamp(22px, 4vw, 36px); background: radial-gradient(circle at 50% 0%, rgba(245,200,106,.24), transparent 35%), linear-gradient(135deg, rgba(255,95,159,.2), rgba(255,255,255,.07)); }
 .detail-hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: start; }
-.quest-detail-wrap { gap: 18px; }
-.back-to-hub { width: max-content; }
-.quest-detail-hero { position: relative; overflow: visible; display: grid; gap: 18px; padding: 18px; background: linear-gradient(135deg, rgba(245,200,106,.2), rgba(255,95,159,.1), rgba(118,169,255,.08)); }
-.quest-detail-hero.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 16% 10%, rgba(96,240,175,.24), transparent 34%), linear-gradient(135deg, rgba(96,240,175,.12), rgba(245,200,106,.1), rgba(255,255,255,.07)); box-shadow: 0 0 0 2px rgba(96,240,175,.28), 0 30px 90px rgba(0,0,0,.34), 0 0 42px rgba(96,240,175,.16); }
-.quest-detail-meta { position: relative; z-index: 2; }
-.quest-detail-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(180px, 260px); align-items: center; }
-.quest-detail-copy { display: grid; gap: 10px; min-width: 0; }
-.quest-detail-copy h1 { margin-bottom: 0; }
-.quest-detail-flavor { color: var(--ink); font-weight: 900; }
-.quest-detail-hero .challenge-badge-art.hero { justify-self: center; width: min(240px, 62vw); }
-.quest-detail-hero .challenge-badge-art.hero .badge-reference-art { width: min(240px, 62vw); max-height: 240px; }
-.detail-state-stamp { left: min(42%, 330px); top: 138px; width: min(76%, 270px); }
-.quest-detail-hero .active-quest-stamp.detail-state-stamp { z-index: 7; transform: rotate(-10deg); }
-.quest-detail-actions { margin-top: 0; }
-.quest-status-panel { display: grid; gap: 16px; border-color: rgba(96,240,175,.24); background: radial-gradient(circle at 86% 0%, rgba(96,240,175,.13), transparent 34%), rgba(255,255,255,.075); }
-.quest-status-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-.provider-status-card { display: grid; gap: 4px; align-content: start; }
-.provider-status-card small { color: var(--muted); font-weight: 800; line-height: 1.35; }
-.quest-status-receipt { border-color: rgba(245,200,106,.24); background: rgba(245,200,106,.08); }
-.quest-status-refresh { justify-self: start; }
-.quest-detail-section { display: grid; gap: 14px; }
-.quest-detail-flow { margin-top: 2px; }
-.quest-detail-flow .fact { background: rgba(0,0,0,.18); }
-.quest-run-flow { display: grid; gap: 10px; margin-top: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.11); }
-.quest-detail-main-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-.quest-detail-badge-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; }
-.quest-detail-badge-card .note-card { grid-column: 1 / -1; }
-.quest-detail-badge-card .challenge-badge-art.hero { width: min(210px, 48vw); }
-.quest-detail-badge-card .challenge-badge-art.hero .badge-reference-art { width: min(210px, 48vw); max-height: 210px; }
-.quest-switch-dialog-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 18px; background: rgba(5,3,7,.72); backdrop-filter: blur(12px); }
-.quest-switch-dialog { width: min(720px, 100%); padding: clamp(20px, 4vw, 30px); border: 1px solid rgba(245,200,106,.3); border-radius: 34px; background: radial-gradient(circle at 50% 0%, rgba(245,200,106,.2), transparent 32%), linear-gradient(135deg, rgba(35,22,32,.98), rgba(16,12,20,.98)); box-shadow: 0 34px 120px rgba(0,0,0,.62); display: grid; gap: 14px; }
-.quest-switch-dialog h2 { font-size: clamp(1.7rem, 4vw, 2.8rem); margin-bottom: 0; }
-.quest-switch-dialog p { max-width: 62ch; }
-.quest-switch-crests { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 14px; align-items: center; margin: 8px 0 2px; }
-.quest-switch-crest-card { min-height: 210px; display: grid; justify-items: center; align-content: center; gap: 8px; padding: 14px; border-radius: 26px; background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.12); text-align: center; }
-.quest-switch-crest-card.new { border-color: rgba(96,240,175,.28); background: radial-gradient(circle at 50% 0%, rgba(96,240,175,.13), transparent 42%), rgba(255,255,255,.07); }
-.quest-switch-crest-card span { color: var(--muted); font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
-.quest-switch-crest-card strong { margin: 0; font-size: 1rem; line-height: 1.1; }
-.quest-switch-crest-card .challenge-badge-art.hero { width: min(150px, 34vw); }
-.quest-switch-crest-card .challenge-badge-art.hero .badge-reference-art { width: min(150px, 34vw); max-height: 150px; }
-.quest-switch-arrow { color: var(--gold); font-size: 2rem; font-weight: 1000; }
-.quest-switch-actions { justify-content: flex-end; }
-.quest-deactivate-dialog { width: min(620px, 100%); }
-.quest-deactivate-crest-card { display: grid; justify-items: center; gap: 8px; margin: 4px 0 2px; padding: 18px; border-radius: 28px; border: 1px solid rgba(96,240,175,.24); background: radial-gradient(circle at 50% 0%, rgba(96,240,175,.13), transparent 42%), rgba(255,255,255,.065); text-align: center; }
-.quest-deactivate-crest-card .challenge-badge-art.hero { width: min(160px, 38vw); }
-.quest-deactivate-crest-card .challenge-badge-art.hero .badge-reference-art { width: min(160px, 38vw); max-height: 160px; }
-.quest-deactivate-crest-card strong { margin: 0; font-size: 1.1rem; line-height: 1.1; }
-.quest-deactivate-crest-card span { color: var(--muted); font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
-.rules-list { list-style: none; display: grid; gap: 9px; margin-top: 2px; }
+.rules-list { list-style: none; display: grid; gap: 9px; margin-top: 12px; }
 .rules-list li { padding: 12px; border-radius: 18px; background: rgba(255,255,255,.07); color: var(--muted); }
 .rules-list li::before { content: "✓"; color: var(--green); font-weight: 950; margin-right: 8px; }
 
@@ -309,12 +203,8 @@ p { color: var(--muted); line-height: 1.5; }
   .nav-links { overflow-x: auto; flex-wrap: nowrap; }
   .hero-grid { grid-template-columns: 1fr; }
   .detail-hero-grid { grid-template-columns: 1fr; }
-  .quest-detail-hero-grid, .quest-detail-badge-card { grid-template-columns: 1fr; }
-  .detail-state-stamp { left: 38px; top: 124px; width: min(76%, 220px); }
-  .quest-switch-crests { grid-template-columns: 1fr; }
-  .quest-switch-arrow { transform: rotate(90deg); justify-self: center; }
   .steps { grid-template-columns: 1fr; }
-  .quest-filter-grid { grid-template-columns: 1fr; }
+  .beta-trust-strip { grid-template-columns: 1fr; align-items: stretch; }
   h1 { font-size: clamp(2.8rem, 15vw, 4.6rem); }
 }
 .auth-wrap { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); align-items: start; }
@@ -323,68 +213,3 @@ p { color: var(--muted); line-height: 1.5; }
 .input-card textarea { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 17px; background: rgba(0,0,0,.24); color: var(--ink); padding: 13px 14px; resize: vertical; }
 .wide-form { max-width: 760px; }
 @media (min-width: 860px) { .auth-wrap { display: grid; } }
-
-/* Feedback 2 homepage cleanup: no giant logo, softer nav, fewer boxes, clearer quest list. */
-.softer-site-nav { background: rgba(255,255,255,.075); border-color: rgba(245,200,106,.2); box-shadow: 0 18px 54px rgba(0,0,0,.18); }
-.text-brand { min-width: 60px; justify-content: center; padding: 10px 13px; border-radius: 999px; background: rgba(245,200,106,.16); color: var(--gold); font-size: 18px; letter-spacing: .08em; }
-.clean-home-hero { grid-template-columns: minmax(0, .96fr) minmax(320px, .84fr); }
-.simplified-home-hero { background: radial-gradient(circle at 82% 6%, rgba(245,200,106,.22), transparent 28%), linear-gradient(135deg, rgba(255,255,255,.085), rgba(255,95,159,.085)); }
-.plain-loop-copy { margin-top: 16px; color: var(--green); font-weight: 850; }
-.recommended-quests-panel { align-content: start; gap: 16px; }
-.recommended-quests-panel h2 { font-size: clamp(1.55rem, 3vw, 2.45rem); }
-.quest-list { display: grid; gap: 10px; }
-.quest-list-item { display: grid; gap: 5px; padding: 14px; border-radius: 20px; background: rgba(0,0,0,.18); border: 1px solid rgba(255,255,255,.11); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
-.quest-list-item:hover, .quest-list-item:focus-visible { transform: translateY(-1px); border-color: rgba(245,200,106,.4); background: rgba(245,200,106,.1); outline: none; }
-.quest-list-item span { width: max-content; padding: 5px 8px; border-radius: 999px; background: rgba(255,122,102,.16); color: var(--danger); font-size: 10px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
-.quest-list-item strong { color: var(--ink); font-size: 1.05rem; }
-.quest-list-item small { color: var(--muted); line-height: 1.35; }
-.compact-run-card { background: rgba(255,255,255,.055); }
-.quieter-secondary-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-@media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } }
-
-
-/* Recommended first quests: show badge/logo art beside each quest. */
-.quest-list-item-with-logo { grid-template-columns: auto minmax(0,1fr); align-items: center; }
-.quest-list-logo { display: grid; place-items: center; width: 72px; min-height: 72px; padding: 4px; border-radius: 18px; background: rgba(255,255,255,.055); }
-.quest-list-logo .challenge-badge-token { width: 64px; min-width: 0; grid-template-columns: 1fr; justify-items: center; gap: 0; padding: 5px; border-radius: 18px; box-shadow: none; }
-.quest-list-logo .badge-token-copy, .quest-list-logo .badge-ribbon, .quest-list-logo .badge-crest { display: none; }
-.quest-list-logo .badge-shield { width: 42px; height: 50px; }
-.quest-list-logo .badge-token-motif { width: 29px; height: 29px; font-size: 18px; }
-.quest-list-logo .badge-reference-art { width: 58px; height: 58px; object-fit: contain; }
-.quest-list-copy { display: grid; gap: 5px; min-width: 0; }
-.quest-list-item .quest-list-difficulty { width: max-content; padding: 5px 8px; border-radius: 999px; background: rgba(255,122,102,.16); color: var(--danger); font-size: 10px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
-@media (max-width: 520px) { .quest-list-logo { width: 58px; min-height: 58px; } .quest-list-logo .challenge-badge-token { width: 52px; } .quest-list-logo .badge-reference-art { width: 48px; height: 48px; } }
-
-
-/* SQC feedback: recommended quest logos should float cleanly, with text underneath. */
-.clean-quest-logo-card { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 8px; padding: 16px 14px; }
-.clean-quest-logo { width: auto; min-height: 0; padding: 0; border-radius: 0; background: transparent; }
-.clean-quest-logo .challenge-badge-token { width: auto; padding: 0; border: 0; background: transparent; box-shadow: none; }
-.clean-quest-logo .challenge-badge-token::before { display: none; }
-.clean-quest-logo .badge-reference-art { width: 88px; height: 88px; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.28)); }
-.clean-quest-logo .badge-shield { width: 62px; height: 72px; box-shadow: inset 0 0 0 3px rgba(255,255,255,.22), inset 0 -14px 24px rgba(0,0,0,.24), 0 12px 22px rgba(0,0,0,.24); }
-.clean-quest-logo .badge-token-motif { width: 42px; height: 42px; font-size: 25px; }
-.clean-quest-copy { justify-items: center; }
-.clean-quest-copy strong { font-size: 1.02rem; line-height: 1.05; }
-.clean-quest-copy small:not(.quest-list-difficulty) { max-width: 28ch; }
-@media (max-width: 520px) { .clean-quest-logo .badge-reference-art { width: 76px; height: 76px; } }
-
-
-/* SQC feedback: bare recommended quests, no square cards, no text pill, no badge circle. */
-.quest-list-item.clean-quest-logo-card { background: transparent; border-color: transparent; box-shadow: none; padding: 12px 8px; }
-.quest-list-item.clean-quest-logo-card:hover, .quest-list-item.clean-quest-logo-card:focus-visible { background: rgba(255,255,255,.035); border-color: rgba(245,200,106,.16); }
-.clean-quest-logo .badge-token-motif { background: transparent; box-shadow: none; border-radius: 0; color: var(--badge-secondary); text-shadow: 0 5px 14px rgba(0,0,0,.34); }
-.clean-quest-logo .badge-shield { background: linear-gradient(135deg, var(--badge-primary) 0 48%, #151019 48% 52%, var(--badge-secondary) 52% 100%); }
-.quest-list-item .quest-list-difficulty { background: transparent; padding: 0; border-radius: 0; color: var(--danger); }
-.clean-quest-copy { background: transparent; }
-
-
-/* SQC top-bar wordmark refinement. */
-.wordmark-brand { padding: 0; background: transparent; border-radius: 0; min-width: 0; }
-.nav-wordmark { display: block; width: clamp(190px, 22vw, 360px); height: auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,.24)); }
-@media (max-width: 720px) { .nav-wordmark { width: clamp(160px, 48vw, 260px); } }
-
-
-/* SQC top-bar wordmark fit: smaller picture wordmark using logo-like serif treatment. */
-.nav-wordmark { width: clamp(150px, 15vw, 230px); max-width: 230px; height: auto; object-fit: contain; }
-@media (max-width: 720px) { .nav-wordmark { width: clamp(132px, 38vw, 190px); } }

@@ -14,7 +14,6 @@ export default async function ConnectPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const isSignedIn = Boolean(user);
-  const hasChessIdentity = Boolean(lichessUsername || chessComUsername);
 
   return (
     <main className="site-shell">
@@ -32,14 +31,14 @@ export default async function ConnectPage() {
         <section className="big-grid">
           <article className="connect-card active">
             <span className="eyebrow">Lichess</span>
-            <h2>Full starter-deck support</h2>
-            <p>Save your public Lichess username and every current starter-deck quest can use latest-game checks for honest pass, fail, or pending receipts.</p>
+            <h2>Fastest setup</h2>
+            <p>Use your public username so Side Quest Chess can connect quests to real games.</p>
           </article>
 
           <article className="connect-card">
             <span className="eyebrow">Chess.com</span>
-            <h2>Full starter-deck support</h2>
-            <p>Save your Chess.com username and every current starter-deck quest can use latest-game checks too — no provider-specific quest hunting, PGN upload, or password sharing.</p>
+            <h2>Username tracking</h2>
+            <p>Use your Chess.com username for beginner-path, No Castle Club, Queen? Never Heard of Her, Pawn Storm Maniac, Knightmare Mode, and Rookless Rampage checks today, with more parity coming as the beta hardens.</p>
           </article>
         </section>
 
@@ -56,7 +55,7 @@ export default async function ConnectPage() {
                 <input type="text" name="chessComUsername" defaultValue={chessComUsername} placeholder="e.g. ForkMaster3000" />
               </label>
               <button type="submit" className="button primary">
-                {hasChessIdentity ? "Update identities" : "Save identities"}
+                {lichessUsername || chessComUsername ? "Update identities" : "Save identities"}
               </button>
             </form>
           </section>
@@ -64,47 +63,13 @@ export default async function ConnectPage() {
           <section className="mission-card">
             <span className="eyebrow">Login needed</span>
             <h2>Sign in to save your chess usernames.</h2>
-            <p>The verifier can browse public games, but SQC needs a saved runner profile to remember your chess usernames, active quest, badges, and proof cards.</p>
+            <p>The verifier can browse public games, but SQC needs a saved runner profile to remember your Lichess username, active quest, badges, and proof cards.</p>
             <div className="button-row">
               <Link href="/sign-in" className="button primary">Sign in to connect</Link>
               <Link href="/profile" className="button secondary">Profile setup</Link>
             </div>
           </section>
         )}
-
-        <section className="mission-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Private beta connection handoff</span>
-              <h2>{hasChessIdentity ? "Identity saved. Run the first proof loop." : "Save one username, then follow the tester route."}</h2>
-            </div>
-            <span className={hasChessIdentity ? "badge green" : "badge blue"}>
-              {hasChessIdentity ? "ready for proof" : "setup step"}
-            </span>
-          </div>
-          <p>
-            The connect page is only step one: after a public username is saved, use the starter path, play and win one eligible public game, then return for one honest latest-game receipt.
-          </p>
-          <div className="checker-flow" aria-label="Post-connection proof path">
-            <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
-              <strong>{hasChessIdentity ? "✓ Chess identity saved" : "1. Save identity"}</strong>
-              <p>{hasChessIdentity ? `${lichessUsername || chessComUsername} can be checked from public game history.` : "Add either Lichess or Chess.com. No password, upload, or PGN chore."}</p>
-            </div>
-            <div className="flow-step ready">
-              <strong>2. Start a tester-route quest</strong>
-              <p>Use the guided starter picks before browsing the whole chaos deck cold.</p>
-            </div>
-            <div className="flow-step hot">
-              <strong>3. Check receipt</strong>
-              <p>After the game, SQC records pass, fail, or pending proof with next-step guidance.</p>
-            </div>
-          </div>
-          <div className="button-row">
-            <Link href="/account" className="button primary">Open account preflight</Link>
-            <Link href="/path" className="button secondary">Open starter path</Link>
-            <Link href="/result" className="button secondary">View latest receipt</Link>
-          </div>
-        </section>
 
         <section className="note-card">
           <strong>Product rule</strong>

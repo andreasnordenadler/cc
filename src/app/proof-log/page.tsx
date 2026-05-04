@@ -13,30 +13,6 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-const receiptExamples = [
-  {
-    status: "Passed",
-    tone: "green",
-    title: "Badge proof is brag-ready",
-    copy: "A passed receipt names the quest, badge, points, and exact next action so a friend can understand the proof without reading the whole rules page.",
-    action: "Copy, share, or quest back",
-  },
-  {
-    status: "Failed",
-    tone: "danger",
-    title: "The miss should be obvious",
-    copy: "A failed receipt still helps: it should point at the rule that did not land, then send the player back to the same quest with a cleaner next attempt.",
-    action: "Review the rule and retry",
-  },
-  {
-    status: "Pending",
-    tone: "gold",
-    title: "No mystery dead-end",
-    copy: "A pending receipt explains whether SQC needs a saved username, a public eligible game, or another latest-game check after the next real match.",
-    action: "Fix preflight, then check again",
-  },
-];
-
 export default async function ProofLogPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
@@ -53,7 +29,7 @@ export default async function ProofLogPage() {
           <span className="eyebrow">Proof log</span>
           <h1>Your side-quest receipts.</h1>
           <p className="hero-copy">
-            Every latest-game check becomes a receipt here: passed, failed, or still pending. No manual uploads, no engine lecture — just a running record of the bad ideas Side Quest Chess has judged.
+            Every latest-game check becomes a receipt here: passed, failed, or still pending. No PGN homework, no engine lecture — just a running record of the bad ideas Side Quest Chess has judged.
           </p>
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Check latest games</Link>
@@ -93,33 +69,6 @@ export default async function ProofLogPage() {
             </div>
           </section>
         )}
-
-        <section className="mission-card" aria-label="Proof receipt examples">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Receipt states</span>
-              <h2>Every proof check should tell testers what to do next.</h2>
-            </div>
-            <span className="badge blue">beta clarity</span>
-          </div>
-          <p>
-            Friends/private beta testers should never have to decode a verifier result. The proof log now previews the three receipt states before a player has history, then saved receipts use the same pass/fail/pending next-step logic once real checks land.
-          </p>
-          <div className="checker-flow" aria-label="Pass fail pending receipt examples">
-            {receiptExamples.map((item) => (
-              <article key={item.status} className={item.status === "Passed" ? "flow-step ready" : item.status === "Failed" ? "flow-step hot" : "flow-step"}>
-                <span className={`badge ${item.tone}`}>{item.status}</span>
-                <strong>{item.title}</strong>
-                <p>{item.copy}</p>
-                <p className="proof-line">{item.action}</p>
-              </article>
-            ))}
-          </div>
-          <div className="button-row hero-actions">
-            <Link href="/account" className="button primary">Run a latest-game check</Link>
-            <Link href="/support" className="button secondary">Report confusing receipt</Link>
-          </div>
-        </section>
       </div>
     </main>
   );
@@ -135,33 +84,6 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
     status === "passed"
       ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked for +${challenge.reward} points.`
       : `I logged “${challenge.title}” on Side Quest Chess. ${summary.headline}: ${summary.detail}`;
-  const nextStep =
-    status === "passed"
-      ? {
-          label: "Share or quest back",
-          copy: "This receipt is brag-ready. Copy it, then send the same quest to someone who deserves worse chess decisions.",
-          primaryLabel: "Open share kit",
-          primaryHref: "/share-kit",
-          secondaryLabel: "Send this quest",
-          secondaryHref: `/dare/${challenge.id}`,
-        }
-      : status === "failed"
-        ? {
-            label: "Check whether the miss feels fair",
-            copy: "Failed receipts should make the missed rule obvious. If this one feels wrong, capture it with the support packet before the game context disappears.",
-            primaryLabel: "Review rules",
-            primaryHref: `/challenges/${challenge.id}`,
-            secondaryLabel: "Report confusing receipt",
-            secondaryHref: "/support",
-          }
-        : {
-            label: "Create a clearer latest-game check",
-            copy: "Pending receipts usually need one eligible public game or a saved chess username. Fix the preflight, then come back to refresh the receipt.",
-            primaryLabel: "Check account preflight",
-            primaryHref: "/account",
-            secondaryLabel: "Open support packet",
-            secondaryHref: "/support",
-          };
 
   return (
     <article className="challenge-card proof-receipt-card">
@@ -177,14 +99,6 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         </div>
       </div>
       <div className="proof-line">{summary.meta}</div>
-      <div className="note-card">
-        <strong>{nextStep.label}</strong>
-        <p>{nextStep.copy}</p>
-        <div className="button-row">
-          <Link href={nextStep.primaryHref} className="button secondary">{nextStep.primaryLabel}</Link>
-          <Link href={nextStep.secondaryHref} className="button secondary">{nextStep.secondaryLabel}</Link>
-        </div>
-      </div>
       <ShareProofActions
         copy={shareCopy}
         challengeTitle={challenge.title}

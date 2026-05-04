@@ -156,35 +156,6 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
   ],
 };
 
-async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
-  const checks = [];
-
-  if (lichessUsername) {
-    checks.push({
-      ...(await buildLatestGameCheck(challengeId, attemptCount, lichessUsername, "")),
-      provider: "lichess" as const,
-    });
-  }
-
-  if (chessComUsername) {
-    checks.push({
-      ...(await buildLatestGameCheck(challengeId, attemptCount + checks.length, "", chessComUsername)),
-      provider: "chess.com" as const,
-    });
-  }
-
-  if (checks.length > 0) {
-    return checks;
-  }
-
-  return [
-    {
-      ...(await buildLatestGameCheck(challengeId, attemptCount, "", "")),
-      provider: "fixture" as const,
-    },
-  ];
-}
-
 async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
   if (challengeId === "knights-before-coffee") {
     if (lichessUsername) {
@@ -597,35 +568,8 @@ export async function startChallenge(formData: FormData) {
   });
 
   revalidatePath("/");
-  revalidatePath("/account");
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
-}
-
-export async function deactivateActiveChallenge(formData: FormData) {
-  const { userId, metadata } = await getUserContext();
-  const challengeId = String(formData.get("challengeId") ?? "");
-  const activeChallenge =
-    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
-      ? (metadata.activeChallenge as { id?: string })
-      : null;
-
-  if (!activeChallenge?.id || activeChallenge.id !== challengeId) {
-    throw new Error("That quest is not currently active.");
-  }
-
-  const client = await clerkClient();
-  await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      ...metadata,
-      activeChallenge: null,
-    },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/account");
-  revalidatePath("/challenges");
-  revalidatePath(`/challenges/${challengeId}`);
 }
 
 export async function submitChallengeAttempt(formData: FormData) {
@@ -730,7 +674,6 @@ export async function submitChallengeAttempt(formData: FormData) {
           id: `${challenge.id}:${now}`,
           challengeId: challenge.id,
           gameId,
-          provider: isChessComSubmission ? "chess.com" : "lichess",
           status: verification.status,
           summary: verification.summary,
           checkedAt: now,
@@ -776,12 +719,10 @@ export async function checkActiveChallenge() {
   const now = new Date().toISOString();
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
-  const providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
+  const check = await buildLatestGameCheck(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
   const progress = getChallengeProgress(metadata);
-  const passedCheck = providerChecks.find((check) => check.status === "passed");
-  const latestCheck = providerChecks.at(-1);
   const completedChallengeIds =
-    passedCheck && !progress.completedChallengeIds.includes(challenge.id)
+    check.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
       ? [...progress.completedChallengeIds, challenge.id]
       : progress.completedChallengeIds;
 
@@ -791,21 +732,20 @@ export async function checkActiveChallenge() {
       ...metadata,
       activeChallenge: {
         id: challenge.id,
-        status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
+        status: check.status === "passed" ? "verified" : check.status,
         startedAt: activeChallenge.startedAt ?? now,
-        verifiedAt: passedCheck ? now : undefined,
+        verifiedAt: check.status === "passed" ? now : undefined,
       },
       challengeAttempts: [
         ...existingAttempts,
-        ...providerChecks.map((check, index) => ({
-          id: `${challenge.id}:${check.provider}:${now}:${index}`,
+        {
+          id: `${challenge.id}:${now}`,
           challengeId: challenge.id,
           gameId: check.gameId,
-          provider: check.provider,
           status: check.status,
           summary: check.summary,
           checkedAt: now,
-        })),
+        },
       ],
       challengeProgress: {
         completedChallengeIds,

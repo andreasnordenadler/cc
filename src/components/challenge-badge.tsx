@@ -6,50 +6,14 @@ type ChallengeBadgeProps = {
   challenge: Challenge;
   size?: "compact" | "hero";
   earned?: boolean;
-  presentation?: "token" | "art";
 };
 
-export default function ChallengeBadge({ challenge, size = "compact", earned = false, presentation = "token" }: ChallengeBadgeProps) {
+export default function ChallengeBadge({ challenge, size = "compact", earned = false }: ChallengeBadgeProps) {
   const identity = challenge.badgeIdentity;
   const heraldry = identity.heraldry;
-  const className = [
-    presentation === "art" ? "challenge-badge-art" : "challenge-badge-token",
-    size === "hero" ? "hero" : "",
-    earned ? "earned" : "",
-  ]
+  const className = ["challenge-badge-token", size === "hero" ? "hero" : "", earned ? "earned" : ""]
     .filter(Boolean)
     .join(" ");
-
-  if (presentation === "art") {
-    return (
-      <span
-        className={className}
-        style={{
-          "--badge-primary": identity.colors.primary,
-          "--badge-secondary": identity.colors.secondary,
-          "--badge-glow": identity.colors.glow,
-        } as CSSProperties}
-        aria-label={`${identity.name} badge: ${heraldry.meaning}`}
-        title={`${identity.name} · ${heraldry.motto}`}
-      >
-        {identity.image ? (
-          <Image
-            src={identity.image}
-            alt=""
-            width={size === "hero" ? 220 : 112}
-            height={size === "hero" ? 220 : 112}
-            className="badge-reference-art"
-            priority={size === "hero"}
-            unoptimized
-          />
-        ) : (
-          <span className="badge-shield">
-            <span className="badge-token-motif">{identity.motif}</span>
-          </span>
-        )}
-      </span>
-    );
-  }
 
   return (
     <div

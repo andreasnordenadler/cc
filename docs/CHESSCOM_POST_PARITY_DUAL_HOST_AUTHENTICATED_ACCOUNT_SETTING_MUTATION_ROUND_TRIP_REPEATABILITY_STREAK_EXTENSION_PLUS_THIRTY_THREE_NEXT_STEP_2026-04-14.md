@@ -5,7 +5,7 @@ Owner: Sam
 
 ## Completed proof being extended
 
-The latest completed proof is the thirty-sixth-run same-run dual-host authenticated `/account` Chess.com username-setting mutation round-trip repeatability streak extension smoke captured in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_TWO_SMOKE_2026-04-14.md`.
+The latest completed proof is the thirty-seventh-run same-run dual-host authenticated `/account` Chess.com username-setting mutation round-trip repeatability streak extension smoke captured in `cc/docs/CHESSCOM_POST_PARITY_DUAL_HOST_AUTHENTICATED_ACCOUNT_SETTING_MUTATION_ROUND_TRIP_REPEATABILITY_STREAK_EXTENSION_PLUS_THIRTY_THREE_SMOKE_2026-04-14.md`.
 
 ## Smallest next step
 
@@ -13,7 +13,7 @@ Run one more fresh same-run signed-in dual-host `/account` round-trip repeatabil
 
 ## Why this is still the tightest follow-up
 
-- It extends the current authenticated round-trip repeatability streak from thirty-six completed fresh runs to thirty-seven without widening scope.
+- It extends the current authenticated round-trip repeatability streak from thirty-seven completed fresh runs to thirty-eight without widening scope.
 - It reuses the already-proven `/account` mutation flow, immediate post-submit comparison, and post-reload comparison on both hosts.
 - It keeps the proof surface minimal and reviewable by changing only the fresh Chess.com username value and proof window.
 

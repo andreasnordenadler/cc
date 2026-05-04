@@ -7,7 +7,7 @@ import { CHALLENGES } from "@/lib/challenges";
 export const metadata: Metadata = {
   title: "How proof works — Side Quest Chess",
   description:
-    "The Side Quest Chess rulebook explains how weird chess quests are verified from real Lichess and Chess.com games without manual uploads or engine dashboards.",
+    "The Side Quest Chess rulebook explains how weird chess quests are verified from real Lichess and Chess.com games without PGN homework or engine dashboards.",
   openGraph: {
     title: "How proof works — Side Quest Chess",
     description:
@@ -23,7 +23,7 @@ const proofSteps = [
   },
   {
     title: "Play real chess",
-    copy: "Use Lichess or Chess.com like normal. Side Quest Chess is not a replacement board, a manual-upload chore, or an engine-analysis dashboard.",
+    copy: "Use Lichess or Chess.com like normal. Side Quest Chess is not a replacement board, a PGN homework tool, or an engine-analysis dashboard.",
   },
   {
     title: "Check the latest games",
@@ -37,7 +37,7 @@ const proofSteps = [
 
 const verifierStatuses = [
   {
-    label: "Automated now",
+    label: "Live-backed now",
     title: "Queen? Never Heard of Her",
     copy: "The canonical quest already has a deterministic rule checker plus Lichess latest-game normalization for queen loss before move 15, opponent queen present, legal time classes, and a win.",
   },
@@ -99,7 +99,7 @@ export default async function RulesPage() {
               <span className="eyebrow">Verifier roadmap</span>
               <h2>What counts as proof?</h2>
             </div>
-            <span className="badge gold">no manual uploads</span>
+            <span className="badge gold">no PGN homework</span>
           </div>
           <div className="grid">
             {verifierStatuses.map((item) => (

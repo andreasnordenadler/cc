@@ -20,16 +20,14 @@ The block keeps existing auth and challenge-start behavior: signed-in users can 
 
 ## Live verification
 
-- Production deploy: `https://cc-9qhj5qpfl-andreas-nordenadlers-projects.vercel.app` ✅
+- Production deploy: `https://cc-fbdl6bjw3-andreas-nordenadlers-projects.vercel.app` ✅
 - Alias: `https://sidequestchess.com` ✅
 - Smoke checks:
-  - Final merged deploy `/account` returned HTTP 200 and contained `First tester route`, `Start with three dares`, `Knights Before Coffee`, `No Castle Club`, and `Queen? Never Heard of Her` ✅
+  - Deploy `/account` returned HTTP 200 and contained `First tester route`, `Start with three dares`, `Knights Before Coffee`, `No Castle Club`, and `Queen? Never Heard of Her` ✅
   - Canonical `/account` returned HTTP 200 and contained `First tester route`, `Start with three dares`, and `choice-saver` ✅
   - Canonical `/challenges` returned HTTP 200 and retained the existing `Private beta starter route` strings ✅
   - Canonical `/result` returned HTTP 200 and retained receipt/check/challenge copy ✅
-- Canonical `/support` returned HTTP 200 after the merged redeploy, confirming newer remote support/privacy route work stayed live ✅
-- Canonical `/challenges/knights-before-coffee` returned HTTP 200 and retained the newer `Before you start` proof-contract copy after the merged redeploy ✅
-- Vercel error logs: `vercel logs https://cc-9qhj5qpfl-andreas-nordenadlers-projects.vercel.app --no-follow --level error --since 10m` found no logs ✅
+- Vercel error logs: `vercel logs https://cc-fbdl6bjw3-andreas-nordenadlers-projects.vercel.app --no-follow --level error --since 10m` found no logs ✅
 
 ## Commit
 
