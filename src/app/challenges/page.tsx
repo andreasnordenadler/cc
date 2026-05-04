@@ -99,7 +99,7 @@ export default async function ChallengesPage() {
                 >
                   <div className="card-meta quest-card-meta">
                     <strong className="quest-points">+{challenge.reward} pts</strong>
-                    <span className={`badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
+                    <span className={`badge difficulty-badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
                   </div>
                   <ChallengeBadge challenge={challenge} earned={isCompleted} presentation="art" />
                   <strong>{challenge.title}</strong>
@@ -155,7 +155,7 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
     >
       <div className="card-meta quest-card-meta">
         <strong className="quest-points">+{challenge.reward} pts</strong>
-        <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
+        <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>
       </div>
       <div className="challenge-card-title-row">
         <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />

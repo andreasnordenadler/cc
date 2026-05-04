@@ -149,7 +149,8 @@ p { color: var(--muted); line-height: 1.5; }
 .active-quest-inline { display: inline-flex; align-items: center; min-height: 28px; padding: 6px 10px; border-radius: 999px; background: rgba(96,240,175,.16); color: var(--green); border: 1px solid rgba(96,240,175,.38); font-size: 11px; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
 .link-button { appearance: none; border: 0; background: transparent; color: var(--gold); font-weight: 950; cursor: pointer; padding: 0; text-decoration: none; }
 .link-button:hover, .link-button:focus-visible { color: var(--ink); text-decoration: underline; outline: none; }
-.badge { display: inline-flex; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; }
+.badge { display: inline-flex; align-items: center; justify-content: center; padding: 7px 10px; border-radius: 999px; font-size: 11px; font-weight: 950; color: #111; text-align: center; }
+.difficulty-badge { min-width: 72px; }
 .badge.danger { background: var(--danger); color: #111; }
 .badge.gold { background: var(--gold); color: #111; }
 .badge.orange { background: var(--orange); color: #111; }
