@@ -181,11 +181,20 @@ export default async function Home() {
               <Fact label="Chess account" value={connectedIdentity || "Add Lichess or Chess.com"} />
               <Fact label="Completed quests" value={`${progress.totalCompletedChallenges}`} />
             </div>
+            <p>
+              {activeQuestRecord
+                ? "Play the active quest on Lichess or Chess.com, then jump straight to Account to run the latest-game check."
+                : "Choose one quest first so Account knows which weird rule to judge after your next public game."}
+            </p>
             <div className="button-row">
-              <Link href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"} className="button primary">
-                {activeQuestRecord ? "Continue quest" : "Choose a quest"}
+              <Link href={activeQuestRecord ? "/account" : "/challenges"} className="button primary">
+                {activeQuestRecord ? "Run latest-game check" : "Choose a quest"}
               </Link>
-              <Link href="/account" className="button secondary">Account details</Link>
+              {activeQuestRecord ? (
+                <Link href={`/challenges/${activeQuestRecord.id}`} className="button secondary">Review active rules</Link>
+              ) : (
+                <Link href="/account" className="button secondary">Account details</Link>
+              )}
             </div>
           </section>
         ) : null}

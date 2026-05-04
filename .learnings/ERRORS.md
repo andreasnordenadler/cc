@@ -2072,3 +2072,48 @@ Run `pnpm install --frozen-lockfile` before lint/build in newly-created SQC work
 **Error**: fresh detached worktree had no `node_modules`, so `eslint` was not found.
 **Resolution**: ran `pnpm install --frozen-lockfile` first, then `pnpm lint` and `pnpm build` passed.
 **Prevent**: for clean SQC worktrees, run `pnpm install --frozen-lockfile` before lint/build unless `node_modules` is already present.
+
+## [ERR-20260504-001] pnpm_lint_missing_node_modules
+
+**Logged**: 2026-05-04T10:50:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`pnpm lint && pnpm build` failed in a fresh CC worktree because `node_modules` was not installed, so `eslint` was unavailable.
+
+### Resolution
+Run `pnpm install --frozen-lockfile` before verification in newly-created CC worktrees.
+
+---
+
+## [ERR-20260504-002] sqc_smoke_overasserted_signed_in_content_and_vercel_logs_since
+
+**Logged**: 2026-05-04T10:56:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Initial SQC smoke asserted signed-in-only `Active quest` copy from a signed-out `/challenges` request, and `vercel logs --since` is unsupported by the installed CLI.
+
+### Resolution
+Use signed-out-visible assertions for unauthenticated smoke checks and run a bounded unfiltered `vercel logs <deployment-url>` check instead.
+
+---
+
+## [ERR-20260504-003] macos_missing_timeout_command
+
+**Logged**: 2026-05-04T10:57:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A bounded Vercel log check tried to use GNU `timeout`, which is not available by default on this macOS host.
+
+### Resolution
+Use the OpenClaw exec timeout parameter instead of shell `timeout` on macOS.
+
+---
