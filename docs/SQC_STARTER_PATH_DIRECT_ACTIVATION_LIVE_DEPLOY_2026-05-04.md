@@ -21,7 +21,18 @@ The starter path is now the primary first-run route. Letting users activate the 
 - `pnpm install --frozen-lockfile` ✅
 - `pnpm lint` ✅
 - `pnpm build` ✅
+- Commit: `672ce6c` (`Add SQC starter path direct activation`) ✅
+- Pushed to `origin/main` ✅
+- Production deploy: `https://cc-4uzz6sxrw-andreas-nordenadlers-projects.vercel.app` ✅
+- Alias: `https://sidequestchess.com` ✅
+- Vercel inspect status: `Ready` ✅
+- Live smoke:
+  - deploy `/path` returned HTTP 200 and showed signed-out `Connect to start` + `Preview next quest` strings ✅
+  - canonical `/path` returned HTTP 200 and showed signed-out `Connect to start` + `Preview next quest` strings ✅
+  - canonical `/challenges` returned HTTP 200 and preserved `Recommended starter route` + `Full quest deck` ✅
+  - canonical `/result` returned HTTP 200 ✅
+- Bounded Vercel log watch emitted no runtime log lines before timeout ✅
 
 ## Deployment
 
-Pending in this proof doc until production deploy/smoke is completed.
+Live on `https://sidequestchess.com/path` via deployment `https://cc-4uzz6sxrw-andreas-nordenadlers-projects.vercel.app`.
