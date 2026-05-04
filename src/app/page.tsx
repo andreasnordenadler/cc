@@ -136,6 +136,38 @@ export default async function Home() {
           </div>
         </section>
 
+        <section className="card mission-card" aria-label="Friend quest loop">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Friend quest loop</span>
+              <h2>Send one terrible quest, then compare receipts.</h2>
+            </div>
+            <span className="badge pink">share loop</span>
+          </div>
+          <p>
+            The fastest way to understand Side Quest Chess is not a tour — it is sending one chess friend the same bad idea and letting the proof cards settle the argument.
+          </p>
+          <div className="checker-flow" aria-label="Friend quest receipt loop">
+            <Link href="/today" className="flow-step ready clickable-quest-card">
+              <strong>1. Pick today’s quest</strong>
+              <p>Use the daily quest or starter path so both players are chasing the same exact rule.</p>
+            </Link>
+            <Link href="/share-kit" className="flow-step hot clickable-quest-card">
+              <strong>2. Send the exact link</strong>
+              <p>The quest page carries the rules, badge reward, and proof target with the invite.</p>
+            </Link>
+            <Link href="/proof-log" className="flow-step ready clickable-quest-card">
+              <strong>3. Compare receipts</strong>
+              <p>After latest-game checks, passed and failed proof cards make the bragging rights obvious.</p>
+            </Link>
+          </div>
+          <div className="button-row">
+            <Link href="/today" className="button primary">Use today’s quest</Link>
+            <Link href="/share-kit" className="button pink">Open share kit</Link>
+            <Link href="/proof-log" className="button secondary">Compare receipts</Link>
+          </div>
+        </section>
+
         {isSignedIn ? (
           <section className="card mission-card home-status-card compact-run-card">
             <div className="section-head">
