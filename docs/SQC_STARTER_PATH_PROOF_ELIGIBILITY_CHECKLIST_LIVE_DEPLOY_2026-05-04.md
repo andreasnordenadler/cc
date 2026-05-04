@@ -25,10 +25,10 @@ The starter path already chooses the first three quests well, but a tester could
 - `pnpm lint` ✅
 - `pnpm build` ✅
 - Production deploy ✅
-  - Deploy URL: `https://cc-kgnyddo8o-andreas-nordenadlers-projects.vercel.app`
+  - Deploy URL: `https://cc-ds1oruzzj-andreas-nordenadlers-projects.vercel.app`
   - Canonical alias: `https://sidequestchess.com`
 - Live smoke ✅
-  - `https://cc-kgnyddo8o-andreas-nordenadlers-projects.vercel.app/path` → HTTP 200
+  - `https://cc-ds1oruzzj-andreas-nordenadlers-projects.vercel.app/path` → HTTP 200
   - `https://sidequestchess.com/path` → HTTP 200
   - `https://sidequestchess.com/rules` → HTTP 200
   - `https://sidequestchess.com/account` → HTTP 200
