@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
+import { startChallenge } from "@/app/actions";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import {
   getActiveChallenge,
@@ -73,8 +74,15 @@ export default async function StarterPathPage() {
                 New players should not have to choose from chaos soup. This path starts with a tiny knight-only ritual, escalates into bishop restraint, then ends with one slightly suspicious king walk once the loop makes sense.
               </p>
               <div className="button-row hero-actions">
-                <Link href={`/challenges/${nextChallenge.id}`} className="button primary">Start next step</Link>
-                <Link href="/connect" className="button secondary">Connect proof account</Link>
+                {userId ? (
+                  <form action={startChallenge}>
+                    <input type="hidden" name="challengeId" value={nextChallenge.id} />
+                    <button type="submit" className="button primary">Make next quest active</button>
+                  </form>
+                ) : (
+                  <Link href="/connect" className="button primary">Connect to start</Link>
+                )}
+                <Link href={`/challenges/${nextChallenge.id}`} className="button secondary">Preview next quest</Link>
                 <Link href="/challenges" className="button secondary">Browse all quests</Link>
               </div>
             </div>
@@ -96,6 +104,7 @@ export default async function StarterPathPage() {
               stepNumber={index + 1}
               active={activeChallenge?.id === challenge.id}
               completed={completedSet.has(challenge.id)}
+              isSignedIn={Boolean(userId)}
             />
           ))}
         </section>
@@ -122,11 +131,13 @@ function PathStep({
   stepNumber,
   active,
   completed,
+  isSignedIn,
 }: {
   challenge: Challenge;
   stepNumber: number;
   active: boolean;
   completed: boolean;
+  isSignedIn: boolean;
 }) {
   const status = completed ? "cleared" : active ? "active" : "nextable";
   const statusTone = completed ? "green" : active ? "gold" : "blue";
@@ -149,7 +160,14 @@ function PathStep({
       <div className="card-footer">
         <strong>+{challenge.reward} pts</strong>
         <span>{challenge.badgeIdentity.name}</span>
-        <Link href={`/challenges/${challenge.id}`}>{completed ? "Review" : "Start"}</Link>
+        {isSignedIn && !completed ? (
+          <form action={startChallenge}>
+            <input type="hidden" name="challengeId" value={challenge.id} />
+            <button type="submit" className="link-button">{active ? "Restart" : "Make active"}</button>
+          </form>
+        ) : (
+          <Link href={isSignedIn ? `/challenges/${challenge.id}` : "/connect"}>{completed ? "Review" : "Connect to start"}</Link>
+        )}
       </div>
     </article>
   );

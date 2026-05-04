@@ -2033,3 +2033,33 @@ For bounded deploy checks, use an unfiltered short log stream with timeout or th
 **Failure**: Vercel CLI rejected `--since` because logs streaming does not support filtering; macOS shell also lacked GNU `timeout`.
 **Resolution**: Used OpenClaw exec's own timeout around unfiltered `vercel logs <deployment>`; the stream emitted no runtime log lines before the bounded timeout.
 **Prevention**: For Vercel post-deploy log watches on this Mac, do not use `--since` or shell `timeout`; rely on tool-level timeout for bounded streams.
+
+## [ERR-20260504-001] worktree_pnpm_lint_missing_node_modules
+
+**Logged**: 2026-05-04T07:52:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+`pnpm lint` failed in a fresh SQC git worktree because dependencies were not installed there.
+
+### Error
+```text
+sh: eslint: command not found
+WARN Local package.json exists, but node_modules missing, did you mean to install?
+```
+
+### Context
+- Command attempted: `pnpm lint && pnpm build`
+- Worktree: `.worktrees/autoburst-first-run`
+- Cause: clean worktree did not have its own `node_modules`.
+
+### Suggested Fix
+Run `pnpm install --frozen-lockfile` before lint/build in newly-created SQC worktrees.
+
+### Metadata
+- Reproducible: yes
+- Related Files: package.json, pnpm-lock.yaml
+
+---
