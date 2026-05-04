@@ -1978,3 +1978,31 @@ For future CC deploy proof bursts, bootstrap the worktree with `.vercel/project.
 - Tags: cc, vercel, worktree, deploy-proof
 
 ---
+
+## [ERR-20260504-001] vercel_logs_since_flag
+
+**Logged**: 2026-05-04T01:00:00Z
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 15m` failed because the installed Vercel CLI treats `--since` as unsupported filtering for that command path.
+
+### Error
+```text
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Command attempted after SQC production deploy smoke: `vercel logs https://cc-nj5q94pjs-andreas-nordenadlers-projects.vercel.app --since 15m`
+- The CLI emitted a filtering/follow conflict even though `--follow` was not explicitly passed.
+
+### Suggested Fix
+For bounded deploy checks, use an unfiltered short log stream with timeout or the Vercel API/list output if recent filtering is required.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_PROOF_LOG_RECEIPT_STATE_CLARITY_LIVE_DEPLOY_2026-05-04.md
+
+---

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-03 23:00 Europe/Stockholm
+Last updated: 2026-05-04 02:55 Europe/Stockholm
 Owner: Sam  
 Status: active — three-project focus
 
@@ -104,6 +104,7 @@ Old pre-reset standby roadmap is archived at:
   - 2026-05-03 14:44 Europe/Stockholm progress: tightened `/today` into a clearer daily launch loop (`one shared quest → one real game → one receipt`) with direct handoffs to connect chess account, result receipt, and proof log while keeping friend-share actions intact; proof doc `docs/SQC_TODAY_DAILY_LOOP_LAUNCH_TIGHTENING_LIVE_DEPLOY_2026-05-03.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-ikc433zh2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/today`, canonical `/connect`, `/result`, and `/proof-log`, plus Vercel deployment error-log check with no logs found.
   - 2026-05-04 01:18 Europe/Stockholm progress: added a `/result` private-beta support shortcut so confusing pass/fail/pending receipts now point directly to the support packet with the needed quest/provider/username/game-link fields; proof doc `docs/SQC_RESULT_SUPPORT_PACKET_SHORTCUT_LIVE_DEPLOY_2026-05-04.md`. Verification: `pnpm lint`, `pnpm build`, production deploy, live smoke for `/result`, `/support`, and `/`.
   - 2026-05-04 01:44 Europe/Stockholm progress: added per-receipt next steps to `/proof-log` so saved passed/failed/pending receipts now point to sharing, rule review, account preflight, or support instead of becoming static history; proof doc `docs/SQC_PROOF_LOG_RECEIPT_NEXT_STEPS_LIVE_DEPLOY_2026-05-04.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-arlvxfdhs-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/proof-log`, canonical `/support`, and canonical `/account`, plus bounded Vercel log watch with no runtime errors observed.
+  - 2026-05-04 02:55 Europe/Stockholm progress: added a `/proof-log` receipt-state explainer so empty/new proof logs preview passed/failed/pending outcomes and their next actions before a tester has saved history; proof doc `docs/SQC_PROOF_LOG_RECEIPT_STATE_CLARITY_LIVE_DEPLOY_2026-05-04.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-nj5q94pjs-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/proof-log`, canonical `/result`, and canonical `/support`, plus Vercel inspect status `Ready`.
   - Acceptance:
     - First-time public launch path is clear: pick quest → connect chess account → play real game → get receipt/badge.
     - Homepage and challenge hub emphasize the core product loop over secondary/admin/beta surfaces.
