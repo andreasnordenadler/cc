@@ -94,7 +94,6 @@ export default async function ChallengesPage() {
                   <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} presentation="art" />
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
-                  <span className="button secondary" aria-hidden="true">Open quest</span>
                 </Link>
               );
             })}
@@ -133,11 +132,16 @@ export default async function ChallengesPage() {
 function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
   const difficultyTone = challenge.difficulty === "Brutal" || challenge.difficulty === "Absurd" ? "danger" : "blue";
   return (
-    <Link href={`/challenges/${challenge.id}`} className={`challenge-card clickable-quest-card ${featured ? "featured" : ""}`}>
+    <Link
+      href={`/challenges/${challenge.id}`}
+      className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""}`}
+      aria-current={active ? "true" : undefined}
+    >
       <div className="card-meta">
         <span>{challenge.category}</span>
         <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
       </div>
+      {active ? <div className="active-quest-callout">Active quest</div> : null}
       <div className="challenge-card-title-row">
         <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />
         <div>
@@ -146,16 +150,14 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
           <em>{challenge.openingHint}</em>
         </div>
       </div>
-      <div className="badge-row">
-        {completed ? <span className="badge green">completed</span> : null}
-        {active ? <span className="badge gold">active</span> : null}
-      </div>
-      <div className="card-footer">
+      {completed ? (
+        <div className="badge-row">
+          <span className="badge green">completed</span>
+        </div>
+      ) : null}
+      <div className="card-footer quest-card-points-row">
         <strong>+{challenge.reward} pts</strong>
-        <span>{challenge.badge}</span>
-        <span>{active ? "Continue quest" : "Open quest"}</span>
       </div>
     </Link>
   );
 }
-
