@@ -104,7 +104,7 @@ p { color: var(--muted); line-height: 1.5; }
 .challenge-card.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 16% 10%, rgba(96,240,175,.28), transparent 34%), linear-gradient(135deg, rgba(96,240,175,.14), rgba(245,200,106,.12), rgba(255,255,255,.07)); box-shadow: 0 0 0 2px rgba(96,240,175,.28), 0 30px 90px rgba(0,0,0,.34), 0 0 42px rgba(96,240,175,.16); }
 .starter-route-card { position: relative; min-height: 260px; height: 100%; display: grid; grid-template-rows: auto auto auto 1fr auto; overflow: visible; }
 .starter-route-card.active-quest-card { border-color: rgba(96,240,175,.8); background: radial-gradient(circle at 18% 12%, rgba(96,240,175,.24), transparent 38%), rgba(96,240,175,.12); box-shadow: 0 0 0 2px rgba(96,240,175,.24), 0 22px 56px rgba(0,0,0,.26); }
-.active-quest-stamp { position: absolute; left: 72px; top: 112px; z-index: 4; width: 150px; height: 68px; background: url('/active-quest-stamp.svg') center / contain no-repeat; filter: drop-shadow(0 10px 14px rgba(0,0,0,.28)); pointer-events: none; }
+.active-quest-stamp { position: absolute; left: 72px; top: 92px; z-index: 4; width: 150px; height: 68px; background: url('/active-quest-stamp.svg?v=2') center / contain no-repeat; filter: drop-shadow(0 10px 14px rgba(0,0,0,.28)); pointer-events: none; }
 .challenge-card-title-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: start; }
 .challenge-card-title-row > div { min-width: 0; display: grid; gap: 8px; }
 .challenge-card-title-row h3 { overflow-wrap: anywhere; }
