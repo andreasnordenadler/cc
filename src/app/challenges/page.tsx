@@ -1,40 +1,14 @@
-import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import ChallengeBadge from "@/components/challenge-badge";
-import ChallengeDeckBrowser from "@/components/challenge-deck-browser";
+import ChallengeDeckBrowser, { ChallengeCard } from "@/components/challenge-deck-browser";
 import SiteNav from "@/components/site-nav";
-import { CHALLENGES, type Challenge } from "@/lib/challenges";
+import { CHALLENGES } from "@/lib/challenges";
 import {
   getActiveChallenge,
   getChallengeProgress,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-const betaStarterRoute = [
-  {
-    label: "First weird win",
-    challengeId: "knights-before-coffee",
-    why: "Smallest rule load: make four knight moves first, then win. Best for confirming the proof loop before chasing harder nonsense.",
-  },
-  {
-    label: "Bishop restraint",
-    challengeId: "bishop-field-trip",
-    why: "A gentle second step: develop both bishops before the queen, then win. It teaches constraints without feeling like homework.",
-  },
-  {
-    label: "King-walk stretch",
-    challengeId: "early-king-walk",
-    why: "The first suspicious escalation: move the king early without castling, then still win. Weird enough to be memorable, readable enough to verify.",
-  },
-];
-
-function getDifficultyTone(difficulty: Challenge["difficulty"]) {
-  if (difficulty === "Easy") return "green";
-  if (difficulty === "Medium") return "gold";
-  if (difficulty === "Hard") return "orange";
-  if (difficulty === "Absurd") return "absurd";
-  return "danger";
-}
+const betaStarterRouteChallengeIds = ["knights-before-coffee", "bishop-field-trip", "early-king-walk"];
 
 export default async function ChallengesPage() {
   const { userId } = await auth();
@@ -46,6 +20,9 @@ export default async function ChallengesPage() {
   const currentChallenge = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
+  const betaStarterRouteChallenges = betaStarterRouteChallengeIds
+    .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
+    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
 
   return (
     <main className="site-shell">
@@ -76,35 +53,15 @@ export default async function ChallengesPage() {
           <p>
             New here? Start with these three quests if you want the smoothest first run: one simple win, one clean constraint, then one slightly suspicious king walk.
           </p>
-          <div className="grid">
-            {betaStarterRoute.map((step) => {
-              const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
-              const isActive = currentChallenge?.id === challenge.id;
-              const isCompleted = completedSet.has(challenge.id);
-
-              return (
-                <Link
-                  className={`fact starter-route-card clickable-quest-card ${isActive ? "active-quest-card" : ""}`}
-                  href={`/challenges/${challenge.id}`}
-                  key={step.challengeId}
-                  aria-current={isActive ? "true" : undefined}
-                >
-                  {isActive ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
-                  <div className="card-meta quest-card-meta">
-                    <strong className="quest-points">+{challenge.reward} pts</strong>
-                    <span className={`badge difficulty-badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
-                  </div>
-                  <ChallengeBadge challenge={challenge} earned={isCompleted} presentation="art" />
-                  <strong>{challenge.title}</strong>
-                  <p>{step.why}</p>
-                  {isCompleted ? (
-                    <div className="card-footer quest-state-row">
-                      <span className="badge green">completed</span>
-                    </div>
-                  ) : null}
-                </Link>
-              );
-            })}
+          <div className="big-grid starter-route-grid">
+            {betaStarterRouteChallenges.map((challenge) => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                completed={completedSet.has(challenge.id)}
+                active={currentChallenge?.id === challenge.id}
+              />
+            ))}
           </div>
         </section>
       </div>

@@ -451,7 +451,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
   );
 }
 
-function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
+export function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
   const difficultyTone = getDifficultyTone(challenge.difficulty);
   return (
     <Link
