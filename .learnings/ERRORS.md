@@ -2294,3 +2294,21 @@ Ran `pnpm install --frozen-lockfile`, then `pnpm lint` and `pnpm build` passed.
 Used `vercel logs --environment production --since 30m --status-code 500 --no-branch --limit 20`, which returned no logs.
 
 ---
+
+## [ERR-20260504-003] vercel deploy daily limit
+
+**Logged**: 2026-05-04T20:11:00+02:00
+**Priority**: medium
+**Status**: blocked
+**Area**: deploy
+
+### Summary
+Vercel production deploy failed with free-tier daily deployment limit: `Resource is limited - try again in 24 hours (more than 100, code: api-deployments-free-per-day)`.
+
+### Impact
+Code is committed and pushed to `origin/main`, but this specific change could not be manually deployed immediately.
+
+### Suggested Action
+Avoid excessive manual production deploys during tight UI polish loops; batch small visual changes before deploying when possible.
+
+---
