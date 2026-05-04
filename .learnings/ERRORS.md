@@ -2006,3 +2006,21 @@ For bounded deploy checks, use an unfiltered short log stream with timeout or th
 - Related Files: docs/SQC_PROOF_LOG_RECEIPT_STATE_CLARITY_LIVE_DEPLOY_2026-05-04.md
 
 ---
+
+## [ERR-20260504-001] Fresh isolated CC worktree missing node_modules before verification
+
+**Logged**: 2026-05-04T06:49:00+02:00
+**Project**: CC / Side Quest Chess
+**Command**: `pnpm lint && pnpm build`
+**Failure**: `eslint: command not found` because the newly-created isolated worktree had no `node_modules` yet.
+**Resolution**: Ran `pnpm install --frozen-lockfile` first, then `pnpm lint` and `pnpm build` passed.
+**Prevention**: For fresh CC/SQC worktrees, run/install dependencies before the first lint/build gate.
+
+## [ERR-20260504-002] CC local next-start smoke missing Clerk publishable key
+
+**Logged**: 2026-05-04T06:53:00+02:00
+**Project**: CC / Side Quest Chess
+**Command**: `pnpm exec next start -p 4294` followed by local curl smoke
+**Failure**: Local server booted, but route requests failed because the isolated shell did not have Clerk `publishableKey` env configured.
+**Resolution**: Treat local runtime smoke as blocked in this environment; use `pnpm build` plus Vercel production deploy/live smoke where env is configured.
+**Prevention**: For SQC authenticated Next routes, prefer deploy/live smoke unless the worktree has Clerk env loaded.

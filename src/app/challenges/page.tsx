@@ -69,18 +69,6 @@ export default async function ChallengesPage() {
           </section>
         ) : null}
 
-        <section className="big-grid" aria-label="Available quests">
-          {CHALLENGES.map((challenge, index) => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              featured={index === 0}
-              completed={completedSet.has(challenge.id)}
-              active={currentChallenge?.id === challenge.id}
-            />
-          ))}
-        </section>
-
         <section className="mission-card" aria-label="Recommended starter route">
           <div className="section-head">
             <div>
@@ -111,6 +99,31 @@ export default async function ChallengesPage() {
               );
             })}
           </div>
+        </section>
+
+        <section className="mission-card" aria-label="Full quest deck introduction">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Full quest deck</span>
+              <h2>Ready for the rest of the bad ideas?</h2>
+            </div>
+            <span className="badge gold">10 quests</span>
+          </div>
+          <p>
+            Once the starter route makes sense, browse the full live-backed deck. Every quest below can be checked from public Lichess or Chess.com games.
+          </p>
+        </section>
+
+        <section className="big-grid" aria-label="Available quests">
+          {CHALLENGES.map((challenge, index) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              featured={index === 0}
+              completed={completedSet.has(challenge.id)}
+              active={currentChallenge?.id === challenge.id}
+            />
+          ))}
         </section>
       </div>
     </main>
