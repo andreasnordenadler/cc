@@ -298,6 +298,10 @@ function getLatestProviderAttempt(attempts: ChallengeAttempt[], provider: "liche
 }
 
 function getAttemptProvider(attempt: ChallengeAttempt): "lichess" | "chess.com" | "unknown" {
+  if (attempt.provider === "lichess" || attempt.provider === "chess.com") {
+    return attempt.provider;
+  }
+
   const gameId = attempt.gameId ?? "";
 
   if (/chess\.com/i.test(gameId)) {
