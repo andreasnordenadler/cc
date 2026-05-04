@@ -130,7 +130,7 @@ export default async function ResultPage() {
           </div>
           <div className="button-row">
             <Link href={receiptNextStep.href} className="button primary">{receiptNextStep.action}</Link>
-            <Link href="/beta" className="button secondary">Open beta feedback template</Link>
+            <Link href="/support" className="button secondary">Open support packet</Link>
           </div>
         </section>
 
@@ -156,10 +156,10 @@ export default async function ResultPage() {
               <span className="eyebrow">Beta report shortcut</span>
               <h2>Copy the receipt facts before the moment gets fuzzy.</h2>
             </div>
-            <Link href="/beta" className="button secondary">Full template</Link>
+            <Link href="/support" className="button secondary">Support packet</Link>
           </div>
           <p>
-            Private-beta testers can paste this with a screenshot or game URL, so the useful signal is captured without asking them to reconstruct the whole run.
+            Private-beta testers can paste this into the support packet with a screenshot or game URL, so the useful signal is captured without asking them to reconstruct the whole run.
           </p>
           <pre>{betaReceiptSnapshot}</pre>
         </section>

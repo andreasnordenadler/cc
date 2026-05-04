@@ -97,11 +97,20 @@ export default async function SupportPage() {
             </div>
             <span className="badge gold">beta-friendly</span>
           </div>
+          <p>
+            If the latest receipt is confusing, open it first and copy the receipt facts into this packet. That keeps quest, status, source, and fairness notes together.
+          </p>
+          <div className="button-row">
+            <Link href="/result" className="button primary">Copy latest receipt facts</Link>
+            <Link href="/account" className="button secondary">Check account preflight</Link>
+          </div>
           <pre className="receipt-copy" aria-label="Copyable support report template">{`Quest:
 Provider: Lichess / Chess.com
 Username:
 Game link:
 Receipt status: passed / failed / pending / unclear
+Latest check headline:
+Fairness note:
 What felt wrong:
 Screenshot attached: yes / no`}</pre>
         </section>
