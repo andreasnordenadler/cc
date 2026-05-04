@@ -51,27 +51,30 @@ export default async function ChallengesPage() {
           </p>
         </section>
 
-        {currentChallenge ? (
-          <section className="mission-card active-quest-card">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Active quest</span>
-                <div className="active-quest-title-row">
-                  <span className="clean-quest-logo active-quest-badge" aria-hidden="true">
-                    <ChallengeBadge challenge={currentChallenge} earned={completedSet.has(currentChallenge.id)} presentation="art" />
-                  </span>
-                  <h2>{currentChallenge.title}</h2>
-                </div>
-              </div>
+        <section className="mission-card" aria-label="Full quest deck introduction">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Full quest deck</span>
+              <h2>Ready for the rest of the bad ideas?</h2>
             </div>
-            <p>{currentChallenge.objective}</p>
-            <div className="button-row">
-              <Link href="/account" className="button primary">Run latest-game check</Link>
-              <Link href={`/challenges/${currentChallenge.id}`} className="button secondary">Review quest rules</Link>
-              <Link href={`/dare/${currentChallenge.id}`} className="button pink">Share this dare</Link>
-            </div>
-          </section>
-        ) : null}
+            <span className="badge gold">10 quests</span>
+          </div>
+          <p>
+            Browse the full live-backed deck. Every quest below can be checked from public Lichess or Chess.com games.
+          </p>
+        </section>
+
+        <section className="big-grid" aria-label="Available quests">
+          {CHALLENGES.map((challenge, index) => (
+            <ChallengeCard
+              key={challenge.id}
+              challenge={challenge}
+              featured={index === 0}
+              completed={completedSet.has(challenge.id)}
+              active={currentChallenge?.id === challenge.id}
+            />
+          ))}
+        </section>
 
         <section className="mission-card" aria-label="Recommended starter route">
           <div className="section-head">
@@ -82,12 +85,8 @@ export default async function ChallengesPage() {
             <span className="badge blue">start here</span>
           </div>
           <p>
-            New here? This is the same three-step ladder as Starter path, so the homepage, nav, account preflight, and quest hub all point beginners at one consistent first run.
+            New here? Start with these three quests if you want the smoothest first run: one simple win, one clean constraint, then one slightly suspicious king walk.
           </p>
-          <div className="note-card">
-            <strong>Full deck proof is live.</strong>
-            <p>All ten current starter quests use the same latest-game flow on Lichess or Chess.com, so this route lowers first-run choice pressure without hiding partial verifier coverage.</p>
-          </div>
           <div className="grid">
             {betaStarterRoute.map((step) => {
               const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
@@ -118,31 +117,6 @@ export default async function ChallengesPage() {
               );
             })}
           </div>
-        </section>
-
-        <section className="mission-card" aria-label="Full quest deck introduction">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Full quest deck</span>
-              <h2>Ready for the rest of the bad ideas?</h2>
-            </div>
-            <span className="badge gold">10 quests</span>
-          </div>
-          <p>
-            Once the starter route makes sense, browse the full live-backed deck. Every quest below can be checked from public Lichess or Chess.com games.
-          </p>
-        </section>
-
-        <section className="big-grid" aria-label="Available quests">
-          {CHALLENGES.map((challenge, index) => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              featured={index === 0}
-              completed={completedSet.has(challenge.id)}
-              active={currentChallenge?.id === challenge.id}
-            />
-          ))}
         </section>
       </div>
     </main>
