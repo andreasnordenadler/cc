@@ -53,7 +53,6 @@ export default async function ChallengesPage() {
 
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">Quest Hub</span>
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
             These are not lessons. They are chess quests with proof attached. Start one, play real games on Lichess or Chess.com, and come back when the bad idea has evidence.
