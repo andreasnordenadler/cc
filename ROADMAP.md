@@ -22,6 +22,7 @@ Users pick ridiculous chess quests, play real games on Lichess or Chess.com, and
 - Correct feel: a smart chess friend sending you something dumb to try
 - Primary loop: pick quest → play real chess elsewhere → automatic verification → success/failure result → points/badge/share/friend quest
 - Main anti-goals: no engine dashboard, no PGN upload, no formal training product, no corporate SaaS layout
+- Active quest canon: for now, each user should have exactly one active quest at a time. Re-question this later if group challenges/team quests become a first-class product mode.
 - Quest rule canon: every SQC quest should require the player to win unless Andreas explicitly asks for an exception.
 - Launch posture: Andreas prefers a proper, polished public launch with a rich feature set and very clear user UI over rushing to launch. SQC launch-readiness is the default priority unless another project has an outage/data-risk blocker.
 - Beta tester functionality canon: Andreas explicitly said no more beta tester functionality is needed and that the beta tester side looks good as-is. Do not add more beta-admin, tester-instruction, feedback-template, invite, or beta-reporting functionality by default. Shift SQC effort toward core product usability, clarity, friction removal, quest loop quality, and launch-readiness improvements.
