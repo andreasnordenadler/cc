@@ -146,8 +146,7 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
       className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""}`}
       aria-current={active ? "true" : undefined}
     >
-      <div className="card-meta">
-        <span>{challenge.category}</span>
+      <div className="card-meta quest-card-meta">
         <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
       </div>
       {active ? <div className="active-quest-callout">Active quest</div> : null}
