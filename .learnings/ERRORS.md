@@ -2264,3 +2264,33 @@ Push from detached SQC worktree was rejected because origin/main advanced after 
 Fetch/rebase or cherry-pick onto updated origin/main before pushing detached worktree commits.
 
 ---
+
+## [ERR-20260504-001] isolated_worktree_missing_dependencies
+
+**Logged**: 2026-05-04T20:52:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`pnpm lint && pnpm build` failed in a fresh SQC git worktree because `node_modules` was not installed there.
+
+### Resolution
+Ran `pnpm install --frozen-lockfile`, then `pnpm lint` and `pnpm build` passed.
+
+---
+
+## [ERR-20260504-002] vercel_logs_prod_option
+
+**Logged**: 2026-05-04T20:52:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs cc --prod --since 30m` failed because the installed Vercel CLI does not support `--prod` for logs.
+
+### Resolution
+Used `vercel logs --environment production --since 30m --status-code 500 --no-branch --limit 20`, which returned no logs.
+
+---

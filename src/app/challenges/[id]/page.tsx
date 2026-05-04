@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
@@ -177,6 +178,26 @@ export default async function ChallengeDetailPage({
               <Fact label="3 · Refresh" value="Return here, refresh quest status, and read the latest receipt." />
             </div>
           </div>
+        </section>
+
+        <section className="mission-card quest-detail-section" aria-label="Friend quest handoff">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Friend dare</span>
+              <h2>Send exactly this bad idea.</h2>
+            </div>
+            <span className="badge gold">Quest-specific invite</span>
+          </div>
+          <p>
+            Turn this rule page into a direct dare: copy a friend-ready invite with the quest, objective, badge, and proof link already attached.
+          </p>
+          <ChallengeInviteActions
+            challengeTitle={challenge.title}
+            challengeObjective={challenge.objective}
+            challengePath={`/dare/${challenge.id}`}
+            reward={challenge.reward}
+            badgeName={challenge.badgeIdentity.name}
+          />
         </section>
 
 
