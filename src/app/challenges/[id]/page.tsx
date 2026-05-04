@@ -19,6 +19,8 @@ import {
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
+  formatTime,
+  type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -88,6 +90,8 @@ export default async function ChallengeDetailPage({
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
+  const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
+  const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
   const isCompleted = progress.completedChallengeIds.includes(challenge.id);
@@ -123,11 +127,7 @@ export default async function ChallengeDetailPage({
           </div>
           <div className="button-row hero-actions quest-detail-actions">
             {isSignedIn ? (
-              isActive ? (
-                <form action={checkActiveChallenge}>
-                  <button type="submit" className="button primary">Check latest games</button>
-                </form>
-              ) : (
+              isActive ? null : (
                 <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
               )
             ) : (
@@ -138,6 +138,33 @@ export default async function ChallengeDetailPage({
             {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
           </div>
         </section>
+
+        {isSignedIn && isActive ? (
+          <section className="mission-card quest-status-panel" aria-label="Active quest status">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Quest status</span>
+                <h2>Latest-game checker</h2>
+                <p>{challengeBanner(activeChallenge)}</p>
+              </div>
+              <form action={checkActiveChallenge}>
+                <button type="submit" className="button primary">Refresh</button>
+              </form>
+            </div>
+            <div className="quest-status-grid">
+              <ProviderStatusCard provider="Lichess" username={lichessUsername} latestAttempt={latestLichessAttempt} />
+              <ProviderStatusCard provider="Chess.com" username={chessComUsername} latestAttempt={latestChessComAttempt} />
+              <Fact label="Total checks" value={`${attempts.length}`} />
+              <Fact label="Latest receipt" value={latestAttempt ? formatTime(latestAttempt.checkedAt) : "not checked yet"} />
+            </div>
+            <article className="note-card latest-check quest-status-receipt">
+              <span className="eyebrow">Latest receipt</span>
+              <h3>{latestAttemptSummary.headline}</h3>
+              <p>{latestAttemptSummary.detail}</p>
+              <small>{latestAttemptSummary.meta}</small>
+            </article>
+          </section>
+        ) : null}
 
         <section className="mission-card quest-detail-section" aria-label="Quest objective">
           <span className="eyebrow">What you need to do</span>
@@ -220,10 +247,9 @@ export default async function ChallengeDetailPage({
               <div className="run-status">
                 <p>{challengeBanner(isActive ? activeChallenge : null)}</p>
                 {isActive ? (
-                  <form action={checkActiveChallenge} className="button-row">
-                    <button type="submit" className="button primary">Check latest games</button>
+                  <div className="button-row">
                     <Link href="/account" className="button secondary">Open active run</Link>
-                  </form>
+                  </div>
                 ) : (
                   <p className="muted">Start this side quest to unlock the latest-game checker for this quest.</p>
                 )}
@@ -265,6 +291,42 @@ function Fact({ label, value }: { label: string; value: string }) {
       <strong>{value}</strong>
     </div>
   );
+}
+
+function ProviderStatusCard({
+  provider,
+  username,
+  latestAttempt,
+}: {
+  provider: "Lichess" | "Chess.com";
+  username: string;
+  latestAttempt: ChallengeAttempt | null;
+}) {
+  return (
+    <div className="fact provider-status-card">
+      <span>{provider}</span>
+      <strong>{username || "not connected"}</strong>
+      <small>{latestAttempt ? `Last checked ${formatTime(latestAttempt.checkedAt)}` : "No check recorded yet"}</small>
+    </div>
+  );
+}
+
+function getLatestProviderAttempt(attempts: ChallengeAttempt[], provider: "lichess" | "chess.com") {
+  return attempts.find((attempt) => getAttemptProvider(attempt) === provider) ?? null;
+}
+
+function getAttemptProvider(attempt: ChallengeAttempt): "lichess" | "chess.com" | "unknown" {
+  const gameId = attempt.gameId ?? "";
+
+  if (/chess\.com/i.test(gameId)) {
+    return "chess.com";
+  }
+
+  if (gameId) {
+    return "lichess";
+  }
+
+  return "unknown";
 }
 
 function getDifficultyTone(difficulty: Challenge["difficulty"]) {

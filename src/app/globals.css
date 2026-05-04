@@ -237,6 +237,11 @@ p { color: var(--muted); line-height: 1.5; }
 .detail-state-stamp { left: min(42%, 330px); top: 138px; width: min(76%, 270px); }
 .quest-detail-hero .active-quest-stamp.detail-state-stamp { z-index: 7; transform: rotate(-10deg); }
 .quest-detail-actions { margin-top: 0; }
+.quest-status-panel { display: grid; gap: 16px; border-color: rgba(96,240,175,.24); background: radial-gradient(circle at 86% 0%, rgba(96,240,175,.13), transparent 34%), rgba(255,255,255,.075); }
+.quest-status-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.provider-status-card { display: grid; gap: 4px; align-content: start; }
+.provider-status-card small { color: var(--muted); font-weight: 800; line-height: 1.35; }
+.quest-status-receipt { border-color: rgba(245,200,106,.24); background: rgba(245,200,106,.08); }
 .quest-detail-section { display: grid; gap: 14px; }
 .quest-detail-flow { margin-top: 2px; }
 .quest-detail-flow .fact { background: rgba(0,0,0,.18); }
