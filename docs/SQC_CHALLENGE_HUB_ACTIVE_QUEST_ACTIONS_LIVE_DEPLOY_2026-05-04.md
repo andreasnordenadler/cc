@@ -32,5 +32,5 @@ This removes a small but real first-run dead end where the active quest panel on
 
 ## Live deployment
 
-- Preview deployment: `https://cc-asny8pbno-andreas-nordenadlers-projects.vercel.app`
+- Preview deployment: `https://cc-ro1lpik67-andreas-nordenadlers-projects.vercel.app`
 - Canonical alias: `https://sidequestchess.com`
