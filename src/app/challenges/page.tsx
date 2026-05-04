@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ChallengeDeckBrowser from "@/components/challenge-deck-browser";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import {
@@ -27,6 +28,14 @@ const betaStarterRoute = [
   },
 ];
 
+function getDifficultyTone(difficulty: Challenge["difficulty"]) {
+  if (difficulty === "Easy") return "green";
+  if (difficulty === "Medium") return "gold";
+  if (difficulty === "Hard") return "orange";
+  if (difficulty === "Absurd") return "absurd";
+  return "danger";
+}
+
 export default async function ChallengesPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
@@ -51,30 +60,11 @@ export default async function ChallengesPage() {
           </p>
         </section>
 
-        <section className="mission-card" aria-label="Full quest deck introduction">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Full quest deck</span>
-              <h2>Ready for the rest of the bad ideas?</h2>
-            </div>
-            <span className="badge gold">10 quests</span>
-          </div>
-          <p>
-            Browse the full live-backed deck. Every quest below can be checked from public Lichess or Chess.com games.
-          </p>
-        </section>
-
-        <section className="big-grid" aria-label="Available quests">
-          {CHALLENGES.map((challenge, index) => (
-            <ChallengeCard
-              key={challenge.id}
-              challenge={challenge}
-              featured={index === 0}
-              completed={completedSet.has(challenge.id)}
-              active={currentChallenge?.id === challenge.id}
-            />
-          ))}
-        </section>
+        <ChallengeDeckBrowser
+          challenges={CHALLENGES}
+          activeChallengeId={currentChallenge?.id}
+          completedChallengeIds={progress.completedChallengeIds}
+        />
 
         <section className="mission-card" aria-label="Recommended starter route">
           <div className="section-head">
@@ -121,42 +111,4 @@ export default async function ChallengesPage() {
       </div>
     </main>
   );
-}
-
-function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
-  const difficultyTone = getDifficultyTone(challenge.difficulty);
-  return (
-    <Link
-      href={`/challenges/${challenge.id}`}
-      className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""}`}
-      aria-current={active ? "true" : undefined}
-    >
-      {active ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
-      <div className="card-meta quest-card-meta">
-        <strong className="quest-points">+{challenge.reward} pts</strong>
-        <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>
-      </div>
-      <div className="challenge-card-title-row">
-        <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />
-        <div>
-          <h3>{challenge.title}</h3>
-          <p>{challenge.objective}</p>
-          <em>{challenge.openingHint}</em>
-        </div>
-      </div>
-      {completed ? (
-        <div className="card-footer quest-state-row">
-          <span className="badge green">completed</span>
-        </div>
-      ) : null}
-    </Link>
-  );
-}
-
-function getDifficultyTone(difficulty: Challenge["difficulty"]) {
-  if (difficulty === "Easy") return "green";
-  if (difficulty === "Medium") return "gold";
-  if (difficulty === "Hard") return "orange";
-  if (difficulty === "Absurd") return "absurd";
-  return "danger";
 }
