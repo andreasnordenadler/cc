@@ -98,7 +98,7 @@ export default async function Home() {
           </div>
           <div className="button-row">
             <Link href="/rules" className="button secondary">Read proof rules</Link>
-            <Link href="/beta" className="button primary">Open support packet</Link>
+            <Link href="/support" className="button primary">Open support packet</Link>
           </div>
         </section>
 

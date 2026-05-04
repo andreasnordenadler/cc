@@ -51,7 +51,7 @@ const trustNotes = [
   {
     label: "Support",
     value: "Tell Andreas what broke",
-    copy: "For this friends/private beta, send rough edges, confusing copy, wrong verifier outcomes, or badge/UI glitches directly to Andreas with the quest name and game link.",
+    copy: "For this friends/private beta, use the support packet when a receipt, setup step, badge, or share card feels confusing; include the quest name and game link so the report is actionable.",
   },
 ];
 
@@ -73,6 +73,7 @@ export default async function BetaPage() {
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Run the beta checklist</Link>
             <Link href="/path" className="button pink">Try beginner path</Link>
+            <Link href="/support" className="button secondary">Open support packet</Link>
             <Link href="/verifiers" className="button secondary">See live verifiers</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
           </div>
