@@ -114,11 +114,11 @@ export default async function Home() {
             <span className="badge blue">3 steps</span>
           </div>
           <p>
-            Set the dare, play a real public game, then turn the latest-game check into a result card and saved proof log before the next ridiculous challenge begins.
+            Pick one quest, play a real public game, then turn the latest-game check into a result card and saved proof log before the next ridiculous quest begins.
           </p>
           <div className="checker-flow" aria-label="Pick play prove loop">
             <Link href="/challenges" className="flow-step ready clickable-quest-card">
-              <strong>1. Pick the dare</strong>
+              <strong>1. Pick the quest</strong>
               <p>Choose from the starter path or full chaos deck, then make one quest active.</p>
             </Link>
             <Link href="/account" className="flow-step hot clickable-quest-card">

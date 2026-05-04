@@ -19,7 +19,7 @@ const receiptExamples = [
     tone: "green",
     title: "Badge proof is brag-ready",
     copy: "A passed receipt names the quest, badge, points, and exact next action so a friend can understand the proof without reading the whole rules page.",
-    action: "Copy, share, or dare back",
+    action: "Copy, share, or quest back",
   },
   {
     status: "Failed",
@@ -138,7 +138,7 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
   const nextStep =
     status === "passed"
       ? {
-          label: "Share or dare back",
+          label: "Share or quest back",
           copy: "This receipt is brag-ready. Copy it, then send the same quest to someone who deserves worse chess decisions.",
           primaryLabel: "Open share kit",
           primaryHref: "/share-kit",
