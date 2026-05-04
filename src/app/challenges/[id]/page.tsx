@@ -112,12 +112,22 @@ export default async function ChallengeDetailPage({
           </div>
           <div className="button-row hero-actions">
             {isSignedIn ? (
-              <form action={startChallenge}>
-                <input type="hidden" name="challengeId" value={challenge.id} />
-                <button type="submit" className="button primary">
-                  {isActive ? "Restart this bad idea" : "Start this bad idea"}
-                </button>
-              </form>
+              isActive ? (
+                <>
+                  <form action={checkActiveChallenge}>
+                    <button type="submit" className="button primary">Check latest games</button>
+                  </form>
+                  <form action={startChallenge}>
+                    <input type="hidden" name="challengeId" value={challenge.id} />
+                    <button type="submit" className="button secondary">Restart this bad idea</button>
+                  </form>
+                </>
+              ) : (
+                <form action={startChallenge}>
+                  <input type="hidden" name="challengeId" value={challenge.id} />
+                  <button type="submit" className="button primary">Start this bad idea</button>
+                </form>
+              )
             ) : (
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
