@@ -87,13 +87,22 @@ export default async function ChallengesPage() {
           <div className="grid">
             {betaStarterRoute.map((step, index) => {
               const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
+              const isActive = currentChallenge?.id === challenge.id;
+              const isCompleted = completedSet.has(challenge.id);
 
               return (
-                <Link className="fact clickable-quest-card" href={`/challenges/${challenge.id}`} key={step.challengeId}>
+                <Link
+                  className={`fact starter-route-card clickable-quest-card ${isActive ? "active-quest-card" : ""}`}
+                  href={`/challenges/${challenge.id}`}
+                  key={step.challengeId}
+                  aria-current={isActive ? "true" : undefined}
+                >
                   <span>Step {index + 1} · {step.label}</span>
-                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} presentation="art" />
+                  {isActive ? <div className="active-quest-callout">Active quest</div> : null}
+                  <ChallengeBadge challenge={challenge} earned={isCompleted} presentation="art" />
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
+                  {isCompleted ? <span className="badge green">completed</span> : null}
                 </Link>
               );
             })}

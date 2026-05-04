@@ -2063,3 +2063,12 @@ Run `pnpm install --frozen-lockfile` before lint/build in newly-created SQC work
 - Related Files: package.json, pnpm-lock.yaml
 
 ---
+
+## [ERR-20260504-0844] Worktree lint before dependency install
+
+**Logged**: 2026-05-04T06:50:00Z
+**Project**: CC / Side Quest Chess
+**Command**: `pnpm lint && pnpm build`
+**Error**: fresh detached worktree had no `node_modules`, so `eslint` was not found.
+**Resolution**: ran `pnpm install --frozen-lockfile` first, then `pnpm lint` and `pnpm build` passed.
+**Prevent**: for clean SQC worktrees, run `pnpm install --frozen-lockfile` before lint/build unless `node_modules` is already present.
