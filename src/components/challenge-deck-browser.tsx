@@ -428,7 +428,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
           </label>
           <div className="quest-filter-count" aria-live="polite">
             <strong>{visibleCardCount}</strong>
-            <span>{visibleCardCount === 1 ? "card" : "cards"}</span>
+            <span>{visibleCardCount === 1 ? "quest" : "quests"}</span>
           </div>
         </div>
       </section>
