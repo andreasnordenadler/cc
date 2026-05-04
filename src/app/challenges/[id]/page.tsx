@@ -13,6 +13,7 @@ import {
   challengeBanner,
   getActiveChallenge,
   getChallengeAttempts,
+  getChallengeProgress,
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
@@ -81,11 +82,13 @@ export default async function ChallengeDetailPage({
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
+  const progress = getChallengeProgress(metadata);
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
+  const isCompleted = progress.completedChallengeIds.includes(challenge.id);
   const verifierStatus = getVerifierStatus(challenge);
   const verifierLabel = getVerifierStateLabel(verifierStatus);
 
@@ -103,12 +106,13 @@ export default async function ChallengeDetailPage({
                 <span className="eyebrow">{challenge.category}</span>
                 <span className="badge danger">{challenge.difficulty}</span>
                 <span className="badge gold">+{challenge.reward} pts</span>
+                {isCompleted ? <span className="badge green">completed</span> : null}
               </div>
               <h1>{challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>
               <p>{challenge.flavor}</p>
             </div>
-            <ChallengeBadge challenge={challenge} size="hero" />
+            <ChallengeBadge challenge={challenge} earned={isCompleted} size="hero" />
           </div>
           <div className="button-row hero-actions">
             {isSignedIn ? (
@@ -131,8 +135,9 @@ export default async function ChallengeDetailPage({
             ) : (
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
-            <Link href="/result" className="button secondary">Preview proof card</Link>
+            <Link href="/result" className="button secondary">{isCompleted ? "Open proof card" : "Preview proof card"}</Link>
             <Link href={`/dare/${challenge.id}`} className="button secondary">Friend quest page</Link>
+            {isCompleted ? <Link href="/proof-log" className="button secondary">Proof log</Link> : null}
           </div>
         </section>
 
@@ -205,9 +210,9 @@ export default async function ChallengeDetailPage({
           <div className="section-head">
             <div>
               <span className="eyebrow">Your run</span>
-              <h2>{isActive ? "This quest is active" : "Not active yet"}</h2>
+              <h2>{isCompleted ? "Completed and ready to brag" : isActive ? "This quest is active" : "Not active yet"}</h2>
             </div>
-            <span className="badge blue">{challenge.completionRate}</span>
+            <span className={`badge ${isCompleted ? "green" : "blue"}`}>{isCompleted ? "completed" : challenge.completionRate}</span>
           </div>
 
           {isSignedIn ? (
@@ -216,6 +221,7 @@ export default async function ChallengeDetailPage({
                 <Fact label="Lichess" value={lichessUsername || "not set yet"} />
                 <Fact label="Chess.com" value={chessComUsername || "not set yet"} />
                 <Fact label="Attempts" value={`${attempts.length}`} />
+                {isCompleted ? <Fact label="Reward banked" value={`+${challenge.reward} pts`} /> : null}
               </div>
               <div className="run-status">
                 <p>{challengeBanner(isActive ? activeChallenge : null)}</p>
@@ -227,6 +233,17 @@ export default async function ChallengeDetailPage({
                 ) : (
                   <p className="muted">Start this side quest to unlock the latest-game checker for this quest.</p>
                 )}
+                {isCompleted ? (
+                  <article className="note-card latest-check">
+                    <span className="eyebrow">Completed quest</span>
+                    <h3>Badge earned. Receipt ready.</h3>
+                    <p>This quest is already in your completed set. Share the dare, compare proof cards, or pick the next bad idea when you want another run.</p>
+                    <div className="button-row">
+                      <Link href="/proof-log" className="button secondary">Open proof log</Link>
+                      <Link href="/challenges" className="button secondary">Pick another quest</Link>
+                    </div>
+                  </article>
+                ) : null}
                 <article className="note-card latest-check">
                   <span className="eyebrow">Latest check</span>
                   <h3>{latestAttemptSummary.headline}</h3>
