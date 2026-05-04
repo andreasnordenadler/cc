@@ -178,9 +178,10 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-filter-grid label { display: grid; gap: 7px; }
 .quest-filter-grid label span { color: var(--muted); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .09em; }
 .quest-filter-grid select { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 16px; background: rgba(10,8,12,.72); color: var(--ink); padding: 12px 13px; font-weight: 900; }
-.quest-filter-count { min-height: 45px; padding: 10px 12px; border-radius: 16px; background: rgba(96,240,175,.1); border: 1px solid rgba(96,240,175,.18); color: var(--green); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.quest-filter-count { min-height: 45px; padding: 10px 12px; border-radius: 16px; background: rgba(96,240,175,.1); border: 1px solid rgba(96,240,175,.18); color: var(--green); display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
 .quest-filter-count strong { margin: 0; font-size: 1.3rem; }
 .quest-filter-count span { color: var(--green); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .08em; }
+.quest-filter-count small { width: 100%; color: rgba(255,255,255,.68); font-size: 11px; font-weight: 850; text-align: center; text-transform: uppercase; letter-spacing: .08em; }
 .active-quest-title-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
 .active-quest-title-row h2 { margin-bottom: 0; }
 .active-quest-badge.challenge-badge-art, .active-quest-badge .challenge-badge-art { width: 86px; min-width: 86px; }

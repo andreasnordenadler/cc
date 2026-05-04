@@ -32,8 +32,9 @@ export default async function ChallengesPage() {
         <section className="hero-card">
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
-            These are not lessons. They are chess quests with proof attached. Start one, play real games on Lichess or Chess.com, and come back when the bad idea has evidence.
+            These are not lessons. They are chess quests with proof attached. Pick from the live-backed deck, play on Lichess or Chess.com, and come back when the bad idea has evidence.
           </p>
+          <p className="plain-loop-copy">{CHALLENGES.length} quests are live-backed today; the foggy cards are future chaos, not chores for your first run.</p>
         </section>
 
         <ChallengeDeckBrowser

@@ -392,7 +392,8 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
     });
   }, [difficulty, sort, status]);
 
-  const visibleCardCount = visibleChallenges.length + visibleComingSoonChallenges.length;
+  const visibleLiveCount = visibleChallenges.length;
+  const visibleComingSoonCount = visibleComingSoonChallenges.length;
 
   return (
     <>
@@ -427,8 +428,9 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
             </select>
           </label>
           <div className="quest-filter-count" aria-live="polite">
-            <strong>{visibleCardCount}</strong>
-            <span>{visibleCardCount === 1 ? "quest" : "quests"}</span>
+            <strong>{visibleLiveCount}</strong>
+            <span>{visibleLiveCount === 1 ? "live quest" : "live quests"}</span>
+            {visibleComingSoonCount > 0 ? <small>{visibleComingSoonCount} coming soon</small> : null}
           </div>
         </div>
       </section>
