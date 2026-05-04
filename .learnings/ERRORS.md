@@ -1673,3 +1673,25 @@ When quota is exhausted, prefer `vercel alias set <known-good-deployment> sidequ
 - Tags: vercel, quota, alias, production-restore
 
 ---
+
+## [ERR-20260505-001] vercel_logs_filter_and_timeout
+
+**Logged**: 2026-05-05T00:58:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+Vercel log-watch commands used during SQC deploy verification failed because `vercel logs --since` is unsupported in this CLI mode and macOS lacks GNU `timeout` by default.
+
+### Details
+`vercel logs <deployment> --since 10m` returned an error saying the follow mode does not support filtering. A retry with `timeout 20s vercel logs ...` failed because `timeout` is not installed on this macOS host.
+
+### Suggested Action
+For bounded Vercel log watches on macOS, use a small Node/Python wrapper that does non-blocking reads and terminates the `vercel logs` child process cleanly, or skip log-watch proof when route smoke already verifies the deploy.
+
+### Metadata
+- Source: error
+- Tags: vercel, macos, deploy-verification
+
+---
