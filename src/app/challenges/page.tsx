@@ -85,7 +85,7 @@ export default async function ChallengesPage() {
             <p>All ten current starter quests use the same latest-game flow on Lichess or Chess.com, so this route lowers first-run choice pressure without hiding partial verifier coverage.</p>
           </div>
           <div className="grid">
-            {betaStarterRoute.map((step, index) => {
+            {betaStarterRoute.map((step) => {
               const challenge = CHALLENGES.find((candidate) => candidate.id === step.challengeId) ?? CHALLENGES[0];
               const isActive = currentChallenge?.id === challenge.id;
               const isCompleted = completedSet.has(challenge.id);
@@ -97,12 +97,19 @@ export default async function ChallengesPage() {
                   key={step.challengeId}
                   aria-current={isActive ? "true" : undefined}
                 >
-                  <span>Step {index + 1} · {step.label}</span>
-                  {isActive ? <div className="active-quest-callout">Active quest</div> : null}
+                  <div className="card-meta quest-card-meta">
+                    <strong className="quest-points">+{challenge.reward} pts</strong>
+                    <span className="badge blue">{challenge.difficulty}</span>
+                  </div>
                   <ChallengeBadge challenge={challenge} earned={isCompleted} presentation="art" />
                   <strong>{challenge.title}</strong>
                   <p>{step.why}</p>
-                  {isCompleted ? <span className="badge green">completed</span> : null}
+                  {(isActive || isCompleted) ? (
+                    <div className="card-footer quest-state-row">
+                      {isActive ? <span className="active-quest-inline">Active quest</span> : <span />}
+                      {isCompleted ? <span className="badge green">completed</span> : null}
+                    </div>
+                  ) : null}
                 </Link>
               );
             })}
@@ -147,9 +154,9 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
       aria-current={active ? "true" : undefined}
     >
       <div className="card-meta quest-card-meta">
+        <strong className="quest-points">+{challenge.reward} pts</strong>
         <span className={`badge ${difficultyTone}`}>{challenge.difficulty}</span>
       </div>
-      {active ? <div className="active-quest-callout">Active quest</div> : null}
       <div className="challenge-card-title-row">
         <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />
         <div>
@@ -158,14 +165,12 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
           <em>{challenge.openingHint}</em>
         </div>
       </div>
-      {completed ? (
-        <div className="badge-row">
-          <span className="badge green">completed</span>
+      {(active || completed) ? (
+        <div className="card-footer quest-state-row">
+          {active ? <span className="active-quest-inline">Active quest</span> : <span />}
+          {completed ? <span className="badge green">completed</span> : null}
         </div>
       ) : null}
-      <div className="card-footer quest-card-points-row">
-        <strong>+{challenge.reward} pts</strong>
-      </div>
     </Link>
   );
 }
