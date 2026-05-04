@@ -6,7 +6,7 @@
     </filter>
   </defs>
   <g transform="rotate(-9 95 43)" filter="url(#rough)">
-    <rect x="13" y="16" width="164" height="54" rx="12" fill="rgba(8,7,10,0.82)" stroke="#60f0af" stroke-width="5"/>
+    <rect x="13" y="16" width="164" height="54" rx="12" fill="none" stroke="#60f0af" stroke-width="5"/>
     <rect x="23" y="25" width="144" height="36" rx="8" fill="none" stroke="#60f0af" stroke-width="2.5" stroke-dasharray="8 6" opacity="0.9"/>
     <text x="95" y="40" text-anchor="middle" font-family="Arial Black, Impact, system-ui, sans-serif" font-size="18" font-weight="900" letter-spacing="2" fill="#60f0af">ACTIVE</text>
     <text x="95" y="57" text-anchor="middle" font-family="Arial Black, Impact, system-ui, sans-serif" font-size="15" font-weight="900" letter-spacing="2.3" fill="#60f0af">QUEST</text>
