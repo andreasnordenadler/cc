@@ -96,6 +96,37 @@ export default async function StarterPathPage() {
           <Fact label="Proof loop" value="Pick → play → check" copy="No PGN upload. The app checks latest games after you play elsewhere." />
         </section>
 
+        <section className="mission-card" aria-label="Eligible starter path game checklist">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Before you play</span>
+              <h2>Make the next game count for proof.</h2>
+            </div>
+            <span className="badge blue">latest public game</span>
+          </div>
+          <p>
+            The verifier reads your latest public standard game from Lichess or Chess.com. For the cleanest first test, play bullet, blitz, or rapid, complete the quest rule, and win the game before coming back to check the receipt.
+          </p>
+          <div className="checker-flow" aria-label="Starter path proof eligibility checklist">
+            <div className="flow-step ready">
+              <strong>Standard chess only</strong>
+              <p>Variants are funny, but they do not count for the v1 proof loop.</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>Bullet, blitz, or rapid</strong>
+              <p>Use a normal fast time class so the latest-game check lands in the supported window.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>Quest rule + win</strong>
+              <p>Do the weird constraint and still win; every current SQC quest is win-required.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href="/rules" className="button secondary">Read proof rules</Link>
+            <Link href="/account" className="button primary">Check latest game</Link>
+          </div>
+        </section>
+
         <section className="big-grid" aria-label="Starter path steps">
           {starterChallenges.map((challenge, index) => (
             <PathStep
