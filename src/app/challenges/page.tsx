@@ -99,7 +99,7 @@ export default async function ChallengesPage() {
                 >
                   <div className="card-meta quest-card-meta">
                     <strong className="quest-points">+{challenge.reward} pts</strong>
-                    <span className="badge blue">{challenge.difficulty}</span>
+                    <span className={`badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
                   </div>
                   <ChallengeBadge challenge={challenge} earned={isCompleted} presentation="art" />
                   <strong>{challenge.title}</strong>
@@ -146,7 +146,7 @@ export default async function ChallengesPage() {
 }
 
 function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
-  const difficultyTone = challenge.difficulty === "Brutal" || challenge.difficulty === "Absurd" ? "danger" : "blue";
+  const difficultyTone = getDifficultyTone(challenge.difficulty);
   return (
     <Link
       href={`/challenges/${challenge.id}`}
@@ -173,4 +173,11 @@ function ChallengeCard({ challenge, featured, completed, active }: { challenge: 
       ) : null}
     </Link>
   );
+}
+
+function getDifficultyTone(difficulty: Challenge["difficulty"]) {
+  if (difficulty === "Easy") return "green";
+  if (difficulty === "Medium") return "gold";
+  if (difficulty === "Hard") return "orange";
+  return "danger";
 }
