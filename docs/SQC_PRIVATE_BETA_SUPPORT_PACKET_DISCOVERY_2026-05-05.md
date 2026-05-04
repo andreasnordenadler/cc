@@ -20,9 +20,9 @@ The support page shipped, but the beta discovery path still made testers work to
 
 ## Live verification
 
-- Commit: `6b58f9c` (`Tighten beta support packet discovery`)
+- Deployed code commit: `22ac3b1` (`Tighten beta support packet discovery`)
 - Pushed: `origin/main` ✅
-- Production deploy: `https://cc-h252pv9g1-andreas-nordenadlers-projects.vercel.app` ✅
+- Production deploy: `https://cc-bsjmzm040-andreas-nordenadlers-projects.vercel.app` ✅
 - Alias: `https://sidequestchess.com` ✅
 - Smoke checks ✅
   - `https://sidequestchess.com/` returned 200 and includes `href="/support"` plus `Open support packet`.
