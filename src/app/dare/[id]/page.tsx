@@ -7,6 +7,7 @@ import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import SiteNav from "@/components/site-nav";
 import { startChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
+import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
 export function generateStaticParams() {
   return CHALLENGES.map((challenge) => ({ id: challenge.id }));
@@ -52,6 +53,15 @@ export async function generateMetadata({
   };
 }
 
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="fact">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
 export default async function DarePage({
   params,
 }: {
@@ -66,6 +76,8 @@ export default async function DarePage({
 
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
+  const verifierStatus = getVerifierStatus(challenge);
+  const verifierLabel = getVerifierStateLabel(verifierStatus);
 
   return (
     <main className="site-shell">
@@ -94,12 +106,47 @@ export default async function DarePage({
           </article>
 
           <aside className="mission-card share-card">
-            <span className="eyebrow">The prize</span>
+            <div className="section-head">
+              <span className="eyebrow">The prize</span>
+              <span className={verifierLabel.className}>{verifierLabel.label}</span>
+            </div>
             <ChallengeBadge challenge={challenge} size="hero" />
             <h2>{challenge.badgeIdentity.name}</h2>
             <p>{challenge.badgeIdentity.unlockCopy}</p>
             <div className="proof-line">{challenge.proofCallout} · +{challenge.reward} points</div>
           </aside>
+        </section>
+
+        <section className="mission-card" aria-label="Friend quest quickstart">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Friend quest quickstart</span>
+              <h2>Accept exactly one dare, then come back with proof.</h2>
+            </div>
+            <span className="badge gold">10-second loop</span>
+          </div>
+          <p>
+            This invite page now makes the handoff explicit: save this exact quest, play one normal public game on your chess site, and use the account checker for an honest pass, fail, or pending receipt.
+          </p>
+          <div className="proof-grid">
+            <Fact label="Quest" value={challenge.title} />
+            <Fact label="Verifier" value={verifierStatus.summary} />
+            <Fact label="Reward" value={`+${challenge.reward} pts`} />
+            <Fact label="Proof" value="Latest public game" />
+          </div>
+          <p className="microcopy"><strong>{verifierLabel.promise}</strong> {verifierStatus.evidence}</p>
+          <div className="button-row">
+            {isSignedIn ? (
+              <form action={startChallenge}>
+                <input type="hidden" name="challengeId" value={challenge.id} />
+                <button type="submit" className="button primary">Save this friend quest</button>
+              </form>
+            ) : (
+              <Link href="/connect" className="button primary">Connect to accept quest</Link>
+            )}
+            <Link href="/account" className="button secondary">Open checker</Link>
+            <Link href="/result" className="button secondary">Preview receipt</Link>
+          </div>
         </section>
 
         <section className="big-grid">

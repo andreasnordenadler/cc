@@ -2188,3 +2188,26 @@ Prefer tool-managed command timeouts for bounded commands in macOS worktrees.
 During SQC live deploy smoke verification, a shell smoke script failed because `curl` is not installed in this OpenClaw runtime (`zsh: command not found: curl`). Retried successfully with a Python `urllib.request` smoke script instead.
 
 **Do differently**: prefer Python/Node HTTP checks in this workspace unless `curl` availability has been verified first.
+
+## [ERR-20260504-001] pnpm_lint_missing_node_modules_in_clean_worktree
+
+**Logged**: 2026-05-04T16:50:00+02:00
+**Priority**: low
+**Status**: handled
+**Area**: tests
+
+### Summary
+`pnpm lint` failed in a freshly-created isolated CC worktree because `node_modules` was absent there.
+
+### Details
+The worktree checkout was clean from `origin/main`; dependencies were not installed in that worktree, so `eslint` was not available.
+
+### Suggested Action
+Run `pnpm install --frozen-lockfile` before lint/build in isolated CC worktrees.
+
+### Metadata
+- Source: error
+- Related Files: package.json, pnpm-lock.yaml
+- Tags: pnpm, worktree, lint
+
+---
