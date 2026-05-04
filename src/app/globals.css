@@ -9,7 +9,7 @@
   --pink: #ff5f9f;
   --green: #60f0af;
   --blue: #76a9ff;
-  --orange: #ffad4f;
+  --orange: #e87922;
   --danger: #ff7a66;
 }
 
@@ -153,6 +153,7 @@ p { color: var(--muted); line-height: 1.5; }
 .badge.danger { background: var(--danger); color: #111; }
 .badge.gold { background: var(--gold); color: #111; }
 .badge.orange { background: var(--orange); color: #111; }
+.badge.absurd { background: #08070a; color: var(--danger); border: 1px solid rgba(255,122,102,.55); }
 .badge.blue { background: var(--blue); color: #111; }
 .badge.green { background: var(--green); color: #111; }
 .badge.success { background: var(--green); color: #111; }

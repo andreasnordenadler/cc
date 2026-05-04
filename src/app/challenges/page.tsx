@@ -179,5 +179,6 @@ function getDifficultyTone(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Easy") return "green";
   if (difficulty === "Medium") return "gold";
   if (difficulty === "Hard") return "orange";
+  if (difficulty === "Absurd") return "absurd";
   return "danger";
 }
