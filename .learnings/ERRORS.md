@@ -1718,3 +1718,57 @@ Normalize timeout output with a helper that decodes bytes before concatenating, 
 - Source: error
 - Tags: vercel, python, timeout, deploy-verification
 
+
+## [ERR-20260505-001] zsh_glob_unquoted_brackets
+
+**Logged**: 2026-05-05T04:49:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+A git diff/status command failed because zsh treated `src/app/challenges/[id]/page.tsx` as a glob pattern.
+
+### Details
+Use quotes around Next.js dynamic route paths containing square brackets when running shell commands in zsh.
+
+### Suggested Action
+Prefer `git diff -- 'src/app/challenges/[id]/page.tsx'` and similar quoting for dynamic route files.
+
+---
+
+## [ERR-20260505-002] sqc_smoke_signed_out_cta_assumption
+
+**Logged**: 2026-05-05T04:52:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+A live smoke assertion expected signed-in CTA text on a signed-out Side Quest Chess challenge page.
+
+### Details
+The challenge proof-loop block correctly renders `Connect chess identity` when signed out and `Open account preflight` only when signed in.
+
+### Suggested Action
+When smoking auth-aware pages without a session, assert signed-out copy or run a separate authenticated browser/session check.
+
+---
+
+## [ERR-20260505-003] vercel_logs_since_unsupported
+
+**Logged**: 2026-05-05T04:53:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs https://sidequestchess.com --since 30m` failed because this CLI mode treats logs as follow-only and rejects filtering.
+
+### Details
+For bounded deploy proof, `vercel inspect <deployment-url> --logs` returned build/deploy logs and ready status successfully.
+
+### Suggested Action
+Use `vercel inspect --logs` for SQC deployment verification unless a dedicated runtime-log scan script exists.
+
+---

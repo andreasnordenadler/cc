@@ -127,6 +127,40 @@ export default async function ChallengeDetailPage({
           </div>
         </section>
 
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Proof-loop handoff</span>
+              <h2>Play the game, then come straight back for the receipt.</h2>
+            </div>
+            <span className="badge green">latest-game check</span>
+          </div>
+          <p>
+            This quest is verified from your newest public Lichess or Chess.com game after you start it. If the result looks surprising, the receipt and support packet now carry the facts needed to debug it.
+          </p>
+          <div className="checker-flow" aria-label="Quest proof-loop handoff">
+            <div className="flow-step ready">
+              <strong>1 · Start</strong>
+              <p>Make this the active side quest so SQC knows which bad idea to judge.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>2 · Play</strong>
+              <p>Use your normal chess site. No PGN paste, no password sharing, no special lobby.</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>3 · Check</strong>
+              <p>Return to the receipt to see passed, failed, or pending evidence with next steps.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href={isSignedIn ? "/account" : "/connect"} className="button primary">
+              {isSignedIn ? "Open account preflight" : "Connect chess identity"}
+            </Link>
+            <Link href="/result" className="button secondary">Open latest receipt</Link>
+            <Link href="/support" className="button secondary">Report confusing receipt</Link>
+          </div>
+        </section>
+
         <section className="mission-card share-card">
           <span className="eyebrow">Send this quest</span>
           <h2>Send this exact bad idea.</h2>
