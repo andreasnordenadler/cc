@@ -55,7 +55,7 @@ Andreas clarified that these five items are still wanted and should be treated a
 - [x] Prepare/test the alternate ornate SQC logo/top-bar treatment from `public/brand/sqc-alt-logo-topbar-test.jpg`, with transparent/cropped treatment before any final nav use.
   - completed_at: 2026-05-05 10:38 Europe/Stockholm
   - Proof: added `public/brand/sqc-alt-logo-topbar-transparent.png` as a cropped transparent RGBA PNG and `/brand-test` as a non-indexed visual test page with fake top-bar, dark/gold/light swatches, and direct asset link. The real production nav is intentionally unchanged pending Andreas approval.
-  - Verification: alpha check confirmed transparent + opaque pixels; `pnpm lint`; `pnpm build`; proof doc `docs/SQC_ALT_ORNATE_LOGO_TOPBAR_TEST_2026-05-05.md`.
+  - Verification: alpha check confirmed transparent + opaque pixels; `pnpm lint`; `pnpm build`; production deploy to `https://cc-57a8pvduz-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke for `/brand-test`, direct transparent PNG asset, `/challenges`, and homepage absence of the alternate asset; proof doc `docs/SQC_ALT_ORNATE_LOGO_TOPBAR_TEST_2026-05-05.md`.
 - [ ] Expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard, including deciding whether Absurd quests should require rated games.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.

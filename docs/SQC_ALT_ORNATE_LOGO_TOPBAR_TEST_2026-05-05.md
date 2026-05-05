@@ -22,6 +22,17 @@ Fresh-baseline backlog item: prepare/test the alternate ornate SQC logo/top-bar 
 - `pnpm lint` — passed.
 - `pnpm build` — passed; `/brand-test` included in the production route manifest.
 
+## Live deployment
+
+- Commit: `de1b2ae` (`Add SQC alternate logo brand test`).
+- Production deploy: `https://cc-57a8pvduz-andreas-nordenadlers-projects.vercel.app`.
+- Aliased canonical domain: `https://sidequestchess.com`.
+
 ## Live smoke
 
-Pending deployment in this run.
+- `https://sidequestchess.com/brand-test` — 200, contains `Alternate SQC top-bar logo treatment`, the transparent PNG path, and `Navigation-height preview`.
+- `https://sidequestchess.com/brand/sqc-alt-logo-topbar-transparent.png` — 200.
+- `https://sidequestchess.com/challenges` — 200.
+- `https://cc-57a8pvduz-andreas-nordenadlers-projects.vercel.app/brand-test` — 200.
+- Canonical homepage smoke confirmed the alternate logo asset is not present there, so the real production nav remains unchanged.
+- `vercel inspect --logs` reported deployment status `Ready`; build logs showed successful production build/deploy.
