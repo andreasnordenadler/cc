@@ -3,10 +3,8 @@ import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
-import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
 import {
-  challengeBanner,
   formatAttemptStatus,
   formatTime,
   getActiveChallenge,
@@ -39,9 +37,6 @@ export default async function MyQuestLogPage() {
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
-    : null;
-  const latestActiveAttempt = activeChallengeRecord
-    ? getLatestChallengeAttempt(metadata, activeChallengeRecord.id)
     : null;
   const connectedCount = [lichessUsername, chessComUsername].filter(Boolean).length;
   const hasChessIdentity = connectedCount > 0;
@@ -94,7 +89,7 @@ export default async function MyQuestLogPage() {
           </div>
         </section>
 
-        <section className="mission-card quest-log-current-card">
+        <section className="mission-card quest-log-current-card compact-current-quest-card">
           <div className="section-head">
             <div>
               <span className="eyebrow">Current quest status</span>
@@ -105,41 +100,17 @@ export default async function MyQuestLogPage() {
             </span>
           </div>
 
-          <div className="quest-log-current-layout focused-current-layout">
-            {activeChallengeRecord ? (
-              <Link href={`/challenges/${activeChallengeRecord.id}`} className="quest-log-badge-link" aria-label={`Open ${activeChallengeRecord.title}`}>
-                <ChallengeBadge challenge={activeChallengeRecord} earned={completedSet.has(activeChallengeRecord.id)} />
-              </Link>
-            ) : (
+          {activeChallengeRecord ? (
+            <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
+              <ChallengeBadge challenge={activeChallengeRecord} earned={completedSet.has(activeChallengeRecord.id)} />
+              <span>Open quest page</span>
+            </Link>
+          ) : (
+            <Link href="/challenges" className="current-quest-empty-link">
               <div className="quest-log-empty-badge" aria-hidden="true">?</div>
-            )}
-            <div>
-              <p>{activeChallengeRecord?.objective ?? "Choose a quest when you are ready to start collecting proof."}</p>
-              <p className="muted">{challengeBanner(activeChallenge)}</p>
-              {latestActiveAttempt ? (
-                <article className="note-card latest-check compact-proof-card">
-                  <span className="eyebrow">Latest proof for this quest</span>
-                  <h3>{formatAttemptStatus(latestActiveAttempt.status)}</h3>
-                  <p>{latestActiveAttempt.summary}</p>
-                  <small>{latestActiveAttempt.gameId ? `Game ${latestActiveAttempt.gameId}` : "Saved proof receipt"} • {formatTime(latestActiveAttempt.checkedAt)}</small>
-                </article>
-              ) : null}
-              <div className="button-row">
-                {activeChallengeRecord ? (
-                  <form action={checkActiveChallenge} className="button-row compact-form">
-                    <button type="submit" className="button primary">Check latest game</button>
-                    <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open quest page</Link>
-                    <Link href="/proof-log" className="button secondary">Proof log</Link>
-                  </form>
-                ) : (
-                  <>
-                    <Link href="/challenges" className="button primary">Choose a quest</Link>
-                    <Link href="/proof-log" className="button secondary">Proof log</Link>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+              <span>Choose a quest</span>
+            </Link>
+          )}
         </section>
 
         <section className="mission-card quest-log-collection-card">

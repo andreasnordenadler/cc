@@ -559,3 +559,17 @@ p { color: var(--muted); line-height: 1.5; }
   .account-connection-grid { grid-template-columns: 1fr; }
   .empty-collection-state { align-items: stretch; }
 }
+
+.compact-current-quest-card { display: grid; gap: 18px; justify-items: start; }
+.current-quest-coat-link,
+.current-quest-empty-link { display: inline-grid; gap: 10px; justify-items: center; color: inherit; text-decoration: none; }
+.current-quest-coat-link { width: min(240px, 100%); }
+.current-quest-coat-link .challenge-badge-art { width: min(220px, 100%); }
+.current-quest-coat-link span,
+.current-quest-empty-link span { color: var(--gold); font-weight: 950; }
+.current-quest-coat-link:hover span,
+.current-quest-coat-link:focus-visible span,
+.current-quest-empty-link:hover span,
+.current-quest-empty-link:focus-visible span { text-decoration: underline; }
+.current-quest-coat-link:focus-visible,
+.current-quest-empty-link:focus-visible { outline: 2px solid rgba(245,200,106,.62); outline-offset: 6px; border-radius: 24px; }
