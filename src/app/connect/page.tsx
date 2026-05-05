@@ -89,44 +89,6 @@ export default async function ConnectPage() {
           </section>
         )}
 
-        <section className="big-grid">
-          <article className="connect-card active">
-            <span className="eyebrow">Lichess</span>
-            <h2>Public latest-game checks</h2>
-            <p>Save your Lichess username and SQC can check the current starter deck from recent public games.</p>
-          </article>
-
-          <article className="connect-card active">
-            <span className="eyebrow">Chess.com</span>
-            <h2>Public latest-game checks</h2>
-            <p>Save your Chess.com username and SQC can use the same latest-game receipt loop without uploads or passwords.</p>
-          </article>
-        </section>
-
-        <section className="mission-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">After connecting</span>
-              <h2>{hasChessIdentity ? "You are ready to start a quest." : "Connection feeds directly into the quest loop."}</h2>
-            </div>
-            <span className={hasChessIdentity ? "badge green" : "badge gold"}>
-              {hasChessIdentity ? "start now" : "next step"}
-            </span>
-          </div>
-          <p>
-            Connect is not a separate product area. It is the bridge from “I want to try this quest” to “SQC knows which public games to judge.”
-          </p>
-          <div className="button-row">
-            <Link href="/challenges" className="button primary">Choose a quest</Link>
-            <Link href="/path" className="button secondary">Use starter path</Link>
-            <Link href="/account" className="button secondary">Open account checker</Link>
-          </div>
-        </section>
-
-        <section className="note-card">
-          <strong>No password rule</strong>
-          <p>Side Quest Chess only needs public chess usernames. If a flow starts asking for passwords, PGN files, or engine uploads, it is wrong.</p>
-        </section>
       </div>
     </main>
   );
