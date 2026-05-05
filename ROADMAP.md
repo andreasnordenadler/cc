@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-05 14:35 Europe/Stockholm
+Last updated: 2026-05-05 16:21 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -77,7 +77,10 @@ Andreas clarified that these five items are still wanted and should be treated a
   - source: Andreas screenshot feedback on the signed-out homepage hero.
   - Proof: signed-out hero now shows only the headline and simplified intro copy; signed-in hero keeps action buttons.
   - Verification: `pnpm lint`; `pnpm build`; committed `1128522`; deployed `https://cc-cw5an54q7-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed removed hero strings/buttons/pills on canonical and preview homepage; Vercel production error log scan returned no logs.
-- [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
+- [x] Explore showing a chessboard with the last move/final proof position for completed quests.
+  - completed_at: 2026-05-05 16:21 Europe/Stockholm
+  - Proof: added a reusable `ProofPositionBoard` component, optional receipt metadata fields (`finalPositionFen`, `lastMoveUci`, `lastMoveSan`), completed quest-detail board slot, and passed proof-log receipt board slot. Existing receipts honestly show a pending board-capture state instead of fake positions; future verifier FEN/last-move capture will render the board automatically with from/to highlights. Proof doc: `docs/SQC_COMPLETED_QUEST_FINAL_POSITION_BOARD_EXPLORATION_2026-05-05.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 - [x] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
   - added_at: 2026-05-05 13:40 Europe/Stockholm
   - completed_at: 2026-05-05 13:47 Europe/Stockholm

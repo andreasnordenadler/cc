@@ -23,6 +23,9 @@ export type ChallengeAttempt = {
   status?: string;
   summary?: string;
   checkedAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
 };
 
 export function getLichessUsername(metadata: UserMetadataRecord): string {

@@ -5,6 +5,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
+import ProofPositionBoard from "@/components/proof-position-board";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge } from "@/app/actions";
@@ -88,6 +89,7 @@ export default async function ChallengeDetailPage({
   const progress = getChallengeProgress(metadata);
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
+  const latestPassedAttempt = attempts.find((attempt) => attempt.status === "passed") ?? (latestAttempt?.status === "passed" ? latestAttempt : null);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
   const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
@@ -135,6 +137,19 @@ export default async function ChallengeDetailPage({
             {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
           </div>
         </section>
+
+        {isSignedIn && isCompleted ? (
+          <section className="mission-card quest-detail-section" aria-label="Completed quest board proof">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Completed proof</span>
+                <h2>Make the final position shareable.</h2>
+              </div>
+              <span className="badge green">board loop</span>
+            </div>
+            <ProofPositionBoard attempt={latestPassedAttempt} />
+          </section>
+        ) : null}
 
         {isSignedIn && isActive ? (
           <section className="mission-card quest-status-panel" aria-label="Active quest status">

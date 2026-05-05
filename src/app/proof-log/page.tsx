@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ProofPositionBoard from "@/components/proof-position-board";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -177,6 +178,7 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         </div>
       </div>
       <div className="proof-line">{summary.meta}</div>
+      {status === "passed" ? <ProofPositionBoard attempt={attempt} /> : null}
       <div className="note-card">
         <strong>{nextStep.label}</strong>
         <p>{nextStep.copy}</p>
