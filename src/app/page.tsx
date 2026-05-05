@@ -35,17 +35,14 @@ export default async function Home() {
               Pick a ridiculous quest, play real games on Lichess or Chess.com, and let Side Quest Chess prove whether you actually pulled it off.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/today" className="button primary">Open today’s quest</Link>
-              <Link href="/random" className="button pink">Spin a bad idea</Link>
-              <Link href="/challenges" className="button secondary">Pick from the hub</Link>
-              <Link href="/path" className="button secondary">Start the path</Link>
-              <Link href="/badges" className="button secondary">Open badge vault</Link>
-              <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
-              <Link href="/rules" className="button secondary">Read the rulebook</Link>
-              <Link href="/verifiers" className="button secondary">Open verifier board</Link>
-              <Link href="/beta" className="button secondary">Private beta notes</Link>
-              <Link href="/share-kit" className="button secondary">Open share kit</Link>
-              <Link href="/proof-log" className="button secondary">View proof log</Link>
+              {activeChallenge?.id ? (
+                <Link href={`/challenges/${activeChallenge.id}`} className="button primary">Continue active quest</Link>
+              ) : (
+                <Link href="/path" className="button primary">Start the three-quest path</Link>
+              )}
+              <Link href="/challenges" className="button pink">Pick from the quest hub</Link>
+              <Link href="/today" className="button secondary">Open today’s quest</Link>
+              <Link href={isSignedIn ? "/account" : "/connect"} className="button secondary">{isSignedIn ? "Check account preflight" : "Connect a chess name"}</Link>
             </div>
 
             <div className="steps" aria-label="How Side Quest Chess works">
