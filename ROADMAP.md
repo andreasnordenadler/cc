@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-05 12:34 Europe/Stockholm
+Last updated: 2026-05-05 14:35 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -67,7 +67,10 @@ Andreas clarified that these five items are still wanted and should be treated a
   - source: Andreas said the whole Starter Path idea is not very good and suggested difficulty-flavored starting recommendations instead.
   - Proof: removed the top-bar `Starter path` link; replaced homepage top recommendation with `Want to start easy?` → Knights Before Coffee, `Looking for trouble?` → No Castle Club, and `Badass?` → Queen? Never Heard of Her; changed signed-out/signed-in homepage CTAs away from `/path`; changed challenge hub/account/beta/result/rules/verifier/share/scoreboard visible copy away from Starter Path/starter deck wording; kept `/path` only as an unlinked compatibility route renamed to Quest picks.
   - Verification: `pnpm lint`; `pnpm build`; committed `4f57ce0`; deployed `https://cc-aouhxiini-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed canonical and preview homepage contain the three new recommendation labels and no `Starter path`/`starter path`, `/challenges` and `/path` return 200 with no Starter Path copy, and Vercel production error log scan returned no logs.
-- [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
+- [x] Design rankings/top players/quest popularity/statistics loops for SQC.
+  - completed_at: 2026-05-05 14:35 Europe/Stockholm
+  - Proof: `/scoreboard` is now a visible Rankings design hub linked from the top nav, with honest no-fake-numbers leaderboard structure, top-player scoring/tie-break model, quest popularity inputs, receipt-sourced statistics loops, signed-in personal progress, provider receipt counts, and per-quest popularity launch cards. Proof doc: `docs/SQC_RANKINGS_STATS_LOOPS_LIVE_DEPLOY_2026-05-05.md`.
+  - Verification: `pnpm lint`; `pnpm build`; committed `bf99c8e`; pushed to `origin/main`; production deploy to `https://cc-kf6maxrw8-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/scoreboard`, `/`, and `/challenges`; Vercel production error-log scan had no error entries.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
 - [x] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
   - added_at: 2026-05-05 13:40 Europe/Stockholm
