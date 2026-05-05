@@ -520,3 +520,20 @@ p { color: var(--muted); line-height: 1.5; }
 .proof-board-empty { opacity: .54; filter: saturate(.72); }
 .proof-board-empty .proof-board-square::after { content: ""; width: 18%; height: 18%; border-radius: 999px; background: rgba(18,16,14,.26); }
 @media (max-width: 720px) { .proof-position-card { grid-template-columns: 1fr; } .proof-board-wrap { width: min(100%, 240px); } }
+
+.my-quest-log { gap: 24px; }
+.quest-log-hero { display: grid; gap: 22px; }
+.compact-form { display: inline-flex; margin: 0; }
+.quest-log-current-card { border-color: rgba(245,200,106,.24); background: linear-gradient(135deg, rgba(245,200,106,.11), rgba(255,255,255,.055)); }
+.quest-log-current-layout { display: grid; grid-template-columns: minmax(130px, 180px) minmax(0, 1fr); gap: clamp(18px, 4vw, 34px); align-items: center; }
+.quest-log-current-layout > .challenge-badge-art,
+.quest-log-current-layout > .challenge-badge-card { justify-self: center; }
+.quest-log-empty-badge { display: grid; place-items: center; width: clamp(118px, 18vw, 172px); aspect-ratio: 1; border: 1px dashed rgba(245,200,106,.38); border-radius: 32px; color: rgba(245,200,106,.72); font-size: clamp(3rem, 8vw, 5rem); font-weight: 950; background: rgba(0,0,0,.16); }
+.compact-checker { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 18px 0; }
+.quest-log-summary-grid .mission-card { min-height: 100%; }
+.quest-log-shelf-card .fact p { margin: 0; font-size: .9rem; }
+@media (max-width: 760px) {
+  .quest-log-current-layout { grid-template-columns: 1fr; }
+  .compact-checker { grid-template-columns: 1fr; }
+  .compact-form { display: flex; width: 100%; }
+}
