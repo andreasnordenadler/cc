@@ -65,7 +65,7 @@ export default async function MyQuestLogPage() {
           <section className="mission-card quest-log-current-card compact-current-quest-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Current quest status</span>
+              <span className="eyebrow">Current Quest</span>
               {!activeChallengeRecord ? <h2>No active quest.</h2> : null}
             </div>
           </div>
