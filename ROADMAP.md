@@ -1,8 +1,8 @@
 # CC Roadmap
 
-Last updated: 2026-05-04 12:14 Europe/Stockholm
+Last updated: 2026-05-05 07:35 Europe/Stockholm
 Owner: Sam  
-Status: active — three-project focus
+Status: fresh-baseline / manual-instruction only
 
 ## Mission
 
@@ -34,6 +34,17 @@ Canonical brief:
 Old pre-reset standby roadmap is archived at:
 - `docs/ROADMAP_ARCHIVE_PRE_V1_RESET_2026-04-25.md`
 
+## Current baseline — 2026-05-05
+
+Andreas reset SQC planning on 2026-05-05:
+
+- **Current live version is the fresh baseline.**
+- **Quest Hub (`/challenges`) is done and OK for launch.**
+- **Individual Quest pages (`/challenges/[id]`) are done and OK for launch.**
+- Clear old/new-change queues and previous autonomous instructions.
+- From here, only act on new explicit Andreas instructions or a newly agreed roadmap.
+- Do not continue autonomous SQC work from historical notes, old requested follow-ups, or previous backlog items.
+
 - [x] Remove white square matte from the three beginner quest badge assets.
   - added_at: 2026-04-28 11:50 Europe/Stockholm
   - completed_at: 2026-04-28 11:55 Europe/Stockholm
@@ -62,7 +73,7 @@ Old pre-reset standby roadmap is archived at:
   - Live deployment: `https://cc-41g7wl377-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
   - Proof doc: `docs/SQC_CHESSCOM_NO_CASTLE_LATEST_GAME_ADAPTER_LIVE_DEPLOY_2026-04-28.md`.
 
-- [ ] Prepare SQC for polished launch readiness without adding more beta-tester functionality.
+- [x] Prepare SQC for polished launch readiness without adding more beta-tester functionality. *(Closed at 2026-05-05 fresh-baseline reset; no remaining automatic follow-up from this queue.)*
   - added_at: 2026-04-28 12:38 Europe/Stockholm
   - source: Andreas said he is not in a hurry to launch and would rather do a proper launch with rich features and a great clear UI.
   - 2026-05-04 08:33 Europe/Stockholm requested quest-card cleanup: remove the bottom alternative/badge tag line (e.g. Horse First Initiate), remove the visible Open quest/card CTA text, and make the active quest state much more obvious than the small yellow marker.
@@ -149,9 +160,9 @@ Old pre-reset standby roadmap is archived at:
   - 2026-05-04 20:02 Europe/Stockholm requested quest-detail content restructure: separate `What you need to do` section felt weak; integrate its useful three-step run flow after the stronger Rules list instead.
   - 2026-05-04 20:07 Europe/Stockholm diagnosed provider status issue: Refresh was checking Lichess first and stopping when both Lichess and Chess.com usernames existed, so Chess.com status could remain `No check recorded yet`; fix should refresh and record separate attempts for every connected provider.
   - 2026-05-04 20:10 Europe/Stockholm requested removal of remaining redundant lower quest-detail sections: `Badge reward`, `Send this quest`, and `Your run` are now duplicative of the hero/status/rules flow and should be removed.
-  - 2026-05-04 20:16 Europe/Stockholm requested next SQC follow-up for tomorrow: when a logged-in user activates a quest, automatically run the latest-game checker immediately instead of requiring the first manual `Refresh`.
-  - 2026-05-04 20:18 Europe/Stockholm Andreas supplied an alternative ornate `SQC` logo for top-bar testing. Asset saved as `public/brand/sqc-alt-logo-topbar-test.jpg`; likely needs transparent/cropped treatment before final nav use because the supplied file includes a light checkerboard background.
-  - 2026-05-04 20:24 Europe/Stockholm Andreas requested SQC planning tasks: expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard (possibly requiring rated games for Absurd); design rankings/top players/quest popularity/statistics loops; and explore showing a chessboard with the last move/final proof position for completed quests. Planning docs added: `docs/SQC_BRUTAL_ABSURD_QUEST_EXPANSION_NOTES_2026-05-04.md`, `docs/SQC_RANKINGS_TOP_PLAYERS_STATS_NOTES_2026-05-04.md`, and `docs/SQC_COMPLETED_QUEST_CHESSBOARD_LAST_MOVE_NOTES_2026-05-04.md`.
+  - 2026-05-04 20:16 Europe/Stockholm requested next SQC follow-up for tomorrow: when a logged-in user activates a quest, automatically run the latest-game checker immediately instead of requiring the first manual `Refresh`. **Cleared by 2026-05-05 fresh-baseline reset; do not execute unless Andreas re-requests it.**
+  - 2026-05-04 20:18 Europe/Stockholm Andreas supplied an alternative ornate `SQC` logo for top-bar testing. Asset saved as `public/brand/sqc-alt-logo-topbar-test.jpg`; likely needs transparent/cropped treatment before final nav use because the supplied file includes a light checkerboard background. **Cleared by 2026-05-05 fresh-baseline reset; do not pursue unless Andreas re-requests it.**
+  - 2026-05-04 20:24 Europe/Stockholm Andreas requested SQC planning tasks: expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard (possibly requiring rated games for Absurd); design rankings/top players/quest popularity/statistics loops; and explore showing a chessboard with the last move/final proof position for completed quests. Planning docs added: `docs/SQC_BRUTAL_ABSURD_QUEST_EXPANSION_NOTES_2026-05-04.md`, `docs/SQC_RANKINGS_TOP_PLAYERS_STATS_NOTES_2026-05-04.md`, and `docs/SQC_COMPLETED_QUEST_CHESSBOARD_LAST_MOVE_NOTES_2026-05-04.md`. **Cleared by 2026-05-05 fresh-baseline reset; these are historical only unless Andreas re-requests them.**
   - 2026-05-04 02:55 Europe/Stockholm progress: added a `/proof-log` receipt-state explainer so empty/new proof logs preview passed/failed/pending outcomes and their next actions before a tester has saved history; proof doc `docs/SQC_PROOF_LOG_RECEIPT_STATE_CLARITY_LIVE_DEPLOY_2026-05-04.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-nj5q94pjs-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/proof-log`, canonical `/result`, and canonical `/support`, plus Vercel inspect status `Ready`.
   - 2026-05-04 04:50 Europe/Stockholm progress: added a homepage proof-loop section so testers see `Pick the dare → Play real chess → Prove or retry` before choosing a quest, with direct routes into `/challenges`, `/account`, `/result`, and `/proof-log`; proof doc `docs/SQC_HOMEPAGE_PROOF_LOOP_CLARITY_LIVE_DEPLOY_2026-05-04.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-hecsfyvk3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/`, canonical `/account`, and canonical `/proof-log`, plus bounded Vercel log stream with no fatal runtime log captured.
   - 2026-05-04 05:50 Europe/Stockholm progress: polished remaining proof-loop terminology so the homepage and proof log say `quest` / `quest back` instead of leaking older dare/challenge framing; proof doc `docs/SQC_QUEST_TERMINOLOGY_PROOF_LOOP_POLISH_LIVE_DEPLOY_2026-05-04.md`. Verification: `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm build`, production deploy to `https://cc-3i1s9e49n-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`, live smoke for deploy/canonical `/`, canonical `/proof-log`, and canonical `/account`, homepage/proof-log content assertions, and Vercel inspect `Ready`.
