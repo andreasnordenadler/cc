@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 const betaChecklist = [
   {
     title: "Connect a chess identity",
-    copy: "Add either chess username. All ten current starter-deck quests work on Lichess or Chess.com, so beta testers can use their real chess home instead of hunting for a provider-specific quest.",
+    copy: "Add either chess username. Every current starter-deck quest now works on Lichess or Chess.com, so beta testers can use their real chess home instead of hunting for a provider-specific quest.",
     href: "/connect",
     action: "Connect username",
   },
@@ -51,7 +51,7 @@ const trustNotes = [
   {
     label: "Support",
     value: "Tell Andreas what broke",
-    copy: "For this friends/private beta, use the support packet when a receipt, setup step, badge, or share card feels confusing; include the quest name and game link so the report is actionable.",
+    copy: "For this friends/private beta, send rough edges, confusing copy, wrong verifier outcomes, or badge/UI glitches directly to Andreas with the quest name and game link. The support page spells out the minimum useful report.",
   },
 ];
 
@@ -73,9 +73,9 @@ export default async function BetaPage() {
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Run the beta checklist</Link>
             <Link href="/path" className="button pink">Try beginner path</Link>
-            <Link href="/support" className="button secondary">Open support packet</Link>
             <Link href="/verifiers" className="button secondary">See live verifiers</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
+            <Link href="/support" className="button secondary">Support & privacy</Link>
           </div>
         </section>
 

@@ -4,18 +4,22 @@ import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import SiteNav from "@/components/site-nav";
-import { checkActiveChallenge, startChallenge } from "@/app/actions";
-import { CHALLENGES, getChallengeById } from "@/lib/challenges";
-import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
+import StartQuestControls from "@/components/start-quest-controls";
+import { checkActiveChallenge } from "@/app/actions";
+import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 import {
   buildAttemptSummary,
   challengeBanner,
   getActiveChallenge,
   getChallengeAttempts,
+  getChallengeProgress,
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
+  formatTime,
+  type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -38,7 +42,7 @@ export async function generateMetadata({
   }
 
   const title = `${challenge.title} — Side Quest Chess`;
-  const description = `${challenge.objective} ${challenge.proofCallout}. Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
+  const description = `${challenge.objective} ${challenge.proofCallout}. Win on Lichess or Chess.com, then verify your latest public game for +${challenge.reward} points.`;
   const url = `/challenges/${challenge.id}`;
   const image = `/api/og/dare/${challenge.id}`;
 
@@ -81,91 +85,111 @@ export default async function ChallengeDetailPage({
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
+  const progress = getChallengeProgress(metadata);
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
+  const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
+  const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
-  const verifierStatus = getVerifierStatus(challenge);
-  const verifierLabel = getVerifierStateLabel(verifierStatus);
+  const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+  const unfinishedActiveChallenge =
+    activeChallenge?.id && activeChallenge.id !== challenge.id && !progress.completedChallengeIds.includes(activeChallenge.id)
+      ? getChallengeById(activeChallenge.id)
+      : null;
 
   return (
     <main className="site-shell">
       <SiteNav isSignedIn={isSignedIn} active="challenges" />
 
-      <div className="content-wrap">
-        <Link href="/challenges" className="button secondary">← Back to quest hub</Link>
+      <div className="content-wrap quest-detail-wrap">
+        <Link href="/challenges" className="button secondary back-to-hub">← Back to Quest Hub</Link>
 
-        <section className="hero-card detail-hero">
-          <div className="detail-hero-grid">
-            <div>
-              <div className="badge-row">
-                <span className="eyebrow">{challenge.category}</span>
-                <span className="badge danger">{challenge.difficulty}</span>
-                <span className="badge gold">+{challenge.reward} pts</span>
-                <span className={verifierLabel.className}>{verifierLabel.label}</span>
-              </div>
+        <section className={`hero-card detail-hero quest-detail-hero ${isActive ? "active-quest-card" : ""} ${isCompleted ? "completed-quest-card" : ""}`}>
+          {isActive ? <span className="active-quest-stamp detail-state-stamp" aria-label="Active quest" /> : null}
+          {isCompleted && !isActive ? <span className="completed-quest-stamp detail-state-stamp" aria-label="Completed quest" /> : null}
+          <div className="quest-detail-meta card-meta quest-card-meta">
+            <strong className="quest-points">+{challenge.reward} pts</strong>
+            <span className={`badge difficulty-badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
+          </div>
+          <div className="detail-hero-grid quest-detail-hero-grid">
+            <div className="quest-detail-copy">
               <h1>{challenge.title}</h1>
               <p className="hero-copy">{challenge.objective}</p>
+              <p className="quest-detail-flavor">{challenge.openingHint}</p>
               <p>{challenge.flavor}</p>
             </div>
-            <ChallengeBadge challenge={challenge} size="hero" />
+            <ChallengeBadge challenge={challenge} earned={isCompleted} size="hero" presentation="art" />
           </div>
-          <div className="button-row hero-actions">
+          <div className="button-row hero-actions quest-detail-actions">
             {isSignedIn ? (
-              <form action={startChallenge}>
-                <input type="hidden" name="challengeId" value={challenge.id} />
-                <button type="submit" className="button primary">
-                  {isActive ? "Restart this bad idea" : "Start this bad idea"}
-                </button>
-              </form>
+              isActive ? null : (
+                <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
+              )
             ) : (
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
-            <Link href="/result" className="button secondary">Preview proof card</Link>
-            <Link href={`/dare/${challenge.id}`} className="button secondary">Friend quest page</Link>
+            <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Quest</Link>
+            {isCompleted ? <Link href="/proof-log" className="button secondary">Proof log</Link> : null}
+            {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
           </div>
         </section>
 
-        <section className="mission-card">
+        {isSignedIn && isActive ? (
+          <section className="mission-card quest-status-panel" aria-label="Active quest status">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Quest status</span>
+                <h2>Latest-game checker</h2>
+                <p>{challengeBanner(activeChallenge)}</p>
+              </div>
+            </div>
+            <div className="quest-status-grid">
+              <ProviderStatusCard provider="Lichess" username={lichessUsername} latestAttempt={latestLichessAttempt} />
+              <ProviderStatusCard provider="Chess.com" username={chessComUsername} latestAttempt={latestChessComAttempt} />
+              <Fact label="Total checks" value={`${attempts.length}`} />
+              <Fact label="Latest receipt" value={latestAttempt ? formatTime(latestAttempt.checkedAt) : "not checked yet"} />
+            </div>
+            <article className="note-card latest-check quest-status-receipt">
+              <span className="eyebrow">Latest receipt</span>
+              <h3>{latestAttemptSummary.headline}</h3>
+              <p>{latestAttemptSummary.detail}</p>
+              <small>{latestAttemptSummary.meta}</small>
+            </article>
+            <form action={checkActiveChallenge} className="quest-status-refresh">
+              <button type="submit" className="button primary">Refresh</button>
+            </form>
+          </section>
+        ) : null}
+
+        <section className="mission-card quest-detail-section">
+          <span className="eyebrow">Rules</span>
+          <h2>Funny, but rule-clear.</h2>
+          <p>{challenge.instruction}</p>
+          <ul className="rules-list">
+            {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
+          </ul>
+          <div className="quest-run-flow">
+            <span className="eyebrow">How to run it</span>
+            <div className="checker-flow quest-detail-flow">
+              <Fact label="1 · Start" value="Make this your one active quest so the checker knows which weird rule to judge." />
+              <Fact label="2 · Play" value="Play a real public Lichess or Chess.com game and try to satisfy the rule while winning." />
+              <Fact label="3 · Refresh" value="Return here, refresh quest status, and read the latest receipt." />
+            </div>
+          </div>
+        </section>
+
+        <section className="mission-card quest-detail-section" aria-label="Friend quest handoff">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Proof-loop handoff</span>
-              <h2>Play the game, then come straight back for the receipt.</h2>
+              <span className="eyebrow">Friend dare</span>
+              <h2>Send exactly this bad idea.</h2>
             </div>
-            <span className="badge green">latest-game check</span>
+            <span className="badge gold">Quest-specific invite</span>
           </div>
           <p>
-            This quest is verified from your newest public Lichess or Chess.com game after you start it. If the result looks surprising, the receipt and support packet now carry the facts needed to debug it.
-          </p>
-          <div className="checker-flow" aria-label="Quest proof-loop handoff">
-            <div className="flow-step ready">
-              <strong>1 · Start</strong>
-              <p>Make this the active side quest so SQC knows which bad idea to judge.</p>
-            </div>
-            <div className="flow-step hot">
-              <strong>2 · Play</strong>
-              <p>Use your normal chess site. No PGN paste, no password sharing, no special lobby.</p>
-            </div>
-            <div className="flow-step ready">
-              <strong>3 · Check</strong>
-              <p>Return to the receipt to see passed, failed, or pending evidence with next steps.</p>
-            </div>
-          </div>
-          <div className="button-row">
-            <Link href={isSignedIn ? "/account" : "/connect"} className="button primary">
-              {isSignedIn ? "Open account preflight" : "Connect chess identity"}
-            </Link>
-            <Link href="/result" className="button secondary">Open latest receipt</Link>
-            <Link href="/support" className="button secondary">Report confusing receipt</Link>
-          </div>
-        </section>
-
-        <section className="mission-card share-card">
-          <span className="eyebrow">Send this quest</span>
-          <h2>Send this exact bad idea.</h2>
-          <p>
-            Side Quest Chess works better when the quest itself is the invite. This copies a direct quest link with the badge reward and rules intact.
+            Turn this rule page into a direct dare: copy a friend-ready invite with the quest, objective, badge, and proof link already attached.
           </p>
           <ChallengeInviteActions
             challengeTitle={challenge.title}
@@ -176,75 +200,7 @@ export default async function ChallengeDetailPage({
           />
         </section>
 
-        <section className="big-grid">
-          <article className="mission-card">
-            <span className="eyebrow">What counts</span>
-            <h2>Funny, but rule-clear.</h2>
-            <ul className="rules-list">
-              {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
-            </ul>
-          </article>
 
-          <article className="mission-card">
-            <span className="eyebrow">Unlock badge</span>
-            <ChallengeBadge challenge={challenge} size="hero" />
-            <h2>{challenge.badge}</h2>
-            <p>{challenge.badgeIdentity.unlockCopy}</p>
-            <div className="note-card">
-              <strong>{challenge.badgeIdentity.heraldry.motto}</strong>
-              <p>{challenge.badgeIdentity.heraldry.meaning}</p>
-              <p>{challenge.badgeIdentity.heraldry.weirdness}</p>
-            </div>
-            <div className="note-card">
-              <strong>{verifierStatus.summary}</strong>
-              <p>{verifierStatus.evidence}</p>
-              <p>{verifierLabel.promise}</p>
-              <Link href="/verifiers">Open verifier board</Link>
-            </div>
-          </article>
-        </section>
-
-        <section className="mission-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Your run</span>
-              <h2>{isActive ? "This quest is active" : "Not active yet"}</h2>
-            </div>
-            <span className="badge blue">{challenge.completionRate}</span>
-          </div>
-
-          {isSignedIn ? (
-            <>
-              <div className="grid">
-                <Fact label="Lichess" value={lichessUsername || "not set yet"} />
-                <Fact label="Chess.com" value={chessComUsername || "not set yet"} />
-                <Fact label="Attempts" value={`${attempts.length}`} />
-              </div>
-              <div className="run-status">
-                <p>{challengeBanner(isActive ? activeChallenge : null)}</p>
-                {isActive ? (
-                  <form action={checkActiveChallenge} className="button-row">
-                    <button type="submit" className="button primary">Check latest games</button>
-                    <Link href="/account" className="button secondary">Open active run</Link>
-                  </form>
-                ) : (
-                  <p className="muted">Start this side quest to unlock the latest-game checker for this quest.</p>
-                )}
-                <article className="note-card latest-check">
-                  <span className="eyebrow">Latest check</span>
-                  <h3>{latestAttemptSummary.headline}</h3>
-                  <p>{latestAttemptSummary.detail}</p>
-                  <small>{latestAttemptSummary.meta}</small>
-                </article>
-              </div>
-            </>
-          ) : (
-            <div className="run-status">
-              <p>Browse first. Connect only when you want Side Quest Chess to remember this chaos and turn it into proof.</p>
-              <p className="muted">Signed-in runners get a Check latest games button here after starting the quest.</p>
-            </div>
-          )}
-        </section>
       </div>
     </main>
   );
@@ -257,4 +213,52 @@ function Fact({ label, value }: { label: string; value: string }) {
       <strong>{value}</strong>
     </div>
   );
+}
+
+function ProviderStatusCard({
+  provider,
+  username,
+  latestAttempt,
+}: {
+  provider: "Lichess" | "Chess.com";
+  username: string;
+  latestAttempt: ChallengeAttempt | null;
+}) {
+  return (
+    <div className="fact provider-status-card">
+      <span>{provider}</span>
+      <strong>{username || "not connected"}</strong>
+      <small>{latestAttempt ? `Last checked ${formatTime(latestAttempt.checkedAt)}` : "No check recorded yet"}</small>
+    </div>
+  );
+}
+
+function getLatestProviderAttempt(attempts: ChallengeAttempt[], provider: "lichess" | "chess.com") {
+  return attempts.find((attempt) => getAttemptProvider(attempt) === provider) ?? null;
+}
+
+function getAttemptProvider(attempt: ChallengeAttempt): "lichess" | "chess.com" | "unknown" {
+  if (attempt.provider === "lichess" || attempt.provider === "chess.com") {
+    return attempt.provider;
+  }
+
+  const gameId = attempt.gameId ?? "";
+
+  if (/chess\.com/i.test(gameId)) {
+    return "chess.com";
+  }
+
+  if (gameId) {
+    return "lichess";
+  }
+
+  return "unknown";
+}
+
+function getDifficultyTone(difficulty: Challenge["difficulty"]) {
+  if (difficulty === "Easy") return "green";
+  if (difficulty === "Medium") return "gold";
+  if (difficulty === "Hard") return "orange";
+  if (difficulty === "Absurd") return "absurd";
+  return "danger";
 }

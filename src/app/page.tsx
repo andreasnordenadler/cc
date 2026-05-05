@@ -1,6 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -11,236 +11,214 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+const recommendedQuestIds = [
+  "knights-before-coffee",
+  "bishop-field-trip",
+  "early-king-walk",
+];
+
 export default async function Home() {
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
   const user = isSignedIn ? await currentUser() : null;
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const progress = getChallengeProgress(metadata);
-  const activeChallenge = getActiveChallenge(metadata);
+  const activeQuest = getActiveChallenge(metadata);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
-  const featuredChallenge = CHALLENGES[0];
+  const recommendedQuests = recommendedQuestIds
+    .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
+    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
+  const activeQuestRecord = activeQuest?.id
+    ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
+    : null;
+  const connectedIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" / ");
 
   return (
     <main className="site-shell">
       <SiteNav isSignedIn={isSignedIn} active="home" />
 
       <div className="content-wrap">
-        <section className="hero-grid">
-          <article className="hero-card">
-            <span className="eyebrow">Side Quest Chess v1</span>
+        <section className="hero-grid launch-home-hero clean-home-hero">
+          <article className="hero-card simplified-home-hero">
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
-              Pick a ridiculous quest, play real games on Lichess or Chess.com, and let Side Quest Chess prove whether you actually pulled it off.
+              Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card.
             </p>
             <div className="button-row hero-actions">
-              {activeChallenge?.id ? (
-                <Link href={`/challenges/${activeChallenge.id}`} className="button primary">Continue active quest</Link>
-              ) : (
-                <Link href="/path" className="button primary">Start the three-quest path</Link>
-              )}
-              <Link href="/challenges" className="button pink">Pick from the quest hub</Link>
-              <Link href="/today" className="button secondary">Open today’s quest</Link>
-              <Link href={isSignedIn ? "/account" : "/connect"} className="button secondary">{isSignedIn ? "Check account preflight" : "Connect a chess name"}</Link>
+              <Link href="/path" className="button primary">Start starter path</Link>
+              <Link href="/challenges" className="button secondary">Browse quests</Link>
+              <Link href="/connect" className="button secondary">Connect account</Link>
             </div>
-
-            <div className="steps" aria-label="How Side Quest Chess works">
-              <Step num="1" title="Pick" copy="Choose a terrible mission." />
-              <Step num="2" title="Play" copy="Use your normal chess site." />
-              <Step num="3" title="Prove" copy="We check it and make it shareable." />
-            </div>
+            <p className="plain-loop-copy">Pick → play → prove. No PGN uploads. No chess-site passwords.</p>
           </article>
 
-          <aside className="side-card card">
-            <div className="spread">
-              <span className="eyebrow">Canonical quest</span>
-              <span className="badge danger">{featuredChallenge.difficulty}</span>
+          <aside className="side-card card recommended-quests-panel">
+            <div>
+              <h2>Start with the starter path.</h2>
+              <p>Three clear quests before the full chaos deck.</p>
             </div>
-            <ChallengeTeaser challengeId={featuredChallenge.id} />
-            <div className="note-card">
-              <strong>No PGN homework.</strong>
-              <p>Play real games elsewhere. Side Quest Chess is the weird quest layer and proof machine.</p>
+            <div className="quest-list" aria-label="Recommended first quests">
+              {recommendedQuests.map((quest) => (
+                <Link
+                  key={quest.id}
+                  href={`/challenges/${quest.id}`}
+                  className="quest-list-item final-bare-quest-card"
+                  style={{
+                    gridTemplateColumns: "1fr",
+                    justifyItems: "center",
+                    textAlign: "center",
+                    background: "transparent",
+                    borderColor: "transparent",
+                    boxShadow: "none",
+                    padding: "12px 8px",
+                  }}
+                >
+                  {quest.badgeIdentity.image ? (
+                    <Image
+                      src={quest.badgeIdentity.image}
+                      alt=""
+                      width={112}
+                      height={112}
+                      className="final-bare-quest-logo"
+                      style={{
+                        width: "88px",
+                        height: "88px",
+                        objectFit: "contain",
+                        filter: "drop-shadow(0 12px 18px rgba(0,0,0,.28))",
+                      }}
+                      unoptimized
+                    />
+                  ) : null}
+                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "5px", background: "transparent" }}>
+                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{quest.difficulty}</small>
+                    <strong>{quest.title}</strong>
+                    <small>{quest.objective}</small>
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <div className="button-row">
+              <Link href="/path" className="button primary">Open starter path</Link>
+              <Link href="/today" className="button secondary">Or open today’s quest</Link>
             </div>
           </aside>
         </section>
 
-        <section className="card mission-card">
+        <section className="mission-card" aria-label="How Side Quest Chess proof works">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Private beta quickstart</span>
-              <h2>Run the first tester loop without route hunting.</h2>
+              <span className="eyebrow">Proof loop</span>
+              <h2>From bad idea to brag receipt.</h2>
             </div>
-            <span className="badge gold">5 min</span>
+            <span className="badge blue">3 steps</span>
           </div>
-          <div className="grid">
-            <Fact label="1 · Set identity" value="Open /account, add Lichess or Chess.com, and confirm the preflight checklist." />
-            <Fact label="2 · Pick the starter route" value="Use the three-quest beta route on /challenges instead of browsing the full chaos deck cold." />
-            <Fact label="3 · Check the receipt" value="After a real game, open /result and copy the beta report if anything feels unfair or confusing." />
+          <p>
+            Pick one quest, play a real public game, then turn the latest-game check into a result card and saved proof log before the next ridiculous quest begins.
+          </p>
+          <div className="checker-flow" aria-label="Pick play prove loop">
+            <Link href="/challenges" className="flow-step ready clickable-quest-card">
+              <strong>1. Pick the quest</strong>
+              <p>Choose from the starter path or full chaos deck, then make one quest active.</p>
+            </Link>
+            <Link href="/account" className="flow-step hot clickable-quest-card">
+              <strong>2. Play real chess</strong>
+              <p>Use Lichess or Chess.com public games. No PGN uploads, no password nonsense.</p>
+            </Link>
+            <Link href="/result" className="flow-step ready clickable-quest-card">
+              <strong>3. Prove or retry</strong>
+              <p>Share a passed receipt, understand a miss, or save it in the proof log.</p>
+            </Link>
           </div>
           <div className="button-row">
-            <Link href="/account" className="button primary">Start account preflight</Link>
-            <Link href="/challenges" className="button secondary">Open starter route</Link>
-            <Link href="/result" className="button secondary">Check latest receipt</Link>
+            <Link href="/account" className="button primary">Run latest-game check</Link>
+            <Link href="/proof-log" className="button secondary">Open proof log</Link>
           </div>
         </section>
 
-        <section className="card mission-card beta-trust-strip" aria-label="Private beta trust basics">
-          <div>
-            <span className="eyebrow">Private beta trust basics</span>
-            <h2>Real games, public data, no password nonsense.</h2>
-            <p>
-              Side Quest Chess checks public Lichess and Chess.com game records only. Testers should never share chess-site passwords, and confusing receipts should be reported with the copied beta packet plus a screenshot.
-            </p>
+        <section className="card mission-card" aria-label="Friend quest loop">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Friend quest loop</span>
+              <h2>Send one terrible quest, then compare receipts.</h2>
+            </div>
+            <span className="badge pink">share loop</span>
+          </div>
+          <p>
+            The fastest way to understand Side Quest Chess is not a tour — it is sending one chess friend the same bad idea and letting the proof cards settle the argument.
+          </p>
+          <div className="checker-flow" aria-label="Friend quest receipt loop">
+            <Link href="/today" className="flow-step ready clickable-quest-card">
+              <strong>1. Pick today’s quest</strong>
+              <p>Use the daily quest or starter path so both players are chasing the same exact rule.</p>
+            </Link>
+            <Link href="/share-kit" className="flow-step hot clickable-quest-card">
+              <strong>2. Send the exact link</strong>
+              <p>The quest page carries the rules, badge reward, and proof target with the invite.</p>
+            </Link>
+            <Link href="/proof-log" className="flow-step ready clickable-quest-card">
+              <strong>3. Compare receipts</strong>
+              <p>After latest-game checks, passed and failed proof cards make the bragging rights obvious.</p>
+            </Link>
           </div>
           <div className="button-row">
-            <Link href="/rules" className="button secondary">Read proof rules</Link>
-            <Link href="/support" className="button primary">Open support packet</Link>
-          </div>
-        </section>
-
-        <section className="big-grid" aria-label="Product surfaces">
-          <article className="mission-card daily-card">
-            <span className="eyebrow">Daily side quest</span>
-            <h2>One bad idea for everyone today.</h2>
-            <p>The daily quest gives Side Quest Chess a repeatable ritual: same quest, same badge target, easy to share with friends.</p>
-            <Link href="/today" className="button primary">See today’s quest</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Random quest machine</span>
-            <h2>Let fate pick the bad idea.</h2>
-            <p>Spin the starter deck, accept the quest, or send the exact friend-quest link before common sense gets involved.</p>
-            <Link href="/random" className="button pink">Spin the deck</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Starter path</span>
-            <h2>Three bad ideas, in survivable order.</h2>
-            <p>A tiny first-run ladder gives new players a clear next quest before they browse the full chaos deck.</p>
-            <Link href="/path" className="button primary">Start the path</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Quest Hub</span>
-            <h2>Pick your next bad idea.</h2>
-            <p>Browse weird chess quests by chaos level, difficulty, and brag value. The hub is the product center — not an account dashboard.</p>
-            <Link href="/challenges" className="button primary">Open quest hub</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Automatic proof</span>
-            <h2>Play your game. We’ll judge your life choices.</h2>
-            <p>V1 presents the proof loop now: connect Lichess/Chess.com, play normal games, then Side Quest Chess checks for side-quest evidence.</p>
-            <Link href="/connect" className="button secondary">Connect account</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Badge vault</span>
-            <h2>Your nonsense gets heraldry.</h2>
-            <p>Every starter quest now has a distinct SQC coat of arms with a motto, meaning, and weird little brag identity.</p>
-            <Link href="/badges" className="button pink">Browse badges</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Scoreboard</span>
-            <h2>Your bad-idea score, in public.</h2>
-            <p>Track starter-deck points, earned coat-of-arms badges, and the next quest worth attempting without pretending this is a serious leaderboard.</p>
-            <Link href="/scoreboard" className="button secondary">View scoreboard</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Rulebook</span>
-            <h2>Funny quests. Serious receipts.</h2>
-            <p>The proof explainer shows how SQC verifies real games without PGN homework, engine dashboards, or fake success copy.</p>
-            <Link href="/rules" className="button secondary">Read the rulebook</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Private beta</span>
-            <h2>Test the loop before launch hype.</h2>
-            <p>A beta note now explains what is ready, how to test, what chess data SQC uses, and how friends should report confusing verifier outcomes.</p>
-            <Link href="/beta" className="button primary">Open beta notes</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Verifier board</span>
-            <h2>Live proof, not fake glory.</h2>
-            <p>See which starter quests are live-backed today, which adapters are next, and what evidence each weird receipt will need.</p>
-            <Link href="/verifiers" className="button secondary">Open verifier board</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Share kit</span>
-            <h2>Every quest, ready to send.</h2>
-            <p>A single page for quest-specific friend links, daily/random rituals, OG preview targets, and no-excuse invite copy.</p>
+            <Link href="/today" className="button primary">Use today’s quest</Link>
             <Link href="/share-kit" className="button pink">Open share kit</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Proof log</span>
-            <h2>Your receipts, without the spreadsheet energy.</h2>
-            <p>Every latest-game check now has a home: passed, failed, or pending side-quest evidence tied back to the exact quest.</p>
-            <Link href="/proof-log" className="button secondary">View proof log</Link>
-          </article>
+            <Link href="/proof-log" className="button secondary">Compare receipts</Link>
+          </div>
         </section>
 
-        <section className="card mission-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Your chaos status</span>
-              <h2>{isSignedIn ? "Current run" : "Try it without context first"}</h2>
+        {isSignedIn ? (
+          <section className="card mission-card home-status-card compact-run-card">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Current run</span>
+                <h2>{activeQuestRecord ? activeQuestRecord.title : "No active quest yet."}</h2>
+              </div>
+              <span className="badge gold readable-points">{progress.totalRewardPoints} points</span>
             </div>
-            <span className="badge gold">{progress.totalRewardPoints} pts</span>
-          </div>
-
-          {isSignedIn ? (
-            <div className="grid">
-              <Fact label="Connected identity" value={[lichessUsername, chessComUsername].filter(Boolean).join(" / ") || "Not set yet"} />
-              <Fact label="Active quest" value={activeChallenge?.id ? activeChallenge.id.replaceAll("-", " ") : "None yet"} />
-              <Fact label="Completed" value={`${progress.totalCompletedChallenges} quests`} />
+            <div className="grid lean-status-grid">
+              <Fact label="Chess account" value={connectedIdentity || "Add Lichess or Chess.com"} />
+              <Fact label="Completed quests" value={`${progress.totalCompletedChallenges}`} />
             </div>
-          ) : (
             <p>
-              You can browse quests now. Sign in only when you want Side Quest Chess to remember your profile, streaks, and proof cards.
+              {activeQuestRecord
+                ? "Play the active quest on Lichess or Chess.com, then jump straight to Account to run the latest-game check."
+                : "Choose one quest first so Account knows which weird rule to judge after your next public game."}
             </p>
-          )}
+            <div className="button-row">
+              <Link href={activeQuestRecord ? "/account" : "/challenges"} className="button primary">
+                {activeQuestRecord ? "Run latest-game check" : "Choose a quest"}
+              </Link>
+              {activeQuestRecord ? (
+                <Link href={`/challenges/${activeQuestRecord.id}`} className="button secondary">Review active rules</Link>
+              ) : (
+                <Link href="/account" className="button secondary">Account details</Link>
+              )}
+            </div>
+          </section>
+        ) : null}
+
+        <section className="big-grid home-secondary-grid quieter-secondary-grid" aria-label="Useful Side Quest Chess routes">
+          <article className="mission-card">
+            <h2>Collect proof you survived.</h2>
+            <p>Completed quests unlock heraldic badge progress and bragging rights.</p>
+            <Link href="/badges" className="button secondary">View badges</Link>
+          </article>
+
+          <article className="mission-card homepage-trust-card">
+            <h2>Public games only. No password nonsense.</h2>
+            <p>
+              Side Quest Chess checks public Lichess and Chess.com game records only. Testers should never share chess-site passwords; confusing receipts belong in the support packet with a screenshot.
+            </p>
+            <div className="button-row">
+              <Link href="/support" className="button secondary">Support & privacy</Link>
+              <Link href="/rules" className="button secondary">Proof rules</Link>
+            </div>
+          </article>
         </section>
       </div>
     </main>
-  );
-}
-
-function ChallengeTeaser({ challengeId }: { challengeId: string }) {
-  const challenge = CHALLENGES.find((item) => item.id === challengeId) ?? CHALLENGES[0];
-
-  return (
-    <article className="challenge-card featured">
-      <div className="card-meta">
-        <span>{challenge.category}</span>
-        <span className="badge danger">{challenge.difficulty}</span>
-      </div>
-      <ChallengeBadge challenge={challenge} />
-      <h3>{challenge.title}</h3>
-      <p>{challenge.objective}</p>
-      <em>{challenge.openingHint}</em>
-      <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · {challenge.badgeIdentity.heraldry.meaning}</div>
-      <div className="card-footer">
-        <strong>+{challenge.reward} pts</strong>
-        <span>{challenge.badgeIdentity.name}</span>
-        <Link href={`/challenges/${challenge.id}`}>Start</Link>
-      </div>
-    </article>
-  );
-}
-
-function Step({ num, title, copy }: { num: string; title: string; copy: string }) {
-  return (
-    <div className="step">
-      <strong>{num}</strong>
-      <span>{title}</span>
-      <p>{copy}</p>
-    </div>
   );
 }
 

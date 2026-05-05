@@ -4,7 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
-import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
+import { getVerifierStatus } from "@/lib/verifier-status";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -34,8 +34,8 @@ export default async function AccountPage() {
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
   const betaStarterChallengeIds = [
     "knights-before-coffee",
-    "no-castle-club",
-    "queen-never-heard-of-her",
+    "bishop-field-trip",
+    "early-king-walk",
   ];
   const betaStarterChallenges = betaStarterChallengeIds
     .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
@@ -93,7 +93,7 @@ export default async function AccountPage() {
             </div>
             <div className="flow-step ready">
               <strong>2. Quest</strong>
-              <p>Pick any starter quest; all ten can verify Lichess or Chess.com games.</p>
+              <p>Pick the starter path first; all ten quests can verify Lichess or Chess.com games once the loop is clear.</p>
             </div>
             <div className="flow-step hot">
               <strong>3. Proof</strong>
@@ -132,7 +132,7 @@ export default async function AccountPage() {
             </div>
             <div className={hasActiveDare ? "flow-step ready" : "flow-step"}>
               <strong>{hasActiveDare ? "✓ Quest active" : "3. Pick a quest"}</strong>
-              <p>{hasActiveDare ? `${activeChallengeRecord?.title} is ready for the proof loop.` : "Choose one of the ten dual-host starter quests."}</p>
+              <p>{hasActiveDare ? `${activeChallengeRecord?.title} is ready for the proof loop.` : "Start with the three-step path before browsing the full dual-host deck."}</p>
             </div>
             <div className={hasLatestReceipt ? "flow-step hot" : "flow-step"}>
               <strong>{hasLatestReceipt ? "✓ Receipt generated" : "4. Check latest games"}</strong>
@@ -140,8 +140,8 @@ export default async function AccountPage() {
             </div>
           </div>
           <div className="button-row">
-            <Link href={hasChessIdentity ? "/challenges" : "/connect"} className="button primary">
-              {hasChessIdentity ? "Pick or change quest" : "Connect chess identity"}
+            <Link href={hasChessIdentity ? "/path" : "/connect"} className="button primary">
+              {hasChessIdentity ? "Open starter path" : "Connect chess identity"}
             </Link>
             <Link href="/beta" className="button secondary">Open tester script</Link>
           </div>
@@ -156,7 +156,7 @@ export default async function AccountPage() {
             <span className="badge gold">choice-saver</span>
           </div>
           <p>
-            For a first private-beta pass, run the smallest useful ladder from the account page: one easy proof loop, one clean verifier check, then one memorable chaos attempt.
+            For a first pass, use the same beginner ladder shown on the homepage and Starter path: one tiny knight ritual, one bishop-restraint step, then one early king-walk stretch.
           </p>
           <div className="grid" aria-label="Account private beta starter route">
             {betaStarterChallenges.map((challenge, index) => {
@@ -216,17 +216,15 @@ export default async function AccountPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Quest launcher</span>
-              <h2>Pick a quest without leaving the test drive.</h2>
+              <h2>Pick any quest after the starter path is clear.</h2>
             </div>
             <span className="badge green">{liveVerifierCount} live verifiers</span>
           </div>
           <p>
-            Every starter quest can now be selected directly from the account page. Beginner quests are intentionally easier to understand; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
+            Every quest can still be selected directly from the account page after the guided first run. Beginner quests stay intentionally easier to understand; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
           </p>
           <div className="grid">
             {CHALLENGES.map((challenge) => {
-              const verifierStatus = getVerifierStatus(challenge);
-              const verifierLabel = getVerifierStateLabel(verifierStatus);
               const isActiveChallenge = activeChallengeRecord?.id === challenge.id;
 
               return (
@@ -235,7 +233,6 @@ export default async function AccountPage() {
                   <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
                   <strong>{challenge.title}</strong>
                   <p>{challenge.objective}</p>
-                  <span className={verifierLabel.className}>{verifierLabel.label}</span>
                   {user ? (
                     <form action={startChallenge} className="button-row">
                       <input type="hidden" name="challengeId" value={challenge.id} />

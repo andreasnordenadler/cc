@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export default function ShareKitPage() {
-  const featured = CHALLENGES[0];
+  const featured = CHALLENGES.find((challenge) => challenge.id === "queen-never-heard-of-her") ?? CHALLENGES[0];
   const deckValue = CHALLENGES.reduce((total, challenge) => total + challenge.reward, 0);
 
   return (
@@ -49,7 +49,7 @@ export default function ShareKitPage() {
             <div className="steps" aria-label="What the share kit covers">
               <Step num="1" title="Direct" copy="Every quest has its own friend-quest URL." />
               <Step num="2" title="Previewable" copy="Quest links carry quest-specific social cards." />
-              <Step num="3" title="Honest" copy="No fake wins, PGN homework, or serious training vibes." />
+              <Step num="3" title="Honest" copy="No fake wins, manual uploads, or serious training vibes." />
             </div>
           </article>
 
@@ -91,6 +91,38 @@ export default function ShareKitPage() {
           </article>
         </section>
 
+        <section className="mission-card" aria-label="Ten second friend quest script">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">10-second friend quest</span>
+              <h2>Send one cursed chess errand, then bring them back for proof.</h2>
+            </div>
+            <span className="badge gold">Invite → receipt</span>
+          </div>
+          <p>
+            The strongest SQC share loop is deliberately tiny: send one quest link before the game, play on the normal chess site, then come back to the receipt when the bad idea either works or detonates.
+          </p>
+          <div className="checker-flow" aria-label="Friend quest share loop">
+            <div className="flow-step ready">
+              <strong>1 · Invite</strong>
+              <p>Pick one exact side quest instead of pitching the whole product.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>2 · Play</strong>
+              <p>Use Lichess or Chess.com normally. No PGN upload homework.</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>3 · Prove</strong>
+              <p>Open the receipt and share the passed, failed, or pending result honestly.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href={`/dare/${featured.id}`} className="button primary">Send the queenless quest</Link>
+            <Link href="/result" className="button secondary">Open receipt page</Link>
+            <Link href="/proof-log" className="button secondary">Review proof log</Link>
+          </div>
+        </section>
+
         <section className="section-head">
           <div>
             <span className="eyebrow">Quest-specific links</span>
@@ -109,7 +141,6 @@ export default function ShareKitPage() {
               <div className="card-meta">
                 <span>{challenge.category}</span>
                 <span className="badge danger">{challenge.difficulty}</span>
-                <span className={verifierLabel.className}>{verifierLabel.label}</span>
               </div>
               <ChallengeBadge challenge={challenge} />
               <h3>{challenge.title}</h3>

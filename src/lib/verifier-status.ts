@@ -11,61 +11,61 @@ export type VerifierStatus = {
 export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
   "knights-before-coffee": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, first four player moves all being knight moves, legal time class, and standard chess from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "bishop-field-trip": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, both original bishops moving before the player queen, legal time class, and standard chess from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "early-king-walk": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, a non-castling king move before the player’s move 12, legal time class, and standard chess from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "queen-never-heard-of-her": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks queen loss before move 15, opponent queen still present, legal time class, standard chess, minimum game length, and player win from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "no-castle-club": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, zero player castling, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "the-blunder-gambit": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, early unbalanced knight/bishop/rook loss by move 10, no equal immediate reply, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "pawn-storm-maniac": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, six different player pawns moved before move 15, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "knightmare-mode": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win by checkmate, final move made by the player, final move piece was a knight, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "rookless-rampage": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, both original player rooks captured before move 20, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
   "one-bishop-to-rule-them-all": {
     state: "live",
-    summary: "Live-backed Lichess + Chess.com latest-game verifier",
+    summary: "Latest-game proof enabled",
     evidence:
       "Checks player win, exactly one final player bishop, zero final player knights, legal time class, standard chess, and minimum game length from normalized Lichess UCI or Chess.com PGN moves.",
   },
@@ -73,9 +73,9 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
 
 export const verifierStateLabels: Record<VerifierState, { label: string; className: string; promise: string }> = {
   live: {
-    label: "Live-backed",
+    label: "Verified",
     className: "badge success",
-    promise: "Can create an honest pass/fail/pending receipt from a connected supported chess username today.",
+    promise: "Latest-game verifier is live."
   },
   next: {
     label: "Next adapter",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
@@ -41,33 +42,25 @@ export default async function ResultPage() {
     ? {
         label: "Passed",
         title: "This one is share-ready.",
-        copy: "Send the proof card or copy the share text. The beta signal to capture is whether the pass felt earned and easy to understand.",
-        action: "Review share copy",
+        copy: "Send the proof card or copy the share text. A passed receipt should make the win, quest rule, badge, and points obvious without extra explanation.",
+        action: "Copy share proof",
         href: "/result",
       }
     : isPending
       ? {
           label: "Pending",
-          title: "Bring one public game link.",
-          copy: "Pending usually means SQC did not find an eligible recent public game yet. For beta feedback, include the chess username and latest game URL so the verifier gap is diagnosable.",
-          action: "Check account preflight",
+          title: "Play one eligible public game.",
+          copy: "Pending usually means SQC has not found a recent public Lichess or Chess.com game that matches this quest yet. Keep the quest active, play normally, then run the latest-game check again.",
+          action: "Check latest games",
           href: "/account",
         }
       : {
           label: "Failed",
-          title: "Decide whether the fail felt fair.",
-          copy: "A failed receipt is healthy when the rule explanation matches the game. Report it only if the receipt feels wrong, vague, or harder to act on than the quest rule itself.",
+          title: "The receipt should explain why.",
+          copy: "A failed receipt is still useful: it should point back to the exact quest rule that did not land, then make the next attempt feel obvious instead of mysterious.",
           action: "Review quest rule",
           href: `/challenges/${challenge.id}`,
         };
-  const betaReceiptSnapshot = [
-    `Quest: ${challenge.title}`,
-    `Receipt status: ${receiptNextStep.label}`,
-    `Latest check: ${latestAttemptSummary.headline} — ${latestAttemptSummary.detail}`,
-    `Game/source: ${gameLabel}`,
-    `Next action: ${receiptNextStep.title}`,
-    "Fairness note: Did this receipt make the next move obvious?",
-  ].join("\n");
 
   return (
     <main className="site-shell">
@@ -94,7 +87,7 @@ export default async function ResultPage() {
             <span className="eyebrow">Live proof card</span>
             <h2>The result now follows your latest check.</h2>
             <p>
-              This screen uses the saved active-quest attempt instead of a static demo, so the share moment can reflect a real passed, failed, or pending verifier result.
+              This screen turns the latest saved quest check into the product’s core loop: honest status, clear next action, badge progress, and share copy when the proof lands.
             </p>
             <div className="button-row">
               <Link href="/account" className="button primary">Check latest games</Link>
@@ -117,20 +110,38 @@ export default async function ResultPage() {
           <div className="checker-flow" aria-label="Latest receipt interpretation guide">
             <div className={isPassed ? "flow-step ready" : "flow-step"}>
               <strong>Passed</strong>
-              <p>Share proof and record whether the success copy felt earned.</p>
+              <p>Share proof, bank the badge, and invite someone else.</p>
             </div>
             <div className={!isPassed && !isPending ? "flow-step hot" : "flow-step"}>
               <strong>Failed</strong>
-              <p>Check whether the rule mismatch is obvious and fair.</p>
+              <p>Use the rule callout to understand exactly what missed.</p>
             </div>
             <div className={isPending ? "flow-step hot" : "flow-step"}>
               <strong>Pending</strong>
-              <p>Send username plus public game link if it should have found a game.</p>
+              <p>Play or expose a recent eligible public game, then check again.</p>
             </div>
           </div>
           <div className="button-row">
             <Link href={receiptNextStep.href} className="button primary">{receiptNextStep.action}</Link>
-            <Link href="/support" className="button secondary">Open support packet</Link>
+            <Link href="/support" className="button pink">Report confusing receipt</Link>
+            <Link href="/proof-log" className="button secondary">Open proof log</Link>
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Beta support shortcut</span>
+              <h2>If the receipt feels unfair, capture the useful details.</h2>
+            </div>
+            <span className="badge blue">quest + game link</span>
+          </div>
+          <p>
+            Private-beta testers now have a direct path from the latest receipt to the support packet, so wrong or confusing pass/fail/pending outcomes can be reported with the quest, provider, username, game link, and expected result.
+          </p>
+          <div className="button-row">
+            <Link href="/support" className="button primary">Open support packet</Link>
+            <Link href={`/challenges/${challenge.id}`} className="button secondary">Recheck quest rules</Link>
           </div>
         </section>
 
@@ -140,6 +151,20 @@ export default async function ResultPage() {
             <h2>{isPassed ? `I completed “${challenge.title}.”` : `I tried “${challenge.title}.”`}</h2>
             <p>{shareCopy}</p>
             <ShareProofActions copy={shareCopy} challengeTitle={challenge.title} />
+          </article>
+          <article className="mission-card share-card">
+            <span className="eyebrow">Send the next quest</span>
+            <h2>Turn this receipt into the next bad decision.</h2>
+            <p>
+              After a pass, fail, or pending check, send the exact same quest to a friend so the loop continues with a quest-specific invite instead of a generic homepage pitch.
+            </p>
+            <ChallengeInviteActions
+              challengeTitle={challenge.title}
+              challengeObjective={challenge.objective}
+              challengePath={`/dare/${challenge.id}`}
+              reward={challenge.reward}
+              badgeName={challenge.badgeIdentity.name}
+            />
           </article>
           <article className="mission-card">
             <span className="eyebrow">Latest check</span>
@@ -153,15 +178,32 @@ export default async function ResultPage() {
         <section className="mission-card beta-template-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Beta report shortcut</span>
-              <h2>Copy the receipt facts before the moment gets fuzzy.</h2>
+              <span className="eyebrow">Launch loop</span>
+              <h2>From receipt to next quest in one screen.</h2>
             </div>
-            <Link href="/support" className="button secondary">Support packet</Link>
+            <Link href="/share-kit" className="button secondary">Share a quest</Link>
           </div>
           <p>
-            Private-beta testers can paste this into the support packet with a screenshot or game URL, so the useful signal is captured without asking them to reconstruct the whole run.
+            The result page now points every state toward the real SQC loop: passed receipts become shareable proof, failed receipts explain the rule miss, and pending receipts send players back to a clean latest-game check.
           </p>
-          <pre>{betaReceiptSnapshot}</pre>
+          <div className="checker-flow" aria-label="Receipt to next quest loop">
+            <div className="flow-step ready">
+              <strong>Share</strong>
+              <p>Copy the proof when the quest lands.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>Retry</strong>
+              <p>Use failed or pending receipts as the next-attempt guide.</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>Continue</strong>
+              <p>Pick another quest from the starter path or full hub.</p>
+            </div>
+          </div>
+          <div className="button-row">
+            <Link href="/path" className="button primary">Start starter path</Link>
+            <Link href="/challenges" className="button secondary">Browse quests</Link>
+          </div>
         </section>
       </div>
     </main>
