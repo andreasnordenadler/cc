@@ -61,7 +61,7 @@ export default async function Home() {
             <p className="hero-copy">
               {isSignedIn
                 ? "Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card."
-                : "Sign in, connect your public chess username, choose one ridiculous quest, and let Side Quest Chess check your latest real game."}
+                : "Sign in, connect your public chess usernames, choose one ridiculous quest, and let Side Quest Chess check your latest real game."}
             </p>
             {isSignedIn ? (
               <>
