@@ -101,6 +101,9 @@ export default async function Home() {
                 </Link>
               ))}
             </div>
+            <p className="heroism-custom-path">
+              Or go <Link href="/challenges">find your own path</Link>.
+            </p>
           </aside>
         </section>
 

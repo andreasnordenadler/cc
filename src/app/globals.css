@@ -429,6 +429,9 @@ p { color: var(--muted); line-height: 1.5; }
 .heroism-choice-copy strong { color: var(--ink); font-size: clamp(1.05rem, 2.6vw, 1.45rem); line-height: 1; letter-spacing: -.025em; }
 .heroism-choice-copy small { color: var(--muted); font-size: .9rem; font-weight: 850; line-height: 1.25; }
 .heroism-choice-copy em { color: var(--gold); font-size: .82rem; font-style: normal; font-weight: 950; line-height: 1.25; }
+.heroism-custom-path { margin: 0; color: var(--muted); font-size: .95rem; font-weight: 850; text-align: center; }
+.heroism-custom-path a { color: var(--gold); font-weight: 950; text-decoration: none; }
+.heroism-custom-path a:hover, .heroism-custom-path a:focus-visible { text-decoration: underline; outline: none; }
 .signed-out-quest-preview .quest-list-item { width: min(100%, 360px); gap: 12px; justify-items: center; transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .signed-out-quest-preview .quest-list-item:hover, .signed-out-quest-preview .quest-list-item:focus-visible { transform: translateY(-3px) scale(1.025); background: var(--quest-pick-hover, rgba(245,200,106,.1)) !important; border-color: var(--quest-pick-border, rgba(245,200,106,.36)) !important; box-shadow: 0 18px 42px rgba(0,0,0,.24), 0 0 34px var(--quest-pick-shadow, rgba(245,200,106,.12)) !important; outline: none; }
 .signed-out-quest-preview .quest-list-item strong { max-width: 20ch; font-size: 1.12rem; line-height: 1.05; }
