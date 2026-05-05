@@ -2325,3 +2325,10 @@ While preparing a transparent logo asset, `python3 -c 'from PIL import Image'` f
 - Impact: `sidequestchess.com` briefly served the older quest-hub version while Clerk production keys were fixed.
 - Fix: Reset local tracked files to `origin/main`, added `.vercelignore` to exclude local `.worktrees`/tmp clutter, redeployed production, and verified live markers + `pk_live`.
 - Do differently: Before any Vercel CLI production deploy, always run `git fetch`, confirm `git status --short --branch` is not behind origin, and prefer deploying clean `origin/main` state. Never treat env-only deploy as safe without checking source revision.
+
+## [ERR-20260505-001] pnpm lint scanned archived worktrees and was killed
+
+**Logged**: 2026-05-05T10:31:00Z
+**Priority**: medium
+
+`pnpm lint` ran plain `eslint` from the SQC repo while many archived `.worktrees/**/.next/**` folders existed under the repo. ESLint traversed those generated chunks, emitted many Babel deopt warnings, and was eventually SIGKILLed. Fix: add repo-level global ignores for `.worktrees/**` and `tmp/**` in `eslint.config.mjs` before rerunning `pnpm lint`.

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-05 10:38 Europe/Stockholm
+Last updated: 2026-05-05 12:34 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -56,7 +56,11 @@ Andreas clarified that these five items are still wanted and should be treated a
   - completed_at: 2026-05-05 10:38 Europe/Stockholm
   - Proof: added `public/brand/sqc-alt-logo-topbar-transparent.png` as a cropped transparent RGBA PNG and `/brand-test` as a non-indexed visual test page with fake top-bar, dark/gold/light swatches, and direct asset link. The real production nav is intentionally unchanged pending Andreas approval.
   - Verification: alpha check confirmed transparent + opaque pixels; `pnpm lint`; `pnpm build`; production deploy to `https://cc-is2tspvgx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke for `/brand-test`, direct transparent PNG asset, `/challenges`, and homepage absence of the alternate asset; proof doc `docs/SQC_ALT_ORNATE_LOGO_TOPBAR_TEST_2026-05-05.md`.
-- [ ] Expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard, including deciding whether Absurd quests should require rated games.
+- [x] Expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard, including deciding whether Absurd quests should require rated games.
+  - completed_at: 2026-05-05 12:34 Europe/Stockholm
+  - Decision: Brutal stays rated-or-casual but is explicitly streamer-hard/clip-worthy; Absurd is rated-only for proof value and future leaderboard fairness.
+  - Proof: live quest canon now reframes Queenless and Knightmare as streamer-hard Brutal quests, raises their rewards and minimum-game-story constraints, reframes Rookless Rampage as rated-only Absurd, and the Rookless verifier now rejects unrated/casual games. Coming-soon Brutal/Absurd cards mirror the same canon. Proof doc: `docs/SQC_BRUTAL_ABSURD_RATED_STREAMER_HARD_2026-05-05.md`.
+  - Verification: `pnpm exec node --experimental-strip-types --test tests/rookless-rampage-fixtures.mjs`; `pnpm lint`; `pnpm build`.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
 

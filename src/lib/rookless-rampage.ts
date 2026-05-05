@@ -256,6 +256,15 @@ export function evaluateRooklessRampage(game: RooklessGame): RooklessVerdict {
     };
   }
 
+  if (game.rated !== true) {
+    return {
+      status: "failed",
+      gameId: game.id,
+      summary: "Rookless Rampage is Absurd-tier now, so it only counts in rated games.",
+      evidence: [game.rated === false ? "Game was casual/unrated." : "Rated status was unavailable."],
+    };
+  }
+
   if (game.moveCount < 20) {
     return {
       status: "failed",
@@ -325,9 +334,22 @@ export const rooklessRampageFixtures: RooklessGame[] = [
     moveCount: 28,
     variant: "standard",
     timeClass: "rapid",
-    rated: false,
+    rated: true,
     rookLosses: [
       { ply: 12, color: "white", origin: "a1", square: "a4", capturedBy: "black" },
+    ],
+  },
+  {
+    id: "fixture-unrated-two-rooks-gone-win",
+    playerColor: "white",
+    winner: "white",
+    moveCount: 31,
+    variant: "standard",
+    timeClass: "blitz",
+    rated: false,
+    rookLosses: [
+      { ply: 6, color: "white", origin: "a1", square: "a3", capturedBy: "black" },
+      { ply: 8, color: "white", origin: "h1", square: "h3", capturedBy: "black" },
     ],
   },
   {

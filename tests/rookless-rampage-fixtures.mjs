@@ -15,6 +15,8 @@ test("Rookless Rampage fixtures cover pass and key failures", () => {
   assert.match(verdicts["fixture-two-rooks-gone-win"].summary, /Rookless Rampage confirmed/);
   assert.equal(verdicts["fixture-one-rook-survived"].status, "failed");
   assert.match(verdicts["fixture-one-rook-survived"].summary, /Only 1\/2 original rooks/);
+  assert.equal(verdicts["fixture-unrated-two-rooks-gone-win"].status, "failed");
+  assert.match(verdicts["fixture-unrated-two-rooks-gone-win"].summary, /rated games/);
   assert.equal(verdicts["fixture-rookless-loss"].status, "failed");
   assert.match(verdicts["fixture-rookless-loss"].summary, /still wins/);
 });
