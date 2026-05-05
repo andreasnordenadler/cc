@@ -46,7 +46,6 @@ export default async function ScoreboardPage() {
         <section className="leaderboard-preview-grid" aria-label="Coming leaderboard previews">
           {PREVIEW_LISTS.map((list) => (
             <article className="mission-card leaderboard-blur-card" key={list.title}>
-              <span className="eyebrow">Coming soon</span>
               <h2>{list.title}</h2>
               <div className="leaderboard-blurred-list" aria-hidden="true">
                 {list.rows.map((row, index) => (
