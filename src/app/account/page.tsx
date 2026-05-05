@@ -73,7 +73,10 @@ export default async function MyQuestLogPage() {
 
           {activeChallengeRecord ? (
             <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
-              <ChallengeBadge challenge={activeChallengeRecord} presentation="art" earned={completedSet.has(activeChallengeRecord.id)} />
+              <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
+              <small className="current-quest-coat-caption">
+                {activeChallengeRecord.badgeIdentity.name} · {activeChallengeRecord.badgeIdentity.heraldry.motto}
+              </small>
             </Link>
           ) : (
             <Link href="/challenges" className="current-quest-empty-link">

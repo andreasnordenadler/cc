@@ -30,7 +30,6 @@ export default function ChallengeBadge({ challenge, size = "compact", earned = f
           "--badge-glow": identity.colors.glow,
         } as CSSProperties}
         aria-label={`${identity.name} badge: ${heraldry.meaning}`}
-        title={`${identity.name} · ${heraldry.motto}`}
       >
         {identity.image ? (
           <Image

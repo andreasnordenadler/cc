@@ -586,3 +586,8 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 900px) {
   .quest-log-top-grid { grid-template-columns: 1fr; }
 }
+
+.quest-log-top-grid .current-quest-coat-link { width: min(300px, 100%); }
+.quest-log-top-grid .current-quest-coat-link .challenge-badge-art,
+.quest-log-top-grid .current-quest-coat-link .challenge-badge-art .badge-reference-art { width: clamp(220px, 22vw, 300px); height: clamp(220px, 22vw, 300px); }
+.current-quest-coat-caption { color: rgba(255,255,255,.72); font-size: .82rem; font-weight: 850; line-height: 1.2; text-align: center; }
