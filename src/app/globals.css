@@ -565,10 +565,7 @@ p { color: var(--muted); line-height: 1.5; }
 .current-quest-empty-link { display: inline-grid; gap: 10px; justify-items: center; color: inherit; text-decoration: none; }
 .current-quest-coat-link { width: min(240px, 100%); }
 .current-quest-coat-link .challenge-badge-art { width: min(220px, 100%); }
-.current-quest-coat-link span,
 .current-quest-empty-link span { color: var(--gold); font-weight: 950; }
-.current-quest-coat-link:hover span,
-.current-quest-coat-link:focus-visible span,
 .current-quest-empty-link:hover span,
 .current-quest-empty-link:focus-visible span { text-decoration: underline; }
 .current-quest-coat-link:focus-visible,
