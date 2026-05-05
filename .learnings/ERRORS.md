@@ -2332,3 +2332,10 @@ While preparing a transparent logo asset, `python3 -c 'from PIL import Image'` f
 **Priority**: medium
 
 `pnpm lint` ran plain `eslint` from the SQC repo while many archived `.worktrees/**/.next/**` folders existed under the repo. ESLint traversed those generated chunks, emitted many Babel deopt warnings, and was eventually SIGKILLed. Fix: add repo-level global ignores for `.worktrees/**` and `tmp/**` in `eslint.config.mjs` before rerunning `pnpm lint`.
+
+## [ERR-20260505-001] Vercel logs CLI --since incompatibility
+
+**Logged**: 2026-05-05T13:45:00+02:00
+**Priority**: low
+
+`vercel logs https://sidequestchess.com --since 30m` failed because the installed Vercel CLI treats logs as follow-mode and does not support filtering with `--since`. For SQC deploy verification, use a supported bounded logs command/help-confirmed syntax or rely on live HTTP/content smokes when log filtering is unavailable.
