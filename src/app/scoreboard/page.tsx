@@ -82,10 +82,10 @@ export default async function ScoreboardPage() {
 
       <div className="content-wrap">
         <section className="hero-card rankings-hero">
-          <span className="eyebrow">Rankings design</span>
+          <span className="eyebrow">Leaderboard design</span>
           <h1>Leaderboard fuel, without fake numbers.</h1>
           <p className="hero-copy">
-            This is the rankings and statistics loop for Side Quest Chess: top players, quest popularity, and proof stats built around verified receipts instead of invented launch data.
+            This is the leaderboard and statistics loop for Side Quest Chess: top players, quest popularity, and proof stats built around verified receipts instead of invented launch data.
           </p>
           <div className="button-row hero-actions">
             <Link href="/challenges" className="button primary">Pick a ranked quest</Link>
@@ -94,7 +94,7 @@ export default async function ScoreboardPage() {
           </div>
         </section>
 
-        <section className="grid" aria-label="Rankings loop summary">
+        <section className="grid" aria-label="Leaderboard loop summary">
           <Fact label="Your current score" value={`${progress.totalRewardPoints} pts`} copy={`${progress.totalCompletedChallenges} of ${CHALLENGES.length} live quests verified.`} />
           <Fact label="Deck value" value={`${totalDeckPoints} pts`} copy={`${completionPercent}% of the current reward pool banked by this account.`} />
           <Fact label="Receipt sample" value={`${attempts.length} checks`} copy={`Lichess ${providerCounts.lichess} · Chess.com ${providerCounts.chessCom}. Global stats should use the same receipt events.`} />

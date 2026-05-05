@@ -38,10 +38,10 @@ export default function ShareKitPage() {
             <span className="eyebrow">SQC share kit</span>
             <h1>Every bad idea, packaged for one-tap peer pressure.</h1>
             <p className="hero-copy">
-              Use this page when the product needs to spread: quest-specific friend-quest links, daily and random rituals, and proof-preview targets in one place.
+              Use this page when the product needs to spread: quest-specific friend-quest links, random rituals, and proof-preview targets in one place.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/today" className="button primary">Share today’s quest</Link>
+              <Link href="/challenges" className="button primary">Share a quest</Link>
               <Link href="/random" className="button pink">Spin a random quest</Link>
               <Link href={`/dare/${featured.id}`} className="button secondary">Open featured quest</Link>
             </div>
@@ -69,13 +69,6 @@ export default function ShareKitPage() {
         </section>
 
         <section className="big-grid" aria-label="Reusable sharing rituals">
-          <article className="mission-card daily-card">
-            <span className="eyebrow">Daily ritual</span>
-            <h2>Same quest for everyone today.</h2>
-            <p>Best for group chat chaos: one canonical quest of the day, same badge target, same bad idea.</p>
-            <Link href="/today" className="button primary">Open daily quest</Link>
-          </article>
-
           <article className="mission-card">
             <span className="eyebrow">Random ritual</span>
             <h2>Let the machine choose violence.</h2>

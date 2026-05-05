@@ -68,7 +68,7 @@ export default async function Home() {
               <>
                 <div className="button-row hero-actions">
                   <Link href="/challenges" className="button primary">Browse quests</Link>
-                  <Link href="/today" className="button secondary">Today’s quest</Link>
+                  <Link href="/random" className="button secondary">Random quest</Link>
                   <Link href="/connect" className="button secondary">Connect account</Link>
                 </div>
                 <p className="plain-loop-copy">Pick → play → prove. One quest at a time.</p>

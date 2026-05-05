@@ -88,7 +88,7 @@ export default async function ProofLogPage() {
               Accept a side quest, connect your chess identity, play a normal game elsewhere, then use the account checker. Your first receipt will appear here once Side Quest Chess has something to judge.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/today" className="button primary">Open today’s quest</Link>
+              <Link href="/challenges" className="button primary">Browse quests</Link>
               <Link href="/random" className="button pink">Spin a bad idea</Link>
               <Link href="/connect" className="button secondary">Connect account</Link>
             </div>

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import AuthActionButtons from "@/components/auth-action-buttons";
 
-type ActiveNavItem = "home" | "today" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log" | "beta" | "support";
+type ActiveNavItem = "home" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log" | "beta" | "support";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -19,9 +19,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           </Link>
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Quests</Link>
-          <Link href="/today" className={active === "today" ? "active" : undefined}>Today</Link>
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Coat of Arms</Link>
-          <Link href="/scoreboard" className={active === "scoreboard" ? "active" : undefined}>Rankings</Link>
+          <Link href="/scoreboard" className={active === "scoreboard" ? "active" : undefined}>Leaderboard</Link>
           <Link href="/support" className={active === "support" ? "active" : undefined}>Support</Link>
           {isSignedIn ? (
             <Link href="/account" className={active === "account" ? "active" : undefined}>Account</Link>
