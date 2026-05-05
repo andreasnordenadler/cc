@@ -91,7 +91,7 @@ export default async function MyQuestLogPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Connected accounts</span>
-              <h2>{hasChessIdentity ? "Ready to check public games." : "Connect where you play chess."}</h2>
+              <h2>{hasChessIdentity ? "Ready for proof." : "Connect chess account."}</h2>
             </div>
             <span className={hasChessIdentity ? "badge green" : "badge blue"}>
               {connectedCount}/2 connected
@@ -110,7 +110,7 @@ export default async function MyQuestLogPage() {
             </article>
           </div>
           <div className="button-row">
-            <Link href="/connect" className="button primary">{hasChessIdentity ? "Update connected accounts" : "Connect chess account"}</Link>
+            <Link href="/connect" className="button primary">{hasChessIdentity ? "Update accounts" : "Connect chess account"}</Link>
             <Link href="/profile" className="button secondary">Edit profile</Link>
           </div>
         </section>

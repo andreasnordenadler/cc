@@ -603,3 +603,15 @@ p { color: var(--muted); line-height: 1.5; }
   .quest-log-top-grid .current-quest-coat-link .challenge-badge-art,
   .quest-log-top-grid .current-quest-coat-link .challenge-badge-art .badge-reference-art { width: clamp(180px, 48vw, 240px); height: clamp(180px, 48vw, 240px); }
 }
+
+.quest-log-accounts-card { padding: 14px 16px; }
+.quest-log-accounts-card .section-head { align-items: center; gap: 10px; }
+.quest-log-accounts-card h2 { font-size: clamp(1.55rem, 3vw, 2.45rem); line-height: .95; letter-spacing: -.045em; }
+.quest-log-accounts-card .badge { padding: 7px 10px; font-size: .72rem; }
+.quest-log-accounts-card .account-connection-grid { gap: 10px; margin: 12px 0; }
+.quest-log-accounts-card .connection-card { gap: 3px; padding: 12px 14px; border-radius: 18px; }
+.quest-log-accounts-card .connection-card span { font-size: .68rem; }
+.quest-log-accounts-card .connection-card strong { font-size: clamp(1.05rem, 2vw, 1.45rem); }
+.quest-log-accounts-card .connection-card p { display: none; }
+.quest-log-accounts-card .button-row { gap: 8px; }
+.quest-log-accounts-card .button { padding: 9px 14px; font-size: .82rem; }
