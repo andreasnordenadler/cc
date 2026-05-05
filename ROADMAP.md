@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-05 07:35 Europe/Stockholm
+Last updated: 2026-05-05 10:38 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -52,7 +52,10 @@ Andreas clarified that these five items are still wanted and should be treated a
 - [x] Auto-run latest-game checker immediately after a logged-in user activates a quest, instead of requiring the first manual Refresh.
   - completed_at: 2026-05-05 07:50 Europe/Stockholm
   - Proof: `startChallenge` now runs latest-game checks immediately for users with a saved Lichess or Chess.com identity, records activation-time receipts, updates active quest/progress from the result, revalidates `/result`, and leaves activation non-blocking if a provider is unavailable. Quest detail run-flow copy now says activation performs the immediate check.
-- [ ] Prepare/test the alternate ornate SQC logo/top-bar treatment from `public/brand/sqc-alt-logo-topbar-test.jpg`, with transparent/cropped treatment before any final nav use.
+- [x] Prepare/test the alternate ornate SQC logo/top-bar treatment from `public/brand/sqc-alt-logo-topbar-test.jpg`, with transparent/cropped treatment before any final nav use.
+  - completed_at: 2026-05-05 10:38 Europe/Stockholm
+  - Proof: added `public/brand/sqc-alt-logo-topbar-transparent.png` as a cropped transparent RGBA PNG and `/brand-test` as a non-indexed visual test page with fake top-bar, dark/gold/light swatches, and direct asset link. The real production nav is intentionally unchanged pending Andreas approval.
+  - Verification: alpha check confirmed transparent + opaque pixels; `pnpm lint`; `pnpm build`; proof doc `docs/SQC_ALT_ORNATE_LOGO_TOPBAR_TEST_2026-05-05.md`.
 - [ ] Expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard, including deciding whether Absurd quests should require rated games.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.

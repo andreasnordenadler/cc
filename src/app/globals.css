@@ -191,6 +191,19 @@ p { color: var(--muted); line-height: 1.5; }
 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-size: 12px; font-weight: 850; }
 
+.brand-test-hero h1 { max-width: 880px; }
+.brand-test-card { padding: 20px; display: grid; gap: 16px; }
+.brand-test-nav-strip { display: flex; align-items: center; justify-content: space-between; gap: 18px; min-height: 78px; padding: 10px 14px; border: 1px solid rgba(245,200,106,.2); border-radius: 26px; background: rgba(6,5,7,.78); box-shadow: 0 24px 60px rgba(0,0,0,.24); overflow: hidden; }
+.brand-test-nav-strip img { display: block; width: clamp(118px, 18vw, 184px); height: auto; max-height: 58px; object-fit: contain; filter: drop-shadow(0 12px 18px rgba(0,0,0,.38)); }
+.brand-test-fake-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.brand-test-fake-links span { border-radius: 999px; padding: 8px 12px; background: rgba(255,255,255,.06); color: var(--muted); font-size: 13px; font-weight: 850; }
+.brand-test-swatch { min-height: 230px; padding: 18px; display: grid; align-content: center; justify-items: center; gap: 14px; overflow: hidden; }
+.brand-test-swatch img { width: min(100%, 360px); height: auto; object-fit: contain; filter: drop-shadow(0 18px 30px rgba(0,0,0,.34)); }
+.brand-test-swatch-dark { background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(6,5,7,.86)); }
+.brand-test-swatch-gold { background: radial-gradient(circle at 50% 35%, rgba(245,200,106,.36), rgba(6,5,7,.72) 72%); }
+.brand-test-swatch-light { background: linear-gradient(135deg, #f8ecd0, #b9c7e7); }
+.brand-test-swatch-light .eyebrow { color: #151019; background: rgba(255,255,255,.64); }
+
 
 /* Homepage simplification from beta feedback: fewer nested cards, logo-led brand, clearer terms. */
 .simplified-home-hero { position: relative; overflow: hidden; }
