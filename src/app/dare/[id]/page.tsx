@@ -126,7 +126,7 @@ export default async function DarePage({
             <span className="badge gold">10-second loop</span>
           </div>
           <p>
-            This invite page now makes the handoff explicit: save this exact quest, play one normal public game on your chess site, and use the account checker for an honest pass, fail, or pending receipt.
+            This invite page now makes the handoff explicit: save this exact quest, play one normal public game on your chess site, and use My Quest Log for an honest pass, fail, or pending receipt.
           </p>
           <div className="proof-grid">
             <Fact label="Quest" value={challenge.title} />

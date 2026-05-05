@@ -85,7 +85,7 @@ export default async function ProofLogPage() {
               <span className="badge gold">empty log</span>
             </div>
             <p>
-              Accept a side quest, connect your chess identity, play a normal game elsewhere, then use the account checker. Your first receipt will appear here once Side Quest Chess has something to judge.
+              Accept a side quest, connect your chess identity, play a normal game elsewhere, then use My Quest Log. Your first receipt will appear here once Side Quest Chess has something to judge.
             </p>
             <div className="button-row hero-actions">
               <Link href="/challenges" className="button primary">Browse quests</Link>
@@ -117,7 +117,7 @@ export default async function ProofLogPage() {
             ))}
           </div>
           <div className="button-row hero-actions">
-            <Link href="/account" className="button primary">Run a latest-game check</Link>
+            <Link href="/account" className="button primary">Open My Quest Log</Link>
             <Link href="/support" className="button secondary">Report confusing receipt</Link>
           </div>
         </section>
@@ -158,7 +158,7 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         : {
             label: "Create a clearer latest-game check",
             copy: "Pending receipts usually need one eligible public game or a saved chess username. Fix the preflight, then come back to refresh the receipt.",
-            primaryLabel: "Check account preflight",
+            primaryLabel: "Check My Quest Log preflight",
             primaryHref: "/account",
             secondaryLabel: "Open support packet",
             secondaryHref: "/support",

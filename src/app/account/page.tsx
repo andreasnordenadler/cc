@@ -19,7 +19,7 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-export default async function AccountPage() {
+export default async function MyQuestLogPage() {
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const lichessUsername = getLichessUsername(metadata);
@@ -58,7 +58,7 @@ export default async function AccountPage() {
 
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">Profile / brag shelf</span>
+          <span className="eyebrow">My Quest Log</span>
           <h1>{runnerDisplayName}</h1>
           <p className="hero-copy">
             {runnerBio || "Proof that your bad chess decisions were at least documented."}
@@ -158,7 +158,7 @@ export default async function AccountPage() {
           <p>
             For a first pass, use the same three picks shown on the homepage: one easy knight ritual, one no-castling troublemaker, or one brutal queenless comeback.
           </p>
-          <div className="grid" aria-label="Account private beta quest picks">
+          <div className="grid" aria-label="My Quest Log private beta quest picks">
             {recommendedStartChallenges.map((challenge, index) => {
               const verifierStatus = getVerifierStatus(challenge);
               const isActiveChallenge = activeChallengeRecord?.id === challenge.id;
@@ -221,7 +221,7 @@ export default async function AccountPage() {
             <span className="badge green">{liveVerifierCount} live verifiers</span>
           </div>
           <p>
-            Every quest can still be selected directly from the account page. The recommended picks are only a shortcut for choosing intensity; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
+            Every quest can still be selected directly from My Quest Log. The recommended picks are only a shortcut for choosing intensity; every current quest can create automated latest-game receipts from Lichess or Chess.com today.
           </p>
           <div className="grid">
             {CHALLENGES.map((challenge) => {

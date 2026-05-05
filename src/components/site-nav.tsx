@@ -23,7 +23,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           <Link href="/scoreboard" className={active === "scoreboard" ? "active" : undefined}>Leaderboard</Link>
           <Link href="/support" className={active === "support" ? "active" : undefined}>Support</Link>
           {isSignedIn ? (
-            <Link href="/account" className={active === "account" ? "active" : undefined}>Account</Link>
+            <Link href="/account" className={active === "account" ? "active" : undefined}>My Quest Log</Link>
           ) : null}
         </nav>
 

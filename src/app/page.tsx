@@ -193,8 +193,8 @@ export default async function Home() {
             </div>
             <p>
               {activeQuestRecord
-                ? "Play the active quest on Lichess or Chess.com, then jump straight to Account to run the latest-game check."
-                : "Choose one quest first so Account knows which weird rule to judge after your next public game."}
+                ? "Play the active quest on Lichess or Chess.com, then jump straight to My Quest Log to run the latest-game check."
+                : "Choose one quest first so My Quest Log knows which weird rule to judge after your next public game."}
             </p>
             <div className="button-row">
               <Link href={activeQuestRecord ? "/account" : "/challenges"} className="button primary">
@@ -203,7 +203,7 @@ export default async function Home() {
               {activeQuestRecord ? (
                 <Link href={`/challenges/${activeQuestRecord.id}`} className="button secondary">Review active rules</Link>
               ) : (
-                <Link href="/account" className="button secondary">Account details</Link>
+                <Link href="/account" className="button secondary">My Quest Log</Link>
               )}
             </div>
           </section>

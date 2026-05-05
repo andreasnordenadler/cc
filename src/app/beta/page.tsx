@@ -71,7 +71,7 @@ export default async function BetaPage() {
             Side Quest Chess is in private-beta hardening: clear onboarding, honest latest-game verification, readable proof cards, and no launch-marketing pressure until the first-user flow feels properly solid.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/account" className="button primary">Run the beta checklist</Link>
+            <Link href="/account" className="button primary">Open My Quest Log</Link>
             <Link href="/challenges" className="button pink">Pick first quest</Link>
             <Link href="/verifiers" className="button secondary">See live verifiers</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>

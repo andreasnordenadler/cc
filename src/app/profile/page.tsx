@@ -53,7 +53,7 @@ export default async function ProfilePage() {
               </label>
               <div className="button-row">
                 <button type="submit" className="button primary">Save profile</button>
-                <Link href="/account" className="button secondary">Back to account</Link>
+                <Link href="/account" className="button secondary">Back to My Quest Log</Link>
               </div>
             </form>
           </section>

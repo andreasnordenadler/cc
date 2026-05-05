@@ -122,7 +122,7 @@ export default async function QuestPicksPage() {
           </div>
           <div className="button-row">
             <Link href="/rules" className="button secondary">Read proof rules</Link>
-            <Link href="/account" className="button primary">Check latest game</Link>
+            <Link href="/account" className="button primary">Open My Quest Log</Link>
           </div>
         </section>
 
