@@ -136,14 +136,13 @@ export default async function Home() {
                 <span className="eyebrow">What happens after sign-in</span>
                 <h2>A tiny loop, not another chess dashboard.</h2>
               </div>
-              <span className="badge gold">public beta flow</span>
             </div>
             <div className="checker-flow signed-out-loop-cards" aria-label="Signed-out product explanation">
               <div className="flow-step ready">
                 <strong>Choose one quest</strong>
                 <p>Start easy, look for trouble, or go straight for something unhinged. Each quest has one weird rule and a badge.</p>
               </div>
-              <div className="flow-step hot">
+              <div className="flow-step ready">
                 <strong>Play where you already play</strong>
                 <p>Use a normal public Lichess or Chess.com game. Side Quest Chess never asks for chess-site passwords.</p>
               </div>
