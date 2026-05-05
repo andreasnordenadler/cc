@@ -40,8 +40,14 @@ const envText = run('cat', ['/tmp/sqc-production-env-check.env']);
 if (!/^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=["']?pk_live_/m.test(envText)) {
   fail('production NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is not a pk_live_ key.');
 }
-if (!/^CLERK_SECRET_KEY=["']?sk_live_/m.test(envText)) {
-  fail('production CLERK_SECRET_KEY is not an sk_live_ key.');
+const secretMatch = envText.match(/^CLERK_SECRET_KEY=(["']?)(.*)\1$/m);
+if (!secretMatch) {
+  fail('production CLERK_SECRET_KEY is missing.');
+}
+// Vercel pulls sensitive env vars as empty strings, so an empty value here means
+// “present but not locally inspectable”. If Vercel does expose a value, require live.
+if (secretMatch[2] && !secretMatch[2].startsWith('sk_live_')) {
+  fail('production CLERK_SECRET_KEY is not a sk_live_ key.');
 }
 run('rm', ['-f', '/tmp/sqc-production-env-check.env']);
 
