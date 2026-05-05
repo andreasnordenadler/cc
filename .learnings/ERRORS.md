@@ -2361,3 +2361,10 @@ Use a Python subprocess timeout wrapper around `vercel logs sidequestchess.com` 
 - Tags: vercel, deploy-smoke, macos
 
 ---
+
+## [ERR-20260505-001] Vercel logs CLI no longer accepts --since filter
+
+**Logged**: 2026-05-05T20:52:00+02:00
+**Priority**: low
+
+During SQC deploy verification, `vercel logs <deployment> --since 5m` failed with: `The --follow flag does not support filtering. Remove: --since`. Treat recent Vercel log scans as CLI-version-sensitive; use a currently supported logs command or Vercel dashboard/API path instead of assuming `--since` works.
