@@ -392,8 +392,13 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
     });
   }, [difficulty, sort, status]);
 
-  const visibleLiveCount = visibleChallenges.length;
-  const visibleComingSoonCount = visibleComingSoonChallenges.length;
+  const hasActiveFilters = difficulty !== "All" || status !== "All" || sort !== "recommended";
+
+  function resetFilters() {
+    setDifficulty("All");
+    setStatus("All");
+    setSort("recommended");
+  }
 
   return (
     <>
@@ -427,11 +432,9 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
               <option value="points-low">Fewest points</option>
             </select>
           </label>
-          <div className="quest-filter-count" aria-live="polite">
-            <strong>{visibleLiveCount}</strong>
-            <span>{visibleLiveCount === 1 ? "live quest" : "live quests"}</span>
-            {visibleComingSoonCount > 0 ? <small>{visibleComingSoonCount} coming soon</small> : null}
-          </div>
+          <button type="button" className="button secondary quest-filter-reset" onClick={resetFilters} disabled={!hasActiveFilters}>
+            Reset filters
+          </button>
         </div>
       </section>
 
