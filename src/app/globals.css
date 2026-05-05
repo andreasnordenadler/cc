@@ -367,9 +367,15 @@ p { color: var(--muted); line-height: 1.5; }
 .first-run-steps li { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; padding: 10px 11px; border-radius: 18px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.1); color: var(--muted); font-weight: 850; }
 .first-run-steps strong { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 999px; background: var(--gold); color: #111; font-size: 15px; }
 .signed-out-quest-preview { grid-template-columns: 1fr; gap: 18px; justify-items: center; }
-.signed-out-quest-preview .quest-list-item { width: min(100%, 360px); gap: 12px; justify-items: center; }
+.signed-out-quest-preview .quest-list-item { width: min(100%, 360px); gap: 12px; justify-items: center; transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.signed-out-quest-preview .quest-list-item:hover, .signed-out-quest-preview .quest-list-item:focus-visible { transform: translateY(-3px) scale(1.025); background: rgba(245,200,106,.1) !important; border-color: rgba(245,200,106,.36) !important; box-shadow: 0 18px 42px rgba(0,0,0,.24), 0 0 34px rgba(245,200,106,.12) !important; outline: none; }
 .signed-out-quest-preview .quest-list-item strong { max-width: 20ch; font-size: 1.12rem; line-height: 1.05; }
 .signed-out-quest-preview .quest-list-item .quest-list-difficulty { color: #ff7a66; font-size: 14px; line-height: 1; letter-spacing: .13em; }
+.quest-pick-crest-glow { position: relative; display: grid; place-items: center; width: 118px; height: 108px; isolation: isolate; }
+.quest-pick-crest-glow::before { content: ""; position: absolute; inset: 8px 0 -2px; z-index: -1; border-radius: 999px; background: radial-gradient(ellipse at center, rgba(245,200,106,.46), rgba(255,95,159,.24) 48%, transparent 72%); filter: blur(12px); opacity: .95; transition: opacity .18s ease, transform .18s ease; }
+.signed-out-quest-preview .quest-list-item:hover .quest-pick-crest-glow::before, .signed-out-quest-preview .quest-list-item:focus-visible .quest-pick-crest-glow::before { opacity: 1; transform: scale(1.12); }
+.quest-pick-crest-glow img { filter: drop-shadow(0 12px 18px rgba(0,0,0,.28)) drop-shadow(0 0 14px rgba(245,200,106,.24)); transition: transform .18s ease, filter .18s ease; }
+.signed-out-quest-preview .quest-list-item:hover .quest-pick-crest-glow img, .signed-out-quest-preview .quest-list-item:focus-visible .quest-pick-crest-glow img { transform: scale(1.06); filter: drop-shadow(0 14px 20px rgba(0,0,0,.3)) drop-shadow(0 0 22px rgba(245,200,106,.42)); }
 .signed-out-quest-preview .quest-list-item small:not(.quest-list-difficulty) { font-size: 12px; }
 .signed-out-explainer { background: linear-gradient(135deg, rgba(96,240,175,.08), rgba(255,255,255,.055)); }
 .signed-out-loop-cards .flow-step { min-height: 150px; }

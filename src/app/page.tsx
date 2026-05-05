@@ -107,20 +107,21 @@ export default async function Home() {
                     <strong>{action}</strong>
                   </span>
                   {challenge.badgeIdentity.image ? (
-                    <Image
-                      src={challenge.badgeIdentity.image}
-                      alt=""
-                      width={112}
-                      height={112}
-                      className="final-bare-quest-logo"
-                      style={{
-                        width: "96px",
-                        height: "96px",
-                        objectFit: "contain",
-                        filter: "drop-shadow(0 12px 18px rgba(0,0,0,.28))",
-                      }}
-                      unoptimized
-                    />
+                    <span className="quest-pick-crest-glow" aria-hidden="true">
+                      <Image
+                        src={challenge.badgeIdentity.image}
+                        alt=""
+                        width={112}
+                        height={112}
+                        className="final-bare-quest-logo"
+                        style={{
+                          width: "96px",
+                          height: "96px",
+                          objectFit: "contain",
+                        }}
+                        unoptimized
+                      />
+                    </span>
                   ) : null}
                 </Link>
               ))}
