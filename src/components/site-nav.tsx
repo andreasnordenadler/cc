@@ -22,14 +22,12 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Coat of Arms</Link>
           <Link href="/scoreboard" className={active === "scoreboard" ? "active" : undefined}>Leaderboard</Link>
           <Link href="/support" className={active === "support" ? "active" : undefined}>Support</Link>
-          {isSignedIn ? (
-            <Link href="/account" className={active === "account" ? "active" : undefined}>My Quest Log</Link>
-          ) : null}
         </nav>
 
         <div className="nav-actions">
           {isSignedIn ? (
             <>
+              <Link href="/account" className={active === "account" ? "nav-pill active" : "nav-pill"}>My Quest Log</Link>
               <UserButton />
             </>
           ) : (
