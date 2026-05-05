@@ -107,7 +107,6 @@ export default async function Home() {
                     <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
                     <strong>{action}</strong>
                   </span>
-                  <ChallengeBadge challenge={challenge} presentation="art" />
                 </Link>
               ))}
             </div>
