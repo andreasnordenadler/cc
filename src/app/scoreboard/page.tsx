@@ -96,6 +96,30 @@ export default async function ScoreboardPage() {
           </aside>
         </section>
 
+        <section className="card mission-card" aria-label="Scoreboard beta handoff">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Scoreboard beta handoff</span>
+              <h2>Turn points into the next clean tester loop.</h2>
+            </div>
+            <span className="badge gold">identity → quest → receipt</span>
+          </div>
+          <p>
+            The score only matters if testers can immediately see what to try next, where proof comes from, and where to report a confusing receipt.
+          </p>
+          <div className="grid">
+            <Fact label="1 · Check setup" value="Confirm Lichess or Chess.com is saved before chasing another badge." copy="This keeps failed checks from being setup confusion." />
+            <Fact label="2 · Run the next quest" value={nextQuest.title} copy="Open the recommended unfinished quest instead of browsing the whole deck cold." />
+            <Fact label="3 · Review or report" value="Receipt + support packet" copy="Passed, failed, or pending should all end in a clear next action." />
+          </div>
+          <div className="button-row hero-actions">
+            <Link href="/account" className="button primary">Check account setup</Link>
+            <Link href={`/challenges/${nextQuest.id}`} className="button secondary">Open next quest</Link>
+            <Link href="/result" className="button secondary">Review receipt</Link>
+            <Link href="/support" className="button pink">Report confusion</Link>
+          </div>
+        </section>
+
         <section className="big-grid" aria-label="Starter deck scorecards">
           {CHALLENGES.map((challenge) => {
             const earned = completedIds.has(challenge.id);
