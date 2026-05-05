@@ -1,0 +1,10 @@
+.git
+.next
+node_modules
+.worktrees
+tmp
+.learnings
+docs
+*.tsbuildinfo
+.env*
+.DS_Store
