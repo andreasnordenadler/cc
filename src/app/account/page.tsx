@@ -69,7 +69,7 @@ export default async function MyQuestLogPage() {
 
               return (
                 <span className="hero-coat-slot locked" key={challenge.id} aria-label={`Locked coat of arms: ${challenge.title}`} title={`${challenge.title} — not earned yet`}>
-                  <span className="hero-coat-outline" aria-hidden="true" />
+                  <ChallengeBadge challenge={challenge} presentation="art" />
                 </span>
               );
             })}
