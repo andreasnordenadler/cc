@@ -92,9 +92,10 @@ export default async function Home() {
                   href={`/challenges/${challenge.id}`}
                   className="quest-list-item final-bare-quest-card difficulty-start-card"
                   style={{
-                    gridTemplateColumns: "1fr",
-                    justifyItems: "center",
-                    textAlign: "center",
+                    gridTemplateColumns: "auto minmax(0, 1fr)",
+                    justifyItems: "start",
+                    alignItems: "center",
+                    textAlign: "left",
                     background: "transparent",
                     borderColor: "transparent",
                     boxShadow: "none",
@@ -109,15 +110,15 @@ export default async function Home() {
                       height={112}
                       className="final-bare-quest-logo"
                       style={{
-                        width: "88px",
-                        height: "88px",
+                        width: "82px",
+                        height: "82px",
                         objectFit: "contain",
                         filter: "drop-shadow(0 12px 18px rgba(0,0,0,.28))",
                       }}
                       unoptimized
                     />
                   ) : null}
-                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "7px", background: "transparent" }}>
+                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "start", gap: "7px", background: "transparent" }}>
                     <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
                     <strong>{action}</strong>
                   </span>
