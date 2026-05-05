@@ -12,6 +12,27 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+const heroismOptions = [
+  {
+    label: "Cautiously heroic",
+    copy: "I want chaos, but survivable.",
+    cta: "Start with Knights Before Coffee",
+    challengeId: "knights-before-coffee",
+  },
+  {
+    label: "Recklessly heroic",
+    copy: "I can handle one objectively bad idea.",
+    cta: "Try No Castle Club",
+    challengeId: "no-castle-club",
+  },
+  {
+    label: "Historically unwise",
+    copy: "I am here to become a cautionary tale.",
+    cta: "Lose the queen, win anyway",
+    challengeId: "queen-never-heard-of-her",
+  },
+];
+
 export default async function Home() {
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
@@ -26,6 +47,12 @@ export default async function Home() {
     : null;
   const connectedIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" / ");
   const badgePreviewChallenges = CHALLENGES.filter((challenge) => challenge.badgeIdentity.image).slice(0, 6);
+  const heroismChoices = heroismOptions
+    .map((option) => {
+      const challenge = CHALLENGES.find((candidate) => candidate.id === option.challengeId);
+      return challenge ? { ...option, challenge } : null;
+    })
+    .filter((entry): entry is (typeof heroismOptions)[number] & { challenge: (typeof CHALLENGES)[number] } => Boolean(entry));
 
   return (
     <main className="site-shell">
@@ -56,7 +83,25 @@ export default async function Home() {
             )}
           </article>
 
-          <section className="side-card card recommended-quests-panel signed-out-start-panel clean-empty-home-panel" aria-hidden="true" />
+          <aside className="side-card card recommended-quests-panel signed-out-start-panel heroism-selector-panel">
+            <div className="heroism-selector-head">
+              <span className="eyebrow">Where to begin</span>
+              <h2>How heroic are you feeling today?</h2>
+              <p>Pick a starting quest based on your current tolerance for terrible chess decisions.</p>
+            </div>
+            <div className="heroism-choice-list" aria-label="Choose a heroism level">
+              {heroismChoices.map(({ label, copy, cta, challenge }) => (
+                <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="heroism-choice-card">
+                  <ChallengeBadge challenge={challenge} presentation="art" earned />
+                  <span className="heroism-choice-copy">
+                    <strong>{label}</strong>
+                    <small>{copy}</small>
+                    <em>{cta}</em>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </aside>
         </section>
 
         {!isSignedIn ? (
