@@ -175,7 +175,7 @@ export default async function ChallengeDetailPage({
             <div className="checker-flow quest-detail-flow">
               <Fact label="1 · Start" value="Make this your one active quest so the checker knows which weird rule to judge." />
               <Fact label="2 · Play" value="Play a real public Lichess or Chess.com game and try to satisfy the rule while winning." />
-              <Fact label="3 · Refresh" value="Return here, refresh quest status, and read the latest receipt." />
+              <Fact label="3 · Check" value="Activation runs an immediate latest-game check; after your next game, refresh to read the next receipt." />
             </div>
           </div>
         </section>

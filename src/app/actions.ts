@@ -584,14 +584,66 @@ export async function startChallenge(formData: FormData) {
     throw new Error("Unknown quest.");
   }
 
+  const existingAttempts = Array.isArray(metadata.challengeAttempts)
+    ? (metadata.challengeAttempts as ChallengeAttempt[])
+    : [];
+  const now = new Date().toISOString();
+  const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
+  let providerChecks: Awaited<ReturnType<typeof buildLatestGameChecks>> = [];
+
+  if (lichessUsername || chessComUsername) {
+    try {
+      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
+    } catch {
+      providerChecks = [
+        {
+          status: "pending",
+          gameId: `activation-check-${challenge.id}`,
+          provider: "fixture",
+          summary: "Quest activated, but the immediate latest-game check could not reach a chess provider. Play normally, then refresh the quest status after your next public game.",
+        },
+      ];
+    }
+  }
+
+  const progress = getChallengeProgress(metadata);
+  const passedCheck = providerChecks.find((check) => check.status === "passed");
+  const latestCheck = providerChecks.at(-1);
+  const completedChallengeIds =
+    passedCheck && !progress.completedChallengeIds.includes(challenge.id)
+      ? [...progress.completedChallengeIds, challenge.id]
+      : progress.completedChallengeIds;
+
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
       activeChallenge: {
         id: challenge.id,
-        status: "accepted",
-        startedAt: new Date().toISOString(),
+        status: passedCheck ? "verified" : (latestCheck?.status ?? "accepted"),
+        startedAt: now,
+        verifiedAt: passedCheck ? now : undefined,
+      },
+      challengeAttempts: [
+        ...existingAttempts,
+        ...providerChecks.map((check, index) => ({
+          id: `${challenge.id}:${check.provider}:activation:${now}:${index}`,
+          challengeId: challenge.id,
+          gameId: check.gameId,
+          provider: check.provider,
+          status: check.status,
+          summary: check.summary,
+          checkedAt: now,
+        })),
+      ],
+      challengeProgress: {
+        completedChallengeIds,
+        totalCompletedChallenges: completedChallengeIds.length,
+        totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
+          const completedChallenge = getChallengeById(id);
+          return sum + (completedChallenge?.reward ?? 0);
+        }, 0),
       },
     },
   });
@@ -600,6 +652,7 @@ export async function startChallenge(formData: FormData) {
   revalidatePath("/account");
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
+  revalidatePath("/result");
 }
 
 export async function deactivateActiveChallenge(formData: FormData) {
@@ -776,7 +829,23 @@ export async function checkActiveChallenge() {
   const now = new Date().toISOString();
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
-  const providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
+  let providerChecks: Awaited<ReturnType<typeof buildLatestGameChecks>> = [];
+
+  if (lichessUsername || chessComUsername) {
+    try {
+      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
+    } catch {
+      providerChecks = [
+        {
+          status: "pending",
+          gameId: `activation-check-${challenge.id}`,
+          provider: "fixture",
+          summary: "Quest activated, but the immediate latest-game check could not reach a chess provider. Play normally, then refresh the quest status after your next public game.",
+        },
+      ];
+    }
+  }
+
   const progress = getChallengeProgress(metadata);
   const passedCheck = providerChecks.find((check) => check.status === "passed");
   const latestCheck = providerChecks.at(-1);

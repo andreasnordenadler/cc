@@ -49,7 +49,9 @@ Andreas reset SQC planning on 2026-05-05:
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
 
-- [ ] Auto-run latest-game checker immediately after a logged-in user activates a quest, instead of requiring the first manual Refresh.
+- [x] Auto-run latest-game checker immediately after a logged-in user activates a quest, instead of requiring the first manual Refresh.
+  - completed_at: 2026-05-05 07:50 Europe/Stockholm
+  - Proof: `startChallenge` now runs latest-game checks immediately for users with a saved Lichess or Chess.com identity, records activation-time receipts, updates active quest/progress from the result, revalidates `/result`, and leaves activation non-blocking if a provider is unavailable. Quest detail run-flow copy now says activation performs the immediate check.
 - [ ] Prepare/test the alternate ornate SQC logo/top-bar treatment from `public/brand/sqc-alt-logo-topbar-test.jpg`, with transparent/cropped treatment before any final nav use.
 - [ ] Expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard, including deciding whether Absurd quests should require rated games.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
