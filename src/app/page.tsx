@@ -12,24 +12,6 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-const recommendationBands = [
-  {
-    label: "Want to start easy?",
-    action: "Pick Knights Before Coffee",
-    challengeId: "knights-before-coffee",
-  },
-  {
-    label: "Looking for trouble?",
-    action: "Start No Castle Club",
-    challengeId: "no-castle-club",
-  },
-  {
-    label: "Badass?",
-    action: "Start Queen? Never Heard of Her",
-    challengeId: "queen-never-heard-of-her",
-  },
-];
-
 export default async function Home() {
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
@@ -39,12 +21,6 @@ export default async function Home() {
   const activeQuest = getActiveChallenge(metadata);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
-  const recommendedQuests = recommendationBands
-    .map((band) => {
-      const challenge = CHALLENGES.find((candidate) => candidate.id === band.challengeId);
-      return challenge ? { ...band, challenge } : null;
-    })
-    .filter((entry): entry is (typeof recommendationBands)[number] & { challenge: (typeof CHALLENGES)[number] } => Boolean(entry));
   const activeQuestRecord = activeQuest?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
@@ -80,38 +56,7 @@ export default async function Home() {
             )}
           </article>
 
-          <aside className="side-card card recommended-quests-panel signed-out-start-panel">
-            <div>
-              <span className="eyebrow">Where to begin</span>
-              <h2>Choose your level of bad idea.</h2>
-              <p>Start with the quest that matches your current appetite for chaos.</p>
-            </div>
-            <div className="quest-list signed-out-quest-preview difficulty-start-preview" aria-label="Recommended quests by appetite">
-              {recommendedQuests.map(({ label, action, challenge }) => (
-                <Link
-                  key={challenge.id}
-                  href={`/challenges/${challenge.id}`}
-                  className="quest-list-item final-bare-quest-card difficulty-start-card"
-                  style={{
-                    gridTemplateColumns: "1fr",
-                    justifyItems: "center",
-                    alignItems: "center",
-                    textAlign: "center",
-                    background: "transparent",
-                    borderColor: "transparent",
-                    boxShadow: "none",
-                    padding: "12px 8px",
-                  }}
-                >
-                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "8px", background: "transparent" }}>
-                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
-                    <strong>{action}</strong>
-                  </span>
-                  <ChallengeBadge challenge={challenge} presentation="art" earned />
-                </Link>
-              ))}
-            </div>
-          </aside>
+          <section className="side-card card recommended-quests-panel signed-out-start-panel clean-empty-home-panel" aria-hidden="true" />
         </section>
 
         {!isSignedIn ? (
