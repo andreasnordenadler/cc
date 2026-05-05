@@ -2319,3 +2319,9 @@ Avoid excessive manual production deploys during tight UI polish loops; batch sm
 **Priority**: low
 
 While preparing a transparent logo asset, `python3 -c 'from PIL import Image'` failed because Pillow was not installed in the rollback worktree environment. Used a temporary workspace-local Pillow install under `tmp/pillow` for asset generation, then removed it before commit. For future image processing in SQC, prefer checking image tooling first and keep temporary dependencies out of git.
+
+## 2026-05-05 — Vercel CLI deployed stale CC checkout
+- What happened: While updating Clerk live env vars for Side Quest Chess, I ran `vercel --prod` from a local checkout that was 17 commits behind `origin/main`, temporarily aliasing production to an old UI.
+- Impact: `sidequestchess.com` briefly served the older quest-hub version while Clerk production keys were fixed.
+- Fix: Reset local tracked files to `origin/main`, added `.vercelignore` to exclude local `.worktrees`/tmp clutter, redeployed production, and verified live markers + `pk_live`.
+- Do differently: Before any Vercel CLI production deploy, always run `git fetch`, confirm `git status --short --branch` is not behind origin, and prefer deploying clean `origin/main` state. Never treat env-only deploy as safe without checking source revision.

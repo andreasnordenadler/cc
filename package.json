@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy:prod:guard": "node scripts/deploy-production-guard.mjs",
+    "deploy:prod": "pnpm deploy:prod:guard && vercel --prod --yes"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.11",
