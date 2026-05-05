@@ -49,7 +49,6 @@ export default async function MyQuestLogPage() {
         <div className="quest-log-top-grid">
           <section className="hero-card quest-log-hero focused-quest-hero">
           <div>
-            <span className="eyebrow">My Quest Log</span>
             <h1>{runnerDisplayName}</h1>
             <p className="hero-copy">
               {runnerBio || "Your connected accounts, current quest, points, proof, and earned coat of arms."}
