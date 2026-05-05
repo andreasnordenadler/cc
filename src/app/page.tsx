@@ -171,7 +171,7 @@ export default async function Home() {
         )}
 
 
-        <section className="hero-card home-badge-vault-card" aria-label="SQC badge vault preview">
+        <section className="hero-card home-badge-vault-card" aria-label="Badge vault preview">
           <h2>Every bad idea deserves a coat of arms.</h2>
           <p className="hero-copy">
             Side Quest Chess badges are collectible heraldic receipts: each shield explains the exact nonsense you survived, why it matters, and what your friends should mock respectfully.
