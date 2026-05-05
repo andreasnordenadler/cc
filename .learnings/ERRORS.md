@@ -2312,3 +2312,10 @@ Code is committed and pushed to `origin/main`, but this specific change could no
 Avoid excessive manual production deploys during tight UI polish loops; batch small visual changes before deploying when possible.
 
 ---
+
+## [ERR-20260505-001] Missing Pillow in clean SQC worktree
+
+**Logged**: 2026-05-05T10:31:00+02:00
+**Priority**: low
+
+While preparing a transparent logo asset, `python3 -c 'from PIL import Image'` failed because Pillow was not installed in the rollback worktree environment. Used a temporary workspace-local Pillow install under `tmp/pillow` for asset generation, then removed it before commit. For future image processing in SQC, prefer checking image tooling first and keep temporary dependencies out of git.
