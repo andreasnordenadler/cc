@@ -573,3 +573,19 @@ p { color: var(--muted); line-height: 1.5; }
 .current-quest-empty-link:focus-visible span { text-decoration: underline; }
 .current-quest-coat-link:focus-visible,
 .current-quest-empty-link:focus-visible { outline: 2px solid rgba(245,200,106,.62); outline-offset: 6px; border-radius: 24px; }
+
+.quest-log-top-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 18px; align-items: stretch; }
+.quest-log-top-grid .hero-card,
+.quest-log-top-grid .mission-card { min-height: 0; }
+.quest-log-top-grid .focused-quest-hero { padding: clamp(18px, 3vw, 28px); align-content: space-between; gap: 14px; }
+.quest-log-top-grid .focused-quest-hero h1 { font-size: clamp(3.1rem, 6vw, 5.2rem); margin-bottom: 10px; }
+.quest-log-top-grid .focused-quest-hero .hero-copy { max-width: 58ch; font-size: clamp(1rem, 1.6vw, 1.2rem); }
+.quest-log-top-grid .focused-quest-hero .stats-row span { min-width: 95px; padding: 8px 10px; }
+.quest-log-top-grid .compact-current-quest-card { padding: clamp(18px, 3vw, 26px); align-content: start; }
+.quest-log-top-grid .compact-current-quest-card .section-head { width: 100%; align-items: start; }
+.quest-log-top-grid .compact-current-quest-card h2 { font-size: clamp(2rem, 3.8vw, 3.35rem); line-height: .9; letter-spacing: -.055em; }
+.quest-log-top-grid .current-quest-coat-link { width: min(190px, 100%); }
+.quest-log-top-grid .current-quest-coat-link .challenge-badge-art { width: min(180px, 100%); }
+@media (max-width: 900px) {
+  .quest-log-top-grid { grid-template-columns: 1fr; }
+}

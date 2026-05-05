@@ -46,7 +46,8 @@ export default async function MyQuestLogPage() {
       <SiteNav isSignedIn active="account" />
 
       <div className="content-wrap my-quest-log focused-quest-log">
-        <section className="hero-card quest-log-hero focused-quest-hero">
+        <div className="quest-log-top-grid">
+          <section className="hero-card quest-log-hero focused-quest-hero">
           <div>
             <span className="eyebrow">My Quest Log</span>
             <h1>{runnerDisplayName}</h1>
@@ -59,7 +60,35 @@ export default async function MyQuestLogPage() {
             <span>{completedChallenges.length} coat{completedChallenges.length === 1 ? "" : "s"} of arms</span>
             <span>{attempts.length} proof receipt{attempts.length === 1 ? "" : "s"}</span>
           </div>
-        </section>
+          </section>
+
+
+          <section className="mission-card quest-log-current-card compact-current-quest-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Current quest status</span>
+              <h2>{activeChallengeRecord?.title ?? "No active quest."}</h2>
+            </div>
+            <span className={activeChallengeRecord ? "badge green" : "badge blue"}>
+              {activeChallenge?.status ?? "idle"}
+            </span>
+          </div>
+
+          {activeChallengeRecord ? (
+            <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
+              <ChallengeBadge challenge={activeChallengeRecord} earned={completedSet.has(activeChallengeRecord.id)} />
+              <span>Open quest page</span>
+            </Link>
+          ) : (
+            <Link href="/challenges" className="current-quest-empty-link">
+              <div className="quest-log-empty-badge" aria-hidden="true">?</div>
+              <span>Choose a quest</span>
+            </Link>
+          )}
+          </section>
+
+
+        </div>
 
         <section className="mission-card quest-log-accounts-card">
           <div className="section-head">
@@ -87,30 +116,6 @@ export default async function MyQuestLogPage() {
             <Link href="/connect" className="button primary">{hasChessIdentity ? "Update connected accounts" : "Connect chess account"}</Link>
             <Link href="/profile" className="button secondary">Edit profile</Link>
           </div>
-        </section>
-
-        <section className="mission-card quest-log-current-card compact-current-quest-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Current quest status</span>
-              <h2>{activeChallengeRecord?.title ?? "No active quest."}</h2>
-            </div>
-            <span className={activeChallengeRecord ? "badge green" : "badge blue"}>
-              {activeChallenge?.status ?? "idle"}
-            </span>
-          </div>
-
-          {activeChallengeRecord ? (
-            <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
-              <ChallengeBadge challenge={activeChallengeRecord} earned={completedSet.has(activeChallengeRecord.id)} />
-              <span>Open quest page</span>
-            </Link>
-          ) : (
-            <Link href="/challenges" className="current-quest-empty-link">
-              <div className="quest-log-empty-badge" aria-hidden="true">?</div>
-              <span>Choose a quest</span>
-            </Link>
-          )}
         </section>
 
         <section className="mission-card quest-log-collection-card">
