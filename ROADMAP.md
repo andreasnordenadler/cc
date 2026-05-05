@@ -63,9 +63,12 @@ Andreas clarified that these five items are still wanted and should be treated a
   - Verification: `pnpm exec node --experimental-strip-types --test tests/rookless-rampage-fixtures.mjs`; `pnpm lint`; `pnpm build`; deployed `https://cc-ggtl8noji-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/rookless-rampage`, `/challenges/queen-never-heard-of-her`, `/challenges/knightmare-mode`, and `/challenges`.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
-- [ ] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
+- [x] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
   - added_at: 2026-05-05 13:40 Europe/Stockholm
+  - completed_at: 2026-05-05 13:47 Europe/Stockholm
   - source: Andreas requested work on the home page layout and how it looks for users that are not logged in yet.
+  - Proof: signed-out homepage now has a Google-first hero, explicit public-game/no-password trust strip, a first-run checklist, starter quest badge preview, and a shorter signed-out product explainer while signed-in users retain the current run/proof-oriented homepage.
+  - Verification: `pnpm lint`; `pnpm build`; committed `8b26039`; deployed `https://cc-92mrw6feo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed signed-out strings/classes on both canonical and preview homepage, plus `/path` and `/connect` HTTP 200; Vercel production error log scan returned no logs.
 
 - [x] Remove white square matte from the three beginner quest badge assets.
   - added_at: 2026-04-28 11:50 Europe/Stockholm
