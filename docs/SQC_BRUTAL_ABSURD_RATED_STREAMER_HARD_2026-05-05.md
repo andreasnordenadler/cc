@@ -30,7 +30,7 @@
 - `pnpm lint` ✅ (1 pre-existing warning in `scripts/deploy-production-guard.mjs`)
 - `pnpm build` ✅
 - `pnpm deploy:prod` ✅
-- Vercel production deployment: `https://cc-ki5cmk1gc-andreas-nordenadlers-projects.vercel.app` ✅ Ready
+- Vercel production deployment: `https://cc-ggtl8noji-andreas-nordenadlers-projects.vercel.app` ✅ Ready
 - Aliased to `https://sidequestchess.com` and `https://www.sidequestchess.com` ✅
 - Live smoke: `/challenges/rookless-rampage`, `/challenges/queen-never-heard-of-her`, `/challenges/knightmare-mode`, and `/challenges` returned HTTP 200 with rated-only / Brutal-copy assertions ✅
 
