@@ -72,6 +72,26 @@ export default async function TodayPage() {
           </div>
         </section>
 
+        <section className="card mission-card" aria-label="Today proof loop">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Today’s proof loop</span>
+              <h2>Turn the daily quest into one clean test run.</h2>
+            </div>
+            <span className="badge gold">3 steps</span>
+          </div>
+          <div className="grid">
+            <Fact label="1 · Preflight" value="Confirm your Lichess or Chess.com name before playing so the latest-game check has somewhere honest to look." />
+            <Fact label="2 · Play the dare" value={`Try ${challenge.title} in a real game on your normal chess site. No PGN upload, no engine dashboard.`} />
+            <Fact label="3 · Check receipt" value="Open the latest receipt after the game: passed, failed, or pending, with the support packet ready if anything feels off." />
+          </div>
+          <div className="button-row">
+            <Link href={userId ? "/account" : "/connect"} className="button primary">{userId ? "Check account preflight" : "Connect chess name"}</Link>
+            <Link href={`/challenges/${challenge.id}`} className="button secondary">Open rules</Link>
+            <Link href="/result" className="button secondary">Check latest receipt</Link>
+          </div>
+        </section>
+
         <section className="big-grid">
           <article className="mission-card share-card">
             <span className="eyebrow">Make it social</span>
@@ -111,5 +131,14 @@ export default async function TodayPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="fact">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }

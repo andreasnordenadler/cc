@@ -1695,3 +1695,26 @@ For bounded Vercel log watches on macOS, use a small Node/Python wrapper that do
 - Tags: vercel, macos, deploy-verification
 
 ---
+
+---
+
+## [ERR-20260505-002] python_vercel_log_timeout_bytes_concat
+
+**Logged**: 2026-05-05T03:52:00+02:00
+**Priority**: low
+**Status**: mitigated
+**Area**: infra
+
+### Summary
+A Python Vercel log-watch wrapper crashed after timeout because `TimeoutExpired.stdout/stderr` can be bytes even when `subprocess.run(..., text=True)` is used.
+
+### Details
+During SQC deploy verification, the wrapper attempted `(e.stdout or '') + (e.stderr or '')` in the timeout handler and raised `TypeError: can't concat str to bytes`.
+
+### Suggested Action
+Normalize timeout output with a helper that decodes bytes before concatenating, or use `Popen` with explicit timeout/kill handling for bounded Vercel log watches.
+
+### Metadata
+- Source: error
+- Tags: vercel, python, timeout, deploy-verification
+
