@@ -211,6 +211,14 @@ p { color: var(--muted); line-height: 1.5; }
 .support-launch-hero h1 { max-width: 900px; margin-inline: auto; }
 .support-launch-hero .hero-copy { margin-inline: auto; }
 .support-simple-card { display: grid; gap: 16px; }
+.terms-hero { display: grid; justify-items: center; text-align: center; }
+.terms-hero h1 { max-width: 900px; margin-inline: auto; }
+.terms-hero .hero-copy { margin-inline: auto; }
+.terms-section-list { display: grid; gap: 14px; }
+.terms-section-card { display: grid; gap: 8px; }
+.terms-section-card h2 { font-size: clamp(1.25rem, 3vw, 1.85rem); line-height: 1.05; letter-spacing: -.035em; }
+.terms-section-card p { max-width: 920px; }
+.terms-note-card { display: grid; gap: 10px; }
 .quest-filter-panel { display: grid; gap: 18px; }
 .quest-filter-panel h2 { margin-bottom: 0; }
 .quest-filter-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; }
