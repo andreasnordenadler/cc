@@ -537,3 +537,25 @@ p { color: var(--muted); line-height: 1.5; }
   .compact-checker { grid-template-columns: 1fr; }
   .compact-form { display: flex; width: 100%; }
 }
+
+.focused-quest-log { gap: 24px; }
+.focused-quest-hero .hero-copy { max-width: 760px; }
+.account-connection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+.connection-card { display: grid; gap: 6px; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.055); }
+.connection-card.connected { border-color: rgba(113,224,126,.34); background: rgba(113,224,126,.08); }
+.connection-card span { color: var(--gold); font-size: .78rem; font-weight: 950; letter-spacing: .12em; text-transform: uppercase; }
+.connection-card strong { color: var(--ink); font-size: clamp(1.2rem, 3vw, 1.75rem); line-height: 1; }
+.connection-card p { margin: 0; }
+.focused-current-layout { align-items: start; }
+.quest-log-badge-link { display: inline-grid; color: inherit; text-decoration: none; justify-self: center; }
+.compact-proof-card { margin: 16px 0; }
+.quest-log-collection-card .section-head { align-items: start; }
+.collected-coat-link { color: inherit; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.collected-coat-link:hover, .collected-coat-link:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.34); background: rgba(245,200,106,.08); outline: none; }
+.collected-coat-link small { color: var(--muted); font-weight: 850; }
+.empty-collection-state { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 18px; border: 1px dashed rgba(245,200,106,.28); border-radius: 24px; background: rgba(0,0,0,.12); }
+.empty-collection-state p { margin: 0; max-width: 680px; }
+@media (max-width: 760px) {
+  .account-connection-grid { grid-template-columns: 1fr; }
+  .empty-collection-state { align-items: stretch; }
+}

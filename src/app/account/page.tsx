@@ -3,12 +3,12 @@ import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
-import { checkActiveChallenge, startChallenge } from "@/app/actions";
+import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
-import { getVerifierStatus } from "@/lib/verifier-status";
 import {
-  buildAttemptSummary,
   challengeBanner,
+  formatAttemptStatus,
+  formatTime,
   getActiveChallenge,
   getChallengeAttempts,
   getChallengeProgress,
@@ -31,64 +31,65 @@ export default async function MyQuestLogPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
-  const runnerDisplayName = getRunnerDisplayName(metadata) || user?.username || user?.firstName || "Unnamed hero";
+  const runnerDisplayName = getRunnerDisplayName(metadata) || user.username || user.firstName || "SQC player";
   const runnerBio = getRunnerBio(metadata);
   const attempts = getChallengeAttempts(metadata).slice().reverse();
-  const recentAttempts = attempts.slice(0, 3);
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
-  const liveVerifierCount = CHALLENGES.filter((challenge) => getVerifierStatus(challenge).state === "live").length;
-  const recommendedStartChallengeIds = [
-    "knights-before-coffee",
-    "no-castle-club",
-    "queen-never-heard-of-her",
-  ];
-  const recommendedStartChallenges = recommendedStartChallengeIds
-    .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
-    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
     : null;
   const latestActiveAttempt = activeChallengeRecord
     ? getLatestChallengeAttempt(metadata, activeChallengeRecord.id)
     : null;
-  const latestAttemptSummary = buildAttemptSummary(latestActiveAttempt);
-  const hasChessIdentity = Boolean(lichessUsername || chessComUsername);
-  const playerTitle = progress.totalRewardPoints >= 600 ? "Chaos Merchant" : progress.totalCompletedChallenges > 0 ? "Quest Survivor" : "Bad Idea Apprentice";
-  const proofIdentity = lichessUsername || chessComUsername;
-  const questShelf = completedChallenges.length ? completedChallenges.slice(0, 6) : CHALLENGES.slice(0, 6);
+  const connectedCount = [lichessUsername, chessComUsername].filter(Boolean).length;
+  const hasChessIdentity = connectedCount > 0;
 
   return (
     <main className="site-shell">
       <SiteNav isSignedIn active="account" />
 
-      <div className="content-wrap my-quest-log">
-        <section className="hero-card quest-log-hero">
+      <div className="content-wrap my-quest-log focused-quest-log">
+        <section className="hero-card quest-log-hero focused-quest-hero">
           <div>
             <span className="eyebrow">My Quest Log</span>
             <h1>{runnerDisplayName}</h1>
             <p className="hero-copy">
-              {runnerBio || "Your side-quest dashboard: current quest, proof receipts, coat of arms, and the next bad idea."}
+              {runnerBio || "Your connected accounts, current quest, points, proof, and earned coat of arms."}
             </p>
           </div>
           <div className="stats-row">
-            <span>{playerTitle}</span>
-            <span>{progress.totalRewardPoints} pts</span>
-            <span>{progress.totalCompletedChallenges} completed</span>
-            <span>{attempts.length} receipts</span>
+            <span>{progress.totalRewardPoints} points</span>
+            <span>{completedChallenges.length} coat{completedChallenges.length === 1 ? "" : "s"} of arms</span>
+            <span>{attempts.length} proof receipt{attempts.length === 1 ? "" : "s"}</span>
           </div>
-          <div className="button-row hero-actions">
-            {!hasChessIdentity ? (
-              <Link href="/connect" className="button primary">Connect chess account</Link>
-            ) : activeChallengeRecord ? (
-              <form action={checkActiveChallenge} className="button-row compact-form">
-                <button type="submit" className="button primary">Check latest game</button>
-                <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">View active quest</Link>
-              </form>
-            ) : (
-              <Link href="/challenges" className="button primary">Choose first quest</Link>
-            )}
+        </section>
+
+        <section className="mission-card quest-log-accounts-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Connected accounts</span>
+              <h2>{hasChessIdentity ? "Ready to check public games." : "Connect where you play chess."}</h2>
+            </div>
+            <span className={hasChessIdentity ? "badge green" : "badge blue"}>
+              {connectedCount}/2 connected
+            </span>
+          </div>
+          <div className="account-connection-grid">
+            <article className={lichessUsername ? "connection-card connected" : "connection-card"}>
+              <span>Lichess</span>
+              <strong>{lichessUsername || "Not connected"}</strong>
+              <p>{lichessUsername ? "Used for public latest-game proof checks." : "Add your public username. No password needed."}</p>
+            </article>
+            <article className={chessComUsername ? "connection-card connected" : "connection-card"}>
+              <span>Chess.com</span>
+              <strong>{chessComUsername || "Not connected"}</strong>
+              <p>{chessComUsername ? "Used for public latest-game proof checks." : "Add your public username. No password needed."}</p>
+            </article>
+          </div>
+          <div className="button-row">
+            <Link href="/connect" className="button primary">{hasChessIdentity ? "Update connected accounts" : "Connect chess account"}</Link>
             <Link href="/profile" className="button secondary">Edit profile</Link>
           </div>
         </section>
@@ -96,48 +97,44 @@ export default async function MyQuestLogPage() {
         <section className="mission-card quest-log-current-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Current quest</span>
-              <h2>{activeChallengeRecord?.title ?? "Choose your next ridiculous mission."}</h2>
+              <span className="eyebrow">Current quest status</span>
+              <h2>{activeChallengeRecord?.title ?? "No active quest."}</h2>
             </div>
             <span className={activeChallengeRecord ? "badge green" : "badge blue"}>
-              {activeChallenge?.status ?? "no active quest"}
+              {activeChallenge?.status ?? "idle"}
             </span>
           </div>
 
-          <div className="quest-log-current-layout">
+          <div className="quest-log-current-layout focused-current-layout">
             {activeChallengeRecord ? (
-              <ChallengeBadge challenge={activeChallengeRecord} earned={completedSet.has(activeChallengeRecord.id)} />
+              <Link href={`/challenges/${activeChallengeRecord.id}`} className="quest-log-badge-link" aria-label={`Open ${activeChallengeRecord.title}`}>
+                <ChallengeBadge challenge={activeChallengeRecord} earned={completedSet.has(activeChallengeRecord.id)} />
+              </Link>
             ) : (
               <div className="quest-log-empty-badge" aria-hidden="true">?</div>
             )}
             <div>
-              <p>{activeChallengeRecord?.objective ?? "Pick one quest, play a normal public game on Lichess or Chess.com, then come back here for the receipt."}</p>
+              <p>{activeChallengeRecord?.objective ?? "Choose a quest when you are ready to start collecting proof."}</p>
               <p className="muted">{challengeBanner(activeChallenge)}</p>
-              <div className="checker-flow compact-checker" aria-label="Current quest next steps">
-                <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
-                  <strong>{hasChessIdentity ? "✓ Chess identity ready" : "1. Connect chess identity"}</strong>
-                  <p>{proofIdentity ? `${proofIdentity} is used for latest-game checks.` : "Add a public Lichess or Chess.com username. No passwords."}</p>
-                </div>
-                <div className={activeChallengeRecord ? "flow-step ready" : "flow-step"}>
-                  <strong>{activeChallengeRecord ? "✓ Quest selected" : "2. Pick one quest"}</strong>
-                  <p>{activeChallengeRecord ? "Play it wherever you already play chess." : "Start with a recommended quest or browse them all."}</p>
-                </div>
-                <div className={latestActiveAttempt ? "flow-step hot" : "flow-step"}>
-                  <strong>{latestActiveAttempt ? "✓ Latest receipt exists" : "3. Check latest game"}</strong>
-                  <p>{latestActiveAttempt ? "Review the latest pass, fail, or pending result." : "After a game, SQC judges the active quest automatically."}</p>
-                </div>
-              </div>
+              {latestActiveAttempt ? (
+                <article className="note-card latest-check compact-proof-card">
+                  <span className="eyebrow">Latest proof for this quest</span>
+                  <h3>{formatAttemptStatus(latestActiveAttempt.status)}</h3>
+                  <p>{latestActiveAttempt.summary}</p>
+                  <small>{latestActiveAttempt.gameId ? `Game ${latestActiveAttempt.gameId}` : "Saved proof receipt"} • {formatTime(latestActiveAttempt.checkedAt)}</small>
+                </article>
+              ) : null}
               <div className="button-row">
                 {activeChallengeRecord ? (
                   <form action={checkActiveChallenge} className="button-row compact-form">
                     <button type="submit" className="button primary">Check latest game</button>
-                    <Link href="/result" className="button secondary">Latest result</Link>
-                    <Link href="/challenges" className="button secondary">Change quest</Link>
+                    <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open quest page</Link>
+                    <Link href="/proof-log" className="button secondary">Proof log</Link>
                   </form>
                 ) : (
                   <>
                     <Link href="/challenges" className="button primary">Choose a quest</Link>
-                    <Link href="/connect" className="button secondary">Connect account</Link>
+                    <Link href="/proof-log" className="button secondary">Proof log</Link>
                   </>
                 )}
               </div>
@@ -145,105 +142,36 @@ export default async function MyQuestLogPage() {
           </div>
         </section>
 
-        <section className="mission-card account-beta-starter-route">
+        <section className="mission-card quest-log-collection-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Suggested starts</span>
-              <h2>Easy, meaningful, or historically unwise.</h2>
+              <span className="eyebrow">Points and collected Coat of Arms</span>
+              <h2>{progress.totalRewardPoints} points earned</h2>
             </div>
-            <span className="badge gold">{liveVerifierCount} live verifiers</span>
+            <span className="badge gold">{completedChallenges.length}/{CHALLENGES.length} collected</span>
           </div>
-          <div className="grid" aria-label="Recommended My Quest Log quest picks">
-            {recommendedStartChallenges.map((challenge, index) => {
-              const isActiveChallenge = activeChallengeRecord?.id === challenge.id;
 
-              return (
-                <article className="fact" key={challenge.id}>
-                  <span>{["Cautiously heroic", "Recklessly meaningful", "Historically unwise"][index] ?? "Quest pick"}</span>
-                  <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
-                  <strong>{challenge.title}</strong>
-                  <p>{challenge.objective}</p>
-                  <form action={startChallenge} className="button-row">
-                    <input type="hidden" name="challengeId" value={challenge.id} />
-                    <button type="submit" className={isActiveChallenge ? "button secondary" : "button primary"}>
-                      {isActiveChallenge ? "Active now" : "Make active"}
-                    </button>
-                    <Link href={`/challenges/${challenge.id}`} className="button secondary">Rules</Link>
-                  </form>
-                </article>
-              );
-            })}
-          </div>
-          <p className="heroism-custom-path">
-            Or go <Link href="/challenges">find your own path</Link>.
-          </p>
-        </section>
+          {completedChallenges.length ? (
+            <div className="grid collected-coat-grid">
+              {completedChallenges.map((challenge) => {
+                const latestProof = getLatestChallengeAttempt(metadata, challenge.id);
 
-        <section className="big-grid quest-log-summary-grid">
-          <article className="mission-card">
-            <span className="eyebrow">Proof identity</span>
-            <h2>{hasChessIdentity ? "Ready for receipts" : "Not connected yet"}</h2>
-            <p>Lichess: {lichessUsername || "not set"}</p>
-            <p>Chess.com: {chessComUsername || "not set"}</p>
-            <Link href="/connect" className="button secondary">Update chess usernames</Link>
-          </article>
-
-          <article className="mission-card latest-check">
-            <span className="eyebrow">Latest receipt</span>
-            <h2>{latestAttemptSummary.headline}</h2>
-            <p>{latestAttemptSummary.detail}</p>
-            <small>{latestAttemptSummary.meta}</small>
-            <Link href="/proof-log" className="button secondary">Open proof log</Link>
-          </article>
-
-          <article className="mission-card">
-            <span className="eyebrow">Next unlock</span>
-            <h2>{completedChallenges.length ? "Keep filling the shelf" : "First coat of arms awaits"}</h2>
-            <p>{completedChallenges.length} of {CHALLENGES.length} coats of arms unlocked.</p>
-            <Link href="/badges" className="button secondary">View Coat of Arms</Link>
-          </article>
-        </section>
-
-        <section className="mission-card quest-log-shelf-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Coat of Arms shelf</span>
-              <h2>{completedChallenges.length ? "Proof you survived." : "Still gloriously empty."}</h2>
-            </div>
-            <span className="badge gold">{completedChallenges.length} unlocked</span>
-          </div>
-          <div className="grid">
-            {questShelf.map((challenge) => (
-              <article className="fact" key={challenge.id}>
-                <span>{completedSet.has(challenge.id) ? "Unlocked" : "Locked"}</span>
-                <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
-                <strong>{challenge.badge}</strong>
-                <p>{challenge.title}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="mission-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Recent proof receipts</span>
-              <h2>{recentAttempts.length ? "What SQC judged lately." : "No receipts yet."}</h2>
-            </div>
-            <Link href="/proof-log" className="button secondary">Full proof log</Link>
-          </div>
-          {recentAttempts.length ? (
-            <div className="grid">
-              {recentAttempts.map((attempt) => (
-                <article className="fact" key={attempt.id ?? `${attempt.challengeId}-${attempt.checkedAt}`}>
-                  <span>{attempt.status ?? "pending"}</span>
-                  <strong>{attempt.summary}</strong>
-                  <p>{attempt.checkedAt ? new Date(attempt.checkedAt).toLocaleString("en", { dateStyle: "medium", timeStyle: "short" }) : "Latest-game receipt"}</p>
-                </article>
-              ))}
+                return (
+                  <Link href={`/challenges/${challenge.id}`} className="fact collected-coat-link" key={challenge.id}>
+                    <span>+{challenge.reward} pts</span>
+                    <ChallengeBadge challenge={challenge} earned />
+                    <strong>{challenge.badge}</strong>
+                    <p>{challenge.title}</p>
+                    <small>{latestProof ? `${formatAttemptStatus(latestProof.status)} proof • ${formatTime(latestProof.checkedAt)}` : "Open quest proof"}</small>
+                  </Link>
+                );
+              })}
             </div>
           ) : (
-            <p>No attempts yet. Pick a quest, play a public game, then check the latest result.</p>
+            <div className="empty-collection-state">
+              <p>No coat of arms collected yet. Complete a quest and the earned shield will appear here with a link back to its proof.</p>
+              <Link href="/challenges" className="button primary">Choose a quest</Link>
+            </div>
           )}
         </section>
       </div>
