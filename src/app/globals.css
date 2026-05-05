@@ -367,7 +367,7 @@ p { color: var(--muted); line-height: 1.5; }
 .first-run-steps li { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; padding: 10px 11px; border-radius: 18px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.1); color: var(--muted); font-weight: 850; }
 .first-run-steps strong { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 999px; background: var(--gold); color: #111; font-size: 15px; }
 .signed-out-quest-preview { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.signed-out-quest-preview .quest-list-item strong { font-size: .95rem; }
+.signed-out-quest-preview .quest-list-item strong { max-width: 13ch; font-size: .98rem; line-height: 1.05; }
 .signed-out-quest-preview .quest-list-item small:not(.quest-list-difficulty) { font-size: 12px; }
 .signed-out-explainer { background: linear-gradient(135deg, rgba(96,240,175,.08), rgba(255,255,255,.055)); }
 .signed-out-loop-cards .flow-step { min-height: 150px; }

@@ -15,17 +15,17 @@ import {
 const recommendationBands = [
   {
     label: "Want to start easy?",
-    copy: "Pick the horse-first ritual. Weird, readable, and not instantly suicidal.",
+    action: "Pick Knights Before Coffee",
     challengeId: "knights-before-coffee",
   },
   {
     label: "Looking for trouble?",
-    copy: "Skip the sensible king safety button and try to win anyway.",
+    action: "Start No Castle Club",
     challengeId: "no-castle-club",
   },
   {
     label: "Badass?",
-    copy: "Donate the queen early, keep the receipt, and somehow win the game.",
+    action: "Start Queen? Never Heard of Her",
     challengeId: "queen-never-heard-of-her",
   },
 ];
@@ -85,16 +85,8 @@ export default async function Home() {
               <h2>Choose your level of bad idea.</h2>
               <p>Start with the quest that matches your current appetite for chaos.</p>
             </div>
-            {!isSignedIn ? (
-              <ol className="first-run-steps" aria-label="Signed-out onboarding steps">
-                <li><strong>1</strong><span>Sign in with Google.</span></li>
-                <li><strong>2</strong><span>Add Lichess or Chess.com username.</span></li>
-                <li><strong>3</strong><span>Pick how hard you want to go.</span></li>
-                <li><strong>4</strong><span>Come back for the proof receipt.</span></li>
-              </ol>
-            ) : null}
             <div className="quest-list signed-out-quest-preview difficulty-start-preview" aria-label="Recommended quests by appetite">
-              {recommendedQuests.map(({ label, copy, challenge }) => (
+              {recommendedQuests.map(({ label, action, challenge }) => (
                 <Link
                   key={challenge.id}
                   href={`/challenges/${challenge.id}`}
@@ -125,17 +117,12 @@ export default async function Home() {
                       unoptimized
                     />
                   ) : null}
-                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "5px", background: "transparent" }}>
+                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "7px", background: "transparent" }}>
                     <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
-                    <strong>{challenge.title}</strong>
-                    <small>{copy}</small>
+                    <strong>{action}</strong>
                   </span>
                 </Link>
               ))}
-            </div>
-            <div className="button-row">
-              <Link href="/challenges" className="button primary">Browse all quests</Link>
-              <Link href="/today" className="button secondary">Or open today’s quest</Link>
             </div>
           </aside>
         </section>
