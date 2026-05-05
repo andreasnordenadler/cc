@@ -201,24 +201,6 @@ export default async function Home() {
           </section>
         ) : null}
 
-        <section className="big-grid home-secondary-grid quieter-secondary-grid" aria-label="Useful Side Quest Chess routes">
-          <article className="mission-card">
-            <h2>Collect proof you survived.</h2>
-            <p>Completed quests unlock heraldic badge progress and bragging rights.</p>
-            <Link href="/badges" className="button secondary">View badges</Link>
-          </article>
-
-          <article className="mission-card homepage-trust-card">
-            <h2>Public games only. No password nonsense.</h2>
-            <p>
-              Side Quest Chess checks public Lichess and Chess.com game records only. Testers should never share chess-site passwords; confusing receipts belong in the support packet with a screenshot.
-            </p>
-            <div className="button-row">
-              <Link href="/support" className="button secondary">Support & privacy</Link>
-              <Link href="/rules" className="button secondary">Proof rules</Link>
-            </div>
-          </article>
-        </section>
       </div>
     </main>
   );
