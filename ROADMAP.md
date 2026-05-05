@@ -70,7 +70,7 @@ Andreas clarified that these five items are still wanted and should be treated a
 - [x] Design rankings/top players/quest popularity/statistics loops for SQC.
   - completed_at: 2026-05-05 14:35 Europe/Stockholm
   - Proof: `/scoreboard` is now a visible Rankings design hub linked from the top nav, with honest no-fake-numbers leaderboard structure, top-player scoring/tie-break model, quest popularity inputs, receipt-sourced statistics loops, signed-in personal progress, provider receipt counts, and per-quest popularity launch cards. Proof doc: `docs/SQC_RANKINGS_STATS_LOOPS_LIVE_DEPLOY_2026-05-05.md`.
-  - Verification: `pnpm lint`; `pnpm build`; committed `bf99c8e`; pushed to `origin/main`; production deploy to `https://cc-kf6maxrw8-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/scoreboard`, `/`, and `/challenges`; Vercel production error-log scan had no error entries.
+  - Verification: `pnpm lint`; `pnpm build`; committed `e18138a`; pushed to `origin/main`; production deploy to `https://cc-6j3vupylh-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/scoreboard`, `/`, and `/challenges`; Vercel production error-log scan had no logs.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
 - [x] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
   - added_at: 2026-05-05 13:40 Europe/Stockholm

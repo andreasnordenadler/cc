@@ -34,17 +34,17 @@ Fresh-baseline reconfirmed backlog item: design rankings, top players, quest pop
 
 ## Deployment proof
 
-- Commit: `bf99c8e` (`Design SQC rankings loops`), pushed to `origin/main`.
-- Production deploy: `https://cc-kf6maxrw8-andreas-nordenadlers-projects.vercel.app`
+- Code commit: `e18138a` (`Design SQC rankings loops`), pushed to `origin/main`.
+- Production deploy: `https://cc-6j3vupylh-andreas-nordenadlers-projects.vercel.app`
 - Aliased to: `https://sidequestchess.com` and `https://www.sidequestchess.com`
 - `vercel inspect` status: `Ready`.
 
 ## Live smoke
 
-- `https://cc-kf6maxrw8-andreas-nordenadlers-projects.vercel.app/scoreboard` → HTTP 200
+- `https://cc-6j3vupylh-andreas-nordenadlers-projects.vercel.app/scoreboard` → HTTP 200
 - `https://sidequestchess.com/scoreboard` → HTTP 200
 - `https://sidequestchess.com/` → HTTP 200
 - `https://sidequestchess.com/challenges` → HTTP 200
 - Canonical `/scoreboard` contains: `Rankings design`, `Leaderboard fuel, without fake numbers.`, `Top players loop`, `Quest popularity`, `Popularity inputs`.
 - Canonical `/` and `/challenges` contain the new top-nav `Rankings` link.
-- Vercel production error-log scan (`--level error --since 30m`) returned no error entries; one pre-existing OG warning was shown for `/api/og/dare/knightmare-mode` with HTTP 200.
+- Vercel production error-log scan (`--level error --since 30m`) returned no logs.
