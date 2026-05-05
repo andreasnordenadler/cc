@@ -37,8 +37,8 @@ export default async function ConnectPage() {
 
           <article className="connect-card">
             <span className="eyebrow">Chess.com</span>
-            <h2>Username tracking</h2>
-            <p>Use your Chess.com username for beginner-path, No Castle Club, Queen? Never Heard of Her, Pawn Storm Maniac, Knightmare Mode, and Rookless Rampage checks today, with more parity coming as the beta hardens.</p>
+            <h2>Full starter-deck tracking</h2>
+            <p>Use your Chess.com username for all ten current starter-deck quests today. SQC reads public latest-game data only, then gives the same passed, failed, or pending receipt language as the Lichess path.</p>
           </article>
         </section>
 
@@ -58,6 +58,11 @@ export default async function ConnectPage() {
                 {lichessUsername || chessComUsername ? "Update identities" : "Save identities"}
               </button>
             </form>
+            <div className="button-row">
+              <Link href="/path" className="button secondary">Start beginner path</Link>
+              <Link href="/today" className="button secondary">Try today’s quest</Link>
+              <Link href="/result" className="button secondary">Check latest receipt</Link>
+            </div>
           </section>
         ) : (
           <section className="mission-card">
@@ -66,7 +71,8 @@ export default async function ConnectPage() {
             <p>The verifier can browse public games, but SQC needs a saved runner profile to remember your Lichess username, active quest, badges, and proof cards.</p>
             <div className="button-row">
               <Link href="/sign-in" className="button primary">Sign in to connect</Link>
-              <Link href="/profile" className="button secondary">Profile setup</Link>
+              <Link href="/path" className="button secondary">Preview starter path</Link>
+              <Link href="/support" className="button secondary">Read beta safety notes</Link>
             </div>
           </section>
         )}
