@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
+import SupportContactForm from "@/components/support-contact-form";
 
 export const metadata: Metadata = {
   title: "Support & privacy — Side Quest Chess",
@@ -81,13 +82,14 @@ export default async function SupportPage() {
         <section className="mission-card support-simple-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">When reporting an issue</span>
+              <span className="eyebrow">Contact us</span>
               <h2>Send the smallest useful proof packet.</h2>
             </div>
           </div>
           <p>
             Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. A screenshot helps if the issue is visual.
           </p>
+          <SupportContactForm />
         </section>
 
         <section className="mission-card support-simple-card">

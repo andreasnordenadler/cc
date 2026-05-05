@@ -219,6 +219,12 @@ p { color: var(--muted); line-height: 1.5; }
 .terms-section-card h2 { font-size: clamp(1.25rem, 3vw, 1.85rem); line-height: 1.05; letter-spacing: -.035em; }
 .terms-section-card p { max-width: 920px; }
 .terms-note-card { display: grid; gap: 10px; }
+.support-contact-form { display: grid; gap: 14px; max-width: 760px; }
+.support-contact-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.input-card select { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 17px; background: rgba(0,0,0,.24); color: var(--ink); padding: 13px 14px; font-weight: 850; }
+.support-contact-fallback, .support-contact-status { font-size: .95rem; }
+.support-contact-fallback a { color: var(--gold); font-weight: 950; }
+.support-contact-status { color: var(--green); font-weight: 900; }
 .quest-filter-panel { display: grid; gap: 18px; }
 .quest-filter-panel h2 { margin-bottom: 0; }
 .quest-filter-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; }
