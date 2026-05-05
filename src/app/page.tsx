@@ -93,16 +93,16 @@ export default async function Home() {
                   className="quest-list-item final-bare-quest-card difficulty-start-card"
                   style={{
                     gridTemplateColumns: "1fr",
-                    justifyItems: "start",
-                    alignItems: "start",
-                    textAlign: "left",
+                    justifyItems: "center",
+                    alignItems: "center",
+                    textAlign: "center",
                     background: "transparent",
                     borderColor: "transparent",
                     boxShadow: "none",
                     padding: "12px 8px",
                   }}
                 >
-                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "start", gap: "8px", background: "transparent" }}>
+                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "8px", background: "transparent" }}>
                     <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
                     <strong>{action}</strong>
                   </span>
