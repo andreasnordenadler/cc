@@ -8,7 +8,7 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-const betaStarterRouteChallengeIds = ["knights-before-coffee", "bishop-field-trip", "early-king-walk"];
+const recommendedStartChallengeIds = ["knights-before-coffee", "no-castle-club", "queen-never-heard-of-her"];
 
 export default async function ChallengesPage() {
   const { userId } = await auth();
@@ -20,7 +20,7 @@ export default async function ChallengesPage() {
   const currentChallenge = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
-  const betaStarterRouteChallenges = betaStarterRouteChallengeIds
+  const recommendedStartChallenges = recommendedStartChallengeIds
     .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
 
@@ -42,18 +42,18 @@ export default async function ChallengesPage() {
           completedChallengeIds={progress.completedChallengeIds}
         />
 
-        <section className="mission-card" aria-label="Recommended starter route">
+        <section className="mission-card" aria-label="Recommended starting quests">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Recommended starter route</span>
-              <h2>Three picks that remove choice paralysis.</h2>
+              <span className="eyebrow">Where to begin</span>
+              <h2>Pick by how hard you want to go.</h2>
             </div>
           </div>
           <p>
-            New here? Start with these three quests if you want the smoothest first run: one simple win, one clean constraint, then one slightly suspicious king walk.
+            Not sure where to start? Use one of these: easy, trouble, or full chaos. No separate path, no homework ladder — just choose the level of bad idea you want right now.
           </p>
           <div className="big-grid starter-route-grid">
-            {betaStarterRouteChallenges.map((challenge) => (
+            {recommendedStartChallenges.map((challenge) => (
               <ChallengeCard
                 key={challenge.id}
                 challenge={challenge}

@@ -19,15 +19,15 @@ export const metadata: Metadata = {
 const betaChecklist = [
   {
     title: "Connect a chess identity",
-    copy: "Add either chess username. Every current starter-deck quest now works on Lichess or Chess.com, so beta testers can use their real chess home instead of hunting for a provider-specific quest.",
+    copy: "Add either chess username. Every current quest now works on Lichess or Chess.com, so beta testers can use their real chess home instead of hunting for a provider-specific quest.",
     href: "/connect",
     action: "Connect username",
   },
   {
-    title: "Start with the beginner path",
-    copy: "The private beta path now opens with three survivable but still weird win-required quests before the full chaos deck.",
-    href: "/path",
-    action: "Open path",
+    title: "Choose your first quest",
+    copy: "The private beta now offers easy, trouble, and badass starting picks before people browse the full chaos deck.",
+    href: "/challenges",
+    action: "Open quest picks",
   },
   {
     title: "Create one honest receipt",
@@ -72,7 +72,7 @@ export default async function BetaPage() {
           </p>
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Run the beta checklist</Link>
-            <Link href="/path" className="button pink">Try beginner path</Link>
+            <Link href="/challenges" className="button pink">Pick first quest</Link>
             <Link href="/verifiers" className="button secondary">See live verifiers</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
             <Link href="/support" className="button secondary">Support & privacy</Link>
@@ -81,8 +81,8 @@ export default async function BetaPage() {
 
         <section className="grid" aria-label="Private beta status">
           <Fact label="Launch posture" value="private beta" copy="The product should feel useful and legible for friends before any wider public launch push." />
-          <Fact label="Beginner path" value={`${beginnerCount} quests`} copy="The first-run path starts with easier, abnormal, win-required quests instead of throwing people straight into peak chaos." />
-          <Fact label="Verifier posture" value="full dual-host deck" copy="All ten current starter-deck quests can produce latest-game receipts from Lichess or Chess.com today." />
+          <Fact label="First quest picks" value={`${beginnerCount} quests`} copy="The first-run picks offer easier, abnormal, win-required quests before people jump into peak chaos." />
+          <Fact label="Verifier posture" value="full dual-host deck" copy="All ten current quests can produce latest-game receipts from Lichess or Chess.com today." />
         </section>
 
         <section className="big-grid" aria-label="Private beta checklist">

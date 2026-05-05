@@ -9,7 +9,7 @@ import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status"
 export const metadata: Metadata = {
   title: "Verifier status — Side Quest Chess",
   description:
-    "See which Side Quest Chess quests have live-backed proof, which verifiers are next, and how each starter quest will be checked from real games.",
+    "See which Side Quest Chess quests have live-backed proof, which verifiers are next, and how each quest will be checked from real games.",
   openGraph: {
     title: "Verifier status — Side Quest Chess",
     description:
@@ -28,7 +28,7 @@ export default async function VerifiersPage() {
   const parityValue = lichessOnlyCount === 0 ? "0 left" : `${lichessOnlyCount} quests`;
   const parityCopy =
     lichessOnlyCount === 0
-      ? "Every current starter-deck quest now has dual-host latest-game checking for both Lichess and Chess.com."
+      ? "Every current quest now has dual-host latest-game checking for both Lichess and Chess.com."
       : "The remaining live-backed quests are honest Lichess checks first, with Chess.com parity queued after beta-flow hardening.";
 
   return (
@@ -50,12 +50,12 @@ export default async function VerifiersPage() {
         </section>
 
         <section className="grid" aria-label="Verifier summary">
-          <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every starter quest now has an automated latest-game verifier instead of a fake-success or upload-your-PGN workaround." />
-          <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="Every current starter-deck quest can read either Lichess UCI evidence or Chess.com PGN evidence today." />
+          <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every current quest now has an automated latest-game verifier instead of a fake-success or upload-your-PGN workaround." />
+          <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="Every current quest can read either Lichess UCI evidence or Chess.com PGN evidence today." />
           <Fact label={parityLabel} value={parityValue} copy={parityCopy} />
         </section>
 
-        <section className="big-grid" aria-label="Starter deck verifier statuses">
+        <section className="big-grid" aria-label="Quest deck verifier statuses">
           {CHALLENGES.map((challenge) => (
             <VerifierCard challenge={challenge} key={challenge.id} />
           ))}

@@ -34,7 +34,7 @@ export default async function ScoreboardPage() {
           <span className="eyebrow">Quest scoreboard</span>
           <h1>Your bad-idea score, in public.</h1>
           <p className="hero-copy">
-            Track the starter deck, reward points, badge progress, and the next quest worth attempting. It is not a serious leaderboard. That is the point.
+            Track the quest deck, reward points, badge progress, and the next quest worth attempting. It is not a serious leaderboard. That is the point.
           </p>
           <div className="button-row hero-actions">
             <Link href="/today" className="button primary">Open today’s quest</Link>
@@ -44,8 +44,8 @@ export default async function ScoreboardPage() {
         </section>
 
         <section className="grid" aria-label="Scoreboard summary">
-          <Fact label="Current score" value={`${progress.totalRewardPoints} pts`} copy={`${progress.totalCompletedChallenges} of ${CHALLENGES.length} starter quests verified.`} />
-          <Fact label="Deck value" value={`${totalDeckPoints} pts`} copy="Total reward value across the current Side Quest Chess starter deck." />
+          <Fact label="Current score" value={`${progress.totalRewardPoints} pts`} copy={`${progress.totalCompletedChallenges} of ${CHALLENGES.length} quests verified.`} />
+          <Fact label="Deck value" value={`${totalDeckPoints} pts`} copy="Total reward value across the current Side Quest Chess quest deck." />
           <Fact label="Badge vault" value={`${earnedBadges.length}/${CHALLENGES.length}`} copy="Coat-of-arms badges earned by verified side quests." />
         </section>
 
@@ -96,7 +96,7 @@ export default async function ScoreboardPage() {
           </aside>
         </section>
 
-        <section className="big-grid" aria-label="Starter deck scorecards">
+        <section className="big-grid" aria-label="Quest deck scorecards">
           {CHALLENGES.map((challenge) => {
             const earned = completedIds.has(challenge.id);
             const active = activeChallenge?.id === challenge.id;

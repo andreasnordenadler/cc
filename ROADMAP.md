@@ -61,6 +61,9 @@ Andreas clarified that these five items are still wanted and should be treated a
   - Decision: Brutal stays rated-or-casual but is explicitly streamer-hard/clip-worthy; Absurd is rated-only for proof value and future leaderboard fairness.
   - Proof: live quest canon now reframes Queenless and Knightmare as streamer-hard Brutal quests, raises their rewards and minimum-game-story constraints, reframes Rookless Rampage as rated-only Absurd, and the Rookless verifier now rejects unrated/casual games. Coming-soon Brutal/Absurd cards mirror the same canon. Proof doc: `docs/SQC_BRUTAL_ABSURD_RATED_STREAMER_HARD_2026-05-05.md`.
   - Verification: `pnpm exec node --experimental-strip-types --test tests/rookless-rampage-fixtures.mjs`; `pnpm lint`; `pnpm build`; deployed `https://cc-ggtl8noji-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/rookless-rampage`, `/challenges/queen-never-heard-of-her`, `/challenges/knightmare-mode`, and `/challenges`.
+- [ ] Remove Starter Path as a top-level concept and replace homepage/top-bar onboarding with difficulty-based quest recommendations: easy, looking for trouble, and badass.
+  - added_at: 2026-05-05 13:55 Europe/Stockholm
+  - source: Andreas said the whole Starter Path idea is not very good and suggested difficulty-flavored starting recommendations instead.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
 - [x] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.

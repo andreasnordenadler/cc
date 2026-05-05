@@ -12,10 +12,22 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-const recommendedQuestIds = [
-  "knights-before-coffee",
-  "bishop-field-trip",
-  "early-king-walk",
+const recommendationBands = [
+  {
+    label: "Want to start easy?",
+    copy: "Pick the horse-first ritual. Weird, readable, and not instantly suicidal.",
+    challengeId: "knights-before-coffee",
+  },
+  {
+    label: "Looking for trouble?",
+    copy: "Skip the sensible king safety button and try to win anyway.",
+    challengeId: "no-castle-club",
+  },
+  {
+    label: "Badass?",
+    copy: "Donate the queen early, keep the receipt, and somehow win the game.",
+    challengeId: "queen-never-heard-of-her",
+  },
 ];
 
 export default async function Home() {
@@ -27,9 +39,12 @@ export default async function Home() {
   const activeQuest = getActiveChallenge(metadata);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
-  const recommendedQuests = recommendedQuestIds
-    .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
-    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
+  const recommendedQuests = recommendationBands
+    .map((band) => {
+      const challenge = CHALLENGES.find((candidate) => candidate.id === band.challengeId);
+      return challenge ? { ...band, challenge } : null;
+    })
+    .filter((entry): entry is (typeof recommendationBands)[number] & { challenge: (typeof CHALLENGES)[number] } => Boolean(entry));
   const activeQuestRecord = activeQuest?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
@@ -52,14 +67,14 @@ export default async function Home() {
             <div className="button-row hero-actions">
               {isSignedIn ? (
                 <>
-                  <Link href="/path" className="button primary">Start starter path</Link>
-                  <Link href="/challenges" className="button secondary">Browse quests</Link>
+                  <Link href="/challenges" className="button primary">Browse quests</Link>
+                  <Link href="/today" className="button secondary">Today’s quest</Link>
                   <Link href="/connect" className="button secondary">Connect account</Link>
                 </>
               ) : (
                 <>
                   <AuthActionButtons variant="home" />
-                  <Link href="/path" className="button secondary">Preview starter path</Link>
+                  <Link href="/challenges" className="button secondary">Preview quests</Link>
                 </>
               )}
             </div>
@@ -76,24 +91,24 @@ export default async function Home() {
 
           <aside className="side-card card recommended-quests-panel signed-out-start-panel">
             <div>
-              <span className="eyebrow">First run</span>
-              <h2>{isSignedIn ? "Start with the starter path." : "Your first 3 minutes."}</h2>
-              <p>{isSignedIn ? "Three clear quests before the full chaos deck." : "The homepage should get new players to one understandable quest, not make them decode the whole site."}</p>
+              <span className="eyebrow">Where to begin</span>
+              <h2>Choose your level of bad idea.</h2>
+              <p>Start with the quest that matches your current appetite for chaos.</p>
             </div>
             {!isSignedIn ? (
               <ol className="first-run-steps" aria-label="Signed-out onboarding steps">
                 <li><strong>1</strong><span>Sign in with Google.</span></li>
                 <li><strong>2</strong><span>Add Lichess or Chess.com username.</span></li>
-                <li><strong>3</strong><span>Pick a starter quest and play one public game.</span></li>
+                <li><strong>3</strong><span>Pick how hard you want to go.</span></li>
                 <li><strong>4</strong><span>Come back for the proof receipt.</span></li>
               </ol>
             ) : null}
-            <div className="quest-list signed-out-quest-preview" aria-label="Recommended first quests">
-              {recommendedQuests.map((quest) => (
+            <div className="quest-list signed-out-quest-preview difficulty-start-preview" aria-label="Recommended quests by appetite">
+              {recommendedQuests.map(({ label, copy, challenge }) => (
                 <Link
-                  key={quest.id}
-                  href={`/challenges/${quest.id}`}
-                  className="quest-list-item final-bare-quest-card"
+                  key={challenge.id}
+                  href={`/challenges/${challenge.id}`}
+                  className="quest-list-item final-bare-quest-card difficulty-start-card"
                   style={{
                     gridTemplateColumns: "1fr",
                     justifyItems: "center",
@@ -104,9 +119,9 @@ export default async function Home() {
                     padding: "12px 8px",
                   }}
                 >
-                  {quest.badgeIdentity.image ? (
+                  {challenge.badgeIdentity.image ? (
                     <Image
-                      src={quest.badgeIdentity.image}
+                      src={challenge.badgeIdentity.image}
                       alt=""
                       width={112}
                       height={112}
@@ -121,15 +136,15 @@ export default async function Home() {
                     />
                   ) : null}
                   <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "center", gap: "5px", background: "transparent" }}>
-                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{quest.difficulty}</small>
-                    <strong>{quest.title}</strong>
-                    <small>{quest.objective}</small>
+                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
+                    <strong>{challenge.title}</strong>
+                    <small>{copy}</small>
                   </span>
                 </Link>
               ))}
             </div>
             <div className="button-row">
-              <Link href="/path" className="button primary">Open starter path</Link>
+              <Link href="/challenges" className="button primary">Browse all quests</Link>
               <Link href="/today" className="button secondary">Or open today’s quest</Link>
             </div>
           </aside>
@@ -147,7 +162,7 @@ export default async function Home() {
             <div className="checker-flow signed-out-loop-cards" aria-label="Signed-out product explanation">
               <div className="flow-step ready">
                 <strong>Choose one quest</strong>
-                <p>Start with the beginner path or pick today’s quest. Each quest has one weird rule and a badge.</p>
+                <p>Start easy, look for trouble, or go straight for something unhinged. Each quest has one weird rule and a badge.</p>
               </div>
               <div className="flow-step hot">
                 <strong>Play where you already play</strong>
@@ -174,7 +189,7 @@ export default async function Home() {
             <div className="checker-flow" aria-label="Pick play prove loop">
               <Link href="/challenges" className="flow-step ready clickable-quest-card">
                 <strong>1. Pick the quest</strong>
-                <p>Choose from the starter path or full chaos deck, then make one quest active.</p>
+                <p>Choose how hard you want to go, then make one quest active.</p>
               </Link>
               <Link href="/account" className="flow-step hot clickable-quest-card">
                 <strong>2. Play real chess</strong>
@@ -208,7 +223,7 @@ export default async function Home() {
           <div className="checker-flow" aria-label="Friend quest receipt loop">
             <Link href="/today" className="flow-step ready clickable-quest-card">
               <strong>1. Pick today’s quest</strong>
-              <p>Use the daily quest or starter path so both players are chasing the same exact rule.</p>
+              <p>Use the daily quest or choose matching chaos from the full deck so both players chase the same exact rule.</p>
             </Link>
             <Link href="/share-kit" className="flow-step hot clickable-quest-card">
               <strong>2. Send the exact link</strong>

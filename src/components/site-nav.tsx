@@ -18,7 +18,6 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
             <img src="/brand/sqc-alt-logo-topbar-transparent.png" alt="" />
           </Link>
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
-          <Link href="/path" className={active === "path" ? "active" : undefined}>Starter path</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Quests</Link>
           <Link href="/today" className={active === "today" ? "active" : undefined}>Today</Link>
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Badges</Link>

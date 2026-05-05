@@ -9,7 +9,7 @@ import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status"
 export const metadata: Metadata = {
   title: "Share Kit — Side Quest Chess",
   description:
-    "Quest-specific Side Quest Chess links, preview targets, and friend-copy for every starter side quest.",
+    "Quest-specific Side Quest Chess links, preview targets, and friend-copy for every side quest.",
   alternates: { canonical: "/share-kit" },
   openGraph: {
     title: "Side Quest Chess share kit",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Side Quest Chess share kit",
-    description: "Send exact friend-quest links for the SQC starter deck.",
+    description: "Send exact friend-quest links for the SQC quest deck.",
   },
 };
 
@@ -55,7 +55,7 @@ export default function ShareKitPage() {
 
           <aside className="side-card card">
             <div className="spread">
-              <span className="eyebrow">Starter deck value</span>
+              <span className="eyebrow">Quest deck value</span>
               <span className="badge gold">{deckValue} pts</span>
             </div>
             <ChallengeBadge challenge={featured} />
@@ -79,7 +79,7 @@ export default function ShareKitPage() {
           <article className="mission-card">
             <span className="eyebrow">Random ritual</span>
             <h2>Let the machine choose violence.</h2>
-            <p>Best for quick starts: spin the starter deck, then send the exact quest that lands.</p>
+            <p>Best for quick starts: spin the quest deck, then send the exact quest that lands.</p>
             <Link href="/random" className="button pink">Open random quest</Link>
           </article>
 
@@ -126,12 +126,12 @@ export default function ShareKitPage() {
         <section className="section-head">
           <div>
             <span className="eyebrow">Quest-specific links</span>
-            <h2>Starter deck invite cards</h2>
+            <h2>Quest deck invite cards</h2>
           </div>
           <span className="badge gold">{CHALLENGES.length} links</span>
         </section>
 
-        <section className="challenge-grid" aria-label="Starter deck share cards">
+        <section className="challenge-grid" aria-label="Quest deck share cards">
           {CHALLENGES.map((challenge) => {
             const verifierStatus = getVerifierStatus(challenge);
             const verifierLabel = getVerifierStateLabel(verifierStatus);

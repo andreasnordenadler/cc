@@ -53,7 +53,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
             <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Open friend quest</Link>
           </div>
           <p className="microcopy roulette-count">
-            {remainingCount} other cursed options remain in the starter deck. {verifierStatus.summary}: {verifierLabel.promise}
+            {remainingCount} other cursed options remain in the quest deck. {verifierStatus.summary}: {verifierLabel.promise}
           </p>
         </div>
         <ChallengeBadge challenge={selectedChallenge} size="hero" />

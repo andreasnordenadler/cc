@@ -197,11 +197,11 @@ export default async function ResultPage() {
             </div>
             <div className="flow-step ready">
               <strong>Continue</strong>
-              <p>Pick another quest from the starter path or full hub.</p>
+              <p>Pick another quest from the full hub or choose a different level of chaos.</p>
             </div>
           </div>
           <div className="button-row">
-            <Link href="/path" className="button primary">Start starter path</Link>
+            <Link href="/challenges" className="button primary">Browse quests</Link>
             <Link href="/challenges" className="button secondary">Browse quests</Link>
           </div>
         </section>
