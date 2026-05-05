@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
-import { SignInButton } from "@clerk/nextjs";
 import SiteNav from "@/components/site-nav";
+import AuthActionButtons from "@/components/auth-action-buttons";
 import {
   getChessComUsername,
   getLichessUsername,
@@ -36,9 +36,7 @@ export default async function ConnectPage() {
             </div>
           ) : (
             <div className="button-row hero-actions">
-              <SignInButton mode="modal" fallbackRedirectUrl="/profile">
-                <button type="button" className="button primary">Sign in to add usernames</button>
-              </SignInButton>
+              <AuthActionButtons variant="connect" />
             </div>
           )}
         </section>

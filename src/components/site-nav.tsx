@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
+import AuthActionButtons from "@/components/auth-action-buttons";
 
 type ActiveNavItem = "home" | "today" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log" | "beta" | "support";
 
@@ -30,14 +31,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
               <UserButton />
             </>
           ) : (
-            <>
-              <SignInButton mode="modal" fallbackRedirectUrl="/account">
-                <button type="button" className="button secondary">Sign in</button>
-              </SignInButton>
-              <SignUpButton mode="modal" fallbackRedirectUrl="/connect">
-                <button type="button" className="button primary">Connect</button>
-              </SignUpButton>
-            </>
+            <AuthActionButtons />
           )}
         </div>
       </div>
