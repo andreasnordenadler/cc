@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import AuthActionButtons from "@/components/auth-action-buttons";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -57,36 +56,22 @@ export default async function Home() {
       <div className="content-wrap">
         <section className={`hero-grid launch-home-hero clean-home-hero ${isSignedIn ? "" : "signed-out-home-hero"}`}>
           <article className="hero-card simplified-home-hero">
-            {!isSignedIn ? <span className="eyebrow">Private beta · Google sign-in</span> : null}
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
               {isSignedIn
                 ? "Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card."
-                : "Sign in, connect your public chess username, pick one ridiculous quest, and let Side Quest Chess check your latest real game."}
+                : "Sign in, connect your public chess username, choose one ridiculous quest, and let Side Quest Chess check your latest real game."}
             </p>
-            <div className="button-row hero-actions">
-              {isSignedIn ? (
-                <>
+            {isSignedIn ? (
+              <>
+                <div className="button-row hero-actions">
                   <Link href="/challenges" className="button primary">Browse quests</Link>
                   <Link href="/today" className="button secondary">Today’s quest</Link>
                   <Link href="/connect" className="button secondary">Connect account</Link>
-                </>
-              ) : (
-                <>
-                  <AuthActionButtons variant="home" />
-                  <Link href="/challenges" className="button secondary">Preview quests</Link>
-                </>
-              )}
-            </div>
-            {!isSignedIn ? (
-              <div className="signed-out-proof-strip" aria-label="What new visitors need to know">
-                <span>Google sign-in</span>
-                <span>Public games only</span>
-                <span>No PGN uploads</span>
-                <span>No chess-site passwords</span>
-              </div>
+                </div>
+                <p className="plain-loop-copy">Pick → play → prove. One quest at a time.</p>
+              </>
             ) : null}
-            <p className="plain-loop-copy">Pick → play → prove. One quest at a time.</p>
           </article>
 
           <aside className="side-card card recommended-quests-panel signed-out-start-panel">
