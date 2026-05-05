@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import AuthActionButtons from "@/components/auth-action-buttons";
+import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -106,23 +106,7 @@ export default async function Home() {
                     <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
                     <strong>{action}</strong>
                   </span>
-                  {challenge.badgeIdentity.image ? (
-                    <span className="quest-pick-crest-glow" aria-hidden="true">
-                      <Image
-                        src={challenge.badgeIdentity.image}
-                        alt=""
-                        width={112}
-                        height={112}
-                        className="final-bare-quest-logo"
-                        style={{
-                          width: "96px",
-                          height: "96px",
-                          objectFit: "contain",
-                        }}
-                        unoptimized
-                      />
-                    </span>
-                  ) : null}
+                  <ChallengeBadge challenge={challenge} presentation="art" />
                 </Link>
               ))}
             </div>
