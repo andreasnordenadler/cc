@@ -2339,3 +2339,25 @@ While preparing a transparent logo asset, `python3 -c 'from PIL import Image'` f
 **Priority**: low
 
 `vercel logs https://sidequestchess.com --since 30m` failed because the installed Vercel CLI treats logs as follow-mode and does not support filtering with `--since`. For SQC deploy verification, use a supported bounded logs command/help-confirmed syntax or rely on live HTTP/content smokes when log filtering is unavailable.
+
+## [ERR-20260505-001] vercel_logs_since_filter
+
+**Logged**: 2026-05-05T16:31:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs sidequestchess.com --since 30m` failed because this Vercel CLI version reports that `--follow` does not support filtering.
+
+### Details
+For SQC deploy smoke checks, the installed Vercel CLI streams logs by default and rejects `--since`. On macOS, GNU `timeout` is also unavailable by default.
+
+### Suggested Action
+Use a Python subprocess timeout wrapper around `vercel logs sidequestchess.com` for a short no-error stream check, or use another Vercel API/log drain path for filtered historical logs.
+
+### Metadata
+- Source: error
+- Tags: vercel, deploy-smoke, macos
+
+---
