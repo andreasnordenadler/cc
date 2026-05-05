@@ -358,6 +358,8 @@ p { color: var(--muted); line-height: 1.5; }
 .plain-loop-copy { margin-top: 16px; color: var(--green); font-weight: 850; }
 .signed-out-home-hero { align-items: stretch; }
 .signed-out-home-hero .simplified-home-hero { min-height: 430px; display: grid; align-content: center; background: radial-gradient(circle at 86% 10%, rgba(245,200,106,.3), transparent 30%), radial-gradient(circle at 16% 88%, rgba(96,240,175,.13), transparent 34%), linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,95,159,.1)); }
+.signed-out-hero-auth-actions { justify-content: center; margin-top: clamp(28px, 6vw, 74px); align-self: end; }
+.signed-out-hero-auth-actions .button { min-width: 132px; padding: 16px 25px; font-size: 18px; }
 .signed-out-proof-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .signed-out-proof-strip span { padding: 8px 10px; border: 1px solid rgba(245,200,106,.18); border-radius: 999px; background: rgba(0,0,0,.18); color: rgba(255,247,232,.86); font-size: 12px; font-weight: 900; }
 .signed-out-start-panel { background: radial-gradient(circle at 50% 0%, rgba(245,200,106,.16), transparent 34%), rgba(255,255,255,.06); }

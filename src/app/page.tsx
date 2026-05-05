@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import AuthActionButtons from "@/components/auth-action-buttons";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -71,7 +72,11 @@ export default async function Home() {
                 </div>
                 <p className="plain-loop-copy">Pick → play → prove. One quest at a time.</p>
               </>
-            ) : null}
+            ) : (
+              <div className="button-row hero-actions signed-out-hero-auth-actions" aria-label="Sign in or connect">
+                <AuthActionButtons />
+              </div>
+            )}
           </article>
 
           <aside className="side-card card recommended-quests-panel signed-out-start-panel">
