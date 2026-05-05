@@ -124,7 +124,7 @@ export default async function AccountPage() {
           <div className="checker-flow" aria-label="Private beta readiness checklist">
             <div className={user ? "flow-step ready" : "flow-step"}>
               <strong>{user ? "✓ Signed in" : "1. Sign in"}</strong>
-              <p>{user ? "The beta run can save profile details and receipts." : "Create a beta runner profile so the loop can remember progress."}</p>
+              <p>{user ? "The beta run can save profile details and receipts." : "Create a beta user profile so the loop can remember progress."}</p>
             </div>
             <div className={hasChessIdentity ? "flow-step ready" : "flow-step"}>
               <strong>{hasChessIdentity ? "✓ Chess identity set" : "2. Add Lichess or Chess.com"}</strong>

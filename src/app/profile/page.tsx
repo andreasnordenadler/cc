@@ -23,7 +23,7 @@ export default async function ProfilePage() {
       <SiteNav isSignedIn={Boolean(user)} active="profile" />
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">Edit runner profile</span>
+          <span className="eyebrow">Edit user profile</span>
           <h1>{user ? "Set up your SQC identity." : "Sign in to save your profile."}</h1>
           <p className="hero-copy">
             This is the quick end-to-end setup: profile name, short brag line, and the chess username SQC uses for verifier checks.

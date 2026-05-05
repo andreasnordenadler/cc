@@ -69,14 +69,14 @@ const clerkLocalization = {
       title: "Sign in to Side Quest Chess",
       subtitle: "Save your quest progress, badges, proof receipts, and chess usernames.",
       actionText: "New to SQC?",
-      actionLink: "Create your runner profile",
+      actionLink: "Create your user profile",
     },
   },
   signUp: {
     start: {
-      title: "Create your SQC runner profile",
+      title: "Create your SQC user profile",
       subtitle: "Sign up once, then add your public Lichess or Chess.com username.",
-      actionText: "Already have a runner profile?",
+      actionText: "Already have a user profile?",
       actionLink: "Sign in",
     },
   },

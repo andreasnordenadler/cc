@@ -7,7 +7,7 @@ export default function SignInPage() {
       <SiteNav isSignedIn={false} active="account" />
       <div className="content-wrap auth-wrap">
         <section className="hero-card auth-copy-card">
-          <span className="eyebrow">Runner login</span>
+          <span className="eyebrow">User login</span>
           <h1>Sign in, then go make terrible chess decisions.</h1>
           <p className="hero-copy">
             Logging in lets Side Quest Chess remember your profile, Lichess username, active quest, badges, and proof cards.
