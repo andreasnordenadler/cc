@@ -92,9 +92,9 @@ export default async function Home() {
                   href={`/challenges/${challenge.id}`}
                   className="quest-list-item final-bare-quest-card difficulty-start-card"
                   style={{
-                    gridTemplateColumns: "auto minmax(0, 1fr)",
+                    gridTemplateColumns: "1fr",
                     justifyItems: "start",
-                    alignItems: "center",
+                    alignItems: "start",
                     textAlign: "left",
                     background: "transparent",
                     borderColor: "transparent",
@@ -102,6 +102,10 @@ export default async function Home() {
                     padding: "12px 8px",
                   }}
                 >
+                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "start", gap: "8px", background: "transparent" }}>
+                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
+                    <strong>{action}</strong>
+                  </span>
                   {challenge.badgeIdentity.image ? (
                     <Image
                       src={challenge.badgeIdentity.image}
@@ -110,18 +114,14 @@ export default async function Home() {
                       height={112}
                       className="final-bare-quest-logo"
                       style={{
-                        width: "82px",
-                        height: "82px",
+                        width: "96px",
+                        height: "96px",
                         objectFit: "contain",
                         filter: "drop-shadow(0 12px 18px rgba(0,0,0,.28))",
                       }}
                       unoptimized
                     />
                   ) : null}
-                  <span className="quest-list-copy final-bare-quest-copy" style={{ display: "grid", justifyItems: "start", gap: "7px", background: "transparent" }}>
-                    <small className="quest-list-difficulty" style={{ background: "transparent", padding: 0, borderRadius: 0 }}>{label}</small>
-                    <strong>{action}</strong>
-                  </span>
                 </Link>
               ))}
             </div>
