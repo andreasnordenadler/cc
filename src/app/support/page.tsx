@@ -6,30 +6,30 @@ import SiteNav from "@/components/site-nav";
 export const metadata: Metadata = {
   title: "Support & privacy — Side Quest Chess",
   description:
-    "Private-beta support, public-game-data privacy notes, and what to send when a Side Quest Chess verifier looks wrong.",
+    "Support and privacy notes for Side Quest Chess: public-game checks, proof receipts, account setup, and what to send when something looks wrong.",
   openGraph: {
     title: "Support & privacy — Side Quest Chess",
     description:
-      "What Side Quest Chess reads, what it never asks for, and how private-beta testers should report verifier or setup issues.",
+      "What Side Quest Chess reads, what it never asks for, and how to report proof or account issues.",
     url: "/support",
   },
 };
 
-const supportSteps = [
+const supportTopics = [
   {
-    label: "Issue type",
-    value: "Setup, receipt, rule, or UI",
-    copy: "Name the exact thing that felt wrong: saving a username, starting a quest, reading a pass/fail/pending receipt, understanding a rule, or spotting a visual bug.",
+    label: "Proof receipts",
+    value: "Passed, failed, or pending",
+    copy: "If a receipt looks wrong, include the quest name, chess site, public username, game link, and what result you expected.",
   },
   {
-    label: "Chess context",
-    value: "Public username + site",
-    copy: "Say whether the test used Lichess or Chess.com, include the public username, and add the latest public game link if the verifier result seemed unfair.",
+    label: "Account setup",
+    value: "Public username only",
+    copy: "Side Quest Chess only needs your public Lichess or Chess.com username to check recent public games.",
   },
   {
-    label: "Expected result",
-    value: "What should have happened?",
-    copy: "For verifier issues, say whether you expected passed, failed, or pending. For setup/UI issues, say which next action was unclear.",
+    label: "Quest rules",
+    value: "One weird rule at a time",
+    copy: "Every quest page explains the exact condition. If a rule feels unclear, send the quest name and the confusing line.",
   },
 ];
 
@@ -37,29 +37,19 @@ const privacyNotes = [
   {
     label: "Reads",
     value: "Public chess games",
-    copy: "When you ask for proof, SQC checks recent public games for the Lichess or Chess.com username saved on your SQC profile.",
+    copy: "When you run a proof check, SQC reads recent public games for the Lichess or Chess.com username saved on your profile.",
   },
   {
     label: "Stores",
-    value: "SQC profile choices",
-    copy: "The beta stores your SQC sign-in profile, saved chess usernames, active quest, badges, points, and proof receipts so the loop can continue across sessions.",
+    value: "SQC progress",
+    copy: "SQC stores your sign-in profile, saved chess usernames, active quest, points, coat-of-arms progress, and proof receipts.",
   },
   {
     label: "Never asks for",
     value: "Chess-site passwords",
-    copy: "Do not enter a Lichess or Chess.com password into SQC. The beta is username-based and public-game based; no chess-site credential sharing is needed.",
+    copy: "Never enter a Lichess or Chess.com password into SQC. Proof checks are username-based and public-game based.",
   },
 ];
-
-const betaSupportTemplate = `Side Quest Chess beta support note
-Quest:
-Chess site: Lichess / Chess.com
-Public username:
-Game link, if relevant:
-Receipt outcome: passed / failed / pending / did not reach receipt
-What felt wrong or confusing:
-What I expected instead:
-Screenshot attached: yes / no`;
 
 export default async function SupportPage() {
   const { userId } = await auth();
@@ -69,82 +59,48 @@ export default async function SupportPage() {
       <SiteNav isSignedIn={Boolean(userId)} active="support" />
 
       <div className="content-wrap">
-        <section className="hero-card">
-          <span className="eyebrow">Support & privacy</span>
-          <h1>Funny quests, boringly clear trust rules.</h1>
+        <section className="hero-card support-launch-hero">
+          <h1>Support & privacy.</h1>
           <p className="hero-copy">
-            Side Quest Chess private beta should be easy to test without guessing what data is used or what to send back when a receipt looks odd.
+            Side Quest Chess checks public chess games, saves your quest progress, and turns completed nonsense into proof receipts. Here is the simple version of what to do when something looks wrong — and what data SQC does, and does not, need.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/beta" className="button primary">Open beta guide</Link>
-            <Link href="/connect" className="button pink">Connect username</Link>
+            <Link href="/challenges" className="button primary">Browse quests</Link>
+            <Link href="/connect" className="button secondary">Connect chess username</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
           </div>
         </section>
 
-        <section className="grid" aria-label="Support summary">
-          <Fact label="Best report" value="Quest + site + receipt" copy="One useful report names the quest, chess site, public username, receipt outcome, and first confusing moment." />
-          <Fact label="Privacy posture" value="public game data only" copy="SQC checks public games from a saved username. It does not need chess-site passwords, PGN uploads, or engine analysis." />
-          <Fact label="Beta contact" value="send it to Andreas" copy="During friends/private beta, route confusing receipts, broken flows, and UI glitches directly to Andreas with the details below." />
+        <section className="grid" aria-label="Support topics">
+          {supportTopics.map((item) => (
+            <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
+          ))}
         </section>
 
-        <section className="mission-card">
+        <section className="mission-card support-simple-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">What to send</span>
-              <h2>Make every support note diagnosable in one pass.</h2>
+              <span className="eyebrow">When reporting an issue</span>
+              <h2>Send the smallest useful proof packet.</h2>
             </div>
-            <span className="badge green">private beta</span>
           </div>
           <p>
-            Reports should be lightweight, but not vague. These three fields are enough for Sam to reproduce the problem or decide whether the copy needs work.
+            Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. A screenshot helps if the issue is visual.
           </p>
-          <div className="grid">
-            {supportSteps.map((item) => (
-              <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
-            ))}
-          </div>
         </section>
 
-        <section className="mission-card beta-template-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Copyable support packet</span>
-              <h2>One pasteable note for friends who hit a rough edge.</h2>
-            </div>
-            <span className="badge blue">diagnosable fast</span>
-          </div>
-          <p>
-            If a tester gets stuck, this keeps the report lightweight but complete enough to debug the exact quest, provider, receipt state, and confusing moment.
-          </p>
-          <pre>{betaSupportTemplate}</pre>
-          <div className="button-row">
-            <Link href="/result" className="button primary">Open latest receipt</Link>
-            <Link href="/beta" className="button secondary">Back to beta guide</Link>
-          </div>
-        </section>
-
-        <section className="mission-card">
+        <section className="mission-card support-simple-card">
           <div className="section-head">
             <div>
               <span className="eyebrow">Data basics</span>
-              <h2>What SQC reads, stores, and never needs.</h2>
+              <h2>Public games only. No password nonsense.</h2>
             </div>
-            <span className="badge gold">no password sharing</span>
+            <span className="badge gold">privacy first</span>
           </div>
           <div className="grid">
             {privacyNotes.map((item) => (
               <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
             ))}
-          </div>
-        </section>
-
-        <section className="note-card">
-          <strong>Need a quick route back?</strong>
-          <p>Start from the beta guide, choose a quest, then return to the result page after a real game so the receipt can explain passed, failed, or pending.</p>
-          <div className="button-row">
-            <Link href="/challenges" className="button primary">Choose a quest</Link>
-            <Link href="/result" className="button secondary">View receipt</Link>
           </div>
         </section>
       </div>

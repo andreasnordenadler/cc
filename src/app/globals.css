@@ -207,6 +207,10 @@ p { color: var(--muted); line-height: 1.5; }
 .leaderboard-preview-row strong { color: var(--gold); font-size: .95rem; }
 .leaderboard-preview-row span { color: var(--ink); font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .leaderboard-preview-row em { color: var(--green); font-size: .85rem; font-style: normal; font-weight: 950; }
+.support-launch-hero { display: grid; justify-items: center; text-align: center; }
+.support-launch-hero h1 { max-width: 900px; margin-inline: auto; }
+.support-launch-hero .hero-copy { margin-inline: auto; }
+.support-simple-card { display: grid; gap: 16px; }
 .quest-filter-panel { display: grid; gap: 18px; }
 .quest-filter-panel h2 { margin-bottom: 0; }
 .quest-filter-grid { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; }
