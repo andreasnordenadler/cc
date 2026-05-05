@@ -49,6 +49,7 @@ export default async function Home() {
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
   const connectedIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" / ");
+  const badgePreviewChallenges = CHALLENGES.filter((challenge) => challenge.badgeIdentity.image).slice(0, 6);
 
   return (
     <main className="site-shell">
@@ -169,6 +170,19 @@ export default async function Home() {
           </section>
         )}
 
+
+        <section className="hero-card home-badge-vault-card" aria-label="SQC badge vault preview">
+          <span className="eyebrow">SQC badge vault</span>
+          <h2>Every bad idea deserves a coat of arms.</h2>
+          <p className="hero-copy">
+            Side Quest Chess badges are collectible heraldic receipts: each shield explains the exact nonsense you survived, why it matters, and what your friends should mock respectfully.
+          </p>
+          <div className="home-badge-art-row" aria-label="Side Quest Chess coat of arms preview">
+            {badgePreviewChallenges.map((challenge) => (
+              <ChallengeBadge key={challenge.id} challenge={challenge} presentation="art" earned />
+            ))}
+          </div>
+        </section>
 
         {isSignedIn ? (
           <section className="card mission-card home-status-card compact-run-card">
