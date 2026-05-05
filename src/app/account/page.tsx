@@ -67,16 +67,14 @@ export default async function MyQuestLogPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Current quest status</span>
-              <h2>{activeChallengeRecord?.title ?? "No active quest."}</h2>
+              {!activeChallengeRecord ? <h2>No active quest.</h2> : null}
             </div>
           </div>
 
           {activeChallengeRecord ? (
             <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
               <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
-              <small className="current-quest-coat-caption">
-                {activeChallengeRecord.badgeIdentity.name} · {activeChallengeRecord.badgeIdentity.heraldry.motto}
-              </small>
+              <small className="current-quest-coat-caption">{activeChallengeRecord.title}</small>
             </Link>
           ) : (
             <Link href="/challenges" className="current-quest-empty-link">

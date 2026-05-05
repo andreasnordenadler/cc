@@ -590,4 +590,4 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-log-top-grid .current-quest-coat-link { width: min(300px, 100%); }
 .quest-log-top-grid .current-quest-coat-link .challenge-badge-art,
 .quest-log-top-grid .current-quest-coat-link .challenge-badge-art .badge-reference-art { width: clamp(220px, 22vw, 300px); height: clamp(220px, 22vw, 300px); }
-.current-quest-coat-caption { color: rgba(255,255,255,.72); font-size: .82rem; font-weight: 850; line-height: 1.2; text-align: center; }
+.current-quest-coat-caption { color: rgba(255,255,255,.78); font-size: clamp(.92rem, 1.7vw, 1.18rem); font-weight: 900; line-height: 1.08; text-align: center; }
