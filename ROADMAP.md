@@ -41,9 +41,19 @@ Andreas reset SQC planning on 2026-05-05:
 - **Current live version is the fresh baseline.**
 - **Quest Hub (`/challenges`) is done and OK for launch.**
 - **Individual Quest pages (`/challenges/[id]`) are done and OK for launch.**
-- Clear old/new-change queues and previous autonomous instructions.
-- From here, only act on new explicit Andreas instructions or a newly agreed roadmap.
-- Do not continue autonomous SQC work from historical notes, old requested follow-ups, or previous backlog items.
+- Clear old/new-change queues and previous autonomous instructions except the newly reconfirmed backlog below.
+- From here, only act on new explicit Andreas instructions or this newly agreed roadmap.
+- Do not continue autonomous SQC work from historical notes, old requested follow-ups, or previous backlog items unless they are explicitly listed below.
+
+## Reconfirmed wanted backlog — 2026-05-05
+
+Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [ ] Auto-run latest-game checker immediately after a logged-in user activates a quest, instead of requiring the first manual Refresh.
+- [ ] Prepare/test the alternate ornate SQC logo/top-bar treatment from `public/brand/sqc-alt-logo-topbar-test.jpg`, with transparent/cropped treatment before any final nav use.
+- [ ] Expand/revisit Brutal and Absurd quests so they are truly viral/streamer-hard, including deciding whether Absurd quests should require rated games.
+- [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
+- [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
 
 - [x] Remove white square matte from the three beginner quest badge assets.
   - added_at: 2026-04-28 11:50 Europe/Stockholm
