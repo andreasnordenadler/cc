@@ -35,6 +35,7 @@ export default async function MyQuestLogPage() {
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
+  const collectionPreview = CHALLENGES.slice(0, 8);
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
     : null;
@@ -53,6 +54,25 @@ export default async function MyQuestLogPage() {
             <p className="hero-copy">
               {runnerBio || "Your connected accounts, current quest, points, proof, and earned coat of arms."}
             </p>
+          </div>
+          <div className="hero-coat-rack" aria-label="Coat of arms collection preview">
+            {collectionPreview.map((challenge) => {
+              const earned = completedSet.has(challenge.id);
+
+              if (earned) {
+                return (
+                  <Link href={`/challenges/${challenge.id}`} className="hero-coat-slot earned" key={challenge.id} aria-label={`Open earned coat of arms: ${challenge.title}`}>
+                    <ChallengeBadge challenge={challenge} presentation="art" earned />
+                  </Link>
+                );
+              }
+
+              return (
+                <span className="hero-coat-slot locked" key={challenge.id} aria-label={`Locked coat of arms: ${challenge.title}`} title={`${challenge.title} — not earned yet`}>
+                  <span className="hero-coat-outline" aria-hidden="true" />
+                </span>
+              );
+            })}
           </div>
           <div className="stats-row">
             <span>{progress.totalRewardPoints} points</span>
