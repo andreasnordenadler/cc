@@ -20,7 +20,7 @@ const heroismOptions = [
     challengeId: "knights-before-coffee",
   },
   {
-    label: "Recklessly heroic",
+    label: "Recklessly meaningful",
     copy: "I can handle one objectively bad idea.",
     cta: "Try No Castle Club",
     challengeId: "no-castle-club",
