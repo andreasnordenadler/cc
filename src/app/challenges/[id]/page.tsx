@@ -186,7 +186,6 @@ export default async function ChallengeDetailPage({
               <span className="eyebrow">Friend dare</span>
               <h2>Send exactly this bad idea.</h2>
             </div>
-            <span className="badge gold">Quest-specific invite</span>
           </div>
           <p>
             Turn this rule page into a direct dare: copy a friend-ready invite with the quest, objective, badge, and proof link already attached.

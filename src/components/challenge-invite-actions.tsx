@@ -14,15 +14,13 @@ export default function ChallengeInviteActions({
   challengeTitle,
   challengeObjective,
   challengePath,
-  reward,
-  badgeName,
 }: ChallengeInviteActionsProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return challengePath;
     return `${window.location.origin}${challengePath}`;
   }, [challengePath]);
-  const inviteCopy = `Try this quest “${challengeTitle}” on Side Quest Chess: ${challengeObjective} Unlock ${badgeName} for +${reward} points if you survive it.`;
+  const inviteCopy = `Try this quest “${challengeTitle}” on Side Quest Chess: ${challengeObjective}`;
 
   async function copyInvite() {
     try {
