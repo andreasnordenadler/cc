@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
+import AuthActionButtons from "@/components/auth-action-buttons";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -39,26 +40,55 @@ export default async function Home() {
       <SiteNav isSignedIn={isSignedIn} active="home" />
 
       <div className="content-wrap">
-        <section className="hero-grid launch-home-hero clean-home-hero">
+        <section className={`hero-grid launch-home-hero clean-home-hero ${isSignedIn ? "" : "signed-out-home-hero"}`}>
           <article className="hero-card simplified-home-hero">
+            {!isSignedIn ? <span className="eyebrow">Private beta · Google sign-in</span> : null}
             <h1>Chess, but with stupidly hard side quests.</h1>
             <p className="hero-copy">
-              Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card.
+              {isSignedIn
+                ? "Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card."
+                : "Sign in, connect your public chess username, pick one ridiculous quest, and let Side Quest Chess check your latest real game."}
             </p>
             <div className="button-row hero-actions">
-              <Link href="/path" className="button primary">Start starter path</Link>
-              <Link href="/challenges" className="button secondary">Browse quests</Link>
-              <Link href="/connect" className="button secondary">Connect account</Link>
+              {isSignedIn ? (
+                <>
+                  <Link href="/path" className="button primary">Start starter path</Link>
+                  <Link href="/challenges" className="button secondary">Browse quests</Link>
+                  <Link href="/connect" className="button secondary">Connect account</Link>
+                </>
+              ) : (
+                <>
+                  <AuthActionButtons variant="home" />
+                  <Link href="/path" className="button secondary">Preview starter path</Link>
+                </>
+              )}
             </div>
-            <p className="plain-loop-copy">Pick → play → prove. No PGN uploads. No chess-site passwords.</p>
+            {!isSignedIn ? (
+              <div className="signed-out-proof-strip" aria-label="What new visitors need to know">
+                <span>Google sign-in</span>
+                <span>Public games only</span>
+                <span>No PGN uploads</span>
+                <span>No chess-site passwords</span>
+              </div>
+            ) : null}
+            <p className="plain-loop-copy">Pick → play → prove. One quest at a time.</p>
           </article>
 
-          <aside className="side-card card recommended-quests-panel">
+          <aside className="side-card card recommended-quests-panel signed-out-start-panel">
             <div>
-              <h2>Start with the starter path.</h2>
-              <p>Three clear quests before the full chaos deck.</p>
+              <span className="eyebrow">First run</span>
+              <h2>{isSignedIn ? "Start with the starter path." : "Your first 3 minutes."}</h2>
+              <p>{isSignedIn ? "Three clear quests before the full chaos deck." : "The homepage should get new players to one understandable quest, not make them decode the whole site."}</p>
             </div>
-            <div className="quest-list" aria-label="Recommended first quests">
+            {!isSignedIn ? (
+              <ol className="first-run-steps" aria-label="Signed-out onboarding steps">
+                <li><strong>1</strong><span>Sign in with Google.</span></li>
+                <li><strong>2</strong><span>Add Lichess or Chess.com username.</span></li>
+                <li><strong>3</strong><span>Pick a starter quest and play one public game.</span></li>
+                <li><strong>4</strong><span>Come back for the proof receipt.</span></li>
+              </ol>
+            ) : null}
+            <div className="quest-list signed-out-quest-preview" aria-label="Recommended first quests">
               {recommendedQuests.map((quest) => (
                 <Link
                   key={quest.id}
@@ -105,47 +135,75 @@ export default async function Home() {
           </aside>
         </section>
 
-        <section className="mission-card" aria-label="How Side Quest Chess proof works">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Proof loop</span>
-              <h2>From bad idea to brag receipt.</h2>
+        {!isSignedIn ? (
+          <section className="mission-card signed-out-explainer" aria-label="What Side Quest Chess is for signed-out visitors">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">What happens after sign-in</span>
+                <h2>A tiny loop, not another chess dashboard.</h2>
+              </div>
+              <span className="badge gold">public beta flow</span>
             </div>
-            <span className="badge blue">3 steps</span>
-          </div>
-          <p>
-            Pick one quest, play a real public game, then turn the latest-game check into a result card and saved proof log before the next ridiculous quest begins.
-          </p>
-          <div className="checker-flow" aria-label="Pick play prove loop">
-            <Link href="/challenges" className="flow-step ready clickable-quest-card">
-              <strong>1. Pick the quest</strong>
-              <p>Choose from the starter path or full chaos deck, then make one quest active.</p>
-            </Link>
-            <Link href="/account" className="flow-step hot clickable-quest-card">
-              <strong>2. Play real chess</strong>
-              <p>Use Lichess or Chess.com public games. No PGN uploads, no password nonsense.</p>
-            </Link>
-            <Link href="/result" className="flow-step ready clickable-quest-card">
-              <strong>3. Prove or retry</strong>
-              <p>Share a passed receipt, understand a miss, or save it in the proof log.</p>
-            </Link>
-          </div>
-          <div className="button-row">
-            <Link href="/account" className="button primary">Run latest-game check</Link>
-            <Link href="/proof-log" className="button secondary">Open proof log</Link>
-          </div>
-        </section>
+            <div className="checker-flow signed-out-loop-cards" aria-label="Signed-out product explanation">
+              <div className="flow-step ready">
+                <strong>Choose one quest</strong>
+                <p>Start with the beginner path or pick today’s quest. Each quest has one weird rule and a badge.</p>
+              </div>
+              <div className="flow-step hot">
+                <strong>Play where you already play</strong>
+                <p>Use a normal public Lichess or Chess.com game. Side Quest Chess never asks for chess-site passwords.</p>
+              </div>
+              <div className="flow-step ready">
+                <strong>Get the receipt</strong>
+                <p>The latest-game checker returns passed, failed, or pending with a shareable proof card.</p>
+              </div>
+            </div>
+          </section>
+        ) : (
+          <section className="mission-card" aria-label="How Side Quest Chess proof works">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Proof loop</span>
+                <h2>From bad idea to brag receipt.</h2>
+              </div>
+              <span className="badge blue">3 steps</span>
+            </div>
+            <p>
+              Pick one quest, play a real public game, then turn the latest-game check into a result card and saved proof log before the next ridiculous quest begins.
+            </p>
+            <div className="checker-flow" aria-label="Pick play prove loop">
+              <Link href="/challenges" className="flow-step ready clickable-quest-card">
+                <strong>1. Pick the quest</strong>
+                <p>Choose from the starter path or full chaos deck, then make one quest active.</p>
+              </Link>
+              <Link href="/account" className="flow-step hot clickable-quest-card">
+                <strong>2. Play real chess</strong>
+                <p>Use Lichess or Chess.com public games. No PGN uploads, no password nonsense.</p>
+              </Link>
+              <Link href="/result" className="flow-step ready clickable-quest-card">
+                <strong>3. Prove or retry</strong>
+                <p>Share a passed receipt, understand a miss, or save it in the proof log.</p>
+              </Link>
+            </div>
+            <div className="button-row">
+              <Link href="/account" className="button primary">Run latest-game check</Link>
+              <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            </div>
+          </section>
+        )}
 
         <section className="card mission-card" aria-label="Friend quest loop">
           <div className="section-head">
             <div>
               <span className="eyebrow">Friend quest loop</span>
-              <h2>Send one terrible quest, then compare receipts.</h2>
+              <h2>{isSignedIn ? "Send one terrible quest, then compare receipts." : "The social bit: send a bad idea to one chess friend."}</h2>
             </div>
             <span className="badge pink">share loop</span>
           </div>
           <p>
-            The fastest way to understand Side Quest Chess is not a tour — it is sending one chess friend the same bad idea and letting the proof cards settle the argument.
+            {isSignedIn
+              ? "The fastest way to understand Side Quest Chess is not a tour — it is sending one chess friend the same bad idea and letting the proof cards settle the argument."
+              : "A signed-out visitor should still understand the joke: two friends try the same ridiculous rule, then proof cards settle who actually pulled it off."}
           </p>
           <div className="checker-flow" aria-label="Friend quest receipt loop">
             <Link href="/today" className="flow-step ready clickable-quest-card">

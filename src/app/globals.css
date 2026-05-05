@@ -346,6 +346,19 @@ p { color: var(--muted); line-height: 1.5; }
 .clean-home-hero { grid-template-columns: minmax(0, .96fr) minmax(320px, .84fr); }
 .simplified-home-hero { background: radial-gradient(circle at 82% 6%, rgba(245,200,106,.22), transparent 28%), linear-gradient(135deg, rgba(255,255,255,.085), rgba(255,95,159,.085)); }
 .plain-loop-copy { margin-top: 16px; color: var(--green); font-weight: 850; }
+.signed-out-home-hero { align-items: stretch; }
+.signed-out-home-hero .simplified-home-hero { min-height: 430px; display: grid; align-content: center; background: radial-gradient(circle at 86% 10%, rgba(245,200,106,.3), transparent 30%), radial-gradient(circle at 16% 88%, rgba(96,240,175,.13), transparent 34%), linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,95,159,.1)); }
+.signed-out-proof-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.signed-out-proof-strip span { padding: 8px 10px; border: 1px solid rgba(245,200,106,.18); border-radius: 999px; background: rgba(0,0,0,.18); color: rgba(255,247,232,.86); font-size: 12px; font-weight: 900; }
+.signed-out-start-panel { background: radial-gradient(circle at 50% 0%, rgba(245,200,106,.16), transparent 34%), rgba(255,255,255,.06); }
+.first-run-steps { list-style: none; display: grid; gap: 9px; }
+.first-run-steps li { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; padding: 10px 11px; border-radius: 18px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.1); color: var(--muted); font-weight: 850; }
+.first-run-steps strong { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 999px; background: var(--gold); color: #111; font-size: 15px; }
+.signed-out-quest-preview { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.signed-out-quest-preview .quest-list-item strong { font-size: .95rem; }
+.signed-out-quest-preview .quest-list-item small:not(.quest-list-difficulty) { font-size: 12px; }
+.signed-out-explainer { background: linear-gradient(135deg, rgba(96,240,175,.08), rgba(255,255,255,.055)); }
+.signed-out-loop-cards .flow-step { min-height: 150px; }
 .recommended-quests-panel { align-content: start; gap: 16px; }
 .recommended-quests-panel h2 { font-size: clamp(1.55rem, 3vw, 2.45rem); }
 .quest-list { display: grid; gap: 10px; }
@@ -356,7 +369,7 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-list-item small { color: var(--muted); line-height: 1.35; }
 .compact-run-card { background: rgba(255,255,255,.055); }
 .quieter-secondary-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-@media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } }
+@media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } .signed-out-quest-preview { grid-template-columns: 1fr; } .signed-out-home-hero .simplified-home-hero { min-height: 0; } }
 
 
 /* Recommended first quests: show badge/logo art beside each quest. */

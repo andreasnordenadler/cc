@@ -63,6 +63,9 @@ Andreas clarified that these five items are still wanted and should be treated a
   - Verification: `pnpm exec node --experimental-strip-types --test tests/rookless-rampage-fixtures.mjs`; `pnpm lint`; `pnpm build`; deployed `https://cc-ggtl8noji-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/rookless-rampage`, `/challenges/queen-never-heard-of-her`, `/challenges/knightmare-mode`, and `/challenges`.
 - [ ] Design rankings/top players/quest popularity/statistics loops for SQC.
 - [ ] Explore showing a chessboard with the last move/final proof position for completed quests.
+- [ ] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
+  - added_at: 2026-05-05 13:40 Europe/Stockholm
+  - source: Andreas requested work on the home page layout and how it looks for users that are not logged in yet.
 
 - [x] Remove white square matte from the three beginner quest badge assets.
   - added_at: 2026-04-28 11:50 Europe/Stockholm
