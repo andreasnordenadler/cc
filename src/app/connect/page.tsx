@@ -39,7 +39,6 @@ export default async function ConnectPage() {
               <SignInButton mode="modal" fallbackRedirectUrl="/profile">
                 <button type="button" className="button primary">Sign in to add usernames</button>
               </SignInButton>
-              <Link href="/challenges" className="button secondary">Browse quests first</Link>
             </div>
           )}
         </section>
