@@ -30,7 +30,7 @@ export default function SupportContactForm() {
     ].join("\n");
 
     window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setStatus(`Opening your email app to send this to ${SUPPORT_EMAIL}.`);
+    setStatus("opening");
   }
 
   return (
@@ -68,13 +68,9 @@ export default function SupportContactForm() {
       </label>
 
       <div className="button-row">
-        <button className="button primary" type="submit">Email support</button>
-        <a className="button secondary" href={`mailto:${SUPPORT_EMAIL}`}>Open email app</a>
+        <button className="button primary" type="submit">Send support email</button>
       </div>
-      <p className="support-contact-fallback">
-        Prefer direct email? Write to <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
-      </p>
-      {status ? <p className="support-contact-status" role="status">{status}</p> : null}
+      {status ? <p className="support-contact-status" role="status">Opening your email app with the support request.</p> : null}
     </form>
   );
 }
