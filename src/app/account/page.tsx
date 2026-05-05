@@ -2,6 +2,7 @@ import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
+import { redirect } from "next/navigation";
 import { checkActiveChallenge, startChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
 import { getVerifierStatus } from "@/lib/verifier-status";
@@ -21,7 +22,12 @@ import {
 
 export default async function MyQuestLogPage() {
   const user = await currentUser();
-  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+
+  if (!user) {
+    redirect("/sign-in");
+  }
+
+  const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
@@ -55,7 +61,7 @@ export default async function MyQuestLogPage() {
 
   return (
     <main className="site-shell">
-      <SiteNav isSignedIn={Boolean(user)} active="account" />
+      <SiteNav isSignedIn active="account" />
 
       <div className="content-wrap my-quest-log">
         <section className="hero-card quest-log-hero">
@@ -73,9 +79,7 @@ export default async function MyQuestLogPage() {
             <span>{attempts.length} receipts</span>
           </div>
           <div className="button-row hero-actions">
-            {!user ? (
-              <Link href="/sign-in" className="button primary">Sign in to start</Link>
-            ) : !hasChessIdentity ? (
+            {!hasChessIdentity ? (
               <Link href="/connect" className="button primary">Connect chess account</Link>
             ) : activeChallengeRecord ? (
               <form action={checkActiveChallenge} className="button-row compact-form">
@@ -159,17 +163,13 @@ export default async function MyQuestLogPage() {
                   <ChallengeBadge challenge={challenge} earned={completedSet.has(challenge.id)} />
                   <strong>{challenge.title}</strong>
                   <p>{challenge.objective}</p>
-                  {user ? (
-                    <form action={startChallenge} className="button-row">
-                      <input type="hidden" name="challengeId" value={challenge.id} />
-                      <button type="submit" className={isActiveChallenge ? "button secondary" : "button primary"}>
-                        {isActiveChallenge ? "Active now" : "Make active"}
-                      </button>
-                      <Link href={`/challenges/${challenge.id}`} className="button secondary">Rules</Link>
-                    </form>
-                  ) : (
-                    <Link href={`/challenges/${challenge.id}`} className="button secondary">Preview rules</Link>
-                  )}
+                  <form action={startChallenge} className="button-row">
+                    <input type="hidden" name="challengeId" value={challenge.id} />
+                    <button type="submit" className={isActiveChallenge ? "button secondary" : "button primary"}>
+                      {isActiveChallenge ? "Active now" : "Make active"}
+                    </button>
+                    <Link href={`/challenges/${challenge.id}`} className="button secondary">Rules</Link>
+                  </form>
                 </article>
               );
             })}
