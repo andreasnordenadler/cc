@@ -199,9 +199,8 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         copy={shareCopy}
         challengeTitle={challenge.title}
         sharePath="/proof-log"
-        copyLabel="Copy receipt"
         shareLabel="Share receipt"
-        idleCopy="Copies this saved proof receipt plus the proof-log link, so old attempts can still become group-chat bait."
+        idleCopy="Shares this saved proof receipt plus the proof-log link, so old attempts can still become group-chat bait."
       />
       <div className="card-footer">
         <strong>{summary.headline}</strong>

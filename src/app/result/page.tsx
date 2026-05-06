@@ -5,7 +5,7 @@ import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
-import { buildPublicProofPath } from "@/lib/proof-share";
+import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
   getChallengeProgress,
@@ -64,6 +64,7 @@ export default async function ResultPage({
         runnerName: user?.firstName ?? user?.username ?? undefined,
       })
     : "/result";
+  const publicProofToken = publicProofPath.split("/").at(-1) ?? "";
   const receiptNextStep = isPassed
     ? {
         label: "Passed",
@@ -207,12 +208,12 @@ export default async function ResultPage({
             <ShareProofActions
               copy={isPassed ? `${scrollAchievement} ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.` : shareCopy}
               challengeTitle={challenge.title}
-              sharePath={publicProofPath}
-              copyLabel={isPassed ? "Copy proof link" : "Copy receipt"}
-              shareLabel={isPassed ? "Share proof" : "Share quest"}
+              sharePath={isPassed ? "/" : "/result"}
+              imagePath={isPassed ? publicProofImagePath(publicProofToken) : undefined}
+              shareLabel={isPassed ? "Share" : "Share quest"}
               idleCopy={isPassed
-                ? "Share this as the official tiny scroll of achievement. Screenshot-friendly, mildly pompous, and deservedly unserious."
-                : "Copies the current result text plus this proof-card link. No PGN upload, no homework."
+                ? "Shares the victory scroll image with a Side Quest Chess link."
+                : "Shares the current result text plus this proof-card link. No PGN upload, no homework."
               }
             />
           </article>

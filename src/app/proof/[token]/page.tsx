@@ -96,13 +96,11 @@ export default async function PublicProofPage({
           <ShareProofActions
             copy={shareCopy}
             challengeTitle={payload.challengeTitle}
-            sharePath={`/proof/${token}`}
-            copyLabel="Copy proof link"
-            shareLabel="Share proof"
-            idleCopy=""
-          >
-            <Link href={publicProofImagePath(token)} className="button secondary">Proof image</Link>
-          </ShareProofActions>
+            sharePath="/"
+            imagePath={publicProofImagePath(token)}
+            shareLabel="Share"
+            idleCopy="Shares the victory scroll image with a Side Quest Chess link."
+          />
         </section>
       </div>
     </main>

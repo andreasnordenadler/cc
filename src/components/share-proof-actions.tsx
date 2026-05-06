@@ -1,33 +1,38 @@
 "use client";
 
-import { type ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type ShareProofActionsProps = {
   copy: string;
   challengeTitle: string;
   sharePath?: string;
-  copyLabel?: string;
   shareLabel?: string;
   idleCopy?: string;
-  children?: ReactNode;
+  imagePath?: string;
+  imageFileName?: string;
 };
 
 export default function ShareProofActions({
   copy,
   challengeTitle,
   sharePath = "/result",
-  copyLabel = "Copy receipt",
   shareLabel = "Share quest",
   idleCopy = "Copies the current result text plus this proof-card link. No PGN upload, no homework.",
-  children,
+  imagePath,
+  imageFileName = "side-quest-chess-proof.png",
 }: ShareProofActionsProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return sharePath;
     return `${window.location.origin}${sharePath}`;
   }, [sharePath]);
+  const imageUrl = useMemo(() => {
+    if (!imagePath) return null;
+    if (typeof window === "undefined") return imagePath;
+    return `${window.location.origin}${imagePath}`;
+  }, [imagePath]);
 
-  async function copyReceipt() {
+  async function copyFallback() {
     try {
       await navigator.clipboard.writeText(`${copy}\n${shareUrl}`);
       setStatus("copied");
@@ -36,39 +41,52 @@ export default function ShareProofActions({
     }
   }
 
+  async function buildShareFile() {
+    if (!imageUrl) return null;
+
+    const response = await fetch(imageUrl);
+    if (!response.ok) return null;
+
+    const blob = await response.blob();
+    return new File([blob], imageFileName, { type: blob.type || "image/png" });
+  }
+
   async function shareReceipt() {
     if (!navigator.share) {
-      await copyReceipt();
+      await copyFallback();
       return;
     }
 
     try {
+      const file = await buildShareFile();
+      const filePayload = file ? { files: [file] } : {};
+      const canShareFile = file && navigator.canShare?.(filePayload);
+
       await navigator.share({
         title: `Side Quest Chess: ${challengeTitle}`,
         text: copy,
         url: shareUrl,
+        ...(canShareFile ? filePayload : {}),
       });
       setStatus("shared");
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      setStatus("failed");
+      await copyFallback();
     }
   }
 
   return (
     <div className="share-actions" aria-live="polite">
       <div className="button-row">
-        <button type="button" className="button primary" onClick={copyReceipt}>{copyLabel}</button>
-        <button type="button" className="button secondary" onClick={shareReceipt}>{shareLabel}</button>
-        {children}
+        <button type="button" className="button primary" onClick={shareReceipt}>{shareLabel}</button>
       </div>
       <p className="microcopy">
         {status === "copied"
-          ? "Receipt copied — paste it into the group chat and pretend this was a sound strategic plan."
+          ? "Share text copied with the Side Quest Chess link."
           : status === "shared"
-            ? "Share sheet opened. May your opponent never see it coming."
+            ? "Share sheet opened with the victory scroll."
             : status === "failed"
-              ? "Could not access sharing here, but the copy above is ready to select manually."
+              ? "Could not open sharing here."
               : idleCopy}
       </p>
     </div>

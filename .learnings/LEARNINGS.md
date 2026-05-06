@@ -67,3 +67,26 @@ For badge background removal, always preview against a high-contrast matte and v
 - Tags: image-processing, transparency, sqc-badges
 
 ---
+
+## [LRN-20260506-001] correction
+
+**Logged**: 2026-05-06T23:21:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: frontend
+
+### Summary
+For SQC completed proof sharing, users want one simple social Share button, not utility links/buttons.
+
+### Details
+Andreas corrected the proof share UI after public proof links were added: the completed proof section should not expose separate copy/proof-page/proof-image/proof-log controls. The Share action should share the scroll image when possible and link to the home page.
+
+### Suggested Action
+For celebratory/share surfaces, default to one high-level social share action and keep technical proof URLs/internal logs out of the primary UI unless explicitly requested.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/components/share-proof-actions.tsx, src/app/challenges/[id]/page.tsx
+- Tags: sqc, sharing, ux-simplification
+
+---

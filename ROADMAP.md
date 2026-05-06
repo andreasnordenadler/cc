@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 23:12 Europe/Stockholm
+Last updated: 2026-05-06 23:21 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace completed proof utility buttons with one social Share action.
+  - added_at: 2026-05-06 23:15 Europe/Stockholm
+  - completed_at: 2026-05-06 23:21 Europe/Stockholm
+  - source: Andreas corrected the share controls: only a single Share is needed, and it should share the scroll image plus home-page link.
+  - Proof: simplified `ShareProofActions` to one button, made completed proof share fetch the scroll image and pass it to the Web Share API when supported, set the share URL to `/`, and removed proof page/image/log utility buttons from completed proof details. Proof doc: `docs/SQC_SINGLE_SOCIAL_SHARE_SCROLL_IMAGE_2026-05-06.md`.
+  - Verification: grep for removed utility labels; `pnpm lint`; `pnpm build`.
 
 - [x] Make completed proof sharing user-specific with public proof image preview.
   - added_at: 2026-05-06 23:05 Europe/Stockholm
