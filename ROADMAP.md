@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:00 Europe/Stockholm
+Last updated: 2026-05-06 10:03 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Mark active quest in the logged-in Where to begin cards.
+  - added_at: 2026-05-06 10:03 Europe/Stockholm
+  - completed_at: 2026-05-06 10:03 Europe/Stockholm
+  - source: Andreas screenshot feedback that the `How heroic are you feeling today?` cards may include the active quest too.
+  - Proof: heroism choice cards now compare against the signed-in active quest and show green outline plus `ACTIVE QUEST` stamp when matched. Proof doc: `docs/SQC_LOGGED_IN_HEROISM_ACTIVE_QUEST_STATE_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Simplify logged-in homepage Active Quest card and make it link to the active quest.
   - added_at: 2026-05-06 10:00 Europe/Stockholm

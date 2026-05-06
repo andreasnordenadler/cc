@@ -85,16 +85,26 @@ export default async function Home() {
               <p>Pick a starting quest based on your current tolerance for terrible chess decisions.</p>
             </div>
             <div className="heroism-choice-list" aria-label="Choose a heroism level">
-              {heroismChoices.map(({ label, copy, cta, challenge }) => (
-                <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="heroism-choice-card">
-                  <ChallengeBadge challenge={challenge} presentation="art" earned />
-                  <span className="heroism-choice-copy">
-                    <strong>{label}</strong>
-                    <small>{copy}</small>
-                    <em>{cta}</em>
-                  </span>
-                </Link>
-              ))}
+              {heroismChoices.map(({ label, copy, cta, challenge }) => {
+                const isActiveChoice = isSignedIn && activeQuest?.id === challenge.id;
+
+                return (
+                  <Link
+                    key={challenge.id}
+                    href={`/challenges/${challenge.id}`}
+                    className={isActiveChoice ? "heroism-choice-card active-home-quest-choice" : "heroism-choice-card"}
+                    aria-label={isActiveChoice ? `Open active quest: ${challenge.title}` : undefined}
+                  >
+                    {isActiveChoice ? <span className="active-quest-stamp heroism-active-stamp" aria-label="Active quest" /> : null}
+                    <ChallengeBadge challenge={challenge} presentation="art" earned />
+                    <span className="heroism-choice-copy">
+                      <strong>{label}</strong>
+                      <small>{copy}</small>
+                      <em>{cta}</em>
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
             <p className="heroism-custom-path">
               Or go <Link href="/challenges">find your own path</Link>.
