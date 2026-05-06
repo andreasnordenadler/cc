@@ -39,11 +39,11 @@ export default async function CoatOfArmsPage() {
 
 function BadgeMeaningCard({ challenge }: { challenge: Challenge }) {
   return (
-    <article className="mission-card badge-meaning-card">
-      <Link href={`/challenges/${challenge.id}`} className="badge-meaning-art-link" aria-label={`Open ${challenge.title} quest`}>
+    <Link href={`/challenges/${challenge.id}`} className="mission-card badge-meaning-card" aria-label={`Open ${challenge.title} quest`}>
+      <span className="badge-meaning-art-link" aria-hidden="true">
         <ChallengeBadge challenge={challenge} presentation="art" earned />
-      </Link>
-      <div className="badge-meaning-copy">
+      </span>
+      <span className="badge-meaning-copy">
         <h2>{challenge.badgeIdentity.name}</h2>
         <dl>
           <div>
@@ -59,7 +59,7 @@ function BadgeMeaningCard({ challenge }: { challenge: Challenge }) {
             <dd>{challenge.title}</dd>
           </div>
         </dl>
-      </div>
-    </article>
+      </span>
+    </Link>
   );
 }

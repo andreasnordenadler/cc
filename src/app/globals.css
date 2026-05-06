@@ -187,9 +187,9 @@ p { color: var(--muted); line-height: 1.5; }
 .home-badge-art-row .challenge-badge-art .badge-reference-art { width: clamp(76px, 11vw, 112px); height: clamp(76px, 11vw, 112px); }
 .badges-page-hero h1 { max-width: 900px; margin-inline: auto; text-align: center; }
 .badge-description-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: stretch; }
-.badge-meaning-card { display: grid; gap: 16px; justify-items: center; text-align: center; }
-.badge-meaning-art-link { display: inline-grid; place-items: center; border-radius: 24px; text-decoration: none; transition: transform .16s ease, filter .16s ease; }
-.badge-meaning-art-link:hover, .badge-meaning-art-link:focus-visible { transform: translateY(-2px); filter: brightness(1.08); outline: none; }
+.badge-meaning-card { display: grid; gap: 16px; justify-items: center; text-align: center; color: inherit; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease, filter .16s ease; }
+.badge-meaning-card:hover, .badge-meaning-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.095); filter: brightness(1.04); outline: none; }
+.badge-meaning-art-link { display: inline-grid; place-items: center; border-radius: 24px; text-decoration: none; }
 .badge-meaning-card .challenge-badge-art { width: clamp(96px, 12vw, 132px); min-width: clamp(96px, 12vw, 132px); }
 .badge-meaning-card .challenge-badge-art .badge-reference-art { width: clamp(96px, 12vw, 132px); height: clamp(96px, 12vw, 132px); }
 .badge-meaning-copy { display: grid; gap: 12px; }
