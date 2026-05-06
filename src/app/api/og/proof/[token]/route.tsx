@@ -67,12 +67,12 @@ export async function GET(
               border: "7px solid #7c2d12",
               background: "linear-gradient(160deg, #24100d, #5f1d14)",
               color: "#f5c86a",
-              fontSize: 56,
+              fontSize: 36,
               fontWeight: 900,
               marginBottom: 18,
             }}
           >
-            {payload.badgeMotif}
+            SQC
           </div>
           <div style={{ fontSize: 18, letterSpacing: 3.4, textTransform: "uppercase", color: "#7b3f18", fontWeight: 800 }}>
             Side Quest Chess hereby admits
@@ -84,7 +84,7 @@ export async function GET(
             {achievementCopy}
           </div>
           <div style={{ fontSize: 21, lineHeight: 1.24, marginTop: 14, maxWidth: 500, color: "#5f3217" }}>
-            Proof accepted: {payload.challengeTitle} — {payload.summary}
+            {`Proof accepted: ${payload.challengeTitle} — ${payload.summary}`}
           </div>
           <div style={{ display: "flex", gap: 16, marginTop: 16, color: "#6d3918", fontSize: 20, fontWeight: 800 }}>
             <span>{dateLabel}</span>
