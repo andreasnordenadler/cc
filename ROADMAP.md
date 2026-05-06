@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 16:17 Europe/Stockholm
+Last updated: 2026-05-06 16:21 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove `Check latest games` from the My Side Quests Current Quest card.
+  - added_at: 2026-05-06 16:19 Europe/Stockholm
+  - completed_at: 2026-05-06 16:21 Europe/Stockholm
+  - source: Andreas shared a My Side Quests screenshot and asked to remove the `Check latest games` button.
+  - Proof: removed the incomplete active quest check form/button from `src/app/account/page.tsx` while keeping completed-state proof actions intact. Proof doc: `docs/SQC_CURRENT_QUEST_REMOVE_CHECK_LATEST_GAMES_BUTTON_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Rename visible `My Quest Log` label to `My Side Quests`.
   - added_at: 2026-05-06 16:15 Europe/Stockholm

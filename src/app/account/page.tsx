@@ -3,7 +3,6 @@ import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
-import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
 import {
   formatAttemptStatus,
@@ -101,11 +100,7 @@ export default async function MyQuestLogPage() {
                   <Link href={`/result?challengeId=${activeChallengeRecord.id}`} className="button primary">View victory proof</Link>
                   <Link href="/proof-log" className="button secondary">Proof log</Link>
                 </div>
-              ) : (
-                <form action={checkActiveChallenge} className="current-quest-proof-actions">
-                  <button type="submit" className="button primary">Check latest games</button>
-                </form>
-              )}
+              ) : null}
             </>
           ) : (
             <Link href="/challenges" className="current-quest-empty-link">
