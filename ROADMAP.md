@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 14:57 Europe/Stockholm
+Last updated: 2026-05-06 14:59 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Move completed wax seal left by roughly one seal width.
+  - added_at: 2026-05-06 14:56 Europe/Stockholm
+  - completed_at: 2026-05-06 14:59 Europe/Stockholm
+  - source: Andreas approved the compact layout and asked to move the seal left by about the same length as the seal itself.
+  - Proof: shifted `.completed-quest-award` left on desktop and mobile while keeping size/top/date-only copy unchanged. Proof doc: `docs/SQC_COMPLETED_QUEST_SEAL_LEFT_SHIFT_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Compact completed quest hero and let title extend under seal.
   - added_at: 2026-05-06 14:53 Europe/Stockholm
