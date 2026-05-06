@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:18 Europe/Stockholm
+Last updated: 2026-05-06 15:31 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Redo completed wax seal with original coat-of-arms text built in.
+  - added_at: 2026-05-06 15:25 Europe/Stockholm
+  - completed_at: 2026-05-06 15:31 Europe/Stockholm
+  - source: Andreas rejected the patched seal text and asked to redo the whole seal, ensuring the original coat-of-arms text is included.
+  - Proof: regenerated the seal as `public/stamps/quest-complete-premium-red-wax-sqc-v15.png` from the original SQC coat-of-arms reference so `SIDE QUEST CHESS` is integrated into the generated lower banner/ribbon, removed the magenta background/fringe locally, and updated CSS to use v15. Proof doc: `docs/SQC_COMPLETED_QUEST_FULL_SEAL_REDO_WITH_ORIGINAL_TEXT_2026-05-06.md`.
+  - Verification: visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Integrate seal `Side Quest Chess` ribbon text and reduce completion pill slant.
   - added_at: 2026-05-06 15:10 Europe/Stockholm
