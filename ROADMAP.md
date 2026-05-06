@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 14:59 Europe/Stockholm
+Last updated: 2026-05-06 15:09 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Polish completed wax seal opacity, angle, and source text visibility.
+  - added_at: 2026-05-06 15:04 Europe/Stockholm
+  - completed_at: 2026-05-06 15:09 Europe/Stockholm
+  - source: Andreas noted text showing through the top of the seal, asked to move the seal higher, slant the completion pill more with the seal, and make the original `Side Quest Chess` seal text more visible.
+  - Proof: created `public/stamps/quest-complete-premium-red-wax-sqc-v12.png` with internal transparency filled red and boosted red-on-red `SIDE QUEST CHESS` lettering; updated CSS to use v12, moved the seal higher, and adjusted the pill rotation to better match the seal. Proof doc: `docs/SQC_COMPLETED_QUEST_WAX_SEAL_OPAQUE_TEXT_POLISH_2026-05-06.md`.
+  - Verification: visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Move completed wax seal left by roughly one seal width.
   - added_at: 2026-05-06 14:56 Europe/Stockholm
