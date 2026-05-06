@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-05 16:21 Europe/Stockholm
+Last updated: 2026-05-06 09:28 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Fix the missile-like line/artifact in the blurred locked coat-of-arms shelf on My Quest Log.
+  - added_at: 2026-05-06 09:26 Europe/Stockholm
+  - completed_at: 2026-05-06 09:28 Europe/Stockholm
+  - source: Andreas voice-note feedback on the My Quest Log blurred coat-of-arms treatment.
+  - Proof: removed the blur and clipped radial-ring pseudo overlay from locked `hero-coat-slot` badge art, then softened locked-state shadow/opacity so locked crests stay subdued without streak artifacts. Proof doc: `docs/SQC_MY_QUEST_LOG_LOCKED_COAT_ARTIFACT_FIX_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Auto-run latest-game checker immediately after a logged-in user activates a quest, instead of requiring the first manual Refresh.
   - completed_at: 2026-05-05 07:50 Europe/Stockholm
