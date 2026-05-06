@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 13:52 Europe/Stockholm
+Last updated: 2026-05-06 14:20 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove completed wax seal matte background and move seal off the coat of arms.
+  - added_at: 2026-05-06 14:17 Europe/Stockholm
+  - completed_at: 2026-05-06 14:20 Europe/Stockholm
+  - source: Andreas said the wax seal was better, but the black/grey background should be removed and the seal should sit to the right, covering part of the quest name text instead of the quest coat of arms.
+  - Proof: created transparent `public/stamps/quest-complete-premium-red-wax-sqc-v10.png`, updated CSS to reference it, and repositioned `.completed-quest-award` toward the right side of the quest title/text area while keeping it away from the coat-of-arms image. Proof doc: `docs/SQC_COMPLETED_QUEST_WAX_SEAL_BACKGROUND_POSITION_FIX_2026-05-06.md`.
+  - Verification: dark-background visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Replace red logo-style completion mark with a genuinely wax-realistic seal.
   - added_at: 2026-05-06 13:43 Europe/Stockholm
