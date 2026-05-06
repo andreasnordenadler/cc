@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 12:55 Europe/Stockholm
+Last updated: 2026-05-06 13:05 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Revise completed quest seal to use actual SQC coat of arms.
+  - added_at: 2026-05-06 12:57 Europe/Stockholm
+  - completed_at: 2026-05-06 13:05 Europe/Stockholm
+  - source: Andreas rejected the generic generated seal and asked for a stamp/seal like the references, but with the SQC coat of arms.
+  - Proof: replaced `public/stamps/quest-complete-seal.png` with a locally composed red/gold wax-stamp style seal using the actual Proof Loop Test/SQC coat-of-arms image in the center, readable `QUEST COMPLETE` / `SIDE QUEST CHESS` text bands, and removed duplicate overlaid text from the page. Proof doc: `docs/SQC_COMPLETED_QUEST_SQC_COAT_SEAL_REVISION_2026-05-06.md`.
+  - Verification: dark-background visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Make completed quest page feel like an award state.
   - added_at: 2026-05-06 12:45 Europe/Stockholm
