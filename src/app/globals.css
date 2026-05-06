@@ -405,7 +405,7 @@ p { color: var(--muted); line-height: 1.5; }
 .victory-scroll-proof strong { display: inline; color: #251109; font-size: inherit; }
 .victory-scroll-footer { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; color: rgba(43,23,13,.66); font-size: .76rem; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
 .victory-scroll-footer span { padding: 6px 8px; border-radius: 999px; background: rgba(82,38,15,.08); }
-.victory-scroll-seal { position: absolute; left: 50%; bottom: 20px; width: 112px; aspect-ratio: 1; transform: translateX(-50%) rotate(-6deg); background: url('/stamps/sqc-wax-seal-canonical.png') center / contain no-repeat; filter: drop-shadow(0 12px 18px rgba(82,38,15,.42)); }
+.victory-scroll-seal { position: absolute; left: 50%; bottom: 20px; width: 112px; aspect-ratio: 1; transform: translateX(-50%) rotate(4deg); background: url('/stamps/sqc-wax-seal-canonical.png') center / contain no-repeat; filter: drop-shadow(0 12px 18px rgba(82,38,15,.42)); }
 .roulette-hero { display: grid; gap: 20px; }
 .roulette-details { margin-top: 4px; }
 .roulette-count { margin-top: 12px; }

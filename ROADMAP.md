@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:48 Europe/Stockholm
+Last updated: 2026-05-06 17:52 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Rotate victory scroll wax seal slightly clockwise.
+  - added_at: 2026-05-06 17:49 Europe/Stockholm
+  - completed_at: 2026-05-06 17:52 Europe/Stockholm
+  - source: Andreas shared a screenshot and asked to rotate the seal a little bit clockwise.
+  - Proof: changed `.victory-scroll-seal` rotation from `-6deg` to `4deg`, preserving size and position. Proof doc: `docs/SQC_PROOF_SCROLL_SEAL_CLOCKWISE_ROTATION_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Fix Any Game Counts evidence wording and move proof-scroll seal upward.
   - added_at: 2026-05-06 17:44 Europe/Stockholm
