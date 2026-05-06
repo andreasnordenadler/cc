@@ -2414,3 +2414,26 @@ Quote dynamic route paths in shell commands, e.g. `git add 'src/app/challenges/[
 - Tags: zsh, git, nextjs-dynamic-routes
 
 ---
+
+## [ERR-20260506-003] sqc_clerk_public_metadata_limit_refresh_crash
+
+**Logged**: 2026-05-06T11:03:00+02:00
+**Priority**: high
+**Status**: fixed
+**Area**: backend
+
+### Summary
+SQC Refresh crashed after repeated proof checks because Clerk public metadata exceeded 8KB.
+
+### Details
+Production logs showed `form_param_exceeds_allowed_size`: `public_metadata` exceeded 8192 bytes. The latest-game checker appended full receipt summaries on every refresh.
+
+### Suggested Action
+Keep public metadata compact. Store only a bounded number of recent attempts and trim long receipt summaries before `updateUserMetadata`.
+
+### Metadata
+- Source: production_error
+- Related Files: src/app/actions.ts
+- Tags: clerk, metadata-limit, server-action, sqc
+
+---

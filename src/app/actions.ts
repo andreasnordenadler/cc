@@ -158,6 +158,16 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
   ],
 };
 
+
+function compactChallengeAttempts(attempts: ChallengeAttempt[], maxAttempts = 8): ChallengeAttempt[] {
+  return attempts
+    .slice(-maxAttempts)
+    .map((attempt) => ({
+      ...attempt,
+      summary: attempt.summary ? attempt.summary.slice(0, 220) : attempt.summary,
+    }));
+}
+
 async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
   const checks = [];
 
@@ -655,7 +665,7 @@ export async function startChallenge(formData: FormData) {
         startedAt: now,
         verifiedAt: passedCheck ? now : undefined,
       },
-      challengeAttempts: [
+      challengeAttempts: compactChallengeAttempts([
         ...existingAttempts,
         ...providerChecks.map((check, index) => ({
           id: `${challenge.id}:${check.provider}:activation:${now}:${index}`,
@@ -666,7 +676,7 @@ export async function startChallenge(formData: FormData) {
           summary: check.summary,
           checkedAt: now,
         })),
-      ],
+      ]),
       challengeProgress: {
         completedChallengeIds,
         totalCompletedChallenges: completedChallengeIds.length,
@@ -807,7 +817,7 @@ export async function submitChallengeAttempt(formData: FormData) {
         startedAt: existingActiveChallenge?.startedAt ?? now,
         verifiedAt: verification.status === "passed" ? now : undefined,
       },
-      challengeAttempts: [
+      challengeAttempts: compactChallengeAttempts([
         ...existingAttempts,
         {
           id: `${challenge.id}:${now}`,
@@ -818,7 +828,7 @@ export async function submitChallengeAttempt(formData: FormData) {
           summary: verification.summary,
           checkedAt: now,
         },
-      ],
+      ]),
       challengeProgress: {
         completedChallengeIds,
         totalCompletedChallenges: completedChallengeIds.length,
@@ -894,7 +904,7 @@ export async function checkActiveChallenge() {
         startedAt: activeChallenge.startedAt ?? now,
         verifiedAt: passedCheck ? now : undefined,
       },
-      challengeAttempts: [
+      challengeAttempts: compactChallengeAttempts([
         ...existingAttempts,
         ...providerChecks.map((check, index) => ({
           id: `${challenge.id}:${check.provider}:${now}:${index}`,
@@ -905,7 +915,7 @@ export async function checkActiveChallenge() {
           summary: check.summary,
           checkedAt: now,
         })),
-      ],
+      ]),
       challengeProgress: {
         completedChallengeIds,
         totalCompletedChallenges: completedChallengeIds.length,

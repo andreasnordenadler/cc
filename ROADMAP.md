@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:57 Europe/Stockholm
+Last updated: 2026-05-06 11:06 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,14 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Fix refresh crash from oversized Clerk public metadata.
+  - added_at: 2026-05-06 11:00 Europe/Stockholm
+  - completed_at: 2026-05-06 11:06 Europe/Stockholm
+  - source: Andreas reported that clicking Refresh on the Proof Loop Test quest caused a server error.
+  - Root cause: repeated latest-game checks appended full receipt summaries until Clerk rejected `public_metadata` over its 8KB limit (`form_param_exceeds_allowed_size`).
+  - Proof: added `compactChallengeAttempts` in `src/app/actions.ts` so activation, manual submission, and Refresh keep only the latest compact receipts before saving metadata.
+  - Verification: `pnpm lint`; `pnpm build`; production log check after deploy.
 
 - [x] Remove the `board loop` pill from completed quest proof cards.
   - added_at: 2026-05-06 10:57 Europe/Stockholm
