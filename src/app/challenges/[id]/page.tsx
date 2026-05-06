@@ -147,14 +147,21 @@ export default async function ChallengeDetailPage({
         </section>
 
         {isSignedIn && isCompleted ? (
-          <section className="mission-card quest-detail-section" aria-label="Completed quest board proof">
+          <section className="mission-card quest-detail-section" aria-label="Completed quest victory proof">
             <div className="section-head">
               <div>
                 <span className="eyebrow">Completed proof</span>
-                <h2>Make the final position shareable.</h2>
+                <h2>Victory proof is ready.</h2>
               </div>
+              <span className="badge green">accepted</span>
             </div>
-            <ProofPositionBoard attempt={latestPassedAttempt} />
+            <ProofPositionBoard
+              attempt={latestPassedAttempt}
+              challengeTitle={challenge.title}
+              badgeName={challenge.badgeIdentity.name}
+              reward={challenge.reward}
+              sharePath={`/result?challengeId=${challenge.id}`}
+            />
           </section>
         ) : null}
 

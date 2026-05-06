@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:46 Europe/Stockholm
+Last updated: 2026-05-06 15:58 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace Completed Proof placeholder with polished Victory Proof receipt.
+  - added_at: 2026-05-06 15:53 Europe/Stockholm
+  - completed_at: 2026-05-06 15:58 Europe/Stockholm
+  - source: Andreas agreed to convert the Completed Proof section into a proper Victory Proof card with a real board when available, polished fallback when not, and share/copy actions.
+  - Proof: reworked `ProofPositionBoard` to show final board data when present, an accepted-proof receipt fallback when board data is missing, receipt facts, and `ShareProofActions`; updated the challenge detail section heading to `Victory proof is ready.` and removed dev-facing placeholder copy. Proof doc: `docs/SQC_COMPLETED_PROOF_VICTORY_RECEIPT_POLISH_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Move completed-date pill below the seal without covering it.
   - added_at: 2026-05-06 15:42 Europe/Stockholm

@@ -181,7 +181,15 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         </div>
       </div>
       <div className="proof-line">{summary.meta}</div>
-      {status === "passed" ? <ProofPositionBoard attempt={attempt} /> : null}
+      {status === "passed" ? (
+        <ProofPositionBoard
+          attempt={attempt}
+          challengeTitle={challenge.title}
+          badgeName={challenge.badgeIdentity.name}
+          reward={challenge.reward}
+          sharePath={`/result?challengeId=${challenge.id}`}
+        />
+      ) : null}
       <div className="note-card">
         <strong>{nextStep.label}</strong>
         <p>{nextStep.copy}</p>

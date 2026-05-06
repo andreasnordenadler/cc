@@ -1,3 +1,4 @@
+import ShareProofActions from "@/components/share-proof-actions";
 import type { ChallengeAttempt } from "@/lib/user-metadata";
 
 const PIECES: Record<string, string> = {
@@ -21,23 +22,53 @@ type BoardSquare = {
   highlight?: boolean;
 };
 
-export default function ProofPositionBoard({ attempt }: { attempt: ChallengeAttempt | null }) {
+type ProofPositionBoardProps = {
+  attempt: ChallengeAttempt | null;
+  challengeTitle: string;
+  badgeName: string;
+  reward: number;
+  sharePath: string;
+};
+
+export default function ProofPositionBoard({
+  attempt,
+  challengeTitle,
+  badgeName,
+  reward,
+  sharePath,
+}: ProofPositionBoardProps) {
   const board = attempt?.finalPositionFen ? parseFenBoard(attempt.finalPositionFen, attempt.lastMoveUci) : null;
-  const lastMove = attempt?.lastMoveSan ?? attempt?.lastMoveUci ?? "not captured yet";
+  const lastMove = attempt?.lastMoveSan ?? attempt?.lastMoveUci ?? null;
+  const providerLabel = formatProvider(attempt?.provider);
+  const gameLabel = attempt?.gameId ? `${providerLabel} game ${attempt.gameId}` : `${providerLabel} proof accepted`;
+  const proofSummary = attempt?.summary ?? "The verifier accepted this quest and saved the completed proof receipt.";
+  const shareCopy = `I completed “${challengeTitle}” on Side Quest Chess. ${badgeName} unlocked. +${reward} points. Proof accepted: ${proofSummary}`;
 
   return (
-    <article className="note-card proof-position-card" aria-label="Final proof position">
+    <article className="note-card proof-position-card" aria-label="Victory proof receipt">
       <div className="proof-position-copy">
-        <span className="eyebrow">Final proof position</span>
-        <h3>{board ? "Show the receipt, not just the text." : "Chessboard proof slot is ready."}</h3>
+        <span className="eyebrow">Victory proof</span>
+        <h3>{board ? "Final position captured." : "Quest proof accepted."}</h3>
         <p>
           {board
-            ? "This receipt can show the final board with the last move highlighted, so a completed quest becomes visual proof instead of a wall of verifier text."
-            : "Receipts now have a dedicated board slot. Next verifier pass can store final FEN + last move, and completed quests will render the proof board automatically."}
+            ? "The verifier saved the final board position and last move, so this completed quest has a visual receipt ready to share."
+            : "This quest is complete and the verifier accepted the receipt. Final-board data was not captured for this proof, so the receipt leads with the accepted verifier summary instead of showing an empty board."}
         </p>
-        <small>Last move: {lastMove}</small>
+        <div className="proof-receipt-facts" aria-label="Proof receipt details">
+          <span><strong>Quest</strong>{challengeTitle}</span>
+          <span><strong>Receipt</strong>{gameLabel}</span>
+          <span><strong>Last move</strong>{lastMove ?? "Not captured for this proof"}</span>
+        </div>
+        <ShareProofActions
+          copy={shareCopy}
+          challengeTitle={challengeTitle}
+          sharePath={sharePath}
+          copyLabel="Copy victory proof"
+          shareLabel="Share victory proof"
+          idleCopy="Copies the accepted proof summary plus this quest-specific proof link."
+        />
       </div>
-      <div className="proof-board-wrap" data-board-state={board ? "ready" : "pending"}>
+      <div className="proof-board-wrap" data-board-state={board ? "ready" : "receipt"}>
         {board ? (
           <div className="proof-board" role="img" aria-label="Final chess position with last move highlighted">
             {board.map((square) => (
@@ -51,15 +82,20 @@ export default function ProofPositionBoard({ attempt }: { attempt: ChallengeAtte
             ))}
           </div>
         ) : (
-          <div className="proof-board proof-board-empty" role="img" aria-label="Pending final chess position capture">
-            {Array.from({ length: 64 }, (_, index) => (
-              <span key={index} className="proof-board-square" />
-            ))}
+          <div className="proof-receipt-seal" role="img" aria-label="Accepted proof receipt without final board data">
+            <span>Proof accepted</span>
           </div>
         )}
       </div>
     </article>
   );
+}
+
+function formatProvider(provider?: ChallengeAttempt["provider"]): string {
+  if (provider === "lichess") return "Lichess";
+  if (provider === "chess.com") return "Chess.com";
+  if (provider === "fixture") return "Fixture";
+  return "Saved";
 }
 
 function parseFenBoard(fen: string, lastMoveUci?: string): BoardSquare[] | null {
