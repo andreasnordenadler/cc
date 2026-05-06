@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:43 Europe/Stockholm
+Last updated: 2026-05-06 17:48 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Fix Any Game Counts evidence wording and move proof-scroll seal upward.
+  - added_at: 2026-05-06 17:44 Europe/Stockholm
+  - completed_at: 2026-05-06 17:48 Europe/Stockholm
+  - source: Andreas noted `are accepted for` should not dangle and asked to move the wax seal higher into the middle of the empty space below the text.
+  - Proof: rephrased Any Game Counts evidence to `Win, loss, draw, color, and time control all count.`, added sanitizer coverage for old receipts/truncated wording, and moved the proof-scroll seal upward. Proof doc: `docs/SQC_ANY_GAME_COUNTS_EVIDENCE_AND_SEAL_POSITION_2026-05-06.md`.
+  - Verification: grep for `are accepted for`; `pnpm lint`; `pnpm build`.
 
 - [x] Remove `accepted` pill from Completed Proof header.
   - added_at: 2026-05-06 17:40 Europe/Stockholm

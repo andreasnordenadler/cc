@@ -218,6 +218,8 @@ export function sanitizeAttemptSummary(summary?: string): string {
     .replace(/the Any Game Counts passed\./gi, "Any Game Counts is complete.")
     .replace(/Proof Loop Test/gi, "Any Game Counts")
     .replace(/proof loop/gi, "proof check")
+    .replace(/Win, loss, draw, color, and time control are accepted for this test quest\./gi, "Win, loss, draw, color, and time control all count.")
+    .replace(/Win, loss, draw, color, and time control are accepted for\.?/gi, "Win, loss, draw, color, and time control all count.")
     .replace(/\s+/g, " ")
     .trim();
 }
