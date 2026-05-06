@@ -45,8 +45,8 @@ export default async function BrandTestPage() {
             <Image src={assetPath} alt="Ornate SQC alternate logo transparent crop" width={720} height={362} priority />
             <nav className="brand-test-fake-links" aria-label="Preview links">
               <span>Home</span>
-              <span>Quests</span>
-              <span>Quests</span>
+              <span>Side Quests</span>
+              <span>Side Quests</span>
               <span>Today</span>
             </nav>
           </div>

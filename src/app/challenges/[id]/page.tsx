@@ -110,7 +110,7 @@ export default async function ChallengeDetailPage({
       <SiteNav isSignedIn={isSignedIn} active="challenges" />
 
       <div className="content-wrap quest-detail-wrap">
-        <Link href="/challenges" className="button secondary back-to-hub">← Back to Quest Hub</Link>
+        <Link href="/challenges" className="button secondary back-to-hub">← Back to Side Quest Hub</Link>
 
         <section className={`hero-card detail-hero quest-detail-hero ${isActive ? "active-quest-card" : ""} ${isCompleted ? "completed-quest-card" : ""}`}>
           {isActive ? <span className="active-quest-stamp detail-state-stamp" aria-label="Active quest" /> : null}
@@ -142,7 +142,7 @@ export default async function ChallengeDetailPage({
               ) : (
                 <Link href="/connect" className="button primary">Connect to start</Link>
               )}
-              <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Quest</Link>
+              <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Side Quest</Link>
               {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
             </div>
           ) : null}

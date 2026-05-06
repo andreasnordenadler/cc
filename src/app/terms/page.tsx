@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: "Use Side Quest Chess for entertainment.",
-    copy: "Side Quest Chess is a playful chess challenge site. Quests, points, coats of arms, proof receipts, and leaderboards are for fun, bragging rights, and community competition — not financial, professional, or official chess ratings advice.",
+    copy: "Side Quest Chess is a playful chess challenge site. Side quests, points, coats of arms, proof receipts, and leaderboards are for fun, bragging rights, and community competition — not financial, professional, or official chess ratings advice.",
   },
   {
     title: "Only public chess data is checked.",

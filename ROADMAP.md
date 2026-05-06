@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 22:55 Europe/Stockholm
+Last updated: 2026-05-06 22:59 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Rename visible Quests labels to Side Quests.
+  - added_at: 2026-05-06 22:56 Europe/Stockholm
+  - completed_at: 2026-05-06 22:59 Europe/Stockholm
+  - source: Andreas shared a screenshot of the nav and asked “Rename Quests to Side Quests”.
+  - Proof: changed the top nav label plus matching visible hub/share/brand/terms copy while leaving URLs unchanged. Proof doc: `docs/SQC_SIDE_QUESTS_NAV_LABEL_2026-05-06.md`.
+  - Verification: grep for standalone `Quests`; `pnpm lint`; `pnpm build`.
 
 - [x] Simplify completed proof details below the victory scroll.
   - added_at: 2026-05-06 22:49 Europe/Stockholm
