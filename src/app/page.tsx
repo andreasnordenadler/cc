@@ -167,11 +167,21 @@ export default async function Home() {
             Side Quest Chess badges are collectible heraldic receipts: each shield explains the exact nonsense you survived, why it matters, and what your friends should mock respectfully.
           </p>
           <div className="home-badge-art-row" aria-label="Side Quest Chess coat of arms preview">
-            {badgePreviewChallenges.map((challenge) => (
-              <Link key={challenge.id} href="/challenges" className="home-badge-art-link" aria-label="Open quests page">
-                <ChallengeBadge challenge={challenge} presentation="art" earned />
-              </Link>
-            ))}
+            {badgePreviewChallenges.map((challenge) => {
+              const isActiveBadge = isSignedIn && activeQuest?.id === challenge.id;
+
+              return (
+                <Link
+                  key={challenge.id}
+                  href="/challenges"
+                  className={isActiveBadge ? "home-badge-art-link active-home-quest-badge" : "home-badge-art-link"}
+                  aria-label={isActiveBadge ? `Open active quest: ${challenge.title}` : "Open quests page"}
+                >
+                  {isActiveBadge ? <span className="active-quest-stamp home-badge-active-stamp" aria-label="Active quest" /> : null}
+                  <ChallengeBadge challenge={challenge} presentation="art" earned />
+                </Link>
+              );
+            })}
           </div>
         </section>
 

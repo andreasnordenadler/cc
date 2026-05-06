@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 09:51 Europe/Stockholm
+Last updated: 2026-05-06 09:55 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Mark the active quest in the logged-in homepage badge row.
+  - added_at: 2026-05-06 09:55 Europe/Stockholm
+  - completed_at: 2026-05-06 09:55 Europe/Stockholm
+  - source: Andreas screenshot feedback on logged-in homepage badge row.
+  - Proof: if any badge-preview quest matches the current active quest, the homepage badge link now gets a green outline plus the `ACTIVE QUEST` stamp. Proof doc: `docs/SQC_LOGGED_IN_HOME_ACTIVE_BADGE_ROW_STATE_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Switch the logged-in homepage Current run and Coat of Arms sections.
   - added_at: 2026-05-06 09:51 Europe/Stockholm

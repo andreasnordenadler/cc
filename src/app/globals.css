@@ -179,8 +179,10 @@ p { color: var(--muted); line-height: 1.5; }
 .home-badge-vault-card h2 { max-width: 900px; margin-inline: auto; font-size: clamp(2.6rem, 8vw, 5.7rem); line-height: .92; letter-spacing: -.075em; }
 .home-badge-vault-card .hero-copy { margin-inline: auto; }
 .home-badge-art-row { display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2.2vw, 20px); flex-wrap: wrap; padding-top: 4px; }
-.home-badge-art-link { display: inline-grid; place-items: center; border-radius: 24px; text-decoration: none; transition: transform .16s ease, filter .16s ease; }
+.home-badge-art-link { position: relative; display: inline-grid; place-items: center; border-radius: 24px; text-decoration: none; transition: transform .16s ease, filter .16s ease; }
 .home-badge-art-link:hover, .home-badge-art-link:focus-visible { transform: translateY(-2px); filter: brightness(1.08); outline: none; }
+.home-badge-art-link.active-home-quest-badge { outline: 3px solid rgba(96,240,175,.92); outline-offset: 6px; box-shadow: 0 0 0 9px rgba(96,240,175,.12), 0 18px 42px rgba(96,240,175,.16); }
+.home-badge-active-stamp.active-quest-stamp { left: 50%; top: 50%; width: min(118%, 150px); padding: 7px 9px; border-width: 3px; border-radius: 12px; font-size: clamp(.58rem, 1.25vw, .82rem); transform: translate(-50%, -50%) rotate(-10deg); }
 .home-badge-art-row .challenge-badge-art { width: clamp(76px, 11vw, 112px); min-width: clamp(76px, 11vw, 112px); }
 .home-badge-art-row .challenge-badge-art .badge-reference-art { width: clamp(76px, 11vw, 112px); height: clamp(76px, 11vw, 112px); }
 .badges-page-hero h1 { max-width: 900px; margin-inline: auto; text-align: center; }
