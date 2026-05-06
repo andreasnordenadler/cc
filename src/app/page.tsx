@@ -130,20 +130,6 @@ export default async function Home() {
         ) : null}
 
 
-        <section className="hero-card home-badge-vault-card" aria-label="Badge vault preview">
-          <h2>Every bad idea deserves a coat of arms.</h2>
-          <p className="hero-copy">
-            Side Quest Chess badges are collectible heraldic receipts: each shield explains the exact nonsense you survived, why it matters, and what your friends should mock respectfully.
-          </p>
-          <div className="home-badge-art-row" aria-label="Side Quest Chess coat of arms preview">
-            {badgePreviewChallenges.map((challenge) => (
-              <Link key={challenge.id} href="/challenges" className="home-badge-art-link" aria-label="Open quests page">
-                <ChallengeBadge challenge={challenge} presentation="art" earned />
-              </Link>
-            ))}
-          </div>
-        </section>
-
         {isSignedIn ? (
           <section className="card mission-card home-status-card compact-run-card">
             <div className="section-head">
@@ -174,6 +160,22 @@ export default async function Home() {
             </div>
           </section>
         ) : null}
+
+        <section className="hero-card home-badge-vault-card" aria-label="Badge vault preview">
+          <h2>Every bad idea deserves a coat of arms.</h2>
+          <p className="hero-copy">
+            Side Quest Chess badges are collectible heraldic receipts: each shield explains the exact nonsense you survived, why it matters, and what your friends should mock respectfully.
+          </p>
+          <div className="home-badge-art-row" aria-label="Side Quest Chess coat of arms preview">
+            {badgePreviewChallenges.map((challenge) => (
+              <Link key={challenge.id} href="/challenges" className="home-badge-art-link" aria-label="Open quests page">
+                <ChallengeBadge challenge={challenge} presentation="art" earned />
+              </Link>
+            ))}
+          </div>
+        </section>
+
+
 
       </div>
     </main>

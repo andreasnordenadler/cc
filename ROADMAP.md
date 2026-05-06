@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 09:46 Europe/Stockholm
+Last updated: 2026-05-06 09:51 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Switch the logged-in homepage Current run and Coat of Arms sections.
+  - added_at: 2026-05-06 09:51 Europe/Stockholm
+  - completed_at: 2026-05-06 09:51 Europe/Stockholm
+  - source: Andreas screenshot feedback on logged-in homepage ordering.
+  - Proof: moved the logged-in `Current run` card above the `Every bad idea deserves a coat of arms.` badge vault section while preserving signed-out homepage ordering. Proof doc: `docs/SQC_LOGGED_IN_HOME_SECTION_ORDER_SWAP_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Remove the Proof loop panel from the logged-in homepage only.
   - added_at: 2026-05-06 09:46 Europe/Stockholm
