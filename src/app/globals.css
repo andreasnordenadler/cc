@@ -578,14 +578,14 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-log-top-grid .focused-quest-hero h1 { font-size: clamp(3.1rem, 6vw, 5.2rem); margin-bottom: 10px; }
 .quest-log-top-grid .focused-quest-hero .hero-copy { max-width: 58ch; font-size: clamp(1rem, 1.6vw, 1.2rem); }
 .hero-coat-rack { display: grid; grid-template-columns: repeat(8, minmax(38px, 1fr)); gap: clamp(7px, 1vw, 12px); width: 100%; max-width: 720px; margin-top: clamp(18px, 4vw, 58px); align-items: center; }
-.hero-coat-slot { position: relative; display: grid; place-items: center; min-width: 0; aspect-ratio: .82; border-radius: 999px 999px 22px 22px; text-decoration: none; }
-.hero-coat-slot.locked { border: 1.5px solid rgba(255,255,255,.18); background: radial-gradient(circle at 50% 32%, rgba(0,0,0,.34), rgba(0,0,0,.12) 72%); box-shadow: inset 0 0 0 1px rgba(245,200,106,.06); opacity: .78; overflow: hidden; }
-.hero-coat-slot.locked .challenge-badge-art { filter: grayscale(1) brightness(.1) contrast(1.25) drop-shadow(0 0 8px rgba(255,255,255,.14)); opacity: .72; transform: scale(.92); }
+.hero-coat-slot { position: relative; display: grid; place-items: center; min-width: 0; aspect-ratio: .82; border-radius: 999px 999px 22px 22px; text-decoration: none; overflow: hidden; }
+.hero-coat-slot.locked { border: 1.5px solid rgba(255,255,255,.18); background: radial-gradient(circle at 50% 32%, rgba(0,0,0,.34), rgba(0,0,0,.12) 72%); box-shadow: inset 0 0 0 1px rgba(245,200,106,.06); opacity: .78; }
+.hero-coat-slot.locked .challenge-badge-art { filter: grayscale(1) brightness(.1) contrast(1.25) drop-shadow(0 0 8px rgba(255,255,255,.14)); opacity: .72; transform: scale(.92); transform-origin: 50% 50%; }
 .hero-coat-slot.locked .challenge-badge-art::after { display: none; }
 .hero-coat-slot.earned { border: 1px solid rgba(245,200,106,.28); background: radial-gradient(circle at 50% 22%, rgba(245,200,106,.16), rgba(0,0,0,.12) 72%); transition: transform .16s ease, border-color .16s ease; }
 .hero-coat-slot.earned:hover, .hero-coat-slot.earned:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.52); outline: none; }
-.hero-coat-slot .challenge-badge-art,
-.hero-coat-slot .challenge-badge-art .badge-reference-art { width: min(100%, 72px); height: min(100%, 72px); }
+.hero-coat-slot .challenge-badge-art { width: min(100%, 72px); height: min(100%, 72px); min-width: 0; display: grid; place-items: center; justify-self: center; align-self: center; }
+.hero-coat-slot .challenge-badge-art .badge-reference-art { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center center; }
 .quest-log-top-grid .focused-quest-hero .stats-row span { min-width: 95px; padding: 8px 10px; }
 .quest-log-top-grid .compact-current-quest-card { padding: clamp(18px, 3vw, 26px); align-content: start; }
 .quest-log-top-grid .compact-current-quest-card .section-head { width: 100%; align-items: start; }
