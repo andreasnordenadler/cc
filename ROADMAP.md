@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:25 Europe/Stockholm
+Last updated: 2026-05-06 10:27 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Document the approved SQC great-version baseline.
+  - added_at: 2026-05-06 10:27 Europe/Stockholm
+  - completed_at: 2026-05-06 10:27 Europe/Stockholm
+  - source: Andreas said he is very happy with the logged-in homepage and asked to document this whole-project version as a great version before continuing tweaks.
+  - Proof: created `docs/SQC_GREAT_VERSION_BASELINE_2026-05-06.md` documenting the approved production state, baseline code commit `c479b8d`, live deployment, logged-in homepage decisions, My Quest Log cleanup, Coat of Arms clickability, and verification.
+  - Verification: live smoke checks for `/`, `/badges`, `/account`, `/challenges`; Vercel inspect Ready; tracked tree clean before baseline doc creation.
 
 - [x] Make full Coat of Arms quest cards clickable.
   - added_at: 2026-05-06 10:25 Europe/Stockholm
