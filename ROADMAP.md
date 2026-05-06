@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:09 Europe/Stockholm
+Last updated: 2026-05-06 15:18 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Integrate seal `Side Quest Chess` ribbon text and reduce completion pill slant.
+  - added_at: 2026-05-06 15:10 Europe/Stockholm
+  - completed_at: 2026-05-06 15:18 Europe/Stockholm
+  - source: Andreas clarified that `Side Quest Chess` should be part of the seal itself like the original coat-of-arms banner, and that the `Quest completed...` pill was slightly too slanted.
+  - Proof: created `public/stamps/quest-complete-premium-red-wax-sqc-v14.png` with debossed red-on-red `SIDE QUEST CHESS` lettering inside the lower ribbon/banner, updated CSS to use v14, and reduced the completion pill slant by adjusting its rotation. Proof doc: `docs/SQC_COMPLETED_QUEST_WAX_SEAL_RIBBON_TEXT_ANGLE_FIX_2026-05-06.md`.
+  - Verification: visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Polish completed wax seal opacity, angle, and source text visibility.
   - added_at: 2026-05-06 15:04 Europe/Stockholm
