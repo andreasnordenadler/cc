@@ -2399,7 +2399,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
         return {
           status: "passed",
           gameId,
-          summary: `Verified Chess.com game. ${username} appears in a finished public game, so the Any Game Counts passed.`,
+          summary: `Verified Chess.com game. ${username} appears in a finished public game, so Any Game Counts is complete.`,
           completedGameAt: getChessComCompletedGameAt(match),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control are accepted for this test quest."],
         };

@@ -205,9 +205,21 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
 
   return {
     headline: statusLabel,
-    detail: attempt.summary ?? "Latest attempt saved.",
+    detail: sanitizeAttemptSummary(attempt.summary),
     meta: `${gameLabel} • Updated ${formatTime(attempt.checkedAt)}`,
   };
+}
+
+export function sanitizeAttemptSummary(summary?: string): string {
+  if (!summary) return "Latest attempt saved.";
+
+  return summary
+    .replace(/the Proof Loop Test passed\./gi, "Any Game Counts is complete.")
+    .replace(/the Any Game Counts passed\./gi, "Any Game Counts is complete.")
+    .replace(/Proof Loop Test/gi, "Any Game Counts")
+    .replace(/proof loop/gi, "proof check")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function formatTime(value?: string): string {

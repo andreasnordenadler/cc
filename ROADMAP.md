@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:34 Europe/Stockholm
+Last updated: 2026-05-06 17:39 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Rephrase leftover Any Game Counts pass summary and proof-scroll punctuation.
+  - added_at: 2026-05-06 17:35 Europe/Stockholm
+  - completed_at: 2026-05-06 17:39 Europe/Stockholm
+  - source: Andreas noticed `the Proof Loop Test passed.` still appeared and asked to rephrase it and examine the punctuation of the last sentence.
+  - Proof: changed new verifier summaries to `Any Game Counts is complete.`, added `sanitizeAttemptSummary` for old saved receipts, and changed proof-scroll final line punctuation to `Proof accepted: <quest> — <summary>`. Proof doc: `docs/SQC_SANITIZE_ANY_GAME_COUNTS_SUMMARY_2026-05-06.md`.
+  - Verification: grep for old pass strings in `src`; `pnpm lint`; `pnpm build`.
 
 - [x] Remove internal `proof loop` / `loop` language from user-facing copy.
   - added_at: 2026-05-06 17:29 Europe/Stockholm

@@ -1,7 +1,7 @@
 import ChallengeBadge from "@/components/challenge-badge";
 import ShareProofActions from "@/components/share-proof-actions";
 import type { Challenge } from "@/lib/challenges";
-import type { ChallengeAttempt } from "@/lib/user-metadata";
+import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
 
 const PIECES: Record<string, string> = {
   K: "♔",
@@ -39,7 +39,7 @@ export default function ProofPositionBoard({
   const lastMove = attempt?.lastMoveSan ?? attempt?.lastMoveUci ?? null;
   const providerLabel = formatProvider(attempt?.provider);
   const gameLabel = attempt?.gameId ? `${providerLabel} game ${attempt.gameId}` : `${providerLabel} proof accepted`;
-  const proofSummary = attempt?.summary ?? "The verifier accepted this quest and saved the completed proof receipt.";
+  const proofSummary = sanitizeAttemptSummary(attempt?.summary);
   const achievementCopy = buildAchievementCopy(challenge, attempt);
   const scrollDate = formatScrollDate(attempt?.completedGameAt ?? attempt?.checkedAt);
   const shareCopy = `${achievementCopy} ${challenge.badgeIdentity.name} unlocked on Side Quest Chess. +${challenge.reward} points.`;
@@ -92,7 +92,7 @@ export default function ProofPositionBoard({
             <h3>{challenge.badgeIdentity.name}</h3>
             <p className="victory-scroll-copy">{achievementCopy}</p>
             <p className="victory-scroll-proof">
-              Proof accepted for <strong>{challenge.title}</strong>. {proofSummary}
+              Proof accepted: <strong>{challenge.title}</strong> — {proofSummary}
             </p>
             <div className="victory-scroll-footer">
               <span>{scrollDate}</span>

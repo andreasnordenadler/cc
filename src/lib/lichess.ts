@@ -236,7 +236,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
     return {
       status: "passed",
       gameId,
-      summary: `Verified ${gameId}. ${username} appears in a finished public Lichess game, so the Any Game Counts passed.`,
+      summary: `Verified ${gameId}. ${username} appears in a finished public Lichess game, so Any Game Counts is complete.`,
       completedGameAt: getCompletedGameAt(game),
       evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control are accepted for this test quest."],
       ...proofPosition,
