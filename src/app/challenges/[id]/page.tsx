@@ -6,6 +6,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofPositionBoard from "@/components/proof-position-board";
+import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge } from "@/app/actions";
@@ -20,6 +21,7 @@ import {
   getLatestChallengeAttempt,
   getLichessUsername,
   formatTime,
+  sanitizeAttemptSummary,
   type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -157,8 +159,37 @@ export default async function ChallengeDetailPage({
             <ProofPositionBoard
               attempt={latestPassedAttempt}
               challenge={challenge}
-              sharePath={`/result?challengeId=${challenge.id}`}
             />
+          </section>
+        ) : null}
+
+        {isSignedIn && isCompleted ? (
+          <section className="mission-card quest-detail-section proof-details-section" aria-label="Completed quest proof details">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Proof details</span>
+                <h2>Links, receipt, and share text.</h2>
+              </div>
+            </div>
+            <div className="proof-receipt-facts proof-details-grid" aria-label="Proof receipt details">
+              <span><strong>Quest</strong>{challenge.title}</span>
+              <span><strong>Receipt</strong>{formatProofReceiptLabel(latestPassedAttempt)}</span>
+              <span><strong>Last move</strong>{latestPassedAttempt?.lastMoveSan ?? latestPassedAttempt?.lastMoveUci ?? "Not captured for this proof"}</span>
+              <span><strong>Checked</strong>{formatTime(latestPassedAttempt?.checkedAt)}</span>
+            </div>
+            <p>{sanitizeAttemptSummary(latestPassedAttempt?.summary)}</p>
+            <ShareProofActions
+              copy={buildCompletedQuestShareCopy(challenge, latestPassedAttempt)}
+              challengeTitle={challenge.title}
+              sharePath={`/result?challengeId=${challenge.id}`}
+              copyLabel="Copy scroll text"
+              shareLabel="Share victory scroll"
+              idleCopy="Copies the completed-quest text plus the proof link, separate from the visual scroll."
+            />
+            <div className="button-row">
+              <Link href={`/result?challengeId=${challenge.id}`} className="button secondary">Open proof page</Link>
+              <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            </div>
           </section>
         ) : null}
 
@@ -293,6 +324,20 @@ function getDifficultyTone(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return "orange";
   if (difficulty === "Absurd") return "absurd";
   return "danger";
+}
+
+function formatProofReceiptLabel(attempt: ChallengeAttempt | null) {
+  if (!attempt) return "Saved proof receipt";
+
+  const provider = attempt.provider === "lichess" ? "Lichess" : attempt.provider === "chess.com" ? "Chess.com" : "Saved";
+
+  return attempt.gameId ? `${provider} game ${attempt.gameId}` : `${provider} proof receipt`;
+}
+
+function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAttempt | null) {
+  const summary = sanitizeAttemptSummary(attempt?.summary);
+
+  return `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points. ${summary}`;
 }
 
 function formatCompletedDate(value: string): string {

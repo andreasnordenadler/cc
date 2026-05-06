@@ -1,5 +1,4 @@
 import ChallengeBadge from "@/components/challenge-badge";
-import ShareProofActions from "@/components/share-proof-actions";
 import type { Challenge } from "@/lib/challenges";
 import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
 
@@ -27,47 +26,19 @@ type BoardSquare = {
 type ProofPositionBoardProps = {
   attempt: ChallengeAttempt | null;
   challenge: Challenge;
-  sharePath: string;
 };
 
 export default function ProofPositionBoard({
   attempt,
   challenge,
-  sharePath,
 }: ProofPositionBoardProps) {
   const board = attempt?.finalPositionFen ? parseFenBoard(attempt.finalPositionFen, attempt.lastMoveUci) : null;
-  const lastMove = attempt?.lastMoveSan ?? attempt?.lastMoveUci ?? null;
-  const providerLabel = formatProvider(attempt?.provider);
-  const gameLabel = attempt?.gameId ? `${providerLabel} game ${attempt.gameId}` : `${providerLabel} proof accepted`;
   const proofSummary = sanitizeAttemptSummary(attempt?.summary);
   const achievementCopy = buildAchievementCopy(challenge, attempt);
   const scrollDate = formatScrollDate(attempt?.completedGameAt ?? attempt?.checkedAt);
-  const shareCopy = `${achievementCopy} ${challenge.badgeIdentity.name} unlocked on Side Quest Chess. +${challenge.reward} points.`;
 
   return (
-    <article className="note-card proof-position-card" aria-label="Victory proof receipt">
-      <div className="proof-position-copy">
-        <span className="eyebrow">Victory proof</span>
-        <h3>{board ? "Final position captured." : "Your victory scroll is ready."}</h3>
-        <p>
-          {board
-            ? "The verifier saved the final board position and last move, so this completed quest has a visual receipt ready to share."
-            : "The verifier accepted the quest. Since this receipt does not include final-board data, the shareable proof leads with the unlocked coat of arms, the ridiculous achievement, and the seal of approval."}
-        </p>
-        <div className="proof-receipt-facts" aria-label="Proof receipt details">
-          <span><strong>Quest</strong>{challenge.title}</span>
-          <span><strong>Receipt</strong>{gameLabel}</span>
-          <span><strong>Last move</strong>{lastMove ?? "Not captured for this proof"}</span>
-        </div>
-        <ShareProofActions
-          copy={shareCopy}
-          challengeTitle={challenge.title}
-          sharePath={sharePath}
-          copyLabel="Copy scroll text"
-          shareLabel="Share victory scroll"
-          idleCopy="Copies the lightly official good-news scroll text plus this quest-specific proof link."
-        />
-      </div>
+    <article className="note-card proof-position-card proof-position-visual-card" aria-label="Victory proof receipt">
       <div className="proof-board-wrap" data-board-state={board ? "ready" : "scroll"}>
         {board ? (
           <div className="proof-board" role="img" aria-label="Final chess position with last move highlighted">
@@ -107,7 +78,7 @@ export default function ProofPositionBoard({
 }
 
 function buildAchievementCopy(challenge: Challenge, attempt?: ChallengeAttempt | null) {
-  const summary = attempt?.summary ?? challenge.objective;
+  const summary = sanitizeAttemptSummary(attempt?.summary) ?? challenge.objective;
 
   if (challenge.id === "finish-any-game") {
     return "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms.";
@@ -135,13 +106,6 @@ function formatScrollDate(value?: string) {
   if (Number.isNaN(date.getTime())) return "Recorded by the suspicious little verifier";
 
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
-}
-
-function formatProvider(provider?: ChallengeAttempt["provider"]): string {
-  if (provider === "lichess") return "Lichess";
-  if (provider === "chess.com") return "Chess.com";
-  if (provider === "fixture") return "Fixture";
-  return "Saved";
 }
 
 function parseFenBoard(fen: string, lastMoveUci?: string): BoardSquare[] | null {

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:52 Europe/Stockholm
+Last updated: 2026-05-06 20:50 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Clean up Completed Proof section into visual scroll plus separate proof details.
+  - added_at: 2026-05-06 20:44 Europe/Stockholm
+  - completed_at: 2026-05-06 20:50 Europe/Stockholm
+  - source: Andreas said the left side of the Completed Proof section did not make sense and suggested removing it and using a separate section for links/data.
+  - Proof: made `ProofPositionBoard` visual-only, centered the scroll, and added a separate `Proof details` section with receipt data, sanitized proof summary, share actions, and links. Proof doc: `docs/SQC_COMPLETED_PROOF_SECTION_CLEANUP_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Rotate victory scroll wax seal slightly clockwise.
   - added_at: 2026-05-06 17:49 Europe/Stockholm

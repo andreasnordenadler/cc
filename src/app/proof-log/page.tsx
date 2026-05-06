@@ -185,7 +185,6 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
         <ProofPositionBoard
           attempt={attempt}
           challenge={challenge}
-          sharePath={`/result?challengeId=${challenge.id}`}
         />
       ) : null}
       <div className="note-card">
