@@ -2460,3 +2460,31 @@ For one-off image processing, prefer a workspace-local temporary venv (`tmp/imgv
 - Tags: image-processing, pillow, swift-toolchain
 
 ---
+
+## [ERR-20260506-001] zsh_bracket_route_git_add
+
+**Logged**: 2026-05-06T23:02:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tooling
+
+### Summary
+A `git add` command failed because zsh expanded an unquoted Next.js dynamic route path containing `[token]`.
+
+### Error
+```text
+zsh:1: no matches found: src/app/api/og/proof/[token]/route.tsx
+```
+
+### Context
+- Attempted to add `src/app/api/og/proof/[token]/route.tsx` without quotes.
+- Retried with the path quoted and the commit/deploy continued successfully.
+
+### Suggested Fix
+Always quote Next.js dynamic route paths with brackets when using zsh, e.g. `'src/app/api/og/proof/[token]/route.tsx'`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: src/app/api/og/proof/[token]/route.tsx
+
+---
