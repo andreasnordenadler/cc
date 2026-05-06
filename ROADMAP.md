@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 13:42 Europe/Stockholm
+Last updated: 2026-05-06 13:52 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace red logo-style completion mark with a genuinely wax-realistic seal.
+  - added_at: 2026-05-06 13:43 Europe/Stockholm
+  - completed_at: 2026-05-06 13:52 Europe/Stockholm
+  - source: Andreas corrected that the previous attempt still did not look like a wax seal.
+  - Proof: replaced the seal with `public/stamps/quest-complete-premium-red-wax-sqc-v9.png`, a photorealistic red wax render with irregular melted edges, glossy wax depth, dents/pits, and embossed SQC-style crest impression; added a radial CSS mask to prevent square matte edges. Proof doc: `docs/SQC_COMPLETED_QUEST_PREMIUM_WAX_SEAL_FIX_2026-05-06.md`.
+  - Verification: strict visual inspection; `pnpm lint`; `pnpm build`.
 
 - [x] Change completed quest award date copy from game language to quest language.
   - added_at: 2026-05-06 13:40 Europe/Stockholm
