@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:31 Europe/Stockholm
+Last updated: 2026-05-06 15:39 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Preserve Andreas-provided canonical SQC wax seal and use it in completed quest hero.
+  - added_at: 2026-05-06 15:34 Europe/Stockholm
+  - completed_at: 2026-05-06 15:39 Europe/Stockholm
+  - source: Andreas provided the final wax seal image and said to use it as the wax seal and keep the file because it will be reused a lot.
+  - Proof: preserved exact source as `public/stamps/sqc-wax-seal-canonical-source.png`, created transparent UI asset `public/stamps/sqc-wax-seal-canonical.png`, and updated completed quest CSS to use the canonical asset. Proof doc: `docs/SQC_CANONICAL_WAX_SEAL_ASSET_2026-05-06.md`.
+  - Verification: dark-background visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Redo completed wax seal with original coat-of-arms text built in.
   - added_at: 2026-05-06 15:25 Europe/Stockholm
