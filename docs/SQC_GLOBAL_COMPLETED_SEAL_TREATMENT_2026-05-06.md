@@ -9,6 +9,7 @@ Andreas pointed out that completed quest cards still used the old yellow `Comple
   - canonical SQC wax seal asset
   - horizontal `Quest completed` pill beneath it
 - Added compact card-specific completed-award CSS so the seal/pill fits quest cards without covering too much of the content.
+- Removed the obsolete `completed-quest-stamp.svg` asset and its CSS class so the yellow stamp cannot be reused accidentally.
 - Kept the larger completed quest detail hero treatment intact.
 
 ## Verification
