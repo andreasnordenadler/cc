@@ -90,6 +90,8 @@ export default async function ChallengeDetailPage({
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const latestPassedAttempt = attempts.find((attempt) => attempt.status === "passed") ?? (latestAttempt?.status === "passed" ? latestAttempt : null);
+  const completedDate = latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? activeChallenge?.verifiedAt;
+  const completedDateLabel = completedDate ? formatCompletedDate(completedDate) : "Completion date pending next proof check";
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
   const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
@@ -110,7 +112,13 @@ export default async function ChallengeDetailPage({
 
         <section className={`hero-card detail-hero quest-detail-hero ${isActive ? "active-quest-card" : ""} ${isCompleted ? "completed-quest-card" : ""}`}>
           {isActive ? <span className="active-quest-stamp detail-state-stamp" aria-label="Active quest" /> : null}
-          {isCompleted && !isActive ? <span className="completed-quest-stamp detail-state-stamp" aria-label="Completed quest" /> : null}
+          {isCompleted ? (
+            <div className="completed-quest-award" aria-label={`Quest completed. ${completedDateLabel}.`}>
+              <span className="completed-quest-award-seal" aria-hidden="true" />
+              <span className="completed-quest-award-text">Quest completed</span>
+              <small>{completedDate ? `Game completed ${completedDateLabel}` : completedDateLabel}</small>
+            </div>
+          ) : null}
           <div className="quest-detail-meta card-meta quest-card-meta">
             <strong className="quest-points">+{challenge.reward} pts</strong>
             <span className={`badge difficulty-badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
@@ -124,19 +132,19 @@ export default async function ChallengeDetailPage({
             </div>
             <ChallengeBadge challenge={challenge} earned={isCompleted} size="hero" presentation="art" />
           </div>
-          <div className="button-row hero-actions quest-detail-actions">
-            {isSignedIn ? (
-              isActive || isCompleted ? null : (
-                <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
-              )
-            ) : (
-              <Link href="/connect" className="button primary">Connect to start</Link>
-            )}
-            <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Quest</Link>
-            {isCompleted ? <Link href={`/result?challengeId=${challenge.id}`} className="button primary">Victory proof</Link> : null}
-            {isCompleted ? <Link href="/proof-log" className="button secondary">Proof log</Link> : null}
-            {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
-          </div>
+          {!isCompleted ? (
+            <div className="button-row hero-actions quest-detail-actions">
+              {isSignedIn ? (
+                isActive ? null : (
+                  <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
+                )
+              ) : (
+                <Link href="/connect" className="button primary">Connect to start</Link>
+              )}
+              <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Quest</Link>
+              {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
+            </div>
+          ) : null}
         </section>
 
         {isSignedIn && isCompleted ? (
@@ -177,13 +185,7 @@ export default async function ChallengeDetailPage({
               <p>{latestAttemptSummary.detail}</p>
               <small>{latestAttemptSummary.meta}</small>
             </article>
-            {isCompleted ? (
-              <div className="button-row quest-status-refresh">
-                <Link href={`/result?challengeId=${challenge.id}`} className="button primary">View victory proof</Link>
-                <Link href="/proof-log" className="button secondary">Open proof log</Link>
-                <Link href="/challenges" className="button pink">Pick next quest</Link>
-              </div>
-            ) : (
+            {isCompleted ? null : (
               <form action={checkActiveChallenge} className="quest-status-refresh">
                 <button type="submit" className="button primary">Refresh</button>
               </form>
@@ -208,7 +210,7 @@ export default async function ChallengeDetailPage({
           </div>
         </section>
 
-        <section className="mission-card quest-detail-section" aria-label="Friend quest handoff">
+        {!isCompleted ? <section className="mission-card quest-detail-section" aria-label="Friend quest handoff">
           <div className="section-head">
             <div>
               <span className="eyebrow">Friend dare</span>
@@ -225,7 +227,7 @@ export default async function ChallengeDetailPage({
             reward={challenge.reward}
             badgeName={challenge.badgeIdentity.name}
           />
-        </section>
+        </section> : null}
 
 
       </div>
@@ -288,4 +290,20 @@ function getDifficultyTone(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return "orange";
   if (difficulty === "Absurd") return "absurd";
   return "danger";
+}
+
+function formatCompletedDate(value: string): string {
+  const parsed = Date.parse(value);
+
+  if (Number.isNaN(parsed)) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
 }

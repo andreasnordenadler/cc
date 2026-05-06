@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 11:51 Europe/Stockholm
+Last updated: 2026-05-06 12:55 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Make completed quest page feel like an award state.
+  - added_at: 2026-05-06 12:45 Europe/Stockholm
+  - completed_at: 2026-05-06 12:55 Europe/Stockholm
+  - source: Andreas screenshot feedback on `/challenges/finish-any-game`: make the stamp much more prominent, maybe with custom graphic, remove buttons, and add completion date based on actual game time.
+  - Proof: generated `public/stamps/quest-complete-seal.png`; replaced the subtle completed stamp with a large celebratory award seal and `Game completed ...` date line; added `completedGameAt` to attempts and populated it from Lichess `lastMoveAt`/`createdAt` and Chess.com `end_time`; removed completed-state hero/status/friend-dare buttons from quest detail pages. Proof doc: `docs/SQC_COMPLETED_QUEST_AWARD_PAGE_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Add real Lichess final-position proof-board data for completed receipts.
   - added_at: 2026-05-06 11:43 Europe/Stockholm

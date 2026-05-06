@@ -7,6 +7,7 @@ import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 export type ChessComVerificationVerdict = {
   status: "passed" | "failed" | "pending";
   summary: string;
+  completedGameAt?: string;
 };
 
 type QueenChallengeSide = "white" | "black";
@@ -264,6 +265,10 @@ function getPlayerSideForUsername(game: ChessComGame, chessComUsername: string):
   }
 
   return null;
+}
+
+function getChessComCompletedGameAt(game: ChessComGame): string | undefined {
+  return typeof game.end_time === "number" ? new Date(game.end_time * 1000).toISOString() : undefined;
 }
 
 async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Promise<ChessComGame | null | undefined> {
@@ -2298,6 +2303,7 @@ async function verifyChessComFinishedGameWithSideRequirement({
     return {
       status: "passed",
       summary: passSummary,
+      completedGameAt: getChessComCompletedGameAt(game),
     };
   } catch {
     return {
@@ -2394,6 +2400,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
           status: "passed",
           gameId,
           summary: `Verified Chess.com game. ${username} appears in a finished public game, so the Proof Loop Test passed.`,
+          completedGameAt: getChessComCompletedGameAt(match),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control are accepted for this test quest."],
         };
       }

@@ -186,8 +186,9 @@ function compactChallengeAttempts(attempts: ChallengeAttempt[], maxRecentAttempt
   );
 }
 
-function pickProofPositionFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
+function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
   return {
+    completedGameAt: attempt.completedGameAt,
     finalPositionFen: attempt.finalPositionFen,
     lastMoveUci: attempt.lastMoveUci,
     lastMoveSan: attempt.lastMoveSan,
@@ -701,7 +702,7 @@ export async function startChallenge(formData: FormData) {
           status: check.status,
           summary: check.summary,
           checkedAt: now,
-          ...pickProofPositionFields(check),
+          ...pickProofReceiptFields(check),
         })),
       ]),
       challengeProgress: {
@@ -854,7 +855,7 @@ export async function submitChallengeAttempt(formData: FormData) {
           status: verification.status,
           summary: verification.summary,
           checkedAt: now,
-          ...pickProofPositionFields(verification),
+          ...pickProofReceiptFields(verification),
         },
       ]),
       challengeProgress: {
@@ -942,7 +943,7 @@ export async function checkActiveChallenge() {
           status: check.status,
           summary: check.summary,
           checkedAt: now,
-          ...pickProofPositionFields(check),
+          ...pickProofReceiptFields(check),
         })),
       ]),
       challengeProgress: {
