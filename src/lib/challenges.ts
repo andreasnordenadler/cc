@@ -68,6 +68,7 @@ export const CHALLENGES: Challenge[] = [
         weirdness: "A noble house founded entirely to test buttons in production.",
       },
       colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.42)" },
+      image: "/badges/v6/proof-loop-test-badge.png",
     },
     proofCallout: "Any public finished game · win, loss, or draw accepted",
     rules: [

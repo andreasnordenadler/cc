@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:47 Europe/Stockholm
+Last updated: 2026-05-06 10:52 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Create proper coat of arms for Proof Loop Test.
+  - added_at: 2026-05-06 10:48 Europe/Stockholm
+  - completed_at: 2026-05-06 10:52 Europe/Stockholm
+  - source: Andreas asked for a proper coat of arms for the new test quest.
+  - Proof: generated `public/badges/v6/proof-loop-test-badge.png` and wired `finish-any-game` / `Proof Loop Test` to use it as `The Rubber Stamp Rampart`. Proof doc: `docs/SQC_PROOF_LOOP_TEST_COAT_OF_ARMS_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Add a complete Proof Loop Test quest for testing completion.
   - added_at: 2026-05-06 10:40 Europe/Stockholm
