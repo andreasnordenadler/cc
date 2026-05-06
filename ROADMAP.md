@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:20 Europe/Stockholm
+Last updated: 2026-05-06 17:28 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Fix Completed Proof victory scroll bottom pill visibility.
+  - added_at: 2026-05-06 17:23 Europe/Stockholm
+  - completed_at: 2026-05-06 17:28 Europe/Stockholm
+  - source: Andreas loved the scroll but noted the date/points pill at the bottom was not visible and suggested making the scroll wider while compacting the text to the left.
+  - Proof: updated Completed Proof layout CSS so the left copy column is more compact, the scroll column is wider/taller, scroll text wraps less, and date/points pills have bottom clearance above the seal. Proof doc: `docs/SQC_COMPLETED_PROOF_SCROLL_LAYOUT_FIX_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Use victory scroll in Completed Proof fallback when board data is missing.
   - added_at: 2026-05-06 17:16 Europe/Stockholm
