@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 16:07 Europe/Stockholm
+Last updated: 2026-05-06 16:12 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Clean connected accounts card on My Quest Log.
+  - added_at: 2026-05-06 16:10 Europe/Stockholm
+  - completed_at: 2026-05-06 16:12 Europe/Stockholm
+  - source: Andreas shared a screenshot and asked to remove `Ready for proof`, the `2/2 connected` pill, and the `Update accounts` button.
+  - Proof: updated `src/app/account/page.tsx` so connected state no longer shows the ready headline, count pill, or update button; connect CTA remains only when no chess identity exists. Proof doc: `docs/SQC_ACCOUNT_CONNECTED_ACCOUNTS_CLEANUP_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Replace old yellow completed stamp on quest cards with canonical wax seal treatment.
   - added_at: 2026-05-06 16:03 Europe/Stockholm

@@ -40,8 +40,7 @@ export default async function MyQuestLogPage() {
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
     : null;
-  const connectedCount = [lichessUsername, chessComUsername].filter(Boolean).length;
-  const hasChessIdentity = connectedCount > 0;
+  const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
 
   return (
     <main className="site-shell">
@@ -123,11 +122,8 @@ export default async function MyQuestLogPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Connected accounts</span>
-              <h2>{hasChessIdentity ? "Ready for proof." : "Connect chess account."}</h2>
+              {!hasChessIdentity ? <h2>Connect chess account.</h2> : null}
             </div>
-            <span className={hasChessIdentity ? "badge green" : "badge blue"}>
-              {connectedCount}/2 connected
-            </span>
           </div>
           <div className="account-connection-grid">
             <article className={lichessUsername ? "connection-card connected" : "connection-card"}>
@@ -142,7 +138,7 @@ export default async function MyQuestLogPage() {
             </article>
           </div>
           <div className="button-row">
-            <Link href="/connect" className="button primary">{hasChessIdentity ? "Update accounts" : "Connect chess account"}</Link>
+            {!hasChessIdentity ? <Link href="/connect" className="button primary">Connect chess account</Link> : null}
             <Link href="/profile" className="button secondary">Edit profile</Link>
           </div>
         </section>
