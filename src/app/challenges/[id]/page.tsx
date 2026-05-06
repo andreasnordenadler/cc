@@ -177,11 +177,10 @@ export default async function ChallengeDetailPage({
               copyLabel="Copy proof"
               shareLabel="Share proof"
               idleCopy=""
-            />
-            <div className="button-row compact-proof-links">
+            >
               <Link href={`/result?challengeId=${challenge.id}`} className="button secondary">Proof page</Link>
               <Link href="/proof-log" className="button secondary">Proof log</Link>
-            </div>
+            </ShareProofActions>
           </section>
         ) : null}
 

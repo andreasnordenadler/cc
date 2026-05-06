@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 22:59 Europe/Stockholm
+Last updated: 2026-05-06 23:04 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Put proof details buttons on one row.
+  - added_at: 2026-05-06 23:01 Europe/Stockholm
+  - completed_at: 2026-05-06 23:04 Europe/Stockholm
+  - source: Andreas shared a screenshot and asked to “put all buttons on one row”.
+  - Proof: `Copy proof`, `Share proof`, `Proof page`, and `Proof log` now render in one action row, with mobile wrapping only for narrow screens. Proof doc: `docs/SQC_PROOF_DETAILS_SINGLE_BUTTON_ROW_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Rename visible Quests labels to Side Quests.
   - added_at: 2026-05-06 22:56 Europe/Stockholm

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { type ReactNode, useMemo, useState } from "react";
 
 type ShareProofActionsProps = {
   copy: string;
@@ -9,6 +9,7 @@ type ShareProofActionsProps = {
   copyLabel?: string;
   shareLabel?: string;
   idleCopy?: string;
+  children?: ReactNode;
 };
 
 export default function ShareProofActions({
@@ -18,6 +19,7 @@ export default function ShareProofActions({
   copyLabel = "Copy receipt",
   shareLabel = "Share quest",
   idleCopy = "Copies the current result text plus this proof-card link. No PGN upload, no homework.",
+  children,
 }: ShareProofActionsProps) {
   const [status, setStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
   const shareUrl = useMemo(() => {
@@ -58,6 +60,7 @@ export default function ShareProofActions({
       <div className="button-row">
         <button type="button" className="button primary" onClick={copyReceipt}>{copyLabel}</button>
         <button type="button" className="button secondary" onClick={shareReceipt}>{shareLabel}</button>
+        {children}
       </div>
       <p className="microcopy">
         {status === "copied"
