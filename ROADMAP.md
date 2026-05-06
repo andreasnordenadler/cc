@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 11:10 Europe/Stockholm
+Last updated: 2026-05-06 11:15 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove square background from Proof Loop Test coat of arms.
+  - added_at: 2026-05-06 11:12 Europe/Stockholm
+  - completed_at: 2026-05-06 11:15 Europe/Stockholm
+  - source: Andreas screenshot feedback on the Proof Loop Test badge.
+  - Proof: converted `public/badges/v6/proof-loop-test-badge.png` from an opaque square-backed RGB PNG into a transparent RGBA crest asset.
+  - Verification: transparency preview on magenta; `pnpm lint`; `pnpm build`.
 
 - [x] Turn completed active quest status from refresh/checking into proof actions.
   - added_at: 2026-05-06 11:07 Europe/Stockholm

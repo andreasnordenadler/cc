@@ -2437,3 +2437,26 @@ Keep public metadata compact. Store only a bounded number of recent attempts and
 - Tags: clerk, metadata-limit, server-action, sqc
 
 ---
+
+## [ERR-20260506-004] local_image_background_removal_missing_tools
+
+**Logged**: 2026-05-06T11:14:00+02:00
+**Priority**: low
+**Status**: fixed
+**Area**: assets
+
+### Summary
+Initial local background-removal attempts failed because Python lacked Pillow and Swift could not compile against the installed SDK/toolchain.
+
+### Details
+`python3` raised `ModuleNotFoundError: No module named 'PIL'`. A Swift/CoreGraphics script failed with SDK/compiler mismatch errors. A temporary workspace-local venv with Pillow succeeded and avoided adding a project dependency.
+
+### Suggested Action
+For one-off image processing, prefer a workspace-local temporary venv (`tmp/imgvenv`) rather than changing project dependencies. Consider installing/standardizing an image tool if this becomes frequent.
+
+### Metadata
+- Source: command_failure
+- Related Files: public/badges/v6/proof-loop-test-badge.png
+- Tags: image-processing, pillow, swift-toolchain
+
+---
