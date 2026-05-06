@@ -153,7 +153,6 @@ export default async function ChallengeDetailPage({
                 <span className="eyebrow">Completed proof</span>
                 <h2>Victory proof is ready.</h2>
               </div>
-              <span className="badge green">accepted</span>
             </div>
             <ProofPositionBoard
               attempt={latestPassedAttempt}

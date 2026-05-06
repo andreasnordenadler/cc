@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:39 Europe/Stockholm
+Last updated: 2026-05-06 17:43 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove `accepted` pill from Completed Proof header.
+  - added_at: 2026-05-06 17:40 Europe/Stockholm
+  - completed_at: 2026-05-06 17:43 Europe/Stockholm
+  - source: Andreas shared a screenshot and asked to remove the `accepted` pill.
+  - Proof: removed the green `accepted` badge from the completed proof section header while keeping the victory scroll/proof content intact. Proof doc: `docs/SQC_COMPLETED_PROOF_REMOVE_ACCEPTED_PILL_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Rephrase leftover Any Game Counts pass summary and proof-scroll punctuation.
   - added_at: 2026-05-06 17:35 Europe/Stockholm
