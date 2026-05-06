@@ -465,7 +465,12 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
       aria-current={active ? "true" : undefined}
     >
       {active ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
-      {completed && !active ? <span className="completed-quest-stamp" aria-label="Completed quest" /> : null}
+      {completed && !active ? (
+        <span className="completed-quest-award card-completed-award" aria-label="Quest completed">
+          <span className="completed-quest-award-seal" aria-hidden="true" />
+          <small>Quest completed</small>
+        </span>
+      ) : null}
       <div className="card-meta quest-card-meta">
         <strong className="quest-points">+{challenge.reward} pts</strong>
         <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>

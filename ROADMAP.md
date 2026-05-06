@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:58 Europe/Stockholm
+Last updated: 2026-05-06 16:07 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace old yellow completed stamp on quest cards with canonical wax seal treatment.
+  - added_at: 2026-05-06 16:03 Europe/Stockholm
+  - completed_at: 2026-05-06 16:07 Europe/Stockholm
+  - source: Andreas shared a screenshot showing the old yellow completed stamp on a quest card and said the seal plus `Quest completed...` pill should be used there too and everywhere.
+  - Proof: updated `ChallengeCard` completed state to render the canonical wax seal plus `Quest completed` pill, and added compact `.card-completed-award` CSS for card layouts while keeping the detail hero treatment intact. Proof doc: `docs/SQC_GLOBAL_COMPLETED_SEAL_TREATMENT_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Replace Completed Proof placeholder with polished Victory Proof receipt.
   - added_at: 2026-05-06 15:53 Europe/Stockholm
