@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:43 Europe/Stockholm
+Last updated: 2026-05-06 15:46 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Move completed-date pill below the seal without covering it.
+  - added_at: 2026-05-06 15:42 Europe/Stockholm
+  - completed_at: 2026-05-06 15:46 Europe/Stockholm
+  - source: Andreas shared a screenshot showing the pill was not centered under the seal and was covering the bottom part; he asked for it below the seal.
+  - Proof: removed rotation from the award wrapper, rotated only the seal layer, kept the pill horizontal in the unrotated wrapper, and moved it below the seal with `top: calc(100% + ...)`. Proof doc: `docs/SQC_COMPLETED_QUEST_PILL_BELOW_SEAL_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Center completed-date pill horizontally under canonical wax seal.
   - added_at: 2026-05-06 15:39 Europe/Stockholm
