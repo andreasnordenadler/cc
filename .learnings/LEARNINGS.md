@@ -44,3 +44,26 @@ Use clearer verb-first product copy and add confirmation dialogs for actions tha
 - Tags: sqc, ux-copy, confirmation
 
 ---
+
+## [LRN-20260506-001] correction
+
+**Logged**: 2026-05-06T11:22:00+02:00
+**Priority**: medium
+**Status**: applied
+**Area**: assets
+
+### Summary
+When removing generated badge backgrounds, preserve dark crest ornamentation; remove only edge-connected background color.
+
+### Details
+Andreas corrected the Proof Loop Test badge transparency pass: the first background removal removed parts of the coat of arms, not just the navy square backing. The corrected approach restored the original asset and used a conservative flood-fill from image edges based on the navy background color, preserving dark green/blue ornamental details inside the crest.
+
+### Suggested Action
+For badge background removal, always preview against a high-contrast matte and verify the full crest silhouette before deploy. Avoid aggressive dark-pixel thresholds that can cut interior ornaments.
+
+### Metadata
+- Source: user_feedback
+- Related Files: public/badges/v6/proof-loop-test-badge.png
+- Tags: image-processing, transparency, sqc-badges
+
+---

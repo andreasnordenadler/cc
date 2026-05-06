@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 11:15 Europe/Stockholm
+Last updated: 2026-05-06 11:24 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Correct Proof Loop Test transparency to preserve full coat of arms.
+  - added_at: 2026-05-06 11:21 Europe/Stockholm
+  - completed_at: 2026-05-06 11:24 Europe/Stockholm
+  - source: Andreas corrected that the previous transparent pass removed parts of the coat, not just the blue background.
+  - Proof: restored the original badge and reran conservative edge-connected navy-background removal only, preserving dark crest ornamentation.
+  - Verification: magenta transparency preview confirmed no square background and no obvious over-cut; `pnpm lint`; `pnpm build`.
 
 - [x] Remove square background from Proof Loop Test coat of arms.
   - added_at: 2026-05-06 11:12 Europe/Stockholm
