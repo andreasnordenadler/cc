@@ -463,10 +463,10 @@ p { color: var(--muted); line-height: 1.5; }
 .compact-run-card { background: rgba(255,255,255,.055); }
 .active-quest-home-card { position: relative; display: grid; gap: 16px; min-height: 230px; color: inherit; text-decoration: none; overflow: hidden; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .active-quest-home-card:hover, .active-quest-home-card:focus-visible { transform: translateY(-2px); border-color: rgba(96,240,175,.46); background: rgba(96,240,175,.07); outline: none; }
-.active-quest-card-coat { position: absolute; right: clamp(16px, 4vw, 34px); top: 50%; transform: translateY(-50%); display: grid; place-items: center; opacity: .94; pointer-events: none; }
+.active-quest-card-coat { position: absolute; right: clamp(52px, 9vw, 130px); top: 50%; transform: translateY(-50%); display: grid; place-items: center; opacity: .94; pointer-events: none; }
 .active-quest-card-coat .challenge-badge-art { width: clamp(118px, 18vw, 180px); min-width: 0; }
 .active-quest-card-coat .challenge-badge-art .badge-reference-art { width: clamp(118px, 18vw, 180px); height: clamp(118px, 18vw, 180px); }
-.active-quest-home-card .section-head, .active-quest-home-card .active-quest-home-meta, .active-quest-home-card p { max-width: min(100%, 620px); padding-right: clamp(116px, 20vw, 210px); }
+.active-quest-home-card .section-head, .active-quest-home-card .active-quest-home-meta, .active-quest-home-card p { max-width: min(100%, 620px); padding-right: clamp(150px, 26vw, 280px); }
 @media (max-width: 720px) { .active-quest-card-coat { position: static; transform: none; justify-self: center; order: -1; } .active-quest-home-card .section-head, .active-quest-home-card .active-quest-home-meta, .active-quest-home-card p { padding-right: 0; max-width: 100%; } }
 .quieter-secondary-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
 @media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } .signed-out-quest-preview { grid-template-columns: 1fr; } .signed-out-home-hero .simplified-home-hero { min-height: 0; } }
