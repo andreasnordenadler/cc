@@ -6,7 +6,6 @@ import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
   getActiveChallenge,
-  getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
   type UserMetadataRecord,
@@ -38,7 +37,6 @@ export default async function Home() {
   const isSignedIn = Boolean(userId);
   const user = isSignedIn ? await currentUser() : null;
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const progress = getChallengeProgress(metadata);
   const activeQuest = getActiveChallenge(metadata);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
@@ -131,34 +129,31 @@ export default async function Home() {
 
 
         {isSignedIn ? (
-          <section className="card mission-card home-status-card compact-run-card">
+          <Link
+            href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"}
+            className="card mission-card home-status-card compact-run-card active-quest-home-card"
+            aria-label={activeQuestRecord ? `Open active quest: ${activeQuestRecord.title}` : "Choose an active quest"}
+          >
+            {activeQuestRecord ? (
+              <span className="active-quest-card-coat" aria-hidden="true">
+                <ChallengeBadge challenge={activeQuestRecord} presentation="art" earned />
+              </span>
+            ) : null}
             <div className="section-head">
               <div>
-                <span className="eyebrow">Current run</span>
+                <span className="eyebrow">Active Quest</span>
                 <h2>{activeQuestRecord ? activeQuestRecord.title : "No active quest yet."}</h2>
               </div>
-              <span className="badge gold readable-points">{progress.totalRewardPoints} points</span>
             </div>
-            <div className="grid lean-status-grid">
+            <div className="grid lean-status-grid active-quest-home-meta">
               <Fact label="Chess account" value={connectedIdentity || "Add Lichess or Chess.com"} />
-              <Fact label="Completed quests" value={`${progress.totalCompletedChallenges}`} />
             </div>
             <p>
               {activeQuestRecord
-                ? "Play the active quest on Lichess or Chess.com, then jump straight to My Quest Log to run the latest-game check."
+                ? "Open the active quest page for rules, badge details, and the next weird chess mission."
                 : "Choose one quest first so My Quest Log knows which weird rule to judge after your next public game."}
             </p>
-            <div className="button-row">
-              <Link href={activeQuestRecord ? "/account" : "/challenges"} className="button primary">
-                {activeQuestRecord ? "Run latest-game check" : "Choose a quest"}
-              </Link>
-              {activeQuestRecord ? (
-                <Link href={`/challenges/${activeQuestRecord.id}`} className="button secondary">Review active rules</Link>
-              ) : (
-                <Link href="/account" className="button secondary">My Quest Log</Link>
-              )}
-            </div>
-          </section>
+          </Link>
         ) : null}
 
         <section className="hero-card home-badge-vault-card" aria-label="Badge vault preview">

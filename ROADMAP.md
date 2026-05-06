@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 09:55 Europe/Stockholm
+Last updated: 2026-05-06 10:00 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Simplify logged-in homepage Active Quest card and make it link to the active quest.
+  - added_at: 2026-05-06 10:00 Europe/Stockholm
+  - completed_at: 2026-05-06 10:00 Europe/Stockholm
+  - source: Andreas screenshot feedback on the logged-in Active Quest card.
+  - Proof: changed the pill from `Current run` to `Active Quest`, added the active quest coat of arms, removed completed-quests and points surfaces, removed `Review active rules`, and made the entire card link to the active quest page. Proof doc: `docs/SQC_LOGGED_IN_ACTIVE_QUEST_CARD_SIMPLIFICATION_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Mark the active quest in the logged-in homepage badge row.
   - added_at: 2026-05-06 09:55 Europe/Stockholm
