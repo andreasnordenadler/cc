@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:52 Europe/Stockholm
+Last updated: 2026-05-06 10:57 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove the `board loop` pill from completed quest proof cards.
+  - added_at: 2026-05-06 10:57 Europe/Stockholm
+  - completed_at: 2026-05-06 10:57 Europe/Stockholm
+  - source: Andreas screenshot feedback on completed quest detail page.
+  - Proof: removed the green `board loop` badge from the completed proof section in `src/app/challenges/[id]/page.tsx`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Create proper coat of arms for Proof Loop Test.
   - added_at: 2026-05-06 10:48 Europe/Stockholm

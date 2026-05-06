@@ -145,7 +145,6 @@ export default async function ChallengeDetailPage({
                 <span className="eyebrow">Completed proof</span>
                 <h2>Make the final position shareable.</h2>
               </div>
-              <span className="badge green">board loop</span>
             </div>
             <ProofPositionBoard attempt={latestPassedAttempt} />
           </section>

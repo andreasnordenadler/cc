@@ -2391,3 +2391,26 @@ For badge generation, either use an explicitly transparent-capable provider/mode
 - Tags: image-generation, transparent-background, sqc
 
 ---
+
+## [ERR-20260506-002] zsh_glob_dynamic_route_git_add
+
+**Logged**: 2026-05-06T10:58:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+Unquoted Next.js dynamic route path broke `git add` under zsh.
+
+### Details
+`git add src/app/challenges/[id]/page.tsx ...` failed with `zsh: no matches found` because `[id]` was interpreted as a glob.
+
+### Suggested Action
+Quote dynamic route paths in shell commands, e.g. `git add 'src/app/challenges/[id]/page.tsx'`.
+
+### Metadata
+- Source: command_failure
+- Related Files: src/app/challenges/[id]/page.tsx
+- Tags: zsh, git, nextjs-dynamic-routes
+
+---
