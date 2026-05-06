@@ -576,7 +576,12 @@ p { color: var(--muted); line-height: 1.5; }
 .proof-victory-scroll .victory-scroll-proof { max-width: 36ch; font-size: .86rem; line-height: 1.32; }
 .proof-victory-scroll .victory-scroll-footer { margin-top: 4px; margin-bottom: 72px; }
 .proof-victory-scroll .victory-scroll-seal { bottom: 44px; width: 104px; }
-.proof-details-section { display: grid; gap: 16px; }
+.proof-details-section { display: grid; gap: 12px; }
+.proof-details-section h2 { margin: 0; }
+.proof-details-line { margin: 0; color: var(--muted); font-weight: 800; }
+.proof-details-section .share-actions { display: grid; gap: 0; }
+.proof-details-section .share-actions .microcopy:empty { display: none; }
+.compact-proof-links { margin-top: 2px; }
 .proof-details-grid { margin: 0; }
 .proof-board { display: grid; grid-template-columns: repeat(8, 1fr); overflow: hidden; border: 1px solid rgba(245,200,106,.34); border-radius: 18px; box-shadow: 0 18px 46px rgba(0,0,0,.28); background: rgba(255,255,255,.08); }
 .proof-board-square { aspect-ratio: 1; display: grid; place-items: center; font-size: clamp(1rem, 2.8vw, 1.65rem); line-height: 1; color: #15100a; text-shadow: 0 1px 0 rgba(255,255,255,.35); }

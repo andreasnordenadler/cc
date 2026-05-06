@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 20:50 Europe/Stockholm
+Last updated: 2026-05-06 22:55 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Simplify completed proof details below the victory scroll.
+  - added_at: 2026-05-06 22:49 Europe/Stockholm
+  - completed_at: 2026-05-06 22:55 Europe/Stockholm
+  - source: Andreas shared a screenshot of the proof details area and said “Simplify this.”
+  - Proof: replaced the grid/data-heavy proof details section with one short receipt line, simplified share button labels, compact proof-page/proof-log links, and removed the redundant completed active quest status dashboard. Proof doc: `docs/SQC_PROOF_DETAILS_SIMPLIFICATION_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Clean up Completed Proof section into visual scroll plus separate proof details.
   - added_at: 2026-05-06 20:44 Europe/Stockholm

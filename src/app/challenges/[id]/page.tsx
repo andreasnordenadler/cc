@@ -165,35 +165,27 @@ export default async function ChallengeDetailPage({
 
         {isSignedIn && isCompleted ? (
           <section className="mission-card quest-detail-section proof-details-section" aria-label="Completed quest proof details">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Proof details</span>
-                <h2>Links, receipt, and share text.</h2>
-              </div>
-            </div>
-            <div className="proof-receipt-facts proof-details-grid" aria-label="Proof receipt details">
-              <span><strong>Quest</strong>{challenge.title}</span>
-              <span><strong>Receipt</strong>{formatProofReceiptLabel(latestPassedAttempt)}</span>
-              <span><strong>Last move</strong>{latestPassedAttempt?.lastMoveSan ?? latestPassedAttempt?.lastMoveUci ?? "Not captured for this proof"}</span>
-              <span><strong>Checked</strong>{formatTime(latestPassedAttempt?.checkedAt)}</span>
-            </div>
-            <p>{sanitizeAttemptSummary(latestPassedAttempt?.summary)}</p>
+            <span className="eyebrow">Proof details</span>
+            <h2>Saved and ready to share.</h2>
+            <p className="proof-details-line">
+              {challenge.title} completed · {completedDateLabel} · {formatProofReceiptLabel(latestPassedAttempt)}
+            </p>
             <ShareProofActions
               copy={buildCompletedQuestShareCopy(challenge, latestPassedAttempt)}
               challengeTitle={challenge.title}
               sharePath={`/result?challengeId=${challenge.id}`}
-              copyLabel="Copy scroll text"
-              shareLabel="Share victory scroll"
-              idleCopy="Copies the completed-quest text plus the proof link, separate from the visual scroll."
+              copyLabel="Copy proof"
+              shareLabel="Share proof"
+              idleCopy=""
             />
-            <div className="button-row">
-              <Link href={`/result?challengeId=${challenge.id}`} className="button secondary">Open proof page</Link>
-              <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            <div className="button-row compact-proof-links">
+              <Link href={`/result?challengeId=${challenge.id}`} className="button secondary">Proof page</Link>
+              <Link href="/proof-log" className="button secondary">Proof log</Link>
             </div>
           </section>
         ) : null}
 
-        {isSignedIn && isActive ? (
+        {isSignedIn && isActive && !isCompleted ? (
           <section className="mission-card quest-status-panel" aria-label={isCompleted ? "Completed quest status" : "Active quest status"}>
             <div className="section-head">
               <div>
