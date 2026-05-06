@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 15:39 Europe/Stockholm
+Last updated: 2026-05-06 15:43 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Center completed-date pill horizontally under canonical wax seal.
+  - added_at: 2026-05-06 15:39 Europe/Stockholm
+  - completed_at: 2026-05-06 15:43 Europe/Stockholm
+  - source: Andreas said the `Quest completed...` pill would be hard to perfect when slanted and asked to place it centered right under the seal, horizontal/no slant.
+  - Proof: adjusted `.completed-quest-award small` to sit lower under the seal and counter-rotate against the seal group so it appears horizontal. Proof doc: `docs/SQC_COMPLETED_QUEST_PILL_CENTERED_UNDER_SEAL_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Preserve Andreas-provided canonical SQC wax seal and use it in completed quest hero.
   - added_at: 2026-05-06 15:34 Europe/Stockholm
