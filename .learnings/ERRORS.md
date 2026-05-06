@@ -2368,3 +2368,26 @@ Use a Python subprocess timeout wrapper around `vercel logs sidequestchess.com` 
 **Priority**: low
 
 During SQC deploy verification, `vercel logs <deployment> --since 5m` failed with: `The --follow flag does not support filtering. Remove: --since`. Treat recent Vercel log scans as CLI-version-sensitive; use a currently supported logs command or Vercel dashboard/API path instead of assuming `--since` works.
+
+## [ERR-20260506-001] image_generate_transparent_background
+
+**Logged**: 2026-05-06T10:48:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: assets
+
+### Summary
+OpenClaw image generation rejected transparent background for the active OpenAI image model.
+
+### Details
+`image_generate` returned HTTP 400: “Transparent background is not supported for this model.” Retried with opaque dark background and generated a usable SQC badge asset instead.
+
+### Suggested Action
+For badge generation, either use an explicitly transparent-capable provider/model when available or request dark-background artwork and integrate it as an opaque badge asset.
+
+### Metadata
+- Source: tool_error
+- Related Files: public/badges/v6/proof-loop-test-badge.png
+- Tags: image-generation, transparent-background, sqc
+
+---
