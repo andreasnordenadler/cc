@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:12 Europe/Stockholm
+Last updated: 2026-05-06 10:16 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Move the active quest coat further toward center.
+  - added_at: 2026-05-06 10:16 Europe/Stockholm
+  - completed_at: 2026-05-06 10:16 Europe/Stockholm
+  - source: Andreas follow-up screenshot feedback: `More please!`
+  - Proof: shifted the active quest coat further left/inward and widened the reserved text-side space so the art reads more centered within the right-hand area. Proof doc: `docs/SQC_LOGGED_IN_ACTIVE_QUEST_COAT_CENTERING_MORE_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Center the active quest coat of arms within the right side of the logged-in card.
   - added_at: 2026-05-06 10:12 Europe/Stockholm
