@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 09:28 Europe/Stockholm
+Last updated: 2026-05-06 09:40 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Clean up logged-in homepage hero CTAs from Andreas screenshot feedback.
+  - added_at: 2026-05-06 09:40 Europe/Stockholm
+  - completed_at: 2026-05-06 09:40 Europe/Stockholm
+  - source: Andreas screenshot feedback on logged-in homepage.
+  - Proof: removed the green `Pick → play → prove. One quest at a time.` helper line plus the `Random quest` and `Connect account` buttons from the logged-in hero, leaving only `Browse quests`. Proof doc: `docs/SQC_LOGGED_IN_HOME_HERO_CTA_CLEANUP_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Fix the missile-like line/artifact in the blurred locked coat-of-arms shelf on My Quest Log.
   - added_at: 2026-05-06 09:26 Europe/Stockholm
