@@ -158,7 +158,7 @@ export default async function ResultPage({
           <div className="button-row">
             <Link href={receiptNextStep.href} className="button primary">{receiptNextStep.action}</Link>
             <Link href="/support" className="button pink">Report confusing receipt</Link>
-            <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            <Link href="/account" className="button secondary">Open My Side Quests</Link>
           </div>
         </section>
 

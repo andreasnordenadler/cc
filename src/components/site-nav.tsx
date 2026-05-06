@@ -2,7 +2,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import AuthActionButtons from "@/components/auth-action-buttons";
 
-type ActiveNavItem = "home" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "proof-log" | "beta" | "support";
+type ActiveNavItem = "home" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "beta" | "support";
 
 type SiteNavProps = {
   isSignedIn: boolean;

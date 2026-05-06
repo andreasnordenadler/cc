@@ -31,7 +31,7 @@ const proofSteps = [
   },
   {
     title: "Share the receipt",
-    copy: "Passed, failed, and pending attempts stay honest, then become proof cards and proof-log receipts you can copy or share.",
+    copy: "Passed, failed, and pending attempts stay honest, then become proof cards and completed side-quest records you can copy or share.",
   },
 ];
 
@@ -71,7 +71,7 @@ export default async function RulesPage() {
           </p>
           <div className="button-row hero-actions">
             <Link href={`/challenges/${canonicalChallenge.id}`} className="button primary">Try the live verifier</Link>
-            <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            <Link href="/account" className="button secondary">Open My Side Quests</Link>
             <Link href="/verifiers" className="button secondary">Open verifier board</Link>
             <Link href="/challenges" className="button secondary">Browse all quests</Link>
           </div>

@@ -80,7 +80,7 @@ export default function ShareKitPage() {
             <span className="eyebrow">Proof check</span>
             <h2>Receipts after the game.</h2>
             <p>Best for bragging honestly: proof cards and logs show passed, failed, and pending checks without pretending.</p>
-            <Link href="/proof-log" className="button secondary">Open proof log</Link>
+            <Link href="/account" className="button secondary">Open My Side Quests</Link>
           </article>
         </section>
 
@@ -112,7 +112,7 @@ export default function ShareKitPage() {
           <div className="button-row">
             <Link href={`/dare/${featured.id}`} className="button primary">Send the queenless quest</Link>
             <Link href="/result" className="button secondary">Open receipt page</Link>
-            <Link href="/proof-log" className="button secondary">Review proof log</Link>
+            <Link href="/account" className="button secondary">Review My Side Quests</Link>
           </div>
         </section>
 

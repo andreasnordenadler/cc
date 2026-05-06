@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 23:21 Europe/Stockholm
+Last updated: 2026-05-06 23:28 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove proof log page and add simple completed side quest list to My Side Quests.
+  - added_at: 2026-05-06 23:22 Europe/Stockholm
+  - completed_at: 2026-05-06 23:28 Europe/Stockholm
+  - source: Andreas said `/proof-log` is not needed and asked for a simple completed quest list on My Side Quests showing coat of arms, quest name, and finish date.
+  - Proof: deleted `/proof-log`, removed proof-log links/copy, replaced account collected grid with a simple completed side quest list, and kept each row linked to the quest page. Proof doc: `docs/SQC_REMOVE_PROOF_LOG_ADD_COMPLETED_LIST_2026-05-06.md`.
+  - Verification: grep for `proof-log`/`Proof log`; `pnpm lint`; `pnpm build`.
 
 - [x] Replace completed proof utility buttons with one social Share action.
   - added_at: 2026-05-06 23:15 Europe/Stockholm

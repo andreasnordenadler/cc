@@ -5,13 +5,10 @@ import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
 import { CHALLENGES } from "@/lib/challenges";
 import {
-  formatAttemptStatus,
-  formatTime,
   getActiveChallenge,
   getChallengeAttempts,
   getChallengeProgress,
   getChessComUsername,
-  getLatestChallengeAttempt,
   getLichessUsername,
   getRunnerBio,
   getRunnerDisplayName,
@@ -98,7 +95,6 @@ export default async function MyQuestLogPage() {
               {completedSet.has(activeChallengeRecord.id) ? (
                 <div className="button-row current-quest-proof-actions">
                   <Link href={`/result?challengeId=${activeChallengeRecord.id}`} className="button primary">View victory proof</Link>
-                  <Link href="/proof-log" className="button secondary">Proof log</Link>
                 </div>
               ) : null}
             </>
@@ -141,36 +137,55 @@ export default async function MyQuestLogPage() {
         <section className="mission-card quest-log-collection-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Points and collected Coat of Arms</span>
-              <h2>{progress.totalRewardPoints} points earned</h2>
+              <span className="eyebrow">Completed Side Quests</span>
+              <h2>{completedChallenges.length ? `${completedChallenges.length} completed` : "No completed side quests yet."}</h2>
             </div>
-            <span className="badge gold">{completedChallenges.length}/{CHALLENGES.length} collected</span>
+            <span className="badge gold">{progress.totalRewardPoints} points</span>
           </div>
 
           {completedChallenges.length ? (
-            <div className="grid collected-coat-grid">
+            <div className="completed-quest-list" aria-label="Completed side quests">
               {completedChallenges.map((challenge) => {
-                const latestProof = getLatestChallengeAttempt(metadata, challenge.id);
+                const latestProof = getLatestPassedAttempt(metadata, challenge.id);
+                const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
 
                 return (
-                  <Link href={`/challenges/${challenge.id}`} className="fact collected-coat-link" key={challenge.id}>
-                    <span>+{challenge.reward} pts</span>
-                    <ChallengeBadge challenge={challenge} earned />
-                    <strong>{challenge.badge}</strong>
-                    <p>{challenge.title}</p>
-                    <small>{latestProof ? `${formatAttemptStatus(latestProof.status)} proof • ${formatTime(latestProof.checkedAt)}` : "Open quest proof"}</small>
+                  <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item" key={challenge.id}>
+                    <ChallengeBadge challenge={challenge} presentation="art" earned />
+                    <strong>{challenge.title}</strong>
+                    <span>{finishedAt ? formatCompletedQuestDate(finishedAt) : "Completed"}</span>
                   </Link>
                 );
               })}
             </div>
           ) : (
             <div className="empty-collection-state">
-              <p>No coat of arms collected yet. Complete a quest and the earned shield will appear here with a link back to its proof.</p>
-              <Link href="/challenges" className="button primary">Choose a quest</Link>
+              <p>No completed side quests yet. Finish one and it will appear here with its coat of arms and completion date.</p>
+              <Link href="/challenges" className="button primary">Choose a Side Quest</Link>
             </div>
           )}
         </section>
       </div>
     </main>
   );
+}
+
+function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string) {
+  return getChallengeAttempts(metadata, challengeId)
+    .filter((attempt) => attempt.status === "passed")
+    .at(-1) ?? null;
+}
+
+function formatCompletedQuestDate(value: string) {
+  const parsed = Date.parse(value);
+
+  if (Number.isNaN(parsed)) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(parsed);
 }

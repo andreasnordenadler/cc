@@ -75,7 +75,7 @@ export const CHALLENGES: Challenge[] = [
       "Play any public finished Lichess or Chess.com game.",
       "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this test quest.",
       "Your saved chess username must appear in the game.",
-      "This quest exists to test activation, verification, completion, coat-of-arms unlock, proof log, and sharing.",
+      "This quest exists to test activation, verification, completion, coat-of-arms unlock, completed list, and sharing.",
     ],
     requirement: {
       side: "either",
