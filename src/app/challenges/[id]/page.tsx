@@ -151,13 +151,18 @@ export default async function ChallengeDetailPage({
         ) : null}
 
         {isSignedIn && isActive ? (
-          <section className="mission-card quest-status-panel" aria-label="Active quest status">
+          <section className="mission-card quest-status-panel" aria-label={isCompleted ? "Completed quest status" : "Active quest status"}>
             <div className="section-head">
               <div>
-                <span className="eyebrow">Quest status</span>
-                <h2>Latest-game checker</h2>
-                <p>{challengeBanner(activeChallenge)}</p>
+                <span className="eyebrow">{isCompleted ? "Quest completed" : "Quest status"}</span>
+                <h2>{isCompleted ? "Your proof is ready." : "Latest-game checker"}</h2>
+                <p>
+                  {isCompleted
+                    ? `${challenge.badgeIdentity.name} is unlocked. The verifier has accepted this quest, so the next best move is to view or share the victory proof.`
+                    : challengeBanner(activeChallenge)}
+                </p>
               </div>
+              {isCompleted ? <span className="badge green">completed</span> : null}
             </div>
             <div className="quest-status-grid">
               <ProviderStatusCard provider="Lichess" username={lichessUsername} latestAttempt={latestLichessAttempt} />
@@ -166,14 +171,22 @@ export default async function ChallengeDetailPage({
               <Fact label="Latest receipt" value={latestAttempt ? formatTime(latestAttempt.checkedAt) : "not checked yet"} />
             </div>
             <article className="note-card latest-check quest-status-receipt">
-              <span className="eyebrow">Latest receipt</span>
+              <span className="eyebrow">{isCompleted ? "Winning receipt" : "Latest receipt"}</span>
               <h3>{latestAttemptSummary.headline}</h3>
               <p>{latestAttemptSummary.detail}</p>
               <small>{latestAttemptSummary.meta}</small>
             </article>
-            <form action={checkActiveChallenge} className="quest-status-refresh">
-              <button type="submit" className="button primary">Refresh</button>
-            </form>
+            {isCompleted ? (
+              <div className="button-row quest-status-refresh">
+                <Link href="/result" className="button primary">View victory proof</Link>
+                <Link href="/proof-log" className="button secondary">Open proof log</Link>
+                <Link href="/challenges" className="button pink">Pick next quest</Link>
+              </div>
+            ) : (
+              <form action={checkActiveChallenge} className="quest-status-refresh">
+                <button type="submit" className="button primary">Refresh</button>
+              </form>
+            )}
           </section>
         ) : null}
 

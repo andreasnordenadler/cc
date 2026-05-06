@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 11:06 Europe/Stockholm
+Last updated: 2026-05-06 11:10 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Turn completed active quest status from refresh/checking into proof actions.
+  - added_at: 2026-05-06 11:07 Europe/Stockholm
+  - completed_at: 2026-05-06 11:10 Europe/Stockholm
+  - source: Andreas agreed after Proof Loop Test showed completed but still presented the latest-game checker/Refresh UI.
+  - Proof: completed active quest detail pages now say `Quest completed`, show `Your proof is ready`, and replace Refresh with `View victory proof`, `Open proof log`, and `Pick next quest`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Fix refresh crash from oversized Clerk public metadata.
   - added_at: 2026-05-06 11:00 Europe/Stockholm
