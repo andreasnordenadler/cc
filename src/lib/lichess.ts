@@ -4,10 +4,13 @@ type LichessPlayer = {
   };
 };
 
+import { buildProofPositionFromUciMoves, type ProofPosition } from "@/lib/chess-proof";
+
 type LichessGame = {
   id?: string;
   status?: string;
   winner?: "white" | "black";
+  moves?: string;
   players?: {
     white?: LichessPlayer;
     black?: LichessPlayer;
@@ -17,7 +20,7 @@ type LichessGame = {
 export type LichessVerificationVerdict = {
   status: "passed" | "failed" | "pending";
   summary: string;
-};
+} & Partial<ProofPosition>;
 
 const OPEN_GAME_STATUSES = new Set(["created", "started"]);
 
@@ -98,10 +101,13 @@ async function verifyFinishAttempt({
       };
     }
 
+    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+
     if (requiredSide === "either") {
       return {
         status: "passed",
         summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game, so this quest passed.`,
+        ...proofPosition,
       };
     }
 
@@ -109,6 +115,7 @@ async function verifyFinishAttempt({
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} finished that Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      ...proofPosition,
     };
   } catch {
     return {
@@ -160,7 +167,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
 
   try {
     const response = await fetch(
-      `https://lichess.org/api/games/user/${encodeURIComponent(username.trim())}?max=1&moves=false&opening=false&clocks=false&evals=false`,
+      `https://lichess.org/api/games/user/${encodeURIComponent(username.trim())}?max=1&moves=true&opening=false&clocks=false&evals=false`,
       {
         headers: {
           Accept: "application/x-ndjson",
@@ -214,11 +221,14 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       };
     }
 
+    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+
     return {
       status: "passed",
       gameId,
       summary: `Verified ${gameId}. ${username} appears in a finished public Lichess game, so the Proof Loop Test passed.`,
       evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control are accepted for this test quest."],
+      ...proofPosition,
     };
   } catch {
     return {
@@ -291,10 +301,13 @@ async function verifyDrawAttempt({
       };
     }
 
+    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+
     if (requiredSide === "either") {
       return {
         status: "passed",
         summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game with no winning side, so this draw quest passed.`,
+        ...proofPosition,
       };
     }
 
@@ -302,6 +315,7 @@ async function verifyDrawAttempt({
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} drew that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      ...proofPosition,
     };
   } catch {
     return {
@@ -410,16 +424,20 @@ async function verifyLoseAttempt({
       };
     }
 
+    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+
     if (requiredSide === "either") {
       return {
         status: "passed",
         summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss quest passed.`,
+        ...proofPosition,
       };
     }
 
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} lost that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      ...proofPosition,
     };
   } catch {
     return {
@@ -520,9 +538,12 @@ async function verifyWinAttempt({
       };
     }
 
+    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} won that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      ...proofPosition,
     };
   } catch {
     return {

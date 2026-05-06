@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 11:42 Europe/Stockholm
+Last updated: 2026-05-06 11:51 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Add real Lichess final-position proof-board data for completed receipts.
+  - added_at: 2026-05-06 11:43 Europe/Stockholm
+  - completed_at: 2026-05-06 11:51 Europe/Stockholm
+  - source: Andreas asked Sam to work autonomously after proof-arrival review; Sam selected the remaining proof-board data-fidelity gap.
+  - Proof: added local UCI-to-FEN proof-position builder, requested Lichess move data, attached final FEN + last UCI move to passed Lichess verification results, and persisted those fields into challenge attempts so the existing proof-board UI renders real final-board proof for new Lichess-backed completed receipts. Proof doc: `docs/SQC_LICHESS_PROOF_BOARD_DATA_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Tighten proof-arrival completion loop for review.
   - added_at: 2026-05-06 11:27 Europe/Stockholm

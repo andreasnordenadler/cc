@@ -186,6 +186,14 @@ function compactChallengeAttempts(attempts: ChallengeAttempt[], maxRecentAttempt
   );
 }
 
+function pickProofPositionFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
+  return {
+    finalPositionFen: attempt.finalPositionFen,
+    lastMoveUci: attempt.lastMoveUci,
+    lastMoveSan: attempt.lastMoveSan,
+  };
+}
+
 async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
   const checks = [];
 
@@ -693,6 +701,7 @@ export async function startChallenge(formData: FormData) {
           status: check.status,
           summary: check.summary,
           checkedAt: now,
+          ...pickProofPositionFields(check),
         })),
       ]),
       challengeProgress: {
@@ -845,6 +854,7 @@ export async function submitChallengeAttempt(formData: FormData) {
           status: verification.status,
           summary: verification.summary,
           checkedAt: now,
+          ...pickProofPositionFields(verification),
         },
       ]),
       challengeProgress: {
@@ -932,6 +942,7 @@ export async function checkActiveChallenge() {
           status: check.status,
           summary: check.summary,
           checkedAt: now,
+          ...pickProofPositionFields(check),
         })),
       ]),
       challengeProgress: {
