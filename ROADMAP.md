@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 14:48 Europe/Stockholm
+Last updated: 2026-05-06 14:57 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Compact completed quest hero and let title extend under seal.
+  - added_at: 2026-05-06 14:53 Europe/Stockholm
+  - completed_at: 2026-05-06 14:57 Europe/Stockholm
+  - source: Andreas asked to compact the section, let `Proof Loop Test` be on two rows extending under the seal, and widen the highlighted text area to at least half the section.
+  - Proof: reduced the completed hero reward-art column, made the hero shorter, removed completed copy right padding, widened title/body copy rules, moved the seal higher/right over the text area, and made it slightly larger while keeping it off the coat of arms. Proof doc: `docs/SQC_COMPLETED_QUEST_COMPACT_TITLE_OVERLAP_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Tune completed wax seal layout and date-only label.
   - added_at: 2026-05-06 14:46 Europe/Stockholm
