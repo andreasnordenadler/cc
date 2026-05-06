@@ -6,6 +6,7 @@ import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import {
   getActiveChallenge,
+  getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
   type UserMetadataRecord,
@@ -38,6 +39,8 @@ export default async function Home() {
   const user = isSignedIn ? await currentUser() : null;
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const activeQuest = getActiveChallenge(metadata);
+  const progress = getChallengeProgress(metadata);
+  const completedSet = new Set(progress.completedChallengeIds);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeQuestRecord = activeQuest?.id
@@ -96,7 +99,7 @@ export default async function Home() {
                     aria-label={isActiveChoice ? `Open active quest: ${challenge.title}` : undefined}
                   >
                     {isActiveChoice ? <span className="active-quest-stamp heroism-active-stamp" aria-label="Active quest" /> : null}
-                    <ChallengeBadge challenge={challenge} presentation="art" earned />
+                    <ChallengeBadge challenge={challenge} presentation="art" earned={!isSignedIn || completedSet.has(challenge.id)} />
                     <span className="heroism-choice-copy">
                       <strong>{label}</strong>
                       <small>{copy}</small>
@@ -146,7 +149,7 @@ export default async function Home() {
           >
             {activeQuestRecord ? (
               <span className="active-quest-card-coat" aria-hidden="true">
-                <ChallengeBadge challenge={activeQuestRecord} presentation="art" earned />
+                <ChallengeBadge challenge={activeQuestRecord} presentation="art" earned={completedSet.has(activeQuestRecord.id)} />
               </span>
             ) : null}
             <div className="section-head">
@@ -183,7 +186,7 @@ export default async function Home() {
                   aria-label={isActiveBadge ? `Open active quest: ${challenge.title}` : "Open quests page"}
                 >
                   {isActiveBadge ? <span className="active-quest-stamp home-badge-active-stamp" aria-label="Active quest" /> : null}
-                  <ChallengeBadge challenge={challenge} presentation="art" earned />
+                  <ChallengeBadge challenge={challenge} presentation="art" earned={!isSignedIn || completedSet.has(challenge.id)} />
                 </Link>
               );
             })}

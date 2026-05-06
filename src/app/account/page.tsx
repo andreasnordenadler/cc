@@ -3,6 +3,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
+import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
 import {
   formatAttemptStatus,
@@ -91,10 +92,22 @@ export default async function MyQuestLogPage() {
           </div>
 
           {activeChallengeRecord ? (
-            <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
-              <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
-              <small className="current-quest-coat-caption">{activeChallengeRecord.title}</small>
-            </Link>
+            <>
+              <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
+                <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
+                <small className="current-quest-coat-caption">{activeChallengeRecord.title}</small>
+              </Link>
+              {completedSet.has(activeChallengeRecord.id) ? (
+                <div className="button-row current-quest-proof-actions">
+                  <Link href={`/result?challengeId=${activeChallengeRecord.id}`} className="button primary">View victory proof</Link>
+                  <Link href="/proof-log" className="button secondary">Proof log</Link>
+                </div>
+              ) : (
+                <form action={checkActiveChallenge} className="current-quest-proof-actions">
+                  <button type="submit" className="button primary">Check latest games</button>
+                </form>
+              )}
+            </>
           ) : (
             <Link href="/challenges" className="current-quest-empty-link">
               <div className="quest-log-empty-badge" aria-hidden="true">?</div>

@@ -126,13 +126,14 @@ export default async function ChallengeDetailPage({
           </div>
           <div className="button-row hero-actions quest-detail-actions">
             {isSignedIn ? (
-              isActive ? null : (
+              isActive || isCompleted ? null : (
                 <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
               )
             ) : (
               <Link href="/connect" className="button primary">Connect to start</Link>
             )}
             <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Quest</Link>
+            {isCompleted ? <Link href={`/result?challengeId=${challenge.id}`} className="button primary">Victory proof</Link> : null}
             {isCompleted ? <Link href="/proof-log" className="button secondary">Proof log</Link> : null}
             {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
           </div>
@@ -178,7 +179,7 @@ export default async function ChallengeDetailPage({
             </article>
             {isCompleted ? (
               <div className="button-row quest-status-refresh">
-                <Link href="/result" className="button primary">View victory proof</Link>
+                <Link href={`/result?challengeId=${challenge.id}`} className="button primary">View victory proof</Link>
                 <Link href="/proof-log" className="button secondary">Open proof log</Link>
                 <Link href="/challenges" className="button pink">Pick next quest</Link>
               </div>

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 11:24 Europe/Stockholm
+Last updated: 2026-05-06 11:42 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Tighten proof-arrival completion loop for review.
+  - added_at: 2026-05-06 11:27 Europe/Stockholm
+  - completed_at: 2026-05-06 11:42 Europe/Stockholm
+  - source: Andreas asked Sam to review/work on what should happen when proof comes in: completed quests clearly updated, celebration, proof available and shareable.
+  - Proof: `/result` now supports quest-specific victory proof via `?challengeId=...` and prefers passed proof; completed quest CTAs route to that proof; receipt compaction preserves latest passed proof per completed quest; My Quest Log has a real Check latest games action and completed proof actions; Proof Log routes checks to the active quest and passed receipts to victory proof; signed-in badge/home surfaces use real earned state. Proof doc: `docs/SQC_PROOF_ARRIVAL_LOOP_REVIEW_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Correct Proof Loop Test transparency to preserve full coat of arms.
   - added_at: 2026-05-06 11:21 Europe/Stockholm

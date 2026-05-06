@@ -8,6 +8,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import {
   buildAttemptSummary,
   formatAttemptStatus,
+  getActiveChallenge,
   getChallengeAttempts,
   getChallengeProgress,
   type ChallengeAttempt,
@@ -44,6 +45,8 @@ export default async function ProofLogPage() {
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const attempts = getChallengeAttempts(metadata).toReversed();
   const progress = getChallengeProgress(metadata);
+  const activeChallenge = getActiveChallenge(metadata);
+  const checkLatestHref = activeChallenge?.id ? `/challenges/${activeChallenge.id}` : "/challenges";
 
   return (
     <main className="site-shell">
@@ -57,8 +60,8 @@ export default async function ProofLogPage() {
             Every latest-game check becomes a receipt here: passed, failed, or still pending. No manual uploads, no engine lecture — just a running record of the bad ideas Side Quest Chess has judged.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/account" className="button primary">Check latest games</Link>
-            <Link href="/result" className="button secondary">Open share card</Link>
+            <Link href={checkLatestHref} className="button primary">Check latest games</Link>
+            <Link href={activeChallenge?.id ? `/result?challengeId=${activeChallenge.id}` : "/result"} className="button secondary">Open share card</Link>
             <Link href="/challenges" className="button secondary">Pick another quest</Link>
           </div>
         </section>
@@ -141,8 +144,8 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
       ? {
           label: "Share or quest back",
           copy: "This receipt is brag-ready. Copy it, then send the same quest to someone who deserves worse chess decisions.",
-          primaryLabel: "Open share kit",
-          primaryHref: "/share-kit",
+          primaryLabel: "Open victory proof",
+          primaryHref: `/result?challengeId=${challenge.id}`,
           secondaryLabel: "Send this quest",
           secondaryHref: `/dare/${challenge.id}`,
         }

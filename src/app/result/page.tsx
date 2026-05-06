@@ -9,19 +9,33 @@ import {
   buildAttemptSummary,
   getChallengeProgress,
   getLatestChallengeAttempt,
+  type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-export default async function ResultPage() {
+export default async function ResultPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ challengeId?: string }>;
+}) {
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const latestAttempt = getLatestChallengeAttempt(metadata);
   const progress = getChallengeProgress(metadata);
-  const challenge = latestAttempt?.challengeId
-    ? getChallengeById(latestAttempt.challengeId) ?? CHALLENGES[0]
-    : CHALLENGES[0];
+  const requestedChallengeId = (await searchParams)?.challengeId;
+  const requestedChallenge = requestedChallengeId ? getChallengeById(requestedChallengeId) : null;
+  const requestedAttempt = requestedChallenge ? getLatestChallengeAttempt(metadata, requestedChallenge.id) : null;
+  const allAttempts = Array.isArray(metadata.challengeAttempts)
+    ? (metadata.challengeAttempts as ChallengeAttempt[])
+    : [];
+  const latestPassedAttempt = allAttempts
+    .toReversed()
+    .find((attempt) => attempt.status === "passed" && typeof attempt.challengeId === "string");
+  const latestAttempt = requestedAttempt ?? latestPassedAttempt ?? getLatestChallengeAttempt(metadata);
+  const challenge = requestedChallenge ?? (latestAttempt?.challengeId
+    ? getChallengeById(String(latestAttempt.challengeId)) ?? CHALLENGES[0]
+    : CHALLENGES[0]);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
-  const isPassed = latestAttempt?.status === "passed";
+  const isPassed = latestAttempt?.status === "passed" || progress.completedChallengeIds.includes(challenge.id);
   const isPending = latestAttempt?.status === "pending" || !latestAttempt;
   const proofStatus = isPassed ? "Quest completed" : isPending ? "Waiting on proof" : "Attempt logged";
   const posterTitle = isPassed
