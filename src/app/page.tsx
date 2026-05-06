@@ -164,7 +164,7 @@ export default async function Home() {
             <p>
               {activeQuestRecord
                 ? "Open the active quest page for rules, badge details, and the next weird chess mission."
-                : "Choose one quest first so My Quest Log knows which weird rule to judge after your next public game."}
+                : "Choose one quest first so My Side Quests knows which weird rule to judge after your next public game."}
             </p>
           </Link>
         ) : null}

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 16:12 Europe/Stockholm
+Last updated: 2026-05-06 16:17 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Rename visible `My Quest Log` label to `My Side Quests`.
+  - added_at: 2026-05-06 16:15 Europe/Stockholm
+  - completed_at: 2026-05-06 16:17 Europe/Stockholm
+  - source: Andreas shared a screenshot of the nav pill and asked to change `My Quest Log` to `My Side Quests`.
+  - Proof: replaced visible UI strings in `src/` including the site nav pill and related account CTAs/helper copy. Proof doc: `docs/SQC_MY_SIDE_QUESTS_LABEL_RENAME_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Clean connected accounts card on My Quest Log.
   - added_at: 2026-05-06 16:10 Europe/Stockholm

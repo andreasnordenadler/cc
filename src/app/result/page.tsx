@@ -67,7 +67,7 @@ export default async function ResultPage({
           label: "Pending",
           title: "Play one eligible public game.",
           copy: "Pending usually means SQC has not found a recent public Lichess or Chess.com game that matches this quest yet. Keep the quest active, play normally, then run the latest-game check again.",
-          action: "Open My Quest Log",
+          action: "Open My Side Quests",
           href: "/account",
         }
       : {
@@ -113,7 +113,7 @@ export default async function ResultPage({
                 : "This screen turns the latest saved quest check into the product’s core loop: honest status, clear next action, badge progress, and share copy when the proof lands."}
             </p>
             <div className="button-row">
-              <Link href="/account" className="button primary">Open My Quest Log</Link>
+              <Link href="/account" className="button primary">Open My Side Quests</Link>
               <Link href={`/challenges/${challenge.id}`} className="button secondary">View quest rules</Link>
             </div>
           </aside>

@@ -43,7 +43,7 @@ export default async function VerifiersPage() {
             This board separates what Side Quest Chess can verify live from what is still a public rule contract. No fake glory, no manual uploads, no engine-dashboard drift.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/account" className="button primary">Open My Quest Log</Link>
+            <Link href="/account" className="button primary">Open My Side Quests</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
             <Link href="/proof-log" className="button secondary">Open proof log</Link>
           </div>

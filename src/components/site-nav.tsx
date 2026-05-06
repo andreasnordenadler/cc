@@ -27,7 +27,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         <div className="nav-actions">
           {isSignedIn ? (
             <>
-              <Link href="/account" className={active === "account" ? "nav-pill active" : "nav-pill"}>My Quest Log</Link>
+              <Link href="/account" className={active === "account" ? "nav-pill active" : "nav-pill"}>My Side Quests</Link>
               <UserButton />
             </>
           ) : (
