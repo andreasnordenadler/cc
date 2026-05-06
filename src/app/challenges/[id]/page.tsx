@@ -11,6 +11,7 @@ import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
+import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -100,6 +101,13 @@ export default async function ChallengeDetailPage({
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
   const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+  const publicProofPath = isCompleted
+    ? await buildPublicProofPath({
+        attempt: latestPassedAttempt,
+        challenge,
+        runnerName: user?.firstName ?? user?.username ?? undefined,
+      })
+    : null;
   const unfinishedActiveChallenge =
     activeChallenge?.id && activeChallenge.id !== challenge.id && !progress.completedChallengeIds.includes(activeChallenge.id)
       ? getChallengeById(activeChallenge.id)
@@ -173,12 +181,13 @@ export default async function ChallengeDetailPage({
             <ShareProofActions
               copy={buildCompletedQuestShareCopy(challenge, latestPassedAttempt)}
               challengeTitle={challenge.title}
-              sharePath={`/result?challengeId=${challenge.id}`}
+              sharePath={publicProofPath ?? `/result?challengeId=${challenge.id}`}
               copyLabel="Copy proof"
               shareLabel="Share proof"
               idleCopy=""
             >
-              <Link href={`/result?challengeId=${challenge.id}`} className="button secondary">Proof page</Link>
+              <Link href={publicProofPath ?? `/result?challengeId=${challenge.id}`} className="button secondary">Proof page</Link>
+              {publicProofPath ? <Link href={publicProofImagePath(publicProofPath.split("/").at(-1) ?? "")} className="button secondary">Proof image</Link> : null}
               <Link href="/proof-log" className="button secondary">Proof log</Link>
             </ShareProofActions>
           </section>

@@ -5,6 +5,7 @@ import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
+import { buildPublicProofPath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
   getChallengeProgress,
@@ -56,6 +57,13 @@ export default async function ResultPage({
       : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
   const scrollAchievement = buildVictoryScrollCopy(challenge, latestAttempt);
   const scrollDate = formatScrollDate(latestAttempt?.completedGameAt ?? latestAttempt?.checkedAt);
+  const publicProofPath = isPassed
+    ? await buildPublicProofPath({
+        attempt: latestAttempt,
+        challenge,
+        runnerName: user?.firstName ?? user?.username ?? undefined,
+      })
+    : "/result";
   const receiptNextStep = isPassed
     ? {
         label: "Passed",
@@ -199,8 +207,9 @@ export default async function ResultPage({
             <ShareProofActions
               copy={isPassed ? `${scrollAchievement} ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.` : shareCopy}
               challengeTitle={challenge.title}
-              copyLabel={isPassed ? "Copy scroll text" : "Copy receipt"}
-              shareLabel={isPassed ? "Share victory scroll" : "Share quest"}
+              sharePath={publicProofPath}
+              copyLabel={isPassed ? "Copy proof link" : "Copy receipt"}
+              shareLabel={isPassed ? "Share proof" : "Share quest"}
               idleCopy={isPassed
                 ? "Share this as the official tiny scroll of achievement. Screenshot-friendly, mildly pompous, and deservedly unserious."
                 : "Copies the current result text plus this proof-card link. No PGN upload, no homework."

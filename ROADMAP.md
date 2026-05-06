@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 23:04 Europe/Stockholm
+Last updated: 2026-05-06 23:12 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Make completed proof sharing user-specific with public proof image preview.
+  - added_at: 2026-05-06 23:05 Europe/Stockholm
+  - completed_at: 2026-05-06 23:12 Europe/Stockholm
+  - source: Andreas asked whether scroll proof can be made into an image to share, or a link to this specific user's proof, noting current links appear generic.
+  - Proof: added signed public proof URLs at `/proof/[token]`, scroll-style OG image route at `/api/og/proof/[token]`, updated completed proof and result share actions to use the public proof URL, and added a proof image link. Proof doc: `docs/SQC_PUBLIC_PROOF_SHARE_LINKS_AND_IMAGE_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Put proof details buttons on one row.
   - added_at: 2026-05-06 23:01 Europe/Stockholm

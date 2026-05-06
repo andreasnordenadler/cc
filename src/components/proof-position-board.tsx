@@ -1,4 +1,4 @@
-import ChallengeBadge from "@/components/challenge-badge";
+import VictoryScroll from "@/components/victory-scroll";
 import type { Challenge } from "@/lib/challenges";
 import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
 
@@ -53,24 +53,14 @@ export default function ProofPositionBoard({
             ))}
           </div>
         ) : (
-          <div className="victory-scroll proof-victory-scroll" aria-label={`Victory scroll for ${challenge.title}`}>
-            <div className="victory-scroll-burn top-left" aria-hidden="true" />
-            <div className="victory-scroll-burn top-right" aria-hidden="true" />
-            <div className="victory-scroll-crest">
-              <ChallengeBadge challenge={challenge} presentation="art" earned />
-            </div>
-            <span className="victory-scroll-kicker">Side Quest Chess hereby admits</span>
-            <h3>{challenge.badgeIdentity.name}</h3>
-            <p className="victory-scroll-copy">{achievementCopy}</p>
-            <p className="victory-scroll-proof">
-              Proof accepted: <strong>{challenge.title}</strong> — {proofSummary}
-            </p>
-            <div className="victory-scroll-footer">
-              <span>{scrollDate}</span>
-              <span>+{challenge.reward} pts</span>
-            </div>
-            <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
-          </div>
+          <VictoryScroll
+            challenge={challenge}
+            achievementCopy={achievementCopy}
+            proofLine={<>Proof accepted: <strong>{challenge.title}</strong> — {proofSummary}</>}
+            dateLabel={scrollDate}
+            reward={challenge.reward}
+            className="proof-victory-scroll"
+          />
         )}
       </div>
     </article>
