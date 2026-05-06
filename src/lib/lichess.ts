@@ -148,6 +148,88 @@ export async function verifyFinishAsBlackAttempt({
   return verifyFinishAttempt({ gameId, lichessUsername, requiredSide: "black" });
 }
 
+export async function checkLatestLichessFinishedGame(username: string): Promise<LichessVerificationVerdict & { gameId: string; evidence: string[] }> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "lichess-username-missing",
+      summary: "Add a Lichess username before Side Quest Chess can inspect latest finished games.",
+      evidence: ["No Lichess username is stored."],
+    };
+  }
+
+  try {
+    const response = await fetch(
+      `https://lichess.org/api/games/user/${encodeURIComponent(username.trim())}?max=1&moves=false&opening=false&clocks=false&evals=false`,
+      {
+        headers: {
+          Accept: "application/x-ndjson",
+          "User-Agent": "cc-verifier/0.1 (+https://sidequestchess.com)",
+        },
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      return {
+        status: "pending",
+        gameId: "lichess-latest-unavailable",
+        summary: `Lichess latest-game lookup is temporarily unavailable for ${username}.`,
+        evidence: [`Lichess returned HTTP ${response.status}.`],
+      };
+    }
+
+    const [line] = (await response.text()).split("\n").filter(Boolean);
+
+    if (!line) {
+      return {
+        status: "pending",
+        gameId: "lichess-no-recent-games",
+        summary: `No recent public Lichess games were found for ${username}.`,
+        evidence: ["The latest-games adapter returned no visible games."],
+      };
+    }
+
+    const game = JSON.parse(line) as LichessGame;
+    const gameId = game.id ?? "lichess-latest-game";
+
+    if (!game.status || OPEN_GAME_STATUSES.has(game.status)) {
+      return {
+        status: "pending",
+        gameId,
+        summary: `Found ${gameId}, but the Lichess game is not finished yet.`,
+        evidence: [`Lichess status was ${game.status ?? "unknown"}.`],
+      };
+    }
+
+    const { whiteName, blackName } = getPlayerNames(game);
+    const normalizedUsername = username.trim().toLowerCase();
+
+    if (whiteName !== normalizedUsername && blackName !== normalizedUsername) {
+      return {
+        status: "failed",
+        gameId,
+        summary: `Found ${gameId}, but saved username ${username} does not appear in that game.`,
+        evidence: ["The latest visible game did not match the saved username."],
+      };
+    }
+
+    return {
+      status: "passed",
+      gameId,
+      summary: `Verified ${gameId}. ${username} appears in a finished public Lichess game, so the Proof Loop Test passed.`,
+      evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control are accepted for this test quest."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "lichess-latest-error",
+      summary: `Lichess latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network or NDJSON parsing failed."],
+    };
+  }
+}
+
 async function verifyDrawAttempt({
   gameId,
   lichessUsername,

@@ -9,6 +9,12 @@ export type VerifierStatus = {
 };
 
 export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
+  "finish-any-game": {
+    state: "live",
+    summary: "Latest-game proof enabled",
+    evidence:
+      "Checks that the saved Lichess or Chess.com username appears in any recent public finished game. Win, loss, draw, color, and time control are intentionally accepted for full-loop testing.",
+  },
   "knights-before-coffee": {
     state: "live",
     summary: "Latest-game proof enabled",

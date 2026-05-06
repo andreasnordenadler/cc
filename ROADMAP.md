@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:39 Europe/Stockholm
+Last updated: 2026-05-06 10:47 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Add a complete Proof Loop Test quest for testing completion.
+  - added_at: 2026-05-06 10:40 Europe/Stockholm
+  - completed_at: 2026-05-06 10:47 Europe/Stockholm
+  - source: Andreas asked for a pickable quest with coat of arms where any played game, win/loss/draw/type, can complete the quest so he and users can test the whole flow.
+  - Proof: added `finish-any-game` / `Proof Loop Test` to `src/lib/challenges.ts`, added live verifier status, wired Lichess latest-game and Chess.com latest-archive finished-game checks, and reused the manual `finish-any-game` verification path. Proof doc: `docs/SQC_PROOF_LOOP_TEST_QUEST_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Make completed quest result feel like a shareable coat-of-arms celebration.
   - added_at: 2026-05-06 10:35 Europe/Stockholm

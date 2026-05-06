@@ -42,6 +42,46 @@ export type Challenge = {
 
 export const CHALLENGES: Challenge[] = [
   {
+    id: "finish-any-game",
+    title: "Proof Loop Test",
+    objective: "Play any finished game — win, lose, or draw — and complete the quest.",
+    instruction:
+      "Use this test quest to verify the full Side Quest Chess loop. Play any public finished Lichess or Chess.com game, then run the latest-game check or submit the game link. Any result, color, time control, or level of chess competence counts.",
+    openingHint: "Literally just play chess. Suspiciously reasonable.",
+    reward: 10,
+    category: "Test Quest",
+    difficulty: "Easy",
+    completionRate: "Loop test",
+    flavor: "The official ceremonial rubber stamp for proving the quest machine works before attempting something sillier.",
+    badge: "Loop Proven",
+    badgeIdentity: {
+      name: "The Rubber Stamp Rampart",
+      motif: "✓",
+      rarity: "Testing token",
+      unlockCopy: "Complete any public game and prove the Side Quest Chess loop works end to end.",
+      heraldry: {
+        shield: "Green-gold field with a check mark stamped over a tiny finished chessboard.",
+        charge: "Rubber stamp of completion",
+        crest: "Tiny QA flag",
+        motto: "It Counts Because We Said So",
+        meaning: "The stamped check mark represents a finished game accepted as proof; the board marks the full pick-play-verify-share loop.",
+        weirdness: "A noble house founded entirely to test buttons in production.",
+      },
+      colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.42)" },
+    },
+    proofCallout: "Any public finished game · win, loss, or draw accepted",
+    rules: [
+      "Play any public finished Lichess or Chess.com game.",
+      "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this test quest.",
+      "Your saved chess username must appear in the game.",
+      "This quest exists to test activation, verification, completion, coat-of-arms unlock, proof log, and sharing.",
+    ],
+    requirement: {
+      side: "either",
+      result: "finish",
+    },
+  },
+  {
     id: "knights-before-coffee",
     title: "Knights Before Coffee",
     objective: "For your first four moves, only move knights — then win the game.",

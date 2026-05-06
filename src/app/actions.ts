@@ -11,6 +11,7 @@ import {
   checkLatestChessComBishopFieldTrip,
   checkLatestChessComBlunderGambit,
   checkLatestChessComEarlyKingWalk,
+  checkLatestChessComFinishedGame,
   checkLatestChessComKnightsBeforeCoffee,
   checkLatestChessComKnightmareMode,
   checkLatestChessComNoCastleClub,
@@ -31,6 +32,7 @@ import {
   verifyDrawAnyGameAttempt,
   verifyDrawAsBlackAttempt,
   verifyDrawAsWhiteAttempt,
+  checkLatestLichessFinishedGame,
   verifyFinishAnyGameAttempt,
   verifyFinishAsBlackAttempt,
   verifyFinishAsWhiteAttempt,
@@ -186,6 +188,34 @@ async function buildLatestGameChecks(challengeId: string, attemptCount: number, 
 }
 
 async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
+  if (challengeId === "finish-any-game") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessFinishedGame(lichessUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComFinishedGame(chessComUsername);
+
+      return {
+        status: verdict.status,
+        gameId: verdict.gameId,
+        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+      };
+    }
+
+    return {
+      status: "pending" as const,
+      gameId: "proof-loop-test-awaiting-username",
+      summary: "Add a Lichess or Chess.com username, play any public finished game, then run the latest-game check to complete the Proof Loop Test.",
+    };
+  }
+
   if (challengeId === "knights-before-coffee") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessKnightsBeforeCoffee(lichessUsername);

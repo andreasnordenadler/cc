@@ -2355,6 +2355,66 @@ export async function verifyChessComFinishAsBlackAttempt({
   });
 }
 
+export async function checkLatestChessComFinishedGame(username: string): Promise<ChessComVerificationVerdict & { gameId: string; evidence: string[] }> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest finished games.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username);
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-archives-unavailable",
+        summary: `Chess.com archive lookup is temporarily unavailable for ${username}.`,
+        evidence: ["No Chess.com public archives were returned."],
+      };
+    }
+
+    for (const archiveUrl of archives.slice(-3).reverse()) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const match = games
+        .toReversed()
+        .find((game) => isFinishedGame(game) && Boolean(getPlayerSideForUsername(game, username)));
+
+      if (match) {
+        const gameId = normalizeChessComGameUrl(match.url ?? "chesscom-latest-game");
+        return {
+          status: "passed",
+          gameId,
+          summary: `Verified Chess.com game. ${username} appears in a finished public game, so the Proof Loop Test passed.`,
+          evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control are accepted for this test quest."],
+        };
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-recent-games",
+      summary: `No recent public finished Chess.com games were found for ${username}.`,
+      evidence: ["Recent Chess.com archives did not include a finished matching game yet."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network or archive parsing failed."],
+    };
+  }
+}
+
 export async function verifyChessComWinAsWhiteAttempt({
   gameUrl,
   chessComUsername,
