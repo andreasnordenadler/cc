@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 13:14 Europe/Stockholm
+Last updated: 2026-05-06 13:24 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace completed quest seal with photorealistic all-red wax seal.
+  - added_at: 2026-05-06 13:20 Europe/Stockholm
+  - completed_at: 2026-05-06 13:24 Europe/Stockholm
+  - source: Andreas clarified the stamp should be all red, photorealistic like a wax seal, with the Side Quest Chess logo/coat of arms.
+  - Proof: generated `public/stamps/quest-complete-red-wax-sqc-v3.png`, a red wax seal with embossed SQC/Proof Loop Test coat-of-arms motif, cleaned magenta background/fringe, and updated CSS to use the new cache-busting asset. Proof doc: `docs/SQC_COMPLETED_QUEST_RED_WAX_SEAL_2026-05-06.md`.
+  - Verification: dark-background visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Fix completed quest seal visibility and cache-bust updated asset.
   - added_at: 2026-05-06 13:08 Europe/Stockholm
