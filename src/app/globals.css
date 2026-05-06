@@ -113,7 +113,7 @@ p { color: var(--muted); line-height: 1.5; }
 .completed-quest-award { position: absolute; z-index: 9; left: clamp(110px, 22vw, 300px); right: auto; top: clamp(4px, 2.7vw, 32px); width: min(26vw, 242px); min-width: 190px; aspect-ratio: 1; display: grid; place-items: center; text-align: center; pointer-events: none; filter: drop-shadow(0 22px 34px rgba(0,0,0,.42)); }
 .completed-quest-award-seal { position: absolute; inset: -12%; background: url('/stamps/sqc-wax-seal-canonical.png') center / contain no-repeat; opacity: .99; transform: rotate(-8deg); }
 .completed-quest-award small { position: absolute; z-index: 2; left: 50%; top: calc(100% + 22px); width: max-content; max-width: 116%; transform: translateX(-50%); padding: 7px 10px; border: 1px solid rgba(245,200,106,.45); border-radius: 999px; background: rgba(20,13,13,.82); color: #f7d887; font-size: clamp(.62rem, 1.15vw, .78rem); font-weight: 950; letter-spacing: .04em; line-height: 1.2; }
-.card-completed-award { left: 160px; top: 132px; width: 128px; min-width: 128px; filter: drop-shadow(0 16px 24px rgba(0,0,0,.42)); }
+.card-completed-award { left: 50%; top: 50%; width: 128px; min-width: 128px; transform: translate(-50%, -50%); filter: drop-shadow(0 16px 24px rgba(0,0,0,.42)); }
 .card-completed-award .completed-quest-award-seal { inset: -10%; }
 .card-completed-award small { top: calc(100% + 8px); padding: 5px 8px; font-size: .64rem; letter-spacing: .035em; }
 .coming-soon-quest-card { border-style: dashed; border-color: rgba(245,200,106,.28); background: linear-gradient(135deg, rgba(255,255,255,.055), rgba(245,200,106,.055)); overflow: hidden; cursor: default; }

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 16:21 Europe/Stockholm
+Last updated: 2026-05-06 16:25 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Center completed quest wax seal on completed quest cards.
+  - added_at: 2026-05-06 16:23 Europe/Stockholm
+  - completed_at: 2026-05-06 16:25 Europe/Stockholm
+  - source: Andreas shared a completed quest card screenshot and asked to move the seal to the center of the card.
+  - Proof: updated `.card-completed-award` CSS to center via `left: 50%`, `top: 50%`, and `translate(-50%, -50%)`, keeping the compact seal and pill treatment. Proof doc: `docs/SQC_COMPLETED_CARD_SEAL_CENTERING_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Remove `Check latest games` from the My Side Quests Current Quest card.
   - added_at: 2026-05-06 16:19 Europe/Stockholm
