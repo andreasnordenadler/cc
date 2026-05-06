@@ -127,38 +127,7 @@ export default async function Home() {
               </div>
             </div>
           </section>
-        ) : (
-          <section className="mission-card" aria-label="How Side Quest Chess proof works">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Proof loop</span>
-                <h2>From bad idea to brag receipt.</h2>
-              </div>
-              <span className="badge blue">3 steps</span>
-            </div>
-            <p>
-              Pick one quest, play a real public game, then turn the latest-game check into a result card and saved proof log before the next ridiculous quest begins.
-            </p>
-            <div className="checker-flow" aria-label="Pick play prove loop">
-              <Link href="/challenges" className="flow-step ready clickable-quest-card">
-                <strong>1. Pick the quest</strong>
-                <p>Choose how hard you want to go, then make one quest active.</p>
-              </Link>
-              <Link href="/account" className="flow-step hot clickable-quest-card">
-                <strong>2. Play real chess</strong>
-                <p>Use Lichess or Chess.com public games. No PGN uploads, no password nonsense.</p>
-              </Link>
-              <Link href="/result" className="flow-step ready clickable-quest-card">
-                <strong>3. Prove or retry</strong>
-                <p>Share a passed receipt, understand a miss, or save it in the proof log.</p>
-              </Link>
-            </div>
-            <div className="button-row">
-              <Link href="/account" className="button primary">Run latest-game check</Link>
-              <Link href="/proof-log" className="button secondary">Open proof log</Link>
-            </div>
-          </section>
-        )}
+        ) : null}
 
 
         <section className="hero-card home-badge-vault-card" aria-label="Badge vault preview">
