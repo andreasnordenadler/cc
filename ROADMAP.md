@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 14:31 Europe/Stockholm
+Last updated: 2026-05-06 14:48 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Tune completed wax seal layout and date-only label.
+  - added_at: 2026-05-06 14:46 Europe/Stockholm
+  - completed_at: 2026-05-06 14:48 Europe/Stockholm
+  - source: Andreas confirmed the seal looks good and asked for it to sit on top of the section, overlap the text a bit, be slightly bigger, and remove the time from the completion text.
+  - Proof: enlarged/repositioned `.completed-quest-award` over the quest title/text area while keeping it off the reward coat of arms, reduced completed title padding, and changed `formatCompletedDate` to date-only output. Proof doc: `docs/SQC_COMPLETED_QUEST_WAX_SEAL_LAYOUT_DATE_ONLY_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Tighten completed wax seal transparency and title-side placement.
   - added_at: 2026-05-06 14:27 Europe/Stockholm
