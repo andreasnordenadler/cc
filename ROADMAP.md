@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 13:05 Europe/Stockholm
+Last updated: 2026-05-06 13:14 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Fix completed quest seal visibility and cache-bust updated asset.
+  - added_at: 2026-05-06 13:08 Europe/Stockholm
+  - completed_at: 2026-05-06 13:14 Europe/Stockholm
+  - source: Andreas reported he could not see that the updated completed quest seal was visible.
+  - Proof: created `public/stamps/quest-complete-seal-sqc-v2.png` with a much larger actual SQC/Proof Loop Test coat of arms in the center and changed CSS to reference the new cache-busting filename. Proof doc: `docs/SQC_COMPLETED_QUEST_SEAL_CACHE_AND_VISIBILITY_FIX_2026-05-06.md`.
+  - Verification: dark-background visual preview; `pnpm lint`; `pnpm build`.
 
 - [x] Revise completed quest seal to use actual SQC coat of arms.
   - added_at: 2026-05-06 12:57 Europe/Stockholm
