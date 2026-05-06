@@ -120,7 +120,7 @@ export default async function Home() {
             <div className="section-head">
               <div>
                 <span className="eyebrow">What happens after sign-in</span>
-                <h2>A tiny loop, not another chess dashboard.</h2>
+                <h2>A tiny ritual, not another chess dashboard.</h2>
               </div>
             </div>
             <div className="checker-flow signed-out-loop-cards" aria-label="Signed-out product explanation">

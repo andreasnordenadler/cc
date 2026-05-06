@@ -67,7 +67,7 @@ export default async function RulesPage() {
           <span className="eyebrow">SQC rulebook</span>
           <h1>Funny quests. Serious receipts.</h1>
           <p className="hero-copy">
-            Side Quest Chess only works if the proof feels trustworthy. The rulebook makes the loop explicit: choose a weird objective, play real games elsewhere, then let SQC verify the receipt without turning into homework.
+            Side Quest Chess only works if the proof feels trustworthy. The rulebook keeps the path explicit: choose a weird objective, play real games elsewhere, then let SQC verify the receipt without turning into homework.
           </p>
           <div className="button-row hero-actions">
             <Link href={`/challenges/${canonicalChallenge.id}`} className="button primary">Try the live verifier</Link>

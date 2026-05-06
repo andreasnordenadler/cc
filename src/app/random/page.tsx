@@ -49,7 +49,7 @@ export default async function RandomDarePage() {
           <article className="stat-card mission-card">
             <span className="eyebrow">Still verifiable</span>
             <h3>Ridiculous, not vague.</h3>
-            <p>Each spin keeps the rule checklist and real-game verification loop intact.</p>
+            <p>Each spin keeps the rule checklist and real-game verification path intact.</p>
           </article>
         </section>
       </div>

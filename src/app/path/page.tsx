@@ -90,7 +90,7 @@ export default async function QuestPicksPage() {
         </section>
 
         <section className="grid" aria-label="Quest-pick summary">
-          <Fact label="Start easy" value="Knights Before Coffee" copy="A small opening ritual that teaches the loop without throwing you into peak chaos." />
+          <Fact label="Start easy" value="Knights Before Coffee" copy="A small opening ritual that teaches the rhythm without throwing you into peak chaos." />
           <Fact label="Looking for trouble" value="No Castle Club" copy="A very understandable constraint with real danger once the board gets sharp." />
           <Fact label="Badass" value="Queen? Never Heard of Her" copy="A streamer-hard comeback receipt if you want the funny story immediately." />
         </section>
@@ -109,7 +109,7 @@ export default async function QuestPicksPage() {
           <div className="checker-flow" aria-label="Quest proof eligibility checklist">
             <div className="flow-step ready">
               <strong>Standard chess only</strong>
-              <p>Variants are funny, but they do not count for the v1 proof loop.</p>
+              <p>Variants are funny, but they do not count for the v1 proof check.</p>
             </div>
             <div className="flow-step ready">
               <strong>Bullet, blitz, or rapid</strong>

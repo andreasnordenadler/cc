@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Private beta — Side Quest Chess",
     description:
-      "A clear friends/private beta test loop for weird chess side quests, live receipts, and honest verifier feedback.",
+      "A clear friends/private beta test path for weird chess side quests, live receipts, and honest verifier feedback.",
     url: "/beta",
   },
 };
@@ -66,7 +66,7 @@ export default async function BetaPage() {
       <div className="content-wrap">
         <section className="hero-card">
           <span className="eyebrow">Friends / private beta</span>
-          <h1>Test the weird loop before the public launch push.</h1>
+          <h1>Test the weird quests before the public launch push.</h1>
           <p className="hero-copy">
             Side Quest Chess is in private-beta hardening: clear onboarding, honest latest-game verification, readable proof cards, and no launch-marketing pressure until the first-user flow feels properly solid.
           </p>

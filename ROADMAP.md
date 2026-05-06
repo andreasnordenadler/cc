@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 17:28 Europe/Stockholm
+Last updated: 2026-05-06 17:34 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove internal `proof loop` / `loop` language from user-facing copy.
+  - added_at: 2026-05-06 17:29 Europe/Stockholm
+  - completed_at: 2026-05-06 17:34 Europe/Stockholm
+  - source: Andreas said the text mentions `proof loop` and `loop`, which does not make sense for users.
+  - Proof: renamed visible `Proof Loop Test` to `Any Game Counts`, changed loop/test badge/status wording to completion language, rewrote any-game victory scroll copy, verifier summaries, pending copy, and other user-facing `loop` copy in `src/`. Proof doc: `docs/SQC_REMOVE_LOOP_LANGUAGE_FROM_USER_COPY_2026-05-06.md`.
+  - Verification: grep for loop/proof-loop strings in `src`; `pnpm lint`; `pnpm build`.
 
 - [x] Fix Completed Proof victory scroll bottom pill visibility.
   - added_at: 2026-05-06 17:23 Europe/Stockholm

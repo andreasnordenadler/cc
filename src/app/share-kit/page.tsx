@@ -77,7 +77,7 @@ export default function ShareKitPage() {
           </article>
 
           <article className="mission-card">
-            <span className="eyebrow">Proof loop</span>
+            <span className="eyebrow">Proof check</span>
             <h2>Receipts after the game.</h2>
             <p>Best for bragging honestly: proof cards and logs show passed, failed, and pending checks without pretending.</p>
             <Link href="/proof-log" className="button secondary">Open proof log</Link>
@@ -93,9 +93,9 @@ export default function ShareKitPage() {
             <span className="badge gold">Invite → receipt</span>
           </div>
           <p>
-            The strongest SQC share loop is deliberately tiny: send one quest link before the game, play on the normal chess site, then come back to the receipt when the bad idea either works or detonates.
+            The strongest SQC share path is deliberately tiny: send one quest link before the game, play on the normal chess site, then come back to the receipt when the bad idea either works or detonates.
           </p>
-          <div className="checker-flow" aria-label="Friend quest share loop">
+          <div className="checker-flow" aria-label="Friend quest share path">
             <div className="flow-step ready">
               <strong>1 · Invite</strong>
               <p>Pick one exact side quest instead of pitching the whole product.</p>

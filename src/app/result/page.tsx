@@ -112,7 +112,7 @@ export default async function ResultPage({
             <p>
               {isPassed
                 ? "When a quest completes, the result should lead with the unlocked coat of arms and package it with the proof, points, and one-tap sharing."
-                : "This screen turns the latest saved quest check into the product’s core loop: honest status, clear next action, badge progress, and share copy when the proof lands."}
+                : "This screen turns the latest saved quest check into the product’s core ritual: honest status, clear next action, badge progress, and share copy when the proof lands."}
             </p>
             <div className="button-row">
               <Link href="/account" className="button primary">Open My Side Quests</Link>
@@ -211,7 +211,7 @@ export default async function ResultPage({
             <span className="eyebrow">Send the next quest</span>
             <h2>Turn this receipt into the next bad decision.</h2>
             <p>
-              After a pass, fail, or pending check, send the exact same quest to a friend so the loop continues with a quest-specific invite instead of a generic homepage pitch.
+              After a pass, fail, or pending check, send the exact same quest to a friend so the challenge continues with a quest-specific invite instead of a generic homepage pitch.
             </p>
             <ChallengeInviteActions
               challengeTitle={challenge.title}
@@ -233,15 +233,15 @@ export default async function ResultPage({
         <section className="mission-card beta-template-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Launch loop</span>
+              <span className="eyebrow">Quest path</span>
               <h2>From receipt to next quest in one screen.</h2>
             </div>
             <Link href="/share-kit" className="button secondary">Share a quest</Link>
           </div>
           <p>
-            The result page now points every state toward the real SQC loop: passed receipts become shareable proof, failed receipts explain the rule miss, and pending receipts send players back to a clean latest-game check.
+            The result page now points every state toward the next useful step: passed receipts become shareable proof, failed receipts explain the rule miss, and pending receipts send players back to a clean latest-game check.
           </p>
-          <div className="checker-flow" aria-label="Receipt to next quest loop">
+          <div className="checker-flow" aria-label="Receipt to next quest path">
             <div className="flow-step ready">
               <strong>Share</strong>
               <p>Copy the proof when the quest lands.</p>
@@ -269,7 +269,7 @@ function buildVictoryScrollCopy(challenge: (typeof CHALLENGES)[number], attempt?
   const summary = attempt?.summary ?? challenge.objective;
 
   if (challenge.id === "finish-any-game") {
-    return "A public chess game was, against all odds, completed. Win, loss, or draw — the ancient machinery blinked, nodded, and stamped the loop as functional.";
+    return "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms.";
   }
 
   if (challenge.requirement.result === "win") {

@@ -13,7 +13,7 @@ export const verifierStatusByChallenge: Record<string, VerifierStatus> = {
     state: "live",
     summary: "Latest-game proof enabled",
     evidence:
-      "Checks that the saved Lichess or Chess.com username appears in any recent public finished game. Win, loss, draw, color, and time control are intentionally accepted for full-loop testing.",
+      "Checks that the saved Lichess or Chess.com username appears in any recent public finished game. Win, loss, draw, color, and time control are intentionally accepted for basic completion testing.",
   },
   "knights-before-coffee": {
     state: "live",

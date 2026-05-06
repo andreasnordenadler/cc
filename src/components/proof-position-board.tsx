@@ -110,7 +110,7 @@ function buildAchievementCopy(challenge: Challenge, attempt?: ChallengeAttempt |
   const summary = attempt?.summary ?? challenge.objective;
 
   if (challenge.id === "finish-any-game") {
-    return "A public chess game was, against all odds, completed. Win, loss, or draw — the ancient machinery blinked, nodded, and stamped the loop as functional.";
+    return "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms.";
   }
 
   if (challenge.requirement.result === "win") {

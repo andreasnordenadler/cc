@@ -249,7 +249,7 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     return {
       status: "pending" as const,
       gameId: "proof-loop-test-awaiting-username",
-      summary: "Add a Lichess or Chess.com username, play any public finished game, then run the latest-game check to complete the Proof Loop Test.",
+      summary: "Add a Lichess or Chess.com username, play any public finished game, then run the latest-game check to complete the Any Game Counts.",
     };
   }
 
