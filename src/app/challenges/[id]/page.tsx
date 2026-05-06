@@ -157,9 +157,7 @@ export default async function ChallengeDetailPage({
             </div>
             <ProofPositionBoard
               attempt={latestPassedAttempt}
-              challengeTitle={challenge.title}
-              badgeName={challenge.badgeIdentity.name}
-              reward={challenge.reward}
+              challenge={challenge}
               sharePath={`/result?challengeId=${challenge.id}`}
             />
           </section>

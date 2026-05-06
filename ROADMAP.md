@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 16:31 Europe/Stockholm
+Last updated: 2026-05-06 17:20 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Use victory scroll in Completed Proof fallback when board data is missing.
+  - added_at: 2026-05-06 17:16 Europe/Stockholm
+  - completed_at: 2026-05-06 17:20 Europe/Stockholm
+  - source: Andreas showed the completed quest page still displaying the simple `PROOF ACCEPTED` panel and clarified he only saw that, not the intended scroll/certificate surface.
+  - Proof: reworked `ProofPositionBoard` missing-board fallback into a parchment victory scroll with coat of arms, quest-specific SQC-tone achievement copy, proof line, date/points, and canonical wax seal; final-board rendering remains intact when FEN exists. Proof doc: `docs/SQC_COMPLETED_PROOF_SCROLL_FALLBACK_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Replace passed-result share card with a parchment victory scroll.
   - added_at: 2026-05-06 16:24 Europe/Stockholm

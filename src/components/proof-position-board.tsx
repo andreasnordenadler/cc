@@ -1,4 +1,6 @@
+import ChallengeBadge from "@/components/challenge-badge";
 import ShareProofActions from "@/components/share-proof-actions";
+import type { Challenge } from "@/lib/challenges";
 import type { ChallengeAttempt } from "@/lib/user-metadata";
 
 const PIECES: Record<string, string> = {
@@ -24,17 +26,13 @@ type BoardSquare = {
 
 type ProofPositionBoardProps = {
   attempt: ChallengeAttempt | null;
-  challengeTitle: string;
-  badgeName: string;
-  reward: number;
+  challenge: Challenge;
   sharePath: string;
 };
 
 export default function ProofPositionBoard({
   attempt,
-  challengeTitle,
-  badgeName,
-  reward,
+  challenge,
   sharePath,
 }: ProofPositionBoardProps) {
   const board = attempt?.finalPositionFen ? parseFenBoard(attempt.finalPositionFen, attempt.lastMoveUci) : null;
@@ -42,33 +40,35 @@ export default function ProofPositionBoard({
   const providerLabel = formatProvider(attempt?.provider);
   const gameLabel = attempt?.gameId ? `${providerLabel} game ${attempt.gameId}` : `${providerLabel} proof accepted`;
   const proofSummary = attempt?.summary ?? "The verifier accepted this quest and saved the completed proof receipt.";
-  const shareCopy = `I completed “${challengeTitle}” on Side Quest Chess. ${badgeName} unlocked. +${reward} points. Proof accepted: ${proofSummary}`;
+  const achievementCopy = buildAchievementCopy(challenge, attempt);
+  const scrollDate = formatScrollDate(attempt?.completedGameAt ?? attempt?.checkedAt);
+  const shareCopy = `${achievementCopy} ${challenge.badgeIdentity.name} unlocked on Side Quest Chess. +${challenge.reward} points.`;
 
   return (
     <article className="note-card proof-position-card" aria-label="Victory proof receipt">
       <div className="proof-position-copy">
         <span className="eyebrow">Victory proof</span>
-        <h3>{board ? "Final position captured." : "Quest proof accepted."}</h3>
+        <h3>{board ? "Final position captured." : "Your victory scroll is ready."}</h3>
         <p>
           {board
             ? "The verifier saved the final board position and last move, so this completed quest has a visual receipt ready to share."
-            : "This quest is complete and the verifier accepted the receipt. Final-board data was not captured for this proof, so the receipt leads with the accepted verifier summary instead of showing an empty board."}
+            : "The verifier accepted the quest. Since this receipt does not include final-board data, the shareable proof leads with the unlocked coat of arms, the ridiculous achievement, and the seal of approval."}
         </p>
         <div className="proof-receipt-facts" aria-label="Proof receipt details">
-          <span><strong>Quest</strong>{challengeTitle}</span>
+          <span><strong>Quest</strong>{challenge.title}</span>
           <span><strong>Receipt</strong>{gameLabel}</span>
           <span><strong>Last move</strong>{lastMove ?? "Not captured for this proof"}</span>
         </div>
         <ShareProofActions
           copy={shareCopy}
-          challengeTitle={challengeTitle}
+          challengeTitle={challenge.title}
           sharePath={sharePath}
-          copyLabel="Copy victory proof"
-          shareLabel="Share victory proof"
-          idleCopy="Copies the accepted proof summary plus this quest-specific proof link."
+          copyLabel="Copy scroll text"
+          shareLabel="Share victory scroll"
+          idleCopy="Copies the lightly official good-news scroll text plus this quest-specific proof link."
         />
       </div>
-      <div className="proof-board-wrap" data-board-state={board ? "ready" : "receipt"}>
+      <div className="proof-board-wrap" data-board-state={board ? "ready" : "scroll"}>
         {board ? (
           <div className="proof-board" role="img" aria-label="Final chess position with last move highlighted">
             {board.map((square) => (
@@ -82,13 +82,59 @@ export default function ProofPositionBoard({
             ))}
           </div>
         ) : (
-          <div className="proof-receipt-seal" role="img" aria-label="Accepted proof receipt without final board data">
-            <span>Proof accepted</span>
+          <div className="victory-scroll proof-victory-scroll" aria-label={`Victory scroll for ${challenge.title}`}>
+            <div className="victory-scroll-burn top-left" aria-hidden="true" />
+            <div className="victory-scroll-burn top-right" aria-hidden="true" />
+            <div className="victory-scroll-crest">
+              <ChallengeBadge challenge={challenge} presentation="art" earned />
+            </div>
+            <span className="victory-scroll-kicker">Side Quest Chess hereby admits</span>
+            <h3>{challenge.badgeIdentity.name}</h3>
+            <p className="victory-scroll-copy">{achievementCopy}</p>
+            <p className="victory-scroll-proof">
+              Proof accepted for <strong>{challenge.title}</strong>. {proofSummary}
+            </p>
+            <div className="victory-scroll-footer">
+              <span>{scrollDate}</span>
+              <span>+{challenge.reward} pts</span>
+            </div>
+            <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
           </div>
         )}
       </div>
     </article>
   );
+}
+
+function buildAchievementCopy(challenge: Challenge, attempt?: ChallengeAttempt | null) {
+  const summary = attempt?.summary ?? challenge.objective;
+
+  if (challenge.id === "finish-any-game") {
+    return "A public chess game was, against all odds, completed. Win, loss, or draw — the ancient machinery blinked, nodded, and stamped the loop as functional.";
+  }
+
+  if (challenge.requirement.result === "win") {
+    return `${summary} The bad idea survived contact with reality and still ended in victory, which frankly feels like a paperwork error.`;
+  }
+
+  if (challenge.requirement.result === "draw") {
+    return `${summary} Nobody won, nobody learned, and yet the scroll department has approved the achievement.`;
+  }
+
+  if (challenge.requirement.result === "lose") {
+    return `${summary} Losing on purpose-adjacent terms is still proof, and Side Quest Chess respects commitment to the bit.`;
+  }
+
+  return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
+}
+
+function formatScrollDate(value?: string) {
+  if (!value) return "Recorded by the suspicious little verifier";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Recorded by the suspicious little verifier";
+
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
 function formatProvider(provider?: ChallengeAttempt["provider"]): string {

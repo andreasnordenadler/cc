@@ -184,9 +184,7 @@ function ProofReceipt({ attempt }: { attempt: ChallengeAttempt }) {
       {status === "passed" ? (
         <ProofPositionBoard
           attempt={attempt}
-          challengeTitle={challenge.title}
-          badgeName={challenge.badgeIdentity.name}
-          reward={challenge.reward}
+          challenge={challenge}
           sharePath={`/result?challengeId=${challenge.id}`}
         />
       ) : null}
