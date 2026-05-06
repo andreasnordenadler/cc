@@ -2488,3 +2488,60 @@ Always quote Next.js dynamic route paths with brackets when using zsh, e.g. `'sr
 - Related Files: src/app/api/og/proof/[token]/route.tsx
 
 ---
+
+## [ERR-20260506-002] web_search_rate_limit_during_sqc_review
+
+**Logged**: 2026-05-06T23:34:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: research
+
+### Summary
+Parallel Brave web searches can hit the provider free-plan rate limit during research-heavy reviews.
+
+### Error
+```
+Brave Search API error (429): rate limit exceeded for plan
+```
+
+### Context
+- Occurred during SQC external product/market review while issuing multiple web_search calls in parallel.
+- The review continued using the successful first search result and direct web_fetch calls to known competitor/market pages.
+
+### Suggested Fix
+For research tasks, avoid parallel web_search bursts against Brave. Use one search, then direct web_fetch on known/selected sources or space searches out.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/research/sqc-review-2026-05-06/SQC_EXTERNAL_PRODUCT_REVIEW_2026-05-06.md
+
+---
+
+## [ERR-20260506-003] playwright_browser_missing_for_one_off_screenshots
+
+**Logged**: 2026-05-06T23:35:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tooling
+
+### Summary
+One-off `npx playwright screenshot` failed because the Playwright browser binary was not installed in the local cache.
+
+### Error
+```
+Executable doesn't exist at /Users/sam/Library/Caches/ms-playwright/.../headless_shell
+Looks like Playwright Test or Playwright was just installed or updated.
+```
+
+### Context
+- Occurred while capturing live SQC screenshots for a consultant-style product review.
+- Resolved by running `npx -y playwright@1.56.1 install chromium`, then rerunning screenshot capture.
+
+### Suggested Fix
+For future screenshot-heavy reviews on this host, check/install the Playwright browser once before the first screenshot command.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: docs/research/sqc-review-2026-05-06/
+
+---
