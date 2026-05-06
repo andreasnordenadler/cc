@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 13:37 Europe/Stockholm
+Last updated: 2026-05-06 13:42 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -49,6 +49,13 @@ Andreas reset SQC planning on 2026-05-05:
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
 
+- [x] Change completed quest award date copy from game language to quest language.
+  - added_at: 2026-05-06 13:40 Europe/Stockholm
+  - completed_at: 2026-05-06 13:42 Europe/Stockholm
+  - source: Andreas corrected that the completed award text should say Quest completed, not Game completed.
+  - Proof: updated completed quest award date pill from `Game completed ...` to `Quest completed ...` in `src/app/challenges/[id]/page.tsx`.
+  - Verification: `pnpm lint`; `pnpm build`.
+
 - [x] Rebuild completed quest wax seal from Andreas-provided SQC source logo.
   - added_at: 2026-05-06 13:32 Europe/Stockholm
   - completed_at: 2026-05-06 13:37 Europe/Stockholm
@@ -81,7 +88,7 @@ Andreas clarified that these five items are still wanted and should be treated a
   - added_at: 2026-05-06 12:45 Europe/Stockholm
   - completed_at: 2026-05-06 12:55 Europe/Stockholm
   - source: Andreas screenshot feedback on `/challenges/finish-any-game`: make the stamp much more prominent, maybe with custom graphic, remove buttons, and add completion date based on actual game time.
-  - Proof: generated `public/stamps/quest-complete-seal.png`; replaced the subtle completed stamp with a large celebratory award seal and `Game completed ...` date line; added `completedGameAt` to attempts and populated it from Lichess `lastMoveAt`/`createdAt` and Chess.com `end_time`; removed completed-state hero/status/friend-dare buttons from quest detail pages. Proof doc: `docs/SQC_COMPLETED_QUEST_AWARD_PAGE_2026-05-06.md`.
+  - Proof: generated `public/stamps/quest-complete-seal.png`; replaced the subtle completed stamp with a large celebratory award seal and `Quest completed ...` date line; added `completedGameAt` to attempts and populated it from Lichess `lastMoveAt`/`createdAt` and Chess.com `end_time`; removed completed-state hero/status/friend-dare buttons from quest detail pages. Proof doc: `docs/SQC_COMPLETED_QUEST_AWARD_PAGE_2026-05-06.md`.
   - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Add real Lichess final-position proof-board data for completed receipts.

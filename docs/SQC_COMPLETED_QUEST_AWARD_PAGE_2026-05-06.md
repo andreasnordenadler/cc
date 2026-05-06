@@ -12,7 +12,7 @@ Andreas asked to improve the completed quest page at `/challenges/finish-any-gam
 
 - Generated a custom celebratory chess seal graphic and saved it as `public/stamps/quest-complete-seal.png`.
 - Replaced the small completed stamp on quest detail pages with a large award-style seal overlay and text: `Quest completed`.
-- Added a completion-date line to the award: `Game completed <date>`.
+- Added a completion-date line to the award: `Quest completed <date>`.
 - Added `completedGameAt` to saved challenge attempts.
 - Lichess verifiers now populate `completedGameAt` from `lastMoveAt` / `createdAt` when proof passes.
 - Chess.com verifiers now populate `completedGameAt` from `end_time` when proof passes.

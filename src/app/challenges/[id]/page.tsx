@@ -115,7 +115,7 @@ export default async function ChallengeDetailPage({
           {isCompleted ? (
             <div className="completed-quest-award" aria-label={`Quest completed. ${completedDateLabel}.`}>
               <span className="completed-quest-award-seal" aria-hidden="true" />
-              <small>{completedDate ? `Game completed ${completedDateLabel}` : completedDateLabel}</small>
+              <small>{completedDate ? `Quest completed ${completedDateLabel}` : completedDateLabel}</small>
             </div>
           ) : null}
           <div className="quest-detail-meta card-meta quest-card-meta">
