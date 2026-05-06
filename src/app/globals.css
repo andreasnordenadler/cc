@@ -343,9 +343,15 @@ p { color: var(--muted); line-height: 1.5; }
 .rules-list li { padding: 12px; border-radius: 18px; background: rgba(255,255,255,.07); color: var(--muted); }
 .rules-list li::before { content: "✓"; color: var(--green); font-weight: 950; margin-right: 8px; }
 
-.result-poster { padding: clamp(22px, 4vw, 38px); color: #140d0d; background: linear-gradient(155deg, rgba(245,200,106,.94), rgba(255,95,159,.92)); transform: rotate(.5deg); }
+.result-poster { position: relative; padding: clamp(22px, 4vw, 38px); color: #140d0d; background: linear-gradient(155deg, rgba(245,200,106,.94), rgba(255,95,159,.92)); transform: rotate(.5deg); overflow: hidden; }
+.result-poster.completion-poster { border-color: rgba(96,240,175,.42); background: radial-gradient(circle at 72% 18%, rgba(96,240,175,.42), transparent 24%), radial-gradient(circle at 20% 86%, rgba(255,255,255,.32), transparent 28%), linear-gradient(155deg, rgba(245,200,106,.97), rgba(255,95,159,.92)); box-shadow: 0 34px 100px rgba(245,200,106,.24), 0 0 0 1px rgba(96,240,175,.24) inset; }
 .result-poster p { color: rgba(20,13,13,.76); font-weight: 750; }
 .result-poster .proof-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0; }
+.completion-stamp { position: absolute; top: 22px; right: -42px; z-index: 2; width: 220px; padding: 10px 12px; transform: rotate(17deg); border: 2px solid rgba(20,13,13,.52); background: rgba(96,240,175,.88); color: #140d0d; text-align: center; text-transform: uppercase; letter-spacing: .12em; font-size: 12px; font-weight: 1000; box-shadow: 0 16px 34px rgba(20,13,13,.22); }
+.completion-coat-stage { display: grid; justify-items: center; margin: 18px 0 6px; padding: 18px; border-radius: 30px; background: radial-gradient(circle, rgba(255,255,255,.42), rgba(20,13,13,.08) 58%, transparent 72%); }
+.completion-poster .challenge-badge-art.hero { width: min(280px, 62vw); }
+.completion-poster .challenge-badge-art.hero .badge-reference-art { width: min(280px, 62vw); max-height: 280px; }
+.completion-share-panel { border-color: rgba(96,240,175,.32); background: radial-gradient(circle at 90% 0%, rgba(96,240,175,.16), transparent 32%), rgba(255,255,255,.08); }
 .fact { padding: 14px; border-radius: 20px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
 .result-poster .fact { background: rgba(20,13,13,.12); border-color: rgba(20,13,13,.12); }
 .fact span { display: block; color: var(--muted); font-size: 12px; }
@@ -372,6 +378,9 @@ p { color: var(--muted); line-height: 1.5; }
 .gold { color: var(--gold); }
 .green { color: var(--green); }
 .share-card { display: grid; gap: 12px; }
+.victory-share-card { border-color: rgba(245,200,106,.36); background: radial-gradient(circle at 78% 12%, rgba(245,200,106,.16), transparent 30%), rgba(255,255,255,.08); }
+.victory-share-card .challenge-badge-art { justify-self: center; width: min(190px, 48vw); }
+.victory-share-card .badge-reference-art { width: min(190px, 48vw); max-height: 190px; }
 .roulette-hero { display: grid; gap: 20px; }
 .roulette-details { margin-top: 4px; }
 .roulette-count { margin-top: 12px; }

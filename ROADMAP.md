@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:27 Europe/Stockholm
+Last updated: 2026-05-06 10:39 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Make completed quest result feel like a shareable coat-of-arms celebration.
+  - added_at: 2026-05-06 10:35 Europe/Stockholm
+  - completed_at: 2026-05-06 10:39 Europe/Stockholm
+  - source: Andreas agreed that the completion moment should feel special, especially that the unlocked coat of arms celebration should be shareable together with the proof.
+  - Proof: updated `/result` passed-state UI to say `Quest completed`, lead with `Quest completed. Coat of arms unlocked.`, add a completion stamp, stage the unlocked coat larger, add passed-state shareable-celebration copy, and turn the share card/actions into `Share the unlock` / `Copy victory proof` / `Share victory proof`. Proof doc: `docs/SQC_COMPLETED_QUEST_CELEBRATION_PROOF_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Document the approved SQC great-version baseline.
   - added_at: 2026-05-06 10:27 Europe/Stockholm

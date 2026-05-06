@@ -23,27 +23,29 @@ export default async function ResultPage() {
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const isPassed = latestAttempt?.status === "passed";
   const isPending = latestAttempt?.status === "pending" || !latestAttempt;
-  const proofStatus = isPassed ? "Certified chaos" : isPending ? "Waiting on proof" : "Attempt logged";
+  const proofStatus = isPassed ? "Quest completed" : isPending ? "Waiting on proof" : "Attempt logged";
   const posterTitle = isPassed
-    ? "It counts. Somehow."
+    ? "Quest completed. Coat of arms unlocked."
     : isPending
       ? "Proof is warming up."
       : "Not cursed enough yet.";
-  const posterCopy = latestAttempt
-    ? latestAttempt.summary ?? "Latest Side Quest Chess attempt saved."
-    : "Start a quest, play real chess, and Side Quest Chess turns the latest check into a shareable proof card.";
+  const posterCopy = isPassed
+    ? `The verifier accepted the proof: ${latestAttempt?.summary ?? challenge.objective} Your ${challenge.badgeIdentity.name} coat of arms is now share-ready.`
+    : latestAttempt
+      ? latestAttempt.summary ?? "Latest Side Quest Chess attempt saved."
+      : "Start a quest, play real chess, and Side Quest Chess turns the latest check into a shareable proof card.";
   const gameLabel = latestAttempt?.gameId ?? "latest-game-check";
   const shareCopy = isPassed
-    ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badge} unlocked. +${challenge.reward} points.`
+    ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. ${challenge.badge} +${challenge.reward} points. Proof + coat of arms included.`
     : latestAttempt
       ? `I tried “${challenge.title}” on Side Quest Chess. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
       : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
   const receiptNextStep = isPassed
     ? {
         label: "Passed",
-        title: "This one is share-ready.",
-        copy: "Send the proof card or copy the share text. A passed receipt should make the win, quest rule, badge, and points obvious without extra explanation.",
-        action: "Copy share proof",
+        title: "The celebration is the proof.",
+        copy: "The passed state should feel like a small victory poster: unlocked coat of arms first, quest proof second, points and share actions immediately obvious.",
+        action: "Share victory proof",
         href: "/result",
       }
     : isPending
@@ -68,26 +70,33 @@ export default async function ResultPage() {
 
       <div className="content-wrap">
         <section className="hero-grid">
-          <article className="result-poster">
-            <div className="eyebrow" style={{ color: "#140d0d", background: "rgba(20,13,13,.12)" }}>Side Quest Chess proof</div>
+          <article className={isPassed ? "result-poster completion-poster" : "result-poster"}>
+            <div className="eyebrow" style={{ color: "#140d0d", background: "rgba(20,13,13,.12)" }}>
+              {isPassed ? "Side Quest Chess victory proof" : "Side Quest Chess proof"}
+            </div>
+            {isPassed ? <div className="completion-stamp">Quest complete</div> : null}
             <h1>{posterTitle}</h1>
             <p>{posterCopy}</p>
-            <ChallengeBadge challenge={challenge} size="hero" earned={isPassed} />
+            <div className="completion-coat-stage">
+              <ChallengeBadge challenge={challenge} size="hero" earned={isPassed} />
+            </div>
             <div className="proof-grid">
               <Fact label="Quest" value={challenge.title} />
               <Fact label="Status" value={proofStatus} />
               <Fact label="Game" value={gameLabel} />
               <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
             </div>
-            <strong>{isPassed ? `Badge unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
+            <strong>{isPassed ? `Coat unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
             <p>{challenge.badgeIdentity.heraldry.meaning} {challenge.badgeIdentity.heraldry.weirdness}</p>
           </article>
 
-          <aside className="mission-card">
-            <span className="eyebrow">Live proof card</span>
-            <h2>The result now follows your latest check.</h2>
+          <aside className={isPassed ? "mission-card completion-share-panel" : "mission-card"}>
+            <span className="eyebrow">{isPassed ? "Shareable celebration" : "Live proof card"}</span>
+            <h2>{isPassed ? "The coat of arms is the headline." : "The result now follows your latest check."}</h2>
             <p>
-              This screen turns the latest saved quest check into the product’s core loop: honest status, clear next action, badge progress, and share copy when the proof lands.
+              {isPassed
+                ? "When a quest completes, the result should lead with the unlocked coat of arms and package it with the proof, points, and one-tap sharing."
+                : "This screen turns the latest saved quest check into the product’s core loop: honest status, clear next action, badge progress, and share copy when the proof lands."}
             </p>
             <div className="button-row">
               <Link href="/account" className="button primary">Open My Quest Log</Link>
@@ -146,11 +155,21 @@ export default async function ResultPage() {
         </section>
 
         <section className="big-grid">
-          <article className="mission-card share-card">
-            <span className="eyebrow">Share copy</span>
-            <h2>{isPassed ? `I completed “${challenge.title}.”` : `I tried “${challenge.title}.”`}</h2>
+          <article className={isPassed ? "mission-card share-card victory-share-card" : "mission-card share-card"}>
+            <span className="eyebrow">{isPassed ? "Share the unlock" : "Share copy"}</span>
+            <h2>{isPassed ? `${challenge.badgeIdentity.name} is unlocked.` : `I tried “${challenge.title}.”`}</h2>
+            {isPassed ? <ChallengeBadge challenge={challenge} presentation="art" earned /> : null}
             <p>{shareCopy}</p>
-            <ShareProofActions copy={shareCopy} challengeTitle={challenge.title} />
+            <ShareProofActions
+              copy={shareCopy}
+              challengeTitle={challenge.title}
+              copyLabel={isPassed ? "Copy victory proof" : "Copy receipt"}
+              shareLabel={isPassed ? "Share victory proof" : "Share quest"}
+              idleCopy={isPassed
+                ? "Copies the victory line plus the proof-card link, so the unlocked coat of arms travels with the completed quest."
+                : "Copies the current result text plus this proof-card link. No PGN upload, no homework."
+              }
+            />
           </article>
           <article className="mission-card share-card">
             <span className="eyebrow">Send the next quest</span>
