@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 10:16 Europe/Stockholm
+Last updated: 2026-05-06 10:21 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Rework logged-in Active Quest card into a two-column layout.
+  - added_at: 2026-05-06 10:21 Europe/Stockholm
+  - completed_at: 2026-05-06 10:21 Europe/Stockholm
+  - source: Andreas screenshot feedback that moving the coat inward compacted the text too much.
+  - Proof: replaced absolute-position/padding layout with a real grid: text/meta/copy in the left column and the coat centered in its own right column, with a mobile one-column fallback. Proof doc: `docs/SQC_LOGGED_IN_ACTIVE_QUEST_TWO_COLUMN_LAYOUT_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Move the active quest coat further toward center.
   - added_at: 2026-05-06 10:16 Europe/Stockholm
