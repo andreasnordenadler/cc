@@ -54,6 +54,8 @@ export default async function ResultPage({
     : latestAttempt
       ? `I tried “${challenge.title}” on Side Quest Chess. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
       : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
+  const scrollAchievement = buildVictoryScrollCopy(challenge, latestAttempt);
+  const scrollDate = formatScrollDate(latestAttempt?.completedGameAt ?? latestAttempt?.checkedAt);
   const receiptNextStep = isPassed
     ? {
         label: "Passed",
@@ -170,17 +172,37 @@ export default async function ResultPage({
 
         <section className="big-grid">
           <article className={isPassed ? "mission-card share-card victory-share-card" : "mission-card share-card"}>
-            <span className="eyebrow">{isPassed ? "Share the unlock" : "Share copy"}</span>
-            <h2>{isPassed ? `${challenge.badgeIdentity.name} is unlocked.` : `I tried “${challenge.title}.”`}</h2>
-            {isPassed ? <ChallengeBadge challenge={challenge} presentation="art" earned /> : null}
-            <p>{shareCopy}</p>
+            <span className="eyebrow">{isPassed ? "Share the good news" : "Share copy"}</span>
+            <h2>{isPassed ? "A small official notice of questionable glory." : `I tried “${challenge.title}.”`}</h2>
+            {isPassed ? (
+              <div className="victory-scroll" aria-label={`Victory scroll for ${challenge.title}`}>
+                <div className="victory-scroll-burn top-left" aria-hidden="true" />
+                <div className="victory-scroll-burn top-right" aria-hidden="true" />
+                <div className="victory-scroll-crest">
+                  <ChallengeBadge challenge={challenge} presentation="art" earned />
+                </div>
+                <span className="victory-scroll-kicker">Side Quest Chess hereby admits</span>
+                <h3>{challenge.badgeIdentity.name}</h3>
+                <p className="victory-scroll-copy">{scrollAchievement}</p>
+                <p className="victory-scroll-proof">
+                  Proof accepted for <strong>{challenge.title}</strong>. {latestAttempt?.gameId ? `Game ${latestAttempt.gameId}.` : "Verifier receipt saved."}
+                </p>
+                <div className="victory-scroll-footer">
+                  <span>{scrollDate}</span>
+                  <span>+{challenge.reward} pts</span>
+                </div>
+                <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
+              </div>
+            ) : (
+              <p>{shareCopy}</p>
+            )}
             <ShareProofActions
-              copy={shareCopy}
+              copy={isPassed ? `${scrollAchievement} ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.` : shareCopy}
               challengeTitle={challenge.title}
-              copyLabel={isPassed ? "Copy victory proof" : "Copy receipt"}
-              shareLabel={isPassed ? "Share victory proof" : "Share quest"}
+              copyLabel={isPassed ? "Copy scroll text" : "Copy receipt"}
+              shareLabel={isPassed ? "Share victory scroll" : "Share quest"}
               idleCopy={isPassed
-                ? "Copies the victory line plus the proof-card link, so the unlocked coat of arms travels with the completed quest."
+                ? "Share this as the official tiny scroll of achievement. Screenshot-friendly, mildly pompous, and deservedly unserious."
                 : "Copies the current result text plus this proof-card link. No PGN upload, no homework."
               }
             />
@@ -241,6 +263,37 @@ export default async function ResultPage({
       </div>
     </main>
   );
+}
+
+function buildVictoryScrollCopy(challenge: (typeof CHALLENGES)[number], attempt?: ChallengeAttempt | null) {
+  const summary = attempt?.summary ?? challenge.objective;
+
+  if (challenge.id === "finish-any-game") {
+    return "A public chess game was, against all odds, completed. Win, loss, or draw — the ancient machinery blinked, nodded, and stamped the loop as functional.";
+  }
+
+  if (challenge.requirement.result === "win") {
+    return `${summary} The important part is that the bad idea survived contact with reality and still ended in victory, which frankly feels like a paperwork error.`;
+  }
+
+  if (challenge.requirement.result === "draw") {
+    return `${summary} Nobody won, nobody learned, and yet the scroll department has approved the achievement.`;
+  }
+
+  if (challenge.requirement.result === "lose") {
+    return `${summary} Losing on purpose-adjacent terms is still proof, and Side Quest Chess respects commitment to the bit.`;
+  }
+
+  return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
+}
+
+function formatScrollDate(value?: string) {
+  if (!value) return "Recorded by the suspicious little verifier";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Recorded by the suspicious little verifier";
+
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

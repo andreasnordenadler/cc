@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 16:25 Europe/Stockholm
+Last updated: 2026-05-06 16:31 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,20 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace passed-result share card with a parchment victory scroll.
+  - added_at: 2026-05-06 16:24 Europe/Stockholm
+  - completed_at: 2026-05-06 16:31 Europe/Stockholm
+  - source: Andreas rejected the ornate monogram direction as too complicated and requested a better good-news sharing artifact: handwritten scroll, coat of arms at top, quest-relevant SQC-tone achievement text, and seal at bottom.
+  - Proof: updated `/result` passed-state share card into a `victory-scroll` with unlocked coat of arms, quest-specific mocking achievement copy, proof/game line, date/points, and canonical SQC wax seal. Proof doc: `docs/SQC_VICTORY_SCROLL_SHARE_CARD_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
+
+- [x] Remove active quest indicator from homepage badge preview section.
+  - added_at: 2026-05-06 16:27 Europe/Stockholm
+  - completed_at: 2026-05-06 16:31 Europe/Stockholm
+  - source: Andreas pointed at the specific coat-of-arms preview section and said not to show the active quest indicator there.
+  - Proof: removed active stamp/green active class logic from the homepage `Every bad idea deserves a coat of arms` badge preview row, while keeping active quest treatment elsewhere. Proof doc: `docs/SQC_HOME_BADGE_PREVIEW_REMOVE_ACTIVE_INDICATOR_2026-05-06.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Center completed quest wax seal on completed quest cards.
   - added_at: 2026-05-06 16:23 Europe/Stockholm
