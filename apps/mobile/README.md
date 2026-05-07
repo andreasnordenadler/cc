@@ -19,6 +19,7 @@ pnpm --filter @sidequestchess/mobile start
 pnpm --filter @sidequestchess/mobile ios
 pnpm --filter @sidequestchess/mobile android
 pnpm --filter @sidequestchess/mobile typecheck
+pnpm --filter @sidequestchess/mobile build:android:alpha
 ```
 
 Set a non-production API while developing with:
@@ -29,17 +30,19 @@ EXPO_PUBLIC_SQC_API_BASE_URL=http://localhost:3000 pnpm --filter @sidequestchess
 
 ## Current scope
 
-This is the first foundation, not the finished app. It currently:
+This is the Android-alpha shell, not the finished app. It currently:
 
 - loads the live web-backed quest catalog;
-- renders a mobile quest rail;
-- renders quest detail, badge art, rules, and proof callout;
-- documents the anti-drift rule in-app.
+- renders a mobile quest rail and quest detail screen;
+- includes app-side state/screen shells for Catalog, Quest Detail, Account, Status, and Proof;
+- keeps account/status/proof as placeholders until authenticated mobile APIs exist;
+- documents the anti-drift rule in-app;
+- includes root EAS profiles for an internal Android APK alpha.
 
 Next app milestones:
 
 1. Add authenticated mobile account API contract.
-2. Add sign-in and chess username connection.
+2. Add sign-in and chess username connection without embedding mobile secrets in the repo.
 3. Add start/check/reset quest actions.
 4. Add proof image viewer and native share sheet.
-5. Add EAS build profiles for Android/iOS.
+5. Run the first internal Android APK build once EAS auth/signing choices are ready.

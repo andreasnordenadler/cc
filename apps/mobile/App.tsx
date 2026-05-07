@@ -15,32 +15,60 @@ import {
 import { fetchMobileBootstrap } from "./src/api/sqc";
 import type { MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
+type AppTab = "catalog" | "quest" | "account" | "status" | "proof";
+
+type MobileShellState = {
+  bootstrap: MobileBootstrap | null;
+  selectedChallengeId: string | null;
+  activeTab: AppTab;
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+};
+
+const TABS: Array<{ id: AppTab; label: string }> = [
+  { id: "catalog", label: "Quests" },
+  { id: "quest", label: "Detail" },
+  { id: "account", label: "Account" },
+  { id: "status", label: "Status" },
+  { id: "proof", label: "Proof" },
+];
+
 export default function App() {
-  const [bootstrap, setBootstrap] = useState<MobileBootstrap | null>(null);
-  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [shell, setShell] = useState<MobileShellState>({
+    bootstrap: null,
+    selectedChallengeId: null,
+    activeTab: "catalog",
+    loading: true,
+    refreshing: false,
+    error: null,
+  });
 
   const selectedChallenge = useMemo(() => {
-    if (!bootstrap) return null;
-    return bootstrap.challenges.find((challenge) => challenge.id === selectedChallengeId) ?? bootstrap.challenges[0] ?? null;
-  }, [bootstrap, selectedChallengeId]);
+    if (!shell.bootstrap) return null;
+    return shell.bootstrap.challenges.find((challenge) => challenge.id === shell.selectedChallengeId) ?? shell.bootstrap.challenges[0] ?? null;
+  }, [shell.bootstrap, shell.selectedChallengeId]);
 
   async function loadBootstrap({ refresh = false } = {}) {
-    if (refresh) setRefreshing(true);
-    else setLoading(true);
+    setShell((current) => ({ ...current, loading: !refresh, refreshing: refresh }));
 
     try {
       const nextBootstrap = await fetchMobileBootstrap();
-      setBootstrap(nextBootstrap);
-      setSelectedChallengeId((currentId) => currentId ?? nextBootstrap.challenges[0]?.id ?? null);
-      setError(null);
+      setShell((current) => ({
+        ...current,
+        bootstrap: nextBootstrap,
+        selectedChallengeId: current.selectedChallengeId ?? nextBootstrap.challenges[0]?.id ?? null,
+        loading: false,
+        refreshing: false,
+        error: null,
+      }));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not load Side Quest Chess.");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+      setShell((current) => ({
+        ...current,
+        loading: false,
+        refreshing: false,
+        error: caught instanceof Error ? caught.message : "Could not load Side Quest Chess.",
+      }));
     }
   }
 
@@ -48,69 +76,196 @@ export default function App() {
     void loadBootstrap();
   }, []);
 
+  function selectChallenge(challengeId: string, nextTab: AppTab = "quest") {
+    setShell((current) => ({ ...current, selectedChallengeId: challengeId, activeTab: nextTab }));
+  }
+
+  function selectTab(activeTab: AppTab) {
+    setShell((current) => ({ ...current, activeTab }));
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
+        refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
       >
-        <View style={styles.heroCard}>
-          <Text style={styles.eyebrow}>Mobile app foundation</Text>
-          <Text style={styles.title}>Side Quest Chess</Text>
-          <Text style={styles.heroCopy}>
-            One app for iOS and Android, fed by the same quest catalog and product rules as sidequestchess.com.
-          </Text>
-        </View>
+        <HeaderCard />
 
-        {loading ? (
+        {shell.loading ? (
           <View style={styles.loadingCard}>
             <ActivityIndicator color="#f5c86a" />
             <Text style={styles.muted}>Loading the live SQC catalog…</Text>
           </View>
         ) : null}
 
-        {error ? (
-          <View style={styles.errorCard}>
-            <Text style={styles.errorTitle}>Could not load quests</Text>
-            <Text style={styles.errorCopy}>{error}</Text>
-            <Pressable style={styles.primaryButton} onPress={() => void loadBootstrap()}>
-              <Text style={styles.primaryButtonText}>Try again</Text>
-            </Pressable>
-          </View>
-        ) : null}
+        {shell.error ? <ErrorCard error={shell.error} onRetry={() => void loadBootstrap()} /> : null}
 
-        {bootstrap && selectedChallenge ? (
+        {shell.bootstrap && selectedChallenge ? (
           <>
-            <View style={styles.sectionHeader}>
-              <Text style={styles.eyebrow}>Live catalog</Text>
-              <Text style={styles.sectionTitle}>{bootstrap.challenges.length} side quests from the web backend</Text>
-            </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.questRail}>
-              {bootstrap.challenges.map((challenge) => (
-                <QuestPill
-                  key={challenge.id}
-                  challenge={challenge}
-                  active={challenge.id === selectedChallenge.id}
-                  onPress={() => setSelectedChallengeId(challenge.id)}
-                />
-              ))}
-            </ScrollView>
-
-            <QuestDetailCard challenge={selectedChallenge} />
-
-            <View style={styles.syncCard}>
-              <Text style={styles.eyebrow}>Anti-drift rule</Text>
-              <Text style={styles.syncTitle}>The app follows the website.</Text>
-              <Text style={styles.syncCopy}>{bootstrap.mobile.recommendedUpdatePolicy}</Text>
-              <Text style={styles.microcopy}>API v{bootstrap.apiVersion} · Generated {new Date(bootstrap.generatedAt).toLocaleString()}</Text>
-            </View>
+            <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
+            <ActiveScreen
+              activeTab={shell.activeTab}
+              bootstrap={shell.bootstrap}
+              selectedChallenge={selectedChallenge}
+              onSelectChallenge={selectChallenge}
+            />
+            <SyncCard bootstrap={shell.bootstrap} />
           </>
         ) : null}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function HeaderCard() {
+  return (
+    <View style={styles.heroCard}>
+      <Text style={styles.eyebrow}>Android alpha shell</Text>
+      <Text style={styles.title}>Side Quest Chess</Text>
+      <Text style={styles.heroCopy}>
+        Expo app structure for catalog, quest detail, account, status, and proof flows — all fed by sidequestchess.com where the backend contract already exists.
+      </Text>
+    </View>
+  );
+}
+
+function TabBar({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabRail}>
+      {TABS.map((tab) => (
+        <Pressable key={tab.id} style={[styles.tabPill, activeTab === tab.id && styles.tabPillActive]} onPress={() => onSelectTab(tab.id)}>
+          <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>{tab.label}</Text>
+        </Pressable>
+      ))}
+    </ScrollView>
+  );
+}
+
+function ActiveScreen({
+  activeTab,
+  bootstrap,
+  selectedChallenge,
+  onSelectChallenge,
+}: {
+  activeTab: AppTab;
+  bootstrap: MobileBootstrap;
+  selectedChallenge: MobileChallenge;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+}) {
+  switch (activeTab) {
+    case "catalog":
+      return <CatalogScreen bootstrap={bootstrap} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />;
+    case "quest":
+      return <QuestDetailScreen challenge={selectedChallenge} />;
+    case "account":
+      return <AccountShell bootstrap={bootstrap} />;
+    case "status":
+      return <StatusShell selectedChallenge={selectedChallenge} />;
+    case "proof":
+      return <ProofShell selectedChallenge={selectedChallenge} />;
+  }
+}
+
+function CatalogScreen({
+  bootstrap,
+  selectedChallenge,
+  onSelectChallenge,
+}: {
+  bootstrap: MobileBootstrap;
+  selectedChallenge: MobileChallenge;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+}) {
+  return (
+    <View style={styles.screenStack}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.eyebrow}>Live catalog</Text>
+        <Text style={styles.sectionTitle}>{bootstrap.challenges.length} side quests from the web backend</Text>
+      </View>
+
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.questRail}>
+        {bootstrap.challenges.map((challenge) => (
+          <QuestPill
+            key={challenge.id}
+            challenge={challenge}
+            active={challenge.id === selectedChallenge.id}
+            onPress={() => onSelectChallenge(challenge.id, "quest")}
+          />
+        ))}
+      </ScrollView>
+
+      <View style={styles.queueCard}>
+        <Text style={styles.queueTitle}>Android alpha flow map</Text>
+        <FlowStep done label="Fetch /api/mobile/bootstrap" />
+        <FlowStep done label="Browse backend-owned quest catalog" />
+        <FlowStep label="Authenticated account contract" />
+        <FlowStep label="Start/check/reset quest actions" />
+        <FlowStep label="Proof viewer + native share sheet" />
+      </View>
+    </View>
+  );
+}
+
+function QuestDetailScreen({ challenge }: { challenge: MobileChallenge }) {
+  return <QuestDetailCard challenge={challenge} />;
+}
+
+function AccountShell({ bootstrap }: { bootstrap: MobileBootstrap }) {
+  return (
+    <PlaceholderCard
+      eyebrow="Account shell"
+      title="Sign-in and chess handles go here next."
+      body="This screen is intentionally a non-secret placeholder until the mobile auth/session bridge is chosen. It will read account, Lichess, and Chess.com status from an authenticated mobile API instead of storing product state locally."
+      facts={[
+        ["Source", bootstrap.product.canonicalUrl],
+        ["Support", bootstrap.product.supportUrl],
+        ["No secrets", "No OAuth keys or store account steps are embedded in the app."],
+      ]}
+    />
+  );
+}
+
+function StatusShell({ selectedChallenge }: { selectedChallenge: MobileChallenge }) {
+  return (
+    <PlaceholderCard
+      eyebrow="Quest status shell"
+      title="Active quest state will stay backend-owned."
+      body={`The mobile app can show start, pending, passed, failed, reset, and repeat states for “${selectedChallenge.title}” once the authenticated status/action endpoints exist.`}
+      facts={[
+        ["Selected quest", selectedChallenge.title],
+        ["Alpha action", "Render state shells before wiring sensitive mutations."],
+        ["Verifier rule", "Do not duplicate verification logic in React Native."],
+      ]}
+    />
+  );
+}
+
+function ProofShell({ selectedChallenge }: { selectedChallenge: MobileChallenge }) {
+  return (
+    <PlaceholderCard
+      eyebrow="Proof shell"
+      title="Receipts and native sharing come after status APIs."
+      body="Proof images should keep being generated by the web backend. The app should display the receipt/proof URL and use Android/iOS native sharing once proof metadata is exposed to mobile."
+      facts={[
+        ["Proof copy", selectedChallenge.proofCallout],
+        ["Coat of arms", selectedChallenge.badgeIdentity.name],
+        ["Native target", "Android share sheet first, iOS after distribution setup."],
+      ]}
+    />
+  );
+}
+
+function ErrorCard({ error, onRetry }: { error: string; onRetry: () => void }) {
+  return (
+    <View style={styles.errorCard}>
+      <Text style={styles.errorTitle}>Could not load quests</Text>
+      <Text style={styles.errorCopy}>{error}</Text>
+      <Pressable style={styles.primaryButton} onPress={onRetry}>
+        <Text style={styles.primaryButtonText}>Try again</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -158,6 +313,32 @@ function QuestDetailCard({ challenge }: { challenge: MobileChallenge }) {
   );
 }
 
+function PlaceholderCard({ eyebrow, title, body, facts }: { eyebrow: string; title: string; body: string; facts: Array<[string, string]> }) {
+  return (
+    <View style={styles.placeholderCard}>
+      <Text style={styles.eyebrow}>{eyebrow}</Text>
+      <Text style={styles.placeholderTitle}>{title}</Text>
+      <Text style={styles.placeholderBody}>{body}</Text>
+      <View style={styles.factGrid}>
+        {facts.map(([label, value]) => (
+          <Fact key={label} label={label} value={value} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function SyncCard({ bootstrap }: { bootstrap: MobileBootstrap }) {
+  return (
+    <View style={styles.syncCard}>
+      <Text style={styles.eyebrow}>Anti-drift rule</Text>
+      <Text style={styles.syncTitle}>The app follows the website.</Text>
+      <Text style={styles.syncCopy}>{bootstrap.mobile.recommendedUpdatePolicy}</Text>
+      <Text style={styles.microcopy}>API v{bootstrap.apiVersion} · Generated {new Date(bootstrap.generatedAt).toLocaleString()}</Text>
+    </View>
+  );
+}
+
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.fact}>
@@ -167,10 +348,15 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
+function FlowStep({ label, done = false }: { label: string; done?: boolean }) {
+  return <Text style={styles.flowStep}>{done ? "✓" : "○"} {label}</Text>;
+}
+
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#060507" },
   screen: { flex: 1, backgroundColor: "#060507" },
   content: { gap: 18, padding: 18, paddingBottom: 34 },
+  screenStack: { gap: 16 },
   heroCard: {
     gap: 10,
     padding: 22,
@@ -189,14 +375,22 @@ const styles = StyleSheet.create({
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
   primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: "#f5c86a" },
   primaryButtonText: { color: "#111", fontWeight: "900" },
+  tabRail: { gap: 8, paddingRight: 18 },
+  tabPill: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.07)" },
+  tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },
+  tabText: { color: "#c7bda9", fontWeight: "900" },
+  tabTextActive: { color: "#fff7e8" },
   sectionHeader: { gap: 6 },
-  sectionTitle: { color: "#fff7e8", fontSize: 22, fontWeight: "900", letterSpacing: -.7 },
+  sectionTitle: { color: "#fff7e8", fontSize: 22, fontWeight: "900", letterSpacing: -0.7 },
   questRail: { gap: 10, paddingRight: 18 },
   questPill: { width: 180, gap: 7, padding: 14, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.07)" },
   questPillActive: { borderColor: "rgba(245,200,106,.72)", backgroundColor: "rgba(245,200,106,.14)" },
   questPillBadge: { color: "#f5c86a", fontSize: 28 },
   questPillTitle: { color: "#fff7e8", fontSize: 16, fontWeight: "900" },
   questPillMeta: { color: "#60f0af", fontSize: 12, fontWeight: "800" },
+  queueCard: { gap: 9, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.2)", backgroundColor: "rgba(96,240,175,.07)" },
+  queueTitle: { color: "#fff7e8", fontSize: 18, fontWeight: "900" },
+  flowStep: { color: "#c7bda9", fontSize: 14, lineHeight: 21, fontWeight: "700" },
   questCard: { gap: 16, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.075)" },
   questCardHeader: { flexDirection: "row", gap: 14, alignItems: "center" },
   questCardCopy: { flex: 1, gap: 8 },
@@ -212,6 +406,9 @@ const styles = StyleSheet.create({
   factValue: { color: "#fff7e8", fontSize: 14, fontWeight: "800" },
   rulesTitle: { color: "#fff7e8", fontSize: 18, fontWeight: "900" },
   rule: { color: "#c7bda9", fontSize: 14, lineHeight: 21 },
+  placeholderCard: { gap: 14, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.075)" },
+  placeholderTitle: { color: "#fff7e8", fontSize: 26, fontWeight: "900", letterSpacing: -1.1, lineHeight: 29 },
+  placeholderBody: { color: "#c7bda9", fontSize: 15, lineHeight: 22 },
   syncCard: { gap: 8, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
   syncTitle: { color: "#fff7e8", fontSize: 20, fontWeight: "900" },
   syncCopy: { color: "#c7bda9", lineHeight: 21 },
