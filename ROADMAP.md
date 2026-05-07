@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 18:10 Europe/Stockholm
+Last updated: 2026-05-07 18:16 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Keep active quest next-step copy on one themed line.
+  - added_at: 2026-05-07 18:12 Europe/Stockholm
+  - completed_at: 2026-05-07 18:16 Europe/Stockholm
+  - source: Andreas screenshot feedback on My Side Quest next-step copy wrapping and sounding too plain.
+  - Proof: active next-step copy now uses SQC tone (`on the royal docket`, `summon the checker`) and the next-step paragraph is kept on one line on normal desktop widths.
+  - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy.
 
 - [x] Launch Candidate 1 hardening pass.
   - added_at: 2026-05-07 17:54 Europe/Stockholm

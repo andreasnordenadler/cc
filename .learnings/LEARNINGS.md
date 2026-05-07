@@ -242,3 +242,13 @@ Do not treat extensive responsive/mobile web polish as a launch blocker for SQC.
 - Tags: sqc, launch-readiness, mobile-app, roadmap
 
 ---
+
+## [CORR-20260507-001] SQC account next-step copy should stay compact and in-theme
+
+**Category**: correction
+**Date**: 2026-05-07
+**Context**: Andreas reviewed the My Side Quest next-step card after Launch Candidate 1.
+**Learning**: Functional status copy that wraps into multiple lines can feel clunky on SQC surfaces; keep compact desktop next-step lines and use the playful SQC voice instead of plain product-instruction prose.
+**Applied**: Reworded active quest copy to “on the royal docket … summon the checker” and kept the next-step paragraph on one line at normal desktop widths.
+
+---

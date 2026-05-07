@@ -212,7 +212,7 @@ function getNextStep({
 
   return {
     title: "Play, then verify.",
-    copy: `${activeChallengeRecord.title} is active. Play a public Lichess or Chess.com game, then run the latest-game checker.`,
+    copy: `${activeChallengeRecord.title} is on the royal docket — play one public game, then summon the checker.`,
     href: `/challenges/${activeChallengeRecord.id}`,
     cta: "Open active side quest",
   };
