@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 20:39 Europe/Stockholm
+Last updated: 2026-05-07 20:45 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -100,10 +100,12 @@ Andreas clarified that these five items are still wanted and should be treated a
   - Proof: state-aware quest CTAs, sign-in/sign-up reassurance, My Side Quests next-step module, legal/support trust hygiene, beta-copy cleanup, and LC1 proof doc: `docs/SQC_LAUNCH_CANDIDATE_1_HARDENING_2026-05-07.md`.
   - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy. Authenticated E2E remains the final manual launch gate because no clean test login/session is available in this run.
 
-- [ ] Plan proper SQC mobile app phase after web launch candidate.
+- [x] Plan proper SQC mobile app phase after web launch candidate.
   - added_at: 2026-05-07 17:54 Europe/Stockholm
-  - source: Andreas said the next phase should be creating a mobile app for SQC.
-  - Acceptance: after Launch Candidate 1, define app scope/stack, authentication strategy, API reuse, push/share considerations, and launch path.
+  - completed_at: 2026-05-07 20:45 Europe/Stockholm
+  - source: Andreas said the next phase should be creating a mobile app for SQC, and clarified that when the website is updated the Android/iOS app should follow those updates.
+  - Proof: `docs/SQC_MOBILE_APP_PLAN_2026-05-07.md` records React Native + Expo/EAS as the recommended direction, with the existing SQC backend as the source of truth and a strict anti-drift rule: app should fetch shared/API-backed product state rather than duplicating quest/verifier/proof logic.
+  - Verification: plan doc committed; future implementation should start with app-facing API contract/shared schema before Expo UI work.
 
 - [x] Add footer Terms & Conditions link and anno text.
   - added_at: 2026-05-07 17:46 Europe/Stockholm
