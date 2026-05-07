@@ -2568,3 +2568,25 @@ For Next.js dynamic route files, prefer the read tool or quote paths containing 
 - Tags: zsh, nextjs, dynamic-route, cwd
 
 ---
+
+## [ERR-20260507-002] Sourcing env file clobbered PATH during production smoke
+
+**Logged**: 2026-05-07T10:48:00+02:00
+**Priority**: medium
+**Status**: resolved
+**Area**: workflow
+
+### Summary
+A shell smoke command sourced `.env.production.local`, after which `curl` and `file` were not found because PATH had been changed/cleared by environment loading.
+
+### Details
+Retried with a tiny Node parser for env files instead of shell-sourcing them, and used absolute `/usr/bin/curl` and `/usr/bin/file` paths for the smoke command.
+
+### Suggested Action
+Do not shell-source project env files in broad smoke scripts. Parse only the specific needed variables or run commands with a preserved PATH.
+
+### Metadata
+- Source: error
+- Tags: env, path, smoke-test
+
+---
