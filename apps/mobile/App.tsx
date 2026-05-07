@@ -12,13 +12,14 @@ import {
   Text,
   View,
 } from "react-native";
-import { fetchMobileBootstrap } from "./src/api/sqc";
-import type { MobileBootstrap, MobileChallenge } from "./src/types/sqc";
+import { fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
+import type { MobileAccountResponse, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
 type AppTab = "catalog" | "quest" | "account" | "status" | "proof";
 
 type MobileShellState = {
   bootstrap: MobileBootstrap | null;
+  account: MobileAccountResponse | null;
   selectedChallengeId: string | null;
   activeTab: AppTab;
   loading: boolean;
@@ -37,6 +38,7 @@ const TABS: Array<{ id: AppTab; label: string }> = [
 export default function App() {
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
+    account: null,
     selectedChallengeId: null,
     activeTab: "catalog",
     loading: true,
@@ -53,10 +55,14 @@ export default function App() {
     setShell((current) => ({ ...current, loading: !refresh, refreshing: refresh }));
 
     try {
-      const nextBootstrap = await fetchMobileBootstrap();
+      const [nextBootstrap, nextAccount] = await Promise.all([
+        fetchMobileBootstrap(),
+        fetchMobileAccountState(),
+      ]);
       setShell((current) => ({
         ...current,
         bootstrap: nextBootstrap,
+        account: nextAccount,
         selectedChallengeId: current.selectedChallengeId ?? nextBootstrap.challenges[0]?.id ?? null,
         loading: false,
         refreshing: false,
@@ -110,6 +116,7 @@ export default function App() {
               activeTab={shell.activeTab}
               bootstrap={shell.bootstrap}
               selectedChallenge={selectedChallenge}
+              account={shell.account}
               onSelectChallenge={selectChallenge}
             />
             <SyncCard bootstrap={shell.bootstrap} />
@@ -148,11 +155,13 @@ function ActiveScreen({
   activeTab,
   bootstrap,
   selectedChallenge,
+  account,
   onSelectChallenge,
 }: {
   activeTab: AppTab;
   bootstrap: MobileBootstrap;
   selectedChallenge: MobileChallenge;
+  account: MobileAccountResponse | null;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
 }) {
   switch (activeTab) {
@@ -161,11 +170,11 @@ function ActiveScreen({
     case "quest":
       return <QuestDetailScreen challenge={selectedChallenge} />;
     case "account":
-      return <AccountShell bootstrap={bootstrap} />;
+      return <AccountShell bootstrap={bootstrap} account={account} />;
     case "status":
-      return <StatusShell selectedChallenge={selectedChallenge} />;
+      return <StatusShell selectedChallenge={selectedChallenge} account={account} />;
     case "proof":
-      return <ProofShell selectedChallenge={selectedChallenge} />;
+      return <ProofShell selectedChallenge={selectedChallenge} account={account} />;
   }
 }
 
@@ -200,7 +209,7 @@ function CatalogScreen({
         <Text style={styles.queueTitle}>Android alpha flow map</Text>
         <FlowStep done label="Fetch /api/mobile/bootstrap" />
         <FlowStep done label="Browse backend-owned quest catalog" />
-        <FlowStep label="Authenticated account contract" />
+        <FlowStep done label="Authenticated read-only account contract" />
         <FlowStep label="Start/check/reset quest actions" />
         <FlowStep label="Proof viewer + native share sheet" />
       </View>
@@ -212,42 +221,89 @@ function QuestDetailScreen({ challenge }: { challenge: MobileChallenge }) {
   return <QuestDetailCard challenge={challenge} />;
 }
 
-function AccountShell({ bootstrap }: { bootstrap: MobileBootstrap }) {
+function AccountShell({ bootstrap, account }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null }) {
+  if (!account || !account.authenticated) {
+    return (
+      <PlaceholderCard
+        eyebrow="Account contract"
+        title="Ready for mobile sign-in."
+        body="The read-only account endpoint now exists. The app gets a signed-out response until the mobile auth/session bridge sends a real Clerk session."
+        facts={[
+          ["Endpoint", "/api/mobile/account"],
+          ["Source", bootstrap.product.canonicalUrl],
+          ["Next", "Wire Clerk mobile auth/session handoff."],
+        ]}
+      />
+    );
+  }
+
   return (
-    <PlaceholderCard
-      eyebrow="Account shell"
-      title="Sign-in and chess handles go here next."
-      body="This screen is intentionally a non-secret placeholder until the mobile auth/session bridge is chosen. It will read account, Lichess, and Chess.com status from an authenticated mobile API instead of storing product state locally."
-      facts={[
-        ["Source", bootstrap.product.canonicalUrl],
-        ["Support", bootstrap.product.supportUrl],
-        ["No secrets", "No OAuth keys or store account steps are embedded in the app."],
-      ]}
-    />
+    <View style={styles.placeholderCard}>
+      <Text style={styles.eyebrow}>My Side Quest</Text>
+      <Text style={styles.placeholderTitle}>{account.profile.displayName}</Text>
+      <Text style={styles.placeholderBody}>{account.profile.bio || "Your live backend-owned account state is now readable by mobile."}</Text>
+      <View style={styles.factGrid}>
+        <Fact label="Points" value={`${account.progress.totalRewardPoints}`} />
+        <Fact label="Coats of arms" value={`${account.progress.totalCompletedChallenges}`} />
+        <Fact label="Proof receipts" value={`${account.progress.proofReceiptCount}`} />
+        <Fact label="Lichess" value={account.chessAccounts.lichessUsername ?? "Not connected"} />
+        <Fact label="Chess.com" value={account.chessAccounts.chessComUsername ?? "Not connected"} />
+      </View>
+    </View>
   );
 }
 
-function StatusShell({ selectedChallenge }: { selectedChallenge: MobileChallenge }) {
+function StatusShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
+  if (account?.authenticated && account.activeQuest) {
+    return (
+      <PlaceholderCard
+        eyebrow="Quest status"
+        title={account.activeQuest.completed ? "Quest completed." : account.activeQuest.title}
+        body={account.activeQuest.banner}
+        facts={[
+          ["Status", account.activeQuest.status],
+          ["Started", account.activeQuest.startedAt ? new Date(account.activeQuest.startedAt).toLocaleString() : "Not started"],
+          ["Latest receipt", account.latestReceipt?.headline ?? "No latest check yet"],
+        ]}
+      />
+    );
+  }
+
   return (
     <PlaceholderCard
-      eyebrow="Quest status shell"
+      eyebrow="Quest status contract"
       title="Active quest state will stay backend-owned."
-      body={`The mobile app can show start, pending, passed, failed, reset, and repeat states for “${selectedChallenge.title}” once the authenticated status/action endpoints exist.`}
+      body={`The mobile app is ready to show start, pending, passed, failed, reset, and repeat states for “${selectedChallenge.title}” as soon as mobile auth is attached.`}
       facts={[
         ["Selected quest", selectedChallenge.title],
-        ["Alpha action", "Render state shells before wiring sensitive mutations."],
+        ["Endpoint", "/api/mobile/account"],
         ["Verifier rule", "Do not duplicate verification logic in React Native."],
       ]}
     />
   );
 }
 
-function ProofShell({ selectedChallenge }: { selectedChallenge: MobileChallenge }) {
+function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
+  if (account?.authenticated && account.latestReceipt) {
+    return (
+      <PlaceholderCard
+        eyebrow="Latest proof receipt"
+        title={account.latestReceipt.headline}
+        body={account.latestReceipt.detail}
+        facts={[
+          ["Game", account.latestReceipt.gameId ?? "No game id"],
+          ["Provider", account.latestReceipt.provider ?? "Unknown"],
+          ["Updated", account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"],
+        ]}
+      />
+    );
+  }
+
   return (
     <PlaceholderCard
-      eyebrow="Proof shell"
-      title="Receipts and native sharing come after status APIs."
-      body="Proof images should keep being generated by the web backend. The app should display the receipt/proof URL and use Android/iOS native sharing once proof metadata is exposed to mobile."
+      eyebrow="Proof contract"
+      title="Receipts and native sharing are API-ready next."
+      body="Proof images stay generated by the web backend. The app now has the account/proof-status shape needed before adding Android native sharing."
       facts={[
         ["Proof copy", selectedChallenge.proofCallout],
         ["Coat of arms", selectedChallenge.badgeIdentity.name],

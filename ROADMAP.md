@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 23:45 Europe/Stockholm
+Last updated: 2026-05-07 23:52 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -113,6 +113,13 @@ Andreas clarified that these five items are still wanted and should be treated a
   - source: Subagent task to continue the mobile app toward an Android-testable MVP while preserving the web launch candidate.
   - Proof: added root EAS profiles for Android internal APK alpha; updated Expo Android config; refactored the mobile app into Catalog, Quest Detail, Account, Status, and Proof shells that still consume `/api/mobile/bootstrap`; proof doc: `docs/SQC_MOBILE_ANDROID_ALPHA_SLICE_2026-05-07.md`.
   - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`. Root build intentionally skipped because this slice did not change web API/runtime code.
+
+- [x] Add read-only mobile account/status API contract.
+  - added_at: 2026-05-07 23:32 Europe/Stockholm
+  - completed_at: 2026-05-07 23:40 Europe/Stockholm
+  - source: Andreas told Sam to keep working on the Android app without asking for each next step.
+  - Proof: added `GET /api/mobile/account` as an authenticated, read-only app-facing endpoint; wired the Expo app to fetch it alongside `/api/mobile/bootstrap`; Account, Status, and Proof screens now render signed-out/auth-ready state or live authenticated account/progress/active-quest/latest-proof data when a session is available; proof doc: `docs/SQC_MOBILE_ACCOUNT_STATUS_API_2026-05-07.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; production smoke for anonymous `/api/mobile/account` should return auth-gated JSON.
 
 - [x] Plan proper SQC mobile app phase after web launch candidate.
   - added_at: 2026-05-07 17:54 Europe/Stockholm

@@ -6,11 +6,12 @@ React Native + Expo shell for the Side Quest Chess Android/iOS app.
 
 The app must follow `sidequestchess.com` updates by reading the same backend/API state wherever practical. Do not fork quest definitions, verifier rules, proof logic, or user progress into mobile-only code.
 
-Current first API contract:
+Current API contracts:
 
 - `GET https://sidequestchess.com/api/mobile/bootstrap`
+- `GET https://sidequestchess.com/api/mobile/account`
 
-This returns the live quest catalog and mobile compatibility metadata from the web backend.
+Bootstrap returns the live quest catalog and mobile compatibility metadata from the web backend. Account returns signed-out JSON when unauthenticated and backend-owned user/profile/progress/status/proof data when a Clerk session is present.
 
 ## Local commands
 
@@ -35,14 +36,14 @@ This is the Android-alpha shell, not the finished app. It currently:
 - loads the live web-backed quest catalog;
 - renders a mobile quest rail and quest detail screen;
 - includes app-side state/screen shells for Catalog, Quest Detail, Account, Status, and Proof;
-- keeps account/status/proof as placeholders until authenticated mobile APIs exist;
+- fetches the read-only account/status/proof API and renders signed-out or authenticated state;
 - documents the anti-drift rule in-app;
 - includes root EAS profiles for an internal Android APK alpha.
 
 Next app milestones:
 
-1. Add authenticated mobile account API contract.
-2. Add sign-in and chess username connection without embedding mobile secrets in the repo.
+1. Add sign-in/session bridge without embedding mobile secrets in the repo.
+2. Add chess username connection/update flow.
 3. Add start/check/reset quest actions.
 4. Add proof image viewer and native share sheet.
 5. Run the first internal Android APK build once EAS auth/signing choices are ready.

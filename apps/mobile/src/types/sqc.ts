@@ -53,3 +53,66 @@ export type MobileBootstrap = {
   };
   challenges: MobileChallenge[];
 };
+
+export type MobileAccountState = {
+  apiVersion: number;
+  authenticated: true;
+  generatedAt: string;
+  profile: {
+    displayName: string;
+    bio: string;
+    imageUrl: string | null;
+  };
+  chessAccounts: {
+    lichessUsername: string | null;
+    chessComUsername: string | null;
+    hasAny: boolean;
+  };
+  progress: {
+    completedChallengeIds: string[];
+    totalCompletedChallenges: number;
+    totalRewardPoints: number;
+    proofReceiptCount: number;
+  };
+  activeQuest: {
+    id: string;
+    title: string;
+    status: string;
+    startedAt: string | null;
+    verifiedAt: string | null;
+    completed: boolean;
+    banner: string;
+    href: string;
+    badgeImageUrl: string | null;
+  } | null;
+  completedQuests: Array<{
+    id: string;
+    title: string;
+    reward: number;
+    badgeName: string;
+    completedAt: string | null;
+    href: string;
+    badgeImageUrl: string | null;
+  }>;
+  latestReceipt: {
+    id: string | null;
+    challengeId: string | null;
+    provider: string | null;
+    status: string | null;
+    gameId: string | null;
+    checkedAt: string | null;
+    completedGameAt: string | null;
+    headline: string;
+    detail: string;
+    meta: string;
+  } | null;
+};
+
+export type MobileAccountSignedOut = {
+  apiVersion: number;
+  authenticated: false;
+  signInUrl: string;
+  message: string;
+};
+
+export type MobileAccountResponse = MobileAccountState | MobileAccountSignedOut;
