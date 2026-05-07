@@ -166,3 +166,22 @@ When a completed quest remains in `activeChallenge`, UI surfaces must not let ac
 - Tags: sqc, completed-state, active-state, quest-deck
 
 ---
+
+## [LRN-20260507-006] Logo/brand asset replacement needs URL versioning
+
+**Logged**: 2026-05-07T15:35:00+02:00
+**Category**: best_practice
+**Priority**: medium
+
+### Summary
+Replacing an existing static logo file at the same path deployed correctly, but Andreas still saw the old topbar logo after refresh.
+
+### Lesson
+For visible brand assets, prefer a new versioned filename or explicit URL version bump instead of only overwriting the same public asset path. Browser/mobile/cache layers can keep showing the previous image even when the CDN has the new file.
+
+### Metadata
+- Source: user_bug_report
+- Related Files: src/components/site-nav.tsx, public/brand/*
+- Tags: sqc, static-assets, cache-busting, logo
+
+---

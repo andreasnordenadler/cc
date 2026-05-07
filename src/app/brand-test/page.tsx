@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const assetPath = "/brand/sqc-alt-logo-topbar-transparent.png";
+const assetPath = "/brand/sqc-alt-logo-topbar-20260507.png";
 
 export default async function BrandTestPage() {
   const { userId } = await auth();
