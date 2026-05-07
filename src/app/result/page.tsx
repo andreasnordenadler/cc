@@ -198,10 +198,10 @@ export default async function ResultPage({
               challengeTitle={challenge.title}
               sharePath={isPassed ? publicProofPath : "/result"}
               imagePath={isPassed ? publicProofImagePath(publicProofToken) : undefined}
-              shareLabel={isPassed ? "Share" : "Share quest"}
+              shareLabel={isPassed ? "Share proof" : "Share quest"}
               idleCopy={isPassed
-                ? "Shares the victory scroll image with a Side Quest Chess link."
-                : "Shares the current result text plus this proof-card link. No PGN upload, no homework."
+                ? "Choose a social button, or copy/download the victory proof for wherever the chess goblins gather."
+                : "Choose a social button, or copy this proof-card link. No PGN upload, no homework."
               }
             />
           </article>

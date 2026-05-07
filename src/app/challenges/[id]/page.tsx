@@ -189,8 +189,8 @@ export default async function ChallengeDetailPage({
               challengeTitle={challenge.title}
               sharePath={publicProofPath ?? `/challenges/${challenge.id}`}
               imagePath={publicProofPath ? publicProofImagePath(publicProofPath.split("/").at(-1) ?? "") : undefined}
-              shareLabel="Share"
-              idleCopy="Shares the victory scroll image with a Side Quest Chess link."
+              shareLabel="Share proof"
+              idleCopy="Choose a social button, or copy/download the victory proof for wherever the chess goblins gather."
             />
             <div className="quest-reset-row">
               <ResetQuestControl challenge={challenge} />
