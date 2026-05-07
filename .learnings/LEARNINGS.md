@@ -128,3 +128,22 @@ If product feedback says a proof/scroll should be “an image,” do not only at
 - Tags: sqc, proof-image, victory-scroll, correction
 
 ---
+
+## [LRN-20260507-004] SQC trophy text centering needs child-level overrides
+
+**Logged**: 2026-05-07T13:13:00+02:00
+**Category**: correction
+**Priority**: medium
+
+### Summary
+Andreas reported that the trophy-card subtitle under the quest name still was not centered after an earlier centering pass.
+
+### Lesson
+When a component is built on top of a generic list-item style, centering only the wrapper can be insufficient. Explicitly override inherited `span/strong` layout, width, overflow, and text alignment on the nested children too.
+
+### Metadata
+- Source: user_correction
+- Related Files: src/app/globals.css
+- Tags: sqc, css, alignment, trophy-card
+
+---
