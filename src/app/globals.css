@@ -433,6 +433,7 @@ p { color: var(--muted); line-height: 1.5; }
 .social-share-button:hover { transform: translateY(-2px); filter: brightness(1.08); }
 .social-share-button.x { background: linear-gradient(135deg, #111, #303030); }
 .social-share-button.facebook { background: linear-gradient(135deg, #1877f2, #0c4fb0); }
+.social-share-button.instagram { background: radial-gradient(circle at 30% 108%, #fdf497 0 22%, #fd5949 42%, #d6249f 62%, #285aeb 100%); }
 .social-share-button.reddit { background: linear-gradient(135deg, #ff4500, #bc3000); }
 .social-share-button.whatsapp { background: linear-gradient(135deg, #25d366, #128c4a); }
 .social-share-button.telegram { background: linear-gradient(135deg, #2aabee, #1477a8); }

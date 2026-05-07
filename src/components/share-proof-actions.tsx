@@ -15,7 +15,7 @@ type ShareProofActionsProps = {
 type ShareTarget = {
   label: string;
   href: string;
-  tone: "x" | "facebook" | "reddit" | "whatsapp" | "telegram" | "linkedin";
+  tone: "x" | "facebook" | "instagram" | "reddit" | "whatsapp" | "telegram" | "linkedin";
 };
 
 export default function ShareProofActions({
@@ -25,7 +25,7 @@ export default function ShareProofActions({
   imagePath,
   imageFileName = "side-quest-chess-proof.png",
 }: ShareProofActionsProps) {
-  const [status, setStatus] = useState<"idle" | "copied" | "imageCopied" | "downloaded" | "failed">("idle");
+  const [status, setStatus] = useState<"idle" | "copied" | "imageCopied" | "downloaded" | "instagramReady" | "failed">("idle");
   const shareUrl = useMemo(() => {
     if (typeof window === "undefined") return sharePath;
     return `${window.location.origin}${sharePath}`;
@@ -55,6 +55,7 @@ export default function ShareProofActions({
     return [
       { label: "X", tone: "x", href: `https://twitter.com/intent/tweet?text=${encodedSocialCopy}&url=${encodedUrl}` },
       { label: "Facebook", tone: "facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
+      { label: "Instagram", tone: "instagram", href: "https://www.instagram.com/" },
       { label: "Reddit", tone: "reddit", href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedRedditTitle}` },
       { label: "WhatsApp", tone: "whatsapp", href: `https://wa.me/?text=${encodedSocialText}` },
       { label: "Telegram", tone: "telegram", href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedSocialCopy}` },
@@ -82,23 +83,40 @@ export default function ShareProofActions({
     }
   }
 
+  async function saveProofImage() {
+    if (!imageUrl) return false;
+
+    const response = await fetch(imageUrl);
+    if (!response.ok) return false;
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = imageFileName;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(objectUrl);
+    return true;
+  }
+
   async function downloadImage() {
-    if (!imageUrl) return;
-
     try {
-      const response = await fetch(imageUrl);
-      if (!response.ok) throw new Error("proof_image_fetch_failed");
+      const saved = await saveProofImage();
+      setStatus(saved ? "downloaded" : "failed");
+    } catch {
+      setStatus("failed");
+    }
+  }
 
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = objectUrl;
-      anchor.download = imageFileName;
-      document.body.append(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(objectUrl);
-      setStatus("downloaded");
+  async function prepareInstagramShare() {
+    try {
+      const saved = await saveProofImage();
+      await navigator.clipboard.writeText(`${socialCopy}
+${shareUrl}`);
+      setStatus(saved ? "instagramReady" : "copied");
+      window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
     } catch {
       setStatus("failed");
     }
@@ -108,18 +126,32 @@ export default function ShareProofActions({
     <div className="share-actions social-share-actions" aria-live="polite">
       <div className="social-share-grid" aria-label="Share proof on social media">
         {socialTargets.map((target) => (
-          <a
-            key={target.label}
-            className={`social-share-button ${target.tone}`}
-            href={target.href}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`Share on ${target.label}`}
-            title={`Share on ${target.label}`}
-          >
-            <SocialIcon tone={target.tone} />
-            <span className="sr-only">Share on {target.label}</span>
-          </a>
+          target.tone === "instagram" ? (
+            <button
+              key={target.label}
+              type="button"
+              className={`social-share-button ${target.tone}`}
+              onClick={prepareInstagramShare}
+              aria-label="Prepare Instagram post"
+              title="Prepare Instagram post"
+            >
+              <SocialIcon tone={target.tone} />
+              <span className="sr-only">Prepare Instagram post</span>
+            </button>
+          ) : (
+            <a
+              key={target.label}
+              className={`social-share-button ${target.tone}`}
+              href={target.href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Share on ${target.label}`}
+              title={`Share on ${target.label}`}
+            >
+              <SocialIcon tone={target.tone} />
+              <span className="sr-only">Share on {target.label}</span>
+            </a>
+          )
         ))}
       </div>
       <div className="button-row proof-share-utility-row">
@@ -135,7 +167,9 @@ export default function ShareProofActions({
               ? "Direct proof image link copied."
               : status === "downloaded"
                 ? "Proof image downloaded."
-                : "Could not copy/download here."}
+                : status === "instagramReady"
+                  ? "Instagram proof image downloaded and caption copied."
+                  : "Could not copy/download here."}
         </p>
       )}
     </div>
@@ -153,6 +187,16 @@ function SocialIcon({ tone }: { tone: ShareTarget["tone"] }) {
 
   if (tone === "linkedin") {
     return <span className="social-share-glyph linkedin-glyph" aria-hidden="true">in</span>;
+  }
+
+  if (tone === "instagram") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="social-share-icon">
+        <rect x="4" y="4" width="16" height="16" rx="5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+        <circle cx="12" cy="12" r="3.4" fill="none" stroke="currentColor" strokeWidth="2.2" />
+        <circle cx="16.9" cy="7.1" r="1.2" fill="currentColor" />
+      </svg>
+    );
   }
 
   if (tone === "reddit") {
