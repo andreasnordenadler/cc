@@ -2673,3 +2673,23 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 **Fix**: Coalesced the lookup with `?? null` before passing it into the next-step helper.
 
 ---
+
+## [ERR-20260507-005] zsh globbed Next bracket routes during git add
+
+**Date**: 2026-05-07
+**Command**: `git add src/app/challenges/[id]/page.tsx ...`
+**Context**: SQC Launch Candidate 1 commit.
+**Failure**: zsh interpreted `[id]` as a glob pattern and aborted with `no matches found`.
+**Fix**: Quote Next route paths containing brackets, e.g. `git add 'src/app/challenges/[id]/page.tsx'` and `git add 'src/app/sign-in/[[...sign-in]]/page.tsx'`.
+
+---
+
+## [ERR-20260507-006] Vercel logs URL implies follow and rejects --since filtering
+
+**Date**: 2026-05-07
+**Command**: `vercel logs sidequestchess.com --since 10m`
+**Context**: SQC post-deploy production error scan.
+**Failure**: Vercel CLI treated the URL argument as follow mode and returned `The --follow flag does not support filtering`.
+**Fix**: For recent filtered project logs, omit the URL/deployment positional argument and use `vercel logs --environment production --level error --since 10m --limit 20 --no-follow`.
+
+---
