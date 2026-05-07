@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -94,7 +95,12 @@ export default function RootLayout({
   return (
     <ClerkProvider appearance={clerkAppearance} localization={clerkLocalization}>
       <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-        <body>{children}</body>
+        <body>
+          {children}
+          <footer className="site-footer" aria-label="Site footer">
+            <Link href="/support">Support</Link>
+          </footer>
+        </body>
       </html>
     </ClerkProvider>
   );

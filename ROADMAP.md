@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:43 Europe/Stockholm
+Last updated: 2026-05-07 17:41 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove Leaderboard from top nav and move Support to footer.
+  - added_at: 2026-05-07 17:41 Europe/Stockholm
+  - completed_at: 2026-05-07 17:41 Europe/Stockholm
+  - source: Andreas asked to remove Leaderboard for now and suggested Support could live in a bottom footer link.
+  - Proof: top nav now shows Home, Side Quests, Coat of Arms, and account/auth controls only; global footer now includes a Support link to `/support`; proof doc: `docs/SQC_NAV_LEADERBOARD_SUPPORT_FOOTER_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Make homepage coat-of-arms preview section fully clickable.
   - added_at: 2026-05-07 15:36 Europe/Stockholm
