@@ -2633,3 +2633,13 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 - Tags: sqc, timezone, proof-time
 
 ---
+
+## [ERR-20260507-001] SQC scheduled Coming Soon type guard missed unscheduled drafts
+
+**Date**: 2026-05-07
+**Command**: `pnpm lint && pnpm build`
+**Context**: Adding dated Coming Soon stamps.
+**Failure**: TypeScript rejected `ScheduledChallenge[]` because hidden draft Coming Soon entries did not all have `releaseDate`; after making it optional, the filtered array was not narrowed for the card prop.
+**Fix**: Keep `releaseDate` optional for draft inventory, filter unscheduled drafts out of the visible queue, and let the card format a safe fallback.
+
+---

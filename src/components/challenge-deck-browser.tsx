@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import ChallengeBadge from "@/components/challenge-badge";
 import type { Challenge } from "@/lib/challenges";
 
+type ScheduledChallenge = Challenge & { releaseDate?: string };
+
 type SortMode = "recommended" | "easy-first" | "hard-first" | "points-high" | "points-low";
 type DifficultyFilter = "All" | Challenge["difficulty"];
 type StatusFilter = "All" | "Active" | "Completed" | "Open";
@@ -26,7 +28,7 @@ const difficultyRank: Record<Challenge["difficulty"], number> = {
 const difficultyFilters: DifficultyFilter[] = ["All", "Easy", "Medium", "Hard", "Brutal", "Absurd"];
 const MAX_VISIBLE_COMING_SOON_QUESTS = 4;
 
-const COMING_SOON_CHALLENGES: Challenge[] = [
+const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
   {
     id: "pawn-only-picnic",
     title: "Pawn-Only Picnic",
@@ -58,6 +60,7 @@ const COMING_SOON_CHALLENGES: Challenge[] = [
     proofCallout: "First eight player moves were pawn moves · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-05-14",
   },
   {
     id: "back-rank-goblin",
@@ -90,6 +93,7 @@ const COMING_SOON_CHALLENGES: Challenge[] = [
     proofCallout: "Back-rank mate · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-05-21",
   },
   {
     id: "late-castle-lifestyle",
@@ -122,6 +126,7 @@ const COMING_SOON_CHALLENGES: Challenge[] = [
     proofCallout: "Castled after move 15 · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-05-28",
   },
   {
     id: "rook-lift-internship",
@@ -154,6 +159,7 @@ const COMING_SOON_CHALLENGES: Challenge[] = [
     proofCallout: "Early rook lift · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-06-04",
   },
   {
     id: "double-check-drama",
@@ -380,6 +386,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
     if (status !== "All") return [];
 
     const filtered = COMING_SOON_CHALLENGES.filter((challenge) => {
+      if (!challenge.releaseDate) return false;
       if (difficulty !== "All" && challenge.difficulty !== difficulty) return false;
       return true;
     });
@@ -491,12 +498,15 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
   );
 }
 
-function ComingSoonChallengeCard({ challenge }: { challenge: Challenge }) {
+function ComingSoonChallengeCard({ challenge }: { challenge: ScheduledChallenge }) {
   const difficultyTone = getDifficultyTone(challenge.difficulty);
 
   return (
     <article className="challenge-card coming-soon-quest-card" aria-label={`${challenge.title} coming soon`}>
-      <span className="coming-soon-stamp" aria-hidden="true">COMING SOON</span>
+      <span className="coming-soon-stamp" aria-hidden="true">
+        <span>Coming</span>
+        <strong>{formatReleaseDate(challenge.releaseDate ?? "")}</strong>
+      </span>
       <div className="coming-soon-card-content" aria-hidden="true">
         <div className="card-meta quest-card-meta">
           <strong className="quest-points">+{challenge.reward} pts</strong>
@@ -513,6 +523,15 @@ function ComingSoonChallengeCard({ challenge }: { challenge: Challenge }) {
       </div>
     </article>
   );
+}
+
+function formatReleaseDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day, 12));
+
+  if (Number.isNaN(date.getTime())) return "soon";
+
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(date);
 }
 
 function getDifficultyTone(difficulty: Challenge["difficulty"]) {

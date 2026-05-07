@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:10 Europe/Stockholm
+Last updated: 2026-05-07 15:18 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -49,10 +49,17 @@ Andreas reset SQC planning on 2026-05-05:
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
 
-- [ ] Add dated Coming Soon release schedule for hidden/draft quests.
+- [x] Add dated Coming Soon release schedule for hidden/draft quests.
   - added_at: 2026-05-07 15:10 Europe/Stockholm
+  - completed_at: 2026-05-07 15:18 Europe/Stockholm
   - source: Andreas asked whether Coming Soon quests can have scheduled release dates shown in the stamp, with Sam developing and testing each quest beforehand.
-  - Acceptance: choose a release cadence/date plan; add release dates to visible Coming Soon stamps; keep only quests with credible scheduled work visible; create implementation/testing checklist per quest; do not mark a quest live until verifier, latest-game flow, reset/repeat behavior, proof receipt, and production smoke are verified.
+  - Proof: visible Coming Soon queue now has weekly Thursday dates in the stamp: Pawn-Only Picnic 2026-05-14, Back Rank Goblin 2026-05-21, Late Castle Lifestyle 2026-05-28, Rook Lift Internship 2026-06-04. Proof doc: `docs/SQC_DATED_COMING_SOON_RELEASE_QUEUE_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
+
+- [ ] Prepare Pawn-Only Picnic for scheduled release on 2026-05-14.
+  - added_at: 2026-05-07 15:18 Europe/Stockholm
+  - source: First dated Coming Soon release in the weekly SQC release queue.
+  - Acceptance: verifier implemented for supported providers; latest-game flow tested; reset/repeat behavior tested; proof receipt/image tested; production smoke passed before making it live.
 
 - [x] Fix completed active quest state on Side Quest page.
   - added_at: 2026-05-07 15:12 Europe/Stockholm
