@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 17:41 Europe/Stockholm
+Last updated: 2026-05-07 17:46 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Add footer Terms & Conditions link and anno text.
+  - added_at: 2026-05-07 17:46 Europe/Stockholm
+  - completed_at: 2026-05-07 17:46 Europe/Stockholm
+  - source: Andreas asked to add `Terms & Conditions` linking to `/terms` and the text `sidequestchess.com anno 2026` to the footer.
+  - Proof: global footer now includes `sidequestchess.com anno 2026`, Support, and Terms & Conditions links; proof doc: `docs/SQC_FOOTER_TERMS_AND_ANNO_2026_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Remove Leaderboard from top nav and move Support to footer.
   - added_at: 2026-05-07 17:41 Europe/Stockholm
