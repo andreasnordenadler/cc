@@ -21,6 +21,11 @@ Added fallback utility buttons:
 - `Copy image link`
 - `Download image`
 
+Follow-up polish after Andreas screenshot feedback:
+
+- Changed social buttons from text labels to compact logo/icon buttons.
+- Removed the idle helper line: `Choose a social button, or copy/download the victory proof for wherever the chess goblins gather.`
+
 The buttons share the public `/proof/[token]` URL so social crawlers can use the Open Graph/Twitter metadata and the generated proof PNG preview. The direct image utilities remain available for services that need an uploaded image file or raw image URL.
 
 ## Files changed

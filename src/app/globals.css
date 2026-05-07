@@ -428,17 +428,23 @@ p { color: var(--muted); line-height: 1.5; }
 .share-actions { display: grid; gap: 9px; margin-top: 4px; }
 .share-actions .button { border: 1px solid rgba(255,255,255,.14); }
 .social-share-actions { gap: 11px; }
-.social-share-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.social-share-button { justify-content: center; min-height: 42px; padding-inline: 10px; color: #fff; box-shadow: inset 0 1px rgba(255,255,255,.18), 0 10px 22px rgba(0,0,0,.18); }
+.social-share-grid { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.social-share-button { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; color: #fff; text-decoration: none; box-shadow: inset 0 1px rgba(255,255,255,.18), 0 10px 22px rgba(0,0,0,.18); transition: transform .16s ease, filter .16s ease; }
+.social-share-button:hover { transform: translateY(-2px); filter: brightness(1.08); }
 .social-share-button.x { background: linear-gradient(135deg, #111, #303030); }
 .social-share-button.facebook { background: linear-gradient(135deg, #1877f2, #0c4fb0); }
 .social-share-button.reddit { background: linear-gradient(135deg, #ff4500, #bc3000); }
 .social-share-button.whatsapp { background: linear-gradient(135deg, #25d366, #128c4a); }
 .social-share-button.telegram { background: linear-gradient(135deg, #2aabee, #1477a8); }
 .social-share-button.linkedin { background: linear-gradient(135deg, #0a66c2, #07457f); }
+.social-share-icon { width: 24px; height: 24px; }
+.social-share-glyph { font-size: 22px; font-weight: 1000; line-height: 1; }
+.facebook-glyph { font-family: Arial, sans-serif; font-size: 28px; transform: translateY(2px); }
+.linkedin-glyph { font-family: Arial, sans-serif; font-size: 18px; letter-spacing: -.08em; }
 .proof-share-utility-row { gap: 7px; }
 .proof-share-utility-row .button { min-height: 36px; padding: 9px 12px; font-size: 12px; }
 .microcopy { font-size: 12px; color: rgba(199,189,169,.82); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .spread { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
 
 @media (max-width: 860px) {
@@ -609,7 +615,7 @@ p { color: var(--muted); line-height: 1.5; }
 .proof-details-section .share-actions { display: grid; gap: 0; }
 .proof-details-section .share-actions .button-row { flex-wrap: nowrap; align-items: center; }
 .proof-details-section .share-actions .microcopy:empty { display: none; }
-@media (max-width: 640px) { .proof-details-section .share-actions .button-row { flex-wrap: wrap; } .social-share-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .proof-details-section .share-actions .button-row { flex-wrap: wrap; } }
 .compact-proof-links { margin-top: 2px; }
 .proof-details-grid { margin: 0; }
 .public-proof-wrap { gap: 22px; }

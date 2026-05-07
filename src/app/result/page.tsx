@@ -199,10 +199,6 @@ export default async function ResultPage({
               sharePath={isPassed ? publicProofPath : "/result"}
               imagePath={isPassed ? publicProofImagePath(publicProofToken) : undefined}
               shareLabel={isPassed ? "Share proof" : "Share quest"}
-              idleCopy={isPassed
-                ? "Choose a social button, or copy/download the victory proof for wherever the chess goblins gather."
-                : "Choose a social button, or copy this proof-card link. No PGN upload, no homework."
-              }
             />
           </article>
           <article className="mission-card share-card">

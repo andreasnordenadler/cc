@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 20:08 Europe/Stockholm
+Last updated: 2026-05-07 20:17 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -51,9 +51,9 @@ Andreas clarified that these five items are still wanted and should be treated a
 
 - [x] Replace broken generic proof Share button with explicit social share buttons.
   - added_at: 2026-05-07 20:00 Europe/Stockholm
-  - completed_at: 2026-05-07 20:08 Europe/Stockholm
-  - source: Andreas reported the completed-quest `Share` button did not work or make sense and requested working social media sharing buttons instead.
-  - Proof: `ShareProofActions` now renders direct social links for X, Facebook, Reddit, WhatsApp, Telegram, and LinkedIn, plus utility buttons for copying the proof link, copying the direct proof-image link, and downloading the generated proof PNG.
+  - completed_at: 2026-05-07 20:17 Europe/Stockholm
+  - source: Andreas reported the completed-quest `Share` button did not work or make sense and requested working social media sharing buttons instead; follow-up screenshot feedback asked for logo buttons instead of text buttons and removal of the explanatory goblins line.
+  - Proof: `ShareProofActions` now renders compact logo/icon buttons for X, Facebook, Reddit, WhatsApp, Telegram, and LinkedIn, plus utility buttons for copying the proof link, copying the direct proof-image link, and downloading the generated proof PNG. The idle helper microcopy is removed.
   - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy.
 
 - [x] Update external SQC product review with current logged-in launch-candidate status.

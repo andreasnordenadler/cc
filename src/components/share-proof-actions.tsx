@@ -22,7 +22,6 @@ export default function ShareProofActions({
   copy,
   challengeTitle,
   sharePath = "/result",
-  idleCopy = "Pick a place to share the proof link, or copy it and paste wherever the chess goblins gather.",
   imagePath,
   imageFileName = "side-quest-chess-proof.png",
 }: ShareProofActionsProps) {
@@ -111,12 +110,15 @@ export default function ShareProofActions({
         {socialTargets.map((target) => (
           <a
             key={target.label}
-            className={`button social-share-button ${target.tone}`}
+            className={`social-share-button ${target.tone}`}
             href={target.href}
             target="_blank"
             rel="noreferrer"
+            aria-label={`Share on ${target.label}`}
+            title={`Share on ${target.label}`}
           >
-            {target.label}
+            <SocialIcon tone={target.tone} />
+            <span className="sr-only">Share on {target.label}</span>
           </a>
         ))}
       </div>
@@ -125,17 +127,57 @@ export default function ShareProofActions({
         {imageUrl ? <button type="button" className="button secondary" onClick={copyImageLink}>Copy image link</button> : null}
         {imageUrl ? <button type="button" className="button secondary" onClick={downloadImage}>Download image</button> : null}
       </div>
-      <p className="microcopy">
-        {status === "copied"
-          ? "Proof link copied. Paste it anywhere — socials will use the victory image preview."
-          : status === "imageCopied"
-            ? "Direct proof image link copied. Useful for posts that want the raw image."
-            : status === "downloaded"
-              ? "Proof image downloaded. Upload it anywhere that prefers the actual file."
-              : status === "failed"
-                ? "Could not copy/download here. Use one of the social buttons above."
-                : idleCopy}
-      </p>
+      {status === "idle" ? null : (
+        <p className="microcopy">
+          {status === "copied"
+            ? "Proof link copied."
+            : status === "imageCopied"
+              ? "Direct proof image link copied."
+              : status === "downloaded"
+                ? "Proof image downloaded."
+                : "Could not copy/download here."}
+        </p>
+      )}
     </div>
+  );
+}
+
+function SocialIcon({ tone }: { tone: ShareTarget["tone"] }) {
+  if (tone === "x") {
+    return <span className="social-share-glyph" aria-hidden="true">𝕏</span>;
+  }
+
+  if (tone === "facebook") {
+    return <span className="social-share-glyph facebook-glyph" aria-hidden="true">f</span>;
+  }
+
+  if (tone === "linkedin") {
+    return <span className="social-share-glyph linkedin-glyph" aria-hidden="true">in</span>;
+  }
+
+  if (tone === "reddit") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="social-share-icon">
+        <path d="M14.7 5.2 13 9.1c2.6.2 4.7 1.5 5.5 3.4.3-.2.7-.3 1.1-.3 1.1 0 2 .9 2 2 0 .8-.5 1.5-1.2 1.8v.4c0 3.1-3.7 5.6-8.3 5.6s-8.3-2.5-8.3-5.6V16c-.7-.3-1.2-1-1.2-1.8 0-1.1.9-2 2-2 .4 0 .8.1 1.1.3.8-1.9 2.9-3.2 5.4-3.4l2.1-4.8 4.3 1 .1-.2c.3-.8 1.2-1.2 2-.9.8.3 1.2 1.2.9 2s-1.2 1.2-2 .9c-.5-.2-.9-.6-1-1.1l-2.8-.8Z" fill="currentColor" />
+        <circle cx="9" cy="15" r="1.1" fill="#1f0f0a" />
+        <circle cx="15" cy="15" r="1.1" fill="#1f0f0a" />
+        <path d="M8.8 18.1c1.8 1 4.6 1 6.4 0" fill="none" stroke="#1f0f0a" strokeWidth="1.2" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (tone === "whatsapp") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="social-share-icon">
+        <path d="M12 2.8a9.1 9.1 0 0 0-7.8 13.8l-1 4.4 4.5-1.1A9.1 9.1 0 1 0 12 2.8Z" fill="currentColor" />
+        <path d="M8.7 7.3c-.2 0-.5.1-.7.4-.3.4-.9 1-.9 2.1s.9 2.2 1 2.4c.1.2 1.8 3 4.5 4.1 2.2.9 2.7.7 3.2.7.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.2.1-1.3-.1-.1-.2-.2-.5-.4l-1.8-.9c-.3-.1-.5-.2-.7.2l-.7.9c-.2.2-.4.3-.7.1-.3-.1-1.2-.4-2.2-1.4-.8-.8-1.4-1.7-1.5-2-.2-.3 0-.5.1-.6l.5-.6c.1-.2.2-.3.3-.5.1-.2.1-.4 0-.6l-.8-1.9c-.2-.4-.4-.4-.7-.4h-.3Z" fill="#12351f" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="social-share-icon">
+      <path d="M21.4 4.3 18.2 20c-.2.9-.8 1.1-1.6.7l-4.4-3.2-2.1 2c-.2.2-.4.4-.9.4l.3-4.5 8.2-7.4c.4-.3-.1-.5-.5-.2L7.1 14.1l-4.4-1.4c-1-.3-1-1 .2-1.5L20 4.6c.8-.3 1.5.2 1.4-.3Z" fill="currentColor" />
+    </svg>
   );
 }

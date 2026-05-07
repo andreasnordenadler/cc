@@ -94,7 +94,6 @@ export default async function PublicProofPage({
             sharePath={`/proof/${token}`}
             imagePath={publicProofImagePath(token)}
             shareLabel="Share proof"
-            idleCopy="Choose a social button, or copy/download the victory proof for wherever the chess goblins gather."
           />
         </section>
       </div>
