@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 12:08 Europe/Stockholm
+Last updated: 2026-05-07 12:02 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Remove the current-quest “View victory proof” button from My Side Quest.
+  - added_at: 2026-05-07 12:00 Europe/Stockholm
+  - completed_at: 2026-05-07 12:02 Europe/Stockholm
+  - source: Andreas said the target page is not needed from the current quest card.
+  - Proof: removed the `/result?challengeId=...` CTA from the completed current quest card on `/account`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Make completed quests on My Side Quest feel fancy, funny, and awkward.
   - added_at: 2026-05-07 11:59 Europe/Stockholm

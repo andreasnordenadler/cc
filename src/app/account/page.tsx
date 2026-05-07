@@ -93,11 +93,6 @@ export default async function MyQuestLogPage() {
                 <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
                 <small className="current-quest-coat-caption">{activeChallengeRecord.title}</small>
               </Link>
-              {completedSet.has(activeChallengeRecord.id) ? (
-                <div className="button-row current-quest-proof-actions">
-                  <Link href={`/result?challengeId=${activeChallengeRecord.id}`} className="button primary">View victory proof</Link>
-                </div>
-              ) : null}
             </>
           ) : (
             <Link href="/challenges" className="current-quest-empty-link">
