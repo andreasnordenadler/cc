@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 20:45 Europe/Stockholm
+Last updated: 2026-05-07 20:58 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -99,6 +99,13 @@ Andreas clarified that these five items are still wanted and should be treated a
   - source: Andreas and Sam agreed SQC is close to launch ready. Andreas agreed with final launch-hardening checks except mobile web polish, because a proper SQC mobile app is planned for the next phase.
   - Proof: state-aware quest CTAs, sign-in/sign-up reassurance, My Side Quests next-step module, legal/support trust hygiene, beta-copy cleanup, and LC1 proof doc: `docs/SQC_LAUNCH_CANDIDATE_1_HARDENING_2026-05-07.md`.
   - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy. Authenticated E2E remains the final manual launch gate because no clean test login/session is available in this run.
+
+- [x] Start SQC mobile app foundation.
+  - added_at: 2026-05-07 20:45 Europe/Stockholm
+  - completed_at: 2026-05-07 20:58 Europe/Stockholm
+  - source: Andreas agreed with the shared-backend mobile app approach and asked if I could start building it.
+  - Proof: added `GET /api/mobile/bootstrap` as the first app-facing anti-drift API contract; added Expo/React Native scaffold under `apps/mobile/` with a first catalog/detail screen that fetches the live web-backed quest catalog; proof doc: `docs/SQC_MOBILE_APP_FOUNDATION_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`; production deploy/smoke for `/api/mobile/bootstrap`.
 
 - [x] Plan proper SQC mobile app phase after web launch candidate.
   - added_at: 2026-05-07 17:54 Europe/Stockholm

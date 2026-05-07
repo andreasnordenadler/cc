@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Side Quest Chess",
+    "slug": "side-quest-chess",
+    "scheme": "sidequestchess",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sidequestchess.app"
+    },
+    "android": {
+      "package": "com.sidequestchess.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#060507"
+      }
+    },
+    "extra": {
+      "apiBaseUrl": "https://sidequestchess.com"
+    }
+  }
+}
