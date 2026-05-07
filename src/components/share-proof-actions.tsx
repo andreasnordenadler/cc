@@ -42,22 +42,26 @@ export default function ShareProofActions({
     return url.toString();
   }, [imagePath]);
   const shareText = useMemo(() => `${copy}\n${shareUrl}`, [copy, shareUrl]);
+  const socialCopy = useMemo(
+    () => `I completed “${challengeTitle}” on Side Quest Chess. Proof + coat of arms unlocked.`,
+    [challengeTitle],
+  );
   const socialTargets = useMemo<ShareTarget[]>(() => {
     const encodedUrl = encodeURIComponent(shareUrl);
-    const encodedCopy = encodeURIComponent(copy);
+    const encodedSocialCopy = encodeURIComponent(socialCopy);
     const encodedTitle = encodeURIComponent(`Side Quest Chess: ${challengeTitle}`);
     const encodedRedditTitle = encodeURIComponent(`${challengeTitle} completed on Side Quest Chess`);
-    const encodedTelegramText = encodeURIComponent(`${copy}\n${shareUrl}`);
+    const encodedSocialText = encodeURIComponent(`${socialCopy}\n${shareUrl}`);
 
     return [
-      { label: "X", tone: "x", href: `https://twitter.com/intent/tweet?text=${encodedCopy}&url=${encodedUrl}` },
+      { label: "X", tone: "x", href: `https://twitter.com/intent/tweet?text=${encodedSocialCopy}&url=${encodedUrl}` },
       { label: "Facebook", tone: "facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}` },
       { label: "Reddit", tone: "reddit", href: `https://www.reddit.com/submit?url=${encodedUrl}&title=${encodedRedditTitle}` },
-      { label: "WhatsApp", tone: "whatsapp", href: `https://wa.me/?text=${encodedTelegramText}` },
-      { label: "Telegram", tone: "telegram", href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedCopy}` },
+      { label: "WhatsApp", tone: "whatsapp", href: `https://wa.me/?text=${encodedSocialText}` },
+      { label: "Telegram", tone: "telegram", href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedSocialCopy}` },
       { label: "LinkedIn", tone: "linkedin", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}` },
     ];
-  }, [challengeTitle, copy, shareUrl]);
+  }, [challengeTitle, shareUrl, socialCopy]);
 
   async function copyProofLink() {
     try {
