@@ -204,3 +204,22 @@ SQC product language should consistently use “side quest” / “quest”, not
 - Tags: sqc, copy, product-language
 
 ---
+
+## [LRN-20260507-008] SQC large teaser sections should be card-level links
+
+**Logged**: 2026-05-07T15:38:00+02:00
+**Category**: correction
+**Priority**: medium
+
+### Summary
+Andreas asked that clicking anywhere on the homepage coat-of-arms preview section should open the coat-of-arms page.
+
+### Lesson
+For SQC homepage promotional/teaser cards, make the whole card clickable when the entire section has one obvious destination. Avoid small nested-only hit targets on mobile.
+
+### Metadata
+- Source: user_correction
+- Related Files: src/app/page.tsx, src/app/globals.css
+- Tags: sqc, mobile-ux, clickable-card, coat-of-arms
+
+---

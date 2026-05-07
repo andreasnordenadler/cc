@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:35 Europe/Stockholm
+Last updated: 2026-05-07 15:38 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Make homepage coat-of-arms preview section fully clickable.
+  - added_at: 2026-05-07 15:36 Europe/Stockholm
+  - completed_at: 2026-05-07 15:38 Europe/Stockholm
+  - source: Andreas said clicking anywhere on the homepage coat-of-arms section should take the user to the coat-of-arms page.
+  - Proof: homepage coat-of-arms preview card is now a single full-card link to `/badges`, with nested image links removed and hover/focus affordance on the whole section. Proof doc: `docs/SQC_HOME_COAT_OF_ARMS_CARD_LINK_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Replace SQC topbar alternate logo asset.
   - added_at: 2026-05-07 15:28 Europe/Stockholm

@@ -169,24 +169,19 @@ export default async function Home() {
           </Link>
         ) : null}
 
-        <section className="hero-card home-badge-vault-card" aria-label="Badge vault preview">
+        <Link href="/badges" className="hero-card home-badge-vault-card home-badge-vault-link" aria-label="Open the coat of arms page">
           <h2>Every bad idea deserves a coat of arms.</h2>
           <p className="hero-copy">
             Side Quest Chess badges are collectible heraldic receipts: each shield explains the exact nonsense you survived, why it matters, and what your friends should mock respectfully.
           </p>
           <div className="home-badge-art-row" aria-label="Side Quest Chess coat of arms preview">
             {badgePreviewChallenges.map((challenge) => (
-              <Link
-                key={challenge.id}
-                href="/challenges"
-                className="home-badge-art-link"
-                aria-label="Open quests page"
-              >
+              <span key={challenge.id} className="home-badge-art-link" aria-hidden="true">
                 <ChallengeBadge challenge={challenge} presentation="art" earned={!isSignedIn || completedSet.has(challenge.id)} />
-              </Link>
+              </span>
             ))}
           </div>
-        </section>
+        </Link>
 
 
 
