@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ClerkProvider, SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
 import {
   ActivityIndicator,
   Image,
@@ -13,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
+import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import type { MobileAccountResponse, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
 type AppTab = "catalog" | "quest" | "account" | "status" | "proof";
@@ -27,6 +29,14 @@ type MobileShellState = {
   error: string | null;
 };
 
+type MobileAuthBridge = {
+  configured: boolean;
+  isLoaded: boolean;
+  isSignedIn: boolean;
+  getSessionToken: () => Promise<string | null>;
+  signedInLabel: string | null;
+};
+
 const TABS: Array<{ id: AppTab; label: string }> = [
   { id: "catalog", label: "Quests" },
   { id: "quest", label: "Detail" },
@@ -36,6 +46,45 @@ const TABS: Array<{ id: AppTab; label: string }> = [
 ];
 
 export default function App() {
+  if (!isClerkMobileAuthConfigured()) {
+    return <MobileShell authBridge={signedOutAuthBridge} />;
+  }
+
+  return (
+    <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={clerkTokenCache}>
+      <ClerkMobileShell />
+    </ClerkProvider>
+  );
+}
+
+function ClerkMobileShell() {
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
+  const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
+
+  const authBridge = useMemo<MobileAuthBridge>(
+    () => ({
+      configured: true,
+      isLoaded,
+      isSignedIn: Boolean(isSignedIn),
+      getSessionToken: async () => getToken(),
+      signedInLabel,
+    }),
+    [getToken, isLoaded, isSignedIn, signedInLabel],
+  );
+
+  return <MobileShell authBridge={authBridge} />;
+}
+
+const signedOutAuthBridge: MobileAuthBridge = {
+  configured: false,
+  isLoaded: true,
+  isSignedIn: false,
+  getSessionToken: async () => null,
+  signedInLabel: null,
+};
+
+function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
     account: null,
@@ -51,13 +100,16 @@ export default function App() {
     return shell.bootstrap.challenges.find((challenge) => challenge.id === shell.selectedChallengeId) ?? shell.bootstrap.challenges[0] ?? null;
   }, [shell.bootstrap, shell.selectedChallengeId]);
 
-  async function loadBootstrap({ refresh = false } = {}) {
+  const loadBootstrap = useCallback(async ({ refresh = false } = {}) => {
+    if (!authBridge.isLoaded) return;
+
     setShell((current) => ({ ...current, loading: !refresh, refreshing: refresh }));
 
     try {
+      const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
       const [nextBootstrap, nextAccount] = await Promise.all([
         fetchMobileBootstrap(),
-        fetchMobileAccountState(),
+        fetchMobileAccountState(sessionToken),
       ]);
       setShell((current) => ({
         ...current,
@@ -76,11 +128,11 @@ export default function App() {
         error: caught instanceof Error ? caught.message : "Could not load Side Quest Chess.",
       }));
     }
-  }
+  }, [authBridge]);
 
   useEffect(() => {
     void loadBootstrap();
-  }, []);
+  }, [loadBootstrap]);
 
   function selectChallenge(challengeId: string, nextTab: AppTab = "quest") {
     setShell((current) => ({ ...current, selectedChallengeId: challengeId, activeTab: nextTab }));
@@ -99,6 +151,7 @@ export default function App() {
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
       >
         <HeaderCard />
+        <MobileAuthSessionCard authBridge={authBridge} />
 
         {shell.loading ? (
           <View style={styles.loadingCard}>
@@ -117,6 +170,7 @@ export default function App() {
               bootstrap={shell.bootstrap}
               selectedChallenge={selectedChallenge}
               account={shell.account}
+              authBridge={authBridge}
               onSelectChallenge={selectChallenge}
             />
             <SyncCard bootstrap={shell.bootstrap} />
@@ -139,6 +193,37 @@ function HeaderCard() {
   );
 }
 
+function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge }) {
+  if (!authBridge.configured) {
+    return (
+      <PlaceholderCard
+        eyebrow="Mobile auth bridge"
+        title="Clerk Expo provider is installed."
+        body="Set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in local/EAS env to enable the mobile session provider. No Clerk secrets are stored in the app repo."
+        facts={[
+          ["Provider", "@clerk/clerk-expo"],
+          ["Token cache", "Expo SecureStore"],
+          ["Account fetch", "Adds Authorization: Bearer <session> when signed in"],
+        ]}
+      />
+    );
+  }
+
+  return (
+    <View style={styles.authCard}>
+      <Text style={styles.eyebrow}>Mobile auth bridge</Text>
+      <SignedIn>
+        <Text style={styles.placeholderTitle}>Signed in{authBridge.signedInLabel ? ` as ${authBridge.signedInLabel}` : ""}.</Text>
+        <Text style={styles.placeholderBody}>Account refreshes now include the active Clerk session token when available.</Text>
+      </SignedIn>
+      <SignedOut>
+        <Text style={styles.placeholderTitle}>Signed-out mobile shell.</Text>
+        <Text style={styles.placeholderBody}>Clerk is configured and loaded; the next slice can add the native SSO/sign-in action.</Text>
+      </SignedOut>
+    </View>
+  );
+}
+
 function TabBar({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabRail}>
@@ -156,12 +241,14 @@ function ActiveScreen({
   bootstrap,
   selectedChallenge,
   account,
+  authBridge,
   onSelectChallenge,
 }: {
   activeTab: AppTab;
   bootstrap: MobileBootstrap;
   selectedChallenge: MobileChallenge;
   account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
 }) {
   switch (activeTab) {
@@ -170,7 +257,7 @@ function ActiveScreen({
     case "quest":
       return <QuestDetailScreen challenge={selectedChallenge} />;
     case "account":
-      return <AccountShell bootstrap={bootstrap} account={account} />;
+      return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} />;
     case "status":
       return <StatusShell selectedChallenge={selectedChallenge} account={account} />;
     case "proof":
@@ -221,17 +308,17 @@ function QuestDetailScreen({ challenge }: { challenge: MobileChallenge }) {
   return <QuestDetailCard challenge={challenge} />;
 }
 
-function AccountShell({ bootstrap, account }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null }) {
+function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge }) {
   if (!account || !account.authenticated) {
     return (
       <PlaceholderCard
         eyebrow="Account contract"
-        title="Ready for mobile sign-in."
-        body="The read-only account endpoint now exists. The app gets a signed-out response until the mobile auth/session bridge sends a real Clerk session."
+        title={authBridge.configured ? "Mobile session bridge is ready." : "Ready for mobile sign-in."}
+        body="The read-only account endpoint now exists. Account refreshes include a Clerk bearer token when the Expo session is signed in."
         facts={[
           ["Endpoint", "/api/mobile/account"],
           ["Source", bootstrap.product.canonicalUrl],
-          ["Next", "Wire Clerk mobile auth/session handoff."],
+          ["Session", authBridge.isSignedIn ? "Clerk token attached" : "Signed out / no mobile token yet"],
         ]}
       />
     );
@@ -463,6 +550,7 @@ const styles = StyleSheet.create({
   rulesTitle: { color: "#fff7e8", fontSize: 18, fontWeight: "900" },
   rule: { color: "#c7bda9", fontSize: 14, lineHeight: 21 },
   placeholderCard: { gap: 14, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.075)" },
+  authCard: { gap: 10, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
   placeholderTitle: { color: "#fff7e8", fontSize: 26, fontWeight: "900", letterSpacing: -1.1, lineHeight: 29 },
   placeholderBody: { color: "#c7bda9", fontSize: 15, lineHeight: 22 },
   syncCard: { gap: 8, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },

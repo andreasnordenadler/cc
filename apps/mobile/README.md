@@ -29,6 +29,14 @@ Set a non-production API while developing with:
 EXPO_PUBLIC_SQC_API_BASE_URL=http://localhost:3000 pnpm --filter @sidequestchess/mobile start
 ```
 
+Copy the local env template before testing the Clerk mobile bridge:
+
+```bash
+cp apps/mobile/.env.example apps/mobile/.env.local
+```
+
+Then set `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` in `.env.local` or EAS environment variables. Do **not** commit Clerk secret keys. The current bridge uses `@clerk/clerk-expo` with Expo SecureStore token cache; account fetches attach `Authorization: Bearer <session token>` when Clerk reports a signed-in mobile session.
+
 ## Current scope
 
 This is the Android-alpha shell, not the finished app. It currently:
@@ -37,12 +45,14 @@ This is the Android-alpha shell, not the finished app. It currently:
 - renders a mobile quest rail and quest detail screen;
 - includes app-side state/screen shells for Catalog, Quest Detail, Account, Status, and Proof;
 - fetches the read-only account/status/proof API and renders signed-out or authenticated state;
+- installs the Clerk Expo provider foundation and safely waits for `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` before enabling mobile sessions;
+- attaches a Clerk bearer token to account refreshes when a signed-in Expo session is available;
 - documents the anti-drift rule in-app;
 - includes root EAS profiles for an internal Android APK alpha.
 
 Next app milestones:
 
-1. Add sign-in/session bridge without embedding mobile secrets in the repo.
+1. Add native Clerk sign-in/SSO actions and confirm whether the Next.js mobile API accepts the Expo bearer token directly or needs a dedicated Clerk request-auth helper.
 2. Add chess username connection/update flow.
 3. Add start/check/reset quest actions.
 4. Add proof image viewer and native share sheet.

@@ -20,11 +20,17 @@ export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
   return response.json() as Promise<MobileBootstrap>;
 }
 
-export async function fetchMobileAccountState(): Promise<MobileAccountResponse> {
+export async function fetchMobileAccountState(sessionToken?: string | null): Promise<MobileAccountResponse> {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+  };
+
+  if (sessionToken) {
+    headers.Authorization = `Bearer ${sessionToken}`;
+  }
+
   const response = await fetch(`${getApiBaseUrl()}/api/mobile/account`, {
-    headers: {
-      Accept: "application/json",
-    },
+    headers,
   });
 
   if (response.status === 401) {
