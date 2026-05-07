@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 12:08 Europe/Stockholm
+Last updated: 2026-05-07 12:13 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Compact My Side Quest top cards and remove duplicate coat-of-arms rack.
+  - added_at: 2026-05-07 12:09 Europe/Stockholm
+  - completed_at: 2026-05-07 12:13 Europe/Stockholm
+  - source: Andreas asked to remove the coat-of-arms display from the left section, make Current Quest coat of arms smaller, and reduce the height of the two top sections.
+  - Proof: removed the left hero coat-of-arms rack; reduced left hero padding/title scale; reduced Current Quest badge size and card spacing for a more compact top grid.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Clean up My Side Quest trophy cabinet chrome.
   - added_at: 2026-05-07 12:05 Europe/Stockholm
