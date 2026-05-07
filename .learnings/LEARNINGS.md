@@ -147,3 +147,22 @@ When a component is built on top of a generic list-item style, centering only th
 - Tags: sqc, css, alignment, trophy-card
 
 ---
+
+## [LRN-20260507-005] Completed active quests must visually prefer completed state
+
+**Logged**: 2026-05-07T15:15:00+02:00
+**Category**: correction
+**Priority**: high
+
+### Summary
+Andreas reported that the Side Quest page did not update that Any Game Counts was finalized.
+
+### Lesson
+When a completed quest remains in `activeChallenge`, UI surfaces must not let active-state visuals override completed-state visuals. Completed should win over active in card badges, stamps, filters, and CTAs.
+
+### Metadata
+- Source: user_bug_report
+- Related Files: src/app/challenges/page.tsx, src/components/challenge-deck-browser.tsx
+- Tags: sqc, completed-state, active-state, quest-deck
+
+---

@@ -20,6 +20,9 @@ export default async function ChallengesPage() {
   const currentChallenge = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
+  const activeIncompleteChallengeId = currentChallenge && !completedSet.has(currentChallenge.id)
+    ? currentChallenge.id
+    : undefined;
   const recommendedStartChallenges = recommendedStartChallengeIds
     .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
@@ -38,7 +41,7 @@ export default async function ChallengesPage() {
 
         <ChallengeDeckBrowser
           challenges={CHALLENGES}
-          activeChallengeId={currentChallenge?.id}
+          activeChallengeId={activeIncompleteChallengeId}
           completedChallengeIds={progress.completedChallengeIds}
         />
 
@@ -58,7 +61,7 @@ export default async function ChallengesPage() {
                 key={challenge.id}
                 challenge={challenge}
                 completed={completedSet.has(challenge.id)}
-                active={currentChallenge?.id === challenge.id}
+                active={activeIncompleteChallengeId === challenge.id}
               />
             ))}
           </div>

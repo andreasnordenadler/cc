@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:10 Europe/Stockholm
+Last updated: 2026-05-07 15:16 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Fix completed active quest state on Side Quest page.
+  - added_at: 2026-05-07 15:12 Europe/Stockholm
+  - completed_at: 2026-05-07 15:16 Europe/Stockholm
+  - source: Andreas reported that the Side Quest page did not update that Any Game Counts was finalized.
+  - Proof: completed quests now visually win over active state on `/challenges`; active id is only passed for incomplete quests, and completed cards always show completed award while suppressing active stamp.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Limit visible Coming Soon quests to at most four.
   - added_at: 2026-05-07 15:06 Europe/Stockholm
