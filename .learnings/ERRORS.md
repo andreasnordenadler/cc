@@ -2693,3 +2693,13 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 **Fix**: For recent filtered project logs, omit the URL/deployment positional argument and use `vercel logs --environment production --level error --since 10m --limit 20 --no-follow`.
 
 ---
+
+## [ERR-20260507-007] zsh globbed bracket route in grep path
+
+**Date**: 2026-05-07
+**Command**: `grep ... src/app/challenges/[id]/page.tsx ...`
+**Context**: SQC quest-detail sharing cleanup verification.
+**Failure**: zsh interpreted `[id]` as a glob and printed `no matches found` before the build checks.
+**Fix**: Quote bracket route paths in all shell commands, not just `git add`: `grep ... 'src/app/challenges/[id]/page.tsx'`.
+
+---

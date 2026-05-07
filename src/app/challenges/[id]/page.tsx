@@ -4,7 +4,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
-import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
@@ -155,7 +154,6 @@ export default async function ChallengeDetailPage({
               ) : (
                 <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} label="Start this side quest" />
               )}
-              <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Side Quest</Link>
               {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
             </div>
           ) : null}
@@ -252,25 +250,6 @@ export default async function ChallengeDetailPage({
             </div>
           </div>
         </section>
-
-        {!isCompleted ? <section className="mission-card quest-detail-section" aria-label="Friend quest handoff">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Friend dare</span>
-              <h2>Send exactly this bad idea.</h2>
-            </div>
-          </div>
-          <p>
-            Turn this rule page into a direct dare: copy a friend-ready invite with the quest, objective, badge, and proof link already attached.
-          </p>
-          <ChallengeInviteActions
-            challengeTitle={challenge.title}
-            challengeObjective={challenge.objective}
-            challengePath={`/dare/${challenge.id}`}
-            reward={challenge.reward}
-            badgeName={challenge.badgeIdentity.name}
-          />
-        </section> : null}
 
 
       </div>
