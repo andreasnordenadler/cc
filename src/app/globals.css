@@ -614,6 +614,7 @@ p { color: var(--muted); line-height: 1.5; }
 .proof-details-section h2 { margin: 0; }
 .proof-details-line { margin: 0; color: var(--muted); font-weight: 800; }
 .proof-details-section .share-actions { display: grid; gap: 0; }
+.proof-details-section .social-share-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .proof-details-section .share-actions .button-row { flex-wrap: nowrap; align-items: center; }
 .proof-details-section .share-actions .microcopy:empty { display: none; }
 @media (max-width: 640px) { .proof-details-section .share-actions .button-row { flex-wrap: wrap; } }
