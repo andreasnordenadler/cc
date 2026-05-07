@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 12:02 Europe/Stockholm
+Last updated: 2026-05-07 12:08 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Clean up My Side Quest trophy cabinet chrome.
+  - added_at: 2026-05-07 12:05 Europe/Stockholm
+  - completed_at: 2026-05-07 12:08 Europe/Stockholm
+  - source: Andreas asked to remove the “10 susp...” pill and “Awkward...” banner, and check alignment of the text under the quest name.
+  - Proof: removed the suspicious-points pill and diagonal certification banner from `/account`; centered/tightened trophy-card title and awkward subtitle alignment.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Remove the current-quest “View victory proof” button from My Side Quest.
   - added_at: 2026-05-07 12:00 Europe/Stockholm

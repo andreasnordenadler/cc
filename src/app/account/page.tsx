@@ -141,7 +141,6 @@ export default async function MyQuestLogPage() {
                   : "No tiny heraldic paperwork yet. The shame is currently very organized."}
               </p>
             </div>
-            <span className="badge gold">{progress.totalRewardPoints} suspicious points</span>
           </div>
 
           {completedChallenges.length ? (
