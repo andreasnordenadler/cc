@@ -262,3 +262,13 @@ Do not treat extensive responsive/mobile web polish as a launch blocker for SQC.
 **Applied**: Changed the signed-out top-nav primary CTA from “Connect” to “Start with Google”.
 
 ---
+
+## [CORR-20260507-003] SQC signed-out nav should use one neutral auth CTA
+
+**Category**: correction
+**Date**: 2026-05-07
+**Context**: After changing ambiguous “Connect” to “Start with Google”, Andreas said he did not like “Start with Google” and preferred skipping the extra button.
+**Learning**: For SQC top nav, avoid provider-forward or growthy signed-out copy. Use one neutral auth CTA, “Sign In/Up”, and keep the nav lean.
+**Applied**: Removed the second signed-out nav button and replaced the pair with one primary `Sign In/Up` button.
+
+---
