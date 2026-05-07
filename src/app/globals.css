@@ -78,6 +78,8 @@ button, input { font: inherit; }
 .site-footer span { font-size: .82rem; font-weight: 800; letter-spacing: .02em; }
 .site-footer nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .site-footer a { color: var(--muted); text-decoration: none; font-size: .86rem; font-weight: 850; }
+.site-footer a + a { position: relative; padding-left: 14px; }
+.site-footer a + a::before { content: ""; position: absolute; left: 0; top: 50%; width: 1px; height: 1.05em; background: rgba(255,255,255,.24); transform: translateY(-50%); }
 .site-footer a:hover, .site-footer a:focus-visible { color: var(--ink); outline: none; }
 
 .content-wrap { width: min(1120px, 100%); margin: 0 auto; display: grid; gap: 22px; }

@@ -272,3 +272,13 @@ Do not treat extensive responsive/mobile web polish as a launch blocker for SQC.
 **Applied**: Removed the second signed-out nav button and replaced the pair with one primary `Sign In/Up` button.
 
 ---
+
+## [CORR-20260507-004] Footer links need visible separation
+
+**Category**: correction
+**Date**: 2026-05-07
+**Context**: Andreas reviewed the SQC footer screenshot and asked for a divider between Support and Terms & Conditions.
+**Learning**: Adjacent legal/support footer links should not rely only on spacing; add a subtle divider for scanability.
+**Applied**: Added a vertical divider before subsequent footer links.
+
+---
