@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:16 Europe/Stockholm
+Last updated: 2026-05-07 15:10 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,11 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [ ] Add dated Coming Soon release schedule for hidden/draft quests.
+  - added_at: 2026-05-07 15:10 Europe/Stockholm
+  - source: Andreas asked whether Coming Soon quests can have scheduled release dates shown in the stamp, with Sam developing and testing each quest beforehand.
+  - Acceptance: choose a release cadence/date plan; add release dates to visible Coming Soon stamps; keep only quests with credible scheduled work visible; create implementation/testing checklist per quest; do not mark a quest live until verifier, latest-game flow, reset/repeat behavior, proof receipt, and production smoke are verified.
 
 - [x] Fix completed active quest state on Side Quest page.
   - added_at: 2026-05-07 15:12 Europe/Stockholm
