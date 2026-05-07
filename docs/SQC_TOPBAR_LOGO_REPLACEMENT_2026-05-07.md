@@ -14,7 +14,14 @@ After deploy, Andreas refreshed and still saw the previous logo. The deployed ra
 - `public/brand/sqc-alt-logo-topbar-20260507.png`
 - Updated `SiteNav` and `/brand-test` to reference `/brand/sqc-alt-logo-topbar-20260507.png`.
 
+## Transparent PNG v2 follow-up
+Andreas supplied a new transparent PNG version. Updated both the canonical filename and a fresh cache-busting asset:
+
+- `public/brand/sqc-alt-logo-topbar-transparent.png`
+- `public/brand/sqc-alt-logo-topbar-20260507-v2.png`
+- Updated `SiteNav` and `/brand-test` to reference `/brand/sqc-alt-logo-topbar-20260507-v2.png`.
+
 ## Verification
-- `sips` confirmed replacement dimensions: 1280×650.
+- `sips` confirmed v2 replacement dimensions: 1759×894, alpha: yes.
 - `pnpm lint` passed with warnings only.
 - `pnpm build` passed.

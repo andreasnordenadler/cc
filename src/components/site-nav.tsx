@@ -15,7 +15,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
       <div className="site-nav-inner">
         <nav className="nav-links" aria-label="Primary">
           <Link href="/" className="nav-brand-mark" aria-label="Side Quest Chess home">
-            <img src="/brand/sqc-alt-logo-topbar-20260507.png" alt="" />
+            <img src="/brand/sqc-alt-logo-topbar-20260507-v2.png" alt="" />
           </Link>
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Side Quests</Link>

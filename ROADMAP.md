@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:38 Europe/Stockholm
+Last updated: 2026-05-07 15:43 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -60,7 +60,7 @@ Andreas clarified that these five items are still wanted and should be treated a
   - added_at: 2026-05-07 15:28 Europe/Stockholm
   - completed_at: 2026-05-07 15:31 Europe/Stockholm
   - source: Andreas uploaded a new image and asked to replace `sqc-alt-logo-topbar-transparent.png`.
-  - Proof: `public/brand/sqc-alt-logo-topbar-transparent.png` replaced with the uploaded image converted to PNG; previous asset backed up locally at `tmp/sqc-alt-logo-topbar-transparent.previous.png`; follow-up cache-bust added versioned asset `public/brand/sqc-alt-logo-topbar-20260507.png` and updated topbar references; proof doc: `docs/SQC_TOPBAR_LOGO_REPLACEMENT_2026-05-07.md`.
+  - Proof: `public/brand/sqc-alt-logo-topbar-transparent.png` replaced with the uploaded image; previous asset backed up locally at `tmp/sqc-alt-logo-topbar-transparent.previous.png`; cache-bust added versioned assets, latest `public/brand/sqc-alt-logo-topbar-20260507-v2.png`, and updated topbar references; proof doc: `docs/SQC_TOPBAR_LOGO_REPLACEMENT_2026-05-07.md`.
   - Verification: `sips` image metadata check; `pnpm lint`; `pnpm build`.
 
 - [x] Add dated Coming Soon release schedule for hidden/draft quests.
