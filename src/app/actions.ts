@@ -186,6 +186,25 @@ function compactChallengeAttempts(attempts: ChallengeAttempt[], maxRecentAttempt
   );
 }
 
+function getAttemptChallengeId(attempt: ChallengeAttempt): string | undefined {
+  return typeof attempt.challengeId === "string"
+    ? attempt.challengeId
+    : typeof attempt.id === "string"
+      ? attempt.id.split(":")[0]
+      : undefined;
+}
+
+function buildProgressRecord(completedChallengeIds: string[]) {
+  return {
+    completedChallengeIds,
+    totalCompletedChallenges: completedChallengeIds.length,
+    totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
+      const completedChallenge = getChallengeById(id);
+      return sum + (completedChallenge?.reward ?? 0);
+    }, 0),
+  };
+}
+
 function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
   return {
     completedGameAt: attempt.completedGameAt,
@@ -747,6 +766,49 @@ export async function deactivateActiveChallenge(formData: FormData) {
   revalidatePath("/account");
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challengeId}`);
+}
+
+export async function resetCompletedChallenge(formData: FormData) {
+  const { userId, metadata } = await getUserContext();
+  const challengeId = String(formData.get("challengeId") ?? "");
+  const challenge = getChallengeById(challengeId);
+
+  if (!challenge) {
+    throw new Error("Unknown quest.");
+  }
+
+  const progress = getChallengeProgress(metadata);
+
+  if (!progress.completedChallengeIds.includes(challenge.id)) {
+    throw new Error("That quest is not completed.");
+  }
+
+  const existingAttempts = Array.isArray(metadata.challengeAttempts)
+    ? (metadata.challengeAttempts as ChallengeAttempt[])
+    : [];
+  const remainingAttempts = existingAttempts.filter((attempt) => getAttemptChallengeId(attempt) !== challenge.id);
+  const completedChallengeIds = progress.completedChallengeIds.filter((id) => id !== challenge.id);
+  const activeChallenge =
+    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+      ? (metadata.activeChallenge as { id?: string })
+      : null;
+
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      ...metadata,
+      activeChallenge: activeChallenge?.id === challenge.id ? null : metadata.activeChallenge,
+      challengeAttempts: compactChallengeAttempts(remainingAttempts),
+      challengeProgress: buildProgressRecord(completedChallengeIds),
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/account");
+  revalidatePath("/badges");
+  revalidatePath("/challenges");
+  revalidatePath(`/challenges/${challenge.id}`);
+  revalidatePath("/result");
 }
 
 export async function submitChallengeAttempt(formData: FormData) {

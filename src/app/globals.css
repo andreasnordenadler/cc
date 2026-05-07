@@ -91,6 +91,7 @@ p { color: var(--muted); line-height: 1.5; }
 .button.primary { background: var(--gold); color: #111; }
 .button.secondary { background: rgba(255,255,255,.08); color: var(--ink); border: 1px solid rgba(255,255,255,.13); }
 .button.pink { background: var(--pink); color: #111; }
+.button.danger { background: rgba(255,122,102,.14); color: #ffd6cf; border: 1px solid rgba(255,122,102,.44); }
 .hero-actions { margin-top: 22px; }
 
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; }
@@ -347,6 +348,9 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-deactivate-crest-card .challenge-badge-art.hero .badge-reference-art { width: min(160px, 38vw); max-height: 160px; }
 .quest-deactivate-crest-card strong { margin: 0; font-size: 1.1rem; line-height: 1.1; }
 .quest-deactivate-crest-card span { color: var(--muted); font-size: 11px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
+.quest-reset-row { display: flex; justify-content: flex-start; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1); }
+.quest-reset-dialog { border-color: rgba(255,122,102,.34); background: radial-gradient(circle at 50% 0%, rgba(255,122,102,.16), transparent 34%), linear-gradient(135deg, rgba(35,22,32,.98), rgba(16,12,20,.98)); }
+.quest-reset-crest-card { border-color: rgba(255,122,102,.28); background: radial-gradient(circle at 50% 0%, rgba(255,122,102,.12), transparent 42%), rgba(255,255,255,.065); }
 .rules-list { list-style: none; display: grid; gap: 9px; margin-top: 2px; }
 .rules-list li { padding: 12px; border-radius: 18px; background: rgba(255,255,255,.07); color: var(--muted); }
 .rules-list li::before { content: "✓"; color: var(--green); font-weight: 950; margin-right: 8px; }

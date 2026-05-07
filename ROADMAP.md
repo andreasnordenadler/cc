@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 10:45 Europe/Stockholm
+Last updated: 2026-05-07 11:10 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Add completed quest reset button with irreversible confirmation.
+  - added_at: 2026-05-07 11:05 Europe/Stockholm
+  - completed_at: 2026-05-07 11:10 Europe/Stockholm
+  - source: Andreas shared a screenshot and asked for a button to reset/undo a completed quest so users can do it again, with a warning/confirmation that the action cannot be undone.
+  - Proof: added `Reset quest` control to completed quest proof details, confirmation dialog, and `resetCompletedChallenge` server action that removes the quest from completed progress, recalculates points, removes saved attempts/proof receipts for that quest, and clears active state for that quest. Proof doc: `docs/SQC_COMPLETED_QUEST_RESET_CONTROL_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Generate the full victory scroll as one shareable image.
   - added_at: 2026-05-07 10:40 Europe/Stockholm

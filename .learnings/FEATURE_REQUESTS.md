@@ -23,3 +23,23 @@ The existing share flow had DOM text plus image pieces. Implemented a full verti
 - Tags: sqc, sharing, proof-image
 
 ---
+
+## [FR-20260507-002] SQC completed quest reset
+
+**Logged**: 2026-05-07T11:10:00+02:00
+**Priority**: high
+**Status**: implemented
+**Area**: frontend
+
+### Summary
+Andreas requested a completed-quest reset button so users can undo a completion and repeat the quest.
+
+### Details
+The reset is destructive: it removes the completion, proof receipt, coat of arms unlock, and points for that quest. UI must require clear confirmation and say the action cannot be undone.
+
+### Metadata
+- Source: conversation
+- Related Files: src/components/reset-quest-control.tsx, src/app/actions.ts
+- Tags: sqc, quest-reset, destructive-confirmation
+
+---

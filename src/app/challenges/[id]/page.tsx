@@ -6,6 +6,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofPositionBoard from "@/components/proof-position-board";
+import ResetQuestControl from "@/components/reset-quest-control";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
@@ -181,11 +182,14 @@ export default async function ChallengeDetailPage({
             <ShareProofActions
               copy={buildCompletedQuestShareCopy(challenge, latestPassedAttempt)}
               challengeTitle={challenge.title}
-              sharePath="/"
+              sharePath={publicProofPath ?? `/challenges/${challenge.id}`}
               imagePath={publicProofPath ? publicProofImagePath(publicProofPath.split("/").at(-1) ?? "") : undefined}
               shareLabel="Share"
               idleCopy="Shares the victory scroll image with a Side Quest Chess link."
             />
+            <div className="quest-reset-row">
+              <ResetQuestControl challenge={challenge} />
+            </div>
           </section>
         ) : null}
 
