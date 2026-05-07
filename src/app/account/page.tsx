@@ -135,33 +135,53 @@ export default async function MyQuestLogPage() {
           </div>
         </section>
 
-        <section className="mission-card quest-log-collection-card">
-          <div className="section-head">
+        <section className="mission-card quest-log-collection-card awkward-trophy-case">
+          <div className="section-head trophy-case-head">
             <div>
               <span className="eyebrow">Completed Side Quests</span>
-              <h2>{completedChallenges.length ? `${completedChallenges.length} completed` : "No completed side quests yet."}</h2>
+              <h2>{completedChallenges.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
+              <p>
+                {completedChallenges.length
+                  ? "Officially impressive. Socially complicated. Please admire responsibly."
+                  : "No tiny heraldic paperwork yet. The shame is currently very organized."}
+              </p>
             </div>
-            <span className="badge gold">{progress.totalRewardPoints} points</span>
+            <span className="badge gold">{progress.totalRewardPoints} suspicious points</span>
           </div>
 
           {completedChallenges.length ? (
-            <div className="completed-quest-list" aria-label="Completed side quests">
-              {completedChallenges.map((challenge) => {
-                const latestProof = getLatestPassedAttempt(metadata, challenge.id);
-                const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
+            <>
+              <div className="trophy-case-summary" aria-label="Completed quest ceremony summary">
+                <span><strong>{completedChallenges.length}</strong> questionable triumph{completedChallenges.length === 1 ? "" : "s"}</span>
+                <span><strong>{progress.totalRewardPoints}</strong> points nobody asked to audit</span>
+                <span><strong>{attempts.length}</strong> receipt{attempts.length === 1 ? "" : "s"} in the evidence drawer</span>
+              </div>
+              <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
+                {completedChallenges.map((challenge, index) => {
+                  const latestProof = getLatestPassedAttempt(metadata, challenge.id);
+                  const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
+                  const trophyCopy = getAwkwardTrophyCopy(index);
 
-                return (
-                  <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item" key={challenge.id}>
-                    <ChallengeBadge challenge={challenge} presentation="art" earned />
-                    <strong>{challenge.title}</strong>
-                    <span>{finishedAt ? <ProofTime value={finishedAt} /> : "Completed"}</span>
-                  </Link>
-                );
-              })}
-            </div>
+                  return (
+                    <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item trophy-card" key={challenge.id}>
+                      <span className="trophy-card-ribbon">{trophyCopy.ribbon}</span>
+                      <span className="trophy-card-shine" aria-hidden="true" />
+                      <span className="trophy-card-badge">
+                        <ChallengeBadge challenge={challenge} presentation="art" earned />
+                      </span>
+                      <span className="trophy-card-copy">
+                        <strong>{challenge.title}</strong>
+                        <em>{trophyCopy.line}</em>
+                        <span>{finishedAt ? <>Ceremonially logged <ProofTime value={finishedAt} /></> : "Completed, allegedly."}</span>
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
           ) : (
-            <div className="empty-collection-state">
-              <p>No completed side quests yet. Finish one and it will appear here with its coat of arms and completion date.</p>
+            <div className="empty-collection-state trophy-empty-state">
+              <p>No completed side quests yet. Finish one and it will appear here with too much ceremony and not enough dignity.</p>
               <Link href="/challenges" className="button primary">Choose a Side Quest</Link>
             </div>
           )}
@@ -175,4 +195,31 @@ function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: strin
   return getChallengeAttempts(metadata, challengeId)
     .filter((attempt) => attempt.status === "passed")
     .at(-1) ?? null;
+}
+
+function getAwkwardTrophyCopy(index: number) {
+  const lines = [
+    {
+      ribbon: "Regrettably earned",
+      line: "The committee applauds, then immediately checks if anyone saw.",
+    },
+    {
+      ribbon: "Tiny glory",
+      line: "A brave monument to decisions that sounded worse out loud.",
+    },
+    {
+      ribbon: "Officially weird",
+      line: "Filed under accomplishments that require too much context.",
+    },
+    {
+      ribbon: "Proud-ish",
+      line: "Display prominently. Explain defensively. Repeat as needed.",
+    },
+    {
+      ribbon: "Dubious honors",
+      line: "The badge is real. The life choices remain under review.",
+    },
+  ];
+
+  return lines[index % lines.length];
 }
