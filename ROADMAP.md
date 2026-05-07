@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 20:32 Europe/Stockholm
+Last updated: 2026-05-07 20:39 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -45,16 +45,32 @@ Andreas reset SQC planning on 2026-05-05:
 - From here, only act on new explicit Andreas instructions or this newly agreed roadmap.
 - Do not continue autonomous SQC work from historical notes, old requested follow-ups, or previous backlog items unless they are explicitly listed below.
 
+## Launch candidate baseline — 2026-05-07
+
+Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the current SQC web state as-is. This marks the current production state as the **Side Quest Chess Launch Candidate** baseline.
+
+- Baseline commit: `2a27d05` (`Remove homepage proof scroll backdrop`)
+- Production URL: `https://sidequestchess.com`
+- Baseline doc: `docs/SQC_LAUNCH_CANDIDATE_BASELINE_2026-05-07.md`
+- Rule: future changes should be deliberate launch-candidate deltas and keep this baseline easy to identify for rollback/comparison.
+
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
 
-- [x] Add signed-out homepage sample proof scroll backdrop.
+- [x] Record SQC web launch candidate baseline.
+  - added_at: 2026-05-07 20:38 Europe/Stockholm
+  - completed_at: 2026-05-07 20:39 Europe/Stockholm
+  - source: Andreas said he is happy with SQC as-is and asked to make a note that this is the launch candidate.
+  - Proof: `docs/SQC_LAUNCH_CANDIDATE_BASELINE_2026-05-07.md` records the launch candidate status, baseline commit, production URL, included product state, and verification evidence.
+  - Verification: production smoke checks after note.
+
+- [x] Try and then remove signed-out homepage sample proof scroll backdrop.
   - added_at: 2026-05-07 20:24 Europe/Stockholm
-  - completed_at: 2026-05-07 20:32 Europe/Stockholm
-  - source: Andreas suggested showing the example proof scroll as a blurred, slanted background image behind the signed-out explainer text.
-  - Proof: signed-out homepage `What happens after sign-in` section now includes a fictional/demo generated proof scroll in the background, blurred/rotated with a readability overlay; proof doc: `docs/SQC_HOME_SAMPLE_PROOF_BACKDROP_2026-05-07.md`.
-  - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy; generated sample proof PNG returned `200 image/png` at `1200 x 1600`.
+  - completed_at: 2026-05-07 20:35 Europe/Stockholm
+  - source: Andreas suggested showing the example proof scroll as a blurred, slanted background image behind the signed-out explainer text, then rejected the treatment and asked to remove it.
+  - Proof: attempted in `27f955e` / documented in `80fcef1`, then removed in `2a27d05`; the current launch-candidate homepage does not include the proof-scroll backdrop.
+  - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy; homepage HTML no longer contains proof backdrop/demo proof markers.
 
 - [x] Replace broken generic proof Share button with explicit social share buttons.
   - added_at: 2026-05-07 20:00 Europe/Stockholm
