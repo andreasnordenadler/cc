@@ -90,3 +90,22 @@ For celebratory/share surfaces, default to one high-level social share action an
 - Tags: sqc, sharing, ux-simplification
 
 ---
+
+## [LRN-20260507-002] SQC local time fix must cover receipt/status surfaces, not only proof surfaces
+
+**Logged**: 2026-05-07T11:42:00+02:00
+**Category**: correction
+**Priority**: high
+
+### Summary
+Andreas reported that after the first timezone fix, the quest refresh/check status still displayed 09:38 while his local time was 11:38.
+
+### Lesson
+When fixing timezone display, audit every surface that formats the same timestamp class. For SQC this includes proof pages/images, challenge detail receipt facts, provider status cards, result latest-check cards, and account completed quest rows.
+
+### Metadata
+- Source: user_correction
+- Related Files: src/app/challenges/[id]/page.tsx, src/app/result/page.tsx, src/app/account/page.tsx
+- Tags: sqc, timezone, receipt-status, correction
+
+---

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
+import ProofTime from "@/components/proof-time";
 import { currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
@@ -153,7 +154,7 @@ export default async function MyQuestLogPage() {
                   <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item" key={challenge.id}>
                     <ChallengeBadge challenge={challenge} presentation="art" earned />
                     <strong>{challenge.title}</strong>
-                    <span>{finishedAt ? formatCompletedQuestDate(finishedAt) : "Completed"}</span>
+                    <span>{finishedAt ? <ProofTime value={finishedAt} /> : "Completed"}</span>
                   </Link>
                 );
               })}
@@ -174,18 +175,4 @@ function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: strin
   return getChallengeAttempts(metadata, challengeId)
     .filter((attempt) => attempt.status === "passed")
     .at(-1) ?? null;
-}
-
-function formatCompletedQuestDate(value: string) {
-  const parsed = Date.parse(value);
-
-  if (Number.isNaN(parsed)) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(parsed);
 }

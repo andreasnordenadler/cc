@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -23,7 +24,6 @@ import {
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
-  formatTime,
   sanitizeAttemptSummary,
   type ChallengeAttempt,
   type UserMetadataRecord,
@@ -96,7 +96,7 @@ export default async function ChallengeDetailPage({
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const latestPassedAttempt = attempts.find((attempt) => attempt.status === "passed") ?? (latestAttempt?.status === "passed" ? latestAttempt : null);
   const completedDate = latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? activeChallenge?.verifiedAt;
-  const completedDateLabel = completedDate ? formatCompletedDate(completedDate) : "Completion date pending next proof check";
+  const completedDateLabel = completedDate ? "Completion time saved" : "Completion date pending next proof check";
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
   const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
@@ -127,7 +127,7 @@ export default async function ChallengeDetailPage({
           {isCompleted ? (
             <div className="completed-quest-award" aria-label={`Quest completed. ${completedDateLabel}.`}>
               <span className="completed-quest-award-seal" aria-hidden="true" />
-              <small>{completedDate ? `Quest completed ${completedDateLabel}` : completedDateLabel}</small>
+              <small>{completedDate ? <>Quest completed <ProofTime value={completedDate} /></> : completedDateLabel}</small>
             </div>
           ) : null}
           <div className="quest-detail-meta card-meta quest-card-meta">
@@ -212,13 +212,15 @@ export default async function ChallengeDetailPage({
               <ProviderStatusCard provider="Lichess" username={lichessUsername} latestAttempt={latestLichessAttempt} />
               <ProviderStatusCard provider="Chess.com" username={chessComUsername} latestAttempt={latestChessComAttempt} />
               <Fact label="Total checks" value={`${attempts.length}`} />
-              <Fact label="Latest receipt" value={latestAttempt ? formatTime(latestAttempt.checkedAt) : "not checked yet"} />
+              <Fact label="Latest receipt" value={latestAttempt ? <ProofTime value={latestAttempt.checkedAt} /> : "not checked yet"} />
             </div>
             <article className="note-card latest-check quest-status-receipt">
               <span className="eyebrow">{isCompleted ? "Winning receipt" : "Latest receipt"}</span>
               <h3>{latestAttemptSummary.headline}</h3>
               <p>{latestAttemptSummary.detail}</p>
-              <small>{latestAttemptSummary.meta}</small>
+              <small>
+                {latestAttempt ? <>{latestAttempt.gameId ? `Game ${latestAttempt.gameId}` : "Game ID missing"} • Updated <ProofTime value={latestAttempt.checkedAt} /></> : latestAttemptSummary.meta}
+              </small>
             </article>
             {isCompleted ? null : (
               <form action={checkActiveChallenge} className="quest-status-refresh">
@@ -270,7 +272,7 @@ export default async function ChallengeDetailPage({
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="fact">
       <span>{label}</span>
@@ -292,7 +294,7 @@ function ProviderStatusCard({
     <div className="fact provider-status-card">
       <span>{provider}</span>
       <strong>{username || "not connected"}</strong>
-      <small>{latestAttempt ? `Last checked ${formatTime(latestAttempt.checkedAt)}` : "No check recorded yet"}</small>
+      <small>{latestAttempt ? <>Last checked <ProofTime value={latestAttempt.checkedAt} /></> : "No check recorded yet"}</small>
     </div>
   );
 }
@@ -341,16 +343,3 @@ function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAt
   return `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points. ${summary}`;
 }
 
-function formatCompletedDate(value: string): string {
-  const parsed = Date.parse(value);
-
-  if (Number.isNaN(parsed)) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(parsed);
-}

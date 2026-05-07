@@ -235,7 +235,9 @@ export default async function ResultPage({
             <span className="eyebrow">Latest check</span>
             <h2>{latestAttemptSummary.headline}</h2>
             <p>{latestAttemptSummary.detail}</p>
-            <p className="muted">{latestAttemptSummary.meta}</p>
+            <p className="muted">
+              {latestAttempt ? <>{gameLabel ? `Game ${gameLabel}` : "Game ID missing"} • Updated <ProofTime value={latestAttempt.checkedAt} /></> : latestAttemptSummary.meta}
+            </p>
             <Link href="/challenges" className="button pink">Try another quest</Link>
           </article>
         </section>
