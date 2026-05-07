@@ -2,6 +2,7 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
@@ -184,24 +185,11 @@ export default async function ResultPage({
             <span className="eyebrow">{isPassed ? "Share the good news" : "Share copy"}</span>
             <h2>{isPassed ? "A small official notice of questionable glory." : `I tried “${challenge.title}.”`}</h2>
             {isPassed ? (
-              <div className="victory-scroll" aria-label={`Victory scroll for ${challenge.title}`}>
-                <div className="victory-scroll-burn top-left" aria-hidden="true" />
-                <div className="victory-scroll-burn top-right" aria-hidden="true" />
-                <div className="victory-scroll-crest">
-                  <ChallengeBadge challenge={challenge} presentation="art" earned />
-                </div>
-                <span className="victory-scroll-kicker">Side Quest Chess hereby admits</span>
-                <h3>{challenge.badgeIdentity.name}</h3>
-                <p className="victory-scroll-copy">{scrollAchievement}</p>
-                <p className="victory-scroll-proof">
-                  Proof accepted for <strong>{challenge.title}</strong>. {latestAttempt?.gameId ? `Game ${latestAttempt.gameId}.` : "Verifier receipt saved."}
-                </p>
-                <div className="victory-scroll-footer">
-                  <span><ProofTime value={latestAttempt?.completedGameAt ?? latestAttempt?.checkedAt} /></span>
-                  <span>+{challenge.reward} pts</span>
-                </div>
-                <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
-              </div>
+              <ProofImage
+                imagePath={publicProofImagePath(publicProofToken)}
+                alt={`Victory scroll image for ${challenge.title}`}
+                className="proof-generated-image victory-scroll-image"
+              />
             ) : (
               <p>{shareCopy}</p>
             )}

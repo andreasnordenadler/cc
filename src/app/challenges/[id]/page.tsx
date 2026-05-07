@@ -6,7 +6,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
-import ProofPositionBoard from "@/components/proof-position-board";
+import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
 import ResetQuestControl from "@/components/reset-quest-control";
 import ShareProofActions from "@/components/share-proof-actions";
@@ -166,10 +166,13 @@ export default async function ChallengeDetailPage({
                 <h2>Victory proof is ready.</h2>
               </div>
             </div>
-            <ProofPositionBoard
-              attempt={latestPassedAttempt}
-              challenge={challenge}
-            />
+            {publicProofPath ? (
+              <ProofImage
+                imagePath={publicProofImagePath(publicProofPath.split("/").at(-1) ?? "")}
+                alt={`Victory scroll image for ${challenge.title}`}
+                className="proof-generated-image public-proof-image"
+              />
+            ) : null}
           </section>
         ) : null}
 

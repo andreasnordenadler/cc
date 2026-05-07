@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
-import VictoryScroll from "@/components/victory-scroll";
 import { decodePublicProof, publicProofImagePath } from "@/lib/proof-share";
 
 export async function generateMetadata({
@@ -56,8 +56,7 @@ export default async function PublicProofPage({
     notFound();
   }
 
-  const { payload, challenge } = decoded;
-  const achievementCopy = buildPublicAchievementCopy(payload.challengeId, payload.summary);
+  const { payload } = decoded;
   const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked. +${payload.reward} points.`;
 
   return (
@@ -77,15 +76,11 @@ export default async function PublicProofPage({
           </div>
         </section>
 
-        <section className="mission-card public-proof-scroll-card" aria-label="Shareable victory scroll">
-          <VictoryScroll
-            challenge={challenge}
-            badgeName={payload.badgeName}
-            achievementCopy={achievementCopy}
-            proofLine={<>Proof accepted: <strong>{payload.challengeTitle}</strong> — {payload.summary}</>}
-            dateLabel={<ProofTime value={payload.completedGameAt ?? payload.checkedAt} />}
-            reward={payload.reward}
-            className="proof-victory-scroll public-proof-scroll"
+        <section className="mission-card public-proof-scroll-card" aria-label="Shareable victory scroll image">
+          <ProofImage
+            imagePath={publicProofImagePath(token)}
+            alt={`Victory scroll image for ${payload.challengeTitle}`}
+            className="proof-generated-image public-proof-image"
           />
         </section>
 
@@ -105,13 +100,5 @@ export default async function PublicProofPage({
       </div>
     </main>
   );
-}
-
-function buildPublicAchievementCopy(challengeId: string, summary: string) {
-  if (challengeId === "finish-any-game") {
-    return "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms.";
-  }
-
-  return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
 }
 

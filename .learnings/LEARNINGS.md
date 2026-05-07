@@ -109,3 +109,22 @@ When fixing timezone display, audit every surface that formats the same timestam
 - Tags: sqc, timezone, receipt-status, correction
 
 ---
+
+## [LRN-20260507-003] SQC “full image share” must make the visible scroll an image too
+
+**Logged**: 2026-05-07T11:50:00+02:00
+**Category**: correction
+**Priority**: high
+
+### Summary
+Andreas reported that after completing a quest, the visible victory scroll was still not 100% image.
+
+### Lesson
+If product feedback says a proof/scroll should be “an image,” do not only attach an image to the share payload. The user-visible completion surface and public proof page must render the generated image directly, otherwise the feature still feels like HTML pretending to be an image.
+
+### Metadata
+- Source: user_correction
+- Related Files: src/app/result/page.tsx, src/app/proof/[token]/page.tsx, src/app/challenges/[id]/page.tsx, src/components/proof-image.tsx
+- Tags: sqc, proof-image, victory-scroll, correction
+
+---
