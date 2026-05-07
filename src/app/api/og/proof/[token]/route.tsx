@@ -171,7 +171,12 @@ export async function GET(
         </div>
       </div>
     ),
-    size,
+    {
+      ...size,
+      headers: {
+        "Cache-Control": "public, max-age=31536000, s-maxage=31536000, immutable",
+      },
+    },
   );
 }
 

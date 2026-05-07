@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 12:13 Europe/Stockholm
+Last updated: 2026-05-07 12:20 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Cache generated proof scroll images instead of regenerating on every visit.
+  - added_at: 2026-05-07 12:15 Europe/Stockholm
+  - completed_at: 2026-05-07 12:20 Europe/Stockholm
+  - source: Andreas noticed the proof image felt like it regenerated every page visit and asked if we could generate it once and save it/display faster.
+  - Proof: `/api/og/proof/[token]` now returns long-lived public immutable cache headers; `ProofImage` waits for the browser timezone before setting `src`, avoiding the prior no-timezone SSR image request followed by a timezone image request.
+  - Verification: `pnpm lint`; `pnpm build`; response-header smoke for proof image route.
 
 - [x] Compact My Side Quest top cards and remove duplicate coat-of-arms rack.
   - added_at: 2026-05-07 12:09 Europe/Stockholm
