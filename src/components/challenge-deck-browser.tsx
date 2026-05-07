@@ -24,6 +24,7 @@ const difficultyRank: Record<Challenge["difficulty"], number> = {
 };
 
 const difficultyFilters: DifficultyFilter[] = ["All", "Easy", "Medium", "Hard", "Brutal", "Absurd"];
+const MAX_VISIBLE_COMING_SOON_QUESTS = 4;
 
 const COMING_SOON_CHALLENGES: Challenge[] = [
   {
@@ -383,13 +384,15 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
       return true;
     });
 
-    return [...filtered].sort((a, b) => {
-      if (sort === "easy-first") return difficultyRank[a.difficulty] - difficultyRank[b.difficulty] || a.reward - b.reward;
-      if (sort === "hard-first") return difficultyRank[b.difficulty] - difficultyRank[a.difficulty] || b.reward - a.reward;
-      if (sort === "points-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
-      if (sort === "points-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
-      return COMING_SOON_CHALLENGES.indexOf(a) - COMING_SOON_CHALLENGES.indexOf(b);
-    });
+    return [...filtered]
+      .sort((a, b) => {
+        if (sort === "easy-first") return difficultyRank[a.difficulty] - difficultyRank[b.difficulty] || a.reward - b.reward;
+        if (sort === "hard-first") return difficultyRank[b.difficulty] - difficultyRank[a.difficulty] || b.reward - a.reward;
+        if (sort === "points-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
+        if (sort === "points-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
+        return COMING_SOON_CHALLENGES.indexOf(a) - COMING_SOON_CHALLENGES.indexOf(b);
+      })
+      .slice(0, MAX_VISIBLE_COMING_SOON_QUESTS);
   }, [difficulty, sort, status]);
 
   const hasActiveFilters = difficulty !== "All" || status !== "All" || sort !== "recommended";
