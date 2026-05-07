@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 23:52 Europe/Stockholm
+Last updated: 2026-05-07 23:59 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -120,6 +120,13 @@ Andreas clarified that these five items are still wanted and should be treated a
   - source: Andreas told Sam to keep working on the Android app without asking for each next step.
   - Proof: added `GET /api/mobile/account` as an authenticated, read-only app-facing endpoint; wired the Expo app to fetch it alongside `/api/mobile/bootstrap`; Account, Status, and Proof screens now render signed-out/auth-ready state or live authenticated account/progress/active-quest/latest-proof data when a session is available; proof doc: `docs/SQC_MOBILE_ACCOUNT_STATUS_API_2026-05-07.md`.
   - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; production smoke for anonymous `/api/mobile/account` should return auth-gated JSON.
+
+- [x] Add native Google sign-in shell to SQC mobile app.
+  - added_at: 2026-05-07 23:53 Europe/Stockholm
+  - completed_at: 2026-05-07 23:59 Europe/Stockholm
+  - source: Andreas told Sam to keep working on the Android app without asking for each next step.
+  - Proof: installed `expo-web-browser`, added Expo auth-session completion, wired Clerk Expo `useSSO()` with Google, added `Sign in with Google` and `Sign out` controls in the mobile auth card, and kept account refreshes using the Clerk bearer token; proof doc: `docs/SQC_MOBILE_GOOGLE_SIGN_IN_SHELL_2026-05-07.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`. No production deploy required because this slice only changes the mobile app shell.
 
 - [x] Plan proper SQC mobile app phase after web launch candidate.
   - added_at: 2026-05-07 17:54 Europe/Stockholm

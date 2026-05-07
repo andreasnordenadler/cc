@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ClerkProvider, SignedIn, SignedOut, useAuth, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, SignedIn, SignedOut, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
+import * as WebBrowser from "expo-web-browser";
 import {
   ActivityIndicator,
   Image,
@@ -34,8 +35,12 @@ type MobileAuthBridge = {
   isLoaded: boolean;
   isSignedIn: boolean;
   getSessionToken: () => Promise<string | null>;
+  startGoogleSignIn?: () => Promise<void>;
+  signOut?: () => Promise<void>;
   signedInLabel: string | null;
 };
+
+WebBrowser.maybeCompleteAuthSession();
 
 const TABS: Array<{ id: AppTab; label: string }> = [
   { id: "catalog", label: "Quests" },
@@ -59,8 +64,18 @@ export default function App() {
 
 function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
+  const { signOut } = useClerk();
+  const { startSSOFlow } = useSSO();
   const { user } = useUser();
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
+
+  const startGoogleSignIn = useCallback(async () => {
+    const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
+
+    if (createdSessionId && setActive) {
+      await setActive({ session: createdSessionId });
+    }
+  }, [startSSOFlow]);
 
   const authBridge = useMemo<MobileAuthBridge>(
     () => ({
@@ -68,9 +83,11 @@ function ClerkMobileShell() {
       isLoaded,
       isSignedIn: Boolean(isSignedIn),
       getSessionToken: async () => getToken(),
+      startGoogleSignIn,
+      signOut,
       signedInLabel,
     }),
-    [getToken, isLoaded, isSignedIn, signedInLabel],
+    [getToken, isLoaded, isSignedIn, signOut, signedInLabel, startGoogleSignIn],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -194,6 +211,22 @@ function HeaderCard() {
 }
 
 function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge }) {
+  const [authActionPending, setAuthActionPending] = useState(false);
+  const [authActionError, setAuthActionError] = useState<string | null>(null);
+
+  async function runAuthAction(action: () => Promise<void>) {
+    setAuthActionPending(true);
+    setAuthActionError(null);
+
+    try {
+      await action();
+    } catch (caught) {
+      setAuthActionError(caught instanceof Error ? caught.message : "Mobile sign-in failed.");
+    } finally {
+      setAuthActionPending(false);
+    }
+  }
+
   if (!authBridge.configured) {
     return (
       <PlaceholderCard
@@ -215,11 +248,22 @@ function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge })
       <SignedIn>
         <Text style={styles.placeholderTitle}>Signed in{authBridge.signedInLabel ? ` as ${authBridge.signedInLabel}` : ""}.</Text>
         <Text style={styles.placeholderBody}>Account refreshes now include the active Clerk session token when available.</Text>
+        {authBridge.signOut ? (
+          <Pressable style={styles.secondaryButton} disabled={authActionPending} onPress={() => void runAuthAction(authBridge.signOut!)}>
+            <Text style={styles.secondaryButtonText}>{authActionPending ? "Working…" : "Sign out"}</Text>
+          </Pressable>
+        ) : null}
       </SignedIn>
       <SignedOut>
         <Text style={styles.placeholderTitle}>Signed-out mobile shell.</Text>
-        <Text style={styles.placeholderBody}>Clerk is configured and loaded; the next slice can add the native SSO/sign-in action.</Text>
+        <Text style={styles.placeholderBody}>Use Google sign-in to attach a Clerk session token, then reload account state from the backend.</Text>
+        {authBridge.startGoogleSignIn ? (
+          <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
+            <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
+          </Pressable>
+        ) : null}
       </SignedOut>
+      {authActionError ? <Text style={styles.errorCopy}>{authActionError}</Text> : null}
     </View>
   );
 }
@@ -518,6 +562,8 @@ const styles = StyleSheet.create({
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
   primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: "#f5c86a" },
   primaryButtonText: { color: "#111", fontWeight: "900" },
+  secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
+  secondaryButtonText: { color: "#fff7e8", fontWeight: "900" },
   tabRail: { gap: 8, paddingRight: 18 },
   tabPill: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.07)" },
   tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },
