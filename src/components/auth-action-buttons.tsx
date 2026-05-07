@@ -34,7 +34,7 @@ export default function AuthActionButtons({ variant = "nav" }: AuthActionButtons
         <button type="button" className="button secondary">Sign in</button>
       </SignInButton>
       <SignUpButton mode="modal" fallbackRedirectUrl="/connect">
-        <button type="button" className="button primary">Connect</button>
+        <button type="button" className="button primary">Start with Google</button>
       </SignUpButton>
     </>
   );

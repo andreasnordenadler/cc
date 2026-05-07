@@ -252,3 +252,13 @@ Do not treat extensive responsive/mobile web polish as a launch blocker for SQC.
 **Applied**: Reworded active quest copy to “on the royal docket … summon the checker” and kept the next-step paragraph on one line at normal desktop widths.
 
 ---
+
+## [CORR-20260507-002] Avoid ambiguous “Connect” in signed-out SQC nav
+
+**Category**: correction
+**Date**: 2026-05-07
+**Context**: Andreas noted that “Connect” can mean wallet, Google, chess account, or sign-in to new users.
+**Learning**: Signed-out auth CTAs should name the actual action/provider. Use explicit labels such as “Start with Google” for auth and reserve “Connect chess account” for the username-linking step.
+**Applied**: Changed the signed-out top-nav primary CTA from “Connect” to “Start with Google”.
+
+---
