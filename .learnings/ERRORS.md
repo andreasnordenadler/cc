@@ -2653,3 +2653,13 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 **Fix**: Used macOS `sips` for image metadata/conversion instead of adding a dependency.
 
 ---
+
+## [ERR-20260507-003] Tried to git-add workspace memory from inside cc repo
+
+**Date**: 2026-05-07
+**Command**: `git add ROADMAP.md .learnings/LEARNINGS.md /Users/sam/.openclaw/workspace/memory/2026-05-07.md`
+**Context**: Recording SQC launch candidate scope and daily memory in one shell step.
+**Failure**: Git refused the absolute memory path because it is outside the `cc` repository.
+**Fix**: Commit only repository files from `cc`; keep workspace memory as an uncommitted workspace note.
+
+---

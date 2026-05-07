@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 17:46 Europe/Stockholm
+Last updated: 2026-05-07 17:54 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,16 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [ ] Launch Candidate 1 hardening pass.
+  - added_at: 2026-05-07 17:54 Europe/Stockholm
+  - source: Andreas and Sam agreed SQC is close to launch ready. Andreas agreed with final launch-hardening checks except mobile web polish, because a proper SQC mobile app is planned for the next phase.
+  - Acceptance: authenticated production smoke test; verifier confidence pass; legal/support basics sanity-read; launch copy pass to remove beta/placeholder wording. Do not include broad mobile-web polish as a launch blocker.
+
+- [ ] Plan proper SQC mobile app phase after web launch candidate.
+  - added_at: 2026-05-07 17:54 Europe/Stockholm
+  - source: Andreas said the next phase should be creating a mobile app for SQC.
+  - Acceptance: after Launch Candidate 1, define app scope/stack, authentication strategy, API reuse, push/share considerations, and launch path.
 
 - [x] Add footer Terms & Conditions link and anno text.
   - added_at: 2026-05-07 17:46 Europe/Stockholm

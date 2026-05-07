@@ -223,3 +223,22 @@ For SQC homepage promotional/teaser cards, make the whole card clickable when th
 - Tags: sqc, mobile-ux, clickable-card, coat-of-arms
 
 ---
+
+## [LRN-20260507-009] SQC mobile web polish is not launch-blocking
+
+**Logged**: 2026-05-07T17:54:00+02:00
+**Category**: correction
+**Priority**: medium
+
+### Summary
+Andreas agreed SQC is close to launch ready but explicitly excluded mobile web polish from the final launch-hardening checklist, because the next phase should be a proper SQC mobile app.
+
+### Lesson
+Do not treat extensive responsive/mobile web polish as a launch blocker for SQC. Keep final web launch checks focused on product loop, authenticated smoke, verifier confidence, legal/support, and launch copy. Reserve mobile-first UX work for the future app phase.
+
+### Metadata
+- Source: user_correction
+- Related Files: ROADMAP.md
+- Tags: sqc, launch-readiness, mobile-app, roadmap
+
+---
