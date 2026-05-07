@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { CHALLENGES } from "@/lib/challenges";
 import {
@@ -15,9 +15,9 @@ import {
 } from "@/lib/user-metadata";
 
 export async function GET(request: Request) {
-  const user = await currentUser();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     return NextResponse.json(
       {
         apiVersion: 1,
@@ -29,6 +29,8 @@ export async function GET(request: Request) {
     );
   }
 
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
   const baseUrl = new URL(request.url).origin;
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const progress = getChallengeProgress(metadata);
