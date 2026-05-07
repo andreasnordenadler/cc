@@ -2,10 +2,8 @@ import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import AuthActionButtons from "@/components/auth-action-buttons";
 import ChallengeBadge from "@/components/challenge-badge";
-import ProofImage from "@/components/proof-image";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
-import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -56,23 +54,6 @@ export default async function Home() {
       return challenge ? { ...option, challenge } : null;
     })
     .filter((entry): entry is (typeof heroismOptions)[number] & { challenge: (typeof CHALLENGES)[number] } => Boolean(entry));
-  const sampleProofChallenge = CHALLENGES.find((challenge) => challenge.id === "finish-any-game") ?? CHALLENGES[0];
-  const sampleProofPath = !isSignedIn
-    ? await buildPublicProofPath({
-        challenge: sampleProofChallenge,
-        runnerName: "Example player",
-        attempt: {
-          challengeId: sampleProofChallenge.id,
-          status: "passed",
-          provider: "fixture",
-          gameId: "demo-scroll",
-          checkedAt: "2026-05-07T18:00:00.000Z",
-          completedGameAt: "2026-05-07T18:00:00.000Z",
-          summary: "Demo proof accepted. A public chess quest was completed, the coat of arms was unlocked, and the paperwork became weirdly ceremonial.",
-        },
-      })
-    : null;
-  const sampleProofToken = sampleProofPath?.split("/").at(-1);
 
   return (
     <main className="site-shell">
@@ -135,16 +116,7 @@ export default async function Home() {
         </section>
 
         {!isSignedIn ? (
-          <section className="mission-card signed-out-explainer proof-scroll-preview-section" aria-label="What Side Quest Chess is for signed-out visitors">
-            {sampleProofToken ? (
-              <div className="proof-scroll-preview-backdrop" aria-hidden="true">
-                <ProofImage
-                  imagePath={publicProofImagePath(sampleProofToken)}
-                  alt=""
-                  className="proof-scroll-preview-image"
-                />
-              </div>
-            ) : null}
+          <section className="mission-card signed-out-explainer" aria-label="What Side Quest Chess is for signed-out visitors">
             <div className="section-head">
               <div>
                 <span className="eyebrow">What happens after sign-in</span>

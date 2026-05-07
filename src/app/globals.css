@@ -450,8 +450,6 @@ p { color: var(--muted); line-height: 1.5; }
 .spread { display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
 
 @media (max-width: 860px) {
-  .proof-scroll-preview-backdrop { right: -34px; width: 220px; opacity: .22; filter: blur(4px) saturate(1.05); }
-  .proof-scroll-preview-section::after { background: linear-gradient(90deg, rgba(6,5,7,.94) 0%, rgba(6,5,7,.82) 62%, rgba(6,5,7,.68) 100%); }
   .site-shell { padding: 12px; }
   .site-nav-inner { align-items: stretch; flex-direction: column; }
   .nav-links { overflow-x: auto; flex-wrap: nowrap; }
@@ -527,11 +525,6 @@ p { color: var(--muted); line-height: 1.5; }
 .signed-out-quest-preview .quest-list-item:hover .quest-pick-crest-glow img, .signed-out-quest-preview .quest-list-item:focus-visible .quest-pick-crest-glow img { transform: scale(1.06); filter: drop-shadow(0 14px 20px rgba(0,0,0,.32)) drop-shadow(0 0 7px var(--quest-pick-glow-core, rgba(245,200,106,.5))) drop-shadow(0 0 18px var(--quest-pick-glow-edge, rgba(245,200,106,.32))) drop-shadow(0 0 34px var(--quest-pick-glow-edge, rgba(245,200,106,.2))); }
 .signed-out-quest-preview .quest-list-item small:not(.quest-list-difficulty) { font-size: 12px; }
 .signed-out-explainer { background: linear-gradient(135deg, rgba(96,240,175,.08), rgba(255,255,255,.055)); }
-.proof-scroll-preview-section { position: relative; isolation: isolate; overflow: hidden; }
-.proof-scroll-preview-section > :not(.proof-scroll-preview-backdrop) { position: relative; z-index: 2; }
-.proof-scroll-preview-section::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(6,5,7,.92) 0%, rgba(6,5,7,.78) 48%, rgba(6,5,7,.52) 100%); }
-.proof-scroll-preview-backdrop { position: absolute; z-index: 0; right: clamp(18px, 6vw, 86px); top: 50%; width: min(29vw, 280px); min-width: 190px; transform: translateY(-50%) rotate(-8deg); opacity: .34; filter: blur(3px) saturate(1.12); pointer-events: none; }
-.proof-scroll-preview-image { display: block; width: 100%; height: auto; border-radius: 22px 34px 26px 38px; box-shadow: 0 24px 70px rgba(0,0,0,.46), 0 0 42px rgba(245,200,106,.14); }
 .signed-out-loop-cards .flow-step { min-height: 150px; background: rgba(0,0,0,.24); backdrop-filter: blur(2px); }
 .recommended-quests-panel { align-content: start; gap: 16px; }
 .recommended-quests-panel h2 { font-size: clamp(1.55rem, 3vw, 2.45rem); }
