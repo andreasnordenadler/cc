@@ -2590,3 +2590,46 @@ Do not shell-source project env files in broad smoke scripts. Parse only the spe
 - Tags: env, path, smoke-test
 
 ---
+
+## [ERR-20260507-003] SQC reset could reuse pre-activation latest game
+
+**Logged**: 2026-05-07T11:25:00+02:00
+**Priority**: high
+**Status**: fixed
+**Area**: backend
+
+### Summary
+After resetting a completed quest, reactivating the same quest could immediately complete again from the same latest game.
+
+### Details
+The reset removed saved completion state, but latest-game verification did not require `completedGameAt` to be after the current quest activation timestamp. The verifier could therefore award the reset quest using a game that had already completed before the new run started.
+
+### Suggested Action
+Latest-game and manual-submission verification for repeatable quests must compare proof `completedGameAt` against the active quest `startedAt`; passed checks before activation should become pending with clear copy.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/app/actions.ts
+- Tags: sqc, reset, verifier, activation-window
+
+---
+
+## [ERR-20260507-004] SQC proof times were not user-timezone aware
+
+**Logged**: 2026-05-07T11:25:00+02:00
+**Priority**: medium
+**Status**: fixed
+**Area**: frontend
+
+### Summary
+Proof date/time labels used server/default formatting and did not explicitly account for the user's local timezone.
+
+### Details
+The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`, which can hide timezone differences and in some places showed only dates. Added browser-local proof time rendering and passed the browser timezone into generated proof images via `tz` when sharing.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/components/proof-time.tsx, src/components/share-proof-actions.tsx, src/app/api/og/proof/[token]/route.tsx
+- Tags: sqc, timezone, proof-time
+
+---

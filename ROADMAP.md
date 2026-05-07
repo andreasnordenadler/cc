@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 11:10 Europe/Stockholm
+Last updated: 2026-05-07 11:25 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Prevent reset/restart from reusing a pre-activation game and localize proof time.
+  - added_at: 2026-05-07 11:15 Europe/Stockholm
+  - completed_at: 2026-05-07 11:25 Europe/Stockholm
+  - source: Andreas reported that reset worked, but reactivating the quest immediately completed again from the old latest game, and noticed proof time did not account for user timezone.
+  - Proof: latest-game and manual submitted-game verification now require the proof game to have `completedGameAt` after the active quest `startedAt`; old/missing game times become pending with explicit copy; proof receipt fields are preserved; visible proof times render in browser-local timezone; generated proof images accept a validated `tz` query from the share action. Proof doc: `docs/SQC_RESET_ACTIVATION_WINDOW_AND_LOCAL_PROOF_TIME_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Add completed quest reset button with irreversible confirmation.
   - added_at: 2026-05-07 11:05 Europe/Stockholm

@@ -7,7 +7,7 @@ type VictoryScrollProps = {
   badgeName?: string;
   achievementCopy: string;
   proofLine: ReactNode;
-  dateLabel: string;
+  dateLabel: ReactNode;
   reward: number;
   className?: string;
 };

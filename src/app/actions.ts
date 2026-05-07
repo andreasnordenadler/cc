@@ -214,19 +214,50 @@ function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<Cha
   };
 }
 
-async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
+function buildLatestGameCheckPayload(
+  verdict: ChallengeAttempt & { evidence?: string[] },
+  challengeTitle: string,
+  activatedAfter?: string,
+) {
+  if (verdict.status === "passed" && activatedAfter && !isAfterActivation(verdict.completedGameAt, activatedAfter)) {
+    return {
+      status: "pending" as const,
+      gameId: verdict.gameId,
+      summary: `Found ${verdict.gameId ?? "the latest game"}, but it was completed before this ${challengeTitle} run was activated. Play a new public game after starting the quest, then check again.`,
+      evidence: ["Only games finished after the current quest activation can complete a reset/restarted quest."],
+    };
+  }
+
+  return {
+    status: verdict.status,
+    gameId: verdict.gameId,
+    summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
+    ...pickProofReceiptFields(verdict),
+  };
+}
+
+function isAfterActivation(completedGameAt?: string, activatedAfter?: string) {
+  if (!completedGameAt || !activatedAfter) return false;
+
+  const completedAt = Date.parse(completedGameAt);
+  const activatedAt = Date.parse(activatedAfter);
+
+  return Number.isFinite(completedAt) && Number.isFinite(activatedAt) && completedAt > activatedAt;
+}
+
+async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string, activatedAfter?: string) {
   const checks = [];
 
   if (lichessUsername) {
     checks.push({
-      ...(await buildLatestGameCheck(challengeId, attemptCount, lichessUsername, "")),
+      ...(await buildLatestGameCheck(challengeId, attemptCount, lichessUsername, "", activatedAfter)),
       provider: "lichess" as const,
     });
   }
 
   if (chessComUsername) {
     checks.push({
-      ...(await buildLatestGameCheck(challengeId, attemptCount + checks.length, "", chessComUsername)),
+      ...(await buildLatestGameCheck(challengeId, attemptCount + checks.length, "", chessComUsername, activatedAfter)),
       provider: "chess.com" as const,
     });
   }
@@ -237,32 +268,24 @@ async function buildLatestGameChecks(challengeId: string, attemptCount: number, 
 
   return [
     {
-      ...(await buildLatestGameCheck(challengeId, attemptCount, "", "")),
+      ...(await buildLatestGameCheck(challengeId, attemptCount, "", "", activatedAfter)),
       provider: "fixture" as const,
     },
   ];
 }
 
-async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string) {
+async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string, activatedAfter?: string) {
   if (challengeId === "finish-any-game") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessFinishedGame(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComFinishedGame(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     return {
@@ -276,21 +299,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessKnightsBeforeCoffee(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComKnightsBeforeCoffee(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = knightsBeforeCoffeeFixtures[attemptCount % knightsBeforeCoffeeFixtures.length];
@@ -307,21 +322,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessBishopFieldTrip(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComBishopFieldTrip(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = bishopFieldTripFixtures[attemptCount % bishopFieldTripFixtures.length];
@@ -338,21 +345,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessEarlyKingWalk(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComEarlyKingWalk(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = earlyKingWalkFixtures[attemptCount % earlyKingWalkFixtures.length];
@@ -369,21 +368,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessQueenNeverHeardOfHer(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComQueenNeverHeardOfHer(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = queenNeverHeardOfHerFixtures[attemptCount % queenNeverHeardOfHerFixtures.length];
@@ -400,21 +391,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessNoCastleClub(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComNoCastleClub(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = noCastleClubFixtures[attemptCount % noCastleClubFixtures.length];
@@ -431,21 +414,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessPawnStormManiac(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComPawnStormManiac(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = pawnStormManiacFixtures[attemptCount % pawnStormManiacFixtures.length];
@@ -462,21 +437,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessKnightmareMode(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComKnightmareMode(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = knightmareModeFixtures[attemptCount % knightmareModeFixtures.length];
@@ -493,21 +460,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessRooklessRampage(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComRooklessRampage(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = rooklessRampageFixtures[attemptCount % rooklessRampageFixtures.length];
@@ -524,21 +483,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessOneBishopToRuleThemAll(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComOneBishopToRuleThemAll(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = oneBishopToRuleThemAllFixtures[attemptCount % oneBishopToRuleThemAllFixtures.length];
@@ -555,21 +506,13 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     if (lichessUsername) {
       const verdict = await checkLatestLichessBlunderGambit(lichessUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     if (chessComUsername) {
       const verdict = await checkLatestChessComBlunderGambit(chessComUsername);
 
-      return {
-        status: verdict.status,
-        gameId: verdict.gameId,
-        summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
-      };
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
     }
 
     const fixture = blunderGambitFixtures[attemptCount % blunderGambitFixtures.length];
@@ -680,7 +623,7 @@ export async function startChallenge(formData: FormData) {
 
   if (lichessUsername || chessComUsername) {
     try {
-      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
+      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername, now);
     } catch {
       providerChecks = [
         {
@@ -892,8 +835,16 @@ export async function submitChallengeAttempt(formData: FormData) {
                                 ? `Submitted ${gameId} for ${lichessUsername || chessComUsername}. Automated verification is not active for this quest yet.`
                                 : `Submitted ${gameId}. Add your chess username in account settings for cleaner review context.`,
                             };
+  const activatedAfter = existingActiveChallenge?.startedAt ?? now;
+  const checkedVerification = verification.status === "passed" && !isAfterActivation(verification.completedGameAt, activatedAfter)
+    ? {
+        ...verification,
+        status: "pending" as const,
+        summary: `Submitted ${gameId}, but that game finished before this ${challenge.title} run was activated. Play a new public game after starting the quest, then check again.`,
+      }
+    : verification;
   const completedChallengeIds =
-    verification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
+    checkedVerification.status === "passed" && !progress.completedChallengeIds.includes(challenge.id)
       ? [...progress.completedChallengeIds, challenge.id]
       : progress.completedChallengeIds;
 
@@ -903,9 +854,9 @@ export async function submitChallengeAttempt(formData: FormData) {
       ...metadata,
       activeChallenge: {
         id: challenge.id,
-        status: verification.status === "passed" ? "verified" : verification.status,
-        startedAt: existingActiveChallenge?.startedAt ?? now,
-        verifiedAt: verification.status === "passed" ? now : undefined,
+        status: checkedVerification.status === "passed" ? "verified" : checkedVerification.status,
+        startedAt: activatedAfter,
+        verifiedAt: checkedVerification.status === "passed" ? now : undefined,
       },
       challengeAttempts: compactChallengeAttempts([
         ...existingAttempts,
@@ -914,20 +865,13 @@ export async function submitChallengeAttempt(formData: FormData) {
           challengeId: challenge.id,
           gameId,
           provider: isChessComSubmission ? "chess.com" : "lichess",
-          status: verification.status,
-          summary: verification.summary,
+          status: checkedVerification.status,
+          summary: checkedVerification.summary,
           checkedAt: now,
-          ...pickProofReceiptFields(verification),
+          ...pickProofReceiptFields(checkedVerification),
         },
       ]),
-      challengeProgress: {
-        completedChallengeIds,
-        totalCompletedChallenges: completedChallengeIds.length,
-        totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
-          const completedChallenge = getChallengeById(id);
-          return sum + (completedChallenge?.reward ?? 0);
-        }, 0),
-      },
+      challengeProgress: buildProgressRecord(completedChallengeIds),
     },
   });
 
@@ -964,7 +908,7 @@ export async function checkActiveChallenge() {
 
   if (lichessUsername || chessComUsername) {
     try {
-      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername);
+      providerChecks = await buildLatestGameChecks(challenge.id, existingAttempts.length, lichessUsername, chessComUsername, activeChallenge.startedAt ?? now);
     } catch {
       providerChecks = [
         {

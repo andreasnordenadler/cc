@@ -2,6 +2,7 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import ProofTime from "@/components/proof-time";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
@@ -56,7 +57,6 @@ export default async function ResultPage({
       ? `I tried “${challenge.title}” on Side Quest Chess. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
       : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
   const scrollAchievement = buildVictoryScrollCopy(challenge, latestAttempt);
-  const scrollDate = formatScrollDate(latestAttempt?.completedGameAt ?? latestAttempt?.checkedAt);
   const publicProofPath = isPassed
     ? await buildPublicProofPath({
         attempt: latestAttempt,
@@ -197,7 +197,7 @@ export default async function ResultPage({
                   Proof accepted for <strong>{challenge.title}</strong>. {latestAttempt?.gameId ? `Game ${latestAttempt.gameId}.` : "Verifier receipt saved."}
                 </p>
                 <div className="victory-scroll-footer">
-                  <span>{scrollDate}</span>
+                  <span><ProofTime value={latestAttempt?.completedGameAt ?? latestAttempt?.checkedAt} /></span>
                   <span>+{challenge.reward} pts</span>
                 </div>
                 <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
@@ -295,15 +295,6 @@ function buildVictoryScrollCopy(challenge: (typeof CHALLENGES)[number], attempt?
   }
 
   return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
-}
-
-function formatScrollDate(value?: string) {
-  if (!value) return "Recorded by the suspicious little verifier";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Recorded by the suspicious little verifier";
-
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

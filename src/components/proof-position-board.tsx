@@ -1,3 +1,4 @@
+import ProofTime from "@/components/proof-time";
 import VictoryScroll from "@/components/victory-scroll";
 import type { Challenge } from "@/lib/challenges";
 import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
@@ -35,7 +36,7 @@ export default function ProofPositionBoard({
   const board = attempt?.finalPositionFen ? parseFenBoard(attempt.finalPositionFen, attempt.lastMoveUci) : null;
   const proofSummary = sanitizeAttemptSummary(attempt?.summary);
   const achievementCopy = buildAchievementCopy(challenge, attempt);
-  const scrollDate = formatScrollDate(attempt?.completedGameAt ?? attempt?.checkedAt);
+  const scrollDate = attempt?.completedGameAt ?? attempt?.checkedAt;
 
   return (
     <article className="note-card proof-position-card proof-position-visual-card" aria-label="Victory proof receipt">
@@ -57,7 +58,7 @@ export default function ProofPositionBoard({
             challenge={challenge}
             achievementCopy={achievementCopy}
             proofLine={<>Proof accepted: <strong>{challenge.title}</strong> — {proofSummary}</>}
-            dateLabel={scrollDate}
+            dateLabel={<ProofTime value={scrollDate} />}
             reward={challenge.reward}
             className="proof-victory-scroll"
           />
@@ -87,15 +88,6 @@ function buildAchievementCopy(challenge: Challenge, attempt?: ChallengeAttempt |
   }
 
   return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
-}
-
-function formatScrollDate(value?: string) {
-  if (!value) return "Recorded by the suspicious little verifier";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Recorded by the suspicious little verifier";
-
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
 function parseFenBoard(fen: string, lastMoveUci?: string): BoardSquare[] | null {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ProofTime from "@/components/proof-time";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import VictoryScroll from "@/components/victory-scroll";
@@ -56,7 +57,6 @@ export default async function PublicProofPage({
   }
 
   const { payload, challenge } = decoded;
-  const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt);
   const achievementCopy = buildPublicAchievementCopy(payload.challengeId, payload.summary);
   const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked. +${payload.reward} points.`;
 
@@ -83,7 +83,7 @@ export default async function PublicProofPage({
             badgeName={payload.badgeName}
             achievementCopy={achievementCopy}
             proofLine={<>Proof accepted: <strong>{payload.challengeTitle}</strong> — {payload.summary}</>}
-            dateLabel={dateLabel}
+            dateLabel={<ProofTime value={payload.completedGameAt ?? payload.checkedAt} />}
             reward={payload.reward}
             className="proof-victory-scroll public-proof-scroll"
           />
@@ -92,7 +92,7 @@ export default async function PublicProofPage({
         <section className="mission-card proof-details-section">
           <span className="eyebrow">Share this proof</span>
           <h2>Public link and image preview.</h2>
-          <p className="proof-details-line">{payload.challengeTitle} completed · {dateLabel}</p>
+          <p className="proof-details-line">{payload.challengeTitle} completed · <ProofTime value={payload.completedGameAt ?? payload.checkedAt} /></p>
           <ShareProofActions
             copy={shareCopy}
             challengeTitle={payload.challengeTitle}
@@ -115,11 +115,3 @@ function buildPublicAchievementCopy(challengeId: string, summary: string) {
   return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
 }
 
-function formatScrollDate(value?: string) {
-  if (!value) return "Recorded by the suspicious little verifier";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Recorded by the suspicious little verifier";
-
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
-}

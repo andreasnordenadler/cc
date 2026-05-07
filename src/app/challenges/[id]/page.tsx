@@ -6,6 +6,7 @@ import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofPositionBoard from "@/components/proof-position-board";
+import ProofTime from "@/components/proof-time";
 import ResetQuestControl from "@/components/reset-quest-control";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
@@ -177,7 +178,7 @@ export default async function ChallengeDetailPage({
             <span className="eyebrow">Proof details</span>
             <h2>Saved and ready to share.</h2>
             <p className="proof-details-line">
-              {challenge.title} completed · {completedDateLabel} · {formatProofReceiptLabel(latestPassedAttempt)}
+              {challenge.title} completed · <ProofTime value={completedDate} /> · {formatProofReceiptLabel(latestPassedAttempt)}
             </p>
             <ShareProofActions
               copy={buildCompletedQuestShareCopy(challenge, latestPassedAttempt)}

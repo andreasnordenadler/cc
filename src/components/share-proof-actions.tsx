@@ -29,7 +29,12 @@ export default function ShareProofActions({
   const imageUrl = useMemo(() => {
     if (!imagePath) return null;
     if (typeof window === "undefined") return imagePath;
-    return `${window.location.origin}${imagePath}`;
+
+    const url = new URL(imagePath, window.location.origin);
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (timeZone) url.searchParams.set("tz", timeZone);
+
+    return url.toString();
   }, [imagePath]);
 
   async function copyFallback() {

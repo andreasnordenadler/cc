@@ -21,7 +21,8 @@ export async function GET(
   }
 
   const { payload, challenge } = decoded;
-  const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt);
+  const timeZone = safeTimeZone(new URL(request.url).searchParams.get("tz"));
+  const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt, timeZone);
   const badgeImage = challenge?.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, request.url).toString() : null;
   const sealImage = new URL("/stamps/sqc-wax-seal-canonical.png", request.url).toString();
   const achievementCopy = payload.challengeId === "finish-any-game"
@@ -174,11 +175,30 @@ export async function GET(
   );
 }
 
-function formatScrollDate(value?: string) {
+function formatScrollDate(value?: string, timeZone?: string) {
   if (!value) return "Recorded by SQC";
 
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Recorded by SQC";
 
-  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", year: "numeric" }).format(date);
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZoneName: "short",
+    ...(timeZone ? { timeZone } : {}),
+  }).format(date);
+}
+
+function safeTimeZone(value: string | null) {
+  if (!value) return undefined;
+
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value }).format(new Date());
+    return value;
+  } catch {
+    return undefined;
+  }
 }
