@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 15:18 Europe/Stockholm
+Last updated: 2026-05-07 15:31 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Replace SQC topbar alternate logo asset.
+  - added_at: 2026-05-07 15:28 Europe/Stockholm
+  - completed_at: 2026-05-07 15:31 Europe/Stockholm
+  - source: Andreas uploaded a new image and asked to replace `sqc-alt-logo-topbar-transparent.png`.
+  - Proof: `public/brand/sqc-alt-logo-topbar-transparent.png` replaced with the uploaded image converted to PNG; previous asset backed up locally at `tmp/sqc-alt-logo-topbar-transparent.previous.png`; proof doc: `docs/SQC_TOPBAR_LOGO_REPLACEMENT_2026-05-07.md`.
+  - Verification: `sips` image metadata check; `pnpm lint`; `pnpm build`.
 
 - [x] Add dated Coming Soon release schedule for hidden/draft quests.
   - added_at: 2026-05-07 15:10 Europe/Stockholm

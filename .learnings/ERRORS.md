@@ -2643,3 +2643,13 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 **Fix**: Keep `releaseDate` optional for draft inventory, filter unscheduled drafts out of the visible queue, and let the card format a safe fallback.
 
 ---
+
+## [ERR-20260507-002] PIL unavailable for quick inbound image inspection
+
+**Date**: 2026-05-07
+**Command**: Python snippet importing `PIL.Image`
+**Context**: Replacing SQC topbar logo from a Telegram image upload.
+**Failure**: Local Python did not have Pillow installed (`ModuleNotFoundError: No module named 'PIL'`).
+**Fix**: Used macOS `sips` for image metadata/conversion instead of adding a dependency.
+
+---
