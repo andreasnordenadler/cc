@@ -185,3 +185,22 @@ For visible brand assets, prefer a new versioned filename or explicit URL versio
 - Tags: sqc, static-assets, cache-busting, logo
 
 ---
+
+## [LRN-20260507-007] SQC copy should say side quest, not mission
+
+**Logged**: 2026-05-07T15:34:00+02:00
+**Category**: correction
+**Priority**: medium
+
+### Summary
+Andreas corrected homepage copy where a CTA mentioned the next weird chess “mission”.
+
+### Lesson
+SQC product language should consistently use “side quest” / “quest”, not “mission”, unless it is only an internal CSS class name.
+
+### Metadata
+- Source: user_correction
+- Related Files: src/app/page.tsx
+- Tags: sqc, copy, product-language
+
+---

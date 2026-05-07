@@ -163,7 +163,7 @@ export default async function Home() {
             </div>
             <p>
               {activeQuestRecord
-                ? "Open the active quest page for rules, badge details, and the next weird chess mission."
+                ? "Open the active quest page for rules, badge details, and the next weird chess side quest."
                 : "Choose one quest first so My Side Quests knows which weird rule to judge after your next public game."}
             </p>
           </Link>
