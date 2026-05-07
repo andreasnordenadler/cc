@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 20:17 Europe/Stockholm
+Last updated: 2026-05-07 20:32 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Add signed-out homepage sample proof scroll backdrop.
+  - added_at: 2026-05-07 20:24 Europe/Stockholm
+  - completed_at: 2026-05-07 20:32 Europe/Stockholm
+  - source: Andreas suggested showing the example proof scroll as a blurred, slanted background image behind the signed-out explainer text.
+  - Proof: signed-out homepage `What happens after sign-in` section now includes a fictional/demo generated proof scroll in the background, blurred/rotated with a readability overlay; proof doc: `docs/SQC_HOME_SAMPLE_PROOF_BACKDROP_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy; generated sample proof PNG returned `200 image/png` at `1200 x 1600`.
 
 - [x] Replace broken generic proof Share button with explicit social share buttons.
   - added_at: 2026-05-07 20:00 Europe/Stockholm
