@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { ImageResponse } from "next/og";
 import { decodePublicProof } from "@/lib/proof-share";
 
@@ -5,11 +6,11 @@ export const runtime = "edge";
 
 const size = {
   width: 1200,
-  height: 630,
+  height: 1600,
 };
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ token: string }> },
 ) {
   const { token } = await params;
@@ -19,8 +20,10 @@ export async function GET(
     return new Response("Invalid proof", { status: 404 });
   }
 
-  const { payload } = decoded;
+  const { payload, challenge } = decoded;
   const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt);
+  const badgeImage = challenge?.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, request.url).toString() : null;
+  const sealImage = new URL("/stamps/sqc-wax-seal-canonical.png", request.url).toString();
   const achievementCopy = payload.challengeId === "finish-any-game"
     ? "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms."
     : `${payload.summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
@@ -35,84 +38,131 @@ export async function GET(
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(135deg, #140d0d 0%, #21130d 48%, #0e0b09 100%)",
-          padding: 42,
+          padding: 70,
           fontFamily: "Georgia, serif",
           color: "#2a160d",
         }}
       >
         <div
           style={{
-            width: 610,
-            height: 560,
+            width: 860,
+            height: 1380,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             textAlign: "center",
             position: "relative",
-            padding: "34px 46px 120px",
-            borderRadius: 34,
-            border: "2px solid rgba(117,70,31,.34)",
-            background: "linear-gradient(180deg, #f6dfad 0%, #eecb87 54%, #d7a65d 100%)",
-            boxShadow: "0 28px 80px rgba(0,0,0,.42), inset 0 0 0 10px rgba(255,246,210,.18)",
+            padding: "88px 72px 250px",
+            overflow: "hidden",
+            borderRadius: "26px 42px 32px 48px",
+            border: "2px solid rgba(82,38,15,.22)",
+            background: "radial-gradient(circle at 50% 28%, rgba(255,255,255,.34), transparent 28%), radial-gradient(circle at 12% 10%, rgba(120,58,18,.22), transparent 18%), radial-gradient(circle at 88% 88%, rgba(120,58,18,.22), transparent 20%), linear-gradient(135deg, #f2d6a5, #c6904f 48%, #f0d2a0)",
+            boxShadow: "inset 0 0 80px rgba(82,38,15,.28), 0 54px 120px rgba(0,0,0,.36)",
           }}
         >
           <div
             style={{
-              width: 104,
-              height: 118,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: "24px 24px 42px 42px",
-              border: "7px solid #7c2d12",
-              background: "linear-gradient(160deg, #24100d, #5f1d14)",
-              color: "#f5c86a",
-              fontSize: 36,
-              fontWeight: 900,
-              marginBottom: 18,
+              position: "absolute",
+              inset: 24,
+              border: "2px solid rgba(82,38,15,.18)",
+              borderRadius: "30px 48px 34px 44px",
+              background: "linear-gradient(90deg, rgba(82,38,15,.1), transparent 14% 86%, rgba(82,38,15,.12))",
             }}
-          >
-            SQC
-          </div>
-          <div style={{ fontSize: 18, letterSpacing: 3.4, textTransform: "uppercase", color: "#7b3f18", fontWeight: 800 }}>
-            Side Quest Chess hereby admits
-          </div>
-          <div style={{ fontSize: 52, lineHeight: 1, fontWeight: 900, marginTop: 10, maxWidth: 520 }}>
-            {payload.badgeName}
-          </div>
-          <div style={{ fontSize: 24, lineHeight: 1.24, marginTop: 18, maxWidth: 490 }}>
-            {achievementCopy}
-          </div>
-          <div style={{ fontSize: 21, lineHeight: 1.24, marginTop: 14, maxWidth: 500, color: "#5f3217" }}>
-            {`Proof accepted: ${payload.challengeTitle} — ${payload.summary}`}
-          </div>
-          <div style={{ display: "flex", gap: 16, marginTop: 16, color: "#6d3918", fontSize: 20, fontWeight: 800 }}>
-            <span>{dateLabel}</span>
-            <span>+{payload.reward} pts</span>
-          </div>
+          />
           <div
             style={{
               position: "absolute",
-              bottom: 34,
-              left: "50%",
-              transform: "translateX(-50%) rotate(4deg)",
-              width: 94,
-              height: 94,
+              left: -84,
+              top: -88,
+              width: 184,
+              height: 184,
               borderRadius: 999,
-              background: "radial-gradient(circle at 38% 32%, #f06d57, #9f160f 62%, #5c0c09 100%)",
-              border: "5px solid #7f100c",
-              boxShadow: "0 10px 24px rgba(82,20,11,.42)",
+              background: "radial-gradient(circle, rgba(74,31,11,.5), rgba(120,58,18,.22) 44%, transparent 70%)",
+              opacity: .78,
             }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              right: -96,
+              top: -72,
+              width: 184,
+              height: 184,
+              borderRadius: 999,
+              background: "radial-gradient(circle, rgba(74,31,11,.5), rgba(120,58,18,.22) 44%, transparent 70%)",
+              opacity: .78,
+            }}
+          />
+
+          <div
+            style={{
+              height: 330,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              position: "relative",
+            }}
+          >
+            {badgeImage ? (
+              <img
+                src={badgeImage}
+                alt=""
+                width="300"
+                height="300"
+                style={{ width: 300, height: 300, objectFit: "contain", filter: "drop-shadow(0 28px 44px rgba(82,38,15,.34))" }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 240,
+                  height: 270,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "44px 44px 82px 82px",
+                  border: "14px solid #7c2d12",
+                  background: "linear-gradient(160deg, #24100d, #5f1d14)",
+                  color: "#f5c86a",
+                  fontSize: 80,
+                  fontWeight: 900,
+                }}
+              >
+                {payload.badgeMotif || "SQC"}
+              </div>
+            )}
+          </div>
+          <div style={{ color: "rgba(43,23,13,.72)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 22, letterSpacing: 4.2, textTransform: "uppercase", fontWeight: 1000 }}>
+            Side Quest Chess hereby admits
+          </div>
+          <div style={{ color: "#251109", fontSize: 78, lineHeight: .92, letterSpacing: -3.6, fontWeight: 900, marginTop: 22, maxWidth: 610 }}>
+            {payload.badgeName}
+          </div>
+          <div style={{ color: "rgba(43,23,13,.86)", fontSize: 33, lineHeight: 1.43, fontWeight: 700, marginTop: 30, maxWidth: 640 }}>
+            {achievementCopy}
+          </div>
+          <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 27, lineHeight: 1.32, marginTop: 26, padding: "24px 26px", maxWidth: 650, color: "rgba(43,23,13,.76)", fontWeight: 850, borderTop: "2px solid rgba(82,38,15,.18)", borderBottom: "2px solid rgba(82,38,15,.18)" }}>
+            {`Proof accepted: ${payload.challengeTitle} — ${payload.summary}`}
+          </div>
+          <div style={{ display: "flex", gap: 18, marginTop: 24, color: "rgba(43,23,13,.66)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 22, fontWeight: 1000, letterSpacing: 1.6, textTransform: "uppercase" }}>
+            <span style={{ padding: "12px 16px", borderRadius: 999, background: "rgba(82,38,15,.08)" }}>{dateLabel}</span>
+            <span style={{ padding: "12px 16px", borderRadius: 999, background: "rgba(82,38,15,.08)" }}>+{payload.reward} pts</span>
+          </div>
+          <img
+            src={sealImage}
+            alt=""
+            width="190"
+            height="190"
+            style={{ position: "absolute", bottom: 70, left: 335, width: 190, height: 190, objectFit: "contain", transform: "rotate(4deg)", filter: "drop-shadow(0 24px 36px rgba(82,38,15,.42))" }}
           />
         </div>
         <div
           style={{
             position: "absolute",
-            right: 54,
-            bottom: 36,
+            right: 70,
+            bottom: 42,
             color: "#f8e9c8",
             fontFamily: "Arial, Helvetica, sans-serif",
-            fontSize: 24,
+            fontSize: 28,
             fontWeight: 800,
           }}
         >

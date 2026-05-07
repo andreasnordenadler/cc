@@ -32,7 +32,7 @@ export async function generateMetadata({
       url: `/proof/${token}`,
       siteName: "Side Quest Chess",
       type: "website",
-      images: [{ url: image, width: 1200, height: 630, alt: `${decoded.payload.challengeTitle} victory proof scroll` }],
+      images: [{ url: image, width: 1200, height: 1600, alt: `${decoded.payload.challengeTitle} victory proof scroll` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -96,7 +96,7 @@ export default async function PublicProofPage({
           <ShareProofActions
             copy={shareCopy}
             challengeTitle={payload.challengeTitle}
-            sharePath="/"
+            sharePath={`/proof/${token}`}
             imagePath={publicProofImagePath(token)}
             shareLabel="Share"
             idleCopy="Shares the victory scroll image with a Side Quest Chess link."

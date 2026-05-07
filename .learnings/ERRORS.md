@@ -2545,3 +2545,26 @@ For future screenshot-heavy reviews on this host, check/install the Playwright b
 - Related Files: docs/research/sqc-review-2026-05-06/
 
 ---
+
+## [ERR-20260507-001] Shell context/path mistakes during SQC proof-image work
+
+**Logged**: 2026-05-07T10:44:30+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: workflow
+
+### Summary
+Initial git/file commands were run from the workspace root instead of the cc repo, and one zsh command tried to read a bracketed route path without quoting it.
+
+### Details
+`git status` failed outside the repo, and `sed src/app/api/og/proof/[token]/route.tsx` failed because zsh expanded the bracketed segment. Retried from `/Users/sam/.openclaw/workspace/cc` and used the read tool/quoted paths.
+
+### Suggested Action
+For Next.js dynamic route files, prefer the read tool or quote paths containing `[token]`. Run repo commands from the actual project root.
+
+### Metadata
+- Source: error
+- Related Files: src/app/api/og/proof/[token]/route.tsx
+- Tags: zsh, nextjs, dynamic-route, cwd
+
+---

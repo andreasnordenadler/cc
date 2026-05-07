@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-06 23:28 Europe/Stockholm
+Last updated: 2026-05-07 10:45 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Generate the full victory scroll as one shareable image.
+  - added_at: 2026-05-07 10:40 Europe/Stockholm
+  - completed_at: 2026-05-07 10:45 Europe/Stockholm
+  - source: Andreas shared a screenshot and asked whether the whole scroll, including text, could be generated as one image looking exactly like the current scroll so sharing is easier.
+  - Proof: converted `/api/og/proof/[token]` into a full vertical 1200×1600 victory-scroll PNG with badge art, scroll copy, proof line, date/points, and wax seal; result/public proof sharing now uses the user-specific proof URL. Proof doc: `docs/SQC_FULL_VICTORY_SCROLL_IMAGE_SHARE_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`; local `/api/og/proof/[token]` smoke returned `200 image/png` at `1200 x 1600`; visual inspection confirmed a complete scroll image.
 
 - [x] Remove proof log page and add simple completed side quest list to My Side Quests.
   - added_at: 2026-05-06 23:22 Europe/Stockholm

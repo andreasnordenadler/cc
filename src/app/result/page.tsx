@@ -208,7 +208,7 @@ export default async function ResultPage({
             <ShareProofActions
               copy={isPassed ? `${scrollAchievement} ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.` : shareCopy}
               challengeTitle={challenge.title}
-              sharePath={isPassed ? "/" : "/result"}
+              sharePath={isPassed ? publicProofPath : "/result"}
               imagePath={isPassed ? publicProofImagePath(publicProofToken) : undefined}
               shareLabel={isPassed ? "Share" : "Share quest"}
               idleCopy={isPassed
