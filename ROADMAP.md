@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 12:20 Europe/Stockholm
+Last updated: 2026-05-07 12:23 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Further shrink My Side Quest current coat and top-card height.
+  - added_at: 2026-05-07 12:21 Europe/Stockholm
+  - completed_at: 2026-05-07 12:23 Europe/Stockholm
+  - source: Andreas asked to make the Current Quest coat of arms even smaller so the two top sections can be shorter.
+  - Proof: Current Quest coat-of-arms max size reduced again; mobile size reduced; top hero/card padding, gaps, title scale, stat chip padding, and caption scale tightened further.
+  - Verification: `pnpm lint`; `pnpm build`.
 
 - [x] Cache generated proof scroll images instead of regenerating on every visit.
   - added_at: 2026-05-07 12:15 Europe/Stockholm
