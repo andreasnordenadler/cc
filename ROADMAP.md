@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 18:16 Europe/Stockholm
+Last updated: 2026-05-07 19:00 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -48,6 +48,13 @@ Andreas reset SQC planning on 2026-05-05:
 ## Reconfirmed wanted backlog — 2026-05-05
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+
+- [x] Update external SQC product review with current logged-in launch-candidate status.
+  - added_at: 2026-05-07 18:45 Europe/Stockholm
+  - completed_at: 2026-05-07 19:00 Europe/Stockholm
+  - source: Andreas asked to use GPT 5.5 Pro, revisit `docs/research/sqc-review-2026-05-06/SQC_EXTERNAL_PRODUCT_REVIEW_2026-05-06.md`, update it based on current SQC status, and include logged-in experience.
+  - Proof: review doc rewritten with updated current assessment, authenticated production E2E evidence, logged-in `/account` and completed proof findings, current launch recommendations, and updated 30/60/90 roadmap.
+  - Verification: model switched to `openai-codex/gpt-5.5-pro`; live smoke checks for key pages; doc grep checks; git diff inspection.
 
 - [x] Keep active quest next-step copy on one themed line.
   - added_at: 2026-05-07 18:12 Europe/Stockholm
