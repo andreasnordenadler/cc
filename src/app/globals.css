@@ -222,6 +222,8 @@ p { color: var(--muted); line-height: 1.5; }
 .leaderboard-preview-row strong { color: var(--gold); font-size: .95rem; }
 .leaderboard-preview-row span { color: var(--ink); font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .leaderboard-preview-row em { color: var(--green); font-size: .85rem; font-style: normal; font-weight: 950; }
+.auth-reassurance-grid { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+.auth-reassurance-grid span { padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(96,240,175,.26); background: rgba(96,240,175,.1); color: var(--green); font-size: .82rem; font-weight: 900; }
 .support-launch-hero { display: grid; justify-items: center; text-align: center; }
 .support-launch-hero h1 { max-width: 900px; margin-inline: auto; }
 .support-launch-hero .hero-copy { margin-inline: auto; }
@@ -691,6 +693,9 @@ p { color: var(--muted); line-height: 1.5; }
 
 .quest-log-top-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: 18px; align-items: stretch; }
 .quest-log-top-grid .hero-card,
+.quest-log-next-step-card { display: grid; justify-items: start; gap: 10px; background: radial-gradient(circle at 92% 12%, rgba(96,240,175,.18), transparent 34%), rgba(96,240,175,.075); border-color: rgba(96,240,175,.22); }
+.quest-log-next-step-card h2 { margin-bottom: 0; }
+.quest-log-next-step-card p { max-width: 720px; }
 .quest-log-top-grid .mission-card { min-height: 0; }
 .quest-log-top-grid .focused-quest-hero { padding: clamp(14px, 2vw, 18px); align-content: center; gap: 8px; }
 .quest-log-top-grid .focused-quest-hero h1 { font-size: clamp(2.35rem, 4.4vw, 3.75rem); margin-bottom: 4px; }

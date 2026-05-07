@@ -103,6 +103,7 @@ export default async function ChallengeDetailPage({
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
   const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+  const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const publicProofPath = isCompleted
     ? await buildPublicProofPath({
         attempt: latestPassedAttempt,
@@ -145,12 +146,14 @@ export default async function ChallengeDetailPage({
           </div>
           {!isCompleted ? (
             <div className="button-row hero-actions quest-detail-actions">
-              {isSignedIn ? (
-                isActive ? null : (
-                  <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} />
-                )
+              {!isSignedIn ? (
+                <Link href="/sign-in" className="button primary">Sign in to start this side quest</Link>
+              ) : !hasChessIdentity ? (
+                <Link href="/connect" className="button primary">Connect chess account</Link>
+              ) : isActive ? (
+                <a href="#latest-game-checker" className="button primary">Check latest game</a>
               ) : (
-                <Link href="/connect" className="button primary">Connect to start</Link>
+                <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} label="Start this side quest" />
               )}
               <Link href={`/dare/${challenge.id}`} className="button secondary">Share this Side Quest</Link>
               {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
@@ -198,7 +201,7 @@ export default async function ChallengeDetailPage({
         ) : null}
 
         {isSignedIn && isActive && !isCompleted ? (
-          <section className="mission-card quest-status-panel" aria-label={isCompleted ? "Completed quest status" : "Active quest status"}>
+          <section id="latest-game-checker" className="mission-card quest-status-panel" aria-label={isCompleted ? "Completed quest status" : "Active quest status"}>
             <div className="section-head">
               <div>
                 <span className="eyebrow">{isCompleted ? "Quest completed" : "Quest status"}</span>

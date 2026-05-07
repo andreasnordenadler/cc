@@ -2663,3 +2663,13 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 **Fix**: Commit only repository files from `cc`; keep workspace memory as an uncommitted workspace note.
 
 ---
+
+## [ERR-20260507-004] Account next-step helper allowed undefined active challenge
+
+**Date**: 2026-05-07
+**Command**: `pnpm lint && pnpm build`
+**Context**: Launch Candidate 1 account next-step module.
+**Failure**: TypeScript rejected `activeChallengeRecord` because `Array.find()` can return `undefined`, while the helper expected `Challenge | null`.
+**Fix**: Coalesced the lookup with `?? null` before passing it into the next-step helper.
+
+---

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 17:54 Europe/Stockholm
+Last updated: 2026-05-07 18:10 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -49,10 +49,12 @@ Andreas reset SQC planning on 2026-05-05:
 
 Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
 
-- [ ] Launch Candidate 1 hardening pass.
+- [x] Launch Candidate 1 hardening pass.
   - added_at: 2026-05-07 17:54 Europe/Stockholm
+  - completed_at: 2026-05-07 18:10 Europe/Stockholm
   - source: Andreas and Sam agreed SQC is close to launch ready. Andreas agreed with final launch-hardening checks except mobile web polish, because a proper SQC mobile app is planned for the next phase.
-  - Acceptance: authenticated production smoke test; verifier confidence pass; legal/support basics sanity-read; launch copy pass to remove beta/placeholder wording. Do not include broad mobile-web polish as a launch blocker.
+  - Proof: state-aware quest CTAs, sign-in/sign-up reassurance, My Side Quests next-step module, legal/support trust hygiene, beta-copy cleanup, and LC1 proof doc: `docs/SQC_LAUNCH_CANDIDATE_1_HARDENING_2026-05-07.md`.
+  - Verification: `pnpm lint`; `pnpm build`; production smoke after deploy. Authenticated E2E remains the final manual launch gate because no clean test login/session is available in this run.
 
 - [ ] Plan proper SQC mobile app phase after web launch candidate.
   - added_at: 2026-05-07 17:54 Europe/Stockholm

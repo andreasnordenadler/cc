@@ -166,13 +166,13 @@ export default async function ResultPage({
         <section className="mission-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Beta support shortcut</span>
+              <span className="eyebrow">Support shortcut</span>
               <h2>If the receipt feels unfair, capture the useful details.</h2>
             </div>
             <span className="badge blue">quest + game link</span>
           </div>
           <p>
-            Private-beta testers now have a direct path from the latest receipt to the support packet, so wrong or confusing pass/fail/pending outcomes can be reported with the quest, provider, username, game link, and expected result.
+            If a pass, fail, or pending receipt looks wrong, send the useful details: quest, provider, username, game link, what SQC showed, and what you expected.
           </p>
           <div className="button-row">
             <Link href="/support" className="button primary">Open support packet</Link>

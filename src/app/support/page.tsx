@@ -50,6 +50,11 @@ const privacyNotes = [
     value: "Chess-site passwords",
     copy: "Never enter a Lichess or Chess.com password into SQC. Proof checks are username-based and public-game based.",
   },
+  {
+    label: "Can help remove",
+    value: "SQC account data",
+    copy: "Use support for deletion requests involving saved SQC usernames, progress, proof receipts, or public proof links controlled by Side Quest Chess.",
+  },
 ];
 
 export default async function SupportPage() {
@@ -87,7 +92,7 @@ export default async function SupportPage() {
             </div>
           </div>
           <p>
-            Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. A screenshot helps if the issue is visual.
+            Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. For deletion requests, include the account email or profile details needed to identify your SQC account. A screenshot helps if the issue is visual.
           </p>
           <SupportContactForm />
         </section>

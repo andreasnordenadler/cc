@@ -34,15 +34,24 @@ export default async function MyQuestLogPage() {
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
   const activeChallengeRecord = activeChallenge?.id
-    ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id)
+    ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
+  const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
+  const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
 
   return (
     <main className="site-shell">
       <SiteNav isSignedIn active="account" />
 
       <div className="content-wrap my-quest-log focused-quest-log">
+        <section className="mission-card quest-log-next-step-card" aria-label="Next step">
+          <span className="eyebrow">Next step</span>
+          <h2>{nextStep.title}</h2>
+          <p>{nextStep.copy}</p>
+          <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
+        </section>
+
         <div className="quest-log-top-grid">
           <section className="hero-card quest-log-hero focused-quest-hero">
           <div>
@@ -163,6 +172,50 @@ export default async function MyQuestLogPage() {
       </div>
     </main>
   );
+}
+
+function getNextStep({
+  hasChessIdentity,
+  activeChallengeRecord,
+  activeQuestCompleted,
+}: {
+  hasChessIdentity: boolean;
+  activeChallengeRecord: (typeof CHALLENGES)[number] | null;
+  activeQuestCompleted: boolean;
+}) {
+  if (!hasChessIdentity) {
+    return {
+      title: "Connect your chess username.",
+      copy: "Add a public Lichess or Chess.com username first. SQC never needs your chess-site password.",
+      href: "/connect",
+      cta: "Connect chess account",
+    };
+  }
+
+  if (!activeChallengeRecord) {
+    return {
+      title: "Pick one side quest.",
+      copy: "Choose the ridiculous rule SQC should judge after your next public game.",
+      href: "/challenges",
+      cta: "Pick a Side Quest",
+    };
+  }
+
+  if (activeQuestCompleted) {
+    return {
+      title: "Share the proof, then pick another.",
+      copy: `${activeChallengeRecord.title} is complete. Your coat of arms is ready; the next bad idea is waiting.`,
+      href: `/challenges/${activeChallengeRecord.id}`,
+      cta: "Open victory proof",
+    };
+  }
+
+  return {
+    title: "Play, then verify.",
+    copy: `${activeChallengeRecord.title} is active. Play a public Lichess or Chess.com game, then run the latest-game checker.`,
+    href: `/challenges/${activeChallengeRecord.id}`,
+    cta: "Open active side quest",
+  };
 }
 
 function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string) {

@@ -29,7 +29,7 @@ export default async function VerifiersPage() {
   const parityCopy =
     lichessOnlyCount === 0
       ? "Every current quest now has dual-host latest-game checking for both Lichess and Chess.com."
-      : "The remaining live-backed quests are honest Lichess checks first, with Chess.com parity queued after beta-flow hardening.";
+      : "The remaining live-backed quests are honest Lichess checks first, with Chess.com parity queued after launch-flow hardening.";
 
   return (
     <main className="site-shell">

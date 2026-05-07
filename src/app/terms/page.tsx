@@ -39,6 +39,18 @@ const sections = [
     copy: "Side Quest Chess may link to or read public information from third-party chess services, authentication providers, and hosting providers. Those services are not controlled by Side Quest Chess and have their own terms, privacy policies, uptime, and data practices.",
   },
   {
+    title: "Side Quest Chess is independent.",
+    copy: "Side Quest Chess is not affiliated with, endorsed by, sponsored by, or officially connected to Lichess, Chess.com, FIDE, or any other chess platform or governing body. Names such as Lichess and Chess.com are used only to describe where public games may be played and checked.",
+  },
+  {
+    title: "Public proof sharing is visible.",
+    copy: "If you share a proof card or public proof link, people with that link may see the quest title, coat of arms, points, proof summary, timestamp, and public chess-game reference included in the receipt. Do not share proof you do not want others to view.",
+  },
+  {
+    title: "Data deletion requests.",
+    copy: "If you want help removing SQC account data, saved chess usernames, proof receipts, or public proof links controlled by Side Quest Chess, use the support page and include the account email or profile details needed to identify the request. Third-party chess sites control their own game records.",
+  },
+  {
     title: "No warranties.",
     copy: "Side Quest Chess is provided as-is and as-available. We do not promise uninterrupted access, perfect accuracy, permanent storage, specific features, or that every quest can always be verified from every public game source.",
   },
