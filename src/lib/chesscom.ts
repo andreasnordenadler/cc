@@ -1,6 +1,8 @@
 import type { BlunderGambitCaptureEvent, BlunderGambitGame, BlunderGambitPiece, BlunderGambitVerdict } from "./the-blunder-gambit";
 import type { KnightmareFinalMove, KnightmareGame, KnightmareVerdict } from "./knightmare-mode";
 import type { OneBishopGame, OneBishopVerdict } from "./one-bishop-to-rule-them-all";
+import type { PawnOnlyPicnicGame, PawnOnlyPicnicVerdict } from "./pawn-only-picnic";
+import { evaluatePawnOnlyPicnic } from "./pawn-only-picnic";
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
 import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 
@@ -116,6 +118,8 @@ type ChessComPawnStormManiacVerdict = {
   summary: string;
   evidence: string[];
 };
+
+type ChessComPawnOnlyPicnicVerdict = PawnOnlyPicnicVerdict;
 
 type ChessComRooklessRampageVerdict = {
   status: "passed" | "failed" | "pending";
@@ -355,9 +359,17 @@ function chessComPlayerMovePiecesFromSan(
   sanMoves: string[],
   playerColor: "white" | "black",
 ): ChessComKnightsBeforeCoffeeGame["firstFourPlayerMovePieces"] {
+  return chessComFirstPlayerMovePiecesFromSan(sanMoves, playerColor, 4);
+}
+
+function chessComFirstPlayerMovePiecesFromSan(
+  sanMoves: string[],
+  playerColor: "white" | "black",
+  count: number,
+) {
   return sanMoves
     .filter((_, index) => (playerColor === "white" ? index % 2 === 0 : index % 2 === 1))
-    .slice(0, 4)
+    .slice(0, count)
     .map(chessComPieceFromSan);
 }
 
@@ -1467,6 +1479,84 @@ export async function checkLatestChessComKnightsBeforeCoffee(username: string): 
 
       if (normalizedGames.length) {
         return evaluateChessComKnightsBeforeCoffee(normalizedGames[0]);
+      }
+    }
+
+    return {
+      status: "pending",
+      gameId: "chesscom-no-normalized-games",
+      summary: `No recent public Chess.com games with PGN move text were found for ${username}.`,
+      evidence: ["The latest-games adapter returned no normalizable Chess.com games."],
+    };
+  } catch {
+    return {
+      status: "pending",
+      gameId: "chesscom-latest-error",
+      summary: `Chess.com latest-game lookup could not complete for ${username}.`,
+      evidence: ["Network, archive, or PGN parsing failed."],
+    };
+  }
+}
+
+export function normalizeChessComPawnOnlyPicnicGame(game: ChessComGame, username: string): PawnOnlyPicnicGame | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+
+  if (!game.url || !playerColor || !game.pgn) {
+    return null;
+  }
+
+  const sanMoves = extractSanMoveTokens(game.pgn);
+
+  return {
+    id: normalizeChessComGameUrl(game.url),
+    playerColor,
+    winner: getWinningSide(game),
+    moveCount: Math.ceil(sanMoves.length / 2),
+    variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
+    timeClass: normalizeChessComTimeClass(game.time_class),
+    firstEightPlayerMovePieces: chessComFirstPlayerMovePiecesFromSan(sanMoves, playerColor, 8),
+  };
+}
+
+export async function checkLatestChessComPawnOnlyPicnic(username: string): Promise<ChessComPawnOnlyPicnicVerdict> {
+  if (!username.trim()) {
+    return {
+      status: "pending",
+      gameId: "chesscom-username-missing",
+      summary: "Add a Chess.com username before Side Quest Chess can inspect latest pawn-picnic attempts.",
+      evidence: ["No Chess.com username is stored."],
+    };
+  }
+
+  try {
+    const archives = await fetchArchiveMonths(username.trim());
+
+    if (!archives?.length) {
+      return {
+        status: "pending",
+        gameId: "chesscom-no-archives",
+        summary: `No public Chess.com archives were found for ${username}.`,
+        evidence: ["Chess.com returned no public monthly archives."],
+      };
+    }
+
+    const recentArchives = archives.slice(-3).reverse();
+
+    for (const archiveUrl of recentArchives) {
+      const games = await fetchMonthlyArchive(archiveUrl);
+
+      if (!games?.length) {
+        continue;
+      }
+
+      const normalizedGames = games
+        .slice()
+        .sort((a, b) => (b.end_time ?? 0) - (a.end_time ?? 0))
+        .map((game) => normalizeChessComPawnOnlyPicnicGame(game, username))
+        .filter((game): game is PawnOnlyPicnicGame => Boolean(game));
+
+      if (normalizedGames.length) {
+        return evaluatePawnOnlyPicnic(normalizedGames[0]);
       }
     }
 

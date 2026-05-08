@@ -16,6 +16,7 @@ import {
   checkLatestChessComKnightmareMode,
   checkLatestChessComNoCastleClub,
   checkLatestChessComOneBishopToRuleThemAll,
+  checkLatestChessComPawnOnlyPicnic,
   checkLatestChessComPawnStormManiac,
   checkLatestChessComQueenNeverHeardOfHer,
   checkLatestChessComRooklessRampage,
@@ -52,6 +53,11 @@ import {
   evaluateNoCastleClub,
   noCastleClubFixtures,
 } from "@/lib/no-castle-club";
+import {
+  checkLatestLichessPawnOnlyPicnic,
+  evaluatePawnOnlyPicnic,
+  pawnOnlyPicnicFixtures,
+} from "@/lib/pawn-only-picnic";
 import {
   checkLatestLichessPawnStormManiac,
   evaluatePawnStormManiac,
@@ -402,6 +408,29 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
 
     const fixture = noCastleClubFixtures[attemptCount % noCastleClubFixtures.length];
     const verdict = evaluateNoCastleClub(fixture);
+
+    return {
+      status: verdict.status,
+      gameId: verdict.gameId,
+      summary: `${verdict.summary} ${verdict.evidence.join(" ")}`,
+    };
+  }
+
+  if (challengeId === "pawn-only-picnic") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessPawnOnlyPicnic(lichessUsername);
+
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComPawnOnlyPicnic(chessComUsername);
+
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
+    }
+
+    const fixture = pawnOnlyPicnicFixtures[attemptCount % pawnOnlyPicnicFixtures.length];
+    const verdict = evaluatePawnOnlyPicnic(fixture);
 
     return {
       status: verdict.status,
