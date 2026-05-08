@@ -15,9 +15,9 @@ import {
   Text,
   View,
 } from "react-native";
-import { fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
+import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
-import type { MobileAccountResponse, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
+import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
 type AppTab = "catalog" | "quest" | "account" | "status" | "proof";
 
@@ -41,7 +41,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android alpha 0.1.2 / build 3";
+const MOBILE_BUILD_LABEL = "Android alpha 0.2.0 / design parity";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -56,12 +56,12 @@ const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
   path: "sso-callback",
 });
 
-const TABS: Array<{ id: AppTab; label: string }> = [
-  { id: "catalog", label: "Quests" },
-  { id: "quest", label: "Detail" },
-  { id: "account", label: "Account" },
-  { id: "status", label: "Status" },
-  { id: "proof", label: "Proof" },
+const TABS: Array<{ id: AppTab; label: string; icon: string }> = [
+  { id: "catalog", label: "Quests", icon: "♞" },
+  { id: "quest", label: "Detail", icon: "⚔" },
+  { id: "account", label: "Me", icon: "♛" },
+  { id: "status", label: "Status", icon: "✓" },
+  { id: "proof", label: "Proof", icon: "✦" },
 ];
 
 export default function App() {
@@ -189,6 +189,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setShell((current) => ({ ...current, activeTab }));
   }
 
+  const completedCount = shell.account?.authenticated ? shell.account.progress.totalCompletedChallenges : 0;
+  const activeQuestTitle = shell.account?.authenticated && shell.account.activeQuest ? shell.account.activeQuest.title : selectedChallenge?.title ?? "Choose a quest";
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -197,13 +200,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
       >
-        <HeaderCard />
-        <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadBootstrap({ refresh: true })} />
+        <HeroHeader selectedChallenge={selectedChallenge} completedCount={completedCount} activeQuestTitle={activeQuestTitle} />
+        <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
 
         {shell.loading ? (
           <View style={styles.loadingCard}>
             <ActivityIndicator color="#f5c86a" />
-            <Text style={styles.muted}>Loading the live SQC catalog…</Text>
+            <Text style={styles.muted}>Loading the live quest board…</Text>
           </View>
         ) : null}
 
@@ -219,6 +222,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               account={shell.account}
               authBridge={authBridge}
               onSelectChallenge={selectChallenge}
+              onSelectTab={selectTab}
             />
             <SyncCard bootstrap={shell.bootstrap} />
           </>
@@ -228,15 +232,37 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   );
 }
 
-function HeaderCard() {
+function HeroHeader({ selectedChallenge, completedCount, activeQuestTitle }: { selectedChallenge: MobileChallenge | null; completedCount: number; activeQuestTitle: string }) {
+  const badgeUrl = selectedChallenge?.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
+
   return (
     <View style={styles.heroCard}>
-      <Text style={styles.eyebrow}>Android alpha shell</Text>
-      <Text style={styles.title}>Side Quest Chess</Text>
-      <Text style={styles.buildLabel}>{MOBILE_BUILD_LABEL}</Text>
-      <Text style={styles.heroCopy}>
-        Expo app structure for catalog, quest detail, account, status, and proof flows — all fed by sidequestchess.com where the backend contract already exists.
-      </Text>
+      <View style={styles.heroGlowOne} />
+      <View style={styles.heroGlowTwo} />
+      <View style={styles.navBrandRow}>
+        <Image source={{ uri: `${getApiBaseUrl()}/brand/sqc-alt-logo-topbar-20260507-v2.png` }} style={styles.logoMark} resizeMode="contain" />
+        <View style={styles.navBrandCopy}>
+          <Text style={styles.navKicker}>Side Quest Chess</Text>
+          <Text style={styles.navSub}>Mobile quest board</Text>
+        </View>
+        <Text style={styles.buildPill}>{MOBILE_BUILD_LABEL}</Text>
+      </View>
+
+      <View style={styles.heroMainRow}>
+        <View style={styles.heroCopyBlock}>
+          <Text style={styles.eyebrow}>Chess, but weird on purpose</Text>
+          <Text style={styles.title}>Stupidly hard side quests.</Text>
+          <Text style={styles.heroCopy}>Pick one ridiculous chess quest, play a real Lichess or Chess.com game, then come back for the receipt.</Text>
+        </View>
+        <View style={styles.heroBadgeFrame}>
+          {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroBadgeImage} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>♞</Text>}
+        </View>
+      </View>
+
+      <View style={styles.heroStatsRow}>
+        <MiniStat label="Active quest" value={activeQuestTitle} />
+        <MiniStat label="Coats earned" value={`${completedCount}`} />
+      </View>
     </View>
   );
 }
@@ -261,26 +287,25 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
 
   if (!authBridge.configured) {
     return (
-      <PlaceholderCard
-        eyebrow="Mobile auth bridge"
-        title="Clerk Expo provider is installed."
-        body="Set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in local/EAS env to enable the mobile session provider. No Clerk secrets are stored in the app repo."
-        facts={[
-          ["Provider", "@clerk/clerk-expo"],
-          ["Token cache", "Expo SecureStore"],
-          ["Allowed redirect", mobileOAuthRedirectUrl],
-          ["Account fetch", "Adds Authorization: Bearer <session> when signed in"],
-        ]}
-      />
+      <View style={styles.authCard}>
+        <Text style={styles.eyebrow}>Sign-in pending</Text>
+        <Text style={styles.cardTitle}>Quest catalog works now. Clerk can be attached tomorrow.</Text>
+        <Text style={styles.cardBody}>The app stays useful while mobile auth is disabled: browse quests, read rules, inspect coat-of-arms rewards, and keep the account/status/proof screens graceful.</Text>
+        <View style={styles.factGrid}>
+          <Fact label="Provider" value="Clerk Expo installed" />
+          <Fact label="Needed env" value="EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY" />
+          <Fact label="Redirect" value={mobileOAuthRedirectUrl} />
+        </View>
+      </View>
     );
   }
 
   return (
     <View style={styles.authCard}>
-      <Text style={styles.eyebrow}>Mobile auth bridge</Text>
+      <Text style={styles.eyebrow}>Mobile account</Text>
       <SignedIn>
-        <Text style={styles.placeholderTitle}>Signed in{authBridge.signedInLabel ? ` as ${authBridge.signedInLabel}` : ""}.</Text>
-        <Text style={styles.placeholderBody}>Account refreshes now include the active Clerk session token when available.</Text>
+        <Text style={styles.cardTitle}>Signed in{authBridge.signedInLabel ? ` as ${authBridge.signedInLabel}` : ""}.</Text>
+        <Text style={styles.cardBody}>Account, active quest, and latest proof receipt refresh from the website backend.</Text>
         {authBridge.signOut ? (
           <Pressable style={styles.secondaryButton} disabled={authActionPending} onPress={() => void runAuthAction(authBridge.signOut!)}>
             <Text style={styles.secondaryButtonText}>{authActionPending ? "Working…" : "Sign out"}</Text>
@@ -288,9 +313,8 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         ) : null}
       </SignedIn>
       <SignedOut>
-        <Text style={styles.placeholderTitle}>Signed-out mobile shell.</Text>
-        <Text style={styles.placeholderBody}>Use Google sign-in to attach a Clerk session token, then reload account state from the backend.</Text>
-        <Text style={styles.microcopy}>Clerk redirect to allow: {mobileOAuthRedirectUrl}</Text>
+        <Text style={styles.cardTitle}>Sign in when Clerk is ready.</Text>
+        <Text style={styles.cardBody}>Google sign-in will attach a mobile session token. Until then, the public SQC experience remains polished and stable.</Text>
         {authBridge.startGoogleSignIn ? (
           <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
@@ -307,6 +331,7 @@ function TabBar({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (t
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabRail}>
       {TABS.map((tab) => (
         <Pressable key={tab.id} style={[styles.tabPill, activeTab === tab.id && styles.tabPillActive]} onPress={() => onSelectTab(tab.id)}>
+          <Text style={[styles.tabIcon, activeTab === tab.id && styles.tabTextActive]}>{tab.icon}</Text>
           <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>{tab.label}</Text>
         </Pressable>
       ))}
@@ -321,6 +346,7 @@ function ActiveScreen({
   account,
   authBridge,
   onSelectChallenge,
+  onSelectTab,
 }: {
   activeTab: AppTab;
   bootstrap: MobileBootstrap;
@@ -328,12 +354,13 @@ function ActiveScreen({
   account: MobileAccountResponse | null;
   authBridge: MobileAuthBridge;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+  onSelectTab: (tab: AppTab) => void;
 }) {
   switch (activeTab) {
     case "catalog":
       return <CatalogScreen bootstrap={bootstrap} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />;
     case "quest":
-      return <QuestDetailScreen challenge={selectedChallenge} />;
+      return <QuestDetailScreen challenge={selectedChallenge} onSelectTab={onSelectTab} />;
     case "account":
       return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} />;
     case "status":
@@ -355,69 +382,61 @@ function CatalogScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.eyebrow}>Live catalog</Text>
-        <Text style={styles.sectionTitle}>{bootstrap.challenges.length} side quests from the web backend</Text>
+        <Text style={styles.eyebrow}>Where to begin</Text>
+        <Text style={styles.sectionTitle}>How heroic are you feeling today?</Text>
+        <Text style={styles.sectionBody}>Choose a quest based on your tolerance for terrible chess decisions.</Text>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.questRail}>
-        {bootstrap.challenges.map((challenge) => (
-          <QuestPill
-            key={challenge.id}
-            challenge={challenge}
-            active={challenge.id === selectedChallenge.id}
-            onPress={() => onSelectChallenge(challenge.id, "quest")}
-          />
-        ))}
-      </ScrollView>
-
-      <View style={styles.queueCard}>
-        <Text style={styles.queueTitle}>Android alpha flow map</Text>
-        <FlowStep done label="Fetch /api/mobile/bootstrap" />
-        <FlowStep done label="Browse backend-owned quest catalog" />
-        <FlowStep done label="Authenticated read-only account contract" />
-        <FlowStep label="Start/check/reset quest actions" />
-        <FlowStep label="Proof viewer + native share sheet" />
-      </View>
+      {bootstrap.challenges.map((challenge, index) => (
+        <QuestListCard
+          key={challenge.id}
+          challenge={challenge}
+          index={index}
+          active={challenge.id === selectedChallenge.id}
+          onPress={() => onSelectChallenge(challenge.id, "quest")}
+        />
+      ))}
     </View>
   );
 }
 
-function QuestDetailScreen({ challenge }: { challenge: MobileChallenge }) {
-  return <QuestDetailCard challenge={challenge} />;
+function QuestDetailScreen({ challenge, onSelectTab }: { challenge: MobileChallenge; onSelectTab: (tab: AppTab) => void }) {
+  return <QuestDetailCard challenge={challenge} onSelectTab={onSelectTab} />;
 }
 
 function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge }) {
-  if (!account || !account.authenticated) {
+  if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
 
     return (
-      <PlaceholderCard
-        eyebrow="Account contract"
-        title={signedInButRejected ? "Backend did not accept the mobile bearer token yet." : authBridge.configured ? "Mobile session bridge is ready." : "Ready for mobile sign-in."}
+      <EmptyStateCard
+        eyebrow="My Side Quest"
+        title={signedInButRejected ? "Token is local; backend verification still needs help." : "Ready for your royal paperwork."}
         body={
           signedInButRejected
-            ? "The Expo Google session is present locally, but /api/mobile/account still returned signed-out JSON. That is the on-device signal to fix server-side Clerk bearer verification."
-            : "The read-only account endpoint now exists. Account refreshes include a Clerk bearer token when the Expo session is signed in."
+            ? "The Expo Google session exists, but /api/mobile/account returned signed-out JSON. This keeps the app graceful until Clerk bearer verification is finalized."
+            : "Connect Clerk and your chess usernames on the website, then the app will show points, coats of arms, and account status here."
         }
         facts={[
-          ["Endpoint", "/api/mobile/account"],
           ["Source", bootstrap.product.canonicalUrl],
-          ["Local session", authBridge.isSignedIn ? "Signed in with Clerk Expo" : "Signed out / no mobile token yet"],
-          ["API auth", account?.authenticated ? "Accepted" : "Signed-out response"],
+          ["Local session", authBridge.isSignedIn ? "Signed in with Clerk Expo" : "Signed out / no mobile token"],
+          ["Catalog", "Still available without auth"],
         ]}
       />
     );
   }
 
   return (
-    <View style={styles.placeholderCard}>
+    <View style={styles.panelCard}>
       <Text style={styles.eyebrow}>My Side Quest</Text>
-      <Text style={styles.placeholderTitle}>{account.profile.displayName}</Text>
-      <Text style={styles.placeholderBody}>{account.profile.bio || "Your live backend-owned account state is now readable by mobile."}</Text>
+      <Text style={styles.cardTitle}>{account.profile.displayName}</Text>
+      <Text style={styles.cardBody}>{account.profile.bio || "Your live backend-owned account state is now readable by mobile."}</Text>
+      <View style={styles.scoreboardRow}>
+        <BigScore label="Points" value={`${account.progress.totalRewardPoints}`} />
+        <BigScore label="Coats" value={`${account.progress.totalCompletedChallenges}`} />
+        <BigScore label="Proofs" value={`${account.progress.proofReceiptCount}`} />
+      </View>
       <View style={styles.factGrid}>
-        <Fact label="Points" value={`${account.progress.totalRewardPoints}`} />
-        <Fact label="Coats of arms" value={`${account.progress.totalCompletedChallenges}`} />
-        <Fact label="Proof receipts" value={`${account.progress.proofReceiptCount}`} />
         <Fact label="Lichess" value={account.chessAccounts.lichessUsername ?? "Not connected"} />
         <Fact label="Chess.com" value={account.chessAccounts.chessComUsername ?? "Not connected"} />
       </View>
@@ -426,9 +445,9 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
 }
 
 function StatusShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
-  if (account?.authenticated && account.activeQuest) {
+  if (isAuthenticatedAccount(account) && account.activeQuest) {
     return (
-      <PlaceholderCard
+      <EmptyStateCard
         eyebrow="Quest status"
         title={account.activeQuest.completed ? "Quest completed." : account.activeQuest.title}
         body={account.activeQuest.banner}
@@ -442,23 +461,22 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
   }
 
   return (
-    <PlaceholderCard
-      eyebrow="Quest status contract"
-      title="Active quest state will stay backend-owned."
-      body={`The mobile app is ready to show start, pending, passed, failed, reset, and repeat states for “${selectedChallenge.title}” as soon as mobile auth is attached.`}
-      facts={[
-        ["Selected quest", selectedChallenge.title],
-        ["Endpoint", "/api/mobile/account"],
-        ["Verifier rule", "Do not duplicate verification logic in React Native."],
-      ]}
-    />
+    <View style={styles.panelCard}>
+      <Text style={styles.eyebrow}>Quest ritual</Text>
+      <Text style={styles.cardTitle}>Pick one quest. Play one real game. Return for judgment.</Text>
+      <View style={styles.checkerFlow}>
+        <FlowStep done title="Choose one quest" body={selectedChallenge.title} />
+        <FlowStep title="Play where you already play" body="Use a public Lichess or Chess.com game. No chess-site passwords." />
+        <FlowStep title="Get the receipt" body="The checker returns passed, failed, or pending with a shareable proof card." />
+      </View>
+    </View>
   );
 }
 
 function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
-  if (account?.authenticated && account.latestReceipt) {
+  if (isAuthenticatedAccount(account) && account.latestReceipt) {
     return (
-      <PlaceholderCard
+      <EmptyStateCard
         eyebrow="Latest proof receipt"
         title={account.latestReceipt.headline}
         body={account.latestReceipt.detail}
@@ -472,16 +490,19 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
   }
 
   return (
-    <PlaceholderCard
-      eyebrow="Proof contract"
-      title="Receipts and native sharing are API-ready next."
-      body="Proof images stay generated by the web backend. The app now has the account/proof-status shape needed before adding Android native sharing."
-      facts={[
-        ["Proof copy", selectedChallenge.proofCallout],
-        ["Coat of arms", selectedChallenge.badgeIdentity.name],
-        ["Native target", "Android share sheet first, iOS after distribution setup."],
-      ]}
-    />
+    <View style={styles.proofScrollCard}>
+      <View style={styles.proofSeal}>
+        <Text style={styles.proofSealText}>SQC</Text>
+      </View>
+      <Text style={styles.eyebrow}>Proof scroll preview</Text>
+      <Text style={styles.proofTitle}>{selectedChallenge.title}</Text>
+      <Text style={styles.proofSubtitle}>Unlocks {selectedChallenge.badgeIdentity.name}</Text>
+      <Text style={styles.proofBody}>{selectedChallenge.proofCallout}</Text>
+      <View style={styles.factGrid}>
+        <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
+        <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
+      </View>
+    </View>
   );
 }
 
@@ -497,17 +518,30 @@ function ErrorCard({ error, onRetry }: { error: string; onRetry: () => void }) {
   );
 }
 
-function QuestPill({ challenge, active, onPress }: { challenge: MobileChallenge; active: boolean; onPress: () => void }) {
+function QuestListCard({ challenge, active, index, onPress }: { challenge: MobileChallenge; active: boolean; index: number; onPress: () => void }) {
+  const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+
   return (
-    <Pressable style={[styles.questPill, active && styles.questPillActive]} onPress={onPress}>
-      <Text style={styles.questPillBadge}>{challenge.badgeIdentity.motif}</Text>
-      <Text style={styles.questPillTitle}>{challenge.title}</Text>
-      <Text style={styles.questPillMeta}>+{challenge.reward} · {challenge.difficulty}</Text>
+    <Pressable style={[styles.questListCard, active && styles.questListCardActive]} onPress={onPress}>
+      <View style={styles.questNumberPill}>
+        <Text style={styles.questNumber}>{String(index + 1).padStart(2, "0")}</Text>
+      </View>
+      <View style={styles.questListCopy}>
+        <Text style={styles.questListMode}>{challenge.difficulty} · +{challenge.reward}</Text>
+        <Text style={styles.questListTitle}>{challenge.title}</Text>
+        <Text style={styles.questListObjective}>{challenge.objective}</Text>
+        <Text style={styles.questListReward}>Coat of arms: {challenge.badgeIdentity.name}</Text>
+      </View>
+      <View style={styles.questListBadgeFrame}>
+        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.questListBadge} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+      </View>
     </Pressable>
   );
 }
 
-function QuestDetailCard({ challenge }: { challenge: MobileChallenge }) {
+function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChallenge; onSelectTab: (tab: AppTab) => void }) {
+  const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+
   return (
     <View style={styles.questCard}>
       <View style={styles.questCardHeader}>
@@ -516,16 +550,14 @@ function QuestDetailCard({ challenge }: { challenge: MobileChallenge }) {
           <Text style={styles.questTitle}>{challenge.title}</Text>
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
-        {challenge.badgeIdentity.imageUrl ? (
-          <Image source={{ uri: challenge.badgeIdentity.imageUrl }} style={styles.badgeImage} resizeMode="contain" />
-        ) : (
-          <View style={[styles.badgeFallback, { borderColor: challenge.badgeIdentity.colors.secondary }]}>
-            <Text style={styles.badgeFallbackText}>{challenge.badgeIdentity.motif}</Text>
-          </View>
-        )}
+        <View style={styles.badgeImageFrame}>
+          {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.badgeImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>{challenge.badgeIdentity.motif}</Text>}
+        </View>
       </View>
 
-      <Text style={styles.questFlavor}>{challenge.flavor}</Text>
+      <View style={styles.questFlavorCard}>
+        <Text style={styles.questFlavor}>{challenge.flavor}</Text>
+      </View>
 
       <View style={styles.factGrid}>
         <Fact label="Reward" value={`+${challenge.reward} points`} />
@@ -533,20 +565,29 @@ function QuestDetailCard({ challenge }: { challenge: MobileChallenge }) {
         <Fact label="Coat" value={challenge.badgeIdentity.name} />
       </View>
 
-      <Text style={styles.rulesTitle}>Rules</Text>
+      <Text style={styles.rulesTitle}>Rules of engagement</Text>
       {challenge.rules.map((rule) => (
         <Text key={rule} style={styles.rule}>• {rule}</Text>
       ))}
+
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.primaryButton} onPress={() => onSelectTab("status")}>
+          <Text style={styles.primaryButtonText}>See quest status</Text>
+        </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={() => onSelectTab("proof")}>
+          <Text style={styles.secondaryButtonText}>Preview proof</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
-function PlaceholderCard({ eyebrow, title, body, facts }: { eyebrow: string; title: string; body: string; facts: Array<[string, string]> }) {
+function EmptyStateCard({ eyebrow, title, body, facts }: { eyebrow: string; title: string; body: string; facts: Array<[string, string]> }) {
   return (
-    <View style={styles.placeholderCard}>
+    <View style={styles.panelCard}>
       <Text style={styles.eyebrow}>{eyebrow}</Text>
-      <Text style={styles.placeholderTitle}>{title}</Text>
-      <Text style={styles.placeholderBody}>{body}</Text>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.cardBody}>{body}</Text>
       <View style={styles.factGrid}>
         {facts.map(([label, value]) => (
           <Fact key={label} label={label} value={value} />
@@ -567,6 +608,24 @@ function SyncCard({ bootstrap }: { bootstrap: MobileBootstrap }) {
   );
 }
 
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.miniStat}>
+      <Text style={styles.miniStatLabel}>{label}</Text>
+      <Text style={styles.miniStatValue} numberOfLines={1}>{value}</Text>
+    </View>
+  );
+}
+
+function BigScore({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.bigScore}>
+      <Text style={styles.bigScoreValue}>{value}</Text>
+      <Text style={styles.bigScoreLabel}>{label}</Text>
+    </View>
+  );
+}
+
 function Fact({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.fact}>
@@ -576,73 +635,143 @@ function Fact({ label, value }: { label: string; value: string }) {
   );
 }
 
-function FlowStep({ label, done = false }: { label: string; done?: boolean }) {
-  return <Text style={styles.flowStep}>{done ? "✓" : "○"} {label}</Text>;
+function FlowStep({ title, body, done = false }: { title: string; body: string; done?: boolean }) {
+  return (
+    <View style={[styles.flowStep, done && styles.flowStepDone]}>
+      <Text style={styles.flowCheck}>{done ? "✓" : "○"}</Text>
+      <View style={styles.flowCopy}>
+        <Text style={styles.flowTitle}>{title}</Text>
+        <Text style={styles.flowBody}>{body}</Text>
+      </View>
+    </View>
+  );
 }
 
+function isAuthenticatedAccount(account: MobileAccountResponse | null): account is MobileAccountState {
+  return Boolean(account?.authenticated);
+}
+
+function absoluteAssetUrl(url: string) {
+  if (url.startsWith("http")) return url;
+  return `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
+const colors = {
+  bg: "#060507",
+  paper: "#fff7e8",
+  muted: "#c7bda9",
+  gold: "#f5c86a",
+  green: "#60f0af",
+  red: "#ff7a66",
+  panel: "rgba(255,255,255,.075)",
+  panelStrong: "rgba(255,255,255,.11)",
+  stroke: "rgba(255,255,255,.14)",
+};
+
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#060507" },
-  screen: { flex: 1, backgroundColor: "#060507" },
-  content: { gap: 18, padding: 18, paddingBottom: 34 },
-  screenStack: { gap: 16 },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
+  screen: { flex: 1, backgroundColor: colors.bg },
+  content: { gap: 18, padding: 16, paddingBottom: 34 },
+  screenStack: { gap: 14 },
   heroCard: {
-    gap: 10,
-    padding: 22,
-    borderRadius: 28,
+    overflow: "hidden",
+    gap: 18,
+    padding: 18,
+    borderRadius: 30,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,.14)",
-    backgroundColor: "rgba(255,255,255,.08)",
+    borderColor: "rgba(245,200,106,.3)",
+    backgroundColor: "#111016",
   },
-  eyebrow: { color: "#f5c86a", fontSize: 11, fontWeight: "900", letterSpacing: 1.2, textTransform: "uppercase" },
-  title: { color: "#fff7e8", fontSize: 46, fontWeight: "900", letterSpacing: -3, lineHeight: 44 },
-  buildLabel: { alignSelf: "flex-start", color: "#111", fontSize: 12, fontWeight: "900", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: "#f5c86a" },
-  heroCopy: { color: "#c7bda9", fontSize: 16, lineHeight: 23 },
+  heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
+  heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
+  navBrandRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  logoMark: { width: 42, height: 42, borderRadius: 14 },
+  navBrandCopy: { flex: 1 },
+  navKicker: { color: colors.paper, fontWeight: "900", fontSize: 15, letterSpacing: -0.2 },
+  navSub: { color: colors.muted, fontWeight: "800", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.8 },
+  buildPill: { maxWidth: 112, color: "#111", fontSize: 10, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.gold, overflow: "hidden" },
+  heroMainRow: { flexDirection: "row", gap: 12, alignItems: "center" },
+  heroCopyBlock: { flex: 1, gap: 9 },
+  eyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", letterSpacing: 1.2, textTransform: "uppercase" },
+  title: { color: colors.paper, fontSize: 42, fontWeight: "900", letterSpacing: -2.8, lineHeight: 40 },
+  heroCopy: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  heroBadgeFrame: { width: 104, height: 122, alignItems: "center", justifyContent: "center", borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.28)" },
+  heroBadgeImage: { width: 98, height: 112 },
+  heroBadgeGlyph: { color: colors.gold, fontSize: 54, fontWeight: "900" },
+  heroStatsRow: { flexDirection: "row", gap: 10 },
+  miniStat: { flex: 1, gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.28)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
+  miniStatLabel: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
+  miniStatValue: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   loadingCard: { alignItems: "center", gap: 12, padding: 24 },
-  muted: { color: "#c7bda9" },
+  muted: { color: colors.muted },
   errorCard: { gap: 10, padding: 18, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,122,102,.44)", backgroundColor: "rgba(255,122,102,.1)" },
   errorTitle: { color: "#ffd6cf", fontSize: 18, fontWeight: "900" },
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
-  primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: "#f5c86a" },
+  primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonText: { color: "#111", fontWeight: "900" },
   secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
-  secondaryButtonText: { color: "#fff7e8", fontWeight: "900" },
+  secondaryButtonText: { color: colors.paper, fontWeight: "900" },
   tabRail: { gap: 8, paddingRight: 18 },
-  tabPill: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.07)" },
+  tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,255,255,.07)" },
   tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },
-  tabText: { color: "#c7bda9", fontWeight: "900" },
-  tabTextActive: { color: "#fff7e8" },
-  sectionHeader: { gap: 6 },
-  sectionTitle: { color: "#fff7e8", fontSize: 22, fontWeight: "900", letterSpacing: -0.7 },
-  questRail: { gap: 10, paddingRight: 18 },
-  questPill: { width: 180, gap: 7, padding: 14, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.07)" },
-  questPillActive: { borderColor: "rgba(245,200,106,.72)", backgroundColor: "rgba(245,200,106,.14)" },
-  questPillBadge: { color: "#f5c86a", fontSize: 28 },
-  questPillTitle: { color: "#fff7e8", fontSize: 16, fontWeight: "900" },
-  questPillMeta: { color: "#60f0af", fontSize: 12, fontWeight: "800" },
-  queueCard: { gap: 9, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.2)", backgroundColor: "rgba(96,240,175,.07)" },
-  queueTitle: { color: "#fff7e8", fontSize: 18, fontWeight: "900" },
-  flowStep: { color: "#c7bda9", fontSize: 14, lineHeight: 21, fontWeight: "700" },
-  questCard: { gap: 16, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.075)" },
+  tabIcon: { color: colors.muted, fontWeight: "900" },
+  tabText: { color: colors.muted, fontWeight: "900" },
+  tabTextActive: { color: colors.paper },
+  sectionHeader: { gap: 6, paddingHorizontal: 2 },
+  sectionTitle: { color: colors.paper, fontSize: 25, fontWeight: "900", letterSpacing: -1.1, lineHeight: 28 },
+  sectionBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  questListCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 26, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
+  questListCardActive: { borderColor: "rgba(245,200,106,.72)", backgroundColor: "rgba(245,200,106,.13)" },
+  questNumberPill: { width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 17, backgroundColor: "rgba(0,0,0,.32)" },
+  questNumber: { color: colors.gold, fontWeight: "900", fontSize: 12 },
+  questListCopy: { flex: 1, gap: 4 },
+  questListMode: { color: colors.green, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  questListTitle: { color: colors.paper, fontSize: 19, lineHeight: 21, fontWeight: "900", letterSpacing: -0.7 },
+  questListObjective: { color: colors.muted, fontSize: 13, lineHeight: 18 },
+  questListReward: { color: colors.gold, fontSize: 12, fontWeight: "800" },
+  questListBadgeFrame: { width: 68, height: 78, alignItems: "center", justifyContent: "center" },
+  questListBadge: { width: 68, height: 78 },
+  questListGlyph: { color: colors.gold, fontSize: 32 },
+  questCard: { gap: 16, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
   questCardHeader: { flexDirection: "row", gap: 14, alignItems: "center" },
   questCardCopy: { flex: 1, gap: 8 },
-  questTitle: { color: "#fff7e8", fontSize: 32, fontWeight: "900", letterSpacing: -1.6, lineHeight: 32 },
-  questObjective: { color: "#c7bda9", fontSize: 16, lineHeight: 22 },
-  badgeImage: { width: 108, height: 108 },
-  badgeFallback: { width: 92, height: 104, alignItems: "center", justifyContent: "center", borderRadius: 28, borderWidth: 4, backgroundColor: "rgba(0,0,0,.22)" },
-  badgeFallbackText: { color: "#f5c86a", fontSize: 34, fontWeight: "900" },
-  questFlavor: { color: "#fff7e8", fontSize: 15, fontWeight: "700", lineHeight: 22 },
+  questTitle: { color: colors.paper, fontSize: 32, fontWeight: "900", letterSpacing: -1.6, lineHeight: 32 },
+  questObjective: { color: colors.muted, fontSize: 16, lineHeight: 22 },
+  badgeImageFrame: { width: 112, height: 128, alignItems: "center", justifyContent: "center", borderRadius: 30, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  badgeImage: { width: 104, height: 120 },
+  badgeFallbackText: { color: colors.gold, fontSize: 34, fontWeight: "900" },
+  questFlavorCard: { padding: 14, borderRadius: 20, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
+  questFlavor: { color: colors.paper, fontSize: 15, fontWeight: "700", lineHeight: 22 },
   factGrid: { gap: 8 },
-  fact: { gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)" },
-  factLabel: { color: "#f5c86a", fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
-  factValue: { color: "#fff7e8", fontSize: 14, fontWeight: "800" },
-  rulesTitle: { color: "#fff7e8", fontSize: 18, fontWeight: "900" },
-  rule: { color: "#c7bda9", fontSize: 14, lineHeight: 21 },
-  placeholderCard: { gap: 14, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.075)" },
+  fact: { gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,255,255,.06)" },
+  factLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  factValue: { color: colors.paper, fontSize: 14, fontWeight: "800" },
+  rulesTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
+  rule: { color: colors.muted, fontSize: 14, lineHeight: 21 },
   authCard: { gap: 10, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
-  placeholderTitle: { color: "#fff7e8", fontSize: 26, fontWeight: "900", letterSpacing: -1.1, lineHeight: 29 },
-  placeholderBody: { color: "#c7bda9", fontSize: 15, lineHeight: 22 },
+  panelCard: { gap: 14, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
+  cardTitle: { color: colors.paper, fontSize: 25, fontWeight: "900", letterSpacing: -1.1, lineHeight: 28 },
+  cardBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  scoreboardRow: { flexDirection: "row", gap: 8 },
+  bigScore: { flex: 1, alignItems: "center", gap: 2, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.24)" },
+  bigScoreValue: { color: colors.gold, fontSize: 25, fontWeight: "900" },
+  bigScoreLabel: { color: colors.paper, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  checkerFlow: { gap: 10 },
+  flowStep: { flexDirection: "row", gap: 10, padding: 13, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
+  flowStepDone: { borderColor: "rgba(96,240,175,.34)", backgroundColor: "rgba(96,240,175,.08)" },
+  flowCheck: { color: colors.green, fontSize: 17, fontWeight: "900" },
+  flowCopy: { flex: 1, gap: 3 },
+  flowTitle: { color: colors.paper, fontWeight: "900", fontSize: 15 },
+  flowBody: { color: colors.muted, lineHeight: 19 },
+  proofScrollCard: { gap: 12, padding: 20, paddingTop: 48, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(255,247,232,.1)" },
+  proofSeal: { position: "absolute", top: 14, right: 16, width: 54, height: 54, alignItems: "center", justifyContent: "center", borderRadius: 27, backgroundColor: "#9e1d24", borderWidth: 2, borderColor: "rgba(255,255,255,.28)" },
+  proofSealText: { color: "#ffe3b3", fontWeight: "900", fontSize: 13 },
+  proofTitle: { color: colors.paper, fontSize: 31, lineHeight: 33, letterSpacing: -1.4, fontWeight: "900" },
+  proofSubtitle: { color: colors.gold, fontSize: 16, fontWeight: "900" },
+  proofBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  buttonRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   syncCard: { gap: 8, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
-  syncTitle: { color: "#fff7e8", fontSize: 20, fontWeight: "900" },
-  syncCopy: { color: "#c7bda9", lineHeight: 21 },
+  syncTitle: { color: colors.paper, fontSize: 20, fontWeight: "900" },
+  syncCopy: { color: colors.muted, lineHeight: 21 },
   microcopy: { color: "rgba(199,189,169,.76)", fontSize: 11 },
 });
