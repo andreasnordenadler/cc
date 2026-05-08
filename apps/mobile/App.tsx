@@ -41,7 +41,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android alpha 0.2.0 / design parity";
+const MOBILE_BUILD_LABEL = "Android alpha 0.2.1 / polish pass";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -296,6 +296,10 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
           <Fact label="Needed env" value="EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY" />
           <Fact label="Redirect" value={mobileOAuthRedirectUrl} />
         </View>
+        <View style={styles.noticeStrip}>
+          <Text style={styles.noticeIcon}>🛡</Text>
+          <Text style={styles.noticeCopy}>No dead end: every public quest screen is usable before native Clerk verification lands.</Text>
+        </View>
       </View>
     );
   }
@@ -320,6 +324,10 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
           </Pressable>
         ) : null}
+        <View style={styles.noticeStrip}>
+          <Text style={styles.noticeIcon}>⚙</Text>
+          <Text style={styles.noticeCopy}>If the native handoff fails, keep browsing: account data stays website-owned and safe.</Text>
+        </View>
       </SignedOut>
       {authActionError ? <Text style={styles.errorCopy}>{authActionError}</Text> : null}
     </View>
@@ -387,6 +395,11 @@ function CatalogScreen({
         <Text style={styles.sectionBody}>Choose a quest based on your tolerance for terrible chess decisions.</Text>
       </View>
 
+      <View style={styles.catalogQuickStats}>
+        <MiniStat label="Live quests" value={`${bootstrap.challenges.length}`} />
+        <MiniStat label="Selected" value={selectedChallenge.badgeIdentity.name} />
+      </View>
+
       {bootstrap.challenges.map((challenge, index) => (
         <QuestListCard
           key={challenge.id}
@@ -440,6 +453,8 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
         <Fact label="Lichess" value={account.chessAccounts.lichessUsername ?? "Not connected"} />
         <Fact label="Chess.com" value={account.chessAccounts.chessComUsername ?? "Not connected"} />
       </View>
+      <QuestProgressStrip completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
+      <CompletedQuestShelf account={account} />
     </View>
   );
 }
@@ -447,16 +462,22 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
 function StatusShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
   if (isAuthenticatedAccount(account) && account.activeQuest) {
     return (
-      <EmptyStateCard
-        eyebrow="Quest status"
-        title={account.activeQuest.completed ? "Quest completed." : account.activeQuest.title}
-        body={account.activeQuest.banner}
-        facts={[
-          ["Status", account.activeQuest.status],
-          ["Started", account.activeQuest.startedAt ? new Date(account.activeQuest.startedAt).toLocaleString() : "Not started"],
-          ["Latest receipt", account.latestReceipt?.headline ?? "No latest check yet"],
-        ]}
-      />
+      <View style={styles.panelCard}>
+        <Text style={styles.eyebrow}>Quest status</Text>
+        <Text style={styles.cardTitle}>{account.activeQuest.completed ? "Quest completed." : account.activeQuest.title}</Text>
+        <Text style={styles.cardBody}>{account.activeQuest.banner}</Text>
+        <View style={styles.statusRibbon}>
+          <Text style={styles.statusRibbonIcon}>{account.activeQuest.completed ? "🏆" : "⚔"}</Text>
+          <View style={styles.statusRibbonCopy}>
+            <Text style={styles.statusRibbonTitle}>{account.activeQuest.status}</Text>
+            <Text style={styles.statusRibbonBody}>{account.latestReceipt?.headline ?? "No latest check yet"}</Text>
+          </View>
+        </View>
+        <View style={styles.factGrid}>
+          <Fact label="Started" value={account.activeQuest.startedAt ? new Date(account.activeQuest.startedAt).toLocaleString() : "Not started"} />
+          <Fact label="Verified" value={account.activeQuest.verifiedAt ? new Date(account.activeQuest.verifiedAt).toLocaleString() : "Waiting for proof"} />
+        </View>
+      </View>
     );
   }
 
@@ -476,16 +497,20 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
 function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
   if (isAuthenticatedAccount(account) && account.latestReceipt) {
     return (
-      <EmptyStateCard
-        eyebrow="Latest proof receipt"
-        title={account.latestReceipt.headline}
-        body={account.latestReceipt.detail}
-        facts={[
-          ["Game", account.latestReceipt.gameId ?? "No game id"],
-          ["Provider", account.latestReceipt.provider ?? "Unknown"],
-          ["Updated", account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"],
-        ]}
-      />
+      <View style={styles.proofScrollCard}>
+        <View style={styles.proofSeal}>
+          <Text style={styles.proofSealText}>{account.latestReceipt.status === "passed" ? "PASS" : "SQC"}</Text>
+        </View>
+        <Text style={styles.eyebrow}>Latest proof receipt</Text>
+        <Text style={styles.proofTitle}>{account.latestReceipt.headline}</Text>
+        <Text style={styles.proofBody}>{account.latestReceipt.detail}</Text>
+        <Text style={styles.microcopy}>{account.latestReceipt.meta}</Text>
+        <View style={styles.factGrid}>
+          <Fact label="Game" value={account.latestReceipt.gameId ?? "No game id"} />
+          <Fact label="Provider" value={account.latestReceipt.provider ?? "Unknown"} />
+          <Fact label="Updated" value={account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"} />
+        </View>
+      </View>
     );
   }
 
@@ -530,7 +555,10 @@ function QuestListCard({ challenge, active, index, onPress }: { challenge: Mobil
         <Text style={styles.questListMode}>{challenge.difficulty} · +{challenge.reward}</Text>
         <Text style={styles.questListTitle}>{challenge.title}</Text>
         <Text style={styles.questListObjective}>{challenge.objective}</Text>
-        <Text style={styles.questListReward}>Coat of arms: {challenge.badgeIdentity.name}</Text>
+        <View style={styles.questMetaRow}>
+          <Text style={styles.questListReward}>Coat of arms: {challenge.badgeIdentity.name}</Text>
+          <Text style={styles.rarityPill}>{challenge.badgeIdentity.rarity}</Text>
+        </View>
       </View>
       <View style={styles.questListBadgeFrame}>
         {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.questListBadge} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
@@ -559,11 +587,20 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
         <Text style={styles.questFlavor}>{challenge.flavor}</Text>
       </View>
 
+      <View style={styles.questInstructionCard}>
+        <Text style={styles.instructionLabel}>Mobile mission brief</Text>
+        <Text style={styles.instructionCopy}>{challenge.instruction}</Text>
+        <Text style={styles.openingHint}>{challenge.openingHint}</Text>
+      </View>
+
       <View style={styles.factGrid}>
         <Fact label="Reward" value={`+${challenge.reward} points`} />
         <Fact label="Proof" value={challenge.proofCallout} />
         <Fact label="Coat" value={challenge.badgeIdentity.name} />
+        <Fact label="Completion" value={challenge.completionRate} />
       </View>
+
+      <HeraldryCard challenge={challenge} />
 
       <Text style={styles.rulesTitle}>Rules of engagement</Text>
       {challenge.rules.map((rule) => (
@@ -578,6 +615,71 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
           <Text style={styles.secondaryButtonText}>Preview proof</Text>
         </Pressable>
       </View>
+    </View>
+  );
+}
+
+function HeraldryCard({ challenge }: { challenge: MobileChallenge }) {
+  return (
+    <View style={styles.heraldryCard}>
+      <View style={styles.heraldryHeader}>
+        <Text style={styles.heraldryGlyph}>{challenge.badgeIdentity.motif}</Text>
+        <View style={styles.heraldryHeaderCopy}>
+          <Text style={styles.eyebrow}>Coat of arms reward</Text>
+          <Text style={styles.heraldryTitle}>{challenge.badgeIdentity.name}</Text>
+          <Text style={styles.heraldryMotto}>“{challenge.badgeIdentity.heraldry.motto}”</Text>
+        </View>
+      </View>
+      <Text style={styles.cardBody}>{challenge.badgeIdentity.unlockCopy}</Text>
+      <View style={styles.factGrid}>
+        <Fact label="Shield" value={challenge.badgeIdentity.heraldry.shield} />
+        <Fact label="Charge" value={challenge.badgeIdentity.heraldry.charge} />
+        <Fact label="Meaning" value={challenge.badgeIdentity.heraldry.meaning} />
+      </View>
+    </View>
+  );
+}
+
+function QuestProgressStrip({ completed, total }: { completed: number; total: number }) {
+  const safeTotal = Math.max(total, 1);
+  const percent = Math.min(100, Math.round((completed / safeTotal) * 100));
+
+  return (
+    <View style={styles.progressCard}>
+      <View style={styles.progressHeader}>
+        <Text style={styles.progressTitle}>Quest log progress</Text>
+        <Text style={styles.progressPercent}>{percent}%</Text>
+      </View>
+      <View style={styles.progressTrack}>
+        <View style={[styles.progressFill, { width: `${percent}%` }]} />
+      </View>
+      <Text style={styles.microcopy}>{completed} of {total} coats earned on this account.</Text>
+    </View>
+  );
+}
+
+function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
+  if (account.completedQuests.length === 0) {
+    return (
+      <View style={styles.noticeStrip}>
+        <Text style={styles.noticeIcon}>♜</Text>
+        <Text style={styles.noticeCopy}>No completed coats yet. Finish one quest and this turns into a mobile trophy shelf.</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.trophyShelf}>
+      <Text style={styles.eyebrow}>Recent coats</Text>
+      {account.completedQuests.slice(0, 3).map((quest) => (
+        <View key={quest.id} style={styles.trophyRow}>
+          <View style={styles.trophyBadge}>{quest.badgeImageUrl ? <Image source={{ uri: absoluteAssetUrl(quest.badgeImageUrl) }} style={styles.trophyImage} resizeMode="contain" /> : <Text style={styles.trophyGlyph}>♛</Text>}</View>
+          <View style={styles.trophyCopy}>
+            <Text style={styles.trophyTitle}>{quest.title}</Text>
+            <Text style={styles.trophyMeta}>{quest.badgeName} · +{quest.reward}</Text>
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
@@ -729,6 +831,8 @@ const styles = StyleSheet.create({
   questListTitle: { color: colors.paper, fontSize: 19, lineHeight: 21, fontWeight: "900", letterSpacing: -0.7 },
   questListObjective: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   questListReward: { color: colors.gold, fontSize: 12, fontWeight: "800" },
+  questMetaRow: { gap: 6, alignItems: "flex-start" },
+  rarityPill: { overflow: "hidden", alignSelf: "flex-start", color: colors.paper, fontSize: 10, fontWeight: "900", textTransform: "uppercase", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,.1)" },
   questListBadgeFrame: { width: 68, height: 78, alignItems: "center", justifyContent: "center" },
   questListBadge: { width: 68, height: 78 },
   questListGlyph: { color: colors.gold, fontSize: 32 },
@@ -742,6 +846,11 @@ const styles = StyleSheet.create({
   badgeFallbackText: { color: colors.gold, fontSize: 34, fontWeight: "900" },
   questFlavorCard: { padding: 14, borderRadius: 20, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
   questFlavor: { color: colors.paper, fontSize: 15, fontWeight: "700", lineHeight: 22 },
+  questInstructionCard: { gap: 6, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  instructionLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1 },
+  instructionCopy: { color: colors.paper, fontSize: 15, fontWeight: "800", lineHeight: 22 },
+  openingHint: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  catalogQuickStats: { flexDirection: "row", gap: 10 },
   factGrid: { gap: 8 },
   fact: { gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,255,255,.06)" },
   factLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
@@ -756,6 +865,34 @@ const styles = StyleSheet.create({
   bigScore: { flex: 1, alignItems: "center", gap: 2, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.24)" },
   bigScoreValue: { color: colors.gold, fontSize: 25, fontWeight: "900" },
   bigScoreLabel: { color: colors.paper, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  noticeStrip: { flexDirection: "row", gap: 10, alignItems: "center", padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
+  noticeIcon: { fontSize: 18 },
+  noticeCopy: { flex: 1, color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
+  heraldryCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(151,70,255,.11)", borderWidth: 1, borderColor: "rgba(151,70,255,.28)" },
+  heraldryHeader: { flexDirection: "row", gap: 12, alignItems: "center" },
+  heraldryGlyph: { width: 46, height: 46, textAlign: "center", textAlignVertical: "center", color: colors.gold, fontSize: 26, fontWeight: "900", borderRadius: 23, backgroundColor: "rgba(0,0,0,.26)", overflow: "hidden" },
+  heraldryHeaderCopy: { flex: 1, gap: 3 },
+  heraldryTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.6 },
+  heraldryMotto: { color: colors.gold, fontSize: 13, fontWeight: "800" },
+  progressCard: { gap: 9, padding: 14, borderRadius: 20, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(96,240,175,.2)" },
+  progressHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  progressTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
+  progressPercent: { color: colors.green, fontSize: 15, fontWeight: "900" },
+  progressTrack: { overflow: "hidden", height: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,.09)" },
+  progressFill: { height: 10, borderRadius: 999, backgroundColor: colors.green },
+  trophyShelf: { gap: 10, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.08)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  trophyRow: { flexDirection: "row", gap: 10, alignItems: "center" },
+  trophyBadge: { width: 46, height: 52, alignItems: "center", justifyContent: "center", borderRadius: 16, backgroundColor: "rgba(0,0,0,.24)" },
+  trophyImage: { width: 42, height: 48 },
+  trophyGlyph: { color: colors.gold, fontSize: 22 },
+  trophyCopy: { flex: 1, gap: 2 },
+  trophyTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
+  trophyMeta: { color: colors.muted, fontSize: 12, fontWeight: "800" },
+  statusRibbon: { flexDirection: "row", gap: 12, alignItems: "center", padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.2)" },
+  statusRibbonIcon: { fontSize: 27 },
+  statusRibbonCopy: { flex: 1, gap: 3 },
+  statusRibbonTitle: { color: colors.paper, fontSize: 17, fontWeight: "900", textTransform: "uppercase" },
+  statusRibbonBody: { color: colors.muted, lineHeight: 19 },
   checkerFlow: { gap: 10 },
   flowStep: { flexDirection: "row", gap: 10, padding: 13, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
   flowStepDone: { borderColor: "rgba(96,240,175,.34)", backgroundColor: "rgba(96,240,175,.08)" },
