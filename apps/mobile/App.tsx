@@ -41,6 +41,14 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
+const MOBILE_BUILD_LABEL = "Android alpha 0.1.2 / build 3";
+const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
+  apiVersion: 1,
+  authenticated: false,
+  signInUrl: "https://sidequestchess.com/sign-in",
+  message: "Public quest catalog is available. Mobile account sync starts after auth is ready.",
+};
+
 WebBrowser.maybeCompleteAuthSession();
 
 const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
@@ -130,22 +138,11 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setShell((current) => ({ ...current, loading: !refresh, refreshing: refresh }));
 
     try {
-      const sessionToken = authBridge.isLoaded && authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
-      const [nextBootstrap, nextAccount] = await Promise.all([
-        fetchMobileBootstrap(),
-        authBridge.isLoaded
-          ? fetchMobileAccountState(sessionToken)
-          : Promise.resolve<MobileAccountResponse>({
-              apiVersion: 1,
-              authenticated: false,
-              signInUrl: "https://sidequestchess.com/sign-in",
-              message: "Mobile auth is still starting. The public quest catalog is available now.",
-            }),
-      ]);
+      const nextBootstrap = await fetchMobileBootstrap();
       setShell((current) => ({
         ...current,
         bootstrap: nextBootstrap,
-        account: nextAccount,
+        account: current.account ?? MOBILE_ACCOUNT_FALLBACK,
         selectedChallengeId: current.selectedChallengeId ?? nextBootstrap.challenges[0]?.id ?? null,
         loading: false,
         refreshing: false,
@@ -159,11 +156,30 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         error: caught instanceof Error ? caught.message : "Could not load Side Quest Chess.",
       }));
     }
+  }, []);
+
+  const loadAccount = useCallback(async () => {
+    if (!authBridge.isLoaded) {
+      setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK }));
+      return;
+    }
+
+    try {
+      const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
+      const nextAccount = await fetchMobileAccountState(sessionToken);
+      setShell((current) => ({ ...current, account: nextAccount }));
+    } catch {
+      setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK }));
+    }
   }, [authBridge]);
 
   useEffect(() => {
     void loadBootstrap();
   }, [loadBootstrap]);
+
+  useEffect(() => {
+    void loadAccount();
+  }, [loadAccount]);
 
   function selectChallenge(challengeId: string, nextTab: AppTab = "quest") {
     setShell((current) => ({ ...current, selectedChallengeId: challengeId, activeTab: nextTab }));
@@ -217,6 +233,7 @@ function HeaderCard() {
     <View style={styles.heroCard}>
       <Text style={styles.eyebrow}>Android alpha shell</Text>
       <Text style={styles.title}>Side Quest Chess</Text>
+      <Text style={styles.buildLabel}>{MOBILE_BUILD_LABEL}</Text>
       <Text style={styles.heroCopy}>
         Expo app structure for catalog, quest detail, account, status, and proof flows — all fed by sidequestchess.com where the backend contract already exists.
       </Text>
@@ -578,6 +595,7 @@ const styles = StyleSheet.create({
   },
   eyebrow: { color: "#f5c86a", fontSize: 11, fontWeight: "900", letterSpacing: 1.2, textTransform: "uppercase" },
   title: { color: "#fff7e8", fontSize: 46, fontWeight: "900", letterSpacing: -3, lineHeight: 44 },
+  buildLabel: { alignSelf: "flex-start", color: "#111", fontSize: 12, fontWeight: "900", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: "#f5c86a" },
   heroCopy: { color: "#c7bda9", fontSize: 16, lineHeight: 23 },
   loadingCard: { alignItems: "center", gap: 12, padding: 24 },
   muted: { color: "#c7bda9" },

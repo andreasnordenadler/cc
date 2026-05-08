@@ -72,3 +72,19 @@ Verification:
 Remaining known issue:
 
 - Logcat still reports Clerk: `The Native API is disabled for this instance.` Native sign-in will remain blocked until Clerk Native API is enabled in the dashboard.
+
+## Build 3 hard split after real-device repeat loading report
+Andreas reported build `2c311146-efc0-4d25-990e-d86d801125d6` still showed the same loading screen on his Android device. The startup loader was hardened again:
+
+- Catalog bootstrap is now fully independent from account/auth loading.
+- Account loading runs as a separate background effect and cannot block the public quest catalog.
+- A visible build marker was added to the header: `Android alpha 0.1.2 / build 3`.
+- Android version was bumped to `0.1.2`, `versionCode: 3`, so Android should install it as a clear upgrade rather than reusing a same-version APK.
+
+Verification:
+
+- `pnpm --filter @sidequestchess/mobile typecheck` passed.
+- Android `expo export` passed.
+- `pnpm lint` passed with existing warnings only.
+- EAS Android alpha build completed: `https://expo.dev/accounts/and72nor/projects/side-quest-chess/builds/733b2ee7-c599-4767-b97e-3664a02ed033`.
+- Installed build 3 on the Mac mini emulator via `adb install -r`; launch stayed alive, no `FATAL EXCEPTION`, and screenshot confirmed both the visible build marker and loaded `LIVE CATALOG` with 11 side quests. Screenshot artifact: `tmp/sqc-build3-screen.png` (not committed).
