@@ -42,7 +42,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android alpha 0.2.1 / polish pass";
+const MOBILE_BUILD_LABEL = "Android alpha 0.2.2 / polish pass 3";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -203,7 +203,12 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       >
         <HeroHeader selectedChallenge={selectedChallenge} completedCount={completedCount} activeQuestTitle={activeQuestTitle} />
 
-        {shell.bootstrap && selectedChallenge ? <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} /> : null}
+        {shell.bootstrap && selectedChallenge ? (
+          <>
+            <QuickStartCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
+            <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
+          </>
+        ) : null}
 
         <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
 
@@ -270,6 +275,46 @@ function HeroHeader({ selectedChallenge, completedCount, activeQuestTitle }: { s
   );
 }
 
+function QuickStartCard({
+  selectedChallenge,
+  account,
+  authBridge,
+  onSelectTab,
+}: {
+  selectedChallenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectTab: (tab: AppTab) => void;
+}) {
+  const accountMode = isAuthenticatedAccount(account)
+    ? `Signed in · ${account.progress.totalCompletedChallenges} coats earned`
+    : authBridge.configured
+      ? "Website-owned account sync is ready after Google sign-in"
+      : "Public mode · Clerk key not bundled in this APK";
+
+  return (
+    <View style={styles.quickStartCard}>
+      <View style={styles.quickStartCopy}>
+        <Text style={styles.eyebrow}>Start here</Text>
+        <Text style={styles.quickStartTitle}>{selectedChallenge.title}</Text>
+        <Text style={styles.quickStartBody} numberOfLines={2}>{selectedChallenge.objective}</Text>
+      </View>
+      <View style={styles.quickActionStack}>
+        <Pressable style={styles.primaryButtonWide} onPress={() => onSelectTab("quest")}>
+          <Text style={styles.primaryButtonText}>View mission</Text>
+        </Pressable>
+        <Pressable style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
+          <Text style={styles.secondaryButtonText}>Preview reward</Text>
+        </Pressable>
+      </View>
+      <View style={styles.accountModeStrip}>
+        <Text style={styles.accountModeDot}>●</Text>
+        <Text style={styles.accountModeCopy}>{accountMode}</Text>
+      </View>
+    </View>
+  );
+}
+
 function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridge: MobileAuthBridge; onAuthActionComplete: () => void }) {
   const [authActionPending, setAuthActionPending] = useState(false);
   const [authActionError, setAuthActionError] = useState<string | null>(null);
@@ -292,8 +337,8 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
     return (
       <View style={styles.authCard}>
         <Text style={styles.eyebrow}>Sign-in pending</Text>
-        <Text style={styles.cardTitle}>Quest catalog works now. Clerk can be attached tomorrow.</Text>
-        <Text style={styles.cardBody}>The app stays useful while mobile auth is disabled: browse quests, read rules, inspect coat-of-arms rewards, and keep the account/status/proof screens graceful.</Text>
+        <Text style={styles.cardTitle}>Public quest mode is active.</Text>
+        <Text style={styles.cardBody}>This build can browse quests and proof previews without a mobile session. Account sync unlocks after the Clerk publishable key and Native API are enabled for the APK.</Text>
         <View style={styles.factGrid}>
           <Fact label="Provider" value="Clerk Expo installed" />
           <Fact label="Needed env" value="EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY" />
@@ -301,7 +346,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         </View>
         <View style={styles.noticeStrip}>
           <Text style={styles.noticeIcon}>🛡</Text>
-          <Text style={styles.noticeCopy}>No dead end: every public quest screen is usable before native Clerk verification lands.</Text>
+          <Text style={styles.noticeCopy}>No dead end: start from the quest brief now; account, status, and proof screens explain what is website-owned until auth is live.</Text>
         </View>
       </View>
     );
@@ -431,7 +476,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
         body={
           signedInButRejected
             ? "The Expo Google session exists, but /api/mobile/account returned signed-out JSON. This keeps the app graceful until Clerk bearer verification is finalized."
-            : "Connect Clerk and your chess usernames on the website, then the app will show points, coats of arms, and account status here."
+            : "Use the website to sign in, connect chess usernames, and start real quests. This APK keeps catalog and proof previews available until native account sync is enabled."
         }
         facts={[
           ["Source", bootstrap.product.canonicalUrl],
@@ -526,6 +571,7 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
       <Text style={styles.proofTitle}>{selectedChallenge.title}</Text>
       <Text style={styles.proofSubtitle}>Unlocks {selectedChallenge.badgeIdentity.name}</Text>
       <Text style={styles.proofBody}>{selectedChallenge.proofCallout}</Text>
+      <Text style={styles.microcopy}>Preview only in public mode. Finish a website-backed quest and this becomes a shareable receipt with provider, game id, and verdict.</Text>
       <View style={styles.factGrid}>
         <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
         <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
@@ -816,9 +862,19 @@ const styles = StyleSheet.create({
   errorTitle: { color: "#ffd6cf", fontSize: 18, fontWeight: "900" },
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
   primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: colors.gold },
+  primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonText: { color: "#111", fontWeight: "900" },
   secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
+  secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
+  quickStartCard: { gap: 12, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,255,255,.08)" },
+  quickStartCopy: { gap: 5 },
+  quickStartTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -1, lineHeight: 25 },
+  quickStartBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  quickActionStack: { gap: 8 },
+  accountModeStrip: { flexDirection: "row", alignItems: "center", gap: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
+  accountModeDot: { color: colors.green, fontSize: 10 },
+  accountModeCopy: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "800" },
   tabRail: { gap: 8, paddingRight: 18 },
   tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,255,255,.07)" },
   tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },
