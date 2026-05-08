@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClerkProvider, SignedIn, SignedOut, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
+import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import {
   ActivityIndicator,
@@ -42,6 +43,11 @@ type MobileAuthBridge = {
 
 WebBrowser.maybeCompleteAuthSession();
 
+const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
+  scheme: "sidequestchess",
+  path: "sso-callback",
+});
+
 const TABS: Array<{ id: AppTab; label: string }> = [
   { id: "catalog", label: "Quests" },
   { id: "quest", label: "Detail" },
@@ -70,7 +76,10 @@ function ClerkMobileShell() {
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
 
   const startGoogleSignIn = useCallback(async () => {
-    const { createdSessionId, setActive } = await startSSOFlow({ strategy: "oauth_google" });
+    const { createdSessionId, setActive } = await startSSOFlow({
+      strategy: "oauth_google",
+      redirectUrl: mobileOAuthRedirectUrl,
+    });
 
     if (createdSessionId && setActive) {
       await setActive({ session: createdSessionId });
@@ -168,7 +177,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
       >
         <HeaderCard />
-        <MobileAuthSessionCard authBridge={authBridge} />
+        <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadBootstrap({ refresh: true })} />
 
         {shell.loading ? (
           <View style={styles.loadingCard}>
@@ -210,7 +219,7 @@ function HeaderCard() {
   );
 }
 
-function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge }) {
+function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridge: MobileAuthBridge; onAuthActionComplete: () => void }) {
   const [authActionPending, setAuthActionPending] = useState(false);
   const [authActionError, setAuthActionError] = useState<string | null>(null);
 
@@ -220,6 +229,7 @@ function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge })
 
     try {
       await action();
+      onAuthActionComplete();
     } catch (caught) {
       setAuthActionError(caught instanceof Error ? caught.message : "Mobile sign-in failed.");
     } finally {
@@ -236,6 +246,7 @@ function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge })
         facts={[
           ["Provider", "@clerk/clerk-expo"],
           ["Token cache", "Expo SecureStore"],
+          ["Allowed redirect", mobileOAuthRedirectUrl],
           ["Account fetch", "Adds Authorization: Bearer <session> when signed in"],
         ]}
       />
@@ -257,6 +268,7 @@ function MobileAuthSessionCard({ authBridge }: { authBridge: MobileAuthBridge })
       <SignedOut>
         <Text style={styles.placeholderTitle}>Signed-out mobile shell.</Text>
         <Text style={styles.placeholderBody}>Use Google sign-in to attach a Clerk session token, then reload account state from the backend.</Text>
+        <Text style={styles.microcopy}>Clerk redirect to allow: {mobileOAuthRedirectUrl}</Text>
         {authBridge.startGoogleSignIn ? (
           <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
@@ -354,15 +366,22 @@ function QuestDetailScreen({ challenge }: { challenge: MobileChallenge }) {
 
 function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge }) {
   if (!account || !account.authenticated) {
+    const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
+
     return (
       <PlaceholderCard
         eyebrow="Account contract"
-        title={authBridge.configured ? "Mobile session bridge is ready." : "Ready for mobile sign-in."}
-        body="The read-only account endpoint now exists. Account refreshes include a Clerk bearer token when the Expo session is signed in."
+        title={signedInButRejected ? "Backend did not accept the mobile bearer token yet." : authBridge.configured ? "Mobile session bridge is ready." : "Ready for mobile sign-in."}
+        body={
+          signedInButRejected
+            ? "The Expo Google session is present locally, but /api/mobile/account still returned signed-out JSON. That is the on-device signal to fix server-side Clerk bearer verification."
+            : "The read-only account endpoint now exists. Account refreshes include a Clerk bearer token when the Expo session is signed in."
+        }
         facts={[
           ["Endpoint", "/api/mobile/account"],
           ["Source", bootstrap.product.canonicalUrl],
-          ["Session", authBridge.isSignedIn ? "Clerk token attached" : "Signed out / no mobile token yet"],
+          ["Local session", authBridge.isSignedIn ? "Signed in with Clerk Expo" : "Signed out / no mobile token yet"],
+          ["API auth", account?.authenticated ? "Accepted" : "Signed-out response"],
         ]}
       />
     );

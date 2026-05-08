@@ -37,6 +37,17 @@ cp apps/mobile/.env.example apps/mobile/.env.local
 
 Then set `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` in `.env.local` or EAS environment variables. Do **not** commit Clerk secret keys. The current bridge uses `@clerk/clerk-expo` with Expo SecureStore token cache; account fetches attach `Authorization: Bearer <session token>` when Clerk reports a signed-in mobile session.
 
+For Android alpha Google SSO, allow this redirect URL in Clerk before testing the APK/dev client:
+
+```text
+sidequestchess://sso-callback
+```
+
+The app also displays that redirect in the auth card so an on-device tester can confirm the expected Clerk dashboard entry. After sign-in, the Account tab distinguishes between:
+
+- local Expo Clerk session present + `/api/mobile/account` accepted the bearer token (test pass), and
+- local Expo Clerk session present + `/api/mobile/account` still returned signed-out JSON (server bearer-verification blocker).
+
 ## Current scope
 
 This is the Android-alpha shell, not the finished app. It currently:
@@ -47,12 +58,13 @@ This is the Android-alpha shell, not the finished app. It currently:
 - fetches the read-only account/status/proof API and renders signed-out or authenticated state;
 - installs the Clerk Expo provider foundation and safely waits for `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` before enabling mobile sessions;
 - attaches a Clerk bearer token to account refreshes when a signed-in Expo session is available;
+- includes explicit Android SSO redirect configuration and an on-device bearer-auth acceptance/rejection signal;
 - documents the anti-drift rule in-app;
 - includes root EAS profiles for an internal Android APK alpha.
 
 Next app milestones:
 
-1. Add native Clerk sign-in/SSO actions and confirm whether the Next.js mobile API accepts the Expo bearer token directly or needs a dedicated Clerk request-auth helper.
+1. Run the Android app/APK with `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` configured and `sidequestchess://sso-callback` allowed in Clerk; confirm whether `/api/mobile/account` accepts the Expo bearer token directly or needs a dedicated server-side Clerk request-auth helper.
 2. Add chess username connection/update flow.
 3. Add start/check/reset quest actions.
 4. Add proof image viewer and native share sheet.
