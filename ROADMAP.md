@@ -61,7 +61,7 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
   - completed_at: 2026-05-08 08:43 Europe/Stockholm
   - source: Andreas suggested the proof/victory scroll should put the quest name on top instead of leading with the coat-of-arms name.
   - Proof: `VictoryScroll`, generated proof image route, and public proof page now lead with quest completion/title and show the coat-of-arms name as the unlocked reward beneath; proof doc: `docs/SQC_PROOF_SCROLL_QUEST_TITLE_FIRST_2026-05-08.md`.
-  - Verification: `pnpm lint`; `pnpm build`; production deploy/smoke pending.
+  - Verification: `pnpm lint`; `pnpm build`; production deploy to `https://cc-hzv6zht6x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous live smoke confirmed `/result`, `/challenges/finish-any-game`, and `/badges` return 200.
 
 - [x] Rename Proof Loop Test coat of arms to clearer non-idiomatic English.
   - added_at: 2026-05-08 08:29 Europe/Stockholm
