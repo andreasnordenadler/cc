@@ -56,7 +56,14 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
-Andreas clarified that these five items are still wanted and should be treated as the fresh post-reset SQC backlog:
+- [x] Rename Proof Loop Test coat of arms to clearer non-idiomatic English.
+  - added_at: 2026-05-08 08:29 Europe/Stockholm
+  - completed_at: 2026-05-08 08:36 Europe/Stockholm
+  - source: Andreas screenshot feedback: “The Rubber Stamp Rampart” is hard to understand, especially for non-native English speakers.
+  - Proof: `finish-any-game` badge identity now uses `The First Game Shield`, with simpler first-proof flavor, charge, motto, meaning, and weirdness copy; proof doc: `docs/SQC_PROOF_LOOP_TEST_CLEAR_BADGE_NAME_2026-05-08.md`.
+  - Verification: `pnpm lint`; `pnpm build`; production deploy/smoke pending.
+
+Andreas clarified that the previously listed items are still wanted and should be treated as the fresh post-reset SQC backlog; newer explicit requests are inserted above them:
 
 - [x] Record SQC web launch candidate baseline.
   - added_at: 2026-05-07 20:38 Europe/Stockholm
