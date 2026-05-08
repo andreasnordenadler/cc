@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
+import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
 type AppTab = "catalog" | "quest" | "account" | "status" | "proof";
@@ -29,7 +30,8 @@ type MobileShellState = {
   activeTab: AppTab;
   loading: boolean;
   refreshing: boolean;
-  error: string | null;
+  catalogMode: "live" | "offline";
+  catalogNotice: string | null;
 };
 
 type MobileAuthBridge = {
@@ -42,7 +44,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android alpha 0.2.2 / polish pass 3";
+const MOBILE_BUILD_LABEL = "Android alpha 0.2.3 / polish pass 4";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -127,7 +129,8 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     activeTab: "catalog",
     loading: true,
     refreshing: false,
-    error: null,
+    catalogMode: "live",
+    catalogNotice: null,
   });
 
   const selectedChallenge = useMemo(() => {
@@ -147,14 +150,20 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         selectedChallengeId: current.selectedChallengeId ?? nextBootstrap.challenges[0]?.id ?? null,
         loading: false,
         refreshing: false,
-        error: null,
+        catalogMode: "live",
+        catalogNotice: null,
       }));
     } catch (caught) {
+      const offlineReason = caught instanceof Error ? caught.message : "Network request failed.";
       setShell((current) => ({
         ...current,
+        bootstrap: current.bootstrap ?? OFFLINE_MOBILE_BOOTSTRAP,
+        account: current.account ?? MOBILE_ACCOUNT_FALLBACK,
+        selectedChallengeId: current.selectedChallengeId ?? OFFLINE_MOBILE_BOOTSTRAP.challenges[0]?.id ?? null,
         loading: false,
         refreshing: false,
-        error: caught instanceof Error ? caught.message : "Could not load Side Quest Chess.",
+        catalogMode: "offline",
+        catalogNotice: offlineReason,
       }));
     }
   }, []);
@@ -175,11 +184,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }, [authBridge]);
 
   useEffect(() => {
-    void loadBootstrap();
+    const bootstrapTimer = setTimeout(() => void loadBootstrap(), 0);
+    return () => clearTimeout(bootstrapTimer);
   }, [loadBootstrap]);
 
   useEffect(() => {
-    void loadAccount();
+    const accountTimer = setTimeout(() => void loadAccount(), 0);
+    return () => clearTimeout(accountTimer);
   }, [loadAccount]);
 
   function selectChallenge(challengeId: string, nextTab: AppTab = "quest") {
@@ -219,13 +230,14 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
-        {shell.error ? <ErrorCard error={shell.error} onRetry={() => void loadBootstrap()} /> : null}
+        {shell.catalogMode === "offline" ? <OfflinePreviewCard reason={shell.catalogNotice} onRetry={() => void loadBootstrap()} /> : null}
 
         {shell.bootstrap && selectedChallenge ? (
           <>
             <ActiveScreen
               activeTab={shell.activeTab}
               bootstrap={shell.bootstrap}
+              catalogMode={shell.catalogMode}
               selectedChallenge={selectedChallenge}
               account={shell.account}
               authBridge={authBridge}
@@ -398,6 +410,7 @@ function TabBar({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (t
 function ActiveScreen({
   activeTab,
   bootstrap,
+  catalogMode,
   selectedChallenge,
   account,
   authBridge,
@@ -406,6 +419,7 @@ function ActiveScreen({
 }: {
   activeTab: AppTab;
   bootstrap: MobileBootstrap;
+  catalogMode: "live" | "offline";
   selectedChallenge: MobileChallenge;
   account: MobileAccountResponse | null;
   authBridge: MobileAuthBridge;
@@ -414,7 +428,7 @@ function ActiveScreen({
 }) {
   switch (activeTab) {
     case "catalog":
-      return <CatalogScreen bootstrap={bootstrap} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />;
+      return <CatalogScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />;
     case "quest":
       return <QuestDetailScreen challenge={selectedChallenge} onSelectTab={onSelectTab} />;
     case "account":
@@ -428,10 +442,12 @@ function ActiveScreen({
 
 function CatalogScreen({
   bootstrap,
+  catalogMode,
   selectedChallenge,
   onSelectChallenge,
 }: {
   bootstrap: MobileBootstrap;
+  catalogMode: "live" | "offline";
   selectedChallenge: MobileChallenge;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
 }) {
@@ -440,11 +456,15 @@ function CatalogScreen({
       <View style={styles.sectionHeader}>
         <Text style={styles.eyebrow}>Where to begin</Text>
         <Text style={styles.sectionTitle}>How heroic are you feeling today?</Text>
-        <Text style={styles.sectionBody}>Choose a quest based on your tolerance for terrible chess decisions.</Text>
+        <Text style={styles.sectionBody}>
+          {catalogMode === "offline"
+            ? "Offline preview is showing bundled sample quests. Live catalog sync retries when the network comes back."
+            : "Choose a quest based on your tolerance for terrible chess decisions."}
+        </Text>
       </View>
 
       <View style={styles.catalogQuickStats}>
-        <MiniStat label="Live quests" value={`${bootstrap.challenges.length}`} />
+        <MiniStat label={catalogMode === "offline" ? "Preview quests" : "Live quests"} value={`${bootstrap.challenges.length}`} />
         <MiniStat label="Selected" value={selectedChallenge.badgeIdentity.name} />
       </View>
 
@@ -580,14 +600,25 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
   );
 }
 
-function ErrorCard({ error, onRetry }: { error: string; onRetry: () => void }) {
+function OfflinePreviewCard({ reason, onRetry }: { reason: string | null; onRetry: () => void }) {
   return (
-    <View style={styles.errorCard}>
-      <Text style={styles.errorTitle}>Could not load quests</Text>
-      <Text style={styles.errorCopy}>{error}</Text>
-      <Pressable style={styles.primaryButton} onPress={onRetry}>
-        <Text style={styles.primaryButtonText}>Try again</Text>
-      </Pressable>
+    <View style={styles.offlineCard}>
+      <View style={styles.offlineHeaderRow}>
+        <Text style={styles.offlineIcon}>☁</Text>
+        <View style={styles.offlineHeaderCopy}>
+          <Text style={styles.offlineTitle}>Offline preview loaded.</Text>
+          <Text style={styles.offlineCopy}>The live quest board could not be reached, so this APK is showing bundled sample quests instead of a hard error.</Text>
+        </View>
+      </View>
+      <Text style={styles.microcopy}>{reason ? `Last sync attempt: ${reason}` : "Live sync will retry when you pull to refresh or tap retry."}</Text>
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.primaryButton} onPress={onRetry}>
+          <Text style={styles.primaryButtonText}>Retry live sync</Text>
+        </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={() => void Linking.openURL(getApiBaseUrl())}>
+          <Text style={styles.secondaryButtonText}>Open website</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -858,8 +889,12 @@ const styles = StyleSheet.create({
   miniStatValue: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   loadingCard: { alignItems: "center", gap: 12, padding: 24 },
   muted: { color: colors.muted },
-  errorCard: { gap: 10, padding: 18, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,122,102,.44)", backgroundColor: "rgba(255,122,102,.1)" },
-  errorTitle: { color: "#ffd6cf", fontSize: 18, fontWeight: "900" },
+  offlineCard: { gap: 12, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.34)", backgroundColor: "rgba(96,240,175,.09)" },
+  offlineHeaderRow: { flexDirection: "row", gap: 12, alignItems: "center" },
+  offlineIcon: { width: 36, height: 36, textAlign: "center", textAlignVertical: "center", borderRadius: 18, overflow: "hidden", color: colors.green, fontSize: 22, backgroundColor: "rgba(0,0,0,.24)" },
+  offlineHeaderCopy: { flex: 1, gap: 4 },
+  offlineTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
+  offlineCopy: { color: colors.muted, lineHeight: 20 },
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
   primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
