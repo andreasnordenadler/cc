@@ -6,6 +6,7 @@ import * as WebBrowser from "expo-web-browser";
 import {
   ActivityIndicator,
   Image,
+  Linking,
   Pressable,
   RefreshControl,
   SafeAreaView,
@@ -201,6 +202,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
       >
         <HeroHeader selectedChallenge={selectedChallenge} completedCount={completedCount} activeQuestTitle={activeQuestTitle} />
+
+        {shell.bootstrap && selectedChallenge ? <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} /> : null}
+
         <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
 
         {shell.loading ? (
@@ -214,7 +218,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
         {shell.bootstrap && selectedChallenge ? (
           <>
-            <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
             <ActiveScreen
               activeTab={shell.activeTab}
               bootstrap={shell.bootstrap}
@@ -317,8 +320,8 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         ) : null}
       </SignedIn>
       <SignedOut>
-        <Text style={styles.cardTitle}>Sign in when Clerk is ready.</Text>
-        <Text style={styles.cardBody}>Google sign-in will attach a mobile session token. Until then, the public SQC experience remains polished and stable.</Text>
+        <Text style={styles.cardTitle}>Sign in to sync your quest log.</Text>
+        <Text style={styles.cardBody}>Google sign-in attaches a mobile session token. If the native handoff is moody, the public quests still work and the website remains the source of truth.</Text>
         {authBridge.startGoogleSignIn ? (
           <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
@@ -614,6 +617,9 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
         <Pressable style={styles.secondaryButton} onPress={() => onSelectTab("proof")}>
           <Text style={styles.secondaryButtonText}>Preview proof</Text>
         </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={() => void Linking.openURL(`${getApiBaseUrl()}/challenges/${challenge.id}`)}>
+          <Text style={styles.secondaryButtonText}>Open on website</Text>
+        </Pressable>
       </View>
     </View>
   );
@@ -773,12 +779,12 @@ const colors = {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { gap: 18, padding: 16, paddingBottom: 34 },
+  content: { gap: 14, padding: 14, paddingBottom: 34 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
-    gap: 18,
-    padding: 18,
+    gap: 14,
+    padding: 15,
     borderRadius: 30,
     borderWidth: 1,
     borderColor: "rgba(245,200,106,.3)",
@@ -786,22 +792,22 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
-  navBrandRow: { flexDirection: "row", alignItems: "center", gap: 10 },
-  logoMark: { width: 42, height: 42, borderRadius: 14 },
+  navBrandRow: { flexDirection: "row", alignItems: "center", gap: 9 },
+  logoMark: { width: 38, height: 38, borderRadius: 13 },
   navBrandCopy: { flex: 1 },
   navKicker: { color: colors.paper, fontWeight: "900", fontSize: 15, letterSpacing: -0.2 },
   navSub: { color: colors.muted, fontWeight: "800", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.8 },
-  buildPill: { maxWidth: 112, color: "#111", fontSize: 10, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.gold, overflow: "hidden" },
-  heroMainRow: { flexDirection: "row", gap: 12, alignItems: "center" },
-  heroCopyBlock: { flex: 1, gap: 9 },
+  buildPill: { maxWidth: 104, color: "#111", fontSize: 9, fontWeight: "900", paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: colors.gold, overflow: "hidden" },
+  heroMainRow: { flexDirection: "row", gap: 10, alignItems: "center" },
+  heroCopyBlock: { flex: 1, gap: 7 },
   eyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", letterSpacing: 1.2, textTransform: "uppercase" },
-  title: { color: colors.paper, fontSize: 42, fontWeight: "900", letterSpacing: -2.8, lineHeight: 40 },
-  heroCopy: { color: colors.muted, fontSize: 15, lineHeight: 22 },
-  heroBadgeFrame: { width: 104, height: 122, alignItems: "center", justifyContent: "center", borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.28)" },
-  heroBadgeImage: { width: 98, height: 112 },
+  title: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -2.2, lineHeight: 34 },
+  heroCopy: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  heroBadgeFrame: { width: 88, height: 104, alignItems: "center", justifyContent: "center", borderRadius: 26, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.28)" },
+  heroBadgeImage: { width: 82, height: 96 },
   heroBadgeGlyph: { color: colors.gold, fontSize: 54, fontWeight: "900" },
-  heroStatsRow: { flexDirection: "row", gap: 10 },
-  miniStat: { flex: 1, gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.28)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
+  heroStatsRow: { flexDirection: "row", gap: 8 },
+  miniStat: { flex: 1, gap: 3, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.28)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
   miniStatLabel: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   miniStatValue: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   loadingCard: { alignItems: "center", gap: 12, padding: 24 },
@@ -814,7 +820,7 @@ const styles = StyleSheet.create({
   secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
   tabRail: { gap: 8, paddingRight: 18 },
-  tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,255,255,.07)" },
+  tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,255,255,.07)" },
   tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },
   tabIcon: { color: colors.muted, fontWeight: "900" },
   tabText: { color: colors.muted, fontWeight: "900" },
@@ -857,9 +863,9 @@ const styles = StyleSheet.create({
   factValue: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   rulesTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   rule: { color: colors.muted, fontSize: 14, lineHeight: 21 },
-  authCard: { gap: 10, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
+  authCard: { gap: 9, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
   panelCard: { gap: 14, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
-  cardTitle: { color: colors.paper, fontSize: 25, fontWeight: "900", letterSpacing: -1.1, lineHeight: 28 },
+  cardTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -1.0, lineHeight: 26 },
   cardBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
   scoreboardRow: { flexDirection: "row", gap: 8 },
   bigScore: { flex: 1, alignItems: "center", gap: 2, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.24)" },
