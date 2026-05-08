@@ -56,10 +56,13 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
-- [ ] Bring SQC mobile GUI close to website design parity before Clerk auth help.
+- [x] Bring SQC mobile GUI close to website design parity before Clerk auth help.
   - added_at: 2026-05-09 00:30 Europe/Stockholm
+  - completed_at: 2026-05-09 00:45 Europe/Stockholm
   - source: Andreas said he can help with Clerk tomorrow and asked Sam to make as much progress as possible until then; ideal target is a full mobile GUI on par with the website design.
   - Acceptance: Android APK has a polished SQC-branded interface, not an alpha shell; quest catalog/detail/account/status/proof screens visually align with the website; sign-in/Clerk-disabled states are graceful; app remains stable on emulator; fresh APK build is produced for Andreas testing.
+  - Proof: mobile app UI was redesigned into a branded SQC mobile quest board with website-aligned dark/gold styling, stronger hero, polished quest cards, clearer tabs, intentional account/status/proof states, graceful auth-disabled copy, and fresh APK build `https://expo.dev/accounts/and72nor/projects/side-quest-chess/builds/8214849b-fb48-4f85-bccd-6294535670e0`; proof doc: `docs/SQC_MOBILE_DESIGN_PARITY_ALPHA_2026-05-09.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; Android `expo export`; `pnpm lint`; EAS Android alpha build; `adb install -r`; emulator launch + screenshot confirmed polished UI loaded with no fatal crash.
 
 - [x] Fix first Android alpha APK crash report.
   - added_at: 2026-05-08 13:12 Europe/Stockholm
