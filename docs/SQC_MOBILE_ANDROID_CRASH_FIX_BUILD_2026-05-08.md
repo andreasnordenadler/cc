@@ -88,3 +88,6 @@ Verification:
 - `pnpm lint` passed with existing warnings only.
 - EAS Android alpha build completed: `https://expo.dev/accounts/and72nor/projects/side-quest-chess/builds/733b2ee7-c599-4767-b97e-3664a02ed033`.
 - Installed build 3 on the Mac mini emulator via `adb install -r`; launch stayed alive, no `FATAL EXCEPTION`, and screenshot confirmed both the visible build marker and loaded `LIVE CATALOG` with 11 side quests. Screenshot artifact: `tmp/sqc-build3-screen.png` (not committed).
+
+## Real-device confirmation
+Andreas confirmed on Telegram at 2026-05-08 13:53 CEST that build `733b2ee7-c599-4767-b97e-3664a02ed033` works great on device with no crashes.
