@@ -61,7 +61,7 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
   - completed_at: 2026-05-08 08:36 Europe/Stockholm
   - source: Andreas screenshot feedback: “The Rubber Stamp Rampart” is hard to understand, especially for non-native English speakers.
   - Proof: `finish-any-game` badge identity now uses `The First Game Shield`, with simpler first-proof flavor, charge, motto, meaning, and weirdness copy; proof doc: `docs/SQC_PROOF_LOOP_TEST_CLEAR_BADGE_NAME_2026-05-08.md`.
-  - Verification: `pnpm lint`; `pnpm build`; production deploy/smoke pending.
+  - Verification: `pnpm lint`; `pnpm build`; production deploy to `https://cc-3m4f5xh28-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed `/challenges/finish-any-game` and `/badges` return 200, contain `The First Game Shield`, and no longer contain `Rubber Stamp Rampart`.
 
 Andreas clarified that the previously listed items are still wanted and should be treated as the fresh post-reset SQC backlog; newer explicit requests are inserted above them:
 
