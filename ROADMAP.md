@@ -56,6 +56,13 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
+- [x] Fix first Android alpha APK crash report.
+  - added_at: 2026-05-08 13:12 Europe/Stockholm
+  - completed_at: 2026-05-08 13:24 Europe/Stockholm
+  - source: Andreas reported the first SQC Android APK crashes and asked whether Sam can test it on the Mac mini.
+  - Proof: Mac mini lacks Android `adb`/emulator, but local Expo validation found SDK-54 dependency mismatches; mobile dependencies were aligned, `expo-doctor` now passes all 17 checks, local Android export passes, and new APK build completed: `https://expo.dev/accounts/and72nor/projects/side-quest-chess/builds/d84b42fa-8893-4fc4-8f7a-8e6717f745aa`; proof doc: `docs/SQC_MOBILE_ANDROID_CRASH_FIX_BUILD_2026-05-08.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `expo-doctor`; local Android JS export; `pnpm lint`; EAS Android alpha APK build success.
+
 - [x] Produce first SQC mobile Android alpha APK.
   - added_at: 2026-05-08 12:15 Europe/Stockholm
   - completed_at: 2026-05-08 12:33 Europe/Stockholm
