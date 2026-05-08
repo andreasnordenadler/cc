@@ -6,7 +6,9 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -24,7 +26,11 @@
       }
     },
     "extra": {
-      "apiBaseUrl": "https://sidequestchess.com"
-    }
+      "apiBaseUrl": "https://sidequestchess.com",
+      "eas": {
+        "projectId": "9af73cb2-dcd5-4429-b194-67fc81206937"
+      }
+    },
+    "owner": "and72nor"
   }
 }

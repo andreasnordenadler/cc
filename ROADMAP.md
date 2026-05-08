@@ -56,6 +56,13 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
+- [x] Produce first SQC mobile Android alpha APK.
+  - added_at: 2026-05-08 12:15 Europe/Stockholm
+  - completed_at: 2026-05-08 12:33 Europe/Stockholm
+  - source: Andreas created Expo access for SQC mobile and asked what was needed next; after Clerk redirect/key setup, build a real Android test package.
+  - Proof: Expo/EAS project linked and first Android alpha APK build completed: `https://expo.dev/accounts/and72nor/projects/side-quest-chess/builds/6b054f4c-9e80-40c8-a03b-674433883d3b`; proof doc: `docs/SQC_MOBILE_ANDROID_ALPHA_APK_BUILD_2026-05-08.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; local Android JS export; EAS Android alpha APK build success.
+
 - [x] Put quest name above coat-of-arms name on proof scrolls.
   - added_at: 2026-05-08 08:31 Europe/Stockholm
   - completed_at: 2026-05-08 08:43 Europe/Stockholm

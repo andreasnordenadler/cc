@@ -1,0 +1,20 @@
+# Keep EAS mobile build archives small.
+# The mobile app lives in apps/mobile and does not need local web build/cache artifacts.
+.worktrees/
+.next/
+node_modules/
+tmp/
+.vercel/
+.turbo/
+.expo/
+*.log
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+
+# Historical proof/smoke docs are not needed for native builds.
+docs/
+
+# Web-only generated/static comparison assets are not needed by the Expo app.
+public/
