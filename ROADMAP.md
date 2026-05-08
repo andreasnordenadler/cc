@@ -56,6 +56,11 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
+- [ ] Bring SQC mobile GUI close to website design parity before Clerk auth help.
+  - added_at: 2026-05-09 00:30 Europe/Stockholm
+  - source: Andreas said he can help with Clerk tomorrow and asked Sam to make as much progress as possible until then; ideal target is a full mobile GUI on par with the website design.
+  - Acceptance: Android APK has a polished SQC-branded interface, not an alpha shell; quest catalog/detail/account/status/proof screens visually align with the website; sign-in/Clerk-disabled states are graceful; app remains stable on emulator; fresh APK build is produced for Andreas testing.
+
 - [x] Fix first Android alpha APK crash report.
   - added_at: 2026-05-08 13:12 Europe/Stockholm
   - completed_at: 2026-05-08 13:24 Europe/Stockholm
