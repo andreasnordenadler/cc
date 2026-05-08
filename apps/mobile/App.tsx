@@ -127,15 +127,20 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }, [shell.bootstrap, shell.selectedChallengeId]);
 
   const loadBootstrap = useCallback(async ({ refresh = false } = {}) => {
-    if (!authBridge.isLoaded) return;
-
     setShell((current) => ({ ...current, loading: !refresh, refreshing: refresh }));
 
     try {
-      const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
+      const sessionToken = authBridge.isLoaded && authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
       const [nextBootstrap, nextAccount] = await Promise.all([
         fetchMobileBootstrap(),
-        fetchMobileAccountState(sessionToken),
+        authBridge.isLoaded
+          ? fetchMobileAccountState(sessionToken)
+          : Promise.resolve<MobileAccountResponse>({
+              apiVersion: 1,
+              authenticated: false,
+              signInUrl: "https://sidequestchess.com/sign-in",
+              message: "Mobile auth is still starting. The public quest catalog is available now.",
+            }),
       ]);
       setShell((current) => ({
         ...current,
