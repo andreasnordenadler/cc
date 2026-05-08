@@ -44,7 +44,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android alpha 0.2.4 / polish pass 5";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.5 / polish pass 6";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -263,7 +263,7 @@ function HeroHeader({ selectedChallenge, completedCount, activeQuestTitle }: { s
         <Image source={{ uri: `${getApiBaseUrl()}/brand/sqc-alt-logo-topbar-20260507-v2.png` }} style={styles.logoMark} resizeMode="contain" />
         <View style={styles.navBrandCopy}>
           <Text style={styles.navKicker}>Side Quest Chess</Text>
-          <Text style={styles.navSub}>Mobile quest board</Text>
+          <Text style={styles.navSub}>Quest board companion</Text>
         </View>
         <Text style={styles.buildPill}>{MOBILE_BUILD_LABEL}</Text>
       </View>
@@ -272,7 +272,7 @@ function HeroHeader({ selectedChallenge, completedCount, activeQuestTitle }: { s
         <View style={styles.heroCopyBlock}>
           <Text style={styles.eyebrow}>Chess, but weird on purpose</Text>
           <Text style={styles.title}>Stupidly hard side quests.</Text>
-          <Text style={styles.heroCopy}>Pick one ridiculous chess quest, play a real Lichess or Chess.com game, then come back for the receipt.</Text>
+          <Text style={styles.heroCopy}>Pick one ridiculous chess quest, play a real Lichess or Chess.com game, then return to the web board for verified proof.</Text>
         </View>
         <View style={styles.heroBadgeFrame}>
           {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroBadgeImage} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>♞</Text>}
@@ -301,8 +301,8 @@ function QuickStartCard({
   const accountMode = isAuthenticatedAccount(account)
     ? `Signed in · ${account.progress.totalCompletedChallenges} coats earned`
     : authBridge.configured
-      ? "Website-owned account sync is ready after Google sign-in"
-      : "Public mode · Clerk key not bundled in this APK";
+      ? "Sign in with Google to mirror your website quest log"
+      : "Browse mode · website account handoff available";
 
   return (
     <View style={styles.quickStartCard}>
@@ -313,10 +313,10 @@ function QuickStartCard({
       </View>
       <View style={styles.quickActionStack}>
         <Pressable style={styles.primaryButtonWide} onPress={() => onSelectTab("quest")}>
-          <Text style={styles.primaryButtonText}>View mission</Text>
+          <Text style={styles.primaryButtonText}>Read mission</Text>
         </Pressable>
         <Pressable style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
-          <Text style={styles.secondaryButtonText}>Preview reward</Text>
+          <Text style={styles.secondaryButtonText}>See reward</Text>
         </Pressable>
       </View>
       <View style={styles.accountModeStrip}>
@@ -350,7 +350,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
       <View style={styles.authCard}>
         <Text style={styles.eyebrow}>Sign-in pending</Text>
         <Text style={styles.cardTitle}>Public quest mode is active.</Text>
-        <Text style={styles.cardBody}>This build can browse quests and proof previews without a mobile session. Account sync unlocks after the Clerk publishable key and Native API are enabled for the APK.</Text>
+        <Text style={styles.cardBody}>You can browse quests and proof previews now. Sign in on the website to connect chess usernames, start quests, and keep account changes authoritative.</Text>
         <View style={styles.factGrid}>
           <Fact label="Provider" value="Clerk Expo installed" />
           <Fact label="Needed env" value="EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY" />
@@ -358,7 +358,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         </View>
         <View style={styles.noticeStrip}>
           <Text style={styles.noticeIcon}>🛡</Text>
-          <Text style={styles.noticeCopy}>No dead end: start from the quest brief now; account, status, and proof screens explain what is website-owned until auth is live.</Text>
+          <Text style={styles.noticeCopy}>No dead end: read the brief here, then use the website handoff for account setup, proof submission, and sharing.</Text>
         </View>
       </View>
     );
@@ -378,7 +378,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
       </SignedIn>
       <SignedOut>
         <Text style={styles.cardTitle}>Sign in to sync your quest log.</Text>
-        <Text style={styles.cardBody}>Google sign-in attaches a mobile session token. If the native handoff is moody, the public quests still work and the website remains the source of truth.</Text>
+        <Text style={styles.cardBody}>Google sign-in mirrors your website quest log on mobile. If the native handoff needs another try, the quest catalog still works and the website remains the source of truth.</Text>
         {authBridge.startGoogleSignIn ? (
           <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
@@ -386,7 +386,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         ) : null}
         <View style={styles.noticeStrip}>
           <Text style={styles.noticeIcon}>⚙</Text>
-          <Text style={styles.noticeCopy}>If the native handoff fails, keep browsing: account data stays website-owned and safe.</Text>
+          <Text style={styles.noticeCopy}>If sign-in needs another try, keep browsing. Account data stays website-owned and safe.</Text>
         </View>
       </SignedOut>
       {authActionError ? <Text style={styles.errorCopy}>{authActionError}</Text> : null}
@@ -507,7 +507,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
         />
         <WebsiteHandoffCard
           title="Finish account setup on the website."
-          body="Connect usernames, start a real quest, and let mobile mirror the safer website-owned state."
+          body="Connect chess usernames, start a real quest, and let mobile mirror the verified website state."
           buttonLabel="Open account portal"
           url={`${getApiBaseUrl()}/account`}
         />
@@ -736,9 +736,9 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
         </Pressable>
       </View>
       <WebsiteHandoffCard
-        title="Website handoff is the source of truth."
+        title="Ready when you are."
         body="Start the quest, submit a public game, and share the final receipt from the full web board."
-        buttonLabel="Open challenge page"
+        buttonLabel="Start on website"
         url={`${getApiBaseUrl()}/challenges/${challenge.id}`}
       />
     </View>
@@ -860,8 +860,8 @@ function WebsiteHandoffCard({ title, body, buttonLabel, url }: { title: string; 
 function SyncCard({ bootstrap }: { bootstrap: MobileBootstrap }) {
   return (
     <View style={styles.syncCard}>
-      <Text style={styles.eyebrow}>Anti-drift rule</Text>
-      <Text style={styles.syncTitle}>The app follows the website.</Text>
+      <Text style={styles.eyebrow}>Parity check</Text>
+      <Text style={styles.syncTitle}>Mobile follows the website.</Text>
       <Text style={styles.syncCopy}>{bootstrap.mobile.recommendedUpdatePolicy}</Text>
       <Text style={styles.microcopy}>API v{bootstrap.apiVersion} · Generated {new Date(bootstrap.generatedAt).toLocaleString()}</Text>
     </View>
@@ -949,7 +949,7 @@ const styles = StyleSheet.create({
   navBrandCopy: { flex: 1 },
   navKicker: { color: colors.paper, fontWeight: "900", fontSize: 15, letterSpacing: -0.2 },
   navSub: { color: colors.muted, fontWeight: "800", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.8 },
-  buildPill: { maxWidth: 104, color: "#111", fontSize: 9, fontWeight: "900", paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: colors.gold, overflow: "hidden" },
+  buildPill: { maxWidth: 128, color: "#111", fontSize: 9, fontWeight: "900", paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: colors.gold, overflow: "hidden" },
   heroMainRow: { flexDirection: "row", gap: 10, alignItems: "center" },
   heroCopyBlock: { flex: 1, gap: 7 },
   eyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", letterSpacing: 1.2, textTransform: "uppercase" },
@@ -977,11 +977,11 @@ const styles = StyleSheet.create({
   secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
   secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
-  quickStartCard: { gap: 12, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,255,255,.08)" },
+  quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,255,255,.08)" },
   quickStartCopy: { gap: 5 },
   quickStartTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -1, lineHeight: 25 },
   quickStartBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
-  quickActionStack: { gap: 8 },
+  quickActionStack: { gap: 9 },
   accountModeStrip: { flexDirection: "row", alignItems: "center", gap: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   accountModeDot: { color: colors.green, fontSize: 10 },
   accountModeCopy: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "800" },
@@ -1078,7 +1078,7 @@ const styles = StyleSheet.create({
   flowCopy: { flex: 1, gap: 3 },
   flowTitle: { color: colors.paper, fontWeight: "900", fontSize: 15 },
   flowBody: { color: colors.muted, lineHeight: 19 },
-  proofScrollCard: { gap: 12, padding: 20, paddingTop: 48, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(255,247,232,.1)" },
+  proofScrollCard: { gap: 13, padding: 20, paddingTop: 50, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(255,247,232,.1)" },
   proofSeal: { position: "absolute", top: 14, right: 16, width: 54, height: 54, alignItems: "center", justifyContent: "center", borderRadius: 27, backgroundColor: "#9e1d24", borderWidth: 2, borderColor: "rgba(255,255,255,.28)" },
   proofSealText: { color: "#ffe3b3", fontWeight: "900", fontSize: 13 },
   proofPreviewBadgeFrame: { alignSelf: "center", width: 138, height: 154, alignItems: "center", justifyContent: "center", borderRadius: 34, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.22)" },
