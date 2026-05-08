@@ -44,7 +44,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android alpha 0.2.3 / polish pass 4";
+const MOBILE_BUILD_LABEL = "Android alpha 0.2.4 / polish pass 5";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -490,20 +490,28 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
 
     return (
-      <EmptyStateCard
-        eyebrow="My Side Quest"
-        title={signedInButRejected ? "Token is local; backend verification still needs help." : "Ready for your royal paperwork."}
-        body={
-          signedInButRejected
-            ? "The Expo Google session exists, but /api/mobile/account returned signed-out JSON. This keeps the app graceful until Clerk bearer verification is finalized."
-            : "Use the website to sign in, connect chess usernames, and start real quests. This APK keeps catalog and proof previews available until native account sync is enabled."
-        }
-        facts={[
-          ["Source", bootstrap.product.canonicalUrl],
-          ["Local session", authBridge.isSignedIn ? "Signed in with Clerk Expo" : "Signed out / no mobile token"],
-          ["Catalog", "Still available without auth"],
-        ]}
-      />
+      <View style={styles.screenStack}>
+        <EmptyStateCard
+          eyebrow="My Side Quest"
+          title={signedInButRejected ? "Token is local; backend verification still needs help." : "Ready for your royal paperwork."}
+          body={
+            signedInButRejected
+              ? "The Expo Google session exists, but /api/mobile/account returned signed-out JSON. This keeps the app graceful until Clerk bearer verification is finalized."
+              : "Use the website to sign in, connect chess usernames, and start real quests. This APK keeps catalog and proof previews available until native account sync is enabled."
+          }
+          facts={[
+            ["Source", bootstrap.product.canonicalUrl],
+            ["Local session", authBridge.isSignedIn ? "Signed in with Clerk Expo" : "Signed out / no mobile token"],
+            ["Catalog", "Still available without auth"],
+          ]}
+        />
+        <WebsiteHandoffCard
+          title="Finish account setup on the website."
+          body="Connect usernames, start a real quest, and let mobile mirror the safer website-owned state."
+          buttonLabel="Open account portal"
+          url={`${getApiBaseUrl()}/account`}
+        />
+      </View>
     );
   }
 
@@ -522,7 +530,14 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
         <Fact label="Chess.com" value={account.chessAccounts.chessComUsername ?? "Not connected"} />
       </View>
       <QuestProgressStrip completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
+      <AccountMomentumCard completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <CompletedQuestShelf account={account} />
+      <WebsiteHandoffCard
+        title="Manage quests on the full board."
+        body="The website remains the authority for account edits, proof submission, and share cards."
+        buttonLabel="Open my account"
+        url={`${getApiBaseUrl()}/account`}
+      />
     </View>
   );
 }
@@ -558,11 +573,19 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
         <FlowStep title="Play where you already play" body="Use a public Lichess or Chess.com game. No chess-site passwords." />
         <FlowStep title="Get the receipt" body="The checker returns passed, failed, or pending with a shareable proof card." />
       </View>
+      <WebsiteHandoffCard
+        title="Submit proof on the website."
+        body="Mobile keeps the brief in your pocket; the verifier and proof receipt still run on the web board."
+        buttonLabel="Open verifier"
+        url={`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`}
+      />
     </View>
   );
 }
 
 function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
+  const badgeUrl = selectedChallenge.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
+
   if (isAuthenticatedAccount(account) && account.latestReceipt) {
     return (
       <View style={styles.proofScrollCard}>
@@ -588,6 +611,9 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
         <Text style={styles.proofSealText}>SQC</Text>
       </View>
       <Text style={styles.eyebrow}>Proof scroll preview</Text>
+      <View style={styles.proofPreviewBadgeFrame}>
+        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.proofPreviewBadge} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
+      </View>
       <Text style={styles.proofTitle}>{selectedChallenge.title}</Text>
       <Text style={styles.proofSubtitle}>Unlocks {selectedChallenge.badgeIdentity.name}</Text>
       <Text style={styles.proofBody}>{selectedChallenge.proofCallout}</Text>
@@ -596,6 +622,16 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
         <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
         <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
       </View>
+      <View style={styles.checkerFlow}>
+        <FlowStep done title="Receipt will show verdict" body="Passed, failed, or pending without losing the quest context." />
+        <FlowStep title="Receipt will cite the game" body="Provider, public game id, and latest checked time stay attached." />
+      </View>
+      <WebsiteHandoffCard
+        title="Ready to make it official?"
+        body="Open the challenge page to paste a public game and mint the real proof receipt."
+        buttonLabel="Open proof checker"
+        url={`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`}
+      />
     </View>
   );
 }
@@ -628,6 +664,7 @@ function QuestListCard({ challenge, active, index, onPress }: { challenge: Mobil
 
   return (
     <Pressable style={[styles.questListCard, active && styles.questListCardActive]} onPress={onPress}>
+      {active ? <Text style={styles.selectedCornerPill}>Selected</Text> : null}
       <View style={styles.questNumberPill}>
         <Text style={styles.questNumber}>{String(index + 1).padStart(2, "0")}</Text>
       </View>
@@ -698,6 +735,12 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
           <Text style={styles.secondaryButtonText}>Open on website</Text>
         </Pressable>
       </View>
+      <WebsiteHandoffCard
+        title="Website handoff is the source of truth."
+        body="Start the quest, submit a public game, and share the final receipt from the full web board."
+        buttonLabel="Open challenge page"
+        url={`${getApiBaseUrl()}/challenges/${challenge.id}`}
+      />
     </View>
   );
 }
@@ -741,6 +784,24 @@ function QuestProgressStrip({ completed, total }: { completed: number; total: nu
   );
 }
 
+function AccountMomentumCard({ completed, total }: { completed: number; total: number }) {
+  const remaining = Math.max(total - completed, 0);
+  const title = completed > 0 ? "Trophy shelf is alive." : "First coat is still waiting.";
+  const body = completed > 0
+    ? `${completed} completed, ${remaining} still taunting you from the board.`
+    : "Complete any starter quest and this screen turns from setup paperwork into actual loot.";
+
+  return (
+    <View style={styles.momentumCard}>
+      <Text style={styles.momentumIcon}>{completed > 0 ? "🏆" : "♟"}</Text>
+      <View style={styles.momentumCopy}>
+        <Text style={styles.momentumTitle}>{title}</Text>
+        <Text style={styles.momentumBody}>{body}</Text>
+      </View>
+    </View>
+  );
+}
+
 function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
   if (account.completedQuests.length === 0) {
     return (
@@ -778,6 +839,20 @@ function EmptyStateCard({ eyebrow, title, body, facts }: { eyebrow: string; titl
           <Fact key={label} label={label} value={value} />
         ))}
       </View>
+    </View>
+  );
+}
+
+function WebsiteHandoffCard({ title, body, buttonLabel, url }: { title: string; body: string; buttonLabel: string; url: string }) {
+  return (
+    <View style={styles.handoffCard}>
+      <View style={styles.handoffCopy}>
+        <Text style={styles.handoffTitle}>{title}</Text>
+        <Text style={styles.handoffBody}>{body}</Text>
+      </View>
+      <Pressable style={styles.handoffButton} onPress={() => void Linking.openURL(url)}>
+        <Text style={styles.handoffButtonText}>{buttonLabel} ↗</Text>
+      </Pressable>
     </View>
   );
 }
@@ -919,8 +994,9 @@ const styles = StyleSheet.create({
   sectionHeader: { gap: 6, paddingHorizontal: 2 },
   sectionTitle: { color: colors.paper, fontSize: 25, fontWeight: "900", letterSpacing: -1.1, lineHeight: 28 },
   sectionBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
-  questListCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 26, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
-  questListCardActive: { borderColor: "rgba(245,200,106,.72)", backgroundColor: "rgba(245,200,106,.13)" },
+  questListCard: { overflow: "hidden", flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 26, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
+  questListCardActive: { borderColor: "rgba(245,200,106,.72)", backgroundColor: "rgba(245,200,106,.13)", shadowColor: colors.gold, shadowOpacity: 0.28, shadowRadius: 18, elevation: 3 },
+  selectedCornerPill: { position: "absolute", top: 0, right: 0, overflow: "hidden", paddingHorizontal: 10, paddingVertical: 5, borderBottomLeftRadius: 14, color: "#111", backgroundColor: colors.gold, fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.7 },
   questNumberPill: { width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 17, backgroundColor: "rgba(0,0,0,.32)" },
   questNumber: { color: colors.gold, fontWeight: "900", fontSize: 12 },
   questListCopy: { flex: 1, gap: 4 },
@@ -977,6 +1053,11 @@ const styles = StyleSheet.create({
   progressPercent: { color: colors.green, fontSize: 15, fontWeight: "900" },
   progressTrack: { overflow: "hidden", height: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,.09)" },
   progressFill: { height: 10, borderRadius: 999, backgroundColor: colors.green },
+  momentumCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.08)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  momentumIcon: { width: 38, height: 38, textAlign: "center", textAlignVertical: "center", borderRadius: 19, overflow: "hidden", fontSize: 22, backgroundColor: "rgba(0,0,0,.22)" },
+  momentumCopy: { flex: 1, gap: 3 },
+  momentumTitle: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  momentumBody: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
   trophyShelf: { gap: 10, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.08)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   trophyRow: { flexDirection: "row", gap: 10, alignItems: "center" },
   trophyBadge: { width: 46, height: 52, alignItems: "center", justifyContent: "center", borderRadius: 16, backgroundColor: "rgba(0,0,0,.24)" },
@@ -1000,10 +1081,19 @@ const styles = StyleSheet.create({
   proofScrollCard: { gap: 12, padding: 20, paddingTop: 48, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(255,247,232,.1)" },
   proofSeal: { position: "absolute", top: 14, right: 16, width: 54, height: 54, alignItems: "center", justifyContent: "center", borderRadius: 27, backgroundColor: "#9e1d24", borderWidth: 2, borderColor: "rgba(255,255,255,.28)" },
   proofSealText: { color: "#ffe3b3", fontWeight: "900", fontSize: 13 },
+  proofPreviewBadgeFrame: { alignSelf: "center", width: 138, height: 154, alignItems: "center", justifyContent: "center", borderRadius: 34, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.22)" },
+  proofPreviewBadge: { width: 124, height: 142 },
+  proofPreviewGlyph: { color: colors.gold, fontSize: 52, fontWeight: "900" },
   proofTitle: { color: colors.paper, fontSize: 31, lineHeight: 33, letterSpacing: -1.4, fontWeight: "900" },
   proofSubtitle: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   proofBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
   buttonRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  handoffCard: { gap: 11, padding: 14, borderRadius: 20, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.075)" },
+  handoffCopy: { gap: 4 },
+  handoffTitle: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  handoffBody: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  handoffButton: { alignSelf: "flex-start", paddingHorizontal: 13, paddingVertical: 10, borderRadius: 999, backgroundColor: colors.green },
+  handoffButtonText: { color: "#07110d", fontWeight: "900" },
   syncCard: { gap: 8, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
   syncTitle: { color: colors.paper, fontSize: 20, fontWeight: "900" },
   syncCopy: { color: colors.muted, lineHeight: 21 },
