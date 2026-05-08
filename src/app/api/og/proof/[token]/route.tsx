@@ -133,12 +133,15 @@ export async function GET(
             )}
           </div>
           <div style={{ color: "rgba(43,23,13,.72)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 22, letterSpacing: 4.2, textTransform: "uppercase", fontWeight: 1000 }}>
-            Side Quest Chess hereby admits
+            Quest completed
           </div>
           <div style={{ color: "#251109", fontSize: 78, lineHeight: .92, letterSpacing: -3.6, fontWeight: 900, marginTop: 22, maxWidth: 610 }}>
-            {payload.badgeName}
+            {payload.challengeTitle}
           </div>
-          <div style={{ color: "rgba(43,23,13,.86)", fontSize: 33, lineHeight: 1.43, fontWeight: 700, marginTop: 30, maxWidth: 640 }}>
+          <div style={{ color: "rgba(43,23,13,.74)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 25, lineHeight: 1.28, fontWeight: 950, marginTop: 24, maxWidth: 640 }}>
+            Coat of arms unlocked: <strong style={{ color: "#251109" }}>{payload.badgeName}</strong>
+          </div>
+          <div style={{ color: "rgba(43,23,13,.86)", fontSize: 33, lineHeight: 1.43, fontWeight: 700, marginTop: 24, maxWidth: 640 }}>
             {achievementCopy}
           </div>
           <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 27, lineHeight: 1.32, marginTop: 26, padding: "24px 26px", maxWidth: 650, color: "rgba(43,23,13,.76)", fontWeight: 850, borderTop: "2px solid rgba(82,38,15,.18)", borderBottom: "2px solid rgba(82,38,15,.18)" }}>

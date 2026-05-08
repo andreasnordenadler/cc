@@ -56,6 +56,13 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
+- [x] Put quest name above coat-of-arms name on proof scrolls.
+  - added_at: 2026-05-08 08:31 Europe/Stockholm
+  - completed_at: 2026-05-08 08:43 Europe/Stockholm
+  - source: Andreas suggested the proof/victory scroll should put the quest name on top instead of leading with the coat-of-arms name.
+  - Proof: `VictoryScroll`, generated proof image route, and public proof page now lead with quest completion/title and show the coat-of-arms name as the unlocked reward beneath; proof doc: `docs/SQC_PROOF_SCROLL_QUEST_TITLE_FIRST_2026-05-08.md`.
+  - Verification: `pnpm lint`; `pnpm build`; production deploy/smoke pending.
+
 - [x] Rename Proof Loop Test coat of arms to clearer non-idiomatic English.
   - added_at: 2026-05-08 08:29 Europe/Stockholm
   - completed_at: 2026-05-08 08:36 Europe/Stockholm

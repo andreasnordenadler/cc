@@ -28,8 +28,9 @@ export default function VictoryScroll({
       <div className="victory-scroll-crest">
         <ChallengeBadge challenge={challenge} presentation="art" earned />
       </div>
-      <span className="victory-scroll-kicker">Side Quest Chess hereby admits</span>
-      <h3>{badgeName}</h3>
+      <span className="victory-scroll-kicker">Quest completed</span>
+      <h3>{challenge.title}</h3>
+      <p className="victory-scroll-reward">Coat of arms unlocked: <strong>{badgeName}</strong></p>
       <p className="victory-scroll-copy">{achievementCopy}</p>
       <p className="victory-scroll-proof">{proofLine}</p>
       <div className="victory-scroll-footer">

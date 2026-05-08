@@ -416,6 +416,8 @@ p { color: var(--muted); line-height: 1.5; }
 .victory-scroll .challenge-badge-art .badge-reference-art { width: min(170px, 44vw); height: min(170px, 44vw); max-height: 170px; }
 .victory-scroll-kicker { color: rgba(43,23,13,.72); font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
 .victory-scroll h3 { max-width: 16ch; color: #251109; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.85rem, 6vw, 3.4rem); line-height: .92; letter-spacing: -.045em; text-wrap: balance; }
+.victory-scroll-reward { max-width: 34ch; color: rgba(43,23,13,.74); font-size: .9rem; font-weight: 950; line-height: 1.28; }
+.victory-scroll-reward strong { color: #251109; }
 .victory-scroll-copy { max-width: 38ch; color: rgba(43,23,13,.86); font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.02rem, 2.4vw, 1.22rem); font-weight: 700; line-height: 1.43; }
 .victory-scroll-proof { max-width: 42ch; margin-top: 2px; padding: 10px 12px; border-top: 1px solid rgba(82,38,15,.18); border-bottom: 1px solid rgba(82,38,15,.18); color: rgba(43,23,13,.76); font-size: .92rem; font-weight: 850; }
 .victory-scroll-proof strong { display: inline; color: #251109; font-size: inherit; }

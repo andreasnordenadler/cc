@@ -20,8 +20,8 @@ export async function generateMetadata({
   }
 
   const image = publicProofImagePath(token);
-  const title = `${decoded.payload.badgeName} unlocked — Side Quest Chess`;
-  const description = `${decoded.payload.challengeTitle} completed for +${decoded.payload.reward} points.`;
+  const title = `${decoded.payload.challengeTitle} completed — Side Quest Chess`;
+  const description = `${decoded.payload.badgeName} unlocked for +${decoded.payload.reward} points.`;
 
   return {
     title,
@@ -66,9 +66,9 @@ export default async function PublicProofPage({
       <div className="content-wrap public-proof-wrap">
         <section className="hero-card public-proof-hero">
           <span className="eyebrow">Public victory proof</span>
-          <h1>{payload.badgeName} unlocked.</h1>
+          <h1>{payload.challengeTitle} completed.</h1>
           <p className="hero-copy">
-            {payload.runnerName ? `${payload.runnerName} completed` : "A player completed"} {payload.challengeTitle} on Side Quest Chess. This link is the shareable proof receipt.
+            {payload.runnerName ? `${payload.runnerName} completed` : "A player completed"} this quest on Side Quest Chess and unlocked {payload.badgeName}. This link is the shareable proof receipt.
           </p>
           <div className="button-row">
             <Link href="/challenges" className="button primary">Browse Side Quests</Link>
