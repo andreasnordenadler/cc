@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 10:34 Europe/Stockholm
+Last updated: 2026-05-09 10:47 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -78,10 +78,17 @@ Andreas requested full focus on SQC Mobile. The next lane is a big UI review bef
   - Proof: wrote `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md` with current-state audit, website parity canon, comparable app pattern summary, priority recommendations, and safe app-only implementation slices.
   - Verification: direct doc inspection; no code/test gate needed for review-only artifact.
 
-- [ ] Implement SQC Mobile Slice 1: website-parity IA and first-screen cockpit.
+- [x] Implement SQC Mobile Slice 1: website-parity IA and first-screen cockpit.
   - added_at: 2026-05-09 10:34 Europe/Stockholm
-  - source: follow-up from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md`.
-  - Acceptance: app home uses compact website-style brand header plus a “Today’s Side Quest”/active quest cockpit above the fold; tab labels align closer to website canon; debug/build/readiness copy is lower priority; website remains unchanged.
+  - completed_at: 2026-05-09 10:47 Europe/Stockholm
+  - source: follow-up from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md` plus Andreas screenshot feedback showing the hero/debug-heavy first screen.
+  - Proof: `apps/mobile` now uses a compact website-style hero, a “Today’s Side Quest” cockpit above the fold, `1 Read → 2 Play → 3 Verify` flow strip, clearer `View coat reward` CTA, lower-priority debug/readiness cards, and website-canon tab labels. Proof doc: `docs/SQC_MOBILE_FIRST_SCREEN_COCKPIT_2026-05-09.md`. Latest build label: `Android preview 0.2.13 / cockpit pass`.
+  - Verification: `pnpm --dir apps/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-ui-cockpit`; `pnpm lint` (passed with 3 pre-existing warnings).
+
+- [ ] Continue SQC Mobile UI Slice 2: first-class Coat of Arms surface.
+  - added_at: 2026-05-09 10:47 Europe/Stockholm
+  - source: next recommendation from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md`.
+  - Acceptance: mobile `Coats` surface more clearly mirrors the website Coat of Arms page with earned/locked reward previews and less generic proof-preview language; website remains unchanged.
 
 ## Reconfirmed wanted backlog — 2026-05-05
 

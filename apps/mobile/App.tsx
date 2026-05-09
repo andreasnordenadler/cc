@@ -46,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.12 / pre-10 polish";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.13 / cockpit pass";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -62,11 +62,11 @@ const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
 });
 
 const TABS: Array<{ id: AppTab; label: string; icon: string }> = [
-  { id: "catalog", label: "Quests", icon: "♞" },
-  { id: "quest", label: "Detail", icon: "⚔" },
-  { id: "account", label: "Me", icon: "♛" },
-  { id: "status", label: "Status", icon: "✓" },
-  { id: "proof", label: "Proof", icon: "✦" },
+  { id: "catalog", label: "Side Quests", icon: "♞" },
+  { id: "quest", label: "Mission", icon: "⚔" },
+  { id: "proof", label: "Coats", icon: "🛡" },
+  { id: "account", label: "My SQC", icon: "♛" },
+  { id: "status", label: "Proof", icon: "✓" },
 ];
 
 export default function App() {
@@ -207,9 +207,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setShell((current) => ({ ...current, activeTab }));
   }
 
-  const completedCount = shell.account?.authenticated ? shell.account.progress.totalCompletedChallenges : 0;
-  const activeQuestTitle = shell.account?.authenticated && shell.account.activeQuest ? shell.account.activeQuest.title : selectedChallenge?.title ?? "Choose a quest";
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -218,19 +215,14 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
       >
-        <HeroHeader selectedChallenge={selectedChallenge} completedCount={completedCount} activeQuestTitle={activeQuestTitle} />
+        <HeroHeader selectedChallenge={selectedChallenge} />
 
         {shell.bootstrap && selectedChallenge ? (
           <>
             <QuickStartCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
-            <WebsiteParityDockCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
-            <FirstRunBriefCard authBridge={authBridge} />
             <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
           </>
         ) : null}
-
-        <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
-        <ClerkReadinessCard authBridge={authBridge} />
 
         {shell.loading ? (
           <View style={styles.loadingCard}>
@@ -253,6 +245,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               onSelectChallenge={selectChallenge}
               onSelectTab={selectTab}
             />
+            <WebsiteParityDockCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
+            <FirstRunBriefCard authBridge={authBridge} />
+            <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
+            <ClerkReadinessCard authBridge={authBridge} />
             <SyncCard bootstrap={shell.bootstrap} />
           </>
         ) : null}
@@ -261,7 +257,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   );
 }
 
-function HeroHeader({ selectedChallenge, completedCount, activeQuestTitle }: { selectedChallenge: MobileChallenge | null; completedCount: number; activeQuestTitle: string }) {
+function HeroHeader({ selectedChallenge }: { selectedChallenge: MobileChallenge | null }) {
   const badgeUrl = selectedChallenge?.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
 
   return (
@@ -274,23 +270,18 @@ function HeroHeader({ selectedChallenge, completedCount, activeQuestTitle }: { s
           <Text style={styles.navKicker}>Side Quest Chess</Text>
           <Text style={styles.navSub}>Quest board companion</Text>
         </View>
-        <Text style={styles.buildPill}>{MOBILE_BUILD_LABEL}</Text>
+        <Text style={styles.navSubPill}>Mobile</Text>
       </View>
 
       <View style={styles.heroMainRow}>
         <View style={styles.heroCopyBlock}>
           <Text style={styles.eyebrow}>Chess, but weird on purpose</Text>
-          <Text style={styles.title}>Stupidly hard side quests.</Text>
-          <Text style={styles.heroCopy}>Pick one ridiculous chess quest, play a real Lichess or Chess.com game, then return to the web board for verified proof.</Text>
+          <Text style={styles.title}>Today’s side quest.</Text>
+          <Text style={styles.heroCopy} numberOfLines={2}>Pick one ridiculous chess quest, play a real Lichess or Chess.com game, then come back for proof.</Text>
         </View>
-        <View style={styles.heroBadgeFrame}>
-          {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroBadgeImage} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>♞</Text>}
+        <View style={styles.heroBadgeFrameCompact}>
+          {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroBadgeImageCompact} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>♞</Text>}
         </View>
-      </View>
-
-      <View style={styles.heroStatsRow}>
-        <MiniStat label="Active quest" value={activeQuestTitle} />
-        <MiniStat label="Coats earned" value={`${completedCount}`} />
       </View>
     </View>
   );
@@ -310,23 +301,40 @@ function QuickStartCard({
   const accountMode = isAuthenticatedAccount(account)
     ? `Signed in · ${account.progress.totalCompletedChallenges} coats earned`
     : authBridge.configured
-      ? "Sign in with Google when ready; the website remains authoritative"
-      : "Browse mode · use the website for account setup";
+      ? "Google sign-in ready when you want account sync"
+      : "Browse mode · setup opens on the web board";
+  const completedCount = isAuthenticatedAccount(account) ? account.progress.totalCompletedChallenges : 0;
+  const receiptCount = isAuthenticatedAccount(account) ? account.progress.proofReceiptCount : 0;
 
   return (
     <View style={styles.quickStartCard}>
-      <View style={styles.quickStartCopy}>
-        <Text style={styles.eyebrow}>Start here</Text>
-        <Text style={styles.quickStartTitle}>{selectedChallenge.title}</Text>
-        <Text style={styles.quickStartBody} numberOfLines={2}>{selectedChallenge.objective}</Text>
+      <View style={styles.quickStartTopRow}>
+        <View style={styles.quickStartCopy}>
+          <Text style={styles.eyebrow}>Today’s Side Quest</Text>
+          <Text style={styles.quickStartTitle}>{selectedChallenge.title}</Text>
+          <Text style={styles.quickStartBody} numberOfLines={2}>{selectedChallenge.objective}</Text>
+        </View>
+        <View style={styles.quickScoreRail}>
+          <Text style={styles.quickScoreValue}>{completedCount}</Text>
+          <Text style={styles.quickScoreLabel}>Coats</Text>
+          <Text style={styles.quickScoreValueSmall}>{receiptCount}</Text>
+          <Text style={styles.quickScoreLabel}>Proofs</Text>
+        </View>
       </View>
       <View style={styles.quickActionStack}>
         <Pressable accessibilityRole="button" accessibilityLabel="Read the selected mission" testID="quick-start-read-mission" style={styles.primaryButtonWide} onPress={() => onSelectTab("quest")}>
           <Text style={styles.primaryButtonText}>Read mission</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Preview the selected quest reward" testID="quick-start-see-reward" style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
-          <Text style={styles.secondaryButtonText}>See reward</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Preview the selected coat reward" testID="quick-start-see-reward" style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
+          <Text style={styles.secondaryButtonText}>View coat reward</Text>
         </Pressable>
+      </View>
+      <View style={styles.questFlowStrip}>
+        <Text style={styles.questFlowStep}>1 Read</Text>
+        <Text style={styles.questFlowArrow}>→</Text>
+        <Text style={styles.questFlowStep}>2 Play</Text>
+        <Text style={styles.questFlowArrow}>→</Text>
+        <Text style={styles.questFlowStep}>3 Verify</Text>
       </View>
       <View style={styles.accountModeStrip}>
         <Text style={styles.accountModeDot}>●</Text>
@@ -1127,7 +1135,7 @@ function SyncCard({ bootstrap }: { bootstrap: MobileBootstrap }) {
       <Text style={styles.eyebrow}>Parity check</Text>
       <Text style={styles.syncTitle}>Mobile follows the website.</Text>
       <Text style={styles.syncCopy}>{bootstrap.mobile.recommendedUpdatePolicy}</Text>
-      <Text style={styles.microcopy}>API v{bootstrap.apiVersion} · Generated {new Date(bootstrap.generatedAt).toLocaleString()}</Text>
+      <Text style={styles.microcopy}>API v{bootstrap.apiVersion} · {MOBILE_BUILD_LABEL} · Generated {new Date(bootstrap.generatedAt).toLocaleString()}</Text>
     </View>
   );
 }
@@ -1234,14 +1242,17 @@ const styles = StyleSheet.create({
   navBrandCopy: { flex: 1 },
   navKicker: { color: colors.paper, fontWeight: "900", fontSize: 15, letterSpacing: -0.2 },
   navSub: { color: colors.muted, fontWeight: "800", fontSize: 11, textTransform: "uppercase", letterSpacing: 0.8 },
+  navSubPill: { overflow: "hidden", color: "#111", fontSize: 10, fontWeight: "900", textTransform: "uppercase", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: colors.gold },
   buildPill: { maxWidth: 128, color: "#111", fontSize: 9, fontWeight: "900", paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: colors.gold, overflow: "hidden" },
   heroMainRow: { flexDirection: "row", gap: 10, alignItems: "center" },
   heroCopyBlock: { flex: 1, gap: 7 },
   eyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", letterSpacing: 1.2, textTransform: "uppercase" },
-  title: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -2.2, lineHeight: 34 },
+  title: { color: colors.paper, fontSize: 28, fontWeight: "900", letterSpacing: -1.7, lineHeight: 29 },
   heroCopy: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   heroBadgeFrame: { width: 88, height: 104, alignItems: "center", justifyContent: "center", borderRadius: 26, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.28)" },
+  heroBadgeFrameCompact: { width: 68, height: 78, alignItems: "center", justifyContent: "center", borderRadius: 22, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.28)" },
   heroBadgeImage: { width: 82, height: 96 },
+  heroBadgeImageCompact: { width: 62, height: 72 },
   heroBadgeGlyph: { color: colors.gold, fontSize: 54, fontWeight: "900" },
   heroStatsRow: { flexDirection: "row", gap: 8 },
   miniStat: { flex: 1, gap: 3, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.28)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
@@ -1263,10 +1274,18 @@ const styles = StyleSheet.create({
   secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,255,255,.22)", backgroundColor: "rgba(255,255,255,.08)" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,255,255,.08)" },
-  quickStartCopy: { gap: 5 },
+  quickStartTopRow: { flexDirection: "row", gap: 12, alignItems: "center" },
+  quickStartCopy: { flex: 1, gap: 5 },
   quickStartTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -1, lineHeight: 25 },
   quickStartBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  quickScoreRail: { width: 76, gap: 2, alignItems: "center", justifyContent: "center", padding: 10, borderRadius: 20, backgroundColor: "rgba(0,0,0,.24)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  quickScoreValue: { color: colors.gold, fontSize: 26, fontWeight: "900", lineHeight: 28 },
+  quickScoreValueSmall: { color: colors.green, fontSize: 18, fontWeight: "900", marginTop: 5, lineHeight: 20 },
+  quickScoreLabel: { color: colors.muted, fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.6 },
   quickActionStack: { gap: 9 },
+  questFlowStrip: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 6, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
+  questFlowStep: { flex: 1, color: colors.paper, fontSize: 12, fontWeight: "900", textAlign: "center" },
+  questFlowArrow: { color: colors.gold, fontSize: 13, fontWeight: "900" },
   accountModeStrip: { flexDirection: "row", alignItems: "center", gap: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   accountModeDot: { color: colors.green, fontSize: 10 },
   accountModeCopy: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "800" },
