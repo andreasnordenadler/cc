@@ -59,6 +59,7 @@ This is the Android preview shell, not the finished app. It currently:
 - installs the Clerk Expo provider foundation and safely waits for `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` before enabling mobile sessions;
 - attaches a Clerk bearer token to account refreshes when a signed-in Expo session is available;
 - includes explicit Android SSO redirect configuration and an on-device bearer-auth acceptance/rejection signal;
+- shows a Clerk readiness card so testers can tell public-browse mode from native Google SSO mode;
 - documents the anti-drift rule in-app;
 - includes root EAS profiles for an internal Android APK preview.
 

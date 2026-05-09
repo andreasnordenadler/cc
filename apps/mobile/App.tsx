@@ -44,7 +44,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.6 / polish pass 7";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.7 / polish pass 8";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -223,6 +223,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
 
         <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
+        <ClerkReadinessCard authBridge={authBridge} />
 
         {shell.loading ? (
           <View style={styles.loadingCard}>
@@ -329,7 +330,7 @@ function QuickStartCard({
 }
 
 function FirstRunBriefCard({ authBridge }: { authBridge: MobileAuthBridge }) {
-  const accountStep = authBridge.configured ? "Sign in with Google when you want your website quest log here." : "Use the website for account setup until the Clerk mobile key is enabled.";
+  const accountStep = authBridge.configured ? "Tap Google only when you are ready to test native sign-in." : "Use the website for account setup until the Clerk mobile key is enabled.";
 
   return (
     <View style={styles.firstRunCard}>
@@ -337,8 +338,33 @@ function FirstRunBriefCard({ authBridge }: { authBridge: MobileAuthBridge }) {
       <Text style={styles.firstRunTitle}>Three-tap tour</Text>
       <View style={styles.firstRunSteps}>
         <FlowStep done title="Browse the live board" body="Quests come from sidequestchess.com, so the app stays in sync with the website." />
-        <FlowStep title="Read the mission brief" body="Open Detail for rules, reward, and what your public chess game must prove." />
-        <FlowStep title="Make it official on web" body={accountStep} />
+        <FlowStep title="Read the mission brief" body="Open Detail for rules, reward, and the public game evidence the verifier expects." />
+        <FlowStep title="Keep account work safe" body={accountStep} />
+      </View>
+    </View>
+  );
+}
+
+function ClerkReadinessCard({ authBridge }: { authBridge: MobileAuthBridge }) {
+  const readinessFacts: Array<[string, string]> = [
+    ["Current mode", authBridge.configured ? "Native Clerk bridge enabled" : "Public browse mode"],
+    ["Redirect", mobileOAuthRedirectUrl],
+    ["Authority", "Website owns account edits + proof"],
+  ];
+
+  return (
+    <View style={styles.readinessCard}>
+      <Text style={styles.eyebrow}>Clerk readiness</Text>
+      <Text style={styles.readinessTitle}>{authBridge.configured ? "Ready for Google SSO smoke." : "Safe until the mobile key is added."}</Text>
+      <Text style={styles.readinessBody}>
+        {authBridge.configured
+          ? "This build can open the Expo Clerk Google flow and then asks the web API whether the bearer token is accepted. If backend verification rejects it, the app says so without blocking quest browsing."
+          : "No publishable key is bundled, so the APK cannot accidentally create a broken native sign-in path. Testers still get the live catalog, reward previews, and website handoff."}
+      </Text>
+      <View style={styles.factGrid}>
+        {readinessFacts.map(([label, value]) => (
+          <Fact key={label} label={label} value={value} />
+        ))}
       </View>
     </View>
   );
@@ -1051,6 +1077,9 @@ const styles = StyleSheet.create({
   rulesTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   rule: { color: colors.muted, fontSize: 14, lineHeight: 21 },
   authCard: { gap: 9, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
+  readinessCard: { gap: 10, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.075)" },
+  readinessTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
+  readinessBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   panelCard: { gap: 14, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: colors.stroke, backgroundColor: colors.panel },
   cardTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -1.0, lineHeight: 26 },
   cardBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
