@@ -111,7 +111,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-09 23:10 Europe/Stockholm
   - source: Andreas said Group Quests looks good but needs multiple pages behind it; top page should be overview.
   - Proof: `/groupquests` is now a clean overview hub, `/groupquests/create` holds the draft builder, and `/groupquests/no-castle-night` holds the focused room prototype.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/no-castle-night`. Production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/no-castle-night`; production deploy `https://cc-indpqm6mo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/`, `/groupquests`, `/groupquests/create`, and `/groupquests/no-castle-night` return 200, and `/` still has no `/groupquests` public link.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
