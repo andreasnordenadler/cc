@@ -256,6 +256,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Two sacrifices · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-06-11",
   },
   {
     id: "queen-side-quest",
@@ -288,6 +289,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Queen stayed on first rank · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-06-18",
   },
   {
     id: "underpromotion-union",
@@ -320,6 +322,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Underpromotion played · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-06-25",
   },
   {
     id: "lone-king-witness-protection",
@@ -352,6 +355,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Opponent had only king left · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-07-02",
   },
 ];
 

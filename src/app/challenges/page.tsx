@@ -10,6 +10,8 @@ import {
 
 const recommendedStartChallengeIds = ["knights-before-coffee", "no-castle-club", "queen-never-heard-of-her"];
 
+const liveStreamerHardQuestIds = ["queen-never-heard-of-her", "knightmare-mode", "rookless-rampage"];
+
 export default async function ChallengesPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
@@ -26,6 +28,9 @@ export default async function ChallengesPage() {
   const recommendedStartChallenges = recommendedStartChallengeIds
     .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
+  const liveStreamerHardQuests = liveStreamerHardQuestIds
+    .map((challengeId) => CHALLENGES.find((challenge) => challenge.id === challengeId))
+    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
 
   return (
     <main className="site-shell">
@@ -37,6 +42,28 @@ export default async function ChallengesPage() {
           <p className="hero-copy">
             These are not lessons. They are chess quests with proof attached. Pick from the live-backed deck, play on Lichess or Chess.com, and come back when the bad idea has evidence.
           </p>
+        </section>
+
+        <section className="mission-card" aria-label="Streamer-hard quest tiers">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Streamer-hard lane</span>
+              <h2>Brutal is clip-worthy. Absurd is rated-only.</h2>
+            </div>
+          </div>
+          <p>
+            Brutal quests are deliberately viral but still runnable in casual or rated public games. Absurd quests are the no-excuses ceiling: rated public games only, higher points, and proof that should feel ridiculous enough to screenshot.
+          </p>
+          <div className="big-grid starter-route-grid">
+            {liveStreamerHardQuests.map((challenge) => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                completed={completedSet.has(challenge.id)}
+                active={activeIncompleteChallengeId === challenge.id}
+              />
+            ))}
+          </div>
         </section>
 
         <ChallengeDeckBrowser

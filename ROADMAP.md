@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-07 23:59 Europe/Stockholm
+Last updated: 2026-05-09 04:51 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -55,6 +55,13 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 - Rule: future changes should be deliberate launch-candidate deltas and keep this baseline easy to identify for rollback/comparison.
 
 ## Reconfirmed wanted backlog — 2026-05-05
+
+- [x] Surface Brutal/Absurd streamer-hard tier canon on Quest Hub.
+  - added_at: 2026-05-09 04:51 Europe/Stockholm
+  - completed_at: 2026-05-09 04:51 Europe/Stockholm
+  - source: Scoped autonomous SQC backlog burst revisiting the reconfirmed Brutal/Absurd item against current launch-candidate baseline.
+  - Proof: `/challenges` now has a visible Streamer-hard lane explaining the tier decision: Brutal is clip-worthy and can be casual/rated, while Absurd is rated-only for proof/leaderboard value. The lane highlights live Brutal/Absurd quests (`Queen? Never Heard of Her`, `Knightmare Mode`, `Rookless Rampage`) and the high-difficulty Coming Soon queue now has scheduled Brutal/Absurd release dates exposed through the difficulty filters.
+  - Verification: `pnpm lint`; `pnpm build`; proof doc: `docs/SQC_BRUTAL_ABSURD_STREAMER_HARD_LANE_2026-05-09.md`.
 
 - [x] Polish SQC mobile proof/status/account states without Clerk Native dependency.
   - added_at: 2026-05-09 02:15 Europe/Stockholm
