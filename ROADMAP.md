@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 20:48 Europe/Stockholm
+Last updated: 2026-05-09 20:58 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -90,6 +90,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-09 20:48 Europe/Stockholm
   - source: Andreas confirmed Sam should autonomously build the next slice: name group → choose quest → invite mode → preview draft room.
   - Proof: added `src/components/group-quest-draft-builder.tsx` and wired it into `/groupquests`; users can edit group name, choose an initial quest, choose invite mode/proof window/duration, and see a live draft room preview.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
+
+- [x] Add local draft room creation and mandatory game-rule constraints.
+  - added_at: 2026-05-09 20:54 Europe/Stockholm
+  - completed_at: 2026-05-09 20:58 Europe/Stockholm
+  - source: Andreas said to continue and consider users manipulating rules, including making provider settings mandatory from a Lichess screenshot to follow.
+  - Proof: builder now supports local draft room creation, copy-invite placeholder, and mandatory game settings for speed, rated state, variant, and player color; exact Lichess screenshot options can be mapped next.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09

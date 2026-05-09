@@ -853,3 +853,22 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 620px) {
   .groupquests-builder-row, .groupquests-preview-stat-grid { grid-template-columns: 1fr; }
 }
+.groupquests-builder-shell { display: grid; gap: 16px; }
+.groupquests-rule-builder { display: grid; gap: 10px; padding: 13px; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(0,0,0,.13); }
+.groupquests-rule-title { display: block; color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-rule-builder p { margin-top: 4px; font-size: .86rem; }
+.groupquests-rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.groupquests-rules-preview { display: grid; gap: 7px; padding: 10px; border-radius: 15px; background: rgba(96,240,175,.08); border: 1px solid rgba(96,240,175,.18); }
+.groupquests-rules-preview strong { color: var(--green); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-rules-preview div { display: flex; flex-wrap: wrap; gap: 6px; }
+.groupquests-rules-preview span { padding: 6px 8px; border-radius: 999px; background: rgba(96,240,175,.12); color: var(--ink); font-size: .76rem; font-weight: 900; }
+.groupquests-rules-preview p { font-size: .82rem; }
+.groupquests-rules-preview.compact { background: rgba(245,200,106,.08); border-color: rgba(245,200,106,.2); }
+.groupquests-rules-preview.compact strong { color: var(--gold); }
+.groupquests-rules-preview.compact span { background: rgba(245,200,106,.12); }
+.groupquests-local-drafts { display: grid; gap: 12px; padding-top: 2px; }
+.groupquests-local-drafts > .section-head h3 { font-size: clamp(1.25rem, 2.4vw, 1.8rem); }
+
+@media (max-width: 620px) {
+  .groupquests-rule-grid { grid-template-columns: 1fr; }
+}
