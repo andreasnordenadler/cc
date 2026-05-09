@@ -5,12 +5,14 @@ import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Linking,
   Pressable,
   RefreshControl,
   SafeAreaView,
   ScrollView,
+  Share,
   StatusBar,
   StyleSheet,
   Text,
@@ -44,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.7 / polish pass 8";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.8 / polish pass 9";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -554,6 +556,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
           buttonLabel="Open account portal"
           url={`${getApiBaseUrl()}/account`}
         />
+        <MobileAccountStatesCard authBridge={authBridge} account={account} />
       </View>
     );
   }
@@ -574,6 +577,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
       </View>
       <QuestProgressStrip completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountMomentumCard completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
+      <MobileAccountStatesCard authBridge={authBridge} account={account} />
       <CompletedQuestShelf account={account} />
       <WebsiteHandoffCard
         title="Manage quests on the full board."
@@ -599,10 +603,11 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
             <Text style={styles.statusRibbonBody}>{account.latestReceipt?.headline ?? "No latest check yet"}</Text>
           </View>
         </View>
-        <View style={styles.factGrid}>
-          <Fact label="Started" value={account.activeQuest.startedAt ? new Date(account.activeQuest.startedAt).toLocaleString() : "Not started"} />
-          <Fact label="Verified" value={account.activeQuest.verifiedAt ? new Date(account.activeQuest.verifiedAt).toLocaleString() : "Waiting for proof"} />
-        </View>
+      <View style={styles.factGrid}>
+        <Fact label="Started" value={account.activeQuest.startedAt ? new Date(account.activeQuest.startedAt).toLocaleString() : "Not started"} />
+        <Fact label="Verified" value={account.activeQuest.verifiedAt ? new Date(account.activeQuest.verifiedAt).toLocaleString() : "Waiting for proof"} />
+      </View>
+      <StatusConfidenceCard mode={account.activeQuest.completed ? "completed" : "active"} />
       </View>
     );
   }
@@ -616,6 +621,7 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
         <FlowStep title="Play where you already play" body="Use a public Lichess or Chess.com game. No chess-site passwords." />
         <FlowStep title="Get the receipt" body="The checker returns passed, failed, or waiting with a shareable proof card." />
       </View>
+      <StatusConfidenceCard mode="preview" />
       <WebsiteHandoffCard
         title="Submit proof on the website."
         body="Mobile keeps the brief in your pocket; the verifier and proof receipt still run on the web board."
@@ -644,6 +650,7 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
           <Fact label="Provider" value={account.latestReceipt.provider ?? "Unknown"} />
           <Fact label="Updated" value={account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"} />
         </View>
+        <ProofActionCard challengeId={account.latestReceipt.challengeId} title={account.latestReceipt.headline} mode="receipt" />
       </View>
     );
   }
@@ -669,6 +676,7 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
         <FlowStep done title="Receipt will show verdict" body="Passed, failed, or pending without losing the quest context." />
         <FlowStep title="Receipt will cite the game" body="Provider, public game id, and latest checked time stay attached." />
       </View>
+      <ProofActionCard challengeId={selectedChallenge.id} title={selectedChallenge.title} mode="preview" />
       <WebsiteHandoffCard
         title="Ready to make it official?"
         body="Open the challenge page to paste a public game and mint the real proof receipt."
@@ -694,7 +702,7 @@ function OfflinePreviewCard({ reason, onRetry }: { reason: string | null; onRetr
         <Pressable style={styles.primaryButton} onPress={onRetry}>
           <Text style={styles.primaryButtonText}>Retry live sync</Text>
         </Pressable>
-        <Pressable style={styles.secondaryButton} onPress={() => void Linking.openURL(getApiBaseUrl())}>
+        <Pressable style={styles.secondaryButton} onPress={() => void openExternalUrl(getApiBaseUrl())}>
           <Text style={styles.secondaryButtonText}>Open website</Text>
         </Pressable>
       </View>
@@ -774,10 +782,11 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
         <Pressable style={styles.secondaryButton} onPress={() => onSelectTab("proof")}>
           <Text style={styles.secondaryButtonText}>Preview proof</Text>
         </Pressable>
-        <Pressable style={styles.secondaryButton} onPress={() => void Linking.openURL(`${getApiBaseUrl()}/challenges/${challenge.id}`)}>
+        <Pressable style={styles.secondaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges/${challenge.id}`)}>
           <Text style={styles.secondaryButtonText}>Open on website</Text>
         </Pressable>
       </View>
+      <ProofActionCard challengeId={challenge.id} title={challenge.title} mode="quest" />
       <WebsiteHandoffCard
         title="Ready when you are."
         body="Start the quest, submit a public game, and share the final receipt from the full web board."
@@ -871,6 +880,66 @@ function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
   );
 }
 
+function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAuthBridge; account: MobileAccountResponse | null }) {
+  const authenticated = isAuthenticatedAccount(account);
+  const backendAccepted = authenticated ? "Live account sync accepted" : authBridge.isSignedIn ? "Local sign-in present; backend still pending" : "Website handoff mode";
+
+  return (
+    <View style={styles.stateBoardCard}>
+      <Text style={styles.eyebrow}>Account state clarity</Text>
+      <Text style={styles.stateBoardTitle}>No mystery loading rooms.</Text>
+      <Text style={styles.stateBoardBody}>This build names exactly which layer is active, so Android testers can tell public browsing, local Clerk, and backend account sync apart.</Text>
+      <View style={styles.stateTimeline}>
+        <FlowStep done title="Public catalog" body="Quest board, rules, rewards, and website handoffs load without native auth." />
+        <FlowStep done={authBridge.configured} title="Native Clerk bridge" body={authBridge.configured ? "Google SSO button is available for smoke testing." : "Waiting for the mobile publishable key from Clerk."} />
+        <FlowStep done={authenticated} title="Backend account mirror" body={backendAccepted} />
+      </View>
+    </View>
+  );
+}
+
+function StatusConfidenceCard({ mode }: { mode: "preview" | "active" | "completed" }) {
+  const copy = {
+    preview: ["Checker not started", "Pick the quest here, then open the website when you have a public game ready."],
+    active: ["Quest in progress", "The mobile app mirrors the web status without attempting risky account mutations before Clerk is settled."],
+    completed: ["Receipt ready", "The latest backend verdict is visible here; use the web proof page for canonical sharing until native share cards are fully wired."],
+  } satisfies Record<"preview" | "active" | "completed", [string, string]>;
+
+  return (
+    <View style={styles.confidenceCard}>
+      <Text style={styles.confidenceIcon}>{mode === "completed" ? "🏆" : mode === "active" ? "⚔" : "🧭"}</Text>
+      <View style={styles.confidenceCopy}>
+        <Text style={styles.confidenceTitle}>{copy[mode][0]}</Text>
+        <Text style={styles.confidenceBody}>{copy[mode][1]}</Text>
+      </View>
+    </View>
+  );
+}
+
+function ProofActionCard({ challengeId, title, mode }: { challengeId: string | null; title: string; mode: "quest" | "preview" | "receipt" }) {
+  const challengeUrl = challengeId ? `${getApiBaseUrl()}/challenges/${challengeId}` : getApiBaseUrl();
+  const shareTitle = mode === "receipt" ? "Side Quest Chess proof" : `Side Quest Chess: ${title}`;
+  const shareMessage = mode === "receipt"
+    ? `${title}\n\nSide Quest Chess proof: ${challengeUrl}`
+    : `I am looking at this ridiculous Side Quest Chess mission: ${title}\n${challengeUrl}`;
+
+  return (
+    <View style={styles.proofActionCard}>
+      <Text style={styles.eyebrow}>{mode === "receipt" ? "Proof actions" : "Native handoff"}</Text>
+      <Text style={styles.proofActionTitle}>{mode === "receipt" ? "Share the verdict without guessing." : "Keep the mission in your pocket."}</Text>
+      <Text style={styles.proofActionBody}>{mode === "receipt" ? "Android can share the canonical web link while the website remains the source of truth for generated proof images." : "Send the quest link to yourself or a friend, or jump to the web checker when your public game is ready."}</Text>
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.primaryButton} onPress={() => void shareSideQuest(shareTitle, shareMessage, challengeUrl)}>
+          <Text style={styles.primaryButtonText}>Share link</Text>
+        </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={() => void openExternalUrl(challengeUrl)}>
+          <Text style={styles.secondaryButtonText}>Open canonical page</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
 function EmptyStateCard({ eyebrow, title, body, facts }: { eyebrow: string; title: string; body: string; facts: Array<[string, string]> }) {
   return (
     <View style={styles.panelCard}>
@@ -893,7 +962,7 @@ function WebsiteHandoffCard({ title, body, buttonLabel, url }: { title: string; 
         <Text style={styles.handoffTitle}>{title}</Text>
         <Text style={styles.handoffBody}>{body}</Text>
       </View>
-      <Pressable style={styles.handoffButton} onPress={() => void Linking.openURL(url)}>
+      <Pressable style={styles.handoffButton} onPress={() => void openExternalUrl(url)}>
         <Text style={styles.handoffButtonText}>{buttonLabel} ↗</Text>
       </Pressable>
     </View>
@@ -957,6 +1026,22 @@ function isAuthenticatedAccount(account: MobileAccountResponse | null): account 
 function absoluteAssetUrl(url: string) {
   if (url.startsWith("http")) return url;
   return `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
+async function openExternalUrl(url: string) {
+  try {
+    await Linking.openURL(url);
+  } catch {
+    Alert.alert("Could not open link", "The app stayed stable, but Android did not accept that website handoff.");
+  }
+}
+
+async function shareSideQuest(title: string, message: string, url: string) {
+  try {
+    await Share.share({ title, message, url });
+  } catch {
+    Alert.alert("Could not open share sheet", "The canonical Side Quest Chess page is still available from the Open button.");
+  }
 }
 
 const colors = {
@@ -1115,6 +1200,10 @@ const styles = StyleSheet.create({
   trophyCopy: { flex: 1, gap: 2 },
   trophyTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
   trophyMeta: { color: colors.muted, fontSize: 12, fontWeight: "800" },
+  stateBoardCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(96,240,175,.075)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
+  stateBoardTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
+  stateBoardBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  stateTimeline: { gap: 9 },
   statusRibbon: { flexDirection: "row", gap: 12, alignItems: "center", padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.2)" },
   statusRibbonIcon: { fontSize: 27 },
   statusRibbonCopy: { flex: 1, gap: 3 },
@@ -1127,6 +1216,11 @@ const styles = StyleSheet.create({
   flowCopy: { flex: 1, gap: 3 },
   flowTitle: { color: colors.paper, fontWeight: "900", fontSize: 15 },
   flowBody: { color: colors.muted, lineHeight: 19 },
+  confidenceCard: { flexDirection: "row", gap: 12, alignItems: "center", padding: 14, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
+  confidenceIcon: { width: 40, height: 40, textAlign: "center", textAlignVertical: "center", borderRadius: 20, overflow: "hidden", fontSize: 22, backgroundColor: "rgba(0,0,0,.24)" },
+  confidenceCopy: { flex: 1, gap: 3 },
+  confidenceTitle: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  confidenceBody: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
   proofScrollCard: { gap: 13, padding: 20, paddingTop: 50, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(255,247,232,.1)" },
   proofSeal: { position: "absolute", top: 14, right: 16, width: 54, height: 54, alignItems: "center", justifyContent: "center", borderRadius: 27, backgroundColor: "#9e1d24", borderWidth: 2, borderColor: "rgba(255,255,255,.28)" },
   proofSealText: { color: "#ffe3b3", fontWeight: "900", fontSize: 13 },
@@ -1136,6 +1230,9 @@ const styles = StyleSheet.create({
   proofTitle: { color: colors.paper, fontSize: 31, lineHeight: 33, letterSpacing: -1.4, fontWeight: "900" },
   proofSubtitle: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   proofBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  proofActionCard: { gap: 10, padding: 15, borderRadius: 22, borderWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "rgba(245,200,106,.085)" },
+  proofActionTitle: { color: colors.paper, fontSize: 19, fontWeight: "900", letterSpacing: -0.6 },
+  proofActionBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   buttonRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   handoffCard: { gap: 11, padding: 14, borderRadius: 20, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.075)" },
   handoffCopy: { gap: 4 },

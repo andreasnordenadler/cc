@@ -56,6 +56,13 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
+- [x] Polish SQC mobile proof/status/account states without Clerk Native dependency.
+  - added_at: 2026-05-09 02:15 Europe/Stockholm
+  - completed_at: 2026-05-09 02:31 Europe/Stockholm
+  - source: Overnight SQC mobile polish lane asked for another coherent high-impact mobile GUI polish slice before Clerk help around 10:00.
+  - Proof: `apps/mobile` now shows clearer account state progression, status confidence cards, native share/link handoff cards for quest/proof screens, guarded Android website handoffs, and build label `Android preview 0.2.8 / polish pass 9`; proof doc: `docs/SQC_MOBILE_PROOF_STATUS_ACCOUNT_POLISH_2026-05-09.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; Android `expo export`; `pnpm lint` (passed with 3 pre-existing warnings). Fresh EAS APK build blocked because `EAS_TOKEN` is missing and `eas whoami` reports not logged in.
+
 - [x] Bring SQC mobile GUI close to website design parity before Clerk auth help.
   - added_at: 2026-05-09 00:30 Europe/Stockholm
   - completed_at: 2026-05-09 00:45 Europe/Stockholm
