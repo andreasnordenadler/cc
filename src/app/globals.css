@@ -773,3 +773,35 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-log-accounts-card .connection-card p { display: none; }
 .quest-log-accounts-card .button-row { gap: 8px; }
 .quest-log-accounts-card .button { padding: 9px 14px; font-size: .82rem; }
+
+.groupquests-page .content-wrap { gap: 24px; }
+.groupquests-hero { position: relative; overflow: hidden; }
+.groupquests-hero::after { content: "GROUP QUESTS"; position: absolute; right: -18px; bottom: 12px; color: rgba(255,255,255,.055); font-size: clamp(3.2rem, 11vw, 8.8rem); font-weight: 1000; letter-spacing: -.08em; line-height: .8; pointer-events: none; }
+.groupquests-live-card { display: grid; gap: 18px; background: radial-gradient(circle at 82% 10%, rgba(96,240,175,.2), transparent 34%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(255,255,255,.07)); }
+.groupquests-status-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.groupquests-status-strip div { padding: 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.18); }
+.groupquests-status-strip strong, .groupquests-setting-card strong { display: block; color: var(--gold); font-size: .78rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-status-strip span { display: block; margin-top: 6px; color: var(--ink); font-weight: 950; }
+.groupquests-setting-card { display: grid; gap: 8px; }
+.groupquests-setting-card .eyebrow { margin-bottom: 0; }
+.groupquests-setting-card strong { color: var(--ink); font-size: 1.1rem; letter-spacing: -.01em; text-transform: none; }
+.groupquests-quest-grid .challenge-card { min-height: 245px; }
+.groupquests-dashboard-grid { grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); }
+.groupquests-participant-list, .groupquests-feed-list { display: grid; gap: 10px; margin-top: 12px; }
+.groupquests-participant { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(255,255,255,.06); }
+.groupquests-participant > strong { color: var(--gold); font-size: 1rem; }
+.groupquests-participant span, .groupquests-participant em { display: block; color: var(--ink); font-style: normal; font-weight: 950; }
+.groupquests-participant small { display: block; margin-top: 3px; color: var(--muted); font-size: .78rem; font-weight: 850; }
+.groupquests-participant em { color: var(--green); text-align: right; }
+.groupquests-participant.green { border-color: rgba(96,240,175,.28); background: rgba(96,240,175,.08); }
+.groupquests-participant.gold { border-color: rgba(245,200,106,.28); background: rgba(245,200,106,.08); }
+.groupquests-participant.blue { border-color: rgba(118,169,255,.28); background: rgba(118,169,255,.08); }
+.groupquests-feed-list p { padding: 12px; border-left: 3px solid rgba(245,200,106,.72); border-radius: 0 16px 16px 0; background: rgba(0,0,0,.18); color: var(--ink); font-weight: 850; }
+.groupquests-rules-card { background: radial-gradient(circle at 10% 0%, rgba(255,95,159,.2), transparent 32%), rgba(255,255,255,.075); }
+
+@media (max-width: 760px) {
+  .groupquests-status-strip, .groupquests-dashboard-grid { grid-template-columns: 1fr; }
+  .groupquests-participant { grid-template-columns: auto minmax(0, 1fr); }
+  .groupquests-participant > div:last-child { grid-column: 2; }
+  .groupquests-participant em { text-align: left; }
+}

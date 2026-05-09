@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 11:55 Europe/Stockholm
+Last updated: 2026-05-09 12:08 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -67,9 +67,20 @@ Rules from this point:
 - Do not use old autonomous backlog items as permission to add new website product features.
 - Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
 
+## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
+
+Andreas approved starting implementation live at `/groupquests` while keeping it unlinked from user-facing navigation. This is an explicit exception to the website feature freeze for the hidden group quests workbench only.
+
+- [x] Ship hidden `/groupquests` MVP shell.
+  - added_at: 2026-05-09 12:02 Europe/Stockholm
+  - completed_at: 2026-05-09 12:08 Europe/Stockholm
+  - source: Andreas said to start implementing SQC multiplayer live, work on it, and put it in a folder such as `sidequestchess.com/groupquests` with no user links for now.
+  - Proof: added `src/app/groupquests/page.tsx` as an unlinked live workbench with single quest race framing, group settings, quest set preview, leaderboard mock, live event feed, and separate personal-vs-group proof rule.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
+
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
-Planning only; no implementation has been approved under the website feature freeze.
+Planning completed; implementation is now approved only for the hidden `/groupquests` workbench and should remain unlinked until Andreas says otherwise.
 
 - [x] Plan SQC multiplayer/group competitions.
   - added_at: 2026-05-09 11:44 Europe/Stockholm
