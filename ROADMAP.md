@@ -1,8 +1,8 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 08:58 Europe/Stockholm
+Last updated: 2026-05-09 10:34 Europe/Stockholm
 Owner: Sam  
-Status: fresh-baseline / manual-instruction only
+Status: SQC-mobile-focus / website-feature-freeze
 
 ## Mission
 
@@ -53,6 +53,35 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 - Production URL: `https://sidequestchess.com`
 - Baseline doc: `docs/SQC_LAUNCH_CANDIDATE_BASELINE_2026-05-07.md`
 - Rule: future changes should be deliberate launch-candidate deltas and keep this baseline easy to identify for rollback/comparison.
+
+## Website feature freeze — 2026-05-09
+
+Andreas confirmed at 2026-05-09 10:21 Europe/Stockholm that the SQC **website** is good as it is right now.
+
+Rules from this point:
+
+- Freeze new SQC website features by default.
+- Any new website feature requires Andreas approval before implementation.
+- Allowed without extra approval: bug fixes, UI polish, copy clarity, production-hardening fixes, and regression fixes that preserve the current product shape.
+- Exception: scheduled quest releases may continue according to the existing quest-release schedule.
+- Do not use old autonomous backlog items as permission to add new website product features.
+- Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
+
+## Active focus — SQC Mobile UI review — 2026-05-09
+
+Andreas requested full focus on SQC Mobile. The next lane is a big UI review before further mobile implementation.
+
+- [x] Complete SQC Mobile UI audit against website look/feel and comparable mobile app best practices.
+  - added_at: 2026-05-09 10:27 Europe/Stockholm
+  - completed_at: 2026-05-09 10:34 Europe/Stockholm
+  - source: Andreas asked for full focus on SQC Mobile, a big UI review, best-practice comparison against popular similar apps, and a rule that look/feel should always follow the SQC website.
+  - Proof: wrote `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md` with current-state audit, website parity canon, comparable app pattern summary, priority recommendations, and safe app-only implementation slices.
+  - Verification: direct doc inspection; no code/test gate needed for review-only artifact.
+
+- [ ] Implement SQC Mobile Slice 1: website-parity IA and first-screen cockpit.
+  - added_at: 2026-05-09 10:34 Europe/Stockholm
+  - source: follow-up from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md`.
+  - Acceptance: app home uses compact website-style brand header plus a “Today’s Side Quest”/active quest cockpit above the fold; tab labels align closer to website canon; debug/build/readiness copy is lower priority; website remains unchanged.
 
 ## Reconfirmed wanted backlog — 2026-05-05
 
