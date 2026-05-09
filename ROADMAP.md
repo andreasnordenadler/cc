@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 11:45 Europe/Stockholm
+Last updated: 2026-05-09 11:55 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -66,6 +66,17 @@ Rules from this point:
 - Exception: scheduled quest releases may continue according to the existing quest-release schedule.
 - Do not use old autonomous backlog items as permission to add new website product features.
 - Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
+
+## Future planning — Multiplayer / group competitions — 2026-05-09
+
+Planning only; no implementation has been approved under the website feature freeze.
+
+- [x] Plan SQC multiplayer/group competitions.
+  - added_at: 2026-05-09 11:44 Europe/Stockholm
+  - completed_at: 2026-05-09 11:55 Europe/Stockholm
+  - source: Andreas requested planning for group competitions: single/multiple quests, shareable leaderboard/landing pages, time controls, quest order rules, group messaging, invites, open/closed and public/private competitions, live status, celebrations, proof, and handling cases where quests were completed individually before but not inside competition.
+  - Proof: wrote `docs/SQC_MULTIPLAYER_COMPETITIONS_PLAN_2026-05-09.md` covering product model, data/state separation, creator/participant flows, settings, competition modes, live view, messaging, proof/fairness rules, MVP stages, APIs, and open questions.
+  - Verification: planning/doc-only artifact; no code or website feature implementation.
 
 ## Active focus — SQC Mobile UI review — 2026-05-09
 
