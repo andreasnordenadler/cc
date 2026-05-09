@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 04:51 Europe/Stockholm
+Last updated: 2026-05-09 06:53 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -768,6 +768,7 @@ Andreas clarified that the previously listed items are still wanted and should b
 - [x] Explore showing a chessboard with the last move/final proof position for completed quests.
   - completed_at: 2026-05-05 16:21 Europe/Stockholm
   - Proof: added a reusable `ProofPositionBoard` component, optional receipt metadata fields (`finalPositionFen`, `lastMoveUci`, `lastMoveSan`), completed quest-detail board slot, and passed proof-log receipt board slot. Existing receipts honestly show a pending board-capture state instead of fake positions; future verifier FEN/last-move capture will render the board automatically with from/to highlights. Proof doc: `docs/SQC_COMPLETED_QUEST_FINAL_POSITION_BOARD_EXPLORATION_2026-05-05.md`.
+  - Follow-up shipped 2026-05-09: Chess.com successful manual and latest-game verification receipts now carry `finalPositionFen`/`lastMoveUci` when public PGN parsing succeeds, so the existing proof board can render Chess.com final positions too. Proof doc: `docs/SQC_CHESSCOM_FINAL_POSITION_PROOF_RECEIPTS_2026-05-09.md`.
   - Verification: `pnpm lint`; `pnpm build`.
 - [x] Redesign the signed-out homepage first impression so new visitors see a clearer layout, Google sign-in path, public-game proof loop, starter quest preview, and less duplicated box-heavy onboarding copy.
   - added_at: 2026-05-05 13:40 Europe/Stockholm

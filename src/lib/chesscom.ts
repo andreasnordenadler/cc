@@ -10,6 +10,8 @@ export type ChessComVerificationVerdict = {
   status: "passed" | "failed" | "pending";
   summary: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
 };
 
 type QueenChallengeSide = "white" | "black";
@@ -386,6 +388,72 @@ function cloneChessComBoard() {
   return Object.fromEntries(Object.entries(INITIAL_CHESSCOM_BOARD).map(([square, piece]) => [square, { ...piece }]));
 }
 
+const CHESSCOM_FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];
+const CHESSCOM_FEN_PIECES: Record<ChessComPiece, string> = {
+  king: "k",
+  queen: "q",
+  rook: "r",
+  bishop: "b",
+  knight: "n",
+  pawn: "p",
+};
+
+type ChessComProofPosition = Pick<ChessComVerificationVerdict, "finalPositionFen" | "lastMoveUci">;
+
+function buildChessComProofPositionFromPgn(pgn?: string): ChessComProofPosition | null {
+  if (!pgn) return null;
+
+  const sanMoves = extractSanMoveTokens(pgn);
+  if (!sanMoves.length) return null;
+
+  const board = cloneChessComBoard();
+  let lastMoveUci: string | undefined;
+
+  for (let index = 0; index < sanMoves.length; index += 1) {
+    const moveUci = applyChessComSanProofMove(board, sanMoves[index], index + 1);
+    if (!moveUci) return null;
+    lastMoveUci = moveUci;
+  }
+
+  const activeColor = sanMoves.length % 2 === 0 ? "w" : "b";
+
+  return {
+    finalPositionFen: `${chessComBoardToFenPlacement(board)} ${activeColor} - - 0 ${Math.floor(sanMoves.length / 2) + 1}`,
+    lastMoveUci,
+  };
+}
+
+function chessComBoardToFenPlacement(board: Record<string, ChessComBoardPiece>) {
+  const ranks: string[] = [];
+
+  for (let rank = 8; rank >= 1; rank -= 1) {
+    let fenRank = "";
+    let empty = 0;
+
+    for (const file of CHESSCOM_FILES) {
+      const piece = board[`${file}${rank}`];
+
+      if (!piece) {
+        empty += 1;
+        continue;
+      }
+
+      if (empty) {
+        fenRank += String(empty);
+        empty = 0;
+      }
+
+      const fenPiece = CHESSCOM_FEN_PIECES[piece.piece];
+      fenRank += piece.color === "white" ? fenPiece.toUpperCase() : fenPiece;
+    }
+
+    if (empty) fenRank += String(empty);
+    ranks.push(fenRank);
+  }
+
+  return ranks.join("/");
+}
+
 function chessComPromotionPieceFromSan(token: string): ChessComPiece | null {
   const match = token.match(/=([QRBN])/);
   if (!match) return null;
@@ -448,6 +516,24 @@ function applyChessComSanMove(
   token: string,
   ply: number,
 ): QueenChallengeCaptureEvent | null {
+  const capture = getChessComSanMove(board, token, ply)?.capture ?? null;
+  return capture;
+}
+
+function applyChessComSanProofMove(
+  board: Record<string, ChessComBoardPiece>,
+  token: string,
+  ply: number,
+): string | null {
+  const move = getChessComSanMove(board, token, ply);
+  return move ? `${move.from}${move.to}` : null;
+}
+
+function getChessComSanMove(
+  board: Record<string, ChessComBoardPiece>,
+  token: string,
+  ply: number,
+): { from: string; to: string; capture: QueenChallengeCaptureEvent | null } | null {
   const color: QueenChallengeSide = ply % 2 === 1 ? "white" : "black";
   const normalized = token.replace(/[+#?!]+$/g, "").replace(/^\.{1,3}/, "").replace(/0/g, "O");
 
@@ -461,7 +547,7 @@ function applyChessComSanMove(
     board[rookTo] = board[rookFrom];
     delete board[kingFrom];
     delete board[rookFrom];
-    return null;
+    return { from: kingFrom, to: kingTo, capture: null };
   }
 
   const to = chessComTargetSquareFromSan(normalized);
@@ -493,7 +579,7 @@ function applyChessComSanMove(
 
   delete board[from];
   board[to] = { color, piece: chessComPromotionPieceFromSan(normalized) ?? movingPiece };
-  return capture;
+  return { from, to, capture };
 }
 
 
@@ -2394,6 +2480,7 @@ async function verifyChessComFinishedGameWithSideRequirement({
       status: "passed",
       summary: passSummary,
       completedGameAt: getChessComCompletedGameAt(game),
+      ...buildChessComProofPositionFromPgn(game.pgn),
     };
   } catch {
     return {
@@ -2491,6 +2578,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
           gameId,
           summary: `Verified Chess.com game. ${username} appears in a finished public game, so Any Game Counts is complete.`,
           completedGameAt: getChessComCompletedGameAt(match),
+          ...buildChessComProofPositionFromPgn(match.pgn),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control all count."],
         };
       }
