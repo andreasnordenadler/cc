@@ -46,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.8 / polish pass 9";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.9 / polish pass 10";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -316,10 +316,10 @@ function QuickStartCard({
         <Text style={styles.quickStartBody} numberOfLines={2}>{selectedChallenge.objective}</Text>
       </View>
       <View style={styles.quickActionStack}>
-        <Pressable style={styles.primaryButtonWide} onPress={() => onSelectTab("quest")}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Read the selected mission" testID="quick-start-read-mission" style={styles.primaryButtonWide} onPress={() => onSelectTab("quest")}>
           <Text style={styles.primaryButtonText}>Read mission</Text>
         </Pressable>
-        <Pressable style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Preview the selected quest reward" testID="quick-start-see-reward" style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
           <Text style={styles.secondaryButtonText}>See reward</Text>
         </Pressable>
       </View>
@@ -416,7 +416,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         <Text style={styles.cardTitle}>Signed in{authBridge.signedInLabel ? ` as ${authBridge.signedInLabel}` : ""}.</Text>
         <Text style={styles.cardBody}>Account, active quest, and latest proof receipt refresh from the website backend.</Text>
         {authBridge.signOut ? (
-          <Pressable style={styles.secondaryButton} disabled={authActionPending} onPress={() => void runAuthAction(authBridge.signOut!)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Sign out of Side Quest Chess mobile" testID="mobile-auth-sign-out" style={styles.secondaryButton} disabled={authActionPending} onPress={() => void runAuthAction(authBridge.signOut!)}>
             <Text style={styles.secondaryButtonText}>{authActionPending ? "Working…" : "Sign out"}</Text>
           </Pressable>
         ) : null}
@@ -425,7 +425,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
         <Text style={styles.cardTitle}>Sign in to sync your quest log.</Text>
         <Text style={styles.cardBody}>Google sign-in mirrors your website quest log on mobile. If the native handoff needs another try, quests still work and the website remains the source of truth.</Text>
         {authBridge.startGoogleSignIn ? (
-          <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Sign in with Google" testID="mobile-auth-google-sign-in" style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
           </Pressable>
         ) : null}
@@ -443,7 +443,15 @@ function TabBar({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (t
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabRail}>
       {TABS.map((tab) => (
-        <Pressable key={tab.id} style={[styles.tabPill, activeTab === tab.id && styles.tabPillActive]} onPress={() => onSelectTab(tab.id)}>
+        <Pressable
+          key={tab.id}
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === tab.id }}
+          accessibilityLabel={`Open ${tab.label} tab`}
+          testID={`mobile-tab-${tab.id}`}
+          style={[styles.tabPill, activeTab === tab.id && styles.tabPillActive]}
+          onPress={() => onSelectTab(tab.id)}
+        >
           <Text style={[styles.tabIcon, activeTab === tab.id && styles.tabTextActive]}>{tab.icon}</Text>
           <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>{tab.label}</Text>
         </Pressable>
@@ -714,7 +722,7 @@ function QuestListCard({ challenge, active, index, onPress }: { challenge: Mobil
   const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
 
   return (
-    <Pressable style={[styles.questListCard, active && styles.questListCardActive]} onPress={onPress}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Open quest ${challenge.title}`} accessibilityState={{ selected: active }} testID={`quest-card-${challenge.id}`} style={[styles.questListCard, active && styles.questListCardActive]} onPress={onPress}>
       {active ? <Text style={styles.selectedCornerPill}>Selected</Text> : null}
       <View style={styles.questNumberPill}>
         <Text style={styles.questNumber}>{String(index + 1).padStart(2, "0")}</Text>
@@ -929,10 +937,10 @@ function ProofActionCard({ challengeId, title, mode }: { challengeId: string | n
       <Text style={styles.proofActionTitle}>{mode === "receipt" ? "Share the verdict without guessing." : "Keep the mission in your pocket."}</Text>
       <Text style={styles.proofActionBody}>{mode === "receipt" ? "Android can share the canonical web link while the website remains the source of truth for generated proof images." : "Send the quest link to yourself or a friend, or jump to the web checker when your public game is ready."}</Text>
       <View style={styles.buttonRow}>
-        <Pressable style={styles.primaryButton} onPress={() => void shareSideQuest(shareTitle, shareMessage, challengeUrl)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Share Side Quest Chess link" testID={`proof-share-${mode}`} style={styles.primaryButton} onPress={() => void shareSideQuest(shareTitle, shareMessage, challengeUrl)}>
           <Text style={styles.primaryButtonText}>Share link</Text>
         </Pressable>
-        <Pressable style={styles.secondaryButton} onPress={() => void openExternalUrl(challengeUrl)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open canonical Side Quest Chess page" testID={`proof-open-${mode}`} style={styles.secondaryButton} onPress={() => void openExternalUrl(challengeUrl)}>
           <Text style={styles.secondaryButtonText}>Open canonical page</Text>
         </Pressable>
       </View>
@@ -962,7 +970,7 @@ function WebsiteHandoffCard({ title, body, buttonLabel, url }: { title: string; 
         <Text style={styles.handoffTitle}>{title}</Text>
         <Text style={styles.handoffBody}>{body}</Text>
       </View>
-      <Pressable style={styles.handoffButton} onPress={() => void openExternalUrl(url)}>
+      <Pressable accessibilityRole="button" accessibilityLabel={buttonLabel} testID={`website-handoff-${buttonLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} style={styles.handoffButton} onPress={() => void openExternalUrl(url)}>
         <Text style={styles.handoffButtonText}>{buttonLabel} ↗</Text>
       </Pressable>
     </View>
