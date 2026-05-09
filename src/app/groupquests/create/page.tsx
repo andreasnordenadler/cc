@@ -32,7 +32,7 @@ export default async function CreateGroupQuestPage() {
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/groupquests">Back to overview</Link>
-            <Link className="button secondary" href="/groupquests/no-castle-night">Open room prototype</Link>
+            <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Open room prototype</Link>
           </div>
         </section>
 

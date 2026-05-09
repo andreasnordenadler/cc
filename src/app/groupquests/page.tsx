@@ -5,7 +5,7 @@ import SiteNav from "@/components/site-nav";
 const managedGroups = [
   {
     title: "No Castle Night",
-    href: "/groupquests/no-castle-night",
+    href: "/groupquests/gq_demo_no_castle_01",
     role: "You manage",
     status: "Live draft",
     members: "3 players",
@@ -26,7 +26,7 @@ const managedGroups = [
 const memberGroups = [
   {
     title: "Queenless After Dark",
-    href: "/groupquests/no-castle-night",
+    href: "/groupquests/gq_demo_no_castle_01",
     role: "Participant",
     status: "Starts soon",
     members: "6 players",
@@ -35,7 +35,7 @@ const memberGroups = [
   },
   {
     title: "Beginner Chaos Ladder",
-    href: "/groupquests/no-castle-night",
+    href: "/groupquests/gq_demo_no_castle_01",
     role: "Participant",
     status: "Open invite",
     members: "4 players",
@@ -88,7 +88,7 @@ export default async function GroupQuestsPage() {
           </div>
           <div className="hero-actions button-row">
             <Link className="button primary" href="/groupquests/create">Create group quest</Link>
-            <Link className="button secondary" href="/groupquests/no-castle-night">Open room prototype</Link>
+            <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Open room prototype</Link>
           </div>
         </section>
 

@@ -8,7 +8,7 @@ Andreas said Group Quests looks good but should not all live on one page. The to
 
 - `/groupquests` is now a clean overview hub.
 - `/groupquests/create` now owns the draft builder and mandatory Lichess-style rule controls.
-- `/groupquests/no-castle-night` now owns the focused room prototype: status, settings, quest set, leaderboard, live feed, and room proof rules.
+- `/groupquests/gq_demo_no_castle_01` now owns the focused room prototype: status, settings, quest set, leaderboard, live feed, and room proof rules.
 - Public nav/homepage remain unchanged; Group Quests is still hidden/unlinked.
 
 ## Verification
@@ -17,4 +17,9 @@ Andreas said Group Quests looks good but should not all live on one page. The to
 - `pnpm build` passed and listed all three routes:
   - `/groupquests`
   - `/groupquests/create`
-  - `/groupquests/no-castle-night`
+  - `/groupquests/gq_demo_no_castle_01`
+
+
+## Follow-up: stable route identifiers
+
+Andreas correctly flagged that room URLs should not be based on display names because names can duplicate or change. The prototype room now uses the stable ID-style route `/groupquests/gq_demo_no_castle_01`, while the UI still displays `No Castle Night` as the human name.

@@ -282,3 +282,10 @@ Do not treat extensive responsive/mobile web polish as a launch blocker for SQC.
 **Applied**: Added a vertical divider before subsequent footer links.
 
 ---
+## 2026-05-09 — Group Quest URLs need stable IDs, not names
+
+**Category**: correction
+
+Andreas pointed out that Group Quest links should not use room names because names can duplicate or change. Use opaque/stable unique identifiers in routes and keep human-readable names as display labels.
+
+---

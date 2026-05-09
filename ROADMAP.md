@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 23:10 Europe/Stockholm
+Last updated: 2026-05-09 23:31 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -110,8 +110,15 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - added_at: 2026-05-09 23:06 Europe/Stockholm
   - completed_at: 2026-05-09 23:10 Europe/Stockholm
   - source: Andreas said Group Quests looks good but needs multiple pages behind it; top page should be overview.
-  - Proof: `/groupquests` is now a clean overview hub, `/groupquests/create` holds the draft builder, and `/groupquests/no-castle-night` holds the focused room prototype.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/no-castle-night`; production deploy `https://cc-indpqm6mo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/`, `/groupquests`, `/groupquests/create`, and `/groupquests/no-castle-night` return 200, and `/` still has no `/groupquests` public link.
+  - Proof: `/groupquests` is now a clean overview hub, `/groupquests/create` holds the draft builder, and `/groupquests/gq_demo_no_castle_01` holds the focused room prototype.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy `https://cc-indpqm6mo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/`, `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200, and `/` still has no `/groupquests` public link.
+
+- [x] Use stable unique group quest identifiers in room URLs.
+  - added_at: 2026-05-09 23:30 Europe/Stockholm
+  - completed_at: 2026-05-09 23:31 Europe/Stockholm
+  - source: Andreas pointed out room names can duplicate, so group quest links need a unique identifier rather than the display name.
+  - Proof: the No Castle Night prototype route moved from a name slug to `/groupquests/gq_demo_no_castle_01`, while the displayed room name remains `No Castle Night`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests/gq_demo_no_castle_01`.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
