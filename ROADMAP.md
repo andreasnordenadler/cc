@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 10:47 Europe/Stockholm
+Last updated: 2026-05-09 11:45 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -84,6 +84,13 @@ Andreas requested full focus on SQC Mobile. The next lane is a big UI review bef
   - source: follow-up from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md` plus Andreas screenshot feedback showing the hero/debug-heavy first screen.
   - Proof: `apps/mobile` now uses a compact website-style hero, a “Today’s Side Quest” cockpit above the fold, `1 Read → 2 Play → 3 Verify` flow strip, clearer `View coat reward` CTA, lower-priority debug/readiness cards, and website-canon tab labels. Proof doc: `docs/SQC_MOBILE_FIRST_SCREEN_COCKPIT_2026-05-09.md`. Latest build label: `Android preview 0.2.13 / cockpit pass`.
   - Verification: `pnpm --dir apps/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-ui-cockpit`; `pnpm lint` (passed with 3 pre-existing warnings).
+
+- [x] Fix SQC Mobile Android safe-area overlap using real window insets.
+  - added_at: 2026-05-09 11:37 Europe/Stockholm
+  - completed_at: 2026-05-09 11:45 Europe/Stockholm
+  - source: Andreas screenshot feedback: prior safe-area fix was not working; top still rendered under/too close to Android status area and bottom must avoid navigation buttons.
+  - Proof: replaced manual Android offset approach with `react-native-safe-area-context`, wrapped app in `SafeAreaProvider`, used safe-area edges on the root screen, configured Android status/navigation bar colors, and bumped build label to `Android preview 0.2.14 / safe-area fix`. Proof doc: `docs/SQC_MOBILE_SAFE_AREA_CONTEXT_FIX_2026-05-09.md`.
+  - Verification: `pnpm --dir apps/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-safe-area-context`; `pnpm lint` (passed with 3 known warnings). Fresh APK build remains blocked by EAS auth (`Not logged in`).
 
 - [ ] Continue SQC Mobile UI Slice 2: first-class Coat of Arms surface.
   - added_at: 2026-05-09 10:47 Europe/Stockholm

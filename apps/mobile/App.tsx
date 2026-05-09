@@ -8,10 +8,8 @@ import {
   Alert,
   Image,
   Linking,
-  Platform,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   Share,
   StatusBar,
@@ -19,6 +17,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
@@ -47,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.13 / cockpit pass";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.14 / safe-area fix";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -71,14 +70,16 @@ const TABS: Array<{ id: AppTab; label: string; icon: string }> = [
 ];
 
 export default function App() {
-  if (!isClerkMobileAuthConfigured()) {
-    return <MobileShell authBridge={signedOutAuthBridge} />;
-  }
-
   return (
-    <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={clerkTokenCache}>
-      <ClerkMobileShell />
-    </ClerkProvider>
+    <SafeAreaProvider>
+      {isClerkMobileAuthConfigured() ? (
+        <ClerkProvider publishableKey={clerkPublishableKey} tokenCache={clerkTokenCache}>
+          <ClerkMobileShell />
+        </ClerkProvider>
+      ) : (
+        <MobileShell authBridge={signedOutAuthBridge} />
+      )}
+    </SafeAreaProvider>
   );
 }
 
@@ -209,7 +210,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <ScrollView
         style={styles.screen}
@@ -1210,9 +1211,6 @@ async function shareSideQuest(title: string, message: string, url: string) {
   }
 }
 
-const ANDROID_STATUS_BAR_OFFSET = Platform.OS === "android" ? StatusBar.currentHeight ?? 0 : 0;
-const ANDROID_NAVIGATION_BAR_OFFSET = Platform.OS === "android" ? 34 : 0;
-
 const colors = {
   bg: "#060507",
   paper: "#fff7e8",
@@ -1226,9 +1224,9 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.bg, paddingTop: ANDROID_STATUS_BAR_OFFSET },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { gap: 14, padding: 14, paddingBottom: 34 + ANDROID_NAVIGATION_BAR_OFFSET },
+  content: { gap: 14, padding: 14, paddingBottom: 42 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
