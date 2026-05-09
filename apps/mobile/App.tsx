@@ -46,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.11 / overnight pass 3";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.12 / pre-10 polish";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -185,6 +185,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     }
   }, [authBridge]);
 
+  const refreshBoardAndAccount = useCallback(async () => {
+    await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
+  }, [loadAccount, loadBootstrap]);
+
   useEffect(() => {
     const bootstrapTimer = setTimeout(() => void loadBootstrap(), 0);
     return () => clearTimeout(bootstrapTimer);
@@ -212,7 +216,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void loadBootstrap({ refresh: true })} />}
+        refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
       >
         <HeroHeader selectedChallenge={selectedChallenge} completedCount={completedCount} activeQuestTitle={activeQuestTitle} />
 

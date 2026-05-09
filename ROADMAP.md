@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 06:53 Europe/Stockholm
+Last updated: 2026-05-09 08:58 Europe/Stockholm
 Owner: Sam  
 Status: fresh-baseline / manual-instruction only
 
@@ -65,10 +65,10 @@ Andreas confirmed at 2026-05-07 20:38 Europe/Stockholm that he is happy with the
 
 - [x] Polish SQC mobile proof/status/account states without Clerk Native dependency.
   - added_at: 2026-05-09 02:15 Europe/Stockholm
-  - completed_at: 2026-05-09 02:31 Europe/Stockholm
-  - source: Overnight SQC mobile polish lane asked for another coherent high-impact mobile GUI polish slice before Clerk help around 10:00.
-  - Proof: `apps/mobile` now shows clearer account state progression, status confidence cards, native share/link handoff cards for quest/proof screens, guarded Android website handoffs, and build label `Android preview 0.2.8 / polish pass 9`; proof doc: `docs/SQC_MOBILE_PROOF_STATUS_ACCOUNT_POLISH_2026-05-09.md`.
-  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; Android `expo export`; `pnpm lint` (passed with 3 pre-existing warnings). Fresh EAS APK build blocked because `EAS_TOKEN` is missing and `eas whoami` reports not logged in.
+  - completed_at: 2026-05-09 08:58 Europe/Stockholm
+  - source: Overnight SQC mobile polish lane asked for coherent high-impact mobile GUI polish before Clerk help around 10:00; final pre-10 pass asked to review overnight polish, ship only a small safe bugfix if useful, verify, document, and produce the latest Android APK if possible.
+  - Proof: `apps/mobile` now shows clearer account state progression, status confidence cards, native share/link handoff cards for quest/proof screens, guarded Android website handoffs, website parity dock, mobile mission/proof prep cards, and a final pre-10 pull-to-refresh fix that refreshes both the live quest catalog and account mirror. Latest build label: `Android preview 0.2.12 / pre-10 polish`; proof docs: `docs/SQC_MOBILE_PROOF_STATUS_ACCOUNT_POLISH_2026-05-09.md`, `docs/SQC_MOBILE_WEBSITE_PARITY_DOCK_OVERNIGHT_PASS3_2026-05-09.md`, `docs/SQC_MOBILE_PRE10_POLISH_2026-05-09.md`.
+  - Verification: `pnpm --dir apps/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-pre10-polish`; `pnpm lint` (passed with 3 pre-existing warnings). Fresh EAS APK build blocked because Expo/EAS auth is unavailable (`EXPO_TOKEN`/`EAS_TOKEN` missing; EAS CLI reports `Not logged in`).
 
 - [x] Bring SQC mobile GUI close to website design parity before Clerk auth help.
   - added_at: 2026-05-09 00:30 Europe/Stockholm
