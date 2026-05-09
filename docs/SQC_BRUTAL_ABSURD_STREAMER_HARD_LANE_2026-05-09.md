@@ -36,4 +36,13 @@ Reconfirmed SQC backlog item: expand/revisit Brutal and Absurd quests so they re
 
 ## Deployment
 
-Pending in this proof note until production deploy/smoke completes.
+- Commit: `5f9b6da` (`Surface SQC streamer-hard quest tiers`)
+- Pushed to `origin/main`.
+- Production deploy: `https://cc-ovuf4fzr6-andreas-nordenadlers-projects.vercel.app`
+- Aliased to: `https://sidequestchess.com` and `https://www.sidequestchess.com`
+- Live smoke:
+  - `https://cc-ovuf4fzr6-andreas-nordenadlers-projects.vercel.app/challenges` — 200
+  - `https://sidequestchess.com/challenges` — 200, contains `Streamer-hard lane`, `Brutal is clip-worthy. Absurd is rated-only.`, and the three live hard quest cards.
+  - `https://sidequestchess.com/challenges/rookless-rampage` — 200
+- Vercel inspect: deployment `dpl_CoPwt2JMPMYQTwDjAmR3xsm8yedr` status Ready.
+- Production 500 scan: no recent 500 logs in the last 30 minutes.
