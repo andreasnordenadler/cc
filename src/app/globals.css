@@ -805,3 +805,23 @@ p { color: var(--muted); line-height: 1.5; }
   .groupquests-participant > div:last-child { grid-column: 2; }
   .groupquests-participant em { text-align: left; }
 }
+.groupquests-hub-grid { grid-template-columns: minmax(300px, .82fr) minmax(0, 1.18fr); align-items: stretch; }
+.groupquests-create-card { display: grid; gap: 14px; background: radial-gradient(circle at 20% 0%, rgba(245,200,106,.26), transparent 34%), linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,95,159,.08)); }
+.groupquests-create-card .button { width: max-content; }
+.groupquests-create-steps { display: grid; gap: 9px; }
+.groupquests-create-steps div { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; background: rgba(0,0,0,.16); }
+.groupquests-create-steps strong { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 999px; background: var(--gold); color: #111; font-size: .82rem; font-weight: 1000; }
+.groupquests-create-steps span { color: var(--ink); font-weight: 900; }
+.groupquests-owned-card { display: grid; gap: 12px; }
+.groupquests-card-stack { display: grid; gap: 12px; }
+.groupquests-group-card { display: grid; gap: 10px; padding: 16px; border-radius: 24px; background: rgba(255,255,255,.06); box-shadow: none; }
+.groupquests-group-card h3 { font-size: 1.15rem; }
+.groupquests-group-card .button { width: max-content; padding: 9px 12px; font-size: .82rem; }
+.groupquests-mini-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.groupquests-mini-stats span { padding: 7px 9px; border-radius: 999px; background: rgba(255,255,255,.08); color: var(--muted); font-size: .78rem; font-weight: 900; }
+.groupquests-member-grid .groupquests-group-card { min-height: 100%; }
+
+@media (max-width: 860px) {
+  .groupquests-hub-grid { grid-template-columns: 1fr; }
+  .groupquests-create-card .button, .groupquests-group-card .button { width: 100%; }
+}

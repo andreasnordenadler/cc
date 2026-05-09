@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 12:08 Europe/Stockholm
+Last updated: 2026-05-09 18:58 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -76,6 +76,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-09 12:08 Europe/Stockholm
   - source: Andreas said to start implementing SQC multiplayer live, work on it, and put it in a folder such as `sidequestchess.com/groupquests` with no user links for now.
   - Proof: added `src/app/groupquests/page.tsx` as an unlinked live workbench with single quest race framing, group settings, quest set preview, leaderboard mock, live event feed, and separate personal-vs-group proof rule.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
+
+- [x] Reshape `/groupquests` into a logged-in group hub.
+  - added_at: 2026-05-09 18:55 Europe/Stockholm
+  - completed_at: 2026-05-09 18:58 Europe/Stockholm
+  - source: Andreas asked for high tempo on group quest work and described a logged-in hub with groups users belong to and groups they manage.
+  - Proof: `/groupquests` now leads with a hub model: create draft group quest, managed rooms, member rooms, then focused room prototype with leaderboard/feed.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
