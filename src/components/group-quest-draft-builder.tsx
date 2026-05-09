@@ -47,9 +47,28 @@ const proofWindows = [
 
 const gameRuleGroups = [
   {
-    id: "speed",
-    label: "Speed",
-    options: ["Any speed", "Bullet", "Blitz", "Rapid", "Classical", "Correspondence"],
+    id: "timeControl",
+    label: "Time control",
+    options: [
+      "Any time control",
+      "Bullet 0+1",
+      "Bullet 1+0",
+      "Bullet 1+1",
+      "Bullet 2+1",
+      "Blitz 3+0",
+      "Blitz 3+2",
+      "Blitz 5+0",
+      "Blitz 5+3",
+      "Rapid 10+0",
+      "Rapid 10+5",
+      "Rapid 15+0",
+      "Rapid 15+10",
+      "Classical 25+0",
+      "Classical 30+0",
+      "Classical 30+20",
+      "Classical 60+0",
+      "Custom time control",
+    ],
   },
   {
     id: "rated",
@@ -83,7 +102,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [proofWindow, setProofWindow] = useState(proofWindows[1]);
   const [duration, setDuration] = useState("48 hours");
   const [rules, setRules] = useState<Record<string, string>>({
-    speed: "Any speed",
+    timeControl: "Blitz 5+3",
     rated: "Rated only",
     variant: "Standard only",
     color: "Any color",
@@ -192,7 +211,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
               <span className="groupquests-rule-title">5 · Mandatory game rules</span>
-              <p>Room owners can make provider settings mandatory. I’ll map the exact Lichess screenshot options into this model next.</p>
+              <p>Room owners can make provider settings mandatory. Time controls now mirror the visible Lichess presets from the screenshot, including the selected 5+3 blitz option.</p>
             </div>
             <div className="groupquests-rule-grid">
               {gameRuleGroups.map((group) => (

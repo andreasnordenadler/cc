@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 20:58 Europe/Stockholm
+Last updated: 2026-05-09 21:06 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -97,6 +97,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-09 20:58 Europe/Stockholm
   - source: Andreas said to continue and consider users manipulating rules, including making provider settings mandatory from a Lichess screenshot to follow.
   - Proof: builder now supports local draft room creation, copy-invite placeholder, and mandatory game settings for speed, rated state, variant, and player color; exact Lichess screenshot options can be mapped next.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
+
+- [x] Map visible Lichess time-control presets into mandatory rules.
+  - added_at: 2026-05-09 21:04 Europe/Stockholm
+  - completed_at: 2026-05-09 21:06 Europe/Stockholm
+  - source: Andreas sent a Lichess create-game screenshot showing time-control presets: Bullet 0+1/1+0/1+1/2+1, Blitz 3+0/3+2/5+0/5+3, Rapid 10+0/10+5/15+0/15+10, Classical 25+0/30+0/30+20/60+0, plus Custom.
+  - Proof: mandatory rule builder now has a `Time control` selector with those exact visible presets and defaults to `Blitz 5+3` from the screenshot.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
