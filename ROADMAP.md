@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 18:58 Europe/Stockholm
+Last updated: 2026-05-09 19:03 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -125,6 +125,15 @@ Andreas requested full focus on SQC Mobile. The next lane is a big UI review bef
   - added_at: 2026-05-09 10:47 Europe/Stockholm
   - source: next recommendation from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md`.
   - Acceptance: mobile `Coats` surface more clearly mirrors the website Coat of Arms page with earned/locked reward previews and less generic proof-preview language; website remains unchanged.
+
+## Approved UI polish — Quest Hub order — 2026-05-09
+
+- [x] Move Streamer-hard lane to the bottom of Quest Hub.
+  - added_at: 2026-05-09 19:01 Europe/Stockholm
+  - completed_at: 2026-05-09 19:03 Europe/Stockholm
+  - source: Andreas sent a screenshot of the Streamer-hard lane and asked to move this section to the bottom.
+  - Proof: reordered `src/app/challenges/page.tsx` so the Streamer-hard lane now renders after the recommended starting quests section.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Production deploy/smoke pending.
 
 ## Reconfirmed wanted backlog — 2026-05-05
 

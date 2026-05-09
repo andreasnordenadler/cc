@@ -44,28 +44,6 @@ export default async function ChallengesPage() {
           </p>
         </section>
 
-        <section className="mission-card" aria-label="Streamer-hard quest tiers">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Streamer-hard lane</span>
-              <h2>Brutal is clip-worthy. Absurd is rated-only.</h2>
-            </div>
-          </div>
-          <p>
-            Brutal quests are deliberately viral but still runnable in casual or rated public games. Absurd quests are the no-excuses ceiling: rated public games only, higher points, and proof that should feel ridiculous enough to screenshot.
-          </p>
-          <div className="big-grid starter-route-grid">
-            {liveStreamerHardQuests.map((challenge) => (
-              <ChallengeCard
-                key={challenge.id}
-                challenge={challenge}
-                completed={completedSet.has(challenge.id)}
-                active={activeIncompleteChallengeId === challenge.id}
-              />
-            ))}
-          </div>
-        </section>
-
         <ChallengeDeckBrowser
           challenges={CHALLENGES}
           activeChallengeId={activeIncompleteChallengeId}
@@ -84,6 +62,28 @@ export default async function ChallengesPage() {
           </p>
           <div className="big-grid starter-route-grid">
             {recommendedStartChallenges.map((challenge) => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                completed={completedSet.has(challenge.id)}
+                active={activeIncompleteChallengeId === challenge.id}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="mission-card" aria-label="Streamer-hard quest tiers">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Streamer-hard lane</span>
+              <h2>Brutal is clip-worthy. Absurd is rated-only.</h2>
+            </div>
+          </div>
+          <p>
+            Brutal quests are deliberately viral but still runnable in casual or rated public games. Absurd quests are the no-excuses ceiling: rated public games only, higher points, and proof that should feel ridiculous enough to screenshot.
+          </p>
+          <div className="big-grid starter-route-grid">
+            {liveStreamerHardQuests.map((challenge) => (
               <ChallengeCard
                 key={challenge.id}
                 challenge={challenge}
