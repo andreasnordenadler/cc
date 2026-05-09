@@ -46,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.9 / polish pass 10";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.10 / polish pass 11";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -564,6 +564,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
           buttonLabel="Open account portal"
           url={`${getApiBaseUrl()}/account`}
         />
+        <AccountSetupChecklistCard authBridge={authBridge} />
         <MobileAccountStatesCard authBridge={authBridge} account={account} />
       </View>
     );
@@ -586,6 +587,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
       <QuestProgressStrip completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountMomentumCard completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <MobileAccountStatesCard authBridge={authBridge} account={account} />
+      <AccountNextActionsCard account={account} />
       <CompletedQuestShelf account={account} />
       <WebsiteHandoffCard
         title="Manage quests on the full board."
@@ -680,10 +682,7 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
         <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
         <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
       </View>
-      <View style={styles.checkerFlow}>
-        <FlowStep done title="Receipt will show verdict" body="Passed, failed, or pending without losing the quest context." />
-        <FlowStep title="Receipt will cite the game" body="Provider, public game id, and latest checked time stay attached." />
-      </View>
+      <ProofPrepCard challenge={selectedChallenge} />
       <ProofActionCard challengeId={selectedChallenge.id} title={selectedChallenge.title} mode="preview" />
       <WebsiteHandoffCard
         title="Ready to make it official?"
@@ -769,6 +768,8 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
         <Text style={styles.openingHint}>{challenge.openingHint}</Text>
       </View>
 
+      <QuestActionPlanCard challenge={challenge} />
+
       <View style={styles.factGrid}>
         <Fact label="Reward" value={`+${challenge.reward} points`} />
         <Fact label="Proof" value={challenge.proofCallout} />
@@ -801,6 +802,82 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
         buttonLabel="Start on website"
         url={`${getApiBaseUrl()}/challenges/${challenge.id}`}
       />
+    </View>
+  );
+}
+
+
+function QuestActionPlanCard({ challenge }: { challenge: MobileChallenge }) {
+  const side = formatRequirementValue(challenge.requirement.side);
+  const result = formatRequirementValue(challenge.requirement.result);
+
+  return (
+    <View style={styles.actionPlanCard}>
+      <Text style={styles.eyebrow}>Mobile game plan</Text>
+      <Text style={styles.actionPlanTitle}>Know the win condition before you tap out.</Text>
+      <View style={styles.requirementPairRow}>
+        <RequirementPill label="Play as" value={side} />
+        <RequirementPill label="Needed result" value={result} />
+      </View>
+      <View style={styles.actionPlanSteps}>
+        <FlowStep done title="Confirm the gimmick" body={challenge.instruction} />
+        <FlowStep title="Play a public game" body="Use Lichess or Chess.com with a shareable game URL; no chess-site login is needed here." />
+        <FlowStep title="Return to the web checker" body="The website starts the quest, verifies the public game, and mints the canonical receipt." />
+      </View>
+    </View>
+  );
+}
+
+function RequirementPill({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.requirementPill}>
+      <Text style={styles.requirementLabel}>{label}</Text>
+      <Text style={styles.requirementValue}>{value}</Text>
+    </View>
+  );
+}
+
+function ProofPrepCard({ challenge }: { challenge: MobileChallenge }) {
+  return (
+    <View style={styles.proofPrepCard}>
+      <Text style={styles.eyebrow}>Proof prep</Text>
+      <Text style={styles.proofPrepTitle}>Bring the checker exactly what it needs.</Text>
+      <View style={styles.checkerFlow}>
+        <FlowStep done title="Quest context" body={`${challenge.title} · ${challenge.badgeIdentity.name}`} />
+        <FlowStep title="Public game link" body="Paste a completed Lichess or Chess.com game on the web challenge page." />
+        <FlowStep title="Verifier verdict" body="The receipt records provider, game id, checked time, and pass/pending/fail state." />
+      </View>
+    </View>
+  );
+}
+
+function AccountSetupChecklistCard({ authBridge }: { authBridge: MobileAuthBridge }) {
+  return (
+    <View style={styles.accountChecklistCard}>
+      <Text style={styles.eyebrow}>Account checklist</Text>
+      <Text style={styles.accountChecklistTitle}>Nothing important is hidden behind native auth.</Text>
+      <View style={styles.checkerFlow}>
+        <FlowStep done title="Browse quests" body="The APK loads the public quest board in live or offline-preview mode." />
+        <FlowStep done={authBridge.configured} title="Optional Google smoke" body={authBridge.configured ? "Native Google SSO can be tested from the mobile account card." : "Waiting for the Clerk mobile publishable key before native sign-in appears."} />
+        <FlowStep title="Finish setup on web" body="Connect chess usernames, start quests, and submit proof through the canonical website." />
+      </View>
+    </View>
+  );
+}
+
+function AccountNextActionsCard({ account }: { account: MobileAccountState }) {
+  const hasChessAccount = account.chessAccounts.hasAny;
+  const activeLabel = account.activeQuest ? account.activeQuest.title : "No active quest";
+
+  return (
+    <View style={styles.accountChecklistCard}>
+      <Text style={styles.eyebrow}>Next best action</Text>
+      <Text style={styles.accountChecklistTitle}>{account.activeQuest ? "Keep the active quest moving." : "Pick a fresh quest on the board."}</Text>
+      <View style={styles.checkerFlow}>
+        <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess account is connected on the website." : "Connect Lichess or Chess.com on the website before serious proof runs."} />
+        <FlowStep done={Boolean(account.activeQuest)} title="Active quest" body={activeLabel} />
+        <FlowStep done={Boolean(account.latestReceipt)} title="Latest receipt" body={account.latestReceipt?.headline ?? "Submit a public game to create the first receipt."} />
+      </View>
     </View>
   );
 }
@@ -1031,6 +1108,11 @@ function isAuthenticatedAccount(account: MobileAccountResponse | null): account 
   return Boolean(account?.authenticated);
 }
 
+function formatRequirementValue(value: string) {
+  if (!value || value === "any") return "Any";
+  return value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, " ");
+}
+
 function absoluteAssetUrl(url: string) {
   if (url.startsWith("http")) return url;
   return `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
@@ -1183,6 +1265,18 @@ const styles = StyleSheet.create({
   noticeStrip: { flexDirection: "row", gap: 10, alignItems: "center", padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
   noticeIcon: { fontSize: 18 },
   noticeCopy: { flex: 1, color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
+
+  actionPlanCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(96,240,175,.075)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
+  actionPlanTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8, lineHeight: 24 },
+  actionPlanSteps: { gap: 9 },
+  requirementPairRow: { flexDirection: "row", gap: 9 },
+  requirementPill: { flex: 1, gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)" },
+  requirementLabel: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
+  requirementValue: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  proofPrepCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(151,70,255,.11)", borderWidth: 1, borderColor: "rgba(151,70,255,.28)" },
+  proofPrepTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
+  accountChecklistCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(255,255,255,.065)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
+  accountChecklistTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
   heraldryCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(151,70,255,.11)", borderWidth: 1, borderColor: "rgba(151,70,255,.28)" },
   heraldryHeader: { flexDirection: "row", gap: 12, alignItems: "center" },
   heraldryGlyph: { width: 46, height: 46, textAlign: "center", textAlignVertical: "center", color: colors.gold, fontSize: 26, fontWeight: "900", borderRadius: 23, backgroundColor: "rgba(0,0,0,.26)", overflow: "hidden" },
