@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 21:06 Europe/Stockholm
+Last updated: 2026-05-09 23:10 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -105,6 +105,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - source: Andreas sent a Lichess create-game screenshot showing time-control presets: Bullet 0+1/1+0/1+1/2+1, Blitz 3+0/3+2/5+0/5+3, Rapid 10+0/10+5/15+0/15+10, Classical 25+0/30+0/30+20/60+0, plus Custom.
   - Proof: mandatory rule builder now has a `Time control` selector with those exact visible presets and defaults to `Blitz 5+3` from the screenshot.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
+
+- [x] Split Group Quests into overview, create, and room pages.
+  - added_at: 2026-05-09 23:06 Europe/Stockholm
+  - completed_at: 2026-05-09 23:10 Europe/Stockholm
+  - source: Andreas said Group Quests looks good but needs multiple pages behind it; top page should be overview.
+  - Proof: `/groupquests` is now a clean overview hub, `/groupquests/create` holds the draft builder, and `/groupquests/no-castle-night` holds the focused room prototype.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/no-castle-night`. Production deploy/smoke pending.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
