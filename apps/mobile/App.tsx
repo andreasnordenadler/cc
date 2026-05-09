@@ -46,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.10 / polish pass 11";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.11 / overnight pass 3";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -219,6 +219,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         {shell.bootstrap && selectedChallenge ? (
           <>
             <QuickStartCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
+            <WebsiteParityDockCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
             <FirstRunBriefCard authBridge={authBridge} />
             <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
           </>
@@ -328,6 +329,68 @@ function QuickStartCard({
         <Text style={styles.accountModeCopy}>{accountMode}</Text>
       </View>
     </View>
+  );
+}
+
+
+function WebsiteParityDockCard({
+  selectedChallenge,
+  account,
+  authBridge,
+  onSelectTab,
+}: {
+  selectedChallenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectTab: (tab: AppTab) => void;
+}) {
+  const authenticated = isAuthenticatedAccount(account);
+  const accountMode = authenticated
+    ? `${account.progress.totalCompletedChallenges} coats · ${account.progress.proofReceiptCount} receipts`
+    : authBridge.configured
+      ? authBridge.isSignedIn
+        ? "Local Google session; waiting for backend mirror"
+        : "Sign in optional; website owns setup"
+      : "Browse safely; website owns setup";
+  const activeQuestLabel = authenticated && account.activeQuest ? account.activeQuest.title : selectedChallenge.title;
+
+  return (
+    <View style={styles.parityDockCard}>
+      <View style={styles.parityDockHeader}>
+        <View style={styles.parityDockHeaderCopy}>
+          <Text style={styles.eyebrow}>Website parity dock</Text>
+          <Text style={styles.parityDockTitle}>The main web board, compressed for Android.</Text>
+          <Text style={styles.parityDockBody}>Fast paths mirror the website GUI without pretending mobile can mutate account state before Clerk/backend verification is settled.</Text>
+        </View>
+        <Text style={styles.parityModePill}>{authenticated ? "Synced" : "Safe mode"}</Text>
+      </View>
+
+      <View style={styles.parityRouteGrid}>
+        <ParityRouteButton icon="♞" title="Quest deck" body={`${selectedChallenge.badgeIdentity.name} selected`} onPress={() => onSelectTab("catalog")} />
+        <ParityRouteButton icon="⚔" title="Mission brief" body={activeQuestLabel} onPress={() => onSelectTab("quest")} />
+        <ParityRouteButton icon="✓" title="Checker" body="Open canonical proof flow" onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`)} />
+        <ParityRouteButton icon="♛" title="My Side Quests" body={accountMode} onPress={() => authenticated ? onSelectTab("account") : void openExternalUrl(`${getApiBaseUrl()}/account`)} />
+        <ParityRouteButton icon="🏆" title="Scoreboard" body="View public standings" onPress={() => void openExternalUrl(`${getApiBaseUrl()}/scoreboard`)} />
+        <ParityRouteButton icon="🛡" title="Badges" body="Browse coats of arms" onPress={() => void openExternalUrl(`${getApiBaseUrl()}/badges`)} />
+      </View>
+
+      <View style={styles.paritySafetyStrip}>
+        <Text style={styles.noticeIcon}>🧭</Text>
+        <Text style={styles.noticeCopy}>Auth-sensitive actions still hand off to the website; public browsing, mission briefs, reward previews, status labels, and share links stay native.</Text>
+      </View>
+    </View>
+  );
+}
+
+function ParityRouteButton({ icon, title, body, onPress }: { icon: string; title: string; body: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={title} testID={`parity-route-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} style={styles.parityRouteButton} onPress={onPress}>
+      <Text style={styles.parityRouteIcon}>{icon}</Text>
+      <View style={styles.parityRouteCopy}>
+        <Text style={styles.parityRouteTitle}>{title}</Text>
+        <Text style={styles.parityRouteBody} numberOfLines={2}>{body}</Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -1203,6 +1266,19 @@ const styles = StyleSheet.create({
   accountModeStrip: { flexDirection: "row", alignItems: "center", gap: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   accountModeDot: { color: colors.green, fontSize: 10 },
   accountModeCopy: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "800" },
+  parityDockCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(151,70,255,.34)", backgroundColor: "rgba(151,70,255,.1)" },
+  parityDockHeader: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
+  parityDockHeaderCopy: { flex: 1, gap: 5 },
+  parityDockTitle: { color: colors.paper, fontSize: 22, fontWeight: "900", letterSpacing: -0.9, lineHeight: 24 },
+  parityDockBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  parityModePill: { overflow: "hidden", color: "#120a20", fontSize: 10, fontWeight: "900", textTransform: "uppercase", paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.gold },
+  parityRouteGrid: { gap: 9 },
+  parityRouteButton: { flexDirection: "row", alignItems: "center", gap: 11, padding: 12, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,.1)", backgroundColor: "rgba(0,0,0,.22)" },
+  parityRouteIcon: { width: 34, height: 34, textAlign: "center", textAlignVertical: "center", borderRadius: 17, overflow: "hidden", color: colors.gold, fontSize: 20, backgroundColor: "rgba(255,255,255,.08)" },
+  parityRouteCopy: { flex: 1, gap: 2 },
+  parityRouteTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
+  parityRouteBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
+  paritySafetyStrip: { flexDirection: "row", gap: 10, alignItems: "center", padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
   firstRunSteps: { gap: 9 },
