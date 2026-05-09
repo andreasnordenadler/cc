@@ -825,3 +825,31 @@ p { color: var(--muted); line-height: 1.5; }
   .groupquests-hub-grid { grid-template-columns: 1fr; }
   .groupquests-create-card .button, .groupquests-group-card .button { width: 100%; }
 }
+
+.groupquests-builder { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.groupquests-builder-form { display: grid; gap: 12px; }
+.groupquests-builder label, .groupquests-builder-choice-set { display: grid; gap: 7px; }
+.groupquests-builder label span, .groupquests-builder-choice-set > span { color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-builder input, .groupquests-builder select { width: 100%; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; background: rgba(6,5,7,.72); color: var(--ink); padding: 12px 13px; font-weight: 850; outline: none; }
+.groupquests-builder input:focus, .groupquests-builder select:focus { border-color: rgba(245,200,106,.62); box-shadow: 0 0 0 3px rgba(245,200,106,.16); }
+.groupquests-builder-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(130px, .46fr); gap: 10px; }
+.groupquests-builder-choice-set > div { display: grid; gap: 8px; }
+.groupquests-builder-choice-set button { display: grid; gap: 3px; text-align: left; border: 1px solid rgba(255,255,255,.13); border-radius: 16px; background: rgba(0,0,0,.18); color: var(--ink); padding: 11px 12px; cursor: pointer; }
+.groupquests-builder-choice-set button.active { border-color: rgba(96,240,175,.58); background: rgba(96,240,175,.12); box-shadow: 0 0 0 2px rgba(96,240,175,.12); }
+.groupquests-builder-choice-set button strong { font-size: .9rem; }
+.groupquests-builder-choice-set button small { color: var(--muted); font-size: .78rem; font-weight: 800; line-height: 1.35; }
+.groupquests-draft-preview { display: grid; gap: 11px; padding: 15px; border: 1px solid rgba(245,200,106,.25); border-radius: 22px; background: radial-gradient(circle at 85% 0%, rgba(96,240,175,.15), transparent 36%), rgba(0,0,0,.18); }
+.groupquests-draft-preview .eyebrow { margin-bottom: 0; }
+.groupquests-draft-preview h3 { font-size: clamp(1.35rem, 3vw, 2rem); margin-bottom: 0; }
+.groupquests-preview-stat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.groupquests-preview-stat-grid div, .groupquests-preview-link { display: grid; gap: 4px; padding: 10px; border-radius: 15px; background: rgba(255,255,255,.07); }
+.groupquests-preview-stat-grid strong, .groupquests-preview-link strong { color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-preview-stat-grid span, .groupquests-preview-link span { color: var(--ink); font-size: .86rem; font-weight: 900; overflow-wrap: anywhere; }
+
+@media (min-width: 1040px) {
+  .groupquests-builder { grid-template-columns: minmax(0, 1fr) minmax(270px, .78fr); align-items: start; }
+}
+
+@media (max-width: 620px) {
+  .groupquests-builder-row, .groupquests-preview-stat-grid { grid-template-columns: 1fr; }
+}

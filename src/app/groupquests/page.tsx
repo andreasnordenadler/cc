@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import GroupQuestDraftBuilder from "@/components/group-quest-draft-builder";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 
@@ -72,13 +73,6 @@ const eventFeed = [
   "The No Castle Night window opened. Solo completions before this window do not count here.",
 ];
 
-const createSteps = [
-  "Name the group quest",
-  "Pick one quest or a small quest set",
-  "Choose invite-only, unlisted, or public later",
-  "Set the proof window: fresh games after join/start",
-];
-
 const settingCards = [
   {
     title: "Access",
@@ -130,6 +124,13 @@ export default async function GroupQuestsPage() {
   const featuredQuests = featuredQuestIds
     .map((id) => CHALLENGES.find((challenge) => challenge.id === id))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
+  const builderQuests = CHALLENGES.slice(0, 8).map((challenge) => ({
+    id: challenge.id,
+    title: challenge.title,
+    objective: challenge.objective,
+    reward: challenge.reward,
+    difficulty: challenge.difficulty,
+  }));
 
   return (
     <main className="site-shell groupquests-page">
@@ -154,17 +155,9 @@ export default async function GroupQuestsPage() {
             <span className="eyebrow">Create</span>
             <h2>Start a group quest.</h2>
             <p>
-              First real flow: create a draft room, pick one quest, invite friends, and keep proof scoped to that room.
+              First real flow: create a draft room, pick one quest, invite friends, and keep proof scoped to that room. This builder is live on the hidden page, but draft-only until persistence is wired.
             </p>
-            <div className="groupquests-create-steps">
-              {createSteps.map((step, index) => (
-                <div key={step}>
-                  <strong>{index + 1}</strong>
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
-            <button className="button primary" type="button">Create draft group quest</button>
+            <GroupQuestDraftBuilder quests={builderQuests} />
           </article>
 
           <article className="mission-card groupquests-owned-card">

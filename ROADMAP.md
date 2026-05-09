@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 19:03 Europe/Stockholm
+Last updated: 2026-05-09 20:48 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -83,6 +83,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-09 18:58 Europe/Stockholm
   - source: Andreas asked for high tempo on group quest work and described a logged-in hub with groups users belong to and groups they manage.
   - Proof: `/groupquests` now leads with a hub model: create draft group quest, managed rooms, member rooms, then focused room prototype with leaderboard/feed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
+
+- [x] Add client-side Group Quest draft builder.
+  - added_at: 2026-05-09 20:39 Europe/Stockholm
+  - completed_at: 2026-05-09 20:48 Europe/Stockholm
+  - source: Andreas confirmed Sam should autonomously build the next slice: name group → choose quest → invite mode → preview draft room.
+  - Proof: added `src/components/group-quest-draft-builder.tsx` and wired it into `/groupquests`; users can edit group name, choose an initial quest, choose invite mode/proof window/duration, and see a live draft room preview.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests` as a built route. Production deploy/smoke pending.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
