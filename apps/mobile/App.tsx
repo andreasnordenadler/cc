@@ -44,12 +44,12 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.5 / polish pass 6";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.6 / polish pass 7";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
   signInUrl: "https://sidequestchess.com/sign-in",
-  message: "Public quest catalog is available. Mobile account sync starts after auth is ready.",
+  message: "Public quest catalog is available. Website account sync turns on when mobile sign-in is configured.",
 };
 
 WebBrowser.maybeCompleteAuthSession();
@@ -217,6 +217,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         {shell.bootstrap && selectedChallenge ? (
           <>
             <QuickStartCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
+            <FirstRunBriefCard authBridge={authBridge} />
             <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
           </>
         ) : null}
@@ -301,8 +302,8 @@ function QuickStartCard({
   const accountMode = isAuthenticatedAccount(account)
     ? `Signed in · ${account.progress.totalCompletedChallenges} coats earned`
     : authBridge.configured
-      ? "Sign in with Google to mirror your website quest log"
-      : "Browse mode · website account handoff available";
+      ? "Sign in with Google when ready; the website remains authoritative"
+      : "Browse mode · use the website for account setup";
 
   return (
     <View style={styles.quickStartCard}>
@@ -322,6 +323,22 @@ function QuickStartCard({
       <View style={styles.accountModeStrip}>
         <Text style={styles.accountModeDot}>●</Text>
         <Text style={styles.accountModeCopy}>{accountMode}</Text>
+      </View>
+    </View>
+  );
+}
+
+function FirstRunBriefCard({ authBridge }: { authBridge: MobileAuthBridge }) {
+  const accountStep = authBridge.configured ? "Sign in with Google when you want your website quest log here." : "Use the website for account setup until the Clerk mobile key is enabled.";
+
+  return (
+    <View style={styles.firstRunCard}>
+      <Text style={styles.eyebrow}>First run</Text>
+      <Text style={styles.firstRunTitle}>Three-tap tour</Text>
+      <View style={styles.firstRunSteps}>
+        <FlowStep done title="Browse the live board" body="Quests come from sidequestchess.com, so the app stays in sync with the website." />
+        <FlowStep title="Read the mission brief" body="Open Detail for rules, reward, and what your public chess game must prove." />
+        <FlowStep title="Make it official on web" body={accountStep} />
       </View>
     </View>
   );
@@ -348,9 +365,9 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
   if (!authBridge.configured) {
     return (
       <View style={styles.authCard}>
-        <Text style={styles.eyebrow}>Sign-in pending</Text>
+        <Text style={styles.eyebrow}>Website account handoff</Text>
         <Text style={styles.cardTitle}>Public quest mode is active.</Text>
-        <Text style={styles.cardBody}>You can browse quests and proof previews now. Sign in on the website to connect chess usernames, start quests, and keep account changes authoritative.</Text>
+        <Text style={styles.cardBody}>You can browse quests and reward previews now. Sign in on the website to connect chess usernames, start quests, and keep account changes authoritative.</Text>
         <View style={styles.factGrid}>
           <Fact label="Provider" value="Clerk Expo installed" />
           <Fact label="Needed env" value="EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY" />
@@ -378,7 +395,7 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
       </SignedIn>
       <SignedOut>
         <Text style={styles.cardTitle}>Sign in to sync your quest log.</Text>
-        <Text style={styles.cardBody}>Google sign-in mirrors your website quest log on mobile. If the native handoff needs another try, the quest catalog still works and the website remains the source of truth.</Text>
+        <Text style={styles.cardBody}>Google sign-in mirrors your website quest log on mobile. If the native handoff needs another try, quests still work and the website remains the source of truth.</Text>
         {authBridge.startGoogleSignIn ? (
           <Pressable style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
             <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
@@ -496,8 +513,8 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
           title={signedInButRejected ? "Token is local; backend verification still needs help." : "Ready for your royal paperwork."}
           body={
             signedInButRejected
-              ? "The Expo Google session exists, but /api/mobile/account returned signed-out JSON. This keeps the app graceful until Clerk bearer verification is finalized."
-              : "Use the website to sign in, connect chess usernames, and start real quests. This APK keeps catalog and proof previews available until native account sync is enabled."
+              ? "Google sign-in is local, but the website API did not accept the mobile token yet. The app stays usable while backend verification is finished."
+              : "Use the website to sign in, connect chess usernames, and start real quests. This Android preview keeps catalog and reward views available until account sync is enabled."
           }
           facts={[
             ["Source", bootstrap.product.canonicalUrl],
@@ -571,7 +588,7 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
       <View style={styles.checkerFlow}>
         <FlowStep done title="Choose one quest" body={selectedChallenge.title} />
         <FlowStep title="Play where you already play" body="Use a public Lichess or Chess.com game. No chess-site passwords." />
-        <FlowStep title="Get the receipt" body="The checker returns passed, failed, or pending with a shareable proof card." />
+        <FlowStep title="Get the receipt" body="The checker returns passed, failed, or waiting with a shareable proof card." />
       </View>
       <WebsiteHandoffCard
         title="Submit proof on the website."
@@ -610,14 +627,14 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
       <View style={styles.proofSeal}>
         <Text style={styles.proofSealText}>SQC</Text>
       </View>
-      <Text style={styles.eyebrow}>Proof scroll preview</Text>
+      <Text style={styles.eyebrow}>Reward preview</Text>
       <View style={styles.proofPreviewBadgeFrame}>
         {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.proofPreviewBadge} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
       </View>
       <Text style={styles.proofTitle}>{selectedChallenge.title}</Text>
       <Text style={styles.proofSubtitle}>Unlocks {selectedChallenge.badgeIdentity.name}</Text>
       <Text style={styles.proofBody}>{selectedChallenge.proofCallout}</Text>
-      <Text style={styles.microcopy}>Preview only in public mode. Finish a website-backed quest and this becomes a shareable receipt with provider, game id, and verdict.</Text>
+      <Text style={styles.microcopy}>Public mode shows the reward first. Finish a website-backed quest and this becomes a shareable receipt with provider, game id, and verdict.</Text>
       <View style={styles.factGrid}>
         <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
         <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
@@ -985,6 +1002,9 @@ const styles = StyleSheet.create({
   accountModeStrip: { flexDirection: "row", alignItems: "center", gap: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   accountModeDot: { color: colors.green, fontSize: 10 },
   accountModeCopy: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "800" },
+  firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
+  firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
+  firstRunSteps: { gap: 9 },
   tabRail: { gap: 8, paddingRight: 18 },
   tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,255,255,.07)" },
   tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },

@@ -50,17 +50,17 @@ The app also displays that redirect in the auth card so an on-device tester can 
 
 ## Current scope
 
-This is the Android-alpha shell, not the finished app. It currently:
+This is the Android preview shell, not the finished app. It currently:
 
 - loads the live web-backed quest catalog;
-- renders a mobile quest rail and quest detail screen;
+- renders a mobile quest board, first-run tour, quest detail screen, and reward preview;
 - includes app-side state/screen shells for Catalog, Quest Detail, Account, Status, and Proof;
 - fetches the read-only account/status/proof API and renders signed-out or authenticated state;
 - installs the Clerk Expo provider foundation and safely waits for `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` before enabling mobile sessions;
 - attaches a Clerk bearer token to account refreshes when a signed-in Expo session is available;
 - includes explicit Android SSO redirect configuration and an on-device bearer-auth acceptance/rejection signal;
 - documents the anti-drift rule in-app;
-- includes root EAS profiles for an internal Android APK alpha.
+- includes root EAS profiles for an internal Android APK preview.
 
 Next app milestones:
 
