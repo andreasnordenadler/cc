@@ -8,6 +8,7 @@ import {
   Alert,
   Image,
   Linking,
+  Platform,
   Pressable,
   RefreshControl,
   SafeAreaView,
@@ -209,7 +210,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <ScrollView
         style={styles.screen}
         contentContainerStyle={styles.content}
@@ -1209,6 +1210,9 @@ async function shareSideQuest(title: string, message: string, url: string) {
   }
 }
 
+const ANDROID_STATUS_BAR_OFFSET = Platform.OS === "android" ? StatusBar.currentHeight ?? 0 : 0;
+const ANDROID_NAVIGATION_BAR_OFFSET = Platform.OS === "android" ? 34 : 0;
+
 const colors = {
   bg: "#060507",
   paper: "#fff7e8",
@@ -1222,9 +1226,9 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.bg },
+  safeArea: { flex: 1, backgroundColor: colors.bg, paddingTop: ANDROID_STATUS_BAR_OFFSET },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { gap: 14, padding: 14, paddingBottom: 34 },
+  content: { gap: 14, padding: 14, paddingBottom: 34 + ANDROID_NAVIGATION_BAR_OFFSET },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
