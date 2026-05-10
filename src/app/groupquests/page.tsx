@@ -29,10 +29,10 @@ const loggedOutActions = [
     href: "/groupquests/create",
   },
   {
-    title: "Join by invite",
-    copy: "Got sent a room link? Open it, check the rules, and prove the nonsense inside the window.",
-    action: "How invites work",
-    href: "#join-group-side-quest",
+    title: "See how it works",
+    copy: "Rooms have side quests, a proof window, locked rules, a leaderboard, and one glorious proof-scroll winner.",
+    action: "View the flow",
+    href: "#group-side-quest-flow",
   },
 ];
 
@@ -175,7 +175,7 @@ export default async function GroupQuestsPage() {
           </>
         )}
 
-        <section className="mission-card groupquests-how-card" aria-label="How Group Side Quests work">
+        <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Group Side Quests work">
           <div className="section-head">
             <div>
               <h2>Create. Play. Prove.</h2>
@@ -195,28 +195,6 @@ export default async function GroupQuestsPage() {
             ))}
           </div>
         </section>
-
-        {userId ? null : (
-          <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Join</span>
-                <h2>Got an invite?</h2>
-              </div>
-            </div>
-            <div className="groupquests-join-grid">
-              <div>
-                <p>
-                  Group Side Quests are built around shareable room links. Open an invite, join the room, then complete proof that matches that room’s window and constraints.
-                </p>
-              </div>
-              <div className="groupquests-invite-preview" aria-label="Invite link example">
-                <strong>Invite link</strong>
-                <span>sidequestchess.com/groupquests/gq_…</span>
-              </div>
-            </div>
-          </section>
-        )}
 
         <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Group Side Quest completion rules">
           <span className="eyebrow">Proof rule</span>
