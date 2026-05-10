@@ -12,12 +12,10 @@ const overviewSteps = [
   {
     title: "Play",
     copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Group Side Quest rules.",
-    href: "/groupquests/gq_demo_no_castle_01",
   },
   {
     title: "Prove",
     copy: "Each Group Side Quest gets its own leaderboard, event feed, and group-valid proof separate from solo progress.",
-    href: "#group-side-quest-proof-rule",
   },
 ];
 
@@ -183,17 +181,29 @@ export default async function GroupQuestsPage() {
             </div>
           </div>
           <div className="groupquests-how-grid">
-            {overviewSteps.map((step, index) => (
-              <Link
-                className="groupquests-how-step clickable"
-                href={step.href}
-                key={step.title}
-              >
-                <strong>{index + 1}</strong>
-                <span>{step.title}</span>
-                <p>{step.copy}</p>
-              </Link>
-            ))}
+            {overviewSteps.map((step, index) => {
+              const content = (
+                <>
+                  <strong>{index + 1}</strong>
+                  <span>{step.title}</span>
+                  <p>{step.copy}</p>
+                </>
+              );
+
+              return step.href ? (
+                <Link
+                  className="groupquests-how-step clickable"
+                  href={step.href}
+                  key={step.title}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <article className="groupquests-how-step" key={step.title}>
+                  {content}
+                </article>
+              );
+            })}
           </div>
         </section>
 

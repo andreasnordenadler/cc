@@ -298,3 +298,12 @@ Andreas pointed out that Group Quest links should not use room names because nam
 **Action**: Replaced visible `room`/`rooms` copy in `/groupquests` with “Group Side Quest(s)”.
 
 ---
+
+## 2026-05-10 — Correction: Only first Group Side Quests flow step is clickable
+
+**Category**: correction
+**Context**: Andreas corrected the `Create. Play. Prove.` section: only step 1 should be clickable, not steps 2 and 3.
+**Learning**: In SQC launch-facing explainer flows, do not make informational steps look clickable unless they actually start the user’s next action. For `/groupquests`, only `Create` should link to creation; `Play` and `Prove` are static explanation cards.
+**Action**: Changed overview steps 2 and 3 from links to static articles.
+
+---
