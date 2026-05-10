@@ -120,11 +120,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - Proof: the No Castle Night prototype route moved from a name slug to `/groupquests/gq_demo_no_castle_01`, while the displayed room name remains `No Castle Night`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests/gq_demo_no_castle_01`.
 
-- [ ] Collaboratively refine the Group Quests overview page.
+- [x] Collaboratively refine the Group Quests overview page.
   - added_at: 2026-05-10 14:46 Europe/Stockholm
+  - completed_at: 2026-05-10 14:59 Europe/Stockholm
   - source: Andreas said to work together on group challenges and start with the overview page.
   - naming: Andreas suggested **Group Side Quests** because it aligns with **My Side Quests**; use that as the user-facing overview-page term while keeping `/groupquests` as the internal route.
-  - Acceptance: `/groupquests` clearly explains what group challenges are, separates managed/member/discoverable group states, uses stable IDs for room links, keeps the feature hidden from public nav, and feels like a polished SQC product surface rather than an internal prototype.
+  - Proof: `/groupquests` now uses the Group Side Quests naming, explains the shared My Side Quests model, adds a `Create. Play. Prove.` explainer, separates `Create`, `Hosting`, and `Playing` sections, and keeps the hidden route unlinked from public nav.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; commit `50444cb` (`Refine Group Side Quests overview`) pushed to `main`; production deploy `https://cc-gr46lsqjp-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200, and `/groupquests` contains `Group Side Quests` plus `Create. Play. Prove.`.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
