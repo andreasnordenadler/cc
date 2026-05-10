@@ -135,6 +135,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - Proof: `/groupquests` now removes visible hidden/prototype/internal wording, presents a launch-style `Multiplayer side quests` hero, clarifies create/play/prove flow, replaces fake active-room dashboard sections with host/play/join product states, adds invite-link join framing, and keeps `/groupquests/create` plus stable room links.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; commit `bf8d8c0` (`Make Group Side Quests overview launch ready`) pushed to `main`; production deploy `https://cc-ghpd346rc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed `/groupquests` 200 and visible launch copy including `Multiplayer side quests`, `Join with invite link`, and `Pick one or more side quests`.
 
+- [x] Lock Group Side Quests overview as logged-in launch-ready baseline.
+  - added_at: 2026-05-10 16:39 Europe/Stockholm
+  - completed_at: 2026-05-10 16:39 Europe/Stockholm
+  - source: Andreas said, “Great! I think we can lock this group quest page as the launch ready for logged in.”
+  - Proof: recorded `docs/SQC_GROUP_SIDE_QUESTS_LOGGED_IN_LAUNCH_READY_2026-05-10.md` with the locked decisions and latest baseline commit `bf7024c` (`Make only create step clickable`).
+  - Verification: latest locked page was deployed to `https://cc-dyxldolh9-andreas-nordenadlers-projects.vercel.app` and aliased to `https://sidequestchess.com`; `pnpm lint`, `pnpm build`, production deploy guard, and live `/groupquests` smoke all passed before the lock.
+
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
 Planning completed; implementation is now approved only for the hidden `/groupquests` workbench and should remain unlinked until Andreas says otherwise.
