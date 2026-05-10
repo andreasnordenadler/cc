@@ -2703,3 +2703,205 @@ The app rendered proof labels server-side with `Intl.DateTimeFormat("en", ...)`,
 **Fix**: Quote bracket route paths in all shell commands, not just `git add`: `grep ... 'src/app/challenges/[id]/page.tsx'`.
 
 ---
+
+## [ERR-20260509-001] eas-build-noninteractive-forwarding
+
+**Logged**: 2026-05-09T00:48:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`pnpm --filter @sidequestchess/mobile build:android:alpha -- --non-interactive` failed because the package script forwards the extra flag to `eas build` after an unexpected `--` separator.
+
+### Details
+The mobile package script already invokes `pnpm dlx eas-cli build --platform android --profile android-alpha`; adding `-- --non-interactive` produced `Unexpected argument: --non-interactive`.
+
+### Suggested Action
+For this package script, run `pnpm --filter @sidequestchess/mobile build:android:alpha` directly, or update the script itself if non-interactive behavior becomes required.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/package.json
+- Tags: eas, pnpm, expo
+
+---
+
+## [ERR-20260509-002] eas-build-auth-missing
+
+**Logged**: 2026-05-09T00:50:00+02:00
+**Priority**: medium
+**Status**: blocked
+**Area**: infra
+
+### Summary
+EAS Android alpha build could not start because the shell has no authenticated Expo account/token available.
+
+### Details
+The direct package script reached EAS CLI, but EAS returned: an Expo user account is required; log in with `eas login` or set `EXPO_TOKEN` for CI. No tokens were printed or stored.
+
+### Suggested Action
+Before retrying remote APK builds in a fresh OpenClaw shell, ensure Expo auth is available via the local EAS login session or a scoped CI token in the environment.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/package.json, eas.json
+- Tags: eas, expo, android-build, auth
+
+---
+
+## [ERR-20260509-001] exec_workdir_omitted
+
+**Logged**: 2026-05-09T00:50:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tooling
+
+### Summary
+Mobile polish edit script failed because the exec call omitted the `/Users/sam/.openclaw/workspace/cc` workdir and looked for `apps/mobile/App.tsx` from the global workspace.
+
+### Suggested Action
+For repo-local scripts in subagents, always set `workdir` explicitly to the assigned project path.
+
+---
+
+## [ERR-20260509-003] zsh_find_glob_nomatch
+
+**Logged**: 2026-05-09T01:34:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tooling
+
+### Summary
+A `find` command failed in zsh because the unquoted `app.config.*` pattern was expanded by the shell before `find` could evaluate it.
+
+### Suggested Action
+Quote wildcard name predicates in zsh commands, e.g. `-name 'app.config.*'`, especially when running repo discovery commands.
+
+---
+
+## [ERR-20260509-004] react_hooks_set_state_in_effect_mobile_lint
+
+**Logged**: 2026-05-09T01:46:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+`pnpm lint` failed on existing mobile `useEffect` bootstrapping because React's lint rule flagged direct setState-triggering calls inside effects.
+
+### Suggested Action
+Schedule async bootstraps from effects with a cleanup-friendly timer or refactor to an event/external subscription; re-run lint after touching mobile startup code.
+
+---
+
+## [ERR-20260509-001] expo_export_dlx_wrong_expo_version
+
+**Logged**: 2026-05-09T01:45:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: mobile build
+
+### Summary
+`pnpm --dir apps/mobile dlx expo export --platform android --output-dir dist-android-pass5` installed Expo 55 outside the app and failed to resolve the local `App` entry.
+
+### Details
+For this Expo 54 mobile app, exporting via `pnpm dlx expo` can use a mismatched CLI/runtime cache path. Prefer the project-local Expo CLI: `pnpm --dir apps/mobile exec expo export --platform android --output-dir <dir>`.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/package.json, apps/mobile/App.tsx
+- Tags: expo, mobile, export
+
+---
+
+## [ERR-20260509-005] sqc_deploy_guard_dirty_learnings
+
+**Logged**: 2026-05-09T06:58:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: deploy
+
+### Summary
+`pnpm deploy:prod` was initially blocked because the production deploy guard found a tracked `.learnings/ERRORS.md` modification unrelated to the SQC code slice.
+
+### Error
+```
+Production deploy blocked: tracked files are modified:
+M .learnings/ERRORS.md
+```
+
+### Suggested Action
+Before SQC production deploys, check for unrelated tracked workspace edits and temporarily stash or resolve them so the guarded deploy can verify a clean `main == origin/main` tree.
+
+### Metadata
+- Source: error
+- Related Files: scripts/deploy-production-guard.mjs, .learnings/ERRORS.md
+- Tags: vercel, deploy-guard, git-status
+
+---
+## [ERR-20260509-006] eas_cli_not_logged_in_pre10_mobile_apk
+
+**Logged**: 2026-05-09T08:52:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: mobile build
+
+### Summary
+Pre-10:00 SQC mobile APK production via EAS was blocked because no Expo/EAS token was present and the CLI reported `Not logged in`.
+
+### Suggested Action
+For unattended Android alpha APK builds, provide Expo authentication via `EXPO_TOKEN`/`EAS_TOKEN` or a pre-authenticated EAS session before running `pnpm --dir apps/mobile dlx eas-cli build --platform android --profile android-alpha --non-interactive`. Do not log token values.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/eas.json, apps/mobile/package.json
+- Tags: expo, eas, android-apk, auth
+
+---
+
+## [ERR-20260510-001] signed_in_browser_inspection
+
+**Logged**: 2026-05-10T15:49:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: tooling
+
+### Summary
+Could not inspect SQC signed-in live UI via local automation because headless Playwright lacked installed browser binaries, screenshot capture failed without a usable display, and Chrome AppleScript JavaScript execution is disabled.
+
+### Details
+When Andreas asked to log in and inspect the signed-in Group Side Quests page, headless Playwright required missing browser install; using system Chrome worked only signed-out. Attempts to use the local Chrome profile hit GUI/scripting blockers (`screencapture` could not create image from display; Chrome AppleScript JS execution is disabled).
+
+### Suggested Action
+For future signed-in UI review, either enable an approved browser automation path with a persistent test account/session, or add a safe local preview mechanism that renders signed-in states without production auth cookies.
+
+### Metadata
+- Source: conversation
+- Related Files: src/app/groupquests/page.tsx
+- Tags: browser-automation, auth, sqc
+
+---
+
+## [ERR-20260510-002] image_generation_transparent_background
+
+**Logged**: 2026-05-10T16:19:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: design
+
+### Summary
+Image generation with `background: transparent` failed for the active OpenAI image model.
+
+### Details
+The first Group Side Quests noble-knights graphic request failed because transparent background was not supported by the selected model. Retried successfully with an opaque dark vignette-friendly background.
+
+### Suggested Action
+For this model, request opaque/dark vignette backgrounds unless specifically using a model/provider that supports transparent PNG output.
+
+### Metadata
+- Source: tool_error
+- Related Files: public/illustrations/group-side-quests-knight-competition.png
+- Tags: image-generation, sqc, design
+
+---
