@@ -90,7 +90,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-10 22:30 Europe/Stockholm
   - source: Andreas said the logged-in page was much better, but should be simplified further with many Finished/Live/etc. rooms in mind.
   - Proof: signed-in `/groupquests` now prioritizes `What needs me?`, keeps `Needs your attention`, collapses live/upcoming/drafts into one compact Active list, and moves Finished rooms into a compact recent-results side panel with `View all finished`. Proof doc: `docs/SQC_GROUP_SIDE_QUESTS_SCALABLE_DASHBOARD_SIMPLIFICATION_2026-05-10.md`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`. Production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy `https://cc-dlrf1aio0-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200; authenticated Chrome Apple Events check confirmed signed-in scalable dashboard text.
 
 - [x] Ship hidden `/groupquests` MVP shell.
   - added_at: 2026-05-09 12:02 Europe/Stockholm

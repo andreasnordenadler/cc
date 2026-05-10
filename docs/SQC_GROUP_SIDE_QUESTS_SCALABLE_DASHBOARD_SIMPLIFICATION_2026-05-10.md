@@ -35,4 +35,7 @@ Finished/history should be searchable or paginated later, but it should not comp
 
 ## Deployment
 
-Pending at time of writing.
+- Production deploy: `https://cc-dlrf1aio0-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+- Smoke checks: `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` all returned HTTP 200.
+- Authenticated Chrome Apple Events check confirmed the signed-in `/groupquests` page contains `What needs me?`, `Active`, and `View all finished`.
