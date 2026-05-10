@@ -85,11 +85,6 @@ export default async function GroupQuestsPage() {
           <p className="hero-copy">
             Start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board.
           </p>
-          <div className="hero-actions button-row groupquests-hero-actions">
-            <Link className="button primary" href="/groupquests/create">Create new Group Side Quest</Link>
-            <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Enter active Group Side Quests</Link>
-            <a className="button secondary" href="#join-group-side-quest">Join with invite link</a>
-          </div>
         </section>
 
         {userId ? (

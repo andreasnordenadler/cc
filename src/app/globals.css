@@ -775,7 +775,9 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-log-accounts-card .button { padding: 9px 14px; font-size: .82rem; }
 
 .groupquests-page .content-wrap { gap: 24px; }
-.groupquests-hero { position: relative; overflow: hidden; }
+.groupquests-hero { position: relative; overflow: hidden; padding-block: clamp(20px, 3.2vw, 30px); }
+.groupquests-hero h1 { font-size: clamp(2.75rem, 7vw, 5.4rem); margin-bottom: 10px; }
+.groupquests-hero .hero-copy { max-width: 820px; font-size: clamp(1rem, 1.65vw, 1.22rem); }
 .groupquests-live-card { display: grid; gap: 18px; background: radial-gradient(circle at 82% 10%, rgba(96,240,175,.2), transparent 34%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(255,255,255,.07)); }
 .groupquests-status-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .groupquests-status-strip div { padding: 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.18); }
