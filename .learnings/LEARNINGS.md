@@ -307,3 +307,21 @@ Andreas pointed out that Group Quest links should not use room names because nam
 **Action**: Changed overview steps 2 and 3 from links to static articles.
 
 ---
+
+## [LRN-20260510-001] correction
+
+**Logged**: 2026-05-10T23:17:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+For SQC Group Side Quests signed-in page, Andreas wants `Create. Play. Prove.` retained at the bottom even after trimming other explainer clutter.
+
+### Details
+The signed-in page trim removed the bottom flow section; Andreas corrected that it should stay. Keep the section lightweight and low on the page.
+
+### Suggested Action
+When simplifying SQC pages, remove heavy explanatory blocks first but preserve concise product-loop anchors if Andreas finds them helpful.
+
+---
