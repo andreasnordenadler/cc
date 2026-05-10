@@ -35,7 +35,9 @@ Andreas asked for a focused logged-in Group Side Quest UX/UI block covering part
   - `scripts/deploy-production-guard.mjs` unused `envOutput`
   - `<img>` warnings in `src/components/proof-image.tsx` and `src/components/site-nav.tsx`
 - `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`.
-- Production deploy and live smoke: pending at doc creation time.
+- Production deploy guard passed.
+- Production deploy `https://cc-96x3cukfs-andreas-nordenadlers-projects.vercel.app` was aliased to `https://sidequestchess.com`.
+- Live smoke via Python `urllib.request` confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200 with expected launch copy.
 
 ## Notes
 

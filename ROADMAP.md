@@ -155,7 +155,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - source: Andreas asked Sam to spend the next 4 hours on logged-in Group Side Quest user experience and UI, covering participating, creating, and maintaining Group Side Quests.
   - scope: logged-in `/groupquests`, `/groupquests/create`, and Group Side Quest detail/maintenance flows; prioritize user-visible UX/UI improvements with deployable proof.
   - Proof: `/groupquests` now has a logged-in dashboard with summary stats, next-best-action proof CTA, clearer current/previous Group Side Quests, quick actions, and invite-link rule review; `/groupquests/create` now has a staged create checklist plus participant/host maintenance preview; `/groupquests/gq_demo_no_castle_01` now separates participant proof status from host maintenance controls with proof checklist, invite/proof/window controls, labeled activity feed, and clearer leaderboard proof states. Details recorded in `docs/SQC_GROUP_SIDE_QUESTS_LOGGED_IN_UX_BLOCK_2026-05-10.md`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy guard passed; production deploy `https://cc-96x3cukfs-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200 with expected launch copy.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
