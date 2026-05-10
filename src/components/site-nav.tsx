@@ -2,7 +2,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import AuthActionButtons from "@/components/auth-action-buttons";
 
-type ActiveNavItem = "home" | "random" | "path" | "challenges" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "beta" | "support";
+type ActiveNavItem = "home" | "random" | "path" | "challenges" | "groupquests" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "beta" | "support";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -19,6 +19,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           </Link>
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Side Quests</Link>
+          <Link href="/groupquests" className={active === "groupquests" ? "active" : undefined}>Group Side Quests</Link>
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Coat of Arms</Link>
         </nav>
 

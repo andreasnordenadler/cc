@@ -74,7 +74,7 @@ export default async function GroupQuestsPage() {
 
   return (
     <main className="site-shell groupquests-page">
-      <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
+      <SiteNav isSignedIn={Boolean(userId)} active="groupquests" />
 
       <div className="content-wrap">
         <section className="hero-card groupquests-hero">

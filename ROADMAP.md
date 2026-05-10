@@ -142,6 +142,13 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - Proof: recorded `docs/SQC_GROUP_SIDE_QUESTS_LOGGED_IN_LAUNCH_READY_2026-05-10.md` with the locked decisions and latest baseline commit `bf7024c` (`Make only create step clickable`).
   - Verification: latest locked page was deployed to `https://cc-dyxldolh9-andreas-nordenadlers-projects.vercel.app` and aliased to `https://sidequestchess.com`; `pnpm lint`, `pnpm build`, production deploy guard, and live `/groupquests` smoke all passed before the lock.
 
+- [x] Add Group Side Quests to top navigation.
+  - added_at: 2026-05-10 16:41 Europe/Stockholm
+  - completed_at: 2026-05-10 16:43 Europe/Stockholm
+  - source: Andreas said, “Let us add Group Side Quests to the top bar.”
+  - Proof: top nav now links to `/groupquests` with label `Group Side Quests`; `/groupquests` uses the active nav state for that item.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`. Production deploy/smoke pending.
+
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
 Planning completed; implementation is now approved only for the hidden `/groupquests` workbench and should remain unlinked until Andreas says otherwise.
