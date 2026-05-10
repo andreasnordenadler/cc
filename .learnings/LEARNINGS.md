@@ -289,3 +289,12 @@ Do not treat extensive responsive/mobile web polish as a launch blocker for SQC.
 Andreas pointed out that Group Quest links should not use room names because names can duplicate or change. Use opaque/stable unique identifiers in routes and keep human-readable names as display labels.
 
 ---
+
+## 2026-05-10 — Correction: SQC launch-facing copy should avoid “room”
+
+**Category**: correction
+**Context**: Andreas corrected Group Side Quests overview copy where the Prove card said “Each room gets…”.
+**Learning**: In launch-facing SQC Group Side Quests UI, use “Group Side Quest” instead of “room” wherever practical. Internal variable/class names can remain room-oriented, but visible copy should match the product term.
+**Action**: Replaced visible `room`/`rooms` copy in `/groupquests` with “Group Side Quest(s)”.
+
+---

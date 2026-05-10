@@ -11,12 +11,12 @@ const overviewSteps = [
   },
   {
     title: "Play",
-    copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the room rules.",
+    copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Group Side Quest rules.",
     href: "/groupquests/gq_demo_no_castle_01",
   },
   {
     title: "Prove",
-    copy: "Each room gets its own leaderboard, event feed, and group-valid proof separate from solo progress.",
+    copy: "Each Group Side Quest gets its own leaderboard, event feed, and group-valid proof separate from solo progress.",
     href: "#group-side-quest-proof-rule",
   },
 ];
@@ -30,7 +30,7 @@ const loggedOutActions = [
   },
   {
     title: "See how it works",
-    copy: "Rooms have side quests, a proof window, locked rules, a leaderboard, and one glorious proof-scroll winner.",
+    copy: "Group Side Quests have side quests, a proof window, locked rules, a leaderboard, and one glorious proof-scroll winner.",
     action: "View the flow",
     href: "#group-side-quest-flow",
   },
@@ -43,15 +43,15 @@ const currentRooms = [
     role: "Hosting",
     detail: "1 of 3 side quests cleared · proof window open",
     href: "/groupquests/gq_demo_no_castle_01",
-    action: "Enter room",
+    action: "Enter Group Side Quest",
   },
   {
     title: "Beginner Chaos Ladder",
     status: "Next up",
     role: "Playing",
-    detail: "Starts when the host opens the room",
+    detail: "Starts when the host opens the Group Side Quest",
     href: "/groupquests/gq_demo_no_castle_01",
-    action: "View room",
+    action: "View Group Side Quest",
   },
 ];
 
@@ -68,7 +68,7 @@ const previousRooms = [
 
 export const metadata = {
   title: "Group Side Quests · Side Quest Chess",
-  description: "Side Quest Chess multiplayer rooms for shared side quests, fresh proof, and group leaderboards.",
+  description: "Side Quest Chess Group Side Quests for shared side quests, fresh proof, and group leaderboards.",
 };
 
 export default async function GroupQuestsPage() {
@@ -93,7 +93,7 @@ export default async function GroupQuestsPage() {
             <div className="section-head">
               <div>
                 <span className="eyebrow">Your Group Side Quests</span>
-                <h2>Current rooms first.</h2>
+                <h2>Current Group Side Quests first.</h2>
               </div>
               <Link className="button secondary" href="/groupquests/create">Create new</Link>
             </div>
@@ -146,10 +146,10 @@ export default async function GroupQuestsPage() {
               <div>
                 <h2>A tiny chess tournament for bad ideas.</h2>
                 <p>
-                  Group Side Quests turn normal chess nights into a shared challenge: one player creates a room, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
+                  Group Side Quests turn normal chess nights into a shared challenge: one player creates a Group Side Quest, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
                 </p>
                 <p>
-                  Each room has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the group only counts proof earned inside that room.
+                  Each Group Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the group only counts proof earned inside that Group Side Quest.
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Group Side Quest process graphic">
@@ -201,7 +201,7 @@ export default async function GroupQuestsPage() {
           <span className="eyebrow">Proof rule</span>
           <h2>Personal proof and group proof are different ledgers.</h2>
           <p>
-            Finishing a side quest alone still counts for your account. Finishing it inside a Group Side Quest requires fresh room-valid proof: joined participant, eligible window, matching game rules, room score, and group celebration.
+            Finishing a side quest alone still counts for your account. Finishing it inside a Group Side Quest requires fresh Group Side Quest-valid proof: joined participant, eligible window, matching game rules, Group Side Quest score, and group celebration.
           </p>
         </section>
       </div>
