@@ -22,7 +22,7 @@ const overviewSteps = [
 
 const loggedOutActions = [
   {
-    title: "Create a room",
+    title: "Create a New Group Side Quest",
     copy: "Start the ridiculous dare, choose the side quests, and invite the people who deserve trouble.",
     action: "Create Group Side Quest",
     href: "/groupquests/create",
