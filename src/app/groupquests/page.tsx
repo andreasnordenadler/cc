@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
@@ -32,6 +33,21 @@ const loggedOutActions = [
     copy: "Got sent a room link? Open it, check the rules, and prove the nonsense inside the window.",
     action: "How invites work",
     href: "#join-group-side-quest",
+  },
+];
+
+const processBadges = [
+  {
+    src: "/badges/v6/knights-before-coffee-badge.png",
+    alt: "Knights Before Coffee coat of arms",
+  },
+  {
+    src: "/badges/v6/bishop-field-trip-badge.png",
+    alt: "Bishop Field Trip coat of arms",
+  },
+  {
+    src: "/badges/v6/proof-loop-test-badge.png",
+    alt: "Proof Loop Test coat of arms",
   },
 ];
 
@@ -138,15 +154,54 @@ export default async function GroupQuestsPage() {
             </div>
           </section>
         ) : (
-          <section className="grid groupquests-logged-out-actions" aria-label="Start with Group Side Quests">
-            {loggedOutActions.map((item) => (
-              <article className="mission-card groupquests-action-card" key={item.title}>
-                <h2>{item.title}.</h2>
-                <p>{item.copy}</p>
-                <Link className="button primary" href={item.href}>{item.action}</Link>
-              </article>
-            ))}
-          </section>
+          <>
+            <section className="mission-card groupquests-story-card" aria-label="What Group Side Quests are">
+              <div>
+                <span className="eyebrow">How it feels</span>
+                <h2>A tiny chess tournament for bad ideas.</h2>
+                <p>
+                  Group Side Quests turn normal chess nights into a shared challenge: one player creates a room, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
+                </p>
+                <p>
+                  Each room has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the group only counts proof earned inside that room.
+                </p>
+              </div>
+              <div className="groupquests-process-graphic" aria-label="Group Side Quest process graphic">
+                <div className="groupquests-badge-cluster">
+                  {processBadges.map((badge, index) => (
+                    <Image
+                      alt={badge.alt}
+                      className={`groupquests-process-badge badge-${index + 1}`}
+                      height={96}
+                      key={badge.src}
+                      src={badge.src}
+                      width={96}
+                    />
+                  ))}
+                </div>
+                <div className="groupquests-player-row" aria-hidden="true">
+                  <span>AN</span>
+                  <span>MK</span>
+                  <span>JS</span>
+                  <span>?</span>
+                </div>
+                <div className="groupquests-trophy-card">
+                  <strong>Winner</strong>
+                  <span>Proof accepted</span>
+                </div>
+              </div>
+            </section>
+
+            <section className="grid groupquests-logged-out-actions" aria-label="Start with Group Side Quests">
+              {loggedOutActions.map((item) => (
+                <article className="mission-card groupquests-action-card" key={item.title}>
+                  <h2>{item.title}.</h2>
+                  <p>{item.copy}</p>
+                  <Link className="button primary" href={item.href}>{item.action}</Link>
+                </article>
+              ))}
+            </section>
+          </>
         )}
 
         <section className="mission-card groupquests-how-card" aria-label="How Group Side Quests work">
