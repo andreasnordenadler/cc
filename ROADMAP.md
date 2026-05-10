@@ -97,7 +97,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-10 23:18 Europe/Stockholm
   - source: Andreas asked if anything else could be removed or moved from the page after the scalable dashboard pass.
   - Proof: signed-in `/groupquests` no longer shows the separate hero, large invite explainer, `Create. Play. Prove.`, or proof-ledger explainer; those explanatory sections now remain for signed-out users only, while signed-in users get a compact invite hint inside the dashboard. Proof doc: `docs/SQC_GROUP_SIDE_QUESTS_SIGNED_IN_PAGE_TRIM_2026-05-10.md`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`. Production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy `https://cc-d4x5f9w1p-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200; authenticated Chrome Apple Events check confirmed signed-in trim.
 
 - [x] Ship hidden `/groupquests` MVP shell.
   - added_at: 2026-05-09 12:02 Europe/Stockholm

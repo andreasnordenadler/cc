@@ -24,4 +24,7 @@ Logged-in users are already in the product. Their page should be a control surfa
 
 ## Deployment
 
-Pending at time of writing.
+- Production deploy: `https://cc-d4x5f9w1p-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+- Smoke checks: `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` all returned HTTP 200.
+- Authenticated Chrome Apple Events check confirmed the signed-in page still contains `What needs me?` and `Have an invite link?`, while `Create. Play. Prove.` is no longer present for signed-in users.
