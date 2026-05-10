@@ -776,7 +776,6 @@ p { color: var(--muted); line-height: 1.5; }
 
 .groupquests-page .content-wrap { gap: 24px; }
 .groupquests-hero { position: relative; overflow: hidden; }
-.groupquests-hero::after { content: "GROUP SIDE QUESTS"; position: absolute; right: -18px; bottom: 12px; color: rgba(255,255,255,.055); font-size: clamp(2.65rem, 8.5vw, 7.25rem); font-weight: 1000; letter-spacing: -.08em; line-height: .8; pointer-events: none; }
 .groupquests-live-card { display: grid; gap: 18px; background: radial-gradient(circle at 82% 10%, rgba(96,240,175,.2), transparent 34%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(255,255,255,.07)); }
 .groupquests-status-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .groupquests-status-strip div { padding: 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.18); }
