@@ -6,16 +6,16 @@ const managedGroups = [
   {
     title: "No Castle Night",
     href: "/groupquests/gq_demo_no_castle_01",
-    role: "You manage",
+    role: "Hosting",
     status: "Live draft",
     members: "3 players",
     progress: "1 / 3 cleared",
-    next: "Invite two friends, then lock quest window",
+    next: "Invite two friends, then lock the proof window",
   },
   {
     title: "Weekend Horse Club",
     href: "/groupquests/create",
-    role: "You manage",
+    role: "Hosting",
     status: "Draft setup",
     members: "Invite-only",
     progress: "0 / 5 joined",
@@ -27,7 +27,7 @@ const memberGroups = [
   {
     title: "Queenless After Dark",
     href: "/groupquests/gq_demo_no_castle_01",
-    role: "Participant",
+    role: "Playing",
     status: "Starts soon",
     members: "6 players",
     progress: "Waiting for start",
@@ -36,7 +36,7 @@ const memberGroups = [
   {
     title: "Beginner Chaos Ladder",
     href: "/groupquests/gq_demo_no_castle_01",
-    role: "Participant",
+    role: "Playing",
     status: "Open invite",
     members: "4 players",
     progress: "Step 1 unlocked",
@@ -44,9 +44,24 @@ const memberGroups = [
   },
 ];
 
+const overviewSteps = [
+  {
+    title: "Create",
+    copy: "Pick a side quest, set the proof window, choose invite rules, and lock the chess-game constraints.",
+  },
+  {
+    title: "Play",
+    copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the room rules.",
+  },
+  {
+    title: "Celebrate",
+    copy: "The room gets its own leaderboard, event feed, and group-valid proof separate from solo progress.",
+  },
+];
+
 export const metadata = {
-  title: "Group Quests · Side Quest Chess",
-  description: "Hidden Side Quest Chess multiplayer group quest overview.",
+  title: "Group Side Quests · Side Quest Chess",
+  description: "Hidden Side Quest Chess multiplayer Group Side Quests overview.",
 };
 
 function GroupCard({ group }: { group: (typeof managedGroups)[number] }) {
@@ -77,51 +92,60 @@ export default async function GroupQuestsPage() {
       <div className="content-wrap">
         <section className="hero-card groupquests-hero">
           <span className="eyebrow">Hidden multiplayer overview</span>
-          <h1>Group quests overview.</h1>
+          <h1>Group Side Quests.</h1>
           <p className="hero-copy">
-            This top page is the clean hub: create a group quest, jump into rooms you manage, or continue rooms you belong to. Deeper setup and live room details now live behind separate pages.
+            A shared version of My Side Quests: create a room, invite players, and race to complete fresh chess proof inside the group window.
           </p>
-          <div className="auth-reassurance-grid" aria-label="Current group quest constraints">
+          <div className="auth-reassurance-grid" aria-label="Current Group Side Quest constraints">
             <span>{userId ? "Signed-in hub view" : "Signed-out preview"}</span>
             <span>Fresh competition proof</span>
             <span>No public nav link</span>
           </div>
           <div className="hero-actions button-row">
-            <Link className="button primary" href="/groupquests/create">Create group quest</Link>
+            <Link className="button primary" href="/groupquests/create">Create Group Side Quest</Link>
             <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Open room prototype</Link>
           </div>
         </section>
 
-        <section className="grid groupquests-overview-stats" aria-label="Group quest overview stats">
-          <article className="stat-card">
-            <strong>{managedGroups.length}</strong>
-            <span>Managed rooms</span>
-          </article>
-          <article className="stat-card">
-            <strong>{memberGroups.length}</strong>
-            <span>Member rooms</span>
-          </article>
-          <article className="stat-card">
-            <strong>0</strong>
-            <span>Public links</span>
-          </article>
+        <section className="mission-card groupquests-how-card" aria-label="How Group Side Quests work">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Mission control</span>
+              <h2>Create. Play. Prove.</h2>
+            </div>
+            <span className="badge green">Hidden alpha</span>
+          </div>
+          <div className="groupquests-how-grid">
+            {overviewSteps.map((step, index) => (
+              <div key={step.title}>
+                <strong>{index + 1}</strong>
+                <span>{step.title}</span>
+                <p>{step.copy}</p>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <section className="grid groupquests-hub-grid" aria-label="Group quest hub">
+        <section className="grid groupquests-hub-grid" aria-label="Group Side Quest hub">
           <article className="mission-card groupquests-create-card">
             <span className="eyebrow">Create</span>
-            <h2>Start a group quest.</h2>
+            <h2>Start a Group Side Quest.</h2>
             <p>
-              The builder now has its own page so this overview stays light. Set name, quest, invite mode, proof window, and mandatory Lichess-style rules there.
+              Start from the builder when you want to host. The overview stays focused on the rooms that need your attention.
             </p>
-            <Link className="button primary" href="/groupquests/create">Open builder</Link>
+            <div className="groupquests-create-steps">
+              <div><strong>1</strong><span>Name the room</span></div>
+              <div><strong>2</strong><span>Pick the side quest</span></div>
+              <div><strong>3</strong><span>Lock invite and game rules</span></div>
+            </div>
+            <Link className="button primary" href="/groupquests/create">Create Group Side Quest</Link>
           </article>
 
           <article className="mission-card groupquests-owned-card">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Managed by you</span>
-                <h2>Your rooms.</h2>
+                <span className="eyebrow">Hosting</span>
+                <h2>Group Side Quests you host.</h2>
               </div>
               <span className="badge gold">{managedGroups.length}</span>
             </div>
@@ -136,8 +160,8 @@ export default async function GroupQuestsPage() {
         <section className="mission-card" aria-label="Groups you belong to">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Member hub</span>
-              <h2>Groups you belong to.</h2>
+              <span className="eyebrow">Playing</span>
+              <h2>Group Side Quests you joined.</h2>
             </div>
             <span className="badge green">{memberGroups.length} active</span>
           </div>
@@ -148,11 +172,11 @@ export default async function GroupQuestsPage() {
           </div>
         </section>
 
-        <section className="mission-card groupquests-rules-card" aria-label="Competition completion rules">
+        <section className="mission-card groupquests-rules-card" aria-label="Group Side Quest completion rules">
           <span className="eyebrow">Completion state rule</span>
           <h2>Personal proof and group proof are different ledgers.</h2>
           <p>
-            Personal completion stays yours. Group completion is separate: joined participant, eligible window, room-specific proof, room score, and group celebration.
+            Finishing a side quest alone still counts for your account. Finishing it inside a Group Side Quest requires fresh room-valid proof: joined participant, eligible window, matching game rules, room score, and group celebration.
           </p>
         </section>
       </div>

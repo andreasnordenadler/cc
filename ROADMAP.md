@@ -120,6 +120,12 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - Proof: the No Castle Night prototype route moved from a name slug to `/groupquests/gq_demo_no_castle_01`, while the displayed room name remains `No Castle Night`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests/gq_demo_no_castle_01`.
 
+- [ ] Collaboratively refine the Group Quests overview page.
+  - added_at: 2026-05-10 14:46 Europe/Stockholm
+  - source: Andreas said to work together on group challenges and start with the overview page.
+  - naming: Andreas suggested **Group Side Quests** because it aligns with **My Side Quests**; use that as the user-facing overview-page term while keeping `/groupquests` as the internal route.
+  - Acceptance: `/groupquests` clearly explains what group challenges are, separates managed/member/discoverable group states, uses stable IDs for room links, keeps the feature hidden from public nav, and feels like a polished SQC product surface rather than an internal prototype.
+
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
 Planning completed; implementation is now approved only for the hidden `/groupquests` workbench and should remain unlinked until Andreas says otherwise.
