@@ -47,7 +47,7 @@ const memberGroups = [
 const overviewSteps = [
   {
     title: "Create",
-    copy: "Pick a side quest, set the proof window, choose invite rules, and lock the chess-game constraints.",
+    copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the group quest constraints.",
   },
   {
     title: "Play",
@@ -110,10 +110,8 @@ export default async function GroupQuestsPage() {
         <section className="mission-card groupquests-how-card" aria-label="How Group Side Quests work">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Mission control</span>
               <h2>Create. Play. Prove.</h2>
             </div>
-            <span className="badge green">Hidden alpha</span>
           </div>
           <div className="groupquests-how-grid">
             {overviewSteps.map((step, index) => (
