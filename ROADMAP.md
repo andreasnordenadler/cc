@@ -104,7 +104,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-10 23:22 Europe/Stockholm
   - source: Andreas asked to keep `Create. Play. Prove.` at the bottom after the signed-in trim.
   - Proof: signed-in `/groupquests` once again includes the lightweight `Create. Play. Prove.` flow at the bottom, while the larger hero/invite/proof-ledger explainers stay removed from the signed-in flow. Proof doc: `docs/SQC_GROUP_SIDE_QUESTS_RESTORE_BOTTOM_FLOW_2026-05-10.md`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`. Production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy `https://cc-m68h8pznl-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200; authenticated Chrome Apple Events check confirmed the bottom flow is restored.
 
 - [x] Ship hidden `/groupquests` MVP shell.
   - added_at: 2026-05-09 12:02 Europe/Stockholm

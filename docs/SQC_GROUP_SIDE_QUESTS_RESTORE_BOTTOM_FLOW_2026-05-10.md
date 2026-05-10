@@ -21,4 +21,7 @@ Kept the heavier signed-in removals intact:
 
 ## Deployment
 
-Pending at time of writing.
+- Production deploy: `https://cc-m68h8pznl-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+- Smoke checks: `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` all returned HTTP 200.
+- Authenticated Chrome Apple Events check confirmed the signed-in page contains both `What needs me?` and `Create. Play. Prove.`
