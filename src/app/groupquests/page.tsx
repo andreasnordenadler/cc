@@ -51,6 +51,8 @@ const processBadges = [
   },
 ];
 
+const processPlayers = ["Andreas", "Maja", "Jon", "Guest"];
+
 const currentRooms = [
   {
     title: "No Castle Night",
@@ -179,15 +181,24 @@ export default async function GroupQuestsPage() {
                     />
                   ))}
                 </div>
-                <div className="groupquests-player-row" aria-hidden="true">
-                  <span>AN</span>
-                  <span>MK</span>
-                  <span>JS</span>
-                  <span>?</span>
+                <div className="groupquests-player-row" aria-label="Players in the Group Side Quest">
+                  {processPlayers.map((player, index) => (
+                    <div className="groupquests-knight-token" key={player}>
+                      <span className="groupquests-knight-plume" aria-hidden="true" />
+                      <span className="groupquests-knight-helm" aria-hidden="true">♞</span>
+                      <strong>{index + 1}</strong>
+                      <small>{player}</small>
+                    </div>
+                  ))}
                 </div>
-                <div className="groupquests-trophy-card">
-                  <strong>Winner</strong>
-                  <span>Proof accepted</span>
+                <div className="groupquests-trophy-card" aria-label="Winner proof accepted">
+                  <div className="groupquests-winner-medal" aria-hidden="true">
+                    <span>♛</span>
+                  </div>
+                  <div>
+                    <strong>Winner</strong>
+                    <span>Proof accepted</span>
+                  </div>
                 </div>
               </div>
             </section>
