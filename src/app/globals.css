@@ -805,6 +805,19 @@ p { color: var(--muted); line-height: 1.5; }
   .groupquests-participant em { text-align: left; }
 }
 .groupquests-hub-grid { grid-template-columns: minmax(300px, .82fr) minmax(0, 1.18fr); align-items: stretch; }
+.groupquests-user-overview { display: grid; gap: 16px; background: radial-gradient(circle at 82% 0%, rgba(245,200,106,.2), transparent 32%), linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.065)); }
+.groupquests-user-overview .section-head.compact { margin-bottom: 8px; }
+.section-head.compact h3 { margin-bottom: 0; }
+.groupquests-user-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, .72fr); gap: 12px; }
+.groupquests-user-column { min-width: 0; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(0,0,0,.14); }
+.groupquests-user-column.muted { background: rgba(255,255,255,.045); }
+.groupquests-room-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(255,255,255,.06); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.groupquests-room-row:hover, .groupquests-room-row:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.09); outline: none; }
+.groupquests-room-row span { display: block; margin-bottom: 5px; color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-room-row h4 { margin: 0; color: var(--ink); font-size: 1rem; line-height: 1.05; }
+.groupquests-room-row p { margin-top: 5px; font-size: .84rem; }
+.groupquests-room-row strong { color: var(--green); font-size: .8rem; font-weight: 950; text-align: right; }
+.groupquests-room-row em { grid-column: 2; color: var(--ink); font-size: .78rem; font-style: normal; font-weight: 950; text-align: right; }
 .groupquests-how-card { display: grid; gap: 16px; background: radial-gradient(circle at 82% 0%, rgba(96,240,175,.16), transparent 34%), rgba(255,255,255,.075); }
 .groupquests-how-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .groupquests-how-step { display: grid; gap: 7px; padding: 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; background: rgba(0,0,0,.17); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
@@ -833,8 +846,10 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-member-grid .groupquests-group-card { min-height: 100%; }
 
 @media (max-width: 860px) {
-  .groupquests-hub-grid, .groupquests-how-grid, .groupquests-join-grid { grid-template-columns: 1fr; }
+  .groupquests-hub-grid, .groupquests-how-grid, .groupquests-join-grid, .groupquests-user-grid { grid-template-columns: 1fr; }
   .groupquests-create-card .button, .groupquests-group-card .button { width: 100%; }
+  .groupquests-room-row { grid-template-columns: 1fr; }
+  .groupquests-room-row strong, .groupquests-room-row em { grid-column: auto; text-align: left; }
 }
 
 .groupquests-builder { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }

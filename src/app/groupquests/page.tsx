@@ -37,6 +37,36 @@ const roomStates = [
   },
 ];
 
+const currentRooms = [
+  {
+    title: "No Castle Night",
+    status: "Live now",
+    role: "Hosting",
+    detail: "1 of 3 side quests cleared · proof window open",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Enter room",
+  },
+  {
+    title: "Beginner Chaos Ladder",
+    status: "Next up",
+    role: "Playing",
+    detail: "Starts when the host opens the room",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "View room",
+  },
+];
+
+const previousRooms = [
+  {
+    title: "Proof Loop Warmup",
+    status: "Finished",
+    role: "Played",
+    detail: "Final proof and leaderboard available",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "View results",
+  },
+];
+
 export const metadata = {
   title: "Group Side Quests · Side Quest Chess",
   description: "Side Quest Chess multiplayer rooms for shared side quests, fresh proof, and group leaderboards.",
@@ -61,6 +91,60 @@ export default async function GroupQuestsPage() {
             <a className="button secondary" href="#join-group-side-quest">Join with invite link</a>
           </div>
         </section>
+
+        {userId ? (
+          <section className="mission-card groupquests-user-overview" aria-label="Your Group Side Quests overview">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Your Group Side Quests</span>
+                <h2>Current rooms first.</h2>
+              </div>
+              <Link className="button secondary" href="/groupquests/create">Create new</Link>
+            </div>
+
+            <div className="groupquests-user-grid">
+              <article className="groupquests-user-column">
+                <div className="section-head compact">
+                  <h3>Active now</h3>
+                  <span className="badge gold">{currentRooms.length}</span>
+                </div>
+                <div className="groupquests-card-stack">
+                  {currentRooms.map((room) => (
+                    <Link className="groupquests-room-row" href={room.href} key={`${room.title}-${room.role}`}>
+                      <div>
+                        <span>{room.role}</span>
+                        <h4>{room.title}</h4>
+                        <p>{room.detail}</p>
+                      </div>
+                      <strong>{room.status}</strong>
+                      <em>{room.action}</em>
+                    </Link>
+                  ))}
+                </div>
+              </article>
+
+              <article className="groupquests-user-column muted">
+                <div className="section-head compact">
+                  <h3>Previous</h3>
+                  <span className="badge">{previousRooms.length}</span>
+                </div>
+                <div className="groupquests-card-stack">
+                  {previousRooms.map((room) => (
+                    <Link className="groupquests-room-row" href={room.href} key={`${room.title}-${room.role}`}>
+                      <div>
+                        <span>{room.role}</span>
+                        <h4>{room.title}</h4>
+                        <p>{room.detail}</p>
+                      </div>
+                      <strong>{room.status}</strong>
+                      <em>{room.action}</em>
+                    </Link>
+                  ))}
+                </div>
+              </article>
+            </div>
+          </section>
+        ) : null}
 
         <section className="mission-card groupquests-how-card" aria-label="How Group Side Quests work">
           <div className="section-head">
