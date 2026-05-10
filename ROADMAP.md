@@ -83,7 +83,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-10 22:18 Europe/Stockholm
   - source: Andreas said he was still not happy with the logged-in Group Side Quests main page clarity and agreed to the dashboard/control-center direction.
   - Proof: `/groupquests` signed-in state now leads with My Group Side Quests, direct Create/Join actions, Needs your attention, and room sections for Live now, Starting soon, Drafts you manage, and Finished. Proof doc: `docs/SQC_GROUP_SIDE_QUESTS_LOGGED_IN_DASHBOARD_CLARITY_2026-05-10.md`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`. Production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`; production deploy `https://cc-l3rm76xwr-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200; authenticated Chrome Apple Events check confirmed signed-in dashboard text.
 
 - [x] Ship hidden `/groupquests` MVP shell.
   - added_at: 2026-05-09 12:02 Europe/Stockholm

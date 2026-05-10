@@ -31,4 +31,7 @@ Signed-out explanatory page content was left intact.
 
 ## Deployment
 
-Pending at time of writing.
+- Production deploy: `https://cc-l3rm76xwr-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+- Smoke checks: `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` all returned HTTP 200.
+- Authenticated Chrome Apple Events check confirmed the signed-in `/groupquests` page contains `My Group Side Quests`, `Needs your attention`, and `Live now`.
