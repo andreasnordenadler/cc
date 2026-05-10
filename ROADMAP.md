@@ -71,6 +71,20 @@ Rules from this point:
 
 Andreas approved starting implementation live at `/groupquests` while keeping it unlinked from user-facing navigation. This is an explicit exception to the website feature freeze for the hidden group quests workbench only.
 
+- [x] Deep-dive Group Side Quests access and invite model.
+  - added_at: 2026-05-10 21:12 Europe/Stockholm
+  - completed_at: 2026-05-10 21:18 Europe/Stockholm
+  - source: Andreas asked how Group Side Quests should be accessed, especially how to invite people without an SQC account and whether they enter chess IDs themselves.
+  - Proof: added `docs/SQC_GROUP_SIDE_QUESTS_ACCESS_MODEL_2026-05-10.md` defining link-first access, guest joins, creator-added chess IDs, invite claim links, signed-in confirmation, proof identity rules, guest-to-account claiming, privacy, and MVP sequence.
+  - Verification: planning doc written; no product code changed.
+
+- [x] Reshape logged-in Group Side Quests overview into clearer dashboard.
+  - added_at: 2026-05-10 22:05 Europe/Stockholm
+  - completed_at: 2026-05-10 22:18 Europe/Stockholm
+  - source: Andreas said he was still not happy with the logged-in Group Side Quests main page clarity and agreed to the dashboard/control-center direction.
+  - Proof: `/groupquests` signed-in state now leads with My Group Side Quests, direct Create/Join actions, Needs your attention, and room sections for Live now, Starting soon, Drafts you manage, and Finished. Proof doc: `docs/SQC_GROUP_SIDE_QUESTS_LOGGED_IN_DASHBOARD_CLARITY_2026-05-10.md`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`. Production deploy/smoke pending.
+
 - [x] Ship hidden `/groupquests` MVP shell.
   - added_at: 2026-05-09 12:02 Europe/Stockholm
   - completed_at: 2026-05-09 12:08 Europe/Stockholm

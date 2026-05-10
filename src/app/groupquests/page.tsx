@@ -34,48 +34,84 @@ const loggedOutActions = [
   },
 ];
 
-const currentGroupSideQuests = [
+const attentionItems = [
   {
     title: "No Castle Night",
-    status: "Live now",
-    role: "Hosting",
-    detail: "1 of 3 side quests cleared · proof window open",
+    copy: "Proof window is open. Submit a fresh No Castle game for the group ledger.",
     href: "/groupquests/gq_demo_no_castle_01",
-    action: "Manage and play",
+    action: "Submit proof",
     tone: "green",
   },
   {
     title: "Beginner Chaos Ladder",
-    status: "Starts soon",
-    role: "Playing",
-    detail: "Waiting for the host to open the proof window",
+    copy: "Starts tonight. Confirm the Blitz 5+3 rules before round one opens.",
     href: "/groupquests/gq_demo_no_castle_01",
     action: "Review rules",
     tone: "gold",
   },
 ];
 
-const previousGroupSideQuests = [
+const roomSections = [
   {
-    title: "Proof Loop Warmup",
-    status: "Finished",
-    role: "Played",
-    detail: "Final proof and leaderboard available",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "View results",
+    title: "Live now",
+    count: 1,
+    rooms: [
+      {
+        title: "No Castle Night",
+        meta: "Hosting · 4 players · Blitz 5+3",
+        state: "You: not proven yet",
+        next: "Next: submit a fresh No Castle game",
+        href: "/groupquests/gq_demo_no_castle_01",
+        action: "Open",
+        tone: "green",
+      },
+    ],
   },
-];
-
-const dashboardStats = [
-  { label: "Your active", value: "2", copy: "1 hosting · 1 playing" },
-  { label: "Needs action", value: "1", copy: "No Castle proof can be submitted" },
-  { label: "Invite state", value: "Open", copy: "Join links and approvals stay visible" },
-];
-
-const quickActions = [
-  { title: "Create", copy: "Start a new Group Side Quest with locked rules and invite mode.", href: "/groupquests/create", action: "Create new" },
-  { title: "Continue", copy: "Jump back into No Castle Night, where the proof window is already open.", href: "/groupquests/gq_demo_no_castle_01", action: "Open live quest" },
-  { title: "Join", copy: "Paste or open an invite link, then review the rules before you commit.", href: "#join-group-side-quest", action: "Check invite flow" },
+  {
+    title: "Starting soon",
+    count: 1,
+    rooms: [
+      {
+        title: "Beginner Chaos Ladder",
+        meta: "Playing · starts in 2 hours · Blitz only",
+        state: "Waiting for host",
+        next: "Next: review rules before the window opens",
+        href: "/groupquests/gq_demo_no_castle_01",
+        action: "Review",
+        tone: "gold",
+      },
+    ],
+  },
+  {
+    title: "Drafts you manage",
+    count: 1,
+    rooms: [
+      {
+        title: "Friday Fool’s Mate Sprint",
+        meta: "Draft · invite link not shared yet",
+        state: "Needs invites",
+        next: "Next: add chess IDs or copy the room link",
+        href: "/groupquests/create",
+        action: "Continue setup",
+        tone: "blue",
+      },
+    ],
+  },
+  {
+    title: "Finished",
+    count: 1,
+    rooms: [
+      {
+        title: "Proof Loop Warmup",
+        meta: "Played · final leaderboard ready",
+        state: "You placed 2nd",
+        next: "Final proof and results are available",
+        href: "/groupquests/gq_demo_no_castle_01",
+        action: "View results",
+        tone: "muted",
+      },
+    ],
+  },
 ];
 
 export const metadata = {
@@ -105,82 +141,57 @@ export default async function GroupQuestsPage() {
             <section className="mission-card groupquests-user-overview" aria-label="Your Group Side Quests overview">
               <div className="section-head">
                 <div>
-                  <span className="eyebrow">Your Group Side Quests</span>
-                  <h2>One dashboard for hosting, playing, and proof.</h2>
+                  <span className="eyebrow">My Group Side Quests</span>
+                  <h2>Rooms you host or play in.</h2>
+                  <p>Open the room that needs you, start a new one, or join from an invite link.</p>
                 </div>
-                <Link className="button secondary" href="/groupquests/create">Create new</Link>
+                <div className="groupquests-dashboard-actions">
+                  <Link className="button primary" href="/groupquests/create">Create Group Side Quest</Link>
+                  <Link className="button secondary" href="#join-group-side-quest">Join with invite link</Link>
+                </div>
               </div>
 
-              <div className="groupquests-dashboard-summary" aria-label="Group Side Quest summary">
-                {dashboardStats.map((stat) => (
-                  <div key={stat.label}>
-                    <strong>{stat.value}</strong>
-                    <span>{stat.label}</span>
-                    <p>{stat.copy}</p>
-                  </div>
+              <div className="groupquests-attention-panel" aria-label="Group Side Quests needing your attention">
+                <div className="section-head compact">
+                  <h3>Needs your attention</h3>
+                  <span className="badge gold">{attentionItems.length}</span>
+                </div>
+                <div className="groupquests-attention-list">
+                  {attentionItems.map((item) => (
+                    <Link className={`groupquests-attention-row ${item.tone}`} href={item.href} key={item.title}>
+                      <div>
+                        <strong>{item.title}</strong>
+                        <p>{item.copy}</p>
+                      </div>
+                      <span>{item.action}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="groupquests-room-sections" aria-label="Your Group Side Quest rooms by status">
+                {roomSections.map((section) => (
+                  <article className="groupquests-room-section" key={section.title}>
+                    <div className="section-head compact">
+                      <h3>{section.title}</h3>
+                      <span className="badge">{section.count}</span>
+                    </div>
+                    <div className="groupquests-card-stack">
+                      {section.rooms.map((room) => (
+                        <Link className={`groupquests-dashboard-room ${room.tone}`} href={room.href} key={room.title}>
+                          <div>
+                            <span>{room.meta}</span>
+                            <h4>{room.title}</h4>
+                            <strong>{room.state}</strong>
+                            <p>{room.next}</p>
+                          </div>
+                          <em>{room.action}</em>
+                        </Link>
+                      ))}
+                    </div>
+                  </article>
                 ))}
               </div>
-
-              <div className="groupquests-next-action">
-                <div>
-                  <span className="eyebrow">Next best action</span>
-                  <h3>Submit No Castle Night proof before the window closes.</h3>
-                  <p>Your personal No Castle clear is separate. This Group Side Quest needs fresh proof from a joined participant after the start time.</p>
-                </div>
-                <Link className="button primary" href="/groupquests/gq_demo_no_castle_01">Open live Group Side Quest</Link>
-              </div>
-
-              <div className="groupquests-user-grid">
-                <article className="groupquests-user-column">
-                  <div className="section-head compact">
-                    <h3>Current</h3>
-                    <span className="badge gold">{currentGroupSideQuests.length}</span>
-                  </div>
-                  <div className="groupquests-card-stack">
-                    {currentGroupSideQuests.map((quest) => (
-                      <Link className={`groupquests-room-row ${quest.tone}`} href={quest.href} key={`${quest.title}-${quest.role}`}>
-                        <div>
-                          <span>{quest.role}</span>
-                          <h4>{quest.title}</h4>
-                          <p>{quest.detail}</p>
-                        </div>
-                        <strong>{quest.status}</strong>
-                        <em>{quest.action}</em>
-                      </Link>
-                    ))}
-                  </div>
-                </article>
-
-                <article className="groupquests-user-column muted">
-                  <div className="section-head compact">
-                    <h3>Previous</h3>
-                    <span className="badge">{previousGroupSideQuests.length}</span>
-                  </div>
-                  <div className="groupquests-card-stack">
-                    {previousGroupSideQuests.map((quest) => (
-                      <Link className="groupquests-room-row" href={quest.href} key={`${quest.title}-${quest.role}`}>
-                        <div>
-                          <span>{quest.role}</span>
-                          <h4>{quest.title}</h4>
-                          <p>{quest.detail}</p>
-                        </div>
-                        <strong>{quest.status}</strong>
-                        <em>{quest.action}</em>
-                      </Link>
-                    ))}
-                  </div>
-                </article>
-              </div>
-            </section>
-
-            <section className="grid groupquests-quick-actions" aria-label="Group Side Quest quick actions">
-              {quickActions.map((item) => (
-                <Link className="mission-card groupquests-quick-action" href={item.href} key={item.title}>
-                  <span className="eyebrow">{item.title}</span>
-                  <h3>{item.action}</h3>
-                  <p>{item.copy}</p>
-                </Link>
-              ))}
             </section>
           </>
         ) : (
