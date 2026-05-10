@@ -6,14 +6,17 @@ const overviewSteps = [
   {
     title: "Create",
     copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the group quest constraints.",
+    href: "/groupquests/create",
   },
   {
     title: "Play",
     copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the room rules.",
+    href: "/groupquests/gq_demo_no_castle_01",
   },
   {
     title: "Prove",
     copy: "Each room gets its own leaderboard, event feed, and group-valid proof separate from solo progress.",
+    href: "#group-side-quest-proof-rule",
   },
 ];
 
@@ -67,11 +70,15 @@ export default async function GroupQuestsPage() {
           </div>
           <div className="groupquests-how-grid">
             {overviewSteps.map((step, index) => (
-              <div key={step.title}>
+              <Link
+                className="groupquests-how-step clickable"
+                href={step.href}
+                key={step.title}
+              >
                 <strong>{index + 1}</strong>
                 <span>{step.title}</span>
                 <p>{step.copy}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -133,7 +140,7 @@ export default async function GroupQuestsPage() {
           </div>
         </section>
 
-        <section className="mission-card groupquests-rules-card" aria-label="Group Side Quest completion rules">
+        <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Group Side Quest completion rules">
           <span className="eyebrow">Proof rule</span>
           <h2>Personal proof and group proof are different ledgers.</h2>
           <p>
