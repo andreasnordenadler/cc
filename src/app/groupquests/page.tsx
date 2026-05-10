@@ -248,6 +248,41 @@ export default async function GroupQuestsPage() {
           </>
         )}
 
+        {userId ? (
+          <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Group Side Quests work">
+            <div className="section-head">
+              <div>
+                <h2>Create. Play. Prove.</h2>
+              </div>
+            </div>
+            <div className="groupquests-how-grid">
+              {overviewSteps.map((step, index) => {
+                const content = (
+                  <>
+                    <strong>{index + 1}</strong>
+                    <span>{step.title}</span>
+                    <p>{step.copy}</p>
+                  </>
+                );
+
+                return step.href ? (
+                  <Link
+                    className="groupquests-how-step clickable"
+                    href={step.href}
+                    key={step.title}
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  <article className="groupquests-how-step" key={step.title}>
+                    {content}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
         {!userId ? (
           <>
             <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
