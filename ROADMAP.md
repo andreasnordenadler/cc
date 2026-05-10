@@ -147,7 +147,7 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - completed_at: 2026-05-10 16:43 Europe/Stockholm
   - source: Andreas said, “Let us add Group Side Quests to the top bar.”
   - Proof: top nav now links to `/groupquests` with label `Group Side Quests`; `/groupquests` uses the active nav state for that item.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`. Production deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and listed `/groupquests`; commit `6518a97` (`Add Group Side Quests to top nav`) pushed to `main`; production deploy `https://cc-4owfollpl-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed `/` and `/groupquests` return 200 and top nav includes `/groupquests` with label `Group Side Quests`, active on `/groupquests`.
 
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
