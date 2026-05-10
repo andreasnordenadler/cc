@@ -142,7 +142,6 @@ export default async function GroupQuestsPage() {
           <>
             <section className="mission-card groupquests-story-card" aria-label="What Group Side Quests are">
               <div>
-                <span className="eyebrow">How it feels</span>
                 <h2>A tiny chess tournament for bad ideas.</h2>
                 <p>
                   Group Side Quests turn normal chess nights into a shared challenge: one player creates a room, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
