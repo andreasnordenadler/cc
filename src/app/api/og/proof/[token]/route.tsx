@@ -138,8 +138,22 @@ export async function GET(
           <div style={{ color: "#251109", fontSize: 78, lineHeight: .92, letterSpacing: -3.6, fontWeight: 900, marginTop: 22, maxWidth: 610 }}>
             {payload.challengeTitle}
           </div>
-          <div style={{ color: "rgba(43,23,13,.74)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 25, lineHeight: 1.28, fontWeight: 950, marginTop: 24, maxWidth: 640 }}>
-            Coat of arms unlocked: <strong style={{ color: "#251109" }}>{payload.badgeName}</strong>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              color: "rgba(43,23,13,.74)",
+              fontFamily: "Arial, Helvetica, sans-serif",
+              fontSize: 25,
+              lineHeight: 1.28,
+              fontWeight: 950,
+              marginTop: 24,
+              maxWidth: 640,
+            }}
+          >
+            <span>Coat of arms unlocked:</span>
+            <span style={{ color: "#251109" }}>{payload.badgeName}</span>
           </div>
           <div style={{ color: "rgba(43,23,13,.86)", fontSize: 33, lineHeight: 1.43, fontWeight: 700, marginTop: 24, maxWidth: 640 }}>
             {achievementCopy}
