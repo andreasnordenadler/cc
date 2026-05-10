@@ -30,12 +30,12 @@ const inviteModes = [
   {
     id: "unlisted-link",
     label: "Unlisted link",
-    copy: "Anyone with the room link can join while this is hidden.",
+    copy: "Anyone with the Group Side Quest link can join while sharing is open.",
   },
   {
     id: "approval-required",
     label: "Approval-required",
-    copy: "Players request access and the room owner approves them.",
+    copy: "Players request access and the host approves them.",
   },
 ];
 
@@ -43,6 +43,13 @@ const proofWindows = [
   "Fresh games after start",
   "Fresh games after join + start",
   "Manual retroactive proof later",
+];
+
+const createStages = [
+  { label: "Basics", copy: "Name + first side quest" },
+  { label: "Invites", copy: "Access + proof window" },
+  { label: "Rules", copy: "Provider constraints" },
+  { label: "Preview", copy: "Share + maintain" },
 ];
 
 const gameRuleGroups = [
@@ -121,12 +128,12 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     .filter((rule) => rule && !rule.startsWith("Any"));
 
   function createLocalDraftRoom() {
-    const roomName = name.trim() || "Untitled group quest";
+    const roomName = name.trim() || "Untitled Group Side Quest";
     setDraftRooms((rooms) => [
       {
         id: `${draftSlug}-${rooms.length + 1}`,
         name: roomName,
-        questTitle: selectedQuest?.title ?? "No quest selected",
+        questTitle: selectedQuest?.title ?? "No side quest selected",
         inviteMode: selectedInviteMode.label,
         proofWindow,
         duration,
@@ -139,7 +146,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   }
 
   function copyInviteText() {
-    const inviteText = `Join my Side Quest Chess group quest: ${name.trim() || "Untitled group quest"} — /groupquests/${draftSlug}`;
+    const inviteText = `Join my Side Quest Chess Group Side Quest: ${name.trim() || "Untitled Group Side Quest"} — /groupquests/${draftSlug}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(inviteText).catch(() => undefined);
     }
@@ -148,10 +155,20 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
 
   return (
     <div className="groupquests-builder-shell">
-      <div className="groupquests-builder" aria-label="Create draft group quest builder">
+      <div className="groupquests-stage-rail" aria-label="Create Group Side Quest stages">
+        {createStages.map((stage, index) => (
+          <div className="groupquests-stage-pill" key={stage.label}>
+            <strong>{index + 1}</strong>
+            <span>{stage.label}</span>
+            <small>{stage.copy}</small>
+          </div>
+        ))}
+      </div>
+
+      <div className="groupquests-builder" aria-label="Create Group Side Quest builder">
         <div className="groupquests-builder-form">
           <label>
-            <span>1 · Group name</span>
+            <span>1 · Group Side Quest name</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -161,7 +178,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           </label>
 
           <label>
-            <span>2 · Quest</span>
+            <span>2 · First side quest</span>
             <select value={selectedQuestId} onChange={(event) => setSelectedQuestId(event.target.value)}>
               {quests.map((quest) => (
                 <option key={quest.id} value={quest.id}>
@@ -211,7 +228,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
               <span className="groupquests-rule-title">5 · Mandatory game rules</span>
-              <p>Room owners can make provider settings mandatory. Time controls now mirror the visible Lichess presets from the screenshot, including the selected 5+3 blitz option.</p>
+              <p>Hosts can make provider settings mandatory so every participant understands exactly which games can produce Group Side Quest proof.</p>
             </div>
             <div className="groupquests-rule-grid">
               {gameRuleGroups.map((group) => (
@@ -231,14 +248,14 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           </div>
         </div>
 
-        <aside className="groupquests-draft-preview" aria-label="Draft group quest preview">
-          <span className="eyebrow">Draft preview</span>
-          <h3>{name.trim() || "Untitled group quest"}</h3>
-          <p>{selectedQuest?.objective ?? "Choose a quest to preview the room."}</p>
+        <aside className="groupquests-draft-preview" aria-label="Group Side Quest preview">
+          <span className="eyebrow">Participant preview</span>
+          <h3>{name.trim() || "Untitled Group Side Quest"}</h3>
+          <p>{selectedQuest?.objective ?? "Choose a side quest to preview the participant view."}</p>
           <div className="groupquests-preview-stat-grid">
             <div>
-              <strong>Quest</strong>
-              <span>{selectedQuest?.title ?? "No quest selected"}</span>
+              <strong>Side quest</strong>
+              <span>{selectedQuest?.title ?? "No side quest selected"}</span>
             </div>
             <div>
               <strong>Invite</strong>
@@ -254,32 +271,40 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </div>
           </div>
           <div className="groupquests-preview-link">
-            <strong>Future room</strong>
+            <strong>Share link</strong>
             <span>/groupquests/{draftSlug}</span>
           </div>
           <div className="groupquests-rules-preview">
-            <strong>Mandatory rules</strong>
+            <strong>Locked rules</strong>
             {mandatoryRules.length > 0 ? (
               <div>{mandatoryRules.map((rule) => <span key={rule}>{rule}</span>)}</div>
             ) : (
               <p>No provider settings are mandatory yet.</p>
             )}
           </div>
+          <div className="groupquests-maintenance-preview">
+            <strong>Host maintenance preview</strong>
+            <ul>
+              <li>Copy invite and pause new joins.</li>
+              <li>Review rejected proof with plain-language reasons.</li>
+              <li>Close the proof window and publish final standings.</li>
+            </ul>
+          </div>
           <div className="button-row">
-            <button className="button primary" onClick={createLocalDraftRoom} type="button">Create local draft</button>
+            <button className="button primary" onClick={createLocalDraftRoom} type="button">Create local preview</button>
             <button className="button secondary" onClick={copyInviteText} type="button">
               {inviteCopied ? "Invite text copied" : "Copy invite text"}
             </button>
           </div>
-          <p className="proof-line">Draft only for now — no database writes yet, and this stays hidden until persistence is ready.</p>
+          <p className="proof-line">Preview only — saved Group Side Quests will use the same rules summary and maintenance states.</p>
         </aside>
       </div>
 
       {draftRooms.length > 0 ? (
-        <section className="groupquests-local-drafts" aria-label="Local draft rooms">
+        <section className="groupquests-local-drafts" aria-label="Local Group Side Quest previews">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Local drafts</span>
+              <span className="eyebrow">Local previews</span>
               <h3>Created in this browser session.</h3>
             </div>
             <span className="badge green">{draftRooms.length}</span>
@@ -288,8 +313,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             {draftRooms.map((room) => (
               <article className="mission-card groupquests-group-card" key={room.id}>
                 <div className="card-meta">
-                  <span>You manage</span>
-                  <span className="badge gold">Local draft</span>
+                  <span>You host</span>
+                  <span className="badge gold">Preview</span>
                 </div>
                 <h3>{room.name}</h3>
                 <div className="groupquests-mini-stats">
@@ -300,11 +325,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 <p>{room.proofWindow}</p>
                 {room.mandatoryRules.length > 0 ? (
                   <div className="groupquests-rules-preview compact">
-                    <strong>Mandatory</strong>
+                    <strong>Locked</strong>
                     <div>{room.mandatoryRules.map((rule) => <span key={rule}>{rule}</span>)}</div>
                   </div>
                 ) : null}
-                <p className="proof-line">Future room: /groupquests/{room.slug}</p>
+                <p className="proof-line">Share link preview: /groupquests/{room.slug}</p>
               </article>
             ))}
           </div>
