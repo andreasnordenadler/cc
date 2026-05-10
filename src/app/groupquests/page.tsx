@@ -27,9 +27,9 @@ const roomStates = [
   },
   {
     label: "Playing",
-    title: "Rooms you joined",
+    title: "Active rooms",
     copy: "See what is live, what starts next, what proof still counts, and your next side quest move.",
-    action: "View sample room",
+    action: "Enter active rooms",
     href: "/groupquests/gq_demo_no_castle_01",
   },
 ];
@@ -48,18 +48,13 @@ export default async function GroupQuestsPage() {
 
       <div className="content-wrap">
         <section className="hero-card groupquests-hero">
-          <span className="eyebrow">Multiplayer side quests</span>
           <h1>Group Side Quests.</h1>
           <p className="hero-copy">
-            Create a shared side-quest room, invite players, and race to complete fresh chess proof inside the group window.
+            Start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board.
           </p>
-          <div className="auth-reassurance-grid" aria-label="Group Side Quest highlights">
-            <span>Private or invite-link rooms</span>
-            <span>Fresh proof only</span>
-            <span>Leaderboard + celebration</span>
-          </div>
-          <div className="hero-actions button-row">
-            <Link className="button primary" href="/groupquests/create">Create Group Side Quest</Link>
+          <div className="hero-actions button-row groupquests-hero-actions">
+            <Link className="button primary" href="/groupquests/create">Create new Group Side Quest</Link>
+            <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Enter active Group Side Quests</Link>
             <a className="button secondary" href="#join-group-side-quest">Join with invite link</a>
           </div>
         </section>
