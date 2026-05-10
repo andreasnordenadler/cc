@@ -36,21 +36,6 @@ const loggedOutActions = [
   },
 ];
 
-const processBadges = [
-  {
-    src: "/badges/v6/knights-before-coffee-badge.png",
-    alt: "Knights Before Coffee coat of arms",
-  },
-  {
-    src: "/badges/v6/bishop-field-trip-badge.png",
-    alt: "Bishop Field Trip coat of arms",
-  },
-  {
-    src: "/badges/v6/proof-loop-test-badge.png",
-    alt: "Proof Loop Test coat of arms",
-  },
-];
-
 const currentRooms = [
   {
     title: "No Castle Night",
@@ -167,18 +152,6 @@ export default async function GroupQuestsPage() {
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Group Side Quest process graphic">
-                <div className="groupquests-badge-cluster">
-                  {processBadges.map((badge, index) => (
-                    <Image
-                      alt={badge.alt}
-                      className={`groupquests-process-badge badge-${index + 1}`}
-                      height={96}
-                      key={badge.src}
-                      src={badge.src}
-                      width={96}
-                    />
-                  ))}
-                </div>
                 <Image
                   alt="Noble chess knights competing, with the winner holding a stamped proof scroll"
                   className="groupquests-knight-competition-art"
