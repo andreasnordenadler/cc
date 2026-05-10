@@ -20,20 +20,18 @@ const overviewSteps = [
   },
 ];
 
-const roomStates = [
+const loggedOutActions = [
   {
-    label: "Hosting",
-    title: "Rooms you host",
-    copy: "Create the room, invite players, lock rules, start the window, and keep the race moving.",
-    action: "Create a room",
+    title: "Create a room",
+    copy: "Start the ridiculous dare, choose the side quests, and invite the people who deserve trouble.",
+    action: "Create Group Side Quest",
     href: "/groupquests/create",
   },
   {
-    label: "Playing",
-    title: "Active rooms",
-    copy: "See what is live, what starts next, what proof still counts, and your next side quest move.",
-    action: "Enter active rooms",
-    href: "/groupquests/gq_demo_no_castle_01",
+    title: "Join by invite",
+    copy: "Got sent a room link? Open it, check the rules, and prove the nonsense inside the window.",
+    action: "How invites work",
+    href: "#join-group-side-quest",
   },
 ];
 
@@ -139,7 +137,17 @@ export default async function GroupQuestsPage() {
               </article>
             </div>
           </section>
-        ) : null}
+        ) : (
+          <section className="grid groupquests-logged-out-actions" aria-label="Start with Group Side Quests">
+            {loggedOutActions.map((item) => (
+              <article className="mission-card groupquests-action-card" key={item.title}>
+                <h2>{item.title}.</h2>
+                <p>{item.copy}</p>
+                <Link className="button primary" href={item.href}>{item.action}</Link>
+              </article>
+            ))}
+          </section>
+        )}
 
         <section className="mission-card groupquests-how-card" aria-label="How Group Side Quests work">
           <div className="section-head">
@@ -162,62 +170,27 @@ export default async function GroupQuestsPage() {
           </div>
         </section>
 
-        <section className="grid groupquests-hub-grid" aria-label="Group Side Quest actions">
-          <article className="mission-card groupquests-create-card">
-            <span className="eyebrow">Create</span>
-            <h2>Start a Group Side Quest.</h2>
-            <p>
-              Host a one-off race, a short ladder, or a small side-quest night with friends. The room controls who can join, which side quests count, and what games are eligible.
-            </p>
-            <div className="groupquests-create-steps">
-              <div><strong>1</strong><span>Name the room</span></div>
-              <div><strong>2</strong><span>Pick one or more side quests</span></div>
-              <div><strong>3</strong><span>Lock invite and game rules</span></div>
-            </div>
-            <Link className="button primary" href="/groupquests/create">Create Group Side Quest</Link>
-          </article>
-
-          <article className="mission-card groupquests-owned-card">
+        {userId ? null : (
+          <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Your rooms</span>
-                <h2>Host or play.</h2>
+                <span className="eyebrow">Join</span>
+                <h2>Got an invite?</h2>
               </div>
             </div>
-            <div className="groupquests-card-stack">
-              {roomStates.map((state) => (
-                <article className="groupquests-group-card" key={state.title}>
-                  <div className="card-meta">
-                    <span>{state.label}</span>
-                  </div>
-                  <h3>{state.title}</h3>
-                  <p>{state.copy}</p>
-                  <Link className="button secondary" href={state.href}>{state.action}</Link>
-                </article>
-              ))}
+            <div className="groupquests-join-grid">
+              <div>
+                <p>
+                  Group Side Quests are built around shareable room links. Open an invite, join the room, then complete proof that matches that room’s window and constraints.
+                </p>
+              </div>
+              <div className="groupquests-invite-preview" aria-label="Invite link example">
+                <strong>Invite link</strong>
+                <span>sidequestchess.com/groupquests/gq_…</span>
+              </div>
             </div>
-          </article>
-        </section>
-
-        <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Join</span>
-              <h2>Got an invite?</h2>
-            </div>
-          </div>
-          <div className="groupquests-join-grid">
-            <div>
-              <p>
-                Group Side Quests are built around shareable room links. Open an invite, join the room, then complete proof that matches that room’s window and constraints.
-              </p>
-            </div>
-            <div className="groupquests-invite-preview" aria-label="Invite link example">
-              <strong>Invite link</strong>
-              <span>sidequestchess.com/groupquests/gq_…</span>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Group Side Quest completion rules">
           <span className="eyebrow">Proof rule</span>

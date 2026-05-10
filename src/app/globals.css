@@ -807,6 +807,10 @@ p { color: var(--muted); line-height: 1.5; }
   .groupquests-participant em { text-align: left; }
 }
 .groupquests-hub-grid { grid-template-columns: minmax(300px, .82fr) minmax(0, 1.18fr); align-items: stretch; }
+.groupquests-logged-out-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+.groupquests-action-card { display: grid; align-content: start; gap: 14px; background: radial-gradient(circle at 18% 0%, rgba(245,200,106,.22), transparent 34%), rgba(255,255,255,.075); }
+.groupquests-action-card:nth-child(2) { background: radial-gradient(circle at 82% 0%, rgba(118,169,255,.18), transparent 34%), rgba(255,255,255,.075); }
+.groupquests-action-card .button { width: max-content; }
 .groupquests-user-overview { display: grid; gap: 16px; background: radial-gradient(circle at 82% 0%, rgba(245,200,106,.2), transparent 32%), linear-gradient(135deg, rgba(255,255,255,.1), rgba(255,255,255,.065)); }
 .groupquests-user-overview .section-head.compact { margin-bottom: 8px; }
 .section-head.compact h3 { margin-bottom: 0; }
@@ -848,8 +852,8 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-member-grid .groupquests-group-card { min-height: 100%; }
 
 @media (max-width: 860px) {
-  .groupquests-hub-grid, .groupquests-how-grid, .groupquests-join-grid, .groupquests-user-grid { grid-template-columns: 1fr; }
-  .groupquests-create-card .button, .groupquests-group-card .button { width: 100%; }
+  .groupquests-hub-grid, .groupquests-how-grid, .groupquests-join-grid, .groupquests-user-grid, .groupquests-logged-out-actions { grid-template-columns: 1fr; }
+  .groupquests-create-card .button, .groupquests-group-card .button, .groupquests-action-card .button { width: 100%; }
   .groupquests-room-row { grid-template-columns: 1fr; }
   .groupquests-room-row strong, .groupquests-room-row em { grid-column: auto; text-align: left; }
 }
