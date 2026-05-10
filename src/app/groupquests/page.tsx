@@ -82,7 +82,9 @@ export default async function GroupQuestsPage() {
         <section className="hero-card groupquests-hero">
           <h1>Group Side Quests.</h1>
           <p className="hero-copy">
-            Start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board.
+            {userId
+              ? "Start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board."
+              : "Sign In/Up and start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board."}
           </p>
         </section>
 
