@@ -109,14 +109,14 @@ export default async function GroupQuestsPage() {
       <SiteNav isSignedIn={Boolean(userId)} active="groupquests" />
 
       <div className="content-wrap">
-        <section className="hero-card groupquests-hero">
-          <h1>Group Side Quests.</h1>
-          <p className="hero-copy">
-            {userId
-              ? "Your shared chess dares, proof windows, invites, and results."
-              : "Sign In/Up and start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board."}
-          </p>
-        </section>
+        {!userId ? (
+          <section className="hero-card groupquests-hero">
+            <h1>Group Side Quests.</h1>
+            <p className="hero-copy">
+              Sign In/Up and start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board.
+            </p>
+          </section>
+        ) : null}
 
         {userId ? (
           <>
@@ -149,6 +149,14 @@ export default async function GroupQuestsPage() {
                     </Link>
                   ))}
                 </div>
+              </div>
+
+              <div className="groupquests-compact-invite" id="join-group-side-quest">
+                <div>
+                  <strong>Have an invite link?</strong>
+                  <p>Open the link directly. The room page shows rules before anything counts.</p>
+                </div>
+                <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview invite room</Link>
               </div>
 
               <div className="groupquests-scalable-dashboard" aria-label="Your Group Side Quest rooms">
@@ -240,70 +248,74 @@ export default async function GroupQuestsPage() {
           </>
         )}
 
-        <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Join with invite link</span>
-              <h2>Review the rules before your proof counts.</h2>
-            </div>
-          </div>
-          <div className="groupquests-join-grid">
-            <div>
+        {!userId ? (
+          <>
+            <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">Join with invite link</span>
+                  <h2>Review the rules before your proof counts.</h2>
+                </div>
+              </div>
+              <div className="groupquests-join-grid">
+                <div>
+                  <p>
+                    Invite links open the Group Side Quest detail page first. Players see the side quest set, proof window, mandatory game rules, leaderboard state, and whether joining is instant or approval-based.
+                  </p>
+                  <p>
+                    Nothing from solo My Side Quests is silently imported. The group ledger starts when the player joins and the proof window is open.
+                  </p>
+                </div>
+                <div className="groupquests-invite-preview">
+                  <strong>Example invite</strong>
+                  <span>sidequestchess.com/groupquests/gq_demo_no_castle_01</span>
+                  <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview detail page</Link>
+                </div>
+              </div>
+            </section>
+
+            <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Group Side Quests work">
+              <div className="section-head">
+                <div>
+                  <h2>Create. Play. Prove.</h2>
+                </div>
+              </div>
+              <div className="groupquests-how-grid">
+                {overviewSteps.map((step, index) => {
+                  const content = (
+                    <>
+                      <strong>{index + 1}</strong>
+                      <span>{step.title}</span>
+                      <p>{step.copy}</p>
+                    </>
+                  );
+
+                  return step.href ? (
+                    <Link
+                      className="groupquests-how-step clickable"
+                      href={step.href}
+                      key={step.title}
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <article className="groupquests-how-step" key={step.title}>
+                      {content}
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Group Side Quest completion rules">
+              <span className="eyebrow">Proof rule</span>
+              <h2>Personal proof and group proof are different ledgers.</h2>
               <p>
-                Invite links open the Group Side Quest detail page first. Players see the side quest set, proof window, mandatory game rules, leaderboard state, and whether joining is instant or approval-based.
+                Finishing a side quest alone still counts for your account. Finishing it inside a Group Side Quest requires fresh Group Side Quest-valid proof: joined participant, eligible window, matching game rules, Group Side Quest score, and group celebration.
               </p>
-              <p>
-                Nothing from solo My Side Quests is silently imported. The group ledger starts when the player joins and the proof window is open.
-              </p>
-            </div>
-            <div className="groupquests-invite-preview">
-              <strong>Example invite</strong>
-              <span>sidequestchess.com/groupquests/gq_demo_no_castle_01</span>
-              <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview detail page</Link>
-            </div>
-          </div>
-        </section>
-
-        <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Group Side Quests work">
-          <div className="section-head">
-            <div>
-              <h2>Create. Play. Prove.</h2>
-            </div>
-          </div>
-          <div className="groupquests-how-grid">
-            {overviewSteps.map((step, index) => {
-              const content = (
-                <>
-                  <strong>{index + 1}</strong>
-                  <span>{step.title}</span>
-                  <p>{step.copy}</p>
-                </>
-              );
-
-              return step.href ? (
-                <Link
-                  className="groupquests-how-step clickable"
-                  href={step.href}
-                  key={step.title}
-                >
-                  {content}
-                </Link>
-              ) : (
-                <article className="groupquests-how-step" key={step.title}>
-                  {content}
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Group Side Quest completion rules">
-          <span className="eyebrow">Proof rule</span>
-          <h2>Personal proof and group proof are different ledgers.</h2>
-          <p>
-            Finishing a side quest alone still counts for your account. Finishing it inside a Group Side Quest requires fresh Group Side Quest-valid proof: joined participant, eligible window, matching game rules, Group Side Quest score, and group celebration.
-          </p>
-        </section>
+            </section>
+          </>
+        ) : null}
       </div>
     </main>
   );

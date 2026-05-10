@@ -826,6 +826,10 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-attention-row p { margin-top: 4px; font-size: .88rem; }
 .groupquests-attention-row span { color: var(--green); font-size: .82rem; font-weight: 950; white-space: nowrap; }
 .groupquests-attention-row.gold span { color: var(--gold); }
+.groupquests-compact-invite { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; border: 1px dashed rgba(245,200,106,.26); border-radius: 18px; background: rgba(245,200,106,.06); }
+.groupquests-compact-invite strong { display: block; color: var(--ink); font-size: .96rem; font-weight: 950; }
+.groupquests-compact-invite p { margin-top: 3px; font-size: .82rem; }
+.groupquests-compact-invite .button { white-space: nowrap; }
 .groupquests-room-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .groupquests-room-section { display: grid; gap: 10px; min-width: 0; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(0,0,0,.14); }
 .groupquests-dashboard-room { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(255,255,255,.06); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
@@ -901,8 +905,8 @@ p { color: var(--muted); line-height: 1.5; }
   .groupquests-dashboard-actions { justify-content: stretch; }
   .groupquests-room-row { grid-template-columns: 1fr; }
   .groupquests-room-row strong, .groupquests-room-row em { grid-column: auto; text-align: left; }
-  .groupquests-attention-row, .groupquests-dashboard-room, .groupquests-compact-room { grid-template-columns: 1fr; }
-  .groupquests-attention-row span, .groupquests-dashboard-room em, .groupquests-compact-room em { text-align: left; white-space: normal; }
+  .groupquests-attention-row, .groupquests-dashboard-room, .groupquests-compact-room, .groupquests-compact-invite { grid-template-columns: 1fr; }
+  .groupquests-attention-row span, .groupquests-dashboard-room em, .groupquests-compact-room em, .groupquests-compact-invite .button { text-align: left; white-space: normal; }
   .groupquests-compact-room > strong { width: max-content; }
 }
 
