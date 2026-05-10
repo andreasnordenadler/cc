@@ -128,6 +128,11 @@ Andreas approved starting implementation live at `/groupquests` while keeping it
   - Proof: `/groupquests` now uses the Group Side Quests naming, explains the shared My Side Quests model, adds a `Create. Play. Prove.` explainer, separates `Create`, `Hosting`, and `Playing` sections, and keeps the hidden route unlinked from public nav.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; commit `50444cb` (`Refine Group Side Quests overview`) pushed to `main`; production deploy `https://cc-gr46lsqjp-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke confirmed `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200, and `/groupquests` contains `Group Side Quests` plus `Create. Play. Prove.`.
 
+- [ ] Make Group Side Quests overview launch-ready.
+  - added_at: 2026-05-10 15:16 Europe/Stockholm
+  - source: Andreas reviewed the overview screenshot and said to make it launch ready.
+  - Acceptance: remove hidden/prototype/internal wording, present the page as a real product surface, clarify create/play/join flows, avoid fake active-room dashboard claims, preserve stable `/groupquests` routes, and keep the surface visually aligned with SQC.
+
 ## Future planning — Multiplayer / group competitions — 2026-05-09
 
 Planning completed; implementation is now approved only for the hidden `/groupquests` workbench and should remain unlinked until Andreas says otherwise.
