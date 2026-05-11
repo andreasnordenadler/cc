@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 10:01 Europe/Stockholm
   - source: Andreas asked to change footer text from `sidequestchess.com anno 2026` to `copyright anno 2026 sidequestchess.com`.
   - Proof: global footer in `src/app/layout.tsx` displays the requested exact text.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-4uxmii8yg-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` returns 200 with `copyright anno 2026 sidequestchess.com` and without the old footer text.
 
 - [x] Align Side Quests hub card CTA placement/color.
   - added_at: 2026-05-11 09:55 Europe/Stockholm
