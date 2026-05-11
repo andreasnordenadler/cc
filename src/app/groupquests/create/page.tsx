@@ -32,7 +32,7 @@ export default async function CreateGroupQuestPage() {
         <section className="mission-card groupquests-create-minihero" aria-label="Create Multiplayer Side Quest intro">
           <div>
             <span className="eyebrow">Create Multiplayer Side Quest</span>
-            <h1>Build a chess dare. Blame your friends later.</h1>
+            <h1>Build a Multiplayer Side Quest. Blame your friends later.</h1>
           </div>
           <p>
             Pick the side quest, choose who can join, lock the proof rules, and ship a tiny tournament of questionable decisions.
