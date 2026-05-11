@@ -116,6 +116,13 @@ Rules from this point:
   - Proof: logged-out Multiplayer Side Quests story card uses a premium generated coat-of-arms-style noble chess-table chaos artwork with transparent PNG background, matching the SQC badge visual language better than the previous SVG.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qaqehfqf9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` references the new PNG and the PNG asset returns 200 as `image/png`.
 
+- [x] Remove logged-out Multiplayer Side Quest story graphic.
+  - added_at: 2026-05-11 16:01 Europe/Stockholm
+  - completed_at: 2026-05-11 16:04 Europe/Stockholm
+  - source: Andreas showed the latest logged-out `/groupquests` graphic and asked to remove it.
+  - Proof: logged-out `/groupquests` no longer renders the story-card illustration/graphic; surrounding text remains intact.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
