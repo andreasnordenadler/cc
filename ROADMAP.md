@@ -340,7 +340,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:21 Europe/Stockholm
   - source: Andreas liked the preview card but noted it needs updating now that Multiplayer Side Quests can include multiple quests.
   - Proof: preview card shows a quest stack/list with selected count, handles one-or-many selected quests in copy, removes the old single side-quest stat, and updates maintenance/proof wording for per-quest review.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-r8doh6njx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed quest-stack preview, multi-quest copy, per-selected-side-quest maintenance wording, and no old single side-quest stat; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
