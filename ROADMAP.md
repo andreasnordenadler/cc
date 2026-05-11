@@ -396,7 +396,7 @@ Rules from this point:
   - completed_at: 2026-05-11 22:00 Europe/Stockholm
   - source: Andreas asked to remove `Copy invite text` from create, keep it for the unique page, center `Save Multiplayer Side Quest`, and warn if users exit create before saving.
   - Proof: create page action row contains only centered `Save Multiplayer Side Quest`; copy-invite button moved to the unique page as `Copy invite text`; browser beforeunload warning appears if the user leaves/reloads before saving; save disables the warning before redirecting to the numeric URL.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-69at3af3i-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects to sign-in, `/groupquests/12345` returns public participant view with `Copy invite text`, sign-in-to-manage prompt, and share URL; source checks confirmed create page has `beforeunload`, save disables warning before redirect, and no create-page copy-invite text remains; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
