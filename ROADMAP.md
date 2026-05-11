@@ -93,7 +93,7 @@ Rules from this point:
   - completed_at: 2026-05-11 15:25 Europe/Stockholm
   - source: Andreas asked to change `We do not ask for your Lichess or Chess.com password.` to `We do not need or ask for any Lichess or Chess.com passwords.`
   - Proof: `/sign-in` uses the requested exact sentence.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9u4r3e00c-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` includes the new exact sentence and no longer includes the old sentence.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
