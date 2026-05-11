@@ -186,6 +186,13 @@ Rules from this point:
   - Proof: logged-out `/groupquests` story card renders a contained Multiplayer Side Quest graphic beside the `A tiny...` copy instead of leaving the right side blank.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-oj7b1ot5f-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 with `A tiny...`, `groupquests-process-graphic`, and `multiplayer-side-quests-noble-chaos-coat-style.png`.
 
+- [x] Make logged-out Multiplayer story graphic smaller.
+  - added_at: 2026-05-11 18:50 Europe/Stockholm
+  - completed_at: 2026-05-11 18:52 Europe/Stockholm
+  - source: Andreas approved the restored graphic and asked to make it a bit smaller.
+  - Proof: story-section Multiplayer graphic max width reduced from 430px to 340px so it supports the copy without dominating the card.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
