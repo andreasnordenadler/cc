@@ -104,14 +104,14 @@ function slugFromName(name: string) {
 
 export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQuest[] }) {
   const [name, setName] = useState("No Castle Night");
-  const [selectedQuestId, setSelectedQuestId] = useState(quests[0]?.id ?? "");
-  const [inviteMode, setInviteMode] = useState(inviteModes[1].id);
-  const [proofWindow, setProofWindow] = useState(proofWindows[1]);
-  const [duration, setDuration] = useState("48 hours");
+  const [selectedQuestId, setSelectedQuestId] = useState(quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "");
+  const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
+  const [proofWindow, setProofWindow] = useState(proofWindows[0]);
+  const [duration, setDuration] = useState("7 days");
   const [rules, setRules] = useState<Record<string, string>>({
-    timeControl: "Blitz 5+3",
-    rated: "Rated only",
-    variant: "Standard only",
+    timeControl: "Any time control",
+    rated: "Any rated state",
+    variant: "Any variant",
     color: "Any color",
   });
   const [draftRooms, setDraftRooms] = useState<DraftRoom[]>([]);

@@ -130,6 +130,13 @@ Rules from this point:
   - Proof: Multiplayer Side Quest flow reads `Create. Invite. Play. Prove.` and renders Invite as stage 2, shifting Play/Prove to stages 3/4.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-3c8npmu0q-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 and includes `Create. Invite. Play. Prove.`, `Invite`, invite-link copy, and stage 4 numbering.
 
+- [x] Match Multiplayer Quest create defaults to screenshot.
+  - added_at: 2026-05-11 16:37 Europe/Stockholm
+  - completed_at: 2026-05-11 16:40 Europe/Stockholm
+  - source: Andreas showed the create Multiplayer Side Quest screen and asked to set the default choices as per the screenshot.
+  - Proof: create form defaults to name `No Castle Night`, first side quest `Knights Before Coffee`, invite mode `Invite-only`, proof window `Fresh games after start`, duration `7 days`, time control `Any time control`, rated setting `Any rated state`, variant `Any variant`, and player color `Any color`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
