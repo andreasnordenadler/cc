@@ -151,6 +151,13 @@ Rules from this point:
   - Proof: logged-in homepage multiplayer section keeps only the eyebrow heading, rows show title/copy on left and green status on right, row action text is removed, and bottom-right button reads `All Multiplayer Side Quests`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-k9v01ynqm-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous homepage smoke returned 200 and confirmed signed-out users do not receive old/new logged-in section copy. Logged-in layout was verified by build/source inspection.
 
+- [x] Add Multiplayer Side Quest language to homepage.
+  - added_at: 2026-05-11 17:50 Europe/Stockholm
+  - completed_at: 2026-05-11 17:53 Europe/Stockholm
+  - source: Andreas said `https://sidequestchess.com/` needs language around also having Multiplayer Side Quests.
+  - Proof: homepage hero and signed-out explanatory copy mention solo and Multiplayer Side Quests; signed-out homepage includes a lightweight Multiplayer Side Quests callout linking to `/groupquests`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

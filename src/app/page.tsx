@@ -80,11 +80,11 @@ export default async function Home() {
       <div className="content-wrap">
         <section className={`hero-grid launch-home-hero clean-home-hero ${isSignedIn ? "" : "signed-out-home-hero"}`}>
           <article className="hero-card simplified-home-hero">
-            <h1>Chess, but with stupidly hard side quests.</h1>
+            <h1>Chess, but with stupidly hard side quests — solo or multiplayer.</h1>
             <p className="hero-copy">
               {isSignedIn
-                ? "Pick one quest, play a real Lichess or Chess.com game, then come back for an automatic proof card."
-                : "Sign in, connect your public chess usernames, choose one ridiculous quest, and let Side Quest Chess check your latest real game."}
+                ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
+                : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, and let SQC check your latest real game."}
             </p>
             {isSignedIn ? (
               <>
@@ -143,8 +143,8 @@ export default async function Home() {
             </div>
             <div className="checker-flow signed-out-loop-cards" aria-label="Signed-out product explanation">
               <div className="flow-step ready">
-                <strong>Choose one quest</strong>
-                <p>Start easy, look for trouble, or go straight for something unhinged. Each quest has one weird rule and a badge.</p>
+                <strong>Choose solo or multiplayer</strong>
+                <p>Start one quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses.</p>
               </div>
               <div className="flow-step ready">
                 <strong>Play where you already play</strong>
@@ -152,8 +152,21 @@ export default async function Home() {
               </div>
               <div className="flow-step ready">
                 <strong>Get the receipt</strong>
-                <p>The latest-game checker returns passed, failed, or pending with a shareable proof card.</p>
+                <p>The latest-game checker returns passed, failed, or pending with a shareable proof card, solo progress, and multiplayer leaderboard proof when relevant.</p>
               </div>
+            </div>
+          </section>
+        ) : null}
+
+        {!isSignedIn ? (
+          <section className="mission-card signed-out-multiplayer-callout" aria-label="Multiplayer Side Quests">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Multiplayer Side Quests</span>
+                <h2>Same nonsense, now with witnesses.</h2>
+                <p>Browse public Multiplayer Side Quests, inspect the rules before joining, or sign in when you want to create one and invite friends.</p>
+              </div>
+              <Link href="/groupquests" className="button secondary">Browse Multiplayer Side Quests</Link>
             </div>
           </section>
         ) : null}
