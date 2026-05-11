@@ -163,7 +163,7 @@ Rules from this point:
   - completed_at: 2026-05-11 18:41 Europe/Stockholm
   - source: Andreas asked to make `Chess, but with stupidly hard side quests — solo or multiplayer.` smaller.
   - Proof: homepage main hero headline keeps the exact text but uses a smaller responsive font size than the global `h1`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-prrrckzaf-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` returns 200 with the exact headline and updated homepage CSS bundle includes `.simplified-home-hero h1`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
