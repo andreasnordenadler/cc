@@ -6,29 +6,29 @@ import SiteNav from "@/components/site-nav";
 const overviewSteps = [
   {
     title: "Create",
-    copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the Group Side Quest constraints.",
+    copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
     href: "/groupquests/create",
   },
   {
     title: "Play",
-    copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Group Side Quest rules.",
+    copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Multiplayer Side Quest rules.",
   },
   {
     title: "Prove",
-    copy: "Each Group Side Quest gets its own leaderboard, event feed, and group-valid proof separate from solo progress.",
+    copy: "Each Multiplayer Side Quest gets its own leaderboard, event feed, and multiplayer-valid proof separate from solo progress.",
   },
 ];
 
 const loggedOutActions = [
   {
-    title: "Create a New Group Side Quest",
+    title: "Create a New Multiplayer Side Quest",
     copy: "Start the ridiculous dare, choose the side quests, and invite the people who deserve trouble.",
-    action: "Create Group Side Quest",
+    action: "Create Multiplayer Side Quest",
     href: "/groupquests/create",
   },
   {
     title: "See how it works",
-    copy: "Group Side Quests have side quests, a proof window, locked rules, a leaderboard, and one glorious proof-scroll winner.",
+    copy: "Multiplayer Side Quests have side quests, a proof window, locked rules, a leaderboard, and one glorious proof-scroll winner.",
     action: "View the flow",
     href: "#group-side-quest-flow",
   },
@@ -97,8 +97,8 @@ const finishedRooms = [
 ];
 
 export const metadata = {
-  title: "Group Side Quests · Side Quest Chess",
-  description: "Side Quest Chess Group Side Quests for shared side quests, fresh proof, and group leaderboards.",
+  title: "Multiplayer Side Quests · Side Quest Chess",
+  description: "Side Quest Chess Multiplayer Side Quests for shared side quests, fresh proof, and group leaderboards.",
 };
 
 export default async function GroupQuestsPage() {
@@ -111,7 +111,7 @@ export default async function GroupQuestsPage() {
       <div className="content-wrap">
         {!userId ? (
           <section className="hero-card groupquests-hero">
-            <h1>Group Side Quests.</h1>
+            <h1>Multiplayer Side Quests.</h1>
             <p className="hero-copy">
               Sign In/Up and start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board.
             </p>
@@ -120,20 +120,20 @@ export default async function GroupQuestsPage() {
 
         {userId ? (
           <>
-            <section className="mission-card groupquests-user-overview" aria-label="Your Group Side Quests overview">
+            <section className="mission-card groupquests-user-overview" aria-label="Your Multiplayer Side Quests overview">
               <div className="section-head">
                 <div>
-                  <span className="eyebrow">My Group Side Quests</span>
+                  <span className="eyebrow">My Multiplayer Side Quests</span>
                   <h2>What needs me?</h2>
                   <p>Active rooms first. Finished rooms stay out of the way until you need results.</p>
                 </div>
                 <div className="groupquests-dashboard-actions">
-                  <Link className="button primary" href="/groupquests/create">Create Group Side Quest</Link>
+                  <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
                   <Link className="button secondary" href="#join-group-side-quest">Join with invite link</Link>
                 </div>
               </div>
 
-              <div className="groupquests-attention-panel" aria-label="Group Side Quests needing your attention">
+              <div className="groupquests-attention-panel" aria-label="Multiplayer Side Quests needing your attention">
                 <div className="section-head compact">
                   <h3>Needs your attention</h3>
                   <span className="badge gold">{attentionItems.length}</span>
@@ -159,8 +159,8 @@ export default async function GroupQuestsPage() {
                 <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview invite room</Link>
               </div>
 
-              <div className="groupquests-scalable-dashboard" aria-label="Your Group Side Quest rooms">
-                <section className="groupquests-room-list-panel" aria-label="Active Group Side Quest rooms">
+              <div className="groupquests-scalable-dashboard" aria-label="Your Multiplayer Side Quest rooms">
+                <section className="groupquests-room-list-panel" aria-label="Active Multiplayer Side Quest rooms">
                   <div className="section-head compact">
                     <div>
                       <h3>Active</h3>
@@ -184,7 +184,7 @@ export default async function GroupQuestsPage() {
                   </div>
                 </section>
 
-                <aside className="groupquests-history-panel" aria-label="Finished Group Side Quest rooms">
+                <aside className="groupquests-history-panel" aria-label="Finished Multiplayer Side Quest rooms">
                   <div className="section-head compact">
                     <div>
                       <h3>Finished</h3>
@@ -214,17 +214,17 @@ export default async function GroupQuestsPage() {
           </>
         ) : (
           <>
-            <section className="mission-card groupquests-story-card" aria-label="What Group Side Quests are">
+            <section className="mission-card groupquests-story-card" aria-label="What Multiplayer Side Quests are">
               <div>
                 <h2>A tiny chess tournament for bad ideas.</h2>
                 <p>
-                  Group Side Quests turn normal chess nights into a shared challenge: one player creates a Group Side Quest, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
+                  Multiplayer Side Quests turn normal chess nights into a shared challenge: one player creates a Multiplayer Side Quest, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
                 </p>
                 <p>
-                  Each Group Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the group only counts proof earned inside that Group Side Quest.
+                  Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the multiplayer room only counts proof earned inside that Multiplayer Side Quest.
                 </p>
               </div>
-              <div className="groupquests-process-graphic" aria-label="Group Side Quest process graphic">
+              <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
                 <Image
                   alt="Noble chess knights competing, with the winner holding a stamped proof scroll"
                   className="groupquests-knight-competition-art"
@@ -236,7 +236,7 @@ export default async function GroupQuestsPage() {
               </div>
             </section>
 
-            <section className="grid groupquests-logged-out-actions" aria-label="Start with Group Side Quests">
+            <section className="grid groupquests-logged-out-actions" aria-label="Start with Multiplayer Side Quests">
               {loggedOutActions.map((item) => (
                 <article className="mission-card groupquests-action-card" key={item.title}>
                   <h2>{item.title}.</h2>
@@ -249,7 +249,7 @@ export default async function GroupQuestsPage() {
         )}
 
         {userId ? (
-          <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Group Side Quests work">
+          <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
             <div className="section-head">
               <div>
                 <h2>Create. Play. Prove.</h2>
@@ -285,7 +285,7 @@ export default async function GroupQuestsPage() {
 
         {!userId ? (
           <>
-            <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Group Side Quest">
+            <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Multiplayer Side Quest">
               <div className="section-head">
                 <div>
                   <span className="eyebrow">Join with invite link</span>
@@ -295,7 +295,7 @@ export default async function GroupQuestsPage() {
               <div className="groupquests-join-grid">
                 <div>
                   <p>
-                    Invite links open the Group Side Quest detail page first. Players see the side quest set, proof window, mandatory game rules, leaderboard state, and whether joining is instant or approval-based.
+                    Invite links open the Multiplayer Side Quest detail page first. Players see the side quest set, proof window, mandatory game rules, leaderboard state, and whether joining is instant or approval-based.
                   </p>
                   <p>
                     Nothing from solo My Side Quests is silently imported. The group ledger starts when the player joins and the proof window is open.
@@ -309,7 +309,7 @@ export default async function GroupQuestsPage() {
               </div>
             </section>
 
-            <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Group Side Quests work">
+            <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
               <div className="section-head">
                 <div>
                   <h2>Create. Play. Prove.</h2>
@@ -342,11 +342,11 @@ export default async function GroupQuestsPage() {
               </div>
             </section>
 
-            <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Group Side Quest completion rules">
+            <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Multiplayer Side Quest completion rules">
               <span className="eyebrow">Proof rule</span>
               <h2>Personal proof and group proof are different ledgers.</h2>
               <p>
-                Finishing a side quest alone still counts for your account. Finishing it inside a Group Side Quest requires fresh Group Side Quest-valid proof: joined participant, eligible window, matching game rules, Group Side Quest score, and group celebration.
+                Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.
               </p>
             </section>
           </>

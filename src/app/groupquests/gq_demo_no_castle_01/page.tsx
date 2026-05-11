@@ -12,15 +12,15 @@ const participants = [
 ];
 
 const eventFeed = [
-  { label: "Proof accepted", copy: "Andreas completed No Castle Club with a Group Side Quest-valid game." },
+  { label: "Proof accepted", copy: "Andreas completed No Castle Club with a Multiplayer Side Quest-valid game." },
   { label: "Player joined", copy: "QueenlessHero joined after reviewing the locked rules." },
   { label: "Window opened", copy: "Solo completions before this start time do not count here." },
 ];
 
 const settingCards = [
   { title: "Access", value: "Unlisted invite link", copy: "Players can join from the link while the host keeps approvals visible." },
-  { title: "Proof window", value: "Fresh games only", copy: "A side quest already completed personally starts incomplete inside this Group Side Quest until new eligible proof lands." },
-  { title: "Mandatory time", value: "Blitz 5+3", copy: "The Group Side Quest requires a specific Lichess-style time control for valid proof." },
+  { title: "Proof window", value: "Fresh games only", copy: "A side quest already completed personally starts incomplete inside this Multiplayer Side Quest until new eligible proof lands." },
+  { title: "Mandatory time", value: "Blitz 5+3", copy: "The Multiplayer Side Quest requires a specific Lichess-style time control for valid proof." },
   { title: "Messages", value: "System feed first", copy: "Activity events explain joins, proofs, approvals, and leaderboard changes before free-form chat ships." },
 ];
 
@@ -33,13 +33,13 @@ const proofChecklist = [
 
 const hostControls = [
   { title: "Invite management", copy: "Copy invite, pause joining, or switch future joins to approval-required." },
-  { title: "Proof review", copy: "See which submissions passed the Group Side Quest rules and which need correction." },
-  { title: "Window control", copy: "Extend, close, or finish the Group Side Quest while keeping the leaderboard explainable." },
+  { title: "Proof review", copy: "See which submissions passed the Multiplayer Side Quest rules and which need correction." },
+  { title: "Window control", copy: "Extend, close, or finish the Multiplayer Side Quest while keeping the leaderboard explainable." },
 ];
 
 export const metadata = {
-  title: "No Castle Night · Group Side Quests · Side Quest Chess",
-  description: "Side Quest Chess Group Side Quest detail page with participant proof status and host maintenance controls.",
+  title: "No Castle Night · Multiplayer Side Quests · Side Quest Chess",
+  description: "Side Quest Chess Multiplayer Side Quest detail page with participant proof status and host maintenance controls.",
 };
 
 export default async function GroupQuestRoomPage() {
@@ -54,10 +54,10 @@ export default async function GroupQuestRoomPage() {
 
       <div className="content-wrap">
         <section className="hero-card groupquests-hero groupquests-detail-hero">
-          <span className="eyebrow">Group Side Quest detail</span>
+          <span className="eyebrow">Multiplayer Side Quest detail</span>
           <h1>No Castle Night</h1>
           <p className="hero-copy">
-            Your shared dare, current proof status, leaderboard, and host controls in one place. Personal side quest completions stay separate from this Group Side Quest ledger.
+            Your shared dare, current proof status, leaderboard, and host controls in one place. Personal side quest completions stay separate from this Multiplayer Side Quest ledger.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/groupquests">Back to overview</Link>
@@ -65,7 +65,7 @@ export default async function GroupQuestRoomPage() {
           </div>
         </section>
 
-        <section className="mission-card groupquests-live-card" aria-label="Group Side Quest status">
+        <section className="mission-card groupquests-live-card" aria-label="Multiplayer Side Quest status">
           <div className="section-head">
             <div>
               <span className="eyebrow">Live status</span>
@@ -74,7 +74,7 @@ export default async function GroupQuestRoomPage() {
             <span className="badge green">Live</span>
           </div>
           <p>
-            Everyone tries the same side quest inside the same time window. Previous personal clears do not auto-complete this Group Side Quest.
+            Everyone tries the same side quest inside the same time window. Previous personal clears do not auto-complete this Multiplayer Side Quest.
           </p>
 
           <div className="groupquests-status-strip" aria-label="Competition status">
@@ -108,7 +108,7 @@ export default async function GroupQuestRoomPage() {
 
           <article className="mission-card groupquests-host-panel">
             <span className="eyebrow">Host maintenance</span>
-            <h2>Keep the Group Side Quest fair.</h2>
+            <h2>Keep the Multiplayer Side Quest fair.</h2>
             <div className="groupquests-host-control-list">
               {hostControls.map((control) => (
                 <div key={control.title}>
@@ -120,7 +120,7 @@ export default async function GroupQuestRoomPage() {
           </article>
         </section>
 
-        <section className="grid" aria-label="Group Side Quest settings">
+        <section className="grid" aria-label="Multiplayer Side Quest settings">
           {settingCards.map((card) => (
             <article className="mission-card groupquests-setting-card" key={card.title}>
               <span className="eyebrow">{card.title}</span>
@@ -148,7 +148,7 @@ export default async function GroupQuestRoomPage() {
                   <h3>{challenge.title}</h3>
                   <p>{challenge.objective}</p>
                 </div>
-                <p className="proof-line">{index === 0 ? "Active now · submit fresh proof" : "Queued for multi-step Group Side Quests"}</p>
+                <p className="proof-line">{index === 0 ? "Active now · submit fresh proof" : "Queued for multi-step Multiplayer Side Quests"}</p>
               </article>
             ))}
           </div>
@@ -192,7 +192,7 @@ export default async function GroupQuestRoomPage() {
           <span className="eyebrow">Completion state rule</span>
           <h2>Personal proof and group proof are different ledgers.</h2>
           <p>
-            If you already earned a Coat of Arms for a side quest, that stays yours. But this Group Side Quest has its own completion state: joined participant, eligible window, Group Side Quest proof, Group Side Quest score, and group celebration.
+            If you already earned a Coat of Arms for a side quest, that stays yours. But this Multiplayer Side Quest has its own completion state: joined participant, eligible window, Multiplayer Side Quest proof, Multiplayer Side Quest score, and multiplayer celebration.
           </p>
         </section>
       </div>

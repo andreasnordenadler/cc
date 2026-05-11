@@ -41,7 +41,7 @@ export default async function ChallengesPage() {
         <section className="hero-card side-quests-hub-hero">
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
-            Side Quests is the hub: pick a solo quest for yourself, or start a Group Side Quest when the bad idea deserves witnesses.
+            Side Quests is the hub: pick a solo quest for yourself, or start a Multiplayer Side Quest when the bad idea deserves witnesses.
           </p>
         </section>
 
@@ -53,9 +53,9 @@ export default async function ChallengesPage() {
             <Link href="#solo-side-quest-deck" className="button primary">Browse solo quests</Link>
           </article>
           <article className="mission-card side-quest-mode-card group-mode-card">
-            <span className="eyebrow">Group Side Quests</span>
+            <span className="eyebrow">Multiplayer Side Quests</span>
             <h2>Multiplayer. Same nonsense, now with witnesses.</h2>
-            <p>Create or join a room with shared rules, a proof window, a leaderboard, and group-valid proof separate from solo progress.</p>
+            <p>Create or join a room with shared rules, a proof window, a leaderboard, and multiplayer-valid proof separate from solo progress.</p>
             <Link href="/groupquests" className="button secondary">Open group quests</Link>
           </article>
         </section>

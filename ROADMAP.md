@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Rename public Group Side Quests language to Multiplayer Side Quests.
+  - added_at: 2026-05-11 09:43 Europe/Stockholm
+  - completed_at: 2026-05-11 09:47 Europe/Stockholm
+  - source: Andreas accepted Sam’s recommendation to use **Multiplayer Side Quests** publicly instead of **Group Side Quests**.
+  - Proof: public-facing app copy in `/challenges`, `/account`, `/groupquests`, `/groupquests/create`, `/groupquests/gq_demo_no_castle_01`, and the draft builder now uses Multiplayer Side Quests / Multiplayer Side Quest terminology while keeping `/groupquests` route unchanged.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`, `/account`, `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01`. Deploy/smoke pending.
+
 - [x] Aggressively reduce wasted space in Side Quests top hero.
   - added_at: 2026-05-11 09:40 Europe/Stockholm
   - completed_at: 2026-05-11 09:42 Europe/Stockholm

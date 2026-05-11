@@ -30,7 +30,7 @@ const inviteModes = [
   {
     id: "unlisted-link",
     label: "Unlisted link",
-    copy: "Anyone with the Group Side Quest link can join while sharing is open.",
+    copy: "Anyone with the Multiplayer Side Quest link can join while sharing is open.",
   },
   {
     id: "approval-required",
@@ -128,7 +128,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     .filter((rule) => rule && !rule.startsWith("Any"));
 
   function createLocalDraftRoom() {
-    const roomName = name.trim() || "Untitled Group Side Quest";
+    const roomName = name.trim() || "Untitled Multiplayer Side Quest";
     setDraftRooms((rooms) => [
       {
         id: `${draftSlug}-${rooms.length + 1}`,
@@ -146,7 +146,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   }
 
   function copyInviteText() {
-    const inviteText = `Join my Side Quest Chess Group Side Quest: ${name.trim() || "Untitled Group Side Quest"} — /groupquests/${draftSlug}`;
+    const inviteText = `Join my Side Quest Chess Multiplayer Side Quest: ${name.trim() || "Untitled Multiplayer Side Quest"} — /groupquests/${draftSlug}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(inviteText).catch(() => undefined);
     }
@@ -155,7 +155,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
 
   return (
     <div className="groupquests-builder-shell">
-      <div className="groupquests-stage-rail" aria-label="Create Group Side Quest stages">
+      <div className="groupquests-stage-rail" aria-label="Create Multiplayer Side Quest stages">
         {createStages.map((stage, index) => (
           <div className="groupquests-stage-pill" key={stage.label}>
             <strong>{index + 1}</strong>
@@ -165,10 +165,10 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         ))}
       </div>
 
-      <div className="groupquests-builder" aria-label="Create Group Side Quest builder">
+      <div className="groupquests-builder" aria-label="Create Multiplayer Side Quest builder">
         <div className="groupquests-builder-form">
           <label>
-            <span>1 · Group Side Quest name</span>
+            <span>1 · Multiplayer Side Quest name</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -228,7 +228,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
               <span className="groupquests-rule-title">5 · Mandatory game rules</span>
-              <p>Hosts can make provider settings mandatory so every participant understands exactly which games can produce Group Side Quest proof.</p>
+              <p>Hosts can make provider settings mandatory so every participant understands exactly which games can produce Multiplayer Side Quest proof.</p>
             </div>
             <div className="groupquests-rule-grid">
               {gameRuleGroups.map((group) => (
@@ -248,9 +248,9 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           </div>
         </div>
 
-        <aside className="groupquests-draft-preview" aria-label="Group Side Quest preview">
+        <aside className="groupquests-draft-preview" aria-label="Multiplayer Side Quest preview">
           <span className="eyebrow">Participant preview</span>
-          <h3>{name.trim() || "Untitled Group Side Quest"}</h3>
+          <h3>{name.trim() || "Untitled Multiplayer Side Quest"}</h3>
           <p>{selectedQuest?.objective ?? "Choose a side quest to preview the participant view."}</p>
           <div className="groupquests-preview-stat-grid">
             <div>
@@ -296,12 +296,12 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               {inviteCopied ? "Invite text copied" : "Copy invite text"}
             </button>
           </div>
-          <p className="proof-line">Preview only — saved Group Side Quests will use the same rules summary and maintenance states.</p>
+          <p className="proof-line">Preview only — saved Multiplayer Side Quests will use the same rules summary and maintenance states.</p>
         </aside>
       </div>
 
       {draftRooms.length > 0 ? (
-        <section className="groupquests-local-drafts" aria-label="Local Group Side Quest previews">
+        <section className="groupquests-local-drafts" aria-label="Local Multiplayer Side Quest previews">
           <div className="section-head">
             <div>
               <span className="eyebrow">Local previews</span>

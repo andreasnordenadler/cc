@@ -110,10 +110,10 @@ export default async function MyQuestLogPage() {
 
         </div>
 
-        <section className="mission-card my-group-quests-card" aria-label="Active Group Side Quests">
+        <section className="mission-card my-group-quests-card" aria-label="Active Multiplayer Side Quests">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Active Group Quests</span>
+              <span className="eyebrow">Active Multiplayer Quests</span>
               <h2>Rooms that need you.</h2>
               <p>Group rooms live here with your solo quest, so My Side Quests is the command center.</p>
             </div>
