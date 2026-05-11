@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:42 Europe/Stockholm
   - source: Andreas showed the compacted `/challenges` top section still wastes way too much space.
   - Proof: top hero keeps text but is now a much shorter banner with tighter padding, smaller heading, reduced page gap, and flatter background.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`; production deploy `https://cc-o8ggkzqj0-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges` returns 200 with compact hero class and preserved text.
 
 - [x] Compact Side Quests top hero section.
   - added_at: 2026-05-11 09:38 Europe/Stockholm
