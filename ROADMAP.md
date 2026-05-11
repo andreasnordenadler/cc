@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 11:15 Europe/Stockholm
   - source: Andreas asked to put the SQC red seal on the proof scroll held by the knight, plus text indication and one coat of arms at the top of the scroll.
   - Proof: generated a new transparent RGBA illustration with a red SQC-style wax seal, `QUEST PROOF` text indication, and coat-of-arms style mark on the scroll; replaced `public/illustrations/group-side-quests-knight-competition.png`.
-  - Verification: local visual inspection confirmed the scroll details are present; `file public/illustrations/group-side-quests-knight-competition.png` reports `PNG image data, 1536 x 1024, 8-bit/color RGBA`; `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: local visual inspection confirmed the scroll details are present; `file public/illustrations/group-side-quests-knight-competition.png` reports `PNG image data, 1536 x 1024, 8-bit/color RGBA`; `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-4hj4ughyj-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` references the artwork and `/illustrations/group-side-quests-knight-competition.png` returns `200 image/png`.
 
 - [x] Replace Multiplayer Side Quests overview art with new simpler funny transparent artwork.
   - added_at: 2026-05-11 10:51 Europe/Stockholm
