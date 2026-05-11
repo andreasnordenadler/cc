@@ -45,7 +45,7 @@ export default async function MyQuestLogPage() {
       status: "Live",
       copy: "Fresh No Castle proof needed · 4 players",
       href: "/groupquests/gq_demo_no_castle_01",
-      action: "Open group quest",
+      action: "Open multiplayer quest",
     },
     {
       title: "Beginner Chaos Ladder",
@@ -115,9 +115,9 @@ export default async function MyQuestLogPage() {
             <div>
               <span className="eyebrow">Active Multiplayer Quests</span>
               <h2>Rooms that need you.</h2>
-              <p>Group rooms live here with your solo quest, so My Side Quests is the command center.</p>
+              <p>Multiplayer rooms live here with your solo quest, so My Side Quests is the command center.</p>
             </div>
-            <Link href="/groupquests" className="button secondary">All group rooms</Link>
+            <Link href="/groupquests" className="button secondary">All multiplayer rooms</Link>
           </div>
           <div className="my-group-quest-list">
             {activeGroupQuests.map((quest) => (

@@ -98,7 +98,7 @@ const finishedRooms = [
 
 export const metadata = {
   title: "Multiplayer Side Quests · Side Quest Chess",
-  description: "Side Quest Chess Multiplayer Side Quests for shared side quests, fresh proof, and group leaderboards.",
+  description: "Side Quest Chess Multiplayer Side Quests for shared side quests, fresh proof, and multiplayer leaderboards.",
 };
 
 export default async function GroupQuestsPage() {
@@ -298,7 +298,7 @@ export default async function GroupQuestsPage() {
                     Invite links open the Multiplayer Side Quest detail page first. Players see the side quest set, proof window, mandatory game rules, leaderboard state, and whether joining is instant or approval-based.
                   </p>
                   <p>
-                    Nothing from solo My Side Quests is silently imported. The group ledger starts when the player joins and the proof window is open.
+                    Nothing from solo My Side Quests is silently imported. The multiplayer ledger starts when the player joins and the proof window is open.
                   </p>
                 </div>
                 <div className="groupquests-invite-preview">
@@ -344,7 +344,7 @@ export default async function GroupQuestsPage() {
 
             <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Multiplayer Side Quest completion rules">
               <span className="eyebrow">Proof rule</span>
-              <h2>Personal proof and group proof are different ledgers.</h2>
+              <h2>Personal proof and multiplayer proof are different ledgers.</h2>
               <p>
                 Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.
               </p>

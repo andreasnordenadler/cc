@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Sweep leftover public “group” terminology after Multiplayer rename.
+  - added_at: 2026-05-11 09:50 Europe/Stockholm
+  - completed_at: 2026-05-11 09:53 Europe/Stockholm
+  - source: Andreas showed a screenshot with remaining “group” copy after approving Multiplayer Side Quests and asked Sam to look through where “group” should become “multiplayer”.
+  - Proof: updated stale visible product-mode copy including `Open group quest(s)`, `Group rooms`, `All group rooms`, `group leaderboards`, `group proof`, `group ledger`, and `group celebration`; route/class/internal `groupquests` identifiers remain unchanged.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 - [x] Rename public Group Side Quests language to Multiplayer Side Quests.
   - added_at: 2026-05-11 09:43 Europe/Stockholm
   - completed_at: 2026-05-11 09:47 Europe/Stockholm

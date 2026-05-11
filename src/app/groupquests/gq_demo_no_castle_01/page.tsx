@@ -190,7 +190,7 @@ export default async function GroupQuestRoomPage() {
 
         <section className="mission-card groupquests-rules-card" aria-label="Competition completion rules">
           <span className="eyebrow">Completion state rule</span>
-          <h2>Personal proof and group proof are different ledgers.</h2>
+          <h2>Personal proof and multiplayer proof are different ledgers.</h2>
           <p>
             If you already earned a Coat of Arms for a side quest, that stays yours. But this Multiplayer Side Quest has its own completion state: joined participant, eligible window, Multiplayer Side Quest proof, Multiplayer Side Quest score, and multiplayer celebration.
           </p>
