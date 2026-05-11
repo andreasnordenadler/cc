@@ -375,7 +375,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:46 Europe/Stockholm
   - source: Andreas noted the Host Maintenance Preview/action area does not belong inside the Participant Preview card.
   - Proof: preview card is participant-facing only; host maintenance text and preview-only note are removed from it; create/copy actions live outside the preview card.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-4rc9nepre-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed Host Maintenance Preview and Preview-only note are removed from preview while create/copy actions exist outside it; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
