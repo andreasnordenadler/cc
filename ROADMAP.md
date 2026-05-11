@@ -328,6 +328,13 @@ Rules from this point:
   - Proof: closed side-quest picker button uses primary/yellow button styling.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-mj80jgrfc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed `Add / edit side quests` uses primary/yellow styling; Vercel error logs had no recent logs.
 
+- [x] Show all available Side Quests in Multiplayer create picker.
+  - added_at: 2026-05-11 21:14 Europe/Stockholm
+  - completed_at: 2026-05-11 21:16 Europe/Stockholm
+  - source: Andreas asked whether the side-quest picker should display all available quests instead of a limited subset.
+  - Proof: `/groupquests/create` passes all `CHALLENGES` into the picker instead of slicing to the first 8, so Add/Edit can choose from the complete current Side Quest catalogue.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

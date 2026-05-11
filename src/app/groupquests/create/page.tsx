@@ -16,7 +16,7 @@ export default async function CreateGroupQuestPage() {
     redirect("/sign-in?redirect_url=%2Fgroupquests%2Fcreate");
   }
 
-  const builderQuests = CHALLENGES.slice(0, 8).map((challenge) => ({
+  const builderQuests = CHALLENGES.map((challenge) => ({
     id: challenge.id,
     title: challenge.title,
     objective: challenge.objective,
