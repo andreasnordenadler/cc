@@ -2914,3 +2914,12 @@ For this model, request opaque/dark vignette backgrounds unless specifically usi
 Tried to use Python Pillow (`PIL`) for white-background removal but Pillow is not installed in the project/runtime Python. Recovered by compiling a small CoreGraphics C flood-fill tool to remove edge-connected white background from generated PNGs.
 
 **Fix/Next time**: On this Mac runtime, prefer the existing CoreGraphics C helpers for simple PNG alpha/background processing unless Pillow is explicitly available.
+
+## [ERR-20260511-003] missing directory before route file write
+
+**Logged**: 2026-05-11T19:16:00+02:00
+**Priority**: low
+
+Attempted to write `src/app/groupquests/public/page.tsx` before creating the `public/` route directory, causing `no such file or directory`.
+
+**Fix/Next time**: For new Next.js nested routes, create the route directory with `mkdir -p` before redirecting file content.

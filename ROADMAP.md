@@ -215,6 +215,14 @@ Rules from this point:
   - Proof: `/groupquests` flow grid uses four equal columns on desktop so Create/Invite/Play/Prove fill the card width cleanly.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-be2bfc0w0-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 and includes `Create. Invite. Play. Prove.` plus all four stage labels.
 
+- [x] Add mock public Multiplayer Side Quest listing page.
+  - added_at: 2026-05-11 19:15 Europe/Stockholm
+  - completed_at: 2026-05-11 19:18 Europe/Stockholm
+  - source: Andreas asked what happens when clicking `Join Public Side Quest`, requested button text change, and suggested a mockup list of public multiplayer side quests.
+  - Proof: logged-out `/groupquests` action button reads `Join Public Side Quest` and links to `/groupquests/public`; `/groupquests/public` renders a mock public Multiplayer Side Quest listing with multiple rows, rules/window metadata, and inspect/join links.
+  - follow_up: add real host public-listing setting and real public join/entry flow later.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

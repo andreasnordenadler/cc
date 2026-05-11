@@ -33,8 +33,8 @@ const loggedOutActions = [
   {
     title: "Join a Public Multiplayer Side Quest",
     copy: "Find public Multiplayer Side Quests that hosts have opened for anyone to enter, then inspect the rules before joining.",
-    action: "Join public quest",
-    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Join Public Side Quest",
+    href: "/groupquests/public",
   },
 ];
 
