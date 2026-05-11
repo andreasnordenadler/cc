@@ -223,6 +223,12 @@ Rules from this point:
   - follow_up: add real host public-listing setting and real public join/entry flow later.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-45srzps05-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` includes `Join Public Side Quest` linking to `/groupquests/public`, and `/groupquests/public` returns 200 with `Join a public bad idea.`, mock rows including `No Castle Night`, `Knights Before Coffee Ladder`, and `Inspect and join`.
 
+- [ ] Keep `/groupquests/public` in the Multiplayer Side Quest product track.
+  - added_at: 2026-05-11 19:20 Europe/Stockholm
+  - source: Andreas said “let’s make sure we don’t forget about this page” after the mock public Multiplayer Side Quest listing page shipped.
+  - acceptance: future Multiplayer Side Quest work treats `/groupquests/public` as a first-class page, not a throwaway mock; next iterations should connect it to real public listing settings, join states, filters/status, and public quest rows.
+  - current_state: `/groupquests/public` is a mock listing page with public quest rows and inspect/join links.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
