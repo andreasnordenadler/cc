@@ -283,7 +283,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:50 Europe/Stockholm
   - source: Andreas noted Proof Rule was confusing and questioned whether it is needed now that the create flow has an Opens/Closes date picker.
   - Proof: create builder no longer shows Proof Rule dropdown; schedule section only has Opens/Closes; copy clarifies that qualifying games must be played inside that window for now; preview/local drafts no longer duplicate proof-rule language.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-nsz20g8mo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed proof-rule options are removed and schedule copy/fields remain; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
