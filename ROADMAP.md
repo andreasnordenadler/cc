@@ -383,7 +383,7 @@ Rules from this point:
   - source: Andreas asked how saving works and proposed that Save takes the creator to the unique URL where logged-in creators see extra controls compared with everyone else.
   - Proof: create page button reads `Save Multiplayer Side Quest` and redirects to `/groupquests/{numericId}`; a dynamic numeric-ID detail page exists; logged-in visitors see creator controls, logged-out visitors see public participant view and sign-in-to-manage prompt.
   - follow_up: replace mock client redirect/public ID with persisted server-side create action and real ownership checks.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-fvhpzrndi-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL and `/groupquests/12345` returns 200 with numeric ID, share URL, public participant view, sign-in-to-manage prompt, and quest stack; source checks confirmed `Save Multiplayer Side Quest` button and redirect to `/groupquests/${publicId}`; Vercel error logs had no recent logs.
 
 - [ ] Replace mock Multiplayer Quest save with persisted create action and ownership checks.
   - added_at: 2026-05-11 21:54 Europe/Stockholm
