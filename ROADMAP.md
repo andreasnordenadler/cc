@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Aggressively reduce wasted space in Side Quests top hero.
+  - added_at: 2026-05-11 09:40 Europe/Stockholm
+  - completed_at: 2026-05-11 09:42 Europe/Stockholm
+  - source: Andreas showed the compacted `/challenges` top section still wastes way too much space.
+  - Proof: top hero keeps text but is now a much shorter banner with tighter padding, smaller heading, reduced page gap, and flatter background.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`. Deploy/smoke pending.
+
 - [x] Compact Side Quests top hero section.
   - added_at: 2026-05-11 09:38 Europe/Stockholm
   - completed_at: 2026-05-11 09:40 Europe/Stockholm

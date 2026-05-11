@@ -1051,3 +1051,33 @@ p { color: var(--muted); line-height: 1.5; }
   .side-quests-hub-hero h1 { margin-bottom: 0; }
   .side-quests-hub-hero .hero-copy { margin: 0; }
 }
+
+/* Aggressive compact pass for the Side Quests top banner. */
+.content-wrap:has(.side-quests-hub-hero) { gap: 14px; }
+.side-quests-hub-hero {
+  border-radius: 22px;
+  padding: clamp(12px, 1.7vw, 18px) clamp(16px, 2.4vw, 26px);
+  min-height: 0;
+  background: linear-gradient(135deg, rgba(245,200,106,.18), rgba(255,255,255,.06));
+}
+.side-quests-hub-hero h1 {
+  font-size: clamp(2rem, 4.1vw, 3.65rem);
+  line-height: .86;
+  letter-spacing: -.06em;
+}
+.side-quests-hub-hero .hero-copy {
+  max-width: 62ch;
+  font-size: clamp(.86rem, 1.05vw, .98rem);
+  line-height: 1.25;
+}
+@media (min-width: 900px) {
+  .side-quests-hub-hero {
+    grid-template-columns: minmax(250px, .7fr) minmax(420px, 1fr);
+    gap: 16px;
+    align-items: center;
+  }
+}
+@media (max-width: 700px) {
+  .side-quests-hub-hero { padding: 12px 14px; }
+  .side-quests-hub-hero h1 { font-size: clamp(1.85rem, 10vw, 2.7rem); margin-bottom: 4px; }
+}
