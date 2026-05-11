@@ -45,13 +45,6 @@ const proofWindows = [
   "Manual retroactive proof later",
 ];
 
-const createStages = [
-  { label: "Basics", copy: "Name + first side quest" },
-  { label: "Visibility", copy: "Public, link, or invite-only" },
-  { label: "Rules", copy: "Provider constraints" },
-  { label: "Preview", copy: "Share + maintain" },
-];
-
 const gameRuleGroups = [
   {
     id: "timeControl",
@@ -155,16 +148,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
 
   return (
     <div className="groupquests-builder-shell">
-      <div className="groupquests-stage-rail" aria-label="Create Multiplayer Side Quest stages">
-        {createStages.map((stage, index) => (
-          <div className="groupquests-stage-pill" key={stage.label}>
-            <strong>{index + 1}</strong>
-            <span>{stage.label}</span>
-            <small>{stage.copy}</small>
-          </div>
-        ))}
-      </div>
-
       <div className="groupquests-builder" aria-label="Create Multiplayer Side Quest builder">
         <div className="groupquests-builder-form">
           <label>

@@ -250,6 +250,13 @@ Rules from this point:
   - Proof: restored the `Create flow` checklist/explainer section and logged the correction; next screenshot-based removal should confirm exact target if ambiguous.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
 
+- [x] Simplify logged-in Multiplayer Quest create page by removing intro chrome.
+  - added_at: 2026-05-11 19:38 Europe/Stockholm
+  - completed_at: 2026-05-11 19:40 Europe/Stockholm
+  - source: Andreas clarified that both the top hero/intro area and the stage rail/checklist can be removed from logged-in `/groupquests/create`.
+  - Proof: `/groupquests/create` keeps auth gating and the actual builder, but removes the top hero, create-flow explainer/checklist, and builder stage rail so logged-in hosts get straight to creating.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
