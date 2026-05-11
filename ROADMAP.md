@@ -137,6 +137,13 @@ Rules from this point:
   - Proof: create form defaults to name `No Castle Night`, first side quest `Knights Before Coffee`, invite mode `Invite-only`, proof window `Fresh games after start`, duration `7 days`, time control `Any time control`, rated setting `Any rated state`, variant `Any variant`, and player color `Any color`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-bapl0dgbg-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; deploy completed. Live form is auth-gated, so defaults were verified by build/source inspection rather than anonymous HTML smoke.
 
+- [x] Add Active Multiplayer Side Quests section to logged-in homepage.
+  - added_at: 2026-05-11 16:42 Europe/Stockholm
+  - completed_at: 2026-05-11 16:44 Europe/Stockholm
+  - source: Andreas showed the logged-in homepage and asked to list Active Multiplayer Side Quests in a separate section.
+  - Proof: logged-in `/` has a distinct `Active Multiplayer Side Quests` section separate from the active solo side quest card, listing current multiplayer quest rows and linking to Multiplayer Quests.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

@@ -12,6 +12,24 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+
+const activeMultiplayerSideQuests = [
+  {
+    title: "No Castle Night",
+    status: "Live",
+    copy: "Fresh No Castle proof needed · 4 players",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Open multiplayer quest",
+  },
+  {
+    title: "Beginner Chaos Ladder",
+    status: "Starting soon",
+    copy: "Confirm invite rules before this Multiplayer Side Quest opens.",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Review rules",
+  },
+];
+
 const heroismOptions = [
   {
     label: "Cautiously heroic",
@@ -142,31 +160,56 @@ export default async function Home() {
 
 
         {isSignedIn ? (
-          <Link
-            href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"}
-            className="card mission-card home-status-card compact-run-card active-quest-home-card"
-            aria-label={activeQuestRecord ? `Open active quest: ${activeQuestRecord.title}` : "Choose an active quest"}
-          >
-            {activeQuestRecord ? (
-              <span className="active-quest-card-coat" aria-hidden="true">
-                <ChallengeBadge challenge={activeQuestRecord} presentation="art" earned={completedSet.has(activeQuestRecord.id)} />
-              </span>
-            ) : null}
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Active Quest</span>
-                <h2>{activeQuestRecord ? activeQuestRecord.title : "No active quest yet."}</h2>
+          <>
+            <Link
+              href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"}
+              className="card mission-card home-status-card compact-run-card active-quest-home-card"
+              aria-label={activeQuestRecord ? `Open active quest: ${activeQuestRecord.title}` : "Choose an active quest"}
+            >
+              {activeQuestRecord ? (
+                <span className="active-quest-card-coat" aria-hidden="true">
+                  <ChallengeBadge challenge={activeQuestRecord} presentation="art" earned={completedSet.has(activeQuestRecord.id)} />
+                </span>
+              ) : null}
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">Active Solo Side Quest</span>
+                  <h2>{activeQuestRecord ? activeQuestRecord.title : "No active solo quest yet."}</h2>
+                </div>
               </div>
-            </div>
-            <div className="grid lean-status-grid active-quest-home-meta">
-              <Fact label="Chess account" value={connectedIdentity || "Add Lichess or Chess.com"} />
-            </div>
-            <p>
-              {activeQuestRecord
-                ? "Open the active quest page for rules, badge details, and the next weird chess side quest."
-                : "Choose one quest first so My Side Quests knows which weird rule to judge after your next public game."}
-            </p>
-          </Link>
+              <div className="grid lean-status-grid active-quest-home-meta">
+                <Fact label="Chess account" value={connectedIdentity || "Add Lichess or Chess.com"} />
+              </div>
+              <p>
+                {activeQuestRecord
+                  ? "Open the active quest page for rules, badge details, and the next weird chess side quest."
+                  : "Choose one solo quest first so My Side Quests knows which weird rule to judge after your next public game."}
+              </p>
+            </Link>
+
+            <section className="mission-card my-group-quests-card home-multiplayer-quests-card" aria-label="Active Multiplayer Side Quests">
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">Active Multiplayer Side Quests</span>
+                  <h2>Multiplayer quests that need you.</h2>
+                  <p>Separate from your solo side quest: invites, deadlines, proof feeds, and multiplayer leaderboards.</p>
+                </div>
+                <Link href="/groupquests" className="button secondary">All Multiplayer Quests</Link>
+              </div>
+              <div className="my-group-quest-list">
+                {activeMultiplayerSideQuests.map((quest) => (
+                  <Link href={quest.href} className="my-group-quest-row" key={quest.title}>
+                    <span>{quest.status}</span>
+                    <div>
+                      <strong>{quest.title}</strong>
+                      <p>{quest.copy}</p>
+                    </div>
+                    <em>{quest.action}</em>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          </>
         ) : null}
 
         <Link href="/badges" className="hero-card home-badge-vault-card home-badge-vault-link" aria-label="Open the coat of arms page">
