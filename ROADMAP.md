@@ -191,7 +191,7 @@ Rules from this point:
   - completed_at: 2026-05-11 18:52 Europe/Stockholm
   - source: Andreas approved the restored graphic and asked to make it a bit smaller.
   - Proof: story-section Multiplayer graphic max width reduced from 430px to 340px so it supports the copy without dominating the card.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9r9pkw9eb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 and still references `multiplayer-side-quests-noble-chaos-coat-style.png`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
