@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:32 Europe/Stockholm
   - source: Andreas said the current split between “Side Quests”, “Group Side Quests”, and “My Side Quests” is confusing, proposed keeping “My Side Quests” as the place that also shows active Group Quests, and making “Side Quests” the hub for both individual and Group Side Quests.
   - Proof: top nav now removes the separate `Group Side Quests` item; `/challenges` frames Side Quests as a hub for solo and group modes; `/account` now includes active Group Quests alongside the current solo quest.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`, `/account`, and `/groupquests`. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`, `/account`, and `/groupquests`; production deploy `https://cc-fijy8pbe4-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges` returns 200 with hub copy and no separate Group Side Quests top-nav item, `/groupquests` returns 200, and `/account` redirects anonymous users to sign-in.
 
 Andreas approved starting implementation live at `/groupquests` while keeping it unlinked from user-facing navigation. This is an explicit exception to the website feature freeze for the hidden group quests workbench only.
 
