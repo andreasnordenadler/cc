@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:57 Europe/Stockholm
   - source: Andreas questioned whether “room/rooms” adds unnecessary metaphor and suggested simply using “Multiplayer Quest/Multiplayer Quests”.
   - Proof: visible copy on `/challenges`, `/account`, and `/groupquests` now uses Multiplayer Quest(s) instead of room(s) where referring to the product object; internal variable/class names remain.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-hknos0dy5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges` and `/groupquests` return 200 with Multiplayer Quest copy and no visible `room`/`rooms` terms in extracted HTML text.
 
 - [x] Sweep leftover public “group” terminology after Multiplayer rename.
   - added_at: 2026-05-11 09:50 Europe/Stockholm
