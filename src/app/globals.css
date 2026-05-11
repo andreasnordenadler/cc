@@ -1081,3 +1081,11 @@ p { color: var(--muted); line-height: 1.5; }
   .side-quests-hub-hero { padding: 12px 14px; }
   .side-quests-hub-hero h1 { font-size: clamp(1.85rem, 10vw, 2.7rem); margin-bottom: 4px; }
 }
+
+/* Match Side Quests hub card CTA placement and color. */
+.side-quest-mode-card { grid-template-rows: auto auto 1fr auto; }
+.side-quest-mode-card .button { align-self: end; justify-self: start; }
+@media (min-width: 900px) {
+  .side-quest-mode-card { grid-template-rows: auto auto minmax(48px, 1fr); }
+  .side-quest-mode-card .button { align-self: end; justify-self: end; }
+}
