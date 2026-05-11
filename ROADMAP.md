@@ -321,6 +321,13 @@ Rules from this point:
   - acceptance: when Multiplayer Side Quests are persisted, proof verification compares the selected time-control rule against Lichess `clock.initial`/`clock.increment` or Chess.com `time_control` metadata and fails with a clear reason if the game does not match.
   - blocked_until: real persisted Multiplayer Side Quest proof flow exists.
 
+- [x] Make side-quest picker Add/Edit button yellow.
+  - added_at: 2026-05-11 21:11 Europe/Stockholm
+  - completed_at: 2026-05-11 21:13 Europe/Stockholm
+  - source: Andreas asked to make the `Add / edit side quests` button yellow.
+  - Proof: closed side-quest picker button uses primary/yellow button styling.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

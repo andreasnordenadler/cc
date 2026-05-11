@@ -198,7 +198,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 <strong>{selectedQuests.length} selected</strong>
               </div>
               {!questPickerOpen ? (
-                <button className="button secondary" type="button" onClick={() => setQuestPickerOpen(true)}>
+                <button className="button primary" type="button" onClick={() => setQuestPickerOpen(true)}>
                   Add / edit side quests
                 </button>
               ) : null}
