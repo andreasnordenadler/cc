@@ -1115,3 +1115,30 @@ p { color: var(--muted); line-height: 1.5; }
 .public-groupquest-meta small { color: var(--muted); font-size: .78rem; font-weight: 850; }
 .public-groupquest-row em { color: var(--gold); font-size: .84rem; font-style: normal; font-weight: 950; text-align: right; white-space: nowrap; }
 @media (max-width: 760px) { .public-groupquest-row { grid-template-columns: 1fr; } .public-groupquest-row em { text-align: left; } }
+
+.groupquests-create-minihero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, .58fr);
+  gap: 18px;
+  align-items: end;
+  padding: clamp(18px, 3vw, 26px);
+  background: radial-gradient(circle at 88% 0%, rgba(255, 204, 102, .16), transparent 34%), rgba(255,255,255,.075);
+}
+.groupquests-create-minihero h1 {
+  max-width: 760px;
+  margin: 8px 0 0;
+  color: var(--ink);
+  font-size: clamp(2.3rem, 5.2vw, 4.7rem);
+  line-height: .86;
+  letter-spacing: -.065em;
+}
+.groupquests-create-minihero p {
+  margin: 0;
+  color: var(--muted);
+  font-size: clamp(.96rem, 1.6vw, 1.12rem);
+  font-weight: 760;
+  line-height: 1.35;
+}
+@media (max-width: 760px) {
+  .groupquests-create-minihero { grid-template-columns: 1fr; align-items: start; }
+}

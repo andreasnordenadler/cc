@@ -257,6 +257,13 @@ Rules from this point:
   - Proof: `/groupquests/create` keeps auth gating and the actual builder, but removes the top hero, create-flow explainer/checklist, and builder stage rail so logged-in hosts get straight to creating.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-85pgoicti-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects anonymous users to sign-in with return URL; source checks confirmed hero, create-flow explainer, and stage rail are removed; Vercel error logs had no recent logs.
 
+- [x] Add compact funny hero header to logged-in Multiplayer Quest create page.
+  - added_at: 2026-05-11 19:42 Europe/Stockholm
+  - completed_at: 2026-05-11 19:44 Europe/Stockholm
+  - source: Andreas saw the stripped `/groupquests/create` page and said it probably needs a hero header, something SQC-funny.
+  - Proof: `/groupquests/create` has a compact header with SQC-style funny copy (`Build a chess dare. Blame your friends later.`), without restoring the large explainer/checklist or builder stage rail.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
