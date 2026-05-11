@@ -114,7 +114,7 @@ Rules from this point:
   - completed_at: 2026-05-11 16:03 Europe/Stockholm
   - source: Andreas said the replacement did not work well and should match the Coat of Arms quality/style.
   - Proof: logged-out Multiplayer Side Quests story card uses a premium generated coat-of-arms-style noble chess-table chaos artwork with transparent PNG background, matching the SQC badge visual language better than the previous SVG.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qaqehfqf9-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` references the new PNG and the PNG asset returns 200 as `image/png`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
