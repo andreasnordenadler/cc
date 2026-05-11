@@ -213,7 +213,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:09 Europe/Stockholm
   - source: Andreas showed the `Create. Invite. Play. Prove.` section and said it looks weird; use the full space with the four subsections.
   - Proof: `/groupquests` flow grid uses four equal columns on desktop so Create/Invite/Play/Prove fill the card width cleanly.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-be2bfc0w0-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 and includes `Create. Invite. Play. Prove.` plus all four stage labels.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
