@@ -2923,3 +2923,54 @@ Tried to use Python Pillow (`PIL`) for white-background removal but Pillow is no
 Attempted to write `src/app/groupquests/public/page.tsx` before creating the `public/` route directory, causing `no such file or directory`.
 
 **Fix/Next time**: For new Next.js nested routes, create the route directory with `mkdir -p` before redirecting file content.
+
+## [ERR-20260511-004] vercel logs since filter unsupported
+
+**Logged**: 2026-05-11T19:35:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`vercel logs <deployment> --since 30m` failed because this installed Vercel CLI treats logs as follow-mode and rejects filtering with `--since`.
+
+### Error
+```
+Error: The --follow flag does not support filtering. Remove: --since
+```
+
+### Context
+- Attempted post-deploy production log scan for SQC.
+- URL smoke checks had already passed.
+
+### Suggested Fix
+Use this Vercel CLI's supported log syntax (check `vercel logs --help`) or use a custom Vercel API scan script for recent 500s instead of `--since`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: scripts/deploy-production-guard.mjs
+
+---
+
+## [ERR-20260511-005] macOS shell lacks GNU timeout
+
+**Logged**: 2026-05-11T19:36:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+Tried to use `timeout` to bound a Vercel log command, but this macOS environment does not have GNU `timeout` installed.
+
+### Error
+```
+zsh: command not found: timeout
+```
+
+### Suggested Fix
+Use tool-level `timeout` on `exec`, Vercel `--no-follow`, or a small Python/perl wrapper instead of shell `timeout`.
+
+### Metadata
+- Reproducible: yes
+
+---
