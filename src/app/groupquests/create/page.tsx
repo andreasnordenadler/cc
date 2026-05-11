@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import GroupQuestDraftBuilder from "@/components/group-quest-draft-builder";
 import SiteNav from "@/components/site-nav";
@@ -18,6 +19,11 @@ export const metadata = {
 
 export default async function CreateGroupQuestPage() {
   const { userId } = await auth();
+
+  if (!userId) {
+    redirect("/sign-in");
+  }
+
   const builderQuests = CHALLENGES.slice(0, 8).map((challenge) => ({
     id: challenge.id,
     title: challenge.title,

@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Gate Multiplayer Quest creation/management behind login.
+  - added_at: 2026-05-11 14:51 Europe/Stockholm
+  - completed_at: 2026-05-11 14:55 Europe/Stockholm
+  - source: Andreas chose the starting access policy: browse and open invite links without logging in; create and manage only when logged in.
+  - Proof: `/groupquests/create` redirects anonymous visitors to `/sign-in`; invite/detail page stays public but replaces host maintenance controls with a sign-in-to-manage card for anonymous visitors.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 - [x] Add proof-scroll details to Multiplayer Side Quests artwork.
   - added_at: 2026-05-11 11:13 Europe/Stockholm
   - completed_at: 2026-05-11 11:15 Europe/Stockholm

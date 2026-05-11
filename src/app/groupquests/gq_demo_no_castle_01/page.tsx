@@ -108,15 +108,27 @@ export default async function GroupQuestRoomPage() {
 
           <article className="mission-card groupquests-host-panel">
             <span className="eyebrow">Host maintenance</span>
-            <h2>Keep the Multiplayer Side Quest fair.</h2>
-            <div className="groupquests-host-control-list">
-              {hostControls.map((control) => (
-                <div key={control.title}>
-                  <strong>{control.title}</strong>
-                  <p>{control.copy}</p>
+            {userId ? (
+              <>
+                <h2>Keep the Multiplayer Side Quest fair.</h2>
+                <div className="groupquests-host-control-list">
+                  {hostControls.map((control) => (
+                    <div key={control.title}>
+                      <strong>{control.title}</strong>
+                      <p>{control.copy}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <>
+                <h2>Sign in to manage this Multiplayer Quest.</h2>
+                <p>
+                  Anyone can open an invite link and review the rules. Creating and managing Multiplayer Quests requires an SQC account.
+                </p>
+                <Link className="button primary" href="/sign-in">Sign in to manage</Link>
+              </>
+            )}
           </article>
         </section>
 
