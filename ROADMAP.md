@@ -128,7 +128,7 @@ Rules from this point:
   - completed_at: 2026-05-11 16:06 Europe/Stockholm
   - source: Andreas showed the logged-out `/groupquests` flow and noted it is missing `Invite` between stages 1 and 2.
   - Proof: Multiplayer Side Quest flow reads `Create. Invite. Play. Prove.` and renders Invite as stage 2, shifting Play/Prove to stages 3/4.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-3c8npmu0q-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 and includes `Create. Invite. Play. Prove.`, `Invite`, invite-link copy, and stage 4 numbering.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
