@@ -297,7 +297,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:54 Europe/Stockholm
   - source: Andreas said the single first-side-quest select is problematic and users should be able to pick one or more side quests right away, suggesting checkboxes or another picker.
   - Proof: `/groupquests/create` shows selected side quests immediately, has an Add/Edit picker with checkboxes, prevents zero selected quests, and preview/local draft summaries show multiple selected side quests.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-iuzrusy4y-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed checkbox picker, selected side quest chips/count, multi-quest preview/local summary support, and removal of the old single `First side quest` select; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
