@@ -248,7 +248,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:35 Europe/Stockholm
   - source: Andreas asked whether the large create-flow explainer section on `/groupquests/create` was needed.
   - Proof: `/groupquests/create` goes from hero directly into the actual builder, removing the duplicated checklist/explainer section while preserving auth gating and builder functionality.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-1jhxtmyog-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects anonymous users to sign-in with return URL; source check confirms `Create flow` explainer is removed; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
