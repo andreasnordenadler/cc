@@ -149,7 +149,7 @@ Rules from this point:
   - completed_at: 2026-05-11 17:47 Europe/Stockholm
   - source: Andreas asked to move green status text to the right, remove right-side row action text, remove section headline/body copy, and move/rename the button to bottom-right as `All Multiplayer Side Quests`.
   - Proof: logged-in homepage multiplayer section keeps only the eyebrow heading, rows show title/copy on left and green status on right, row action text is removed, and bottom-right button reads `All Multiplayer Side Quests`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-k9v01ynqm-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous homepage smoke returned 200 and confirmed signed-out users do not receive old/new logged-in section copy. Logged-in layout was verified by build/source inspection.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
