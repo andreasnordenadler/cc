@@ -135,7 +135,7 @@ Rules from this point:
   - completed_at: 2026-05-11 16:40 Europe/Stockholm
   - source: Andreas showed the create Multiplayer Side Quest screen and asked to set the default choices as per the screenshot.
   - Proof: create form defaults to name `No Castle Night`, first side quest `Knights Before Coffee`, invite mode `Invite-only`, proof window `Fresh games after start`, duration `7 days`, time control `Any time control`, rated setting `Any rated state`, variant `Any variant`, and player color `Any color`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-bapl0dgbg-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; deploy completed. Live form is auth-gated, so defaults were verified by build/source inspection rather than anonymous HTML smoke.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
