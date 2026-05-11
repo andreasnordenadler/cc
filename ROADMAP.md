@@ -417,7 +417,7 @@ Rules from this point:
   - completed_at: 2026-05-11 22:15 Europe/Stockholm
   - source: Andreas said `/groupquests/80303` should focus on participant experience: competition/leaderboard, automatic proof checks, and graphical quest/seal treatment.
   - Proof: dynamic `/groupquests/{id}` page is leaderboard-first, shows “how am I doing vs others,” automatic proof-check states, selected quest coat-of-arms graphics, SQC seal/trophy summary, share action, and participant-oriented rules/activity. Creator/admin controls are not the main participant page surface.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-h4ju09ziu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke `https://sidequestchess.com/groupquests/80303` returned 200 and contained competition leaderboard, automatic proof checks, quest coats of arms, SQC seal, submit proof CTA, mock player rows, and badge image references; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
