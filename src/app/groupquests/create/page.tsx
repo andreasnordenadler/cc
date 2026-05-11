@@ -21,7 +21,7 @@ export default async function CreateGroupQuestPage() {
   const { userId } = await auth();
 
   if (!userId) {
-    redirect("/sign-in");
+    redirect("/sign-in?redirect_url=%2Fgroupquests%2Fcreate");
   }
 
   const builderQuests = CHALLENGES.slice(0, 8).map((challenge) => ({

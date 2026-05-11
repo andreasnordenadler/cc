@@ -1,7 +1,25 @@
 import { SignIn } from "@clerk/nextjs";
 import SiteNav from "@/components/site-nav";
 
-export default function SignInPage() {
+type SignInPageProps = {
+  searchParams?: Promise<{ redirect_url?: string | string[] }>;
+};
+
+function safeRedirectPath(value: string | string[] | undefined) {
+  const raw = Array.isArray(value) ? value[0] : value;
+
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) {
+    return "/account";
+  }
+
+  return raw;
+}
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const params = await searchParams;
+  const returnTo = safeRedirectPath(params?.redirect_url);
+  const signUpUrl = `/sign-up?redirect_url=${encodeURIComponent(returnTo)}`;
+
   return (
     <main className="site-shell">
       <SiteNav isSignedIn={false} active="account" />
@@ -20,7 +38,7 @@ export default function SignInPage() {
           </div>
         </section>
         <section className="auth-card" aria-label="Sign in form">
-          <SignIn signUpUrl="/sign-up" fallbackRedirectUrl="/account" />
+          <SignIn signUpUrl={signUpUrl} fallbackRedirectUrl={returnTo} />
         </section>
       </div>
     </main>

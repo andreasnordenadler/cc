@@ -95,6 +95,13 @@ Rules from this point:
   - Proof: `/sign-in` uses the requested exact sentence.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9u4r3e00c-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` includes the new exact sentence and no longer includes the old sentence.
 
+- [x] Preserve Multiplayer Quest create destination through sign-in.
+  - added_at: 2026-05-11 15:35 Europe/Stockholm
+  - completed_at: 2026-05-11 15:38 Europe/Stockholm
+  - source: Andreas reported that logged-out users clicking `Create Multiplayer...` land on sign-in and then unexpectedly end up at `My Side Quests` instead of the create page.
+  - Proof: anonymous `/groupquests/create` redirects to sign-in with a safe local return target; sign-in/sign-up pages consume safe local `redirect_url` and pass it to Clerk fallback redirects, while default sign-in still falls back to `/account`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
