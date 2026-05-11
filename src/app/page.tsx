@@ -166,7 +166,7 @@ export default async function Home() {
                 <h2>Same nonsense, now with witnesses.</h2>
                 <p>Browse public Multiplayer Side Quests, inspect the rules before joining, or sign in when you want to create one and invite friends.</p>
               </div>
-              <Link href="/groupquests" className="button secondary">Browse Multiplayer Side Quests</Link>
+              <Link href="/groupquests" className="button secondary">Join Multiplayer Side Quests</Link>
             </div>
           </section>
         ) : null}

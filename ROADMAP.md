@@ -165,6 +165,13 @@ Rules from this point:
   - Proof: homepage main hero headline keeps the exact text but uses a smaller responsive font size than the global `h1`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-prrrckzaf-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` returns 200 with the exact headline and updated homepage CSS bundle includes `.simplified-home-hero h1`.
 
+- [x] Change homepage multiplayer CTA from Browse to Join.
+  - added_at: 2026-05-11 18:43 Europe/Stockholm
+  - completed_at: 2026-05-11 18:45 Europe/Stockholm
+  - source: Andreas said `Browse` does not seem right for the homepage Multiplayer Side Quest CTA and suggested Join/Participate.
+  - Proof: signed-out homepage Multiplayer Side Quests callout CTA reads `Join Multiplayer Side Quests`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
