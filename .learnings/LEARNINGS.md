@@ -343,3 +343,26 @@ Andreas corrected the Multiplayer Side Quest flow: it must include an explicit *
 Andreas corrected that changing a CTA away from `Browse` is not enough if nearby body copy still says `Browse`.
 
 **Do differently**: When terminology is changed for intent/tone, grep the full page for the old word and update nearby supporting copy too.
+
+## [LRN-20260511-001] correction
+
+**Logged**: 2026-05-11T19:36:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: frontend
+
+### Summary
+When Andreas asks about removing a section based on a screenshot, confirm the exact section if there is any ambiguity instead of guessing from nearby layout context.
+
+### Details
+I removed the `/groupquests/create` create-flow checklist/explainer section, but Andreas corrected that it was the wrong section.
+
+### Suggested Action
+For screenshot-based deletion requests, name the target section before deleting or remove only if the requested UI element is unambiguous.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/app/groupquests/create/page.tsx
+- Tags: screenshot-feedback, ui-removal
+
+---

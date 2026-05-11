@@ -243,12 +243,12 @@ Rules from this point:
   - Proof: create builder step 3 is `Visibility` with choices `Public listing`, `Unlisted link`, and `Invite-only`; preview labels it as Visibility; create-page copy explains public/private visibility.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-fogv02j4d-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` remains auth-gated and redirects to `/sign-in?redirect_url=%2Fgroupquests%2Fcreate`; `/groupquests/public` returns 200 with mock public listings; Vercel error logs for the deployment showed no logs in the last 30 minutes.
 
-- [x] Remove redundant create-flow explainer section from Multiplayer Quest create page.
-  - added_at: 2026-05-11 19:33 Europe/Stockholm
-  - completed_at: 2026-05-11 19:35 Europe/Stockholm
-  - source: Andreas asked whether the large create-flow explainer section on `/groupquests/create` was needed.
-  - Proof: `/groupquests/create` goes from hero directly into the actual builder, removing the duplicated checklist/explainer section while preserving auth gating and builder functionality.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-1jhxtmyog-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects anonymous users to sign-in with return URL; source check confirms `Create flow` explainer is removed; Vercel error logs had no recent logs.
+- [x] Restore create-flow explainer after wrong-section removal.
+  - added_at: 2026-05-11 19:36 Europe/Stockholm
+  - completed_at: 2026-05-11 19:38 Europe/Stockholm
+  - source: Andreas corrected that I removed the wrong section from `/groupquests/create`.
+  - Proof: restored the `Create flow` checklist/explainer section and logged the correction; next screenshot-based removal should confirm exact target if ambiguous.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
