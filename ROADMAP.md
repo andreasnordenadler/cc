@@ -121,7 +121,7 @@ Rules from this point:
   - completed_at: 2026-05-11 16:04 Europe/Stockholm
   - source: Andreas showed the latest logged-out `/groupquests` graphic and asked to remove it.
   - Proof: logged-out `/groupquests` no longer renders the story-card illustration/graphic; surrounding text remains intact.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-oc4vhghfd-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200, no longer contains the graphic wrapper or new/old artwork refs, and keeps the story text intact.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
