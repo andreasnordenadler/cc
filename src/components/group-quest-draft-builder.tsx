@@ -16,7 +16,7 @@ type DraftRoom = {
   questTitle: string;
   inviteMode: string;
   proofWindow: string;
-  duration: string;
+  schedule: string;
   mandatoryRules: string[];
   slug: string;
 };
@@ -44,6 +44,36 @@ const proofWindows = [
   "Fresh games after join + start",
   "Manual retroactive proof later",
 ];
+
+function toDateTimeLocal(date: Date) {
+  const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return offsetDate.toISOString().slice(0, 16);
+}
+
+function defaultStartAt() {
+  const date = new Date();
+  date.setHours(date.getHours() + 1, 0, 0, 0);
+  return toDateTimeLocal(date);
+}
+
+function defaultEndAt() {
+  const date = new Date();
+  date.setDate(date.getDate() + 7);
+  date.setHours(23, 59, 0, 0);
+  return toDateTimeLocal(date);
+}
+
+function formatDateTimeLabel(value: string) {
+  if (!value) return "Not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not set";
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
 
 const gameRuleGroups = [
   {
@@ -100,7 +130,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [selectedQuestId, setSelectedQuestId] = useState(quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "");
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
   const [proofWindow, setProofWindow] = useState(proofWindows[0]);
-  const [duration, setDuration] = useState("7 days");
+  const [startAt, setStartAt] = useState(defaultStartAt);
+  const [endAt, setEndAt] = useState(defaultEndAt);
   const [rules, setRules] = useState<Record<string, string>>({
     timeControl: "Any time control",
     rated: "Any rated state",
@@ -119,6 +150,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const mandatoryRules = gameRuleGroups
     .map((group) => rules[group.id])
     .filter((rule) => rule && !rule.startsWith("Any"));
+  const scheduleLabel = `${formatDateTimeLabel(startAt)} → ${formatDateTimeLabel(endAt)}`;
 
   function createLocalDraftRoom() {
     const roomName = name.trim() || "Untitled Multiplayer Side Quest";
@@ -129,7 +161,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         questTitle: selectedQuest?.title ?? "No side quest selected",
         inviteMode: selectedInviteMode.label,
         proofWindow,
-        duration,
+        schedule: scheduleLabel,
         mandatoryRules,
         slug: draftSlug,
       },
@@ -188,24 +220,29 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </div>
           </div>
 
-          <div className="groupquests-builder-row">
-            <label>
-              <span>4 · Proof window</span>
-              <select value={proofWindow} onChange={(event) => setProofWindow(event.target.value)}>
-                {proofWindows.map((window) => (
-                  <option key={window} value={window}>{window}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              <span>Duration</span>
-              <select value={duration} onChange={(event) => setDuration(event.target.value)}>
-                <option>24 hours</option>
-                <option>48 hours</option>
-                <option>7 days</option>
-                <option>Manual end</option>
-              </select>
-            </label>
+          <div className="groupquests-rule-builder compact" aria-label="Schedule and proof window">
+            <div>
+              <span className="groupquests-rule-title">4 · Schedule + proof window</span>
+              <p>Set the exact public window. Proof can still require only fresh games after the Multiplayer Side Quest starts.</p>
+            </div>
+            <div className="groupquests-rule-grid schedule-grid">
+              <label>
+                <span>Opens</span>
+                <input type="datetime-local" value={startAt} onChange={(event) => setStartAt(event.target.value)} />
+              </label>
+              <label>
+                <span>Closes</span>
+                <input type="datetime-local" value={endAt} onChange={(event) => setEndAt(event.target.value)} />
+              </label>
+              <label className="schedule-proof-window">
+                <span>Proof rule</span>
+                <select value={proofWindow} onChange={(event) => setProofWindow(event.target.value)}>
+                  {proofWindows.map((window) => (
+                    <option key={window} value={window}>{window}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
 
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
@@ -249,8 +286,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               <span>{proofWindow}</span>
             </div>
             <div>
-              <strong>Window</strong>
-              <span>{duration}</span>
+              <strong>Schedule</strong>
+              <span>{scheduleLabel}</span>
             </div>
           </div>
           <div className="groupquests-preview-link">
@@ -303,7 +340,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 <div className="groupquests-mini-stats">
                   <span>{room.questTitle}</span>
                   <span>{room.inviteMode}</span>
-                  <span>{room.duration}</span>
+                  <span>{room.schedule}</span>
                 </div>
                 <p>{room.proofWindow}</p>
                 {room.mandatoryRules.length > 0 ? (

@@ -264,6 +264,13 @@ Rules from this point:
   - Proof: `/groupquests/create` has a compact header with SQC-style funny copy (`Build a chess dare. Blame your friends later.`), without restoring the large explainer/checklist or builder stage rail.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-msbhrf7l5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed compact funny header is present, old big hero and stage rail remain absent; Vercel error logs had no recent logs.
 
+- [x] Replace Multiplayer Quest duration dropdown with exact from/to schedule.
+  - added_at: 2026-05-11 19:44 Europe/Stockholm
+  - completed_at: 2026-05-11 19:47 Europe/Stockholm
+  - source: Andreas asked whether `/groupquests/create` needs more duration options or a date/time picker from/to.
+  - Proof: create builder uses `Opens` and `Closes` datetime fields plus separate proof-rule select; participant preview and local drafts show the exact schedule range instead of vague duration presets.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

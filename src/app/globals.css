@@ -1142,3 +1142,10 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 760px) {
   .groupquests-create-minihero { grid-template-columns: 1fr; align-items: start; }
 }
+
+.groupquests-rule-builder.compact { margin-top: 0; }
+.schedule-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.schedule-proof-window { grid-column: auto; }
+@media (max-width: 920px) {
+  .schedule-grid { grid-template-columns: 1fr; }
+}
