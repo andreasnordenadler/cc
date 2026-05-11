@@ -1026,3 +1026,18 @@ p { color: var(--muted); line-height: 1.5; }
   .my-group-quest-row { grid-template-columns: 1fr; }
   .my-group-quest-row em { text-align: left; }
 }
+
+/* Compact the Side Quests mode chooser while preserving all copy. */
+.side-quest-mode-grid { gap: 14px; }
+.side-quest-mode-card { min-height: 0; padding: clamp(16px, 2.2vw, 22px); gap: 8px; }
+.side-quest-mode-card .eyebrow { margin-bottom: 0; padding: 6px 10px; font-size: .68rem; }
+.side-quest-mode-card h2 { max-width: 24ch; font-size: clamp(1.45rem, 2.4vw, 2.05rem); line-height: .95; letter-spacing: -.045em; }
+.side-quest-mode-card p { max-width: 58ch; font-size: clamp(.88rem, 1vw, .96rem); line-height: 1.35; }
+.side-quest-mode-card .button { margin-top: 2px; padding: 9px 14px; font-size: .82rem; }
+@media (min-width: 900px) {
+  .side-quest-mode-card { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+  .side-quest-mode-card .eyebrow,
+  .side-quest-mode-card h2,
+  .side-quest-mode-card p { grid-column: 1; }
+  .side-quest-mode-card .button { grid-column: 2; grid-row: 1 / span 3; align-self: end; }
+}
