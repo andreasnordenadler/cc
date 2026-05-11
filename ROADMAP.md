@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:38 Europe/Stockholm
   - source: Andreas asked to change “Same nonsense, now with witnesses.” to “Multiplayer. Same nonsense, now with witnesses.” on the Side Quests hub.
   - Proof: `/challenges` Group Side Quests card now uses the requested heading text.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`; production deploy `https://cc-64xc0gdmo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges` returns 200 and includes the new heading.
 
 - [x] Compact Side Quests hub mode cards without removing text.
   - added_at: 2026-05-11 09:34 Europe/Stockholm
