@@ -1096,3 +1096,8 @@ p { color: var(--muted); line-height: 1.5; }
 .auth-lightweight-copy { display: grid; gap: 10px; margin-top: 4px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.12); }
 .auth-lightweight-copy p { color: var(--muted); font-size: clamp(.9rem, 1.08vw, 1rem); line-height: 1.42; }
 .auth-lightweight-copy strong { color: var(--ink); font-weight: 950; }
+
+.home-multiplayer-quests-card .section-head { align-items: start; }
+.home-multiplayer-quest-row { grid-template-columns: minmax(0, 1fr) auto; }
+.home-multiplayer-quest-row span { justify-self: end; text-align: right; }
+.home-multiplayer-quests-footer { display: flex; justify-content: flex-end; margin-top: 2px; }

@@ -191,22 +191,21 @@ export default async function Home() {
               <div className="section-head">
                 <div>
                   <span className="eyebrow">Active Multiplayer Side Quests</span>
-                  <h2>Multiplayer quests that need you.</h2>
-                  <p>Separate from your solo side quest: invites, deadlines, proof feeds, and multiplayer leaderboards.</p>
                 </div>
-                <Link href="/groupquests" className="button secondary">All Multiplayer Quests</Link>
               </div>
               <div className="my-group-quest-list">
                 {activeMultiplayerSideQuests.map((quest) => (
-                  <Link href={quest.href} className="my-group-quest-row" key={quest.title}>
-                    <span>{quest.status}</span>
+                  <Link href={quest.href} className="my-group-quest-row home-multiplayer-quest-row" key={quest.title}>
                     <div>
                       <strong>{quest.title}</strong>
                       <p>{quest.copy}</p>
                     </div>
-                    <em>{quest.action}</em>
+                    <span>{quest.status}</span>
                   </Link>
                 ))}
+              </div>
+              <div className="home-multiplayer-quests-footer">
+                <Link href="/groupquests" className="button secondary">All Multiplayer Side Quests</Link>
               </div>
             </section>
           </>
