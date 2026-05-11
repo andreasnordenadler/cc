@@ -306,6 +306,21 @@ Rules from this point:
   - Proof: when the side-quest picker is closed the top button reads `Add / edit side quests`; when open, the completion action is a bottom button labeled `Done`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-5rik6s1nt-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed bottom `Done`, removal of `Done choosing`, and top closed-state `Add / edit side quests`; Vercel error logs had no recent logs.
 
+- [x] Tighten Multiplayer Quest time-control presets to verifiable provider metadata.
+  - added_at: 2026-05-11 21:10 Europe/Stockholm
+  - completed_at: 2026-05-11 21:14 Europe/Stockholm
+  - source: Andreas asked to check that Lichess and Chess.com support the listed time controls and that proof can verify the used time controls.
+  - evidence: live API spot-check showed Lichess game export returns `clock.initial`/`clock.increment` plus `speed/perf`; Chess.com public archive games return `time_control` and `time_class` plus PGN `[TimeControl]`.
+  - Proof: removed questionable/advanced presets like `Bullet 0+1`, `Rapid 15+0`, `Classical 25+0`, `Classical 60+0`, and `Custom time control`; kept common exact presets that map to public metadata; updated create-copy to say time controls are limited to exact presets verifiable from Lichess/Chess.com metadata.
+  - Follow-up: actual Multiplayer Side Quest proof enforcement still needs to compare selected locked rule against Lichess `clock` or Chess.com `time_control` when saved multiplayer proof exists.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
+- [ ] Wire locked time-control enforcement into real Multiplayer Side Quest proof.
+  - added_at: 2026-05-11 21:14 Europe/Stockholm
+  - source: Follow-up from Andreas asking whether selected time controls can actually be verified during proof.
+  - acceptance: when Multiplayer Side Quests are persisted, proof verification compares the selected time-control rule against Lichess `clock.initial`/`clock.increment` or Chess.com `time_control` metadata and fails with a clear reason if the game does not match.
+  - blocked_until: real persisted Multiplayer Side Quest proof flow exists.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

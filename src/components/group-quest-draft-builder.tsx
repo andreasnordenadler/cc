@@ -74,7 +74,6 @@ const gameRuleGroups = [
     label: "Time control",
     options: [
       "Any time control",
-      "Bullet 0+1",
       "Bullet 1+0",
       "Bullet 1+1",
       "Bullet 2+1",
@@ -84,13 +83,9 @@ const gameRuleGroups = [
       "Blitz 5+3",
       "Rapid 10+0",
       "Rapid 10+5",
-      "Rapid 15+0",
       "Rapid 15+10",
-      "Classical 25+0",
       "Classical 30+0",
       "Classical 30+20",
-      "Classical 60+0",
-      "Custom time control",
     ],
   },
   {
@@ -279,7 +274,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
               <span className="groupquests-rule-title">5 · Mandatory game rules</span>
-              <p>Hosts can make provider settings mandatory so every participant understands exactly which games can produce Multiplayer Side Quest proof.</p>
+              <p>Hosts can make provider settings mandatory. Time controls are limited to exact presets we can verify from public Lichess and Chess.com game metadata.</p>
             </div>
             <div className="groupquests-rule-grid">
               {gameRuleGroups.map((group) => (
