@@ -170,7 +170,7 @@ Rules from this point:
   - completed_at: 2026-05-11 18:45 Europe/Stockholm
   - source: Andreas said `Browse` does not seem right for the homepage Multiplayer Side Quest CTA and suggested Join/Participate.
   - Proof: signed-out homepage Multiplayer Side Quests callout CTA reads `Join Multiplayer Side Quests`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-1glllut85-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` includes `Join Multiplayer Side Quests` and no longer includes `Browse Multiplayer Side Quests`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
