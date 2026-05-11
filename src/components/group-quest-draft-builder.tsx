@@ -94,11 +94,6 @@ const gameRuleGroups = [
     options: ["Any rated state", "Rated only", "Casual only"],
   },
   {
-    id: "variant",
-    label: "Variant",
-    options: ["Standard only", "Any variant", "Chess960", "King of the Hill", "Three-check", "Antichess", "Atomic", "Horde", "Racing Kings"],
-  },
-  {
     id: "color",
     label: "Player color",
     options: ["Any color", "White only", "Black only"],
@@ -124,7 +119,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [rules, setRules] = useState<Record<string, string>>({
     timeControl: "Any time control",
     rated: "Any rated state",
-    variant: "Any variant",
     color: "Any color",
   });
   const [draftRooms, setDraftRooms] = useState<DraftRoom[]>([]);
@@ -274,7 +268,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
               <span className="groupquests-rule-title">5 · Mandatory game rules</span>
-              <p>Hosts can make provider settings mandatory. Time controls are limited to exact presets we can verify from public Lichess and Chess.com game metadata.</p>
+              <p>Hosts can make provider settings mandatory. Multiplayer Side Quests use standard chess only for now; time controls are limited to exact presets we can verify from public Lichess and Chess.com game metadata.</p>
             </div>
             <div className="groupquests-rule-grid">
               {gameRuleGroups.map((group) => (
@@ -329,6 +323,10 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             <div>
               <strong>Schedule</strong>
               <span>{scheduleLabel}</span>
+            </div>
+            <div>
+              <strong>Variant</strong>
+              <span>Standard chess only</span>
             </div>
           </div>
           <div className="groupquests-preview-link">

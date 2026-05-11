@@ -342,6 +342,13 @@ Rules from this point:
   - Proof: preview card shows a quest stack/list with selected count, handles one-or-many selected quests in copy, removes the old single side-quest stat, and updates maintenance/proof wording for per-quest review.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-r8doh6njx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed quest-stack preview, multi-quest copy, per-selected-side-quest maintenance wording, and no old single side-quest stat; Vercel error logs had no recent logs.
 
+- [x] Make Multiplayer Side Quests standard-chess-only for now.
+  - added_at: 2026-05-11 21:22 Europe/Stockholm
+  - completed_at: 2026-05-11 21:24 Europe/Stockholm
+  - source: Andreas doubted the `Variant` selector because non-standard variants may not be compatible with Side Quest proof.
+  - Proof: removed the Variant dropdown from create rules; create copy and participant preview state that Multiplayer Side Quests use standard chess only for now.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
