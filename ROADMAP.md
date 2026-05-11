@@ -292,6 +292,13 @@ Rules from this point:
   - Proof: `/groupquests/create` compact header keeps the title but removes the supporting paragraph text.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-b608jhzy5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed title remains and supporting paragraph is removed; Vercel error logs had no recent logs.
 
+- [x] Replace single side-quest select with multi-select picker in create flow.
+  - added_at: 2026-05-11 19:50 Europe/Stockholm
+  - completed_at: 2026-05-11 19:54 Europe/Stockholm
+  - source: Andreas said the single first-side-quest select is problematic and users should be able to pick one or more side quests right away, suggesting checkboxes or another picker.
+  - Proof: `/groupquests/create` shows selected side quests immediately, has an Add/Edit picker with checkboxes, prevents zero selected quests, and preview/local draft summaries show multiple selected side quests.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

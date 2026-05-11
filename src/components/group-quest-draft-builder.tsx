@@ -13,7 +13,7 @@ type BuilderQuest = {
 type DraftRoom = {
   id: string;
   name: string;
-  questTitle: string;
+  questTitles: string[];
   inviteMode: string;
   schedule: string;
   mandatoryRules: string[];
@@ -120,7 +120,9 @@ function slugFromName(name: string) {
 
 export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQuest[] }) {
   const [name, setName] = useState("No Castle Night");
-  const [selectedQuestId, setSelectedQuestId] = useState(quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "");
+  const initialQuestId = quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "";
+  const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(initialQuestId ? [initialQuestId] : []);
+  const [questPickerOpen, setQuestPickerOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
   const [startAt, setStartAt] = useState(defaultStartAt);
   const [endAt, setEndAt] = useState(defaultEndAt);
@@ -133,10 +135,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [draftRooms, setDraftRooms] = useState<DraftRoom[]>([]);
   const [inviteCopied, setInviteCopied] = useState(false);
 
-  const selectedQuest = useMemo(
-    () => quests.find((quest) => quest.id === selectedQuestId) ?? quests[0],
-    [quests, selectedQuestId],
+  const selectedQuests = useMemo(
+    () => quests.filter((quest) => selectedQuestIds.includes(quest.id)),
+    [quests, selectedQuestIds],
   );
+  const selectedQuestTitles = selectedQuests.map((quest) => quest.title);
   const selectedInviteMode = inviteModes.find((mode) => mode.id === inviteMode) ?? inviteModes[0];
   const draftSlug = slugFromName(name);
   const mandatoryRules = gameRuleGroups
@@ -150,7 +153,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
       {
         id: `${draftSlug}-${rooms.length + 1}`,
         name: roomName,
-        questTitle: selectedQuest?.title ?? "No side quest selected",
+        questTitles: selectedQuestTitles.length > 0 ? selectedQuestTitles : ["No side quest selected"],
         inviteMode: selectedInviteMode.label,
         schedule: scheduleLabel,
         mandatoryRules,
@@ -159,6 +162,16 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
       ...rooms,
     ]);
     setInviteCopied(false);
+  }
+
+
+  function toggleQuest(questId: string) {
+    setSelectedQuestIds((current) => {
+      if (current.includes(questId)) {
+        return current.length > 1 ? current.filter((id) => id !== questId) : current;
+      }
+      return [...current, questId];
+    });
   }
 
   function copyInviteText() {
@@ -183,16 +196,42 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             />
           </label>
 
-          <label>
-            <span>2 · First side quest</span>
-            <select value={selectedQuestId} onChange={(event) => setSelectedQuestId(event.target.value)}>
-              {quests.map((quest) => (
-                <option key={quest.id} value={quest.id}>
-                  {quest.title} · {quest.difficulty} · {quest.reward} pts
-                </option>
+          <section className="groupquests-quest-picker" aria-label="Choose side quests">
+            <div className="groupquests-picker-head">
+              <div>
+                <span>2 · Side quests</span>
+                <strong>{selectedQuests.length} selected</strong>
+              </div>
+              <button className="button secondary" type="button" onClick={() => setQuestPickerOpen((open) => !open)}>
+                {questPickerOpen ? "Done choosing" : "Add / edit side quests"}
+              </button>
+            </div>
+            <div className="groupquests-selected-quests" aria-label="Selected side quests">
+              {selectedQuests.map((quest) => (
+                <span key={quest.id}>{quest.title}</span>
               ))}
-            </select>
-          </label>
+            </div>
+            {questPickerOpen ? (
+              <div className="groupquests-picker-panel">
+                {quests.map((quest) => {
+                  const checked = selectedQuestIds.includes(quest.id);
+                  return (
+                    <label className={checked ? "active" : undefined} key={quest.id}>
+                      <input
+                        checked={checked}
+                        onChange={() => toggleQuest(quest.id)}
+                        type="checkbox"
+                      />
+                      <span>
+                        <strong>{quest.title}</strong>
+                        <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            ) : null}
+          </section>
 
           <div className="groupquests-builder-choice-set" role="group" aria-label="Visibility">
             <span>3 · Visibility</span>
@@ -254,11 +293,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         <aside className="groupquests-draft-preview" aria-label="Multiplayer Side Quest preview">
           <span className="eyebrow">Participant preview</span>
           <h3>{name.trim() || "Untitled Multiplayer Side Quest"}</h3>
-          <p>{selectedQuest?.objective ?? "Choose a side quest to preview the participant view."}</p>
+          <p>{selectedQuests.length > 1 ? `Players must complete ${selectedQuests.length} side quests inside the window.` : selectedQuests[0]?.objective ?? "Choose at least one side quest to preview the participant view."}</p>
           <div className="groupquests-preview-stat-grid">
             <div>
-              <strong>Side quest</strong>
-              <span>{selectedQuest?.title ?? "No side quest selected"}</span>
+              <strong>Side quests</strong>
+              <span>{selectedQuestTitles.length > 0 ? selectedQuestTitles.join(" + ") : "No side quest selected"}</span>
             </div>
             <div>
               <strong>Visibility</strong>
@@ -317,7 +356,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 </div>
                 <h3>{room.name}</h3>
                 <div className="groupquests-mini-stats">
-                  <span>{room.questTitle}</span>
+                  <span>{room.questTitles.join(" + ")}</span>
                   <span>{room.inviteMode}</span>
                   <span>{room.schedule}</span>
                 </div>

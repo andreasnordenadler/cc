@@ -366,3 +366,26 @@ For screenshot-based deletion requests, name the target section before deleting 
 - Tags: screenshot-feedback, ui-removal
 
 ---
+
+## [LRN-20260511-002] correction
+
+**Logged**: 2026-05-11T19:54:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: frontend
+
+### Summary
+Multiplayer Quest creation should support selecting multiple side quests immediately; a single `First side quest` dropdown is misleading.
+
+### Details
+Andreas flagged the single side-quest dropdown as problematic. The create flow should expose selected side quests up front and use a checkbox picker or equivalent multi-select pattern.
+
+### Suggested Action
+For future Multiplayer Side Quest work, model quests as an ordered/selected collection, not a single primary quest, unless explicitly designing a one-quest mode.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/components/group-quest-draft-builder.tsx
+- Tags: multiplayer-quests, create-flow, multi-select
+
+---
