@@ -2905,3 +2905,12 @@ For this model, request opaque/dark vignette backgrounds unless specifically usi
 - Tags: image-generation, sqc, design
 
 ---
+
+## [ERR-20260511-002] local background-removal dependency missing
+
+**Logged**: 2026-05-11T16:00:00+02:00
+**Priority**: low
+
+Tried to use Python Pillow (`PIL`) for white-background removal but Pillow is not installed in the project/runtime Python. Recovered by compiling a small CoreGraphics C flood-fill tool to remove edge-connected white background from generated PNGs.
+
+**Fix/Next time**: On this Mac runtime, prefer the existing CoreGraphics C helpers for simple PNG alpha/background processing unless Pillow is explicitly available.

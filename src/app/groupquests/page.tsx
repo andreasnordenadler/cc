@@ -228,10 +228,10 @@ export default async function GroupQuestsPage() {
                 <Image
                   alt="Noble men and women comically fighting around a chess table during a Multiplayer Side Quest"
                   className="groupquests-knight-competition-art"
-                  height={720}
+                  height={1024}
                   priority={false}
-                  src="/illustrations/multiplayer-side-quests-noble-chess-chaos.svg"
-                  width={960}
+                  src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png"
+                  width={1024}
                 />
               </div>
             </section>
