@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:53 Europe/Stockholm
   - source: Andreas showed a screenshot with remaining “group” copy after approving Multiplayer Side Quests and asked Sam to look through where “group” should become “multiplayer”.
   - Proof: updated stale visible product-mode copy including `Open group quest(s)`, `Group rooms`, `All group rooms`, `group leaderboards`, `group proof`, `group ledger`, and `group celebration`; route/class/internal `groupquests` identifiers remain unchanged.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-dul3ubqcx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges`, `/groupquests`, `/groupquests/create`, and `/groupquests/gq_demo_no_castle_01` return 200, include Multiplayer text, and have no visible `group`/`groups` word in extracted HTML text for these pages.
 
 - [x] Rename public Group Side Quests language to Multiplayer Side Quests.
   - added_at: 2026-05-11 09:43 Europe/Stockholm
