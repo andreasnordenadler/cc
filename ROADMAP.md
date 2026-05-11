@@ -269,7 +269,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:47 Europe/Stockholm
   - source: Andreas asked whether `/groupquests/create` needs more duration options or a date/time picker from/to.
   - Proof: create builder uses `Opens` and `Closes` datetime fields plus separate proof-rule select; participant preview and local drafts show the exact schedule range instead of vague duration presets.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-q5ngc5ui6-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed `Opens`/`Closes` datetime-local inputs and no old duration presets; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
