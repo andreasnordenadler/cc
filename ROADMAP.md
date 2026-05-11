@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Update Group Side Quests hub heading copy.
+  - added_at: 2026-05-11 09:35 Europe/Stockholm
+  - completed_at: 2026-05-11 09:38 Europe/Stockholm
+  - source: Andreas asked to change “Same nonsense, now with witnesses.” to “Multiplayer. Same nonsense, now with witnesses.” on the Side Quests hub.
+  - Proof: `/challenges` Group Side Quests card now uses the requested heading text.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`. Deploy/smoke pending.
+
 - [x] Compact Side Quests hub mode cards without removing text.
   - added_at: 2026-05-11 09:34 Europe/Stockholm
   - completed_at: 2026-05-11 09:36 Europe/Stockholm
