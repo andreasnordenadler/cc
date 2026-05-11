@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 14:55 Europe/Stockholm
   - source: Andreas chose the starting access policy: browse and open invite links without logging in; create and manage only when logged in.
   - Proof: `/groupquests/create` redirects anonymous visitors to `/sign-in`; invite/detail page stays public but replaces host maintenance controls with a sign-in-to-manage card for anonymous visitors.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9tip83vw2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` stays public, `/groupquests/gq_demo_no_castle_01` stays public with sign-in-to-manage card and rules visible, and `/groupquests/create` redirects anonymous visitors to `/sign-in`.
 
 - [x] Add proof-scroll details to Multiplayer Side Quests artwork.
   - added_at: 2026-05-11 11:13 Europe/Stockholm
