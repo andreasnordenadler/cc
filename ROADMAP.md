@@ -355,7 +355,7 @@ Rules from this point:
   - source: Andreas said Participant Preview may include too much; `Locked Rules` is probably not needed; share link should be a complete URL; each Multiplayer Side Quest should have a unique numeric ID that is also the URL.
   - Proof: preview removes `Locked rules`, shows a complete `https://sidequestchess.com/groupquests/{numericId}` share URL, and mock local drafts use the numeric ID instead of a mutable name slug.
   - follow_up: when Multiplayer Side Quests become persisted, generate real unique numeric IDs server-side and route detail pages by that ID.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-fqf4vfr0v-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed Locked Rules preview removal, complete numeric share URL, public ID helper, and no old slug helper; Vercel error logs had no recent logs.
 
 - [ ] Generate real persisted numeric IDs for Multiplayer Side Quest URLs.
   - added_at: 2026-05-11 21:34 Europe/Stockholm
