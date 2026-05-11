@@ -142,7 +142,7 @@ Rules from this point:
   - completed_at: 2026-05-11 16:44 Europe/Stockholm
   - source: Andreas showed the logged-in homepage and asked to list Active Multiplayer Side Quests in a separate section.
   - Proof: logged-in `/` has a distinct `Active Multiplayer Side Quests` section separate from the active solo side quest card, listing current multiplayer quest rows and linking to Multiplayer Quests.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ptelidbnh-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous homepage smoke returned 200 and confirmed the new logged-in-only section is not leaked to signed-out visitors. Logged-in rendering was verified by build/source inspection.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
