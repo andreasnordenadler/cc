@@ -405,6 +405,13 @@ Rules from this point:
   - Proof: `src/components/group-quest-draft-builder.tsx` preview eyebrow now uses `Multiplayer Side Quest Preview`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-a7vct3xko-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous create smoke still redirects to sign-in with return URL; source checks confirmed new label exists and old `Participant preview` label is removed; Vercel error logs had no recent logs.
 
+- [x] Extend create-page unsaved warning to internal navigation links.
+  - added_at: 2026-05-11 21:58 Europe/Stockholm
+  - completed_at: 2026-05-11 21:59 Europe/Stockholm
+  - source: Andreas reported `beforeunload` only warned on reload, not when clicking site links like Home.
+  - Proof: `/groupquests/create` now combines browser `beforeunload` with a captured same-origin anchor click guard that confirms before internal navigation when unsaved. Save marks the draft saved before redirect.
+  - Verification: pending deploy smoke in current run.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

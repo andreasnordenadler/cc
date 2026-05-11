@@ -389,3 +389,26 @@ For future Multiplayer Side Quest work, model quests as an ordered/selected coll
 - Tags: multiplayer-quests, create-flow, multi-select
 
 ---
+
+## [LRN-20260511-001] correction
+
+**Logged**: 2026-05-11T21:58:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: frontend
+
+### Summary
+`beforeunload` alone does not protect unsaved form state during Next.js internal link navigation.
+
+### Details
+Andreas reported that the unsaved-exit warning on `/groupquests/create` only appeared on reload, not when clicking site nav links such as Home. Next.js client-side links can bypass a normal reload prompt, so route/link clicks need a separate in-app guard.
+
+### Suggested Action
+For unsaved form protection in Next.js App Router, combine `beforeunload` with a client-side click/navigation guard for same-origin anchors and optionally a router-aware guard when framework APIs support it.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/components/group-quest-draft-builder.tsx
+- Tags: nextjs, unsaved-form, navigation-guard
+
+---
