@@ -100,14 +100,14 @@ Rules from this point:
   - completed_at: 2026-05-11 15:38 Europe/Stockholm
   - source: Andreas reported that logged-out users clicking `Create Multiplayer...` land on sign-in and then unexpectedly end up at `My Side Quests` instead of the create page.
   - Proof: anonymous `/groupquests/create` redirects to sign-in with a safe local return target; sign-in/sign-up pages consume safe local `redirect_url` and pass it to Clerk fallback redirects, while default sign-in still falls back to `/account`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-nxadxupg3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` references the new SVG and the SVG asset returns 200 as `image/svg+xml`.
 
 - [x] Replace Multiplayer Side Quest graphic with noble chess-table chaos scene.
   - added_at: 2026-05-11 15:48 Europe/Stockholm
   - completed_at: 2026-05-11 15:52 Europe/Stockholm
   - source: Andreas said he was still not happy with the graphic and requested noble men/women funnily fighting around a chess table on a transparent background.
   - Proof: logged-out Multiplayer Side Quests story card uses a transparent-background noble chess-table chaos illustration instead of the prior knight/proof-scroll image.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-nxadxupg3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` references the new SVG and the SVG asset returns 200 as `image/svg+xml`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
