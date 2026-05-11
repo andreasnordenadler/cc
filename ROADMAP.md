@@ -123,6 +123,13 @@ Rules from this point:
   - Proof: logged-out `/groupquests` no longer renders the story-card illustration/graphic; surrounding text remains intact.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-oc4vhghfd-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200, no longer contains the graphic wrapper or new/old artwork refs, and keeps the story text intact.
 
+- [x] Add Invite stage to Multiplayer Side Quest flow.
+  - added_at: 2026-05-11 16:02 Europe/Stockholm
+  - completed_at: 2026-05-11 16:06 Europe/Stockholm
+  - source: Andreas showed the logged-out `/groupquests` flow and noted it is missing `Invite` between stages 1 and 2.
+  - Proof: Multiplayer Side Quest flow reads `Create. Invite. Play. Prove.` and renders Invite as stage 2, shifting Play/Prove to stages 3/4.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

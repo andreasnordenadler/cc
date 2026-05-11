@@ -9,6 +9,10 @@ const overviewSteps = [
     href: "/groupquests/create",
   },
   {
+    title: "Invite",
+    copy: "Share the invite link so players can inspect the side quests, proof window, locked rules, and join conditions before committing.",
+  },
+  {
     title: "Play",
     copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Multiplayer Side Quest rules.",
   },
@@ -241,7 +245,7 @@ export default async function GroupQuestsPage() {
           <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
             <div className="section-head">
               <div>
-                <h2>Create. Play. Prove.</h2>
+                <h2>Create. Invite. Play. Prove.</h2>
               </div>
             </div>
             <div className="groupquests-how-grid">
@@ -301,7 +305,7 @@ export default async function GroupQuestsPage() {
             <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
               <div className="section-head">
                 <div>
-                  <h2>Create. Play. Prove.</h2>
+                  <h2>Create. Invite. Play. Prove.</h2>
                 </div>
               </div>
               <div className="groupquests-how-grid">

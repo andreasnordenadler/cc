@@ -325,3 +325,12 @@ The signed-in page trim removed the bottom flow section; Andreas corrected that 
 When simplifying SQC pages, remove heavy explanatory blocks first but preserve concise product-loop anchors if Andreas finds them helpful.
 
 ---
+
+## [LRN-20260511-001] correction
+
+**Logged**: 2026-05-11T16:02:00+02:00
+**Priority**: low
+
+Andreas corrected the Multiplayer Side Quest flow: it must include an explicit **Invite** stage between Create and Play.
+
+**Do differently**: For multiplayer flows, always represent the social handoff/invite step explicitly instead of folding it into Create.
