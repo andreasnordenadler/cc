@@ -229,6 +229,13 @@ Rules from this point:
   - acceptance: future Multiplayer Side Quest work treats `/groupquests/public` as a first-class page, not a throwaway mock; next iterations should connect it to real public listing settings, join states, filters/status, and public quest rows.
   - current_state: `/groupquests/public` is a mock listing page with public quest rows and inspect/join links.
 
+- [x] Increase sign-in headline size to fill auth card.
+  - added_at: 2026-05-11 19:21 Europe/Stockholm
+  - completed_at: 2026-05-11 19:23 Europe/Stockholm
+  - source: Andreas showed the sign-in page and asked to increase `Sign in, then go make terrible chess decisions.` so the unused bottom space is reduced.
+  - Proof: sign-in left auth card headline is larger than the generic auth headline and better fills the card while keeping the lightweight reassurance copy.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

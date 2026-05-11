@@ -476,6 +476,7 @@ p { color: var(--muted); line-height: 1.5; }
 .auth-copy-card { display: grid; align-content: center; padding-block: 18px; }
 .auth-copy-card-filled { align-content: start; gap: 18px; }
 .auth-copy-card h1 { font-size: clamp(2.1rem, 5vw, 3.9rem); line-height: .9; }
+.auth-copy-card-filled h1 { font-size: clamp(2.7rem, 6.6vw, 5rem); line-height: .84; }
 .auth-copy-card .hero-copy { font-size: clamp(.95rem, 1.15vw, 1.05rem); line-height: 1.38; }
 .input-card textarea { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 17px; background: rgba(0,0,0,.24); color: var(--ink); padding: 13px 14px; resize: vertical; }
 .wide-form { max-width: 760px; }
