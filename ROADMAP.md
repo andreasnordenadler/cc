@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Update footer copyright text.
+  - added_at: 2026-05-11 09:59 Europe/Stockholm
+  - completed_at: 2026-05-11 10:01 Europe/Stockholm
+  - source: Andreas asked to change footer text from `sidequestchess.com anno 2026` to `copyright anno 2026 sidequestchess.com`.
+  - Proof: global footer in `src/app/layout.tsx` displays the requested exact text.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 - [x] Align Side Quests hub card CTA placement/color.
   - added_at: 2026-05-11 09:55 Europe/Stockholm
   - completed_at: 2026-05-11 09:58 Europe/Stockholm

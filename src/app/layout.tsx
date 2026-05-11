@@ -98,7 +98,7 @@ export default function RootLayout({
         <body>
           {children}
           <footer className="site-footer" aria-label="Site footer">
-            <span>sidequestchess.com anno 2026</span>
+            <span>copyright anno 2026 sidequestchess.com</span>
             <nav aria-label="Footer links">
               <Link href="/support">Support</Link>
               <Link href="/terms">Terms &amp; Conditions</Link>
