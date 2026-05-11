@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 10:52 Europe/Stockholm
   - source: Andreas approved using the newly generated less-busy/funnier transparent Multiplayer Side Quests artwork on the site.
   - Proof: replaced `public/illustrations/group-side-quests-knight-competition.png` with the new transparent RGBA PNG.
-  - Verification: `file public/illustrations/group-side-quests-knight-competition.png` reports `PNG image data, 1536 x 1024, 8-bit/color RGBA`; `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `file public/illustrations/group-side-quests-knight-competition.png` reports `PNG image data, 1536 x 1024, 8-bit/color RGBA`; `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-21pg600sf-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` references the artwork and `/illustrations/group-side-quests-knight-competition.png` returns `200 image/png`.
 
 - [x] Replace Multiplayer Side Quests overview art with transparent PNG.
   - added_at: 2026-05-11 10:39 Europe/Stockholm
