@@ -377,6 +377,20 @@ Rules from this point:
   - Proof: preview card is participant-facing only; host maintenance text and preview-only note are removed from it; create/copy actions live outside the preview card.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-4rc9nepre-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed Host Maintenance Preview and Preview-only note are removed from preview while create/copy actions exist outside it; Vercel error logs had no recent logs.
 
+- [x] Mock save flow to unique Multiplayer Side Quest URL with creator controls.
+  - added_at: 2026-05-11 21:48 Europe/Stockholm
+  - completed_at: 2026-05-11 21:54 Europe/Stockholm
+  - source: Andreas asked how saving works and proposed that Save takes the creator to the unique URL where logged-in creators see extra controls compared with everyone else.
+  - Proof: create page button reads `Save Multiplayer Side Quest` and redirects to `/groupquests/{numericId}`; a dynamic numeric-ID detail page exists; logged-in visitors see creator controls, logged-out visitors see public participant view and sign-in-to-manage prompt.
+  - follow_up: replace mock client redirect/public ID with persisted server-side create action and real ownership checks.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
+- [ ] Replace mock Multiplayer Quest save with persisted create action and ownership checks.
+  - added_at: 2026-05-11 21:54 Europe/Stockholm
+  - source: Follow-up from save-flow mock: real save must persist the Multiplayer Side Quest and only show creator controls to the actual owner.
+  - acceptance: Save creates a database record with selected quests, schedule, visibility, rules, owner user ID, and stable numeric public ID; `/groupquests/{id}` resolves persisted data; host controls render only for the creator/owner.
+  - blocked_until: persistence/schema implementation.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

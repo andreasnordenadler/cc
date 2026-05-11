@@ -10,16 +10,6 @@ type BuilderQuest = {
   difficulty: string;
 };
 
-type DraftRoom = {
-  id: string;
-  name: string;
-  questTitles: string[];
-  inviteMode: string;
-  schedule: string;
-  mandatoryRules: string[];
-  publicId: string;
-};
-
 const inviteModes = [
   {
     id: "public",
@@ -119,20 +109,15 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     rated: "Any rated state",
     color: "Any color",
   });
-  const [draftRooms, setDraftRooms] = useState<DraftRoom[]>([]);
   const [inviteCopied, setInviteCopied] = useState(false);
 
   const selectedQuests = useMemo(
     () => quests.filter((quest) => selectedQuestIds.includes(quest.id)),
     [quests, selectedQuestIds],
   );
-  const selectedQuestTitles = selectedQuests.map((quest) => quest.title);
   const selectedInviteMode = inviteModes.find((mode) => mode.id === inviteMode) ?? inviteModes[0];
   const publicId = publicIdFromName(name);
   const shareUrl = `https://sidequestchess.com/groupquests/${publicId}`;
-  const mandatoryRules = gameRuleGroups
-    .map((group) => rules[group.id])
-    .filter((rule) => rule && !rule.startsWith("Any"));
   const previewRules = [
     { label: "Time control", value: rules.timeControl ?? "Any time control" },
     { label: "Rated", value: rules.rated ?? "Any rated state" },
@@ -141,21 +126,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   ];
   const scheduleLabel = `${formatDateTimeLabel(startAt)} → ${formatDateTimeLabel(endAt)}`;
 
-  function createLocalDraftRoom() {
-    const roomName = name.trim() || "Untitled Multiplayer Side Quest";
-    setDraftRooms((rooms) => [
-      {
-        id: `${publicId}-${rooms.length + 1}`,
-        name: roomName,
-        questTitles: selectedQuestTitles.length > 0 ? selectedQuestTitles : ["No side quest selected"],
-        inviteMode: selectedInviteMode.label,
-        schedule: scheduleLabel,
-        mandatoryRules,
-        publicId,
-      },
-      ...rooms,
-    ]);
-    setInviteCopied(false);
+  function saveMultiplayerSideQuest() {
+    window.location.href = `/groupquests/${publicId}`;
   }
 
 
@@ -346,46 +318,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
       </div>
 
       <div className="groupquests-create-actions" aria-label="Create Multiplayer Side Quest actions">
-        <button className="button primary" onClick={createLocalDraftRoom} type="button">Create local preview</button>
+        <button className="button primary" onClick={saveMultiplayerSideQuest} type="button">Save Multiplayer Side Quest</button>
         <button className="button secondary" onClick={copyInviteText} type="button">
           {inviteCopied ? "Invite text copied" : "Copy invite text"}
         </button>
       </div>
-
-      {draftRooms.length > 0 ? (
-        <section className="groupquests-local-drafts" aria-label="Local Multiplayer Side Quest previews">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Local previews</span>
-              <h3>Created in this browser session.</h3>
-            </div>
-            <span className="badge green">{draftRooms.length}</span>
-          </div>
-          <div className="groupquests-card-stack">
-            {draftRooms.map((room) => (
-              <article className="mission-card groupquests-group-card" key={room.id}>
-                <div className="card-meta">
-                  <span>You host</span>
-                  <span className="badge gold">Preview</span>
-                </div>
-                <h3>{room.name}</h3>
-                <div className="groupquests-mini-stats">
-                  <span>{room.questTitles.length} side quest{room.questTitles.length === 1 ? "" : "s"}: {room.questTitles.join(" + ")}</span>
-                  <span>{room.inviteMode}</span>
-                  <span>{room.schedule}</span>
-                </div>
-                {room.mandatoryRules.length > 0 ? (
-                  <div className="groupquests-rules-preview compact">
-                    <strong>Locked</strong>
-                    <div>{room.mandatoryRules.map((rule) => <span key={rule}>{rule}</span>)}</div>
-                  </div>
-                ) : null}
-                <p className="proof-line">Share link preview: https://sidequestchess.com/groupquests/{room.publicId}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }
