@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Compact Side Quests top hero section.
+  - added_at: 2026-05-11 09:38 Europe/Stockholm
+  - completed_at: 2026-05-11 09:40 Europe/Stockholm
+  - source: Andreas clarified the compactness request was about the top section, not the solo/group mode cards; keep the card changes.
+  - Proof: `/challenges` top hero keeps the existing heading/copy but uses tighter padding, smaller copy rhythm, and a desktop two-column alignment to reduce vertical space.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`. Deploy/smoke pending.
+
 - [x] Update Group Side Quests hub heading copy.
   - added_at: 2026-05-11 09:35 Europe/Stockholm
   - completed_at: 2026-05-11 09:38 Europe/Stockholm

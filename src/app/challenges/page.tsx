@@ -38,7 +38,7 @@ export default async function ChallengesPage() {
       <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
 
       <div className="content-wrap">
-        <section className="hero-card">
+        <section className="hero-card side-quests-hub-hero">
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
             Side Quests is the hub: pick a solo quest for yourself, or start a Group Side Quest when the bad idea deserves witnesses.
