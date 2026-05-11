@@ -347,7 +347,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:24 Europe/Stockholm
   - source: Andreas doubted the `Variant` selector because non-standard variants may not be compatible with Side Quest proof.
   - Proof: removed the Variant dropdown from create rules; create copy and participant preview state that Multiplayer Side Quests use standard chess only for now.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ks9rz9az4-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed variant dropdown/options removed and standard-only copy/preview present; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
