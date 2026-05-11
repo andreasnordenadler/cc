@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeDeckBrowser, { ChallengeCard } from "@/components/challenge-deck-browser";
 import SiteNav from "@/components/site-nav";
@@ -40,15 +41,32 @@ export default async function ChallengesPage() {
         <section className="hero-card">
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
-            These are not lessons. They are chess quests with proof attached. Pick from the live-backed deck, play on Lichess or Chess.com, and come back when the bad idea has evidence.
+            Side Quests is the hub: pick a solo quest for yourself, or start a Group Side Quest when the bad idea deserves witnesses.
           </p>
         </section>
 
-        <ChallengeDeckBrowser
-          challenges={CHALLENGES}
-          activeChallengeId={activeIncompleteChallengeId}
-          completedChallengeIds={progress.completedChallengeIds}
-        />
+        <section className="grid side-quest-mode-grid" aria-label="Side Quest modes">
+          <article className="mission-card side-quest-mode-card">
+            <span className="eyebrow">Solo Side Quests</span>
+            <h2>One player. One ridiculous rule. One proof receipt.</h2>
+            <p>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</p>
+            <Link href="#solo-side-quest-deck" className="button primary">Browse solo quests</Link>
+          </article>
+          <article className="mission-card side-quest-mode-card group-mode-card">
+            <span className="eyebrow">Group Side Quests</span>
+            <h2>Same nonsense, now with witnesses.</h2>
+            <p>Create or join a room with shared rules, a proof window, a leaderboard, and group-valid proof separate from solo progress.</p>
+            <Link href="/groupquests" className="button secondary">Open group quests</Link>
+          </article>
+        </section>
+
+        <div id="solo-side-quest-deck">
+          <ChallengeDeckBrowser
+            challenges={CHALLENGES}
+            activeChallengeId={activeIncompleteChallengeId}
+            completedChallengeIds={progress.completedChallengeIds}
+          />
+        </div>
 
         <section className="mission-card" aria-label="Recommended starting quests">
           <div className="section-head">

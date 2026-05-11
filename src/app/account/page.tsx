@@ -39,6 +39,22 @@ export default async function MyQuestLogPage() {
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
   const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
+  const activeGroupQuests = [
+    {
+      title: "No Castle Night",
+      status: "Live",
+      copy: "Fresh No Castle proof needed · 4 players",
+      href: "/groupquests/gq_demo_no_castle_01",
+      action: "Open group quest",
+    },
+    {
+      title: "Beginner Chaos Ladder",
+      status: "Starting soon",
+      copy: "Confirm Blitz 5+3 rules before the room opens",
+      href: "/groupquests/gq_demo_no_castle_01",
+      action: "Review rules",
+    },
+  ];
 
   return (
     <main className="site-shell">
@@ -93,6 +109,29 @@ export default async function MyQuestLogPage() {
 
 
         </div>
+
+        <section className="mission-card my-group-quests-card" aria-label="Active Group Side Quests">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Active Group Quests</span>
+              <h2>Rooms that need you.</h2>
+              <p>Group rooms live here with your solo quest, so My Side Quests is the command center.</p>
+            </div>
+            <Link href="/groupquests" className="button secondary">All group rooms</Link>
+          </div>
+          <div className="my-group-quest-list">
+            {activeGroupQuests.map((quest) => (
+              <Link href={quest.href} className="my-group-quest-row" key={quest.title}>
+                <span>{quest.status}</span>
+                <div>
+                  <strong>{quest.title}</strong>
+                  <p>{quest.copy}</p>
+                </div>
+                <em>{quest.action}</em>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section className="mission-card quest-log-accounts-card">
           <div className="section-head">

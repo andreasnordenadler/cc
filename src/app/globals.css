@@ -1005,3 +1005,24 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 620px) {
   .groupquests-stage-rail { grid-template-columns: 1fr; }
 }
+
+.side-quest-mode-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+.side-quest-mode-card { display: grid; align-content: start; gap: 12px; background: radial-gradient(circle at 14% 0%, rgba(245,200,106,.18), transparent 34%), rgba(255,255,255,.075); }
+.side-quest-mode-card.group-mode-card { background: radial-gradient(circle at 86% 0%, rgba(96,240,175,.16), transparent 34%), rgba(255,255,255,.075); }
+.side-quest-mode-card .button { width: max-content; }
+#solo-side-quest-deck { scroll-margin-top: 110px; }
+.my-group-quests-card { display: grid; gap: 14px; border-color: rgba(96,240,175,.22); background: radial-gradient(circle at 90% 0%, rgba(96,240,175,.16), transparent 34%), rgba(255,255,255,.07); }
+.my-group-quests-card .section-head { align-items: center; gap: 12px; }
+.my-group-quest-list { display: grid; gap: 10px; }
+.my-group-quest-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(0,0,0,.16); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.my-group-quest-row:hover, .my-group-quest-row:focus-visible { transform: translateY(-2px); border-color: rgba(96,240,175,.42); background: rgba(255,255,255,.08); outline: none; }
+.my-group-quest-row span { color: var(--green); font-size: .72rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+.my-group-quest-row strong { display: block; color: var(--ink); font-size: 1rem; font-weight: 950; }
+.my-group-quest-row p { margin-top: 3px; font-size: .84rem; }
+.my-group-quest-row em { color: var(--gold); font-size: .8rem; font-style: normal; font-weight: 950; text-align: right; white-space: nowrap; }
+@media (max-width: 760px) {
+  .side-quest-mode-grid { grid-template-columns: 1fr; }
+  .my-group-quests-card .section-head { align-items: start; }
+  .my-group-quest-row { grid-template-columns: 1fr; }
+  .my-group-quest-row em { text-align: left; }
+}
