@@ -270,7 +270,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         </div>
 
         <aside className="groupquests-draft-preview" aria-label="Multiplayer Side Quest preview">
-          <span className="eyebrow">Participant preview</span>
+          <span className="eyebrow">Multiplayer Side Quest Preview</span>
           <h3>{name.trim() || "Untitled Multiplayer Side Quest"}</h3>
           <p>
             {selectedQuests.length > 1

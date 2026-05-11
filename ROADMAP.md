@@ -398,6 +398,13 @@ Rules from this point:
   - Proof: create page action row contains only centered `Save Multiplayer Side Quest`; copy-invite button moved to the unique page as `Copy invite text`; browser beforeunload warning appears if the user leaves/reloads before saving; save disables the warning before redirecting to the numeric URL.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-69at3af3i-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects to sign-in, `/groupquests/12345` returns public participant view with `Copy invite text`, sign-in-to-manage prompt, and share URL; source checks confirmed create page has `beforeunload`, save disables warning before redirect, and no create-page copy-invite text remains; Vercel error logs had no recent logs.
 
+- [x] Rename create preview label to Multiplayer Side Quest Preview.
+  - added_at: 2026-05-11 21:56 Europe/Stockholm
+  - completed_at: 2026-05-11 21:57 Europe/Stockholm
+  - source: Andreas screenshot-requested changing `Participant preview` to `Multiplayer Side Quest Preview`.
+  - Proof: `src/components/group-quest-draft-builder.tsx` preview eyebrow now uses `Multiplayer Side Quest Preview`.
+  - Verification: pending deploy smoke in current run.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
