@@ -326,7 +326,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:13 Europe/Stockholm
   - source: Andreas asked to make the `Add / edit side quests` button yellow.
   - Proof: closed side-quest picker button uses primary/yellow button styling.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-mj80jgrfc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed `Add / edit side quests` uses primary/yellow styling; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
