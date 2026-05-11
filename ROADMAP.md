@@ -403,7 +403,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:57 Europe/Stockholm
   - source: Andreas screenshot-requested changing `Participant preview` to `Multiplayer Side Quest Preview`.
   - Proof: `src/components/group-quest-draft-builder.tsx` preview eyebrow now uses `Multiplayer Side Quest Preview`.
-  - Verification: pending deploy smoke in current run.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-a7vct3xko-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous create smoke still redirects to sign-in with return URL; source checks confirmed new label exists and old `Participant preview` label is removed; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
