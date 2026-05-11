@@ -363,6 +363,13 @@ Rules from this point:
   - acceptance: persisted Multiplayer Side Quest records get stable unique numeric public IDs; invite/detail/share routes resolve by numeric ID; IDs do not change when the title changes.
   - blocked_until: real Multiplayer Side Quest persistence is implemented.
 
+- [x] Add game-rule constraints to Multiplayer Quest preview card.
+  - added_at: 2026-05-11 21:39 Europe/Stockholm
+  - completed_at: 2026-05-11 21:42 Europe/Stockholm
+  - source: Andreas clarified that the selected game-rule constraints should all appear in the participant preview card.
+  - Proof: preview card includes compact participant-facing rule summary for Time control, Rated setting, Player color, and Standard chess only, while keeping share URL and quest stack visible.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

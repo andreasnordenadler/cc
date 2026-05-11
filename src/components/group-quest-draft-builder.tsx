@@ -133,6 +133,12 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const mandatoryRules = gameRuleGroups
     .map((group) => rules[group.id])
     .filter((rule) => rule && !rule.startsWith("Any"));
+  const previewRules = [
+    { label: "Time control", value: rules.timeControl ?? "Any time control" },
+    { label: "Rated", value: rules.rated ?? "Any rated state" },
+    { label: "Color", value: rules.color ?? "Any color" },
+    { label: "Variant", value: "Standard chess only" },
+  ];
   const scheduleLabel = `${formatDateTimeLabel(startAt)} → ${formatDateTimeLabel(endAt)}`;
 
   function createLocalDraftRoom() {
@@ -323,10 +329,14 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               <strong>Schedule</strong>
               <span>{scheduleLabel}</span>
             </div>
-            <div>
-              <strong>Variant</strong>
-              <span>Standard chess only</span>
-            </div>
+          </div>
+          <div className="groupquests-preview-rule-grid" aria-label="Participant rule summary">
+            {previewRules.map((rule) => (
+              <div key={rule.label}>
+                <strong>{rule.label}</strong>
+                <span>{rule.value}</span>
+              </div>
+            ))}
           </div>
           <div className="groupquests-preview-link">
             <strong>Public ID + share URL</strong>
