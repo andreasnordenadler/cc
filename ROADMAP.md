@@ -200,6 +200,14 @@ Rules from this point:
   - Proof: logged-out `/groupquests` no longer renders the `Join with invite link` / example invite section; no internal page link targets the removed anchor.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-2mltz4fa5-andreas-nordenadlers-projects.vercel.app` completed; smoke confirmed `/groupquests` returns 200, no longer includes `Join with invite link`, `Review the rules before your proof counts.`, `Example invite`, or `join-group-side-quest`, and keeps `A tiny chess tournament for bad ideas.` intact.
 
+- [x] Replace logged-out `See how it works` card with public join path.
+  - added_at: 2026-05-11 18:58 Europe/Stockholm
+  - completed_at: 2026-05-11 19:00 Europe/Stockholm
+  - source: Andreas said the `See how it works` card does not make sense and suggested `Join a Public Multiplayer Side Quest`, plus the product should support hosts listing Multiplayer Side Quests as public for anyone to enter.
+  - Proof: logged-out `/groupquests` second action card becomes `Join a Public Multiplayer Side Quest`, explains public host-listed quests, and links to a joinable public Multiplayer Side Quest/detail path.
+  - follow_up: future create/manage flow should include a public listing option for hosts (`public anyone can enter`) beyond invite-only/private modes.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

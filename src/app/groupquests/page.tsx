@@ -31,10 +31,10 @@ const loggedOutActions = [
     href: "/groupquests/create",
   },
   {
-    title: "See how it works",
-    copy: "Multiplayer Side Quests have side quests, a proof window, locked rules, a leaderboard, and one glorious proof-scroll winner.",
-    action: "View the flow",
-    href: "#group-side-quest-flow",
+    title: "Join a Public Multiplayer Side Quest",
+    copy: "Find public Multiplayer Side Quests that hosts have opened for anyone to enter, then inspect the rules before joining.",
+    action: "Join public quest",
+    href: "/groupquests/gq_demo_no_castle_01",
   },
 ];
 
@@ -239,7 +239,7 @@ export default async function GroupQuestsPage() {
               </div>
             </section>
 
-            <section className="grid groupquests-logged-out-actions" aria-label="Start with Multiplayer Side Quests">
+            <section className="grid groupquests-logged-out-actions" aria-label="Start or join Multiplayer Side Quests">
               {loggedOutActions.map((item) => (
                 <article className="mission-card groupquests-action-card" key={item.title}>
                   <h2>{item.title}.</h2>
