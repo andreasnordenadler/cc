@@ -297,12 +297,31 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         <aside className="groupquests-draft-preview" aria-label="Multiplayer Side Quest preview">
           <span className="eyebrow">Participant preview</span>
           <h3>{name.trim() || "Untitled Multiplayer Side Quest"}</h3>
-          <p>{selectedQuests.length > 1 ? `Players must complete ${selectedQuests.length} side quests inside the window.` : selectedQuests[0]?.objective ?? "Choose at least one side quest to preview the participant view."}</p>
-          <div className="groupquests-preview-stat-grid">
-            <div>
-              <strong>Side quests</strong>
-              <span>{selectedQuestTitles.length > 0 ? selectedQuestTitles.join(" + ") : "No side quest selected"}</span>
+          <p>
+            {selectedQuests.length > 1
+              ? `Players must complete all ${selectedQuests.length} selected side quests inside the Multiplayer Side Quest window.`
+              : selectedQuests[0]?.objective ?? "Choose at least one side quest to preview the participant view."}
+          </p>
+
+          <div className="groupquests-preview-quest-stack">
+            <div className="groupquests-preview-stack-head">
+              <strong>Quest stack</strong>
+              <span>{selectedQuests.length} selected</span>
             </div>
+            <ol>
+              {selectedQuests.map((quest, index) => (
+                <li key={quest.id}>
+                  <em>{index + 1}</em>
+                  <span>
+                    <strong>{quest.title}</strong>
+                    <small>{quest.difficulty} · {quest.reward} pts</small>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="groupquests-preview-stat-grid">
             <div>
               <strong>Visibility</strong>
               <span>{selectedInviteMode.label}</span>
@@ -328,8 +347,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             <strong>Host maintenance preview</strong>
             <ul>
               <li>Copy invite and pause new joins.</li>
-              <li>Review rejected proof with plain-language reasons.</li>
-              <li>Close the proof window and publish final standings.</li>
+              <li>Review proof per selected side quest.</li>
+              <li>Close the window and publish final standings.</li>
             </ul>
           </div>
           <div className="button-row">
@@ -338,7 +357,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               {inviteCopied ? "Invite text copied" : "Copy invite text"}
             </button>
           </div>
-          <p className="proof-line">Preview only — saved Multiplayer Side Quests will use the same rules summary and maintenance states.</p>
+          <p className="proof-line">Preview only — saved Multiplayer Side Quests will use this quest stack, schedule, rules summary, and maintenance state.</p>
         </aside>
       </div>
 
@@ -360,7 +379,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 </div>
                 <h3>{room.name}</h3>
                 <div className="groupquests-mini-stats">
-                  <span>{room.questTitles.join(" + ")}</span>
+                  <span>{room.questTitles.length} side quest{room.questTitles.length === 1 ? "" : "s"}: {room.questTitles.join(" + ")}</span>
                   <span>{room.inviteMode}</span>
                   <span>{room.schedule}</span>
                 </div>

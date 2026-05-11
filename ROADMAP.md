@@ -335,6 +335,13 @@ Rules from this point:
   - Proof: `/groupquests/create` passes all `CHALLENGES` into the picker instead of slicing to the first 8, so Add/Edit can choose from the complete current Side Quest catalogue.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-6pxxg2wnu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed `CHALLENGES.map` with no first-8 slice; Vercel error logs had no recent logs.
 
+- [x] Update Multiplayer Quest preview card for multiple selected quests.
+  - added_at: 2026-05-11 21:18 Europe/Stockholm
+  - completed_at: 2026-05-11 21:21 Europe/Stockholm
+  - source: Andreas liked the preview card but noted it needs updating now that Multiplayer Side Quests can include multiple quests.
+  - Proof: preview card shows a quest stack/list with selected count, handles one-or-many selected quests in copy, removes the old single side-quest stat, and updates maintenance/proof wording for per-quest review.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

@@ -1174,3 +1174,14 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-picker-footer { display: flex; justify-content: flex-end; }
 .groupquests-picker-footer .button { min-width: 120px; }
 @media (max-width: 760px) { .groupquests-picker-footer .button { width: 100%; } }
+
+.groupquests-preview-quest-stack { display: grid; gap: 9px; padding: 11px; border: 1px solid rgba(245,200,106,.2); border-radius: 16px; background: rgba(245,200,106,.07); }
+.groupquests-preview-stack-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.groupquests-preview-stack-head strong { color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-preview-stack-head span { color: var(--ink); font-size: .78rem; font-weight: 950; }
+.groupquests-preview-quest-stack ol { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.groupquests-preview-quest-stack li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; align-items: start; padding: 8px; border-radius: 13px; background: rgba(0,0,0,.16); }
+.groupquests-preview-quest-stack li em { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: var(--gold); color: #17120a; font-size: .75rem; font-style: normal; font-weight: 1000; }
+.groupquests-preview-quest-stack li span { display: grid; gap: 2px; }
+.groupquests-preview-quest-stack li strong { color: var(--ink); font-size: .9rem; font-weight: 950; line-height: 1.12; }
+.groupquests-preview-quest-stack li small { color: var(--muted); font-size: .74rem; font-weight: 850; }
