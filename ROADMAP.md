@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Replace Multiplayer Side Quests overview art with transparent PNG.
+  - added_at: 2026-05-11 10:39 Europe/Stockholm
+  - completed_at: 2026-05-11 10:40 Europe/Stockholm
+  - source: Andreas asked to use the transparent PNG version of the knight/chess artwork in the Multiplayer Side Quests section.
+  - Proof: replaced `public/illustrations/group-side-quests-knight-competition.png` with the transparent RGBA PNG generated from Andreas's image.
+  - Verification: `file public/illustrations/group-side-quests-knight-competition.png` reports `PNG image data, 1018 x 662, 8-bit/color RGBA`; `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 - [x] Update footer copyright text.
   - added_at: 2026-05-11 09:59 Europe/Stockholm
   - completed_at: 2026-05-11 10:01 Europe/Stockholm
