@@ -410,7 +410,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:59 Europe/Stockholm
   - source: Andreas reported `beforeunload` only warned on reload, not when clicking site links like Home.
   - Proof: `/groupquests/create` now combines browser `beforeunload` with a captured same-origin anchor click guard that confirms before internal navigation when unsaved. Save marks the draft saved before redirect.
-  - Verification: pending deploy smoke in current run.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-e19xs9bos-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous create smoke still redirects to sign-in with return URL; source checks confirmed `beforeunload`, internal anchor click guard, confirmation copy, and save-then-redirect escape path; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
