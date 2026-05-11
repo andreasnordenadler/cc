@@ -133,7 +133,6 @@ export default async function GroupQuestsPage() {
                 </div>
                 <div className="groupquests-dashboard-actions">
                   <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
-                  <Link className="button secondary" href="#join-group-side-quest">Join with invite link</Link>
                 </div>
               </div>
 
@@ -289,30 +288,6 @@ export default async function GroupQuestsPage() {
 
         {!userId ? (
           <>
-            <section className="mission-card groupquests-join-card" id="join-group-side-quest" aria-label="Join a Multiplayer Side Quest">
-              <div className="section-head">
-                <div>
-                  <span className="eyebrow">Join with invite link</span>
-                  <h2>Review the rules before your proof counts.</h2>
-                </div>
-              </div>
-              <div className="groupquests-join-grid">
-                <div>
-                  <p>
-                    Invite links open the Multiplayer Side Quest detail page first. Players see the side quest set, proof window, mandatory game rules, leaderboard state, and whether joining is instant or approval-based.
-                  </p>
-                  <p>
-                    Nothing from solo My Side Quests is silently imported. The multiplayer ledger starts when the player joins and the proof window is open.
-                  </p>
-                </div>
-                <div className="groupquests-invite-preview">
-                  <strong>Example invite</strong>
-                  <span>sidequestchess.com/groupquests/gq_demo_no_castle_01</span>
-                  <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview detail page</Link>
-                </div>
-              </div>
-            </section>
-
             <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
               <div className="section-head">
                 <div>

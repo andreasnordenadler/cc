@@ -193,6 +193,13 @@ Rules from this point:
   - Proof: story-section Multiplayer graphic max width reduced from 430px to 340px so it supports the copy without dominating the card.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9r9pkw9eb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200 and still references `multiplayer-side-quests-noble-chaos-coat-style.png`.
 
+- [x] Remove logged-out Join with invite link section.
+  - added_at: 2026-05-11 18:54 Europe/Stockholm
+  - completed_at: 2026-05-11 18:56 Europe/Stockholm
+  - source: Andreas showed the logged-out `/groupquests` `Join with invite link` section and asked to remove it.
+  - Proof: logged-out `/groupquests` no longer renders the `Join with invite link` / example invite section; no internal page link targets the removed anchor.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
