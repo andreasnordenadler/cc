@@ -72,7 +72,7 @@ Rules from this point:
   - completed_at: 2026-05-11 15:02 Europe/Stockholm
   - source: Andreas showed the sign-in page and asked to remove all the pills.
   - Proof: sign-in page no longer shows the `User login` eyebrow pill or the three reassurance pills; sign-up page received the same cleanup for consistency.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-dgddzxitb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` no longer includes `User login` or the three reassurance pill texts, and `/sign-up` no longer includes `Create user profile` or its reassurance pill texts.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
