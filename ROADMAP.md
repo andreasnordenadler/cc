@@ -370,6 +370,13 @@ Rules from this point:
   - Proof: preview card includes compact participant-facing rule summary for Time control, Rated setting, Player color, and Standard chess only, while keeping share URL and quest stack visible.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9vj0kjg1w-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed preview rule grid includes Time control, Rated, Color, Variant, and Standard chess only; Vercel error logs had no recent logs.
 
+- [x] Remove host/action controls from Participant Preview card.
+  - added_at: 2026-05-11 21:44 Europe/Stockholm
+  - completed_at: 2026-05-11 21:46 Europe/Stockholm
+  - source: Andreas noted the Host Maintenance Preview/action area does not belong inside the Participant Preview card.
+  - Proof: preview card is participant-facing only; host maintenance text and preview-only note are removed from it; create/copy actions live outside the preview card.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

@@ -342,22 +342,14 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             <strong>Public ID + share URL</strong>
             <span>{shareUrl}</span>
           </div>
-          <div className="groupquests-maintenance-preview">
-            <strong>Host maintenance preview</strong>
-            <ul>
-              <li>Copy invite and pause new joins.</li>
-              <li>Review proof per selected side quest.</li>
-              <li>Close the window and publish final standings.</li>
-            </ul>
-          </div>
-          <div className="button-row">
-            <button className="button primary" onClick={createLocalDraftRoom} type="button">Create local preview</button>
-            <button className="button secondary" onClick={copyInviteText} type="button">
-              {inviteCopied ? "Invite text copied" : "Copy invite text"}
-            </button>
-          </div>
-          <p className="proof-line">Preview only — saved Multiplayer Side Quests will use a stable numeric public ID for sharing.</p>
         </aside>
+      </div>
+
+      <div className="groupquests-create-actions" aria-label="Create Multiplayer Side Quest actions">
+        <button className="button primary" onClick={createLocalDraftRoom} type="button">Create local preview</button>
+        <button className="button secondary" onClick={copyInviteText} type="button">
+          {inviteCopied ? "Invite text copied" : "Copy invite text"}
+        </button>
       </div>
 
       {draftRooms.length > 0 ? (
