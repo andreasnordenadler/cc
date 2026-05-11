@@ -15,7 +15,6 @@ type DraftRoom = {
   name: string;
   questTitle: string;
   inviteMode: string;
-  proofWindow: string;
   schedule: string;
   mandatoryRules: string[];
   slug: string;
@@ -37,12 +36,6 @@ const inviteModes = [
     label: "Invite-only",
     copy: "Only named friends or approved invitees can join.",
   },
-];
-
-const proofWindows = [
-  "Fresh games after start",
-  "Fresh games after join + start",
-  "Manual retroactive proof later",
 ];
 
 function toDateTimeLocal(date: Date) {
@@ -129,7 +122,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [name, setName] = useState("No Castle Night");
   const [selectedQuestId, setSelectedQuestId] = useState(quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "");
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
-  const [proofWindow, setProofWindow] = useState(proofWindows[0]);
   const [startAt, setStartAt] = useState(defaultStartAt);
   const [endAt, setEndAt] = useState(defaultEndAt);
   const [rules, setRules] = useState<Record<string, string>>({
@@ -160,7 +152,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         name: roomName,
         questTitle: selectedQuest?.title ?? "No side quest selected",
         inviteMode: selectedInviteMode.label,
-        proofWindow,
         schedule: scheduleLabel,
         mandatoryRules,
         slug: draftSlug,
@@ -220,12 +211,12 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </div>
           </div>
 
-          <div className="groupquests-rule-builder compact" aria-label="Schedule and proof window">
+          <div className="groupquests-rule-builder compact" aria-label="Multiplayer Side Quest schedule">
             <div>
-              <span className="groupquests-rule-title">4 · Schedule + proof window</span>
-              <p>Set the exact public window. Proof can still require only fresh games after the Multiplayer Side Quest starts.</p>
+              <span className="groupquests-rule-title">4 · Schedule</span>
+              <p>Set the exact window. For now, qualifying games must be played between open and close.</p>
             </div>
-            <div className="groupquests-rule-grid schedule-grid">
+            <div className="groupquests-rule-grid schedule-grid two-up">
               <label>
                 <span>Opens</span>
                 <input type="datetime-local" value={startAt} onChange={(event) => setStartAt(event.target.value)} />
@@ -233,14 +224,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               <label>
                 <span>Closes</span>
                 <input type="datetime-local" value={endAt} onChange={(event) => setEndAt(event.target.value)} />
-              </label>
-              <label className="schedule-proof-window">
-                <span>Proof rule</span>
-                <select value={proofWindow} onChange={(event) => setProofWindow(event.target.value)}>
-                  {proofWindows.map((window) => (
-                    <option key={window} value={window}>{window}</option>
-                  ))}
-                </select>
               </label>
             </div>
           </div>
@@ -280,10 +263,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             <div>
               <strong>Visibility</strong>
               <span>{selectedInviteMode.label}</span>
-            </div>
-            <div>
-              <strong>Proof</strong>
-              <span>{proofWindow}</span>
             </div>
             <div>
               <strong>Schedule</strong>
@@ -342,7 +321,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                   <span>{room.inviteMode}</span>
                   <span>{room.schedule}</span>
                 </div>
-                <p>{room.proofWindow}</p>
                 {room.mandatoryRules.length > 0 ? (
                   <div className="groupquests-rules-preview compact">
                     <strong>Locked</strong>

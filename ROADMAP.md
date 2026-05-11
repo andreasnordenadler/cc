@@ -278,6 +278,13 @@ Rules from this point:
   - Proof: `/groupquests/create` compact header reads `Build a Multiplayer Side Quest. Blame your friends later.`
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-j7vg5c9ol-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed new wording; Vercel error logs had no recent logs.
 
+- [x] Remove confusing proof-rule dropdown from Multiplayer Quest create flow.
+  - added_at: 2026-05-11 19:47 Europe/Stockholm
+  - completed_at: 2026-05-11 19:50 Europe/Stockholm
+  - source: Andreas noted Proof Rule was confusing and questioned whether it is needed now that the create flow has an Opens/Closes date picker.
+  - Proof: create builder no longer shows Proof Rule dropdown; schedule section only has Opens/Closes; copy clarifies that qualifying games must be played inside that window for now; preview/local drafts no longer duplicate proof-rule language.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

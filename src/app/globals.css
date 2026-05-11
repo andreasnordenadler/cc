@@ -1149,3 +1149,6 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 920px) {
   .schedule-grid { grid-template-columns: 1fr; }
 }
+
+.schedule-grid.two-up { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) { .schedule-grid.two-up { grid-template-columns: 1fr; } }
