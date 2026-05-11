@@ -156,7 +156,7 @@ Rules from this point:
   - completed_at: 2026-05-11 17:53 Europe/Stockholm
   - source: Andreas said `https://sidequestchess.com/` needs language around also having Multiplayer Side Quests.
   - Proof: homepage hero and signed-out explanatory copy mention solo and Multiplayer Side Quests; signed-out homepage includes a lightweight Multiplayer Side Quests callout linking to `/groupquests`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ly77rsusk-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` includes `solo or multiplayer`, Multiplayer Side Quest copy, `Same nonsense, now with witnesses.`, `Browse Multiplayer Side Quests`, and multiplayer leaderboard proof language.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
