@@ -67,6 +67,13 @@ Rules from this point:
 - Do not use old autonomous backlog items as permission to add new website product features.
 - Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
 
+- [x] Remove pill-style labels from auth pages.
+  - added_at: 2026-05-11 15:00 Europe/Stockholm
+  - completed_at: 2026-05-11 15:02 Europe/Stockholm
+  - source: Andreas showed the sign-in page and asked to remove all the pills.
+  - Proof: sign-in page no longer shows the `User login` eyebrow pill or the three reassurance pills; sign-up page received the same cleanup for consistency.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
