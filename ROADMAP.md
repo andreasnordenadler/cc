@@ -299,6 +299,13 @@ Rules from this point:
   - Proof: `/groupquests/create` shows selected side quests immediately, has an Add/Edit picker with checkboxes, prevents zero selected quests, and preview/local draft summaries show multiple selected side quests.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-iuzrusy4y-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed checkbox picker, selected side quest chips/count, multi-quest preview/local summary support, and removal of the old single `First side quest` select; Vercel error logs had no recent logs.
 
+- [x] Move side-quest picker Done action to bottom.
+  - added_at: 2026-05-11 21:05 Europe/Stockholm
+  - completed_at: 2026-05-11 21:07 Europe/Stockholm
+  - source: Andreas liked the picker but asked for `Done Choosing` to be at the bottom and perhaps just `Done`.
+  - Proof: when the side-quest picker is closed the top button reads `Add / edit side quests`; when open, the completion action is a bottom button labeled `Done`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

@@ -202,9 +202,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 <span>2 · Side quests</span>
                 <strong>{selectedQuests.length} selected</strong>
               </div>
-              <button className="button secondary" type="button" onClick={() => setQuestPickerOpen((open) => !open)}>
-                {questPickerOpen ? "Done choosing" : "Add / edit side quests"}
-              </button>
+              {!questPickerOpen ? (
+                <button className="button secondary" type="button" onClick={() => setQuestPickerOpen(true)}>
+                  Add / edit side quests
+                </button>
+              ) : null}
             </div>
             <div className="groupquests-selected-quests" aria-label="Selected side quests">
               {selectedQuests.map((quest) => (
@@ -212,23 +214,30 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               ))}
             </div>
             {questPickerOpen ? (
-              <div className="groupquests-picker-panel">
-                {quests.map((quest) => {
-                  const checked = selectedQuestIds.includes(quest.id);
-                  return (
-                    <label className={checked ? "active" : undefined} key={quest.id}>
-                      <input
-                        checked={checked}
-                        onChange={() => toggleQuest(quest.id)}
-                        type="checkbox"
-                      />
-                      <span>
-                        <strong>{quest.title}</strong>
-                        <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
-                      </span>
-                    </label>
-                  );
-                })}
+              <div className="groupquests-picker-panel-wrap">
+                <div className="groupquests-picker-panel">
+                  {quests.map((quest) => {
+                    const checked = selectedQuestIds.includes(quest.id);
+                    return (
+                      <label className={checked ? "active" : undefined} key={quest.id}>
+                        <input
+                          checked={checked}
+                          onChange={() => toggleQuest(quest.id)}
+                          type="checkbox"
+                        />
+                        <span>
+                          <strong>{quest.title}</strong>
+                          <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <div className="groupquests-picker-footer">
+                  <button className="button primary" type="button" onClick={() => setQuestPickerOpen(false)}>
+                    Done
+                  </button>
+                </div>
               </div>
             ) : null}
           </section>

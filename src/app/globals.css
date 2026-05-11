@@ -1169,3 +1169,8 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-picker-panel label strong { color: var(--ink); font-size: .9rem; font-weight: 950; }
 .groupquests-picker-panel label small { color: var(--muted); font-size: .76rem; font-weight: 800; line-height: 1.3; }
 @media (max-width: 760px) { .groupquests-picker-head { align-items: stretch; flex-direction: column; } .groupquests-picker-panel { grid-template-columns: 1fr; } .groupquests-picker-head .button { width: 100%; } }
+
+.groupquests-picker-panel-wrap { display: grid; gap: 10px; }
+.groupquests-picker-footer { display: flex; justify-content: flex-end; }
+.groupquests-picker-footer .button { min-width: 120px; }
+@media (max-width: 760px) { .groupquests-picker-footer .button { width: 100%; } }
