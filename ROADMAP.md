@@ -236,6 +236,13 @@ Rules from this point:
   - Proof: sign-in left auth card headline is larger than the generic auth headline and better fills the card while keeping the lightweight reassurance copy.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-77ez15rb7-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` returns 200 with the target headline.
 
+- [x] Add public/private visibility choice to Multiplayer Quest create flow.
+  - added_at: 2026-05-11 19:28 Europe/Stockholm
+  - completed_at: 2026-05-11 19:31 Europe/Stockholm
+  - source: Andreas approved adding a visibility choice so hosts can list Multiplayer Side Quests as public for anyone to enter, aligning `/groupquests/create` with `/groupquests/public`.
+  - Proof: create builder step 3 is `Visibility` with choices `Public listing`, `Unlisted link`, and `Invite-only`; preview labels it as Visibility; create-page copy explains public/private visibility.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

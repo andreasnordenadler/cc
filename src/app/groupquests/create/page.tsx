@@ -7,7 +7,7 @@ import { CHALLENGES } from "@/lib/challenges";
 
 const createChecklist = [
   "Name the Multiplayer Side Quest and pick the first side quest.",
-  "Choose who can join and how long proof stays open.",
+  "Choose whether it is public, link-only, or invite-only — then set how long proof stays open.",
   "Lock provider rules so every participant plays under the same constraints.",
   "Preview the participant page and host maintenance controls before sharing.",
 ];
@@ -41,7 +41,7 @@ export default async function CreateGroupQuestPage() {
           <span className="eyebrow">Create Multiplayer Side Quest</span>
           <h1>Set the dare before the chaos.</h1>
           <p className="hero-copy">
-            Build the Multiplayer Side Quest in stages: side quests, invites, proof window, locked game rules, and the host maintenance view participants will rely on once it goes live.
+            Build the Multiplayer Side Quest in stages: side quests, public or private visibility, proof window, locked game rules, and the host maintenance view participants will rely on once it goes live.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/groupquests">Back to overview</Link>
@@ -54,7 +54,7 @@ export default async function CreateGroupQuestPage() {
             <span className="eyebrow">Create flow</span>
             <h2>A host should always know what is locked, shareable, and still editable.</h2>
             <p>
-              The creator experience now mirrors the future maintenance flow: every decision becomes part of the participant rules summary and the host controls preview.
+              The creator experience now mirrors the future maintenance flow: visibility, rules, proof windows, and host controls all become part of the participant summary before anyone joins.
             </p>
           </div>
           <div className="groupquests-create-steps">

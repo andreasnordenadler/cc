@@ -23,9 +23,9 @@ type DraftRoom = {
 
 const inviteModes = [
   {
-    id: "invite-only",
-    label: "Invite-only",
-    copy: "Only named friends or approved invitees can join.",
+    id: "public",
+    label: "Public listing",
+    copy: "Anyone can find it on the public Multiplayer Side Quest list and join.",
   },
   {
     id: "unlisted-link",
@@ -33,9 +33,9 @@ const inviteModes = [
     copy: "Anyone with the Multiplayer Side Quest link can join while sharing is open.",
   },
   {
-    id: "approval-required",
-    label: "Approval-required",
-    copy: "Players request access and the host approves them.",
+    id: "invite-only",
+    label: "Invite-only",
+    copy: "Only named friends or approved invitees can join.",
   },
 ];
 
@@ -47,7 +47,7 @@ const proofWindows = [
 
 const createStages = [
   { label: "Basics", copy: "Name + first side quest" },
-  { label: "Invites", copy: "Access + proof window" },
+  { label: "Visibility", copy: "Public, link, or invite-only" },
   { label: "Rules", copy: "Provider constraints" },
   { label: "Preview", copy: "Share + maintain" },
 ];
@@ -188,8 +188,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </select>
           </label>
 
-          <div className="groupquests-builder-choice-set" role="group" aria-label="Invite mode">
-            <span>3 · Invite mode</span>
+          <div className="groupquests-builder-choice-set" role="group" aria-label="Visibility">
+            <span>3 · Visibility</span>
             <div>
               {inviteModes.map((mode) => (
                 <button
@@ -258,7 +258,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               <span>{selectedQuest?.title ?? "No side quest selected"}</span>
             </div>
             <div>
-              <strong>Invite</strong>
+              <strong>Visibility</strong>
               <span>{selectedInviteMode.label}</span>
             </div>
             <div>
