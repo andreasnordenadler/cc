@@ -206,7 +206,7 @@ Rules from this point:
   - source: Andreas said the `See how it works` card does not make sense and suggested `Join a Public Multiplayer Side Quest`, plus the product should support hosts listing Multiplayer Side Quests as public for anyone to enter.
   - Proof: logged-out `/groupquests` second action card becomes `Join a Public Multiplayer Side Quest`, explains public host-listed quests, and links to a joinable public Multiplayer Side Quest/detail path.
   - follow_up: future create/manage flow should include a public listing option for hosts (`public anyone can enter`) beyond invite-only/private modes.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-gc2qjmsx2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` includes `Join a Public Multiplayer Side Quest`, `Find public Multiplayer Side Quests`, `Join public quest`, and no longer includes `See how it works` or `View the flow`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
