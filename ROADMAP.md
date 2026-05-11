@@ -313,7 +313,7 @@ Rules from this point:
   - evidence: live API spot-check showed Lichess game export returns `clock.initial`/`clock.increment` plus `speed/perf`; Chess.com public archive games return `time_control` and `time_class` plus PGN `[TimeControl]`.
   - Proof: removed questionable/advanced presets like `Bullet 0+1`, `Rapid 15+0`, `Classical 25+0`, `Classical 60+0`, and `Custom time control`; kept common exact presets that map to public metadata; updated create-copy to say time controls are limited to exact presets verifiable from Lichess/Chess.com metadata.
   - Follow-up: actual Multiplayer Side Quest proof enforcement still needs to compare selected locked rule against Lichess `clock` or Chess.com `time_control` when saved multiplayer proof exists.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-gzzc4hbyz-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed questionable/custom time controls removed, representative exact presets kept, and provider metadata copy present; Vercel error logs had no recent logs.
 
 - [ ] Wire locked time-control enforcement into real Multiplayer Side Quest proof.
   - added_at: 2026-05-11 21:14 Europe/Stockholm
