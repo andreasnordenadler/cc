@@ -368,7 +368,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:42 Europe/Stockholm
   - source: Andreas clarified that the selected game-rule constraints should all appear in the participant preview card.
   - Proof: preview card includes compact participant-facing rule summary for Time control, Rated setting, Player color, and Standard chess only, while keeping share URL and quest stack visible.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9vj0kjg1w-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed preview rule grid includes Time control, Rated, Color, Variant, and Standard chess only; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
