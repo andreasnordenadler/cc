@@ -290,7 +290,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:49 Europe/Stockholm
   - source: Andreas highlighted the compact create header paragraph and requested removing it.
   - Proof: `/groupquests/create` compact header keeps the title but removes the supporting paragraph text.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-b608jhzy5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed title remains and supporting paragraph is removed; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
