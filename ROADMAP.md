@@ -285,6 +285,13 @@ Rules from this point:
   - Proof: create builder no longer shows Proof Rule dropdown; schedule section only has Opens/Closes; copy clarifies that qualifying games must be played inside that window for now; preview/local drafts no longer duplicate proof-rule language.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-nsz20g8mo-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed proof-rule options are removed and schedule copy/fields remain; Vercel error logs had no recent logs.
 
+- [x] Remove supporting paragraph from Multiplayer Quest create header.
+  - added_at: 2026-05-11 19:47 Europe/Stockholm
+  - completed_at: 2026-05-11 19:49 Europe/Stockholm
+  - source: Andreas highlighted the compact create header paragraph and requested removing it.
+  - Proof: `/groupquests/create` compact header keeps the title but removes the supporting paragraph text.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

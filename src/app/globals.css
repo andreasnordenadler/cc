@@ -1118,8 +1118,8 @@ p { color: var(--muted); line-height: 1.5; }
 
 .groupquests-create-minihero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, .58fr);
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 0;
   align-items: end;
   padding: clamp(18px, 3vw, 26px);
   background: radial-gradient(circle at 88% 0%, rgba(255, 204, 102, .16), transparent 34%), rgba(255,255,255,.075);
