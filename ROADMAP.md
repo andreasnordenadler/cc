@@ -412,6 +412,13 @@ Rules from this point:
   - Proof: `/groupquests/create` now combines browser `beforeunload` with a captured same-origin anchor click guard that confirms before internal navigation when unsaved. Save marks the draft saved before redirect.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-e19xs9bos-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous create smoke still redirects to sign-in with return URL; source checks confirmed `beforeunload`, internal anchor click guard, confirmation copy, and save-then-redirect escape path; Vercel error logs had no recent logs.
 
+- [x] Rework individual Multiplayer Side Quest page for participant competition focus.
+  - added_at: 2026-05-11 22:08 Europe/Stockholm
+  - completed_at: 2026-05-11 22:15 Europe/Stockholm
+  - source: Andreas said `/groupquests/80303` should focus on participant experience: competition/leaderboard, automatic proof checks, and graphical quest/seal treatment.
+  - Proof: dynamic `/groupquests/{id}` page is leaderboard-first, shows “how am I doing vs others,” automatic proof-check states, selected quest coat-of-arms graphics, SQC seal/trophy summary, share action, and participant-oriented rules/activity. Creator/admin controls are not the main participant page surface.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
