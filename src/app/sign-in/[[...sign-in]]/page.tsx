@@ -14,7 +14,7 @@ export default function SignInPage() {
             </p>
           </div>
           <div className="auth-lightweight-copy" aria-label="Lightweight sign-in notes">
-            <p><strong>Lightweight by design.</strong> We do not ask for your Lichess or Chess.com password.</p>
+            <p><strong>Lightweight by design.</strong> We do not need or ask for any Lichess or Chess.com passwords.</p>
             <p>Use a public chess username only. SQC checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</p>
             <p>You can browse Side Quests before signing in. Sign in when you want SQC to save progress, verify proof, or manage Multiplayer Quests.</p>
           </div>

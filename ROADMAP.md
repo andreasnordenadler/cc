@@ -88,6 +88,13 @@ Rules from this point:
   - Proof: sign-in left card has top-aligned headline and useful non-pill copy about no chess-site passwords, public usernames/games, minimal saved quest/proof progress, and when sign-in is needed.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-7o78ocoax-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` returns 200 with headline, `Lightweight by design.`, no-password reassurance, minimal-storage copy, and Multiplayer Quest sign-in context.
 
+- [x] Update sign-in no-password reassurance copy.
+  - added_at: 2026-05-11 15:23 Europe/Stockholm
+  - completed_at: 2026-05-11 15:25 Europe/Stockholm
+  - source: Andreas asked to change `We do not ask for your Lichess or Chess.com password.` to `We do not need or ask for any Lichess or Chess.com passwords.`
+  - Proof: `/sign-in` uses the requested exact sentence.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
