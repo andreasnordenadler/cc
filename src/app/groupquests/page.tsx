@@ -226,11 +226,11 @@ export default async function GroupQuestsPage() {
               </div>
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
                 <Image
-                  alt="Noble chess knights competing, with the winner holding a stamped proof scroll"
+                  alt="Noble men and women comically fighting around a chess table during a Multiplayer Side Quest"
                   className="groupquests-knight-competition-art"
                   height={720}
                   priority={false}
-                  src="/illustrations/group-side-quests-knight-competition.png"
+                  src="/illustrations/multiplayer-side-quests-noble-chess-chaos.svg"
                   width={960}
                 />
               </div>

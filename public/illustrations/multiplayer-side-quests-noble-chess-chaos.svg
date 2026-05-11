@@ -1,0 +1,156 @@
+<svg width="960" height="720" viewBox="0 0 960 720" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Noble chess chaos around a table</title>
+  <desc id="desc">Playful medieval nobles and a jester arguing around a chess table with pieces flying.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFE08A"/>
+      <stop offset="1" stop-color="#B87818"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9B5A28"/>
+      <stop offset="1" stop-color="#5F331D"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F05A4F"/>
+      <stop offset="1" stop-color="#8E1F27"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#67C68E"/>
+      <stop offset="1" stop-color="#176B4B"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#1B1209" flood-opacity="0.20"/>
+    </filter>
+    <style>
+      .line{stroke:#2A170C;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+      .thin{stroke:#2A170C;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .face{fill:#F2B982;stroke:#2A170C;stroke-width:6}
+      .ink{fill:#2A170C}
+      .cream{fill:#FFE8B8}
+      .piece{fill:#FFF1C7;stroke:#2A170C;stroke-width:5}
+      .blackpiece{fill:#2A170C;stroke:#2A170C;stroke-width:5}
+    </style>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <!-- Flying chess pieces and comic marks -->
+    <path d="M190 114c-34 18-44 42-35 74" class="thin" opacity=".65"/>
+    <path d="M746 96c35 18 52 44 42 78" class="thin" opacity=".65"/>
+    <path d="M477 78l16 34 35-8-23 28 22 29-37-8-20 32-4-37-36-10 34-16 1-38z" fill="url(#gold)" stroke="#2A170C" stroke-width="6"/>
+    <g transform="translate(690 126) rotate(22)">
+      <path d="M0 52h64l-7 34H8L0 52z" fill="url(#gold)" stroke="#2A170C" stroke-width="6"/>
+      <circle cx="10" cy="45" r="10" fill="#FFE08A" stroke="#2A170C" stroke-width="5"/>
+      <circle cx="32" cy="31" r="12" fill="#FFE08A" stroke="#2A170C" stroke-width="5"/>
+      <circle cx="55" cy="45" r="10" fill="#FFE08A" stroke="#2A170C" stroke-width="5"/>
+    </g>
+    <g transform="translate(224 126) rotate(-24)">
+      <path d="M18 60c0-24 12-40 27-40s27 16 27 40" class="piece"/>
+      <rect x="14" y="60" width="64" height="20" rx="6" class="piece"/>
+    </g>
+    <g transform="translate(600 88) rotate(18)">
+      <path d="M24 20h35v68H24z" class="blackpiece"/>
+      <circle cx="42" cy="15" r="15" class="blackpiece"/>
+    </g>
+
+    <!-- Back-left noble lady -->
+    <g transform="translate(110 170)">
+      <path d="M96 114c-42 16-67 58-76 124h168c-10-69-35-111-92-124z" fill="url(#red)" stroke="#2A170C" stroke-width="8"/>
+      <path d="M50 146c-40 8-67 29-84 63" class="line"/>
+      <path d="M173 158c32 2 60 20 83 55" class="line"/>
+      <circle cx="98" cy="80" r="48" class="face"/>
+      <path d="M51 79c13-46 78-67 112-27 12 14 16 33 9 52-18-18-32-42-39-70-16 34-48 48-82 45z" fill="#6B321D" stroke="#2A170C" stroke-width="6"/>
+      <path d="M78 89c11 8 25 8 36 0" class="thin"/>
+      <circle cx="77" cy="73" r="5" class="ink"/><circle cx="121" cy="73" r="5" class="ink"/>
+      <path d="M77 20l22-18 23 18 25-8-11 38H63L52 12l25 8z" fill="url(#gold)" stroke="#2A170C" stroke-width="6"/>
+      <path d="M-31 209l67-31" class="line"/>
+      <path d="M251 213l-80-42" class="line"/>
+      <path d="M245 213c18 4 31 15 40 32" class="thin"/>
+    </g>
+
+    <!-- Back-right offended nobleman -->
+    <g transform="translate(684 178)">
+      <path d="M22 126c13-44 43-72 90-82 48 10 78 38 90 82l21 126H1l21-126z" fill="#315DAA" stroke="#2A170C" stroke-width="8"/>
+      <path d="M73 110h78l-18 98H91l-18-98z" class="cream" stroke="#2A170C" stroke-width="6"/>
+      <circle cx="112" cy="62" r="45" class="face"/>
+      <path d="M70 57c10-39 65-58 91-26 11 14 10 33 4 49-13-20-38-30-73-28l-22 5z" fill="#5A2A18" stroke="#2A170C" stroke-width="6"/>
+      <path d="M91 77c12-9 31-9 43 0" class="thin"/>
+      <circle cx="92" cy="58" r="5" class="ink"/><circle cx="131" cy="58" r="5" class="ink"/>
+      <path d="M26 151c-45 7-77 33-98 78" class="line"/>
+      <path d="M199 148c44-3 77 11 99 42" class="line"/>
+      <g transform="translate(-103 218) rotate(-18)">
+        <path d="M0 0c24-14 51-11 71 7-17 23-44 30-72 20L0 0z" fill="#FFF1C7" stroke="#2A170C" stroke-width="6"/>
+      </g>
+    </g>
+
+    <!-- Jester left front -->
+    <g transform="translate(212 318)">
+      <path d="M23 119c22-37 55-55 99-55s78 18 102 55l16 154H3l20-154z" fill="url(#green)" stroke="#2A170C" stroke-width="8"/>
+      <path d="M118 62l-34 49h69l-35-49z" fill="#FFE8B8" stroke="#2A170C" stroke-width="6"/>
+      <circle cx="118" cy="50" r="42" class="face"/>
+      <path d="M78 45c12-39 67-48 88-11-28-10-54-5-78 15l-10-4z" fill="#3E2515" stroke="#2A170C" stroke-width="6"/>
+      <path d="M95 63c15 16 34 16 48 0" class="thin"/>
+      <circle cx="97" cy="44" r="5" class="ink"/><circle cx="137" cy="44" r="5" class="ink"/>
+      <path d="M60 14C32-20 6-19-15 11c22 3 39 14 50 33" fill="#D43F3A" stroke="#2A170C" stroke-width="6"/>
+      <path d="M117 1c-2-41 17-58 55-48-12 23-16 45-11 67" fill="#F2C94C" stroke="#2A170C" stroke-width="6"/>
+      <path d="M170 16c31-29 57-24 75 15-24-1-43 7-58 26" fill="#2D9A66" stroke="#2A170C" stroke-width="6"/>
+      <circle cx="-18" cy="10" r="10" fill="#F2C94C" stroke="#2A170C" stroke-width="5"/>
+      <circle cx="174" cy="-48" r="10" fill="#D43F3A" stroke="#2A170C" stroke-width="5"/>
+      <circle cx="247" cy="32" r="10" fill="#F2C94C" stroke="#2A170C" stroke-width="5"/>
+      <path d="M23 151c-46 7-80 30-103 69" class="line"/>
+      <path d="M225 154c31 12 52 36 63 73" class="line"/>
+    </g>
+
+    <!-- Chess table -->
+    <g transform="translate(286 376)">
+      <path d="M50 24h396c32 0 58 26 58 58v78H-8V82c0-32 26-58 58-58z" fill="url(#wood)" stroke="#2A170C" stroke-width="10"/>
+      <path d="M42 50h408v93H42z" fill="#F5D9A1" stroke="#2A170C" stroke-width="6"/>
+      <g opacity=".95">
+        <path d="M42 73h408M42 96h408M42 119h408M93 50v93M144 50v93M195 50v93M246 50v93M297 50v93M348 50v93M399 50v93" stroke="#5B341F" stroke-width="3"/>
+        <rect x="93" y="50" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="195" y="50" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="297" y="50" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="399" y="50" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="42" y="73" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="144" y="73" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="246" y="73" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="348" y="73" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="93" y="96" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="195" y="96" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="297" y="96" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+        <rect x="399" y="96" width="51" height="23" fill="#6B3D24" opacity=".35"/>
+      </g>
+      <path d="M40 162h59l-16 180H48L40 162z" fill="#5F331D" stroke="#2A170C" stroke-width="8"/>
+      <path d="M393 162h59l-10 180h-36l-13-180z" fill="#5F331D" stroke="#2A170C" stroke-width="8"/>
+      <g transform="translate(95 76)"><path d="M14 20c0-14 7-23 16-23s16 9 16 23" class="piece"/><rect x="9" y="20" width="42" height="13" rx="4" class="piece"/></g>
+      <g transform="translate(242 64)"><path d="M12 12h26v44H12z" class="blackpiece"/><circle cx="25" cy="9" r="10" class="blackpiece"/></g>
+      <g transform="translate(344 82) rotate(18)"><path d="M14 18c0-12 6-20 15-20s15 8 15 20" class="piece"/><rect x="8" y="18" width="42" height="13" rx="4" class="piece"/></g>
+    </g>
+
+    <!-- Front center noblewoman grabbing table -->
+    <g transform="translate(455 300)">
+      <path d="M-18 158c17-48 51-74 102-78 50 4 84 30 101 78l18 168H-36l18-168z" fill="#7D3DB8" stroke="#2A170C" stroke-width="8"/>
+      <path d="M46 120h73l-16 96H62l-16-96z" class="cream" stroke="#2A170C" stroke-width="6"/>
+      <circle cx="84" cy="70" r="48" class="face"/>
+      <path d="M36 74c-2-43 29-72 72-64 32 6 50 33 47 68-26-16-57-20-94-11l-25 7z" fill="#8A4A20" stroke="#2A170C" stroke-width="6"/>
+      <path d="M60 89c15 11 34 11 49 0" class="thin"/>
+      <circle cx="61" cy="70" r="5" class="ink"/><circle cx="108" cy="70" r="5" class="ink"/>
+      <path d="M3 176c-55-6-91 6-112 36" class="line"/>
+      <path d="M167 176c53-7 89 4 112 34" class="line"/>
+      <path d="M-104 214c21 5 35 17 42 35" class="thin"/>
+      <path d="M273 211c-21 6-34 18-40 36" class="thin"/>
+    </g>
+
+    <!-- Front-right stern noble with pointing finger -->
+    <g transform="translate(650 336)">
+      <path d="M24 118c23-43 57-64 103-64 48 0 82 21 104 64l28 180H-4l28-180z" fill="#D98A2B" stroke="#2A170C" stroke-width="8"/>
+      <circle cx="126" cy="47" r="44" class="face"/>
+      <path d="M82 41c11-36 54-52 89-28 19 13 25 33 17 58-18-18-37-30-57-36-15 14-31 18-49 6z" fill="#3A2114" stroke="#2A170C" stroke-width="6"/>
+      <path d="M109 64c14-6 28-6 42 0" class="thin"/>
+      <circle cx="106" cy="47" r="5" class="ink"/><circle cx="148" cy="47" r="5" class="ink"/>
+      <path d="M40 141c-60 8-104 35-132 82" class="line"/>
+      <path d="M-96 222c-20 8-39 6-57-7" class="thin"/>
+      <path d="M226 142c37 8 66 33 87 74" class="line"/>
+      <path d="M316 216l40 4" class="thin"/>
+    </g>
+  </g>
+</svg>
