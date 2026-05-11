@@ -304,7 +304,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:07 Europe/Stockholm
   - source: Andreas liked the picker but asked for `Done Choosing` to be at the bottom and perhaps just `Done`.
   - Proof: when the side-quest picker is closed the top button reads `Add / edit side quests`; when open, the completion action is a bottom button labeled `Done`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-5rik6s1nt-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed bottom `Done`, removal of `Done choosing`, and top closed-state `Add / edit side quests`; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
