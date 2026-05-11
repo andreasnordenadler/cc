@@ -74,6 +74,13 @@ Rules from this point:
   - Proof: sign-in page no longer shows the `User login` eyebrow pill or the three reassurance pills; sign-up page received the same cleanup for consistency.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-dgddzxitb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` no longer includes `User login` or the three reassurance pill texts, and `/sign-up` no longer includes `Create user profile` or its reassurance pill texts.
 
+- [x] Match auth left copy card height to right sign-in card.
+  - added_at: 2026-05-11 15:05 Europe/Stockholm
+  - completed_at: 2026-05-11 15:07 Europe/Stockholm
+  - source: Andreas showed the sign-in page and asked to match the size of the left section to the right.
+  - Proof: desktop auth layout now uses stretched/equal-height columns; left copy card has reduced heading scale, tighter copy rhythm, and centered compact content to visually match the right sign-in form card.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
