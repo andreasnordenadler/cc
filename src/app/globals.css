@@ -1192,6 +1192,6 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-preview-rule-grid span { color: var(--ink); font-size: .84rem; font-weight: 900; overflow-wrap: anywhere; }
 @media (max-width: 620px) { .groupquests-preview-rule-grid { grid-template-columns: 1fr; } }
 
-.groupquests-create-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; padding: 12px 0 0; }
-.groupquests-create-actions .button { width: max-content; }
+.groupquests-create-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 12px 0 0; }
+.groupquests-create-actions .button { width: max-content; min-width: 260px; }
 @media (max-width: 760px) { .groupquests-create-actions { justify-content: stretch; } .groupquests-create-actions .button { width: 100%; } }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type BuilderQuest = {
   id: string;
@@ -109,7 +109,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     rated: "Any rated state",
     color: "Any color",
   });
-  const [inviteCopied, setInviteCopied] = useState(false);
+  const hasSavedRef = useRef(false);
 
   const selectedQuests = useMemo(
     () => quests.filter((quest) => selectedQuestIds.includes(quest.id)),
@@ -126,10 +126,21 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   ];
   const scheduleLabel = `${formatDateTimeLabel(startAt)} → ${formatDateTimeLabel(endAt)}`;
 
+  useEffect(() => {
+    function warnBeforeLeaving(event: BeforeUnloadEvent) {
+      if (hasSavedRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    }
+
+    window.addEventListener("beforeunload", warnBeforeLeaving);
+    return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
+  }, []);
+
   function saveMultiplayerSideQuest() {
+    hasSavedRef.current = true;
     window.location.href = `/groupquests/${publicId}`;
   }
-
 
   function toggleQuest(questId: string) {
     setSelectedQuestIds((current) => {
@@ -140,13 +151,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     });
   }
 
-  function copyInviteText() {
-    const inviteText = `Join my Side Quest Chess Multiplayer Side Quest: ${name.trim() || "Untitled Multiplayer Side Quest"} — ${shareUrl}`;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(inviteText).catch(() => undefined);
-    }
-    setInviteCopied(true);
-  }
 
   return (
     <div className="groupquests-builder-shell">
@@ -319,9 +323,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
 
       <div className="groupquests-create-actions" aria-label="Create Multiplayer Side Quest actions">
         <button className="button primary" onClick={saveMultiplayerSideQuest} type="button">Save Multiplayer Side Quest</button>
-        <button className="button secondary" onClick={copyInviteText} type="button">
-          {inviteCopied ? "Invite text copied" : "Copy invite text"}
-        </button>
       </div>
     </div>
   );

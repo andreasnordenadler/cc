@@ -2974,3 +2974,27 @@ Use tool-level `timeout` on `exec`, Vercel `--no-follow`, or a small Python/perl
 - Reproducible: yes
 
 ---
+
+## [ERR-20260511-006] brittle text replacement missed changed schedule block
+
+**Logged**: 2026-05-11T21:55:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+A targeted Python replacement for adding the unsaved-exit warning failed because the exact schedule block text had changed.
+
+### Error
+```
+insert point not found
+```
+
+### Suggested Fix
+For fast UI iterations, inspect the current nearby source before using exact multiline replacements, or use smaller stable anchors.
+
+### Metadata
+- Reproducible: no
+- Related Files: src/components/group-quest-draft-builder.tsx
+
+---

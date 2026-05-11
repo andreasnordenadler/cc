@@ -391,6 +391,13 @@ Rules from this point:
   - acceptance: Save creates a database record with selected quests, schedule, visibility, rules, owner user ID, and stable numeric public ID; `/groupquests/{id}` resolves persisted data; host controls render only for the creator/owner.
   - blocked_until: persistence/schema implementation.
 
+- [x] Clean up Multiplayer Quest create save action and unsaved-exit warning.
+  - added_at: 2026-05-11 21:52 Europe/Stockholm
+  - completed_at: 2026-05-11 22:00 Europe/Stockholm
+  - source: Andreas asked to remove `Copy invite text` from create, keep it for the unique page, center `Save Multiplayer Side Quest`, and warn if users exit create before saving.
+  - Proof: create page action row contains only centered `Save Multiplayer Side Quest`; copy-invite button moved to the unique page as `Copy invite text`; browser beforeunload warning appears if the user leaves/reloads before saving; save disables the warning before redirecting to the numeric URL.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

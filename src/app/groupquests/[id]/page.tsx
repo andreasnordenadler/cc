@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 
@@ -87,7 +88,7 @@ export default async function GroupQuestByIdPage({ params }: { params: Promise<{
             </div>
             <div className="button-row">
               <button className="button primary" type="button">Submit game link</button>
-              <button className="button secondary" type="button">Copy share URL</button>
+              <GroupQuestShareButton questName="No Castle Night" shareUrl={shareUrl} />
             </div>
           </article>
 
