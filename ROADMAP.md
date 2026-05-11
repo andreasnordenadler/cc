@@ -333,7 +333,7 @@ Rules from this point:
   - completed_at: 2026-05-11 21:16 Europe/Stockholm
   - source: Andreas asked whether the side-quest picker should display all available quests instead of a limited subset.
   - Proof: `/groupquests/create` passes all `CHALLENGES` into the picker instead of slicing to the first 8, so Add/Edit can choose from the complete current Side Quest catalogue.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-6pxxg2wnu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source check confirmed `CHALLENGES.map` with no first-8 slice; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
