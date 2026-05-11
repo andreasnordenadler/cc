@@ -125,7 +125,7 @@ export default async function GroupQuestsPage() {
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
                   <h2>What needs me?</h2>
-                  <p>Active rooms first. Finished rooms stay out of the way until you need results.</p>
+                  <p>Active Multiplayer Quests first. Finished Multiplayer Quests stay out of the way until you need results.</p>
                 </div>
                 <div className="groupquests-dashboard-actions">
                   <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
@@ -154,13 +154,13 @@ export default async function GroupQuestsPage() {
               <div className="groupquests-compact-invite" id="join-group-side-quest">
                 <div>
                   <strong>Have an invite link?</strong>
-                  <p>Open the link directly. The room page shows rules before anything counts.</p>
+                  <p>Open the link directly. The Multiplayer Quest page shows rules before anything counts.</p>
                 </div>
-                <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview invite room</Link>
+                <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview invite quest</Link>
               </div>
 
-              <div className="groupquests-scalable-dashboard" aria-label="Your Multiplayer Side Quest rooms">
-                <section className="groupquests-room-list-panel" aria-label="Active Multiplayer Side Quest rooms">
+              <div className="groupquests-scalable-dashboard" aria-label="Your Multiplayer Quests">
+                <section className="groupquests-room-list-panel" aria-label="Active Multiplayer Quests">
                   <div className="section-head compact">
                     <div>
                       <h3>Active</h3>
@@ -184,7 +184,7 @@ export default async function GroupQuestsPage() {
                   </div>
                 </section>
 
-                <aside className="groupquests-history-panel" aria-label="Finished Multiplayer Side Quest rooms">
+                <aside className="groupquests-history-panel" aria-label="Finished Multiplayer Quests">
                   <div className="section-head compact">
                     <div>
                       <h3>Finished</h3>
@@ -221,7 +221,7 @@ export default async function GroupQuestsPage() {
                   Multiplayer Side Quests turn normal chess nights into a shared challenge: one player creates a Multiplayer Side Quest, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.
                 </p>
                 <p>
-                  Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the multiplayer room only counts proof earned inside that Multiplayer Side Quest.
+                  Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the Multiplayer Quest only counts proof earned inside that Multiplayer Side Quest.
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">

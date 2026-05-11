@@ -50,7 +50,7 @@ export default async function MyQuestLogPage() {
     {
       title: "Beginner Chaos Ladder",
       status: "Starting soon",
-      copy: "Confirm Blitz 5+3 rules before the room opens",
+      copy: "Confirm Blitz 5+3 rules before this Multiplayer Quest opens",
       href: "/groupquests/gq_demo_no_castle_01",
       action: "Review rules",
     },
@@ -114,10 +114,10 @@ export default async function MyQuestLogPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Active Multiplayer Quests</span>
-              <h2>Rooms that need you.</h2>
-              <p>Multiplayer rooms live here with your solo quest, so My Side Quests is the command center.</p>
+              <h2>Multiplayer Quests that need you.</h2>
+              <p>Multiplayer Quests live here with your solo quest, so My Side Quests is the command center.</p>
             </div>
-            <Link href="/groupquests" className="button secondary">All multiplayer rooms</Link>
+            <Link href="/groupquests" className="button secondary">All Multiplayer Quests</Link>
           </div>
           <div className="my-group-quest-list">
             {activeGroupQuests.map((quest) => (

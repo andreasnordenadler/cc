@@ -69,6 +69,13 @@ Rules from this point:
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
+- [x] Replace user-facing “room(s)” metaphor with Multiplayer Quest(s).
+  - added_at: 2026-05-11 09:55 Europe/Stockholm
+  - completed_at: 2026-05-11 09:57 Europe/Stockholm
+  - source: Andreas questioned whether “room/rooms” adds unnecessary metaphor and suggested simply using “Multiplayer Quest/Multiplayer Quests”.
+  - Proof: visible copy on `/challenges`, `/account`, and `/groupquests` now uses Multiplayer Quest(s) instead of room(s) where referring to the product object; internal variable/class names remain.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 - [x] Sweep leftover public “group” terminology after Multiplayer rename.
   - added_at: 2026-05-11 09:50 Europe/Stockholm
   - completed_at: 2026-05-11 09:53 Europe/Stockholm
