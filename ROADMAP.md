@@ -198,7 +198,7 @@ Rules from this point:
   - completed_at: 2026-05-11 18:56 Europe/Stockholm
   - source: Andreas showed the logged-out `/groupquests` `Join with invite link` section and asked to remove it.
   - Proof: logged-out `/groupquests` no longer renders the `Join with invite link` / example invite section; no internal page link targets the removed anchor.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-2mltz4fa5-andreas-nordenadlers-projects.vercel.app` completed; smoke confirmed `/groupquests` returns 200, no longer includes `Join with invite link`, `Review the rules before your proof counts.`, `Example invite`, or `join-group-side-quest`, and keeps `A tiny chess tournament for bad ideas.` intact.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
