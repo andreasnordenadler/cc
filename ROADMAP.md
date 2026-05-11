@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:36 Europe/Stockholm
   - source: Andreas said the new solo/group hub is much better but takes too much space, and asked to keep all texts while making it more compact.
   - Proof: `/challenges` mode cards keep all existing copy but use tighter card padding, smaller eyebrow/button treatments, more compact heading/body line-height, and desktop button placement beside the copy to reduce vertical height.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed and built `/challenges`; production deploy `https://cc-jvwjf9p8o-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges` returns 200 and retains all solo/group mode text.
 
 - [x] Unify Side Quests / Group Side Quests / My Side Quests IA.
   - added_at: 2026-05-11 09:26 Europe/Stockholm
