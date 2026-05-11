@@ -172,6 +172,13 @@ Rules from this point:
   - Proof: signed-out homepage Multiplayer Side Quests callout CTA reads `Join Multiplayer Side Quests`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-1glllut85-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` includes `Join Multiplayer Side Quests` and no longer includes `Browse Multiplayer Side Quests`.
 
+- [x] Remove remaining Browse wording from homepage multiplayer callout.
+  - added_at: 2026-05-11 18:45 Europe/Stockholm
+  - completed_at: 2026-05-11 18:47 Europe/Stockholm
+  - source: Andreas caught remaining `Browse public Multiplayer Side Quests...` wording after the CTA was changed to Join.
+  - Proof: homepage multiplayer callout body no longer uses `Browse`; it says `Join public Multiplayer Side Quests...`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

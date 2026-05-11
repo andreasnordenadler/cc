@@ -334,3 +334,12 @@ When simplifying SQC pages, remove heavy explanatory blocks first but preserve c
 Andreas corrected the Multiplayer Side Quest flow: it must include an explicit **Invite** stage between Create and Play.
 
 **Do differently**: For multiplayer flows, always represent the social handoff/invite step explicitly instead of folding it into Create.
+
+## [LRN-20260511-002] correction
+
+**Logged**: 2026-05-11T18:45:00+02:00
+**Priority**: low
+
+Andreas corrected that changing a CTA away from `Browse` is not enough if nearby body copy still says `Browse`.
+
+**Do differently**: When terminology is changed for intent/tone, grep the full page for the old word and update nearby supporting copy too.
