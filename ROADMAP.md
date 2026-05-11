@@ -74,7 +74,7 @@ Rules from this point:
   - completed_at: 2026-05-11 09:58 Europe/Stockholm
   - source: Andreas showed the two `/challenges` hub cards and asked for the buttons to be placed in the same position and have the same yellow color.
   - Proof: both solo and multiplayer card CTAs are yellow primary buttons and CSS aligns them consistently at the card bottom/right on desktop, bottom/start on mobile.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-heoawhmla-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/challenges` returns 200, both CTAs are present, and the multiplayer CTA no longer uses `button secondary`.
 
 - [x] Replace user-facing “room(s)” metaphor with Multiplayer Quest(s).
   - added_at: 2026-05-11 09:55 Europe/Stockholm
