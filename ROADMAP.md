@@ -208,6 +208,13 @@ Rules from this point:
   - follow_up: future create/manage flow should include a public listing option for hosts (`public anyone can enter`) beyond invite-only/private modes.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-gc2qjmsx2-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` includes `Join a Public Multiplayer Side Quest`, `Find public Multiplayer Side Quests`, `Join public quest`, and no longer includes `See how it works` or `View the flow`.
 
+- [x] Use full width for four Multiplayer flow subsections.
+  - added_at: 2026-05-11 19:07 Europe/Stockholm
+  - completed_at: 2026-05-11 19:09 Europe/Stockholm
+  - source: Andreas showed the `Create. Invite. Play. Prove.` section and said it looks weird; use the full space with the four subsections.
+  - Proof: `/groupquests` flow grid uses four equal columns on desktop so Create/Invite/Play/Prove fill the card width cleanly.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
