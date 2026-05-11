@@ -262,7 +262,7 @@ Rules from this point:
   - completed_at: 2026-05-11 19:44 Europe/Stockholm
   - source: Andreas saw the stripped `/groupquests/create` page and said it probably needs a hero header, something SQC-funny.
   - Proof: `/groupquests/create` has a compact header with SQC-style funny copy (`Build a chess dare. Blame your friends later.`), without restoring the large explainer/checklist or builder stage rail.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-msbhrf7l5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed compact funny header is present, old big hero and stage rail remain absent; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
