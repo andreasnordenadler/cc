@@ -179,6 +179,13 @@ Rules from this point:
   - Proof: homepage multiplayer callout body no longer uses `Browse`; it says `Join public Multiplayer Side Quests...`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-7wtuh82x3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` includes the new `Join public Multiplayer Side Quests...` body copy and no longer includes `Browse public Multiplayer Side Quests`.
 
+- [x] Restore graphic in logged-out Multiplayer story section.
+  - added_at: 2026-05-11 18:49 Europe/Stockholm
+  - completed_at: 2026-05-11 18:51 Europe/Stockholm
+  - source: Andreas started a pass on non-logged-in `/groupquests` and noted the graphic is missing from the `A tiny chess tournament for bad ideas.` section.
+  - Proof: logged-out `/groupquests` story card renders a contained Multiplayer Side Quest graphic beside the `A tiny...` copy instead of leaving the right side blank.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

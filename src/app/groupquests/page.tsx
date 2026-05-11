@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
@@ -226,6 +227,16 @@ export default async function GroupQuestsPage() {
                 <p>
                   Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the Multiplayer Quest only counts proof earned inside that Multiplayer Side Quest.
                 </p>
+              </div>
+              <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
+                <Image
+                  alt="Noble men and women comically arguing around a chess table during a Multiplayer Side Quest"
+                  className="groupquests-knight-competition-art"
+                  height={1024}
+                  priority={false}
+                  src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png"
+                  width={1024}
+                />
               </div>
             </section>
 
