@@ -248,14 +248,14 @@ Rules from this point:
   - completed_at: 2026-05-11 19:38 Europe/Stockholm
   - source: Andreas corrected that I removed the wrong section from `/groupquests/create`.
   - Proof: restored the `Create flow` checklist/explainer section and logged the correction; next screenshot-based removal should confirm exact target if ambiguous.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-85pgoicti-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects anonymous users to sign-in with return URL; source checks confirmed hero, create-flow explainer, and stage rail are removed; Vercel error logs had no recent logs.
 
 - [x] Simplify logged-in Multiplayer Quest create page by removing intro chrome.
   - added_at: 2026-05-11 19:38 Europe/Stockholm
   - completed_at: 2026-05-11 19:40 Europe/Stockholm
   - source: Andreas clarified that both the top hero/intro area and the stage rail/checklist can be removed from logged-in `/groupquests/create`.
   - Proof: `/groupquests/create` keeps auth gating and the actual builder, but removes the top hero, create-flow explainer/checklist, and builder stage rail so logged-in hosts get straight to creating.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-85pgoicti-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/create` still redirects anonymous users to sign-in with return URL; source checks confirmed hero, create-flow explainer, and stage rail are removed; Vercel error logs had no recent logs.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
