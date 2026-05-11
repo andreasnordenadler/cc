@@ -81,6 +81,13 @@ Rules from this point:
   - Proof: desktop auth layout now uses stretched/equal-height columns; left copy card has reduced heading scale, tighter copy rhythm, and centered compact content to visually match the right sign-in form card.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ane5bghzq-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/sign-in` returns 200 with auth layout classes and copy still present.
 
+- [x] Fill sign-in copy card with lightweight privacy reassurance.
+  - added_at: 2026-05-11 15:10 Europe/Stockholm
+  - completed_at: 2026-05-11 15:13 Europe/Stockholm
+  - source: Andreas said the sign-in left card became too empty, asked to keep the headline at the top and add more text explaining what SQC does not ask for/store so users understand login is lightweight.
+  - Proof: sign-in left card has top-aligned headline and useful non-pill copy about no chess-site passwords, public usernames/games, minimal saved quest/proof progress, and when sign-in is needed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

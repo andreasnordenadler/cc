@@ -473,6 +473,7 @@ p { color: var(--muted); line-height: 1.5; }
 .auth-wrap { grid-template-columns: minmax(0, 1fr) minmax(320px, 420px); align-items: stretch; }
 .auth-card { display: grid; place-items: center; padding: 18px; border: 1px solid rgba(255,255,255,.14); border-radius: 30px; background: rgba(255,255,255,.075); }
 .auth-copy-card { display: grid; align-content: center; padding-block: 18px; }
+.auth-copy-card-filled { align-content: start; gap: 18px; }
 .auth-copy-card h1 { font-size: clamp(2.1rem, 5vw, 3.9rem); line-height: .9; }
 .auth-copy-card .hero-copy { font-size: clamp(.95rem, 1.15vw, 1.05rem); line-height: 1.38; }
 .input-card textarea { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 17px; background: rgba(0,0,0,.24); color: var(--ink); padding: 13px 14px; resize: vertical; }
@@ -1091,3 +1092,7 @@ p { color: var(--muted); line-height: 1.5; }
   .side-quest-mode-card { grid-template-rows: auto auto minmax(48px, 1fr); }
   .side-quest-mode-card .button { align-self: end; justify-self: end; }
 }
+
+.auth-lightweight-copy { display: grid; gap: 10px; margin-top: 4px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.12); }
+.auth-lightweight-copy p { color: var(--muted); font-size: clamp(.9rem, 1.08vw, 1rem); line-height: 1.42; }
+.auth-lightweight-copy strong { color: var(--ink); font-weight: 950; }
