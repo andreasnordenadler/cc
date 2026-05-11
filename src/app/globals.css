@@ -279,6 +279,7 @@ p { color: var(--muted); line-height: 1.5; }
 
 /* Homepage simplification from beta feedback: fewer nested cards, logo-led brand, clearer terms. */
 .simplified-home-hero { position: relative; overflow: hidden; }
+.simplified-home-hero h1 { font-size: clamp(2.35rem, 6.2vw, 4.85rem); line-height: .88; }
 .hero-logo-lockup.compact { width: min(210px, 56vw); margin-bottom: 10px; }
 .launch-home-hero .side-card { align-content: start; }
 .clear-steps .step { background: rgba(0,0,0,.26); border: 1px solid rgba(255,255,255,.1); }

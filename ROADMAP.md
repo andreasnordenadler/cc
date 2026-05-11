@@ -158,6 +158,13 @@ Rules from this point:
   - Proof: homepage hero and signed-out explanatory copy mention solo and Multiplayer Side Quests; signed-out homepage includes a lightweight Multiplayer Side Quests callout linking to `/groupquests`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ly77rsusk-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/` includes `solo or multiplayer`, Multiplayer Side Quest copy, `Same nonsense, now with witnesses.`, `Browse Multiplayer Side Quests`, and multiplayer leaderboard proof language.
 
+- [x] Reduce homepage hero headline font size.
+  - added_at: 2026-05-11 18:39 Europe/Stockholm
+  - completed_at: 2026-05-11 18:41 Europe/Stockholm
+  - source: Andreas asked to make `Chess, but with stupidly hard side quests — solo or multiplayer.` smaller.
+  - Proof: homepage main hero headline keeps the exact text but uses a smaller responsive font size than the global `h1`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.
