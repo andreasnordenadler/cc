@@ -221,7 +221,7 @@ Rules from this point:
   - source: Andreas asked what happens when clicking `Join Public Side Quest`, requested button text change, and suggested a mockup list of public multiplayer side quests.
   - Proof: logged-out `/groupquests` action button reads `Join Public Side Quest` and links to `/groupquests/public`; `/groupquests/public` renders a mock public Multiplayer Side Quest listing with multiple rows, rules/window metadata, and inspect/join links.
   - follow_up: add real host public-listing setting and real public join/entry flow later.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-45srzps05-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` includes `Join Public Side Quest` linking to `/groupquests/public`, and `/groupquests/public` returns 200 with `Join a public bad idea.`, mock rows including `No Castle Night`, `Knights Before Coffee Ladder`, and `Inspect and join`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
