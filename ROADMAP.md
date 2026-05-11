@@ -349,6 +349,20 @@ Rules from this point:
   - Proof: removed the Variant dropdown from create rules; create copy and participant preview state that Multiplayer Side Quests use standard chess only for now.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ks9rz9az4-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed variant dropdown/options removed and standard-only copy/preview present; Vercel error logs had no recent logs.
 
+- [x] Simplify Multiplayer Quest participant preview and use numeric share URL.
+  - added_at: 2026-05-11 21:34 Europe/Stockholm
+  - completed_at: 2026-05-11 21:37 Europe/Stockholm
+  - source: Andreas said Participant Preview may include too much; `Locked Rules` is probably not needed; share link should be a complete URL; each Multiplayer Side Quest should have a unique numeric ID that is also the URL.
+  - Proof: preview removes `Locked rules`, shows a complete `https://sidequestchess.com/groupquests/{numericId}` share URL, and mock local drafts use the numeric ID instead of a mutable name slug.
+  - follow_up: when Multiplayer Side Quests become persisted, generate real unique numeric IDs server-side and route detail pages by that ID.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed. Deploy/smoke pending.
+
+- [ ] Generate real persisted numeric IDs for Multiplayer Side Quest URLs.
+  - added_at: 2026-05-11 21:34 Europe/Stockholm
+  - source: Follow-up from Andreas preference that each Multiplayer Side Quest should have a unique number that is shareable and is also the URL.
+  - acceptance: persisted Multiplayer Side Quest records get stable unique numeric public IDs; invite/detail/share routes resolve by numeric ID; IDs do not change when the title changes.
+  - blocked_until: real Multiplayer Side Quest persistence is implemented.
+
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
 - [x] Gate Multiplayer Quest creation/management behind login.

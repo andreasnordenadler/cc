@@ -17,7 +17,7 @@ type DraftRoom = {
   inviteMode: string;
   schedule: string;
   mandatoryRules: string[];
-  slug: string;
+  publicId: string;
 };
 
 const inviteModes = [
@@ -100,12 +100,10 @@ const gameRuleGroups = [
   },
 ];
 
-function slugFromName(name: string) {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "") || "new-group-quest";
+function publicIdFromName(name: string) {
+  const source = name.trim() || "new multiplayer side quest";
+  const hash = Array.from(source).reduce((total, char) => (total * 31 + char.charCodeAt(0)) % 90000, 0);
+  return String(10000 + hash).slice(0, 5);
 }
 
 export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQuest[] }) {
@@ -130,7 +128,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   );
   const selectedQuestTitles = selectedQuests.map((quest) => quest.title);
   const selectedInviteMode = inviteModes.find((mode) => mode.id === inviteMode) ?? inviteModes[0];
-  const draftSlug = slugFromName(name);
+  const publicId = publicIdFromName(name);
+  const shareUrl = `https://sidequestchess.com/groupquests/${publicId}`;
   const mandatoryRules = gameRuleGroups
     .map((group) => rules[group.id])
     .filter((rule) => rule && !rule.startsWith("Any"));
@@ -140,13 +139,13 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     const roomName = name.trim() || "Untitled Multiplayer Side Quest";
     setDraftRooms((rooms) => [
       {
-        id: `${draftSlug}-${rooms.length + 1}`,
+        id: `${publicId}-${rooms.length + 1}`,
         name: roomName,
         questTitles: selectedQuestTitles.length > 0 ? selectedQuestTitles : ["No side quest selected"],
         inviteMode: selectedInviteMode.label,
         schedule: scheduleLabel,
         mandatoryRules,
-        slug: draftSlug,
+        publicId,
       },
       ...rooms,
     ]);
@@ -164,7 +163,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   }
 
   function copyInviteText() {
-    const inviteText = `Join my Side Quest Chess Multiplayer Side Quest: ${name.trim() || "Untitled Multiplayer Side Quest"} — /groupquests/${draftSlug}`;
+    const inviteText = `Join my Side Quest Chess Multiplayer Side Quest: ${name.trim() || "Untitled Multiplayer Side Quest"} — ${shareUrl}`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(inviteText).catch(() => undefined);
     }
@@ -330,16 +329,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </div>
           </div>
           <div className="groupquests-preview-link">
-            <strong>Share link</strong>
-            <span>/groupquests/{draftSlug}</span>
-          </div>
-          <div className="groupquests-rules-preview">
-            <strong>Locked rules</strong>
-            {mandatoryRules.length > 0 ? (
-              <div>{mandatoryRules.map((rule) => <span key={rule}>{rule}</span>)}</div>
-            ) : (
-              <p>No provider settings are mandatory yet.</p>
-            )}
+            <strong>Public ID + share URL</strong>
+            <span>{shareUrl}</span>
           </div>
           <div className="groupquests-maintenance-preview">
             <strong>Host maintenance preview</strong>
@@ -355,7 +346,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               {inviteCopied ? "Invite text copied" : "Copy invite text"}
             </button>
           </div>
-          <p className="proof-line">Preview only — saved Multiplayer Side Quests will use this quest stack, schedule, rules summary, and maintenance state.</p>
+          <p className="proof-line">Preview only — saved Multiplayer Side Quests will use a stable numeric public ID for sharing.</p>
         </aside>
       </div>
 
@@ -387,7 +378,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                     <div>{room.mandatoryRules.map((rule) => <span key={rule}>{rule}</span>)}</div>
                   </div>
                 ) : null}
-                <p className="proof-line">Share link preview: /groupquests/{room.slug}</p>
+                <p className="proof-line">Share link preview: https://sidequestchess.com/groupquests/{room.publicId}</p>
               </article>
             ))}
           </div>
