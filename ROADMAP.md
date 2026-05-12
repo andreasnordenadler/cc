@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 20:53 Europe/Stockholm
+Last updated: 2026-05-12 20:58 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -714,6 +714,13 @@ Rules from this point:
   - added_at: 2026-05-12 20:53 Europe/Stockholm
   - source: follow-up needed after participant finish/ended states so creators can see final status and share results separately from participant view.
   - Scope: creator-facing final controls for sharing results, copying invite/final link, resolving ties/edge cases if needed, and reviewing verifier events.
+
+- [x] Record provisional Multiplayer finish canon: soft finish, not instant event end.
+  - added_at: 2026-05-12 20:58 Europe/Stockholm
+  - completed_at: 2026-05-12 20:58 Europe/Stockholm
+  - source: Andreas was not 100% convinced but agreed it would be boring if someone finished all quests super fast and the whole event immediately ended.
+  - Product rule: first player to complete all included Side Quests wins/locks gold, but the Multiplayer Side Quest remains open until the deadline for silver, bronze, points, and final rank. At the deadline, final standings lock. If nobody completes all included Side Quests before the deadline, highest points at deadline wins gold.
+  - Copy direction: avoid implying the event ends when gold is claimed. Use language like `Gold can be claimed early. Everyone keeps playing until the deadline for silver, bronze, and final rank.`
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
