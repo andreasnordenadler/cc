@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:50 Europe/Stockholm
+Last updated: 2026-05-12 17:47 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -685,6 +685,13 @@ Rules from this point:
   - source: Andreas asked for an option somewhere near the bottom of the Multiplayer Side Quest page to leave the challenge, with a confirmation prompt in a funny Side Quest Chess style.
   - Proof: accepted participant page now renders a subtle bottom `Leave this Side Quest` action. Clicking it opens a humorous confirmation prompt; confirming clears the local participant setup for that group quest and routes back to the invite/onboarding page.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-pnsw9s9a6-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `Leave this Side Quest` and `groupquest-leave-zone`; source inspection confirmed the funny confirmation prompt, localStorage removal, and route back to `/groupquests/{id}`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Remove first-place leaderboard row highlight.
+  - added_at: 2026-05-12 17:47 Europe/Stockholm
+  - completed_at: 2026-05-12 17:47 Europe/Stockholm
+  - source: Andreas said there is no need to highlight the top user on the Multiplayer leaderboard.
+  - Proof: removed the `.groupquest-leaderboard-row.gold` special border/background styling; the gold placement seal remains, but first-place row now uses the standard row treatment.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

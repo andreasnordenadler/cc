@@ -1275,7 +1275,6 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-leaderboard-row summary::-webkit-details-marker { display: none; }
 .groupquest-leaderboard-row summary::after { content: "View finish times"; grid-column: 1 / -1; justify-self: start; color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
 .groupquest-leaderboard-row[open] summary::after { content: "Hide finish times"; }
-.groupquest-leaderboard-row.gold { border-color: rgba(245,200,106,.36); background: linear-gradient(90deg, rgba(245,200,106,.13), rgba(0,0,0,.14)); }
 .groupquest-leaderboard-row.green { border-color: rgba(96,240,175,.32); background: linear-gradient(90deg, rgba(96,240,175,.12), rgba(0,0,0,.14)); }
 .groupquest-rank { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.15); color: var(--gold); font-weight: 1000; overflow: hidden; }
 .groupquest-rank img { width: 42px; height: 42px; object-fit: contain; display: block; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }
