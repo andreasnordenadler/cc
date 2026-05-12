@@ -698,7 +698,7 @@ Rules from this point:
   - completed_at: 2026-05-12 20:48 Europe/Stockholm
   - source: Andreas pointed out the bottom `Leave this Side Quest` control was rendering like a default browser button and should match the site style, likely yellow/gold.
   - Proof: added `groupquest-leave-zone` / `groupquest-leave-button` CSS so the leave action renders as a rounded gold Side Quest Chess-style button with hover/focus treatment.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-l2ry5eqsc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `Leave this Side Quest`, `groupquest-leave-button`, and `groupquest-leave-zone`; CSS inspection confirmed gold gradient button styling; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
