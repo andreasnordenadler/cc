@@ -478,7 +478,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:02 Europe/Stockholm
   - source: Andreas showed the cleaned seal/date summary and said it still looked cluttered.
   - Proof: reduced seal size, tightened the summary min-height/gaps, made Start/End compact two-column metadata, softened labels, and reduced participant count emphasis so the summary reads as one quiet supporting block instead of three competing elements.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-811rf4q5b-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with black seal, compact date stack, participant count, and start/end dates; `/groupquests/80303?accepted=1` returns 200; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
