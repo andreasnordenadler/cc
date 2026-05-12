@@ -748,7 +748,7 @@ Rules from this point:
   - completed_at: 2026-05-12 21:29 Europe/Stockholm
   - source: Andreas wanted the public podium scroll to feel like the single Side Quest victory scroll image: show the coat of arms for completed quests, remove points emphasis, include completion date/time, and perhaps list users beaten in SQC wording.
   - Proof: full scroll modal now replaces points with completion timestamp, renders completed quest coat-of-arms cards with per-quest completion times, and adds a `Players bested on the road` SQC-flavored section. Leaderboard passes each quest badge image/name into the scroll component.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ca3i6ydjb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains mini scroll, final completion timestamp, completed quest badge assets, and no `Points</dt>` in scroll markup; source inspection confirmed modal-only `groupquest-scroll-quest-coats` and `Players bested on the road`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
