@@ -50,13 +50,11 @@ const leaderboardPreview = [
 ];
 
 const eventFeed = [
-  { time: "13:38", label: "Proof accepted", copy: "CoffeeKnight completed Rookless Rampage and moved into first." },
-  { time: "13:12", label: "Refresh check", copy: "QueenlessHero's latest public game passed No Castle Club rules." },
-  { time: "12:44", label: "Your proof", copy: "Knights Before Coffee verified for your entry." },
-  { time: "12:21", label: "Proof accepted", copy: "QueenlessHero completed No Castle Club." },
-  { time: "11:08", label: "Proof accepted", copy: "CoffeeKnight completed No Castle Club." },
-  { time: "10:52", label: "Proof accepted", copy: "QueenlessHero completed Knights Before Coffee." },
-  { time: "10:37", label: "Proof accepted", copy: "CoffeeKnight completed Knights Before Coffee." },
+  { time: "May 12, 13:38", label: "Proof accepted", copy: "CoffeeKnight completed Rookless Rampage and moved into first." },
+  { time: "May 12, 13:12", label: "Refresh check", copy: "QueenlessHero's latest public game passed No Castle Club rules." },
+  { time: "May 12, 12:44", label: "Your proof", copy: "Knights Before Coffee verified for your entry." },
+  { time: "May 12, 12:21", label: "Proof accepted", copy: "QueenlessHero completed No Castle Club." },
+  { time: "May 12, 11:08", label: "Proof accepted", copy: "CoffeeKnight completed No Castle Club." },
 ];
 
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
@@ -337,14 +335,15 @@ export default async function GroupQuestByIdPage({
           </article>
 
           <article className="mission-card">
-            <div className="section-head">
+            <div className="section-head groupquest-leaderboard-head">
               <div>
                 <span className="eyebrow">Live activity</span>
                 <h2>Proof events, not chat noise.</h2>
               </div>
+              <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
             </div>
             <ul className="groupquests-feed-list groupquests-activity-list" aria-label="Latest activity updates">
-              {eventFeed.slice(0, 7).map((event) => (
+              {eventFeed.slice(0, 5).map((event) => (
                 <li key={`${event.time}-${event.copy}`}>
                   <time>{event.time}</time>
                   <span><strong>{event.label}</strong>{event.copy}</span>

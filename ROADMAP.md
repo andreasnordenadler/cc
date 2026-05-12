@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:30 Europe/Stockholm
+Last updated: 2026-05-12 17:35 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -650,6 +650,13 @@ Rules from this point:
   - source: Andreas asked to make `Live activity` into a list as well, with timestamps, keeping only latest 6-7 updates.
   - Proof: accepted participant `Live activity` now renders as `groupquests-activity-list`, an aligned list of 7 latest timestamped updates instead of boxed event cards.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-guvd3mvz1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquests-activity-list`, timestamp entries `13:38` and `10:37`, exactly 7 `<time>` tags, no old `groupquests-feed-list"><p` markup, and `Refresh check`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Add dates, latest-5 limit, and refresh button to accepted live activity.
+  - added_at: 2026-05-12 17:35 Europe/Stockholm
+  - completed_at: 2026-05-12 17:35 Europe/Stockholm
+  - source: Andreas asked for Live activity to show date + time, only latest 5 events, and include a refresh button that refreshes checks.
+  - Proof: accepted participant `Live activity` now shows 5 timestamped events using `May 12, HH:MM` format and includes a `Refresh checks` button in the section header.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

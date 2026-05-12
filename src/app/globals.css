@@ -967,7 +967,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-feed-list p strong { display: block; margin-bottom: 4px; color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
 
 .groupquests-activity-list { list-style: none; padding: 0; }
-.groupquests-activity-list li { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(236,228,204,.12); }
+.groupquests-activity-list li { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid rgba(236,228,204,.12); }
 .groupquests-activity-list li:last-child { border-bottom: 0; }
 .groupquests-activity-list time { color: var(--gold); font-size: .74rem; font-weight: 1000; letter-spacing: .08em; }
 .groupquests-activity-list span { color: var(--ink); font-size: .86rem; font-weight: 850; line-height: 1.35; }
