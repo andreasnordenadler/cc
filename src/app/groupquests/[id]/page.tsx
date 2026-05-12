@@ -178,12 +178,12 @@ export default async function GroupQuestByIdPage({
               <span className="eyebrow">What are the side quests?</span>
               <h2>The quests you are accepting.</h2>
               <div className="groupquest-badge-stack">
-                {quests.map((quest, index) => (
+                {quests.map((quest) => (
                   <Link className="groupquest-badge-row" href={`/challenges/${quest.id}`} key={quest.id}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={quest.badgeIdentity.image} alt="" />
                     <div>
-                      <strong>{index + 1}. {quest.title}</strong>
+                      <strong>{quest.title}</strong>
                       <span>{quest.proofCallout} · {quest.reward} pts · View full quest</span>
                     </div>
                   </Link>
@@ -210,7 +210,7 @@ export default async function GroupQuestByIdPage({
                         <strong>{player.name}</strong>
                         <small>{player.proof}</small>
                       </div>
-                      <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} quests verified`}>
+                      <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} Side Quests verified`}>
                         <span style={{ width: `${Math.round((player.completed / quests.length) * 100)}%` }} />
                       </div>
                       <div>
@@ -280,7 +280,7 @@ export default async function GroupQuestByIdPage({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="groupquest-seal" src="/stamps/SQCBLACK%20SEAL.png" alt="Black Side Quest Chess seal" />
             <strong>{totalReward.toLocaleString()} pts</strong>
-            <span>available across {quests.length} quests</span>
+            <span>available across {quests.length} Side Quests</span>
           </div>
         </section>
 
@@ -293,15 +293,15 @@ export default async function GroupQuestByIdPage({
               <span className="eyebrow">Quests to complete</span>
               <h2>Finish these {quests.length} Side Quests to win.</h2>
             </div>
-            <span className="badge gold">{quests.length} quests</span>
+            <span className="badge gold">{quests.length} Side Quests</span>
           </div>
           <div className="groupquest-top-quest-list">
-            {quests.map((quest, index) => (
+            {quests.map((quest) => (
               <Link className="groupquest-top-quest-row" href={`/challenges/${quest.id}`} key={quest.id}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={quest.badgeIdentity.image} alt="" />
                 <span>
-                  <strong>{index + 1}. {quest.title}</strong>
+                  <strong>{quest.title}</strong>
                   <small>{quest.reward} pts · {quest.proofCallout}</small>
                 </span>
               </Link>
@@ -320,7 +320,7 @@ export default async function GroupQuestByIdPage({
           </div>
           <div>
             <strong>1 / {quests.length}</strong>
-            <span>Verified quests</span>
+            <span>Verified Side Quests</span>
           </div>
           <div>
             <strong>May 14</strong>
@@ -345,7 +345,7 @@ export default async function GroupQuestByIdPage({
                     <strong>{player.name}</strong>
                     <small>{player.handle}</small>
                   </div>
-                  <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} quests verified`}>
+                  <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} Side Quests verified`}>
                     <span style={{ width: `${Math.round((player.completed / quests.length) * 100)}%` }} />
                   </div>
                   <div>
