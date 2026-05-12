@@ -239,69 +239,41 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
           <div className="groupquest-scroll-sheet">
             <button className="groupquest-scroll-close" type="button" onClick={() => setSelectedScroll(null)} aria-label="Close scroll">×</button>
             <div className="groupquest-scroll-artifact-wrap">
-              <svg className="groupquest-scroll-artifact" viewBox="0 0 900 1180" role="img" aria-labelledby="podium-scroll-title podium-scroll-desc">
+              <svg className="groupquest-scroll-artifact" viewBox="0 0 853 1280" role="img" aria-labelledby="podium-scroll-title podium-scroll-desc">
                 <title id="podium-scroll-title">{selectedSeal.label} scroll for {selectedScroll.name}</title>
-                <desc id="podium-scroll-desc">A realistic aged parchment Side Quest Chess victory scroll with completed quest coats of arms and the final completion time.</desc>
+                <desc id="podium-scroll-desc">A Side Quest Chess victory scroll written on Andreas&apos;s parchment template, with placement seal, completed quest coats of arms, and the final completion time.</desc>
                 <defs>
-                  <linearGradient id="parchmentBody" x1="0" x2="1" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#f1d8a0" />
-                    <stop offset="42%" stopColor="#d7aa62" />
-                    <stop offset="100%" stopColor="#b67a38" />
-                  </linearGradient>
-                  <linearGradient id="parchmentRoll" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#8a5926" />
-                    <stop offset="18%" stopColor="#e8c27a" />
-                    <stop offset="55%" stopColor="#c28a43" />
-                    <stop offset="100%" stopColor="#6d401a" />
-                  </linearGradient>
-                  <radialGradient id="parchmentLight" cx="45%" cy="35%" r="74%">
-                    <stop offset="0%" stopColor="#ffe8ad" stopOpacity="0.65" />
-                    <stop offset="72%" stopColor="#c58a42" stopOpacity="0.18" />
-                    <stop offset="100%" stopColor="#4b260d" stopOpacity="0.14" />
-                  </radialGradient>
-                  <filter id="paperShadow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feDropShadow dx="0" dy="24" stdDeviation="20" floodColor="#000" floodOpacity="0.44" />
+                  <filter id="scrollInkShadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#7a481d" floodOpacity="0.2" />
                   </filter>
-                  <filter id="paperTexture">
-                    <feTurbulence type="fractalNoise" baseFrequency="0.018 0.06" numOctaves="4" seed="8" result="noise" />
-                    <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0.47 0 0 0 0 0.29 0 0 0 0 0.12 0 0 0 .16 0" result="tint" />
-                    <feBlend in="SourceGraphic" in2="tint" mode="multiply" />
+                  <filter id="scrollCoatShadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#4b260d" floodOpacity="0.32" />
                   </filter>
                 </defs>
-                <path className="scroll-paper-shape" d="M154 94 C213 74 286 93 343 72 C389 55 434 78 485 67 C561 51 630 80 708 66 C759 57 800 83 779 132 C756 186 783 249 766 315 C748 384 779 446 762 518 C744 594 774 658 759 735 C744 813 770 878 747 944 C728 998 744 1044 699 1074 C638 1114 557 1088 493 1110 C427 1131 369 1095 298 1110 C232 1124 174 1094 151 1043 C127 989 154 930 134 859 C111 779 139 713 124 633 C109 552 136 489 121 414 C105 337 136 272 119 204 C104 145 111 112 154 94Z" fill="url(#parchmentBody)" filter="url(#paperShadow)" />
-                <path d="M154 94 C213 74 286 93 343 72 C389 55 434 78 485 67 C561 51 630 80 708 66 C759 57 800 83 779 132 C756 186 783 249 766 315 C748 384 779 446 762 518 C744 594 774 658 759 735 C744 813 770 878 747 944 C728 998 744 1044 699 1074 C638 1114 557 1088 493 1110 C427 1131 369 1095 298 1110 C232 1124 174 1094 151 1043 C127 989 154 930 134 859 C111 779 139 713 124 633 C109 552 136 489 121 414 C105 337 136 272 119 204 C104 145 111 112 154 94Z" fill="url(#parchmentLight)" filter="url(#paperTexture)" />
-                <path d="M152 98 C246 139 648 34 781 92 C721 132 239 174 124 127 C111 112 123 101 152 98Z" fill="url(#parchmentRoll)" opacity="0.95" />
-                <path d="M145 1047 C266 1087 617 1019 745 1062 C658 1115 274 1140 151 1077 C135 1066 134 1054 145 1047Z" fill="url(#parchmentRoll)" opacity="0.95" />
-                <path d="M134 147 C251 174 642 109 760 126" fill="none" stroke="#6b3d18" strokeWidth="5" opacity="0.32" />
-                <path d="M150 1026 C277 1055 615 994 744 1046" fill="none" stroke="#6b3d18" strokeWidth="5" opacity="0.28" />
-                <circle cx="222" cy="270" r="48" fill="#7b4319" opacity="0.1" />
-                <circle cx="668" cy="371" r="74" fill="#7b4319" opacity="0.08" />
-                <circle cx="266" cy="786" r="66" fill="#7b4319" opacity="0.08" />
-                <circle cx="619" cy="927" r="44" fill="#7b4319" opacity="0.08" />
-                <image href={selectedSeal.src} x="390" y="134" width="120" height="120" preserveAspectRatio="xMidYMid meet" />
-                <text x="450" y="298" textAnchor="middle" className="scroll-kicker">OFFICIAL SIDE QUEST CHESS SCROLL</text>
-                <text x="450" y="358" textAnchor="middle" className="scroll-title">{selectedSeal.label.toUpperCase()} AWARDED</text>
-                <text x="450" y="414" textAnchor="middle" className="scroll-name">{shortenScrollText(selectedScroll.name, 30)}</text>
-                <text x="450" y="464" textAnchor="middle" className="scroll-body">completed every Side Quest in No Castle Night</text>
-                <text x="450" y="500" textAnchor="middle" className="scroll-body">and claimed {selectedSeal.label.toLowerCase()} by public-game proof.</text>
-                <text x="450" y="558" textAnchor="middle" className="scroll-meta">Completed: {selectedFinishedAt}</text>
-                <text x="450" y="594" textAnchor="middle" className="scroll-meta">Placement: #{selectedScroll.rank} · Proof: {selectedScroll.proof}</text>
-                <path d="M250 632 C350 648 550 648 650 632" fill="none" stroke="#5f3515" strokeWidth="3" opacity="0.38" />
-                <text x="450" y="670" textAnchor="middle" className="scroll-section-title">COATS OF ARMS STAMPED COMPLETE</text>
+                <image href="/scrolls/multiplayer-podium-scroll-template.jpg" x="0" y="0" width="853" height="1280" preserveAspectRatio="xMidYMid meet" />
+                <image href={selectedSeal.src} x="356" y="160" width="142" height="142" preserveAspectRatio="xMidYMid meet" filter="url(#scrollCoatShadow)" />
+                <text x="426.5" y="344" textAnchor="middle" className="scroll-kicker">OFFICIAL SIDE QUEST CHESS SCROLL</text>
+                <text x="426.5" y="404" textAnchor="middle" className="scroll-title">{selectedSeal.label.toUpperCase()} AWARDED</text>
+                <text x="426.5" y="466" textAnchor="middle" className="scroll-name">{shortenScrollText(selectedScroll.name, 28)}</text>
+                <text x="426.5" y="526" textAnchor="middle" className="scroll-body">completed every Side Quest in No Castle Night</text>
+                <text x="426.5" y="564" textAnchor="middle" className="scroll-body">and claimed {selectedSeal.label.toLowerCase()} by public-game proof.</text>
+                <text x="426.5" y="626" textAnchor="middle" className="scroll-meta">Completed: {selectedFinishedAt}</text>
+                <text x="426.5" y="664" textAnchor="middle" className="scroll-meta">Placement: #{selectedScroll.rank} · Proof: {selectedScroll.proof}</text>
+                <path d="M220 710 C300 724 552 724 633 710" fill="none" stroke="#5f3515" strokeWidth="3" opacity="0.34" />
+                <text x="426.5" y="760" textAnchor="middle" className="scroll-section-title">COATS OF ARMS STAMPED COMPLETE</text>
                 {selectedCompletedQuests.slice(0, 3).map((quest, index) => {
-                  const x = 214 + index * 236;
+                  const x = 200 + index * 226;
                   return (
-                    <g key={quest.id}>
-                      <path d={`M${x - 74} 706 C${x - 50} 690 ${x + 50} 690 ${x + 74} 706 L${x + 58} 878 C${x + 22} 898 ${x - 22} 898 ${x - 58} 878Z`} fill="rgba(255,245,214,.25)" stroke="rgba(55,31,10,.28)" strokeWidth="3" />
-                      {quest.badgeImage ? <image href={quest.badgeImage} x={x - 42} y="720" width="84" height="84" preserveAspectRatio="xMidYMid meet" /> : null}
-                      <text x={x} y="836" textAnchor="middle" className="scroll-quest-title">{shortenScrollText(quest.title, 20)}</text>
-                      <text x={x} y="866" textAnchor="middle" className="scroll-quest-time">{selectedScroll.questFinishedAt[quest.id]}</text>
+                    <g key={quest.id} filter="url(#scrollCoatShadow)">
+                      {quest.badgeImage ? <image href={quest.badgeImage} x={x - 48} y="798" width="96" height="96" preserveAspectRatio="xMidYMid meet" /> : null}
+                      <text x={x} y="930" textAnchor="middle" className="scroll-quest-title">{shortenScrollText(quest.title, 19)}</text>
+                      <text x={x} y="960" textAnchor="middle" className="scroll-quest-time">{selectedScroll.questFinishedAt[quest.id]}</text>
                     </g>
                   );
                 })}
-                <text x="450" y="956" textAnchor="middle" className="scroll-section-title">PLAYERS BESTED ON THE ROAD</text>
-                <text x="450" y="1002" textAnchor="middle" className="scroll-body">{shortenScrollText(scrollBestedLine(bestedPlayers), 72)}</text>
-                <text x="450" y="1060" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the leaderboard goblin.</text>
+                <text x="426.5" y="1046" textAnchor="middle" className="scroll-section-title">PLAYERS BESTED ON THE ROAD</text>
+                <text x="426.5" y="1090" textAnchor="middle" className="scroll-body">{shortenScrollText(scrollBestedLine(bestedPlayers), 68)}</text>
+                <text x="426.5" y="1154" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the leaderboard goblin.</text>
               </svg>
               <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
                 View on leaderboard

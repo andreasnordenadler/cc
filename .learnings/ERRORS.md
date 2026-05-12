@@ -3166,3 +3166,7 @@ After adding new component-specific classes, verify their CSS selectors exist be
 ## 2026-05-12 — ROADMAP targeted edit matched repeated verification text
 - What happened: A direct `edit` replacement for a ROADMAP verification line failed because the same lint/build sentence appeared three times.
 - What to do differently: Include the full surrounding roadmap item block, or use a small scripted replacement keyed by the item title when updating repeated proof text.
+
+## 2026-05-12 — JSX SVG desc apostrophe lint failure
+- What happened: `pnpm lint` failed after adding an SVG `<desc>` with `Andreas's` because `react/no-unescaped-entities` also applies inside SVG text nodes.
+- What to do differently: Escape apostrophes in JSX/SVG descriptive text (`&apos;`) before running lint/build.

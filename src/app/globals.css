@@ -1293,13 +1293,13 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-scroll-close { position: absolute; right: -10px; top: -12px; z-index: 2; width: 36px; height: 36px; border: 1px solid rgba(236,228,204,.28); border-radius: 999px; background: rgba(25,16,8,.92); color: var(--ink); font-size: 1.25rem; font-weight: 1000; cursor: pointer; }
 
 .groupquest-scroll-artifact-wrap { display: grid; justify-items: center; gap: 14px; }
-.groupquest-scroll-artifact { width: min(100%, 620px); height: auto; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,.45)); }
-.groupquest-scroll-artifact .scroll-kicker { fill: rgba(32,20,7,.68); font-size: 22px; font-weight: 1000; letter-spacing: 5px; }
-.groupquest-scroll-artifact .scroll-title { fill: #201407; font-size: 52px; font-weight: 1000; letter-spacing: 3px; }
-.groupquest-scroll-artifact .scroll-name { fill: #3b220d; font-size: 46px; font-weight: 1000; }
-.groupquest-scroll-artifact .scroll-body { fill: rgba(32,20,7,.8); font-size: 25px; font-weight: 900; }
-.groupquest-scroll-artifact .scroll-meta { fill: #3b220d; font-size: 22px; font-weight: 1000; }
-.groupquest-scroll-artifact .scroll-section-title { fill: rgba(32,20,7,.7); font-size: 20px; font-weight: 1000; letter-spacing: 3px; }
+.groupquest-scroll-artifact { width: min(100%, 560px); height: auto; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,.45)); }
+.groupquest-scroll-artifact .scroll-kicker { fill: rgba(58,32,12,.78); font-size: 19px; font-weight: 1000; letter-spacing: 4px; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-title { fill: #2d1808; font-size: 48px; font-weight: 1000; letter-spacing: 2px; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-name { fill: #3b220d; font-size: 44px; font-weight: 1000; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-body { fill: rgba(45,24,8,.82); font-size: 23px; font-weight: 900; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-meta { fill: #3b220d; font-size: 21px; font-weight: 1000; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-section-title { fill: rgba(58,32,12,.74); font-size: 18px; font-weight: 1000; letter-spacing: 3px; filter: url(#scrollInkShadow); }
 .groupquest-scroll-artifact .scroll-quest-title { fill: #201407; font-size: 20px; font-weight: 1000; }
 .groupquest-scroll-artifact .scroll-quest-time { fill: rgba(32,20,7,.66); font-size: 16px; font-weight: 900; }
 .groupquest-scroll-artifact .scroll-footer { fill: rgba(32,20,7,.62); font-size: 18px; font-weight: 900; font-style: italic; }
