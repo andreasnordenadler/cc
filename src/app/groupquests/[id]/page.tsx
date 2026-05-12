@@ -87,8 +87,11 @@ export default async function GroupQuestByIdPage({
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="groupquest-seal" src="/stamps/SQCBLACK%20SEAL.png" alt="Black Side Quest Chess seal" />
-              <strong>{competitionStartsAt}</strong>
-              <span>Ends {competitionEndsAt} · {leaderboard.length} players are already in</span>
+              <div className="groupquest-date-stack" aria-label="Competition schedule">
+                <div><span>Starts</span><strong>{competitionStartsAt}</strong></div>
+                <div><span>Ends</span><strong>{competitionEndsAt}</strong></div>
+              </div>
+              <p className="groupquest-participant-count"><strong>{leaderboard.length}</strong> players participating</p>
             </div>
           </section>
 

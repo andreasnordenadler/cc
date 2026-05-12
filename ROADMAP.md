@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 11:44 Europe/Stockholm
+Last updated: 2026-05-12 11:50 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -465,6 +465,13 @@ Rules from this point:
   - added_at: 2026-05-12 11:44 Europe/Stockholm
   - source: Andreas said the other three local seal assets should be used as prizes for the top three when a Multiplayer Side Quest finishes.
   - acceptance: ended Multiplayer Side Quest views/final results should award and display `side_quest_chess_seal_gold_transparent.png` for 1st place, `side_quest_chess_seal_silver_transparent.png` for 2nd place, and `side_quest_chess_seal_bronze_transparent.png` for 3rd place; wording should call them prizes/rewards for final placement, not active-progress badges.
+
+- [x] Clean Multiplayer Side Quest invite seal summary layout.
+  - added_at: 2026-05-12 11:50 Europe/Stockholm
+  - completed_at: 2026-05-12 11:50 Europe/Stockholm
+  - source: Andreas showed the seal/date summary and asked to remove the box around the section, make Start/End the same font size, and make participant count clearer.
+  - Proof: the seal summary no longer has an enclosing border/background box; start/end render as matching labeled date rows; participant copy is separated as `4 players participating`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
