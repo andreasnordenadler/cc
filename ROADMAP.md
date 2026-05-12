@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 10:24 Europe/Stockholm
+Last updated: 2026-05-12 10:58 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -446,6 +446,13 @@ Rules from this point:
   - source: Andreas said the prior dark backing was almost right but asked to use the original file with transparent background and just change the color to black.
   - Proof: removed the filled `groupquest-seal-frame`; the invite/detail summary now renders the original transparent SQC seal PNG directly with a black/dark grayscale filter, preserving transparent background behavior.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-arrua3fap-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, include `Black Side Quest Chess seal`, no longer include `groupquest-seal-frame`, and keep the start/end dates; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Use Andreas's newly supplied black SQC seal on Multiplayer Side Quest invite/detail.
+  - added_at: 2026-05-12 10:58 Europe/Stockholm
+  - completed_at: 2026-05-12 10:58 Europe/Stockholm
+  - source: Andreas supplied a new black Side Quest Chess seal and asked to use that seal instead.
+  - Proof: saved the supplied seal as `public/stamps/sqc-side-quest-chess-black-seal.jpg`, wired the Multiplayer Side Quest invite/detail seal image to that asset, and removed the old wax-stamp source from this surface.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-q1izn8t6j-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, reference `sqc-side-quest-chess-black-seal.jpg`, keep start/end dates, and the seal asset returns `200 image/jpeg`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
