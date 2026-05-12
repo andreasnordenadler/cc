@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
 import GroupQuestDraftValue from "@/components/group-quest-draft-value";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
+import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -278,6 +279,7 @@ export default async function GroupQuestByIdPage({
             </p>
             <div className="hero-actions button-row">
               <Link className="button primary" href="#submit-proof">Submit proof</Link>
+              <Link className="button secondary" href="#leaderboard">Leaderboard</Link>
               <GroupQuestShareButton questName="No Castle Night" shareUrl={shareUrl} />
             </div>
           </div>
@@ -288,6 +290,8 @@ export default async function GroupQuestByIdPage({
             <span>available across {quests.length} quests</span>
           </div>
         </section>
+
+        <GroupQuestParticipantSummary id={id} />
 
         <section className="groupquest-score-strip" aria-label="Your competition standing">
           <div>
@@ -308,7 +312,7 @@ export default async function GroupQuestByIdPage({
           </div>
         </section>
 
-        <section className="mission-card groupquest-leaderboard-card" aria-label="Competition leaderboard">
+        <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
           <div className="section-head">
             <div>
               <span className="eyebrow">Competition leaderboard</span>
