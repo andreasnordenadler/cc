@@ -431,7 +431,7 @@ Rules from this point:
   - completed_at: 2026-05-12 10:04 Europe/Stockholm
   - source: Andreas approved the onboarding and asked to use the red SQC seal form, but silver instead of red, in place of the simple red circle.
   - Proof: the Multiplayer Side Quest invite/detail summary now renders the existing ornate SQC wax-seal asset as an image with a silver grayscale/brightness treatment instead of the flat red `SQC` circle.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-kthwyn40w-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200, references `quest-complete-premium-red-wax-sqc-v15.png`, uses `groupquest-seal`, and the stamp asset returns `200 image/png`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
