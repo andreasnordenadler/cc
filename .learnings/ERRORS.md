@@ -3052,3 +3052,21 @@ For quick SQC seal recolors, prefer CSS filters on an existing transparent seal 
 Use existing stamp PNG plus `filter: grayscale(...) brightness(...) contrast(...)` for fast visual recolors.
 
 ---
+
+## [ERR-20260512-004] swift_image_transparency_toolchain_mismatch
+
+**Logged**: 2026-05-12T10:55:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+Attempted to use a Swift/CoreGraphics script to remove the white background from an uploaded SQC seal image, but the local Swift toolchain and macOS SDK versions are mismatched.
+
+### Details
+Swift failed building Foundation/CoreFoundation modules due SDK/compiler mismatch. Do not rely on ad-hoc Swift image processing in this environment until toolchain is fixed.
+
+### Suggested Action
+Use committed provided assets plus CSS blending, or use a dedicated image tool/provider when a true alpha PNG is required.
+
+---
