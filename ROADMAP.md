@@ -572,7 +572,7 @@ Rules from this point:
   - completed_at: 2026-05-12 15:31 Europe/Stockholm
   - source: Andreas showed the accepted participant page and asked to remove the buttons, integrate all parts of the `You’re in` section, and keep it very compact.
   - Proof: accepted hero action buttons were removed; unused share wiring removed; `You’re in` is now a compact status strip with leaderboard name, next action copy, provider, username, leaderboard name, email, and location in one tight row/grid.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-1gji50sgx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route `/groupquests/80303?accepted=1` returns 200 with compact participant summary and next-action copy, no `Submit proof` or `Share` hero/button text, and invite route remains onboarding-only; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
