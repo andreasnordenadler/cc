@@ -4,6 +4,7 @@ import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
 import GroupQuestDraftValue from "@/components/group-quest-draft-value";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
+import GroupQuestLeaveAction from "@/components/group-quest-leave-action";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -352,6 +353,8 @@ export default async function GroupQuestByIdPage({
             </ul>
           </article>
         </section>
+
+        <GroupQuestLeaveAction id={id} />
       </div>
     </main>
   );

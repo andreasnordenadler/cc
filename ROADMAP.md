@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:46 Europe/Stockholm
+Last updated: 2026-05-12 17:50 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -678,6 +678,13 @@ Rules from this point:
   - source: Andreas confirmed the desired Multiplayer behavior: check all included Side Quests against the latest public provider games, allowing one valid game to complete multiple quests when it satisfies multiple quest rules.
   - Product rule: Multiplayer refresh/check runs should evaluate every included Side Quest against the participant’s latest public provider games. Do not enforce one-game-per-quest. If one public game satisfies multiple included quest verifiers, all matching quests may complete from that same game.
   - Verification: roadmap canon recorded; implementation follow-up should preserve this rule when the real Multiplayer verifier is wired.
+
+- [x] Add accepted-page leave Side Quest action with confirmation.
+  - added_at: 2026-05-12 17:50 Europe/Stockholm
+  - completed_at: 2026-05-12 17:50 Europe/Stockholm
+  - source: Andreas asked for an option somewhere near the bottom of the Multiplayer Side Quest page to leave the challenge, with a confirmation prompt in a funny Side Quest Chess style.
+  - Proof: accepted participant page now renders a subtle bottom `Leave this Side Quest` action. Clicking it opens a humorous confirmation prompt; confirming clears the local participant setup for that group quest and routes back to the invite/onboarding page.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
