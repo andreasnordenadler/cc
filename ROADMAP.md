@@ -504,7 +504,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:43 Europe/Stockholm
   - source: Andreas showed the `What are the side quests?` quest boxes and asked to make them clickable so users can check full quest info.
   - Proof: each onboarding quest row now links to its full `/challenges/{quest.id}` page, includes `View full quest` copy, and has hover/focus styling on the full row.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-2yc38j048-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 and includes links to `/challenges/knights-before-coffee`, `/challenges/no-castle-club`, and `/challenges/rookless-rampage`, all three destination pages return 200, accepted route returns 200, and Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
