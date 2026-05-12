@@ -670,7 +670,7 @@ Rules from this point:
   - completed_at: 2026-05-12 17:43 Europe/Stockholm
   - source: Andreas pointed out the accepted-page locked-rules list content was bottom/baseline aligned, especially the long `Winner` row.
   - Proof: `groupquest-accepted-rules-list li` now uses `align-items: flex-start`, keeping labels and values aligned to the top.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-drfm73kda-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route still contains the rules list and Winner text, source CSS confirms `groupquest-accepted-rules-list li { align-items: flex-start; }`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
