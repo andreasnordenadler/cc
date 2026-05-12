@@ -286,6 +286,29 @@ export default async function GroupQuestByIdPage({
 
         <GroupQuestParticipantSummary id={id} />
 
+
+        <section className="mission-card groupquest-top-quest-stack" aria-label="Quests to complete">
+          <div className="section-head compact">
+            <div>
+              <span className="eyebrow">Quests to complete</span>
+              <h2>Finish these {quests.length} Side Quests to win.</h2>
+            </div>
+            <span className="badge gold">{quests.length} quests</span>
+          </div>
+          <div className="groupquest-top-quest-list">
+            {quests.map((quest, index) => (
+              <Link className="groupquest-top-quest-row" href={`/challenges/${quest.id}`} key={quest.id}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={quest.badgeIdentity.image} alt="" />
+                <span>
+                  <strong>{index + 1}. {quest.title}</strong>
+                  <small>{quest.reward} pts · {quest.proofCallout}</small>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="groupquest-score-strip" aria-label="Your competition standing">
           <div>
             <strong>#3</strong>
@@ -370,23 +393,11 @@ export default async function GroupQuestByIdPage({
           <article className="mission-card groupquest-quest-badge-card">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Quest coats of arms</span>
-                <h2>The stack to beat.</h2>
+                <span className="eyebrow">Progress tip</span>
+                <h2>Complete the quest stack above.</h2>
               </div>
-              <span className="badge gold">{quests.length} quests</span>
             </div>
-            <div className="groupquest-badge-stack">
-              {quests.map((quest, index) => (
-                <div className="groupquest-badge-row" key={quest.id}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={quest.badgeIdentity.image} alt="" />
-                  <div>
-                    <strong>{index + 1}. {quest.title}</strong>
-                    <span>{quest.reward} pts · {quest.proofCallout}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <p>The top quest list is your checklist. Open a quest for the full rule text, play a valid public game, then submit proof here.</p>
           </article>
         </section>
 

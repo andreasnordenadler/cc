@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 15:31 Europe/Stockholm
+Last updated: 2026-05-12 15:40 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -573,6 +573,13 @@ Rules from this point:
   - source: Andreas showed the accepted participant page and asked to remove the buttons, integrate all parts of the `You’re in` section, and keep it very compact.
   - Proof: accepted hero action buttons were removed; unused share wiring removed; `You’re in` is now a compact status strip with leaderboard name, next action copy, provider, username, leaderboard name, email, and location in one tight row/grid.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-1gji50sgx-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route `/groupquests/80303?accepted=1` returns 200 with compact participant summary and next-action copy, no `Submit proof` or `Share` hero/button text, and invite route remains onboarding-only; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Move accepted participant quest checklist near the top.
+  - added_at: 2026-05-12 15:40 Europe/Stockholm
+  - completed_at: 2026-05-12 15:40 Europe/Stockholm
+  - source: Andreas showed the quest stack lower on the accepted participant page and asked to see the quests to complete somewhere at the top so it is clear what to complete.
+  - Proof: accepted participant page now shows a compact `Quests to complete` checklist immediately after the `You’re in` strip and before standings; each quest row links to its full challenge page with badge, title, points, and proof callout; lower quest-card area was converted to a progress tip to avoid duplicating the checklist.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
