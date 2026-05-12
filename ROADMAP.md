@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 13:40 Europe/Stockholm
+Last updated: 2026-05-12 13:43 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -498,6 +498,13 @@ Rules from this point:
   - source: Andreas showed the `Rules and time` section and asked to do the same list cleanup there.
   - Proof: onboarding `Rules and time` now renders `Starts / Ends / Games allowed / Variant / Proof` as a plain aligned list using `groupquest-rules-list` instead of boxed status cards.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9edp5hbez-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with `groupquest-rules-list`, no old boxed `groupquests-status-strip groupquest-onboarding-rules`, rules text, and black seal PNG; `/groupquests/80303?accepted=1` returns 200; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Make Multiplayer Side Quest onboarding quest rows clickable.
+  - added_at: 2026-05-12 13:43 Europe/Stockholm
+  - completed_at: 2026-05-12 13:43 Europe/Stockholm
+  - source: Andreas showed the `What are the side quests?` quest boxes and asked to make them clickable so users can check full quest info.
+  - Proof: each onboarding quest row now links to its full `/challenges/{quest.id}` page, includes `View full quest` copy, and has hover/focus styling on the full row.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

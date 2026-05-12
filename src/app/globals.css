@@ -1232,7 +1232,8 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-proof-checklist span small { display: block; margin-top: 3px; color: var(--muted); font-size: .74rem; font-weight: 800; line-height: 1.25; }
 .groupquest-quest-badge-card { background: radial-gradient(circle at 88% 4%, rgba(245,200,106,.14), transparent 36%), rgba(255,255,255,.075); }
 .groupquest-badge-stack { display: grid; gap: 10px; }
-.groupquest-badge-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); }
+.groupquest-badge-row { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); text-decoration: none; color: inherit; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
+.groupquest-badge-row:hover, .groupquest-badge-row:focus-visible { border-color: rgba(245,200,106,.42); background: rgba(245,200,106,.08); transform: translateY(-1px); outline: none; }
 .groupquest-badge-row img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 10px 18px rgba(0,0,0,.34)); }
 .groupquest-badge-row strong { color: var(--ink); font-weight: 1000; }
 .groupquest-badge-row span { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; font-weight: 850; line-height: 1.32; }

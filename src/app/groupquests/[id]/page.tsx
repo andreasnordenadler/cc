@@ -114,14 +114,14 @@ export default async function GroupQuestByIdPage({
               <h2>The quests you are accepting.</h2>
               <div className="groupquest-badge-stack">
                 {quests.map((quest, index) => (
-                  <div className="groupquest-badge-row" key={quest.id}>
+                  <Link className="groupquest-badge-row" href={`/challenges/${quest.id}`} key={quest.id}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={quest.badgeIdentity.image} alt="" />
                     <div>
                       <strong>{index + 1}. {quest.title}</strong>
-                      <span>{quest.proofCallout} · {quest.reward} pts</span>
+                      <span>{quest.proofCallout} · {quest.reward} pts · View full quest</span>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </article>
