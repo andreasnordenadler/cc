@@ -769,7 +769,7 @@ Rules from this point:
   - completed_at: 2026-05-12 22:59 Europe/Stockholm
   - source: Andreas supplied a scroll-paper image and clarified Sam should place seal, coat of arms, and text onto it.
   - Proof: added `public/scrolls/multiplayer-podium-scroll-template.jpg` from the supplied image and changed the podium scroll SVG to use that template as the full background, overlaying the placement seal, completion copy, completion date/time, three completed Side Quest coat-of-arms images, and players-bested wording.
-  - Verification: `pnpm lint` passed with 3 known warnings after escaping an apostrophe in SVG desc text; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings after escaping an apostrophe in SVG desc text; `pnpm build` passed; production deploy `https://cc-5mpg5hz96-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live route returned 200; template asset returned `200 image/jpeg`; source inspection confirmed template-backed artifact wiring; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
