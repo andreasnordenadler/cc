@@ -607,7 +607,7 @@ Rules from this point:
   - completed_at: 2026-05-12 16:34 Europe/Stockholm
   - source: Andreas said the provider-game check is not needed because Multiplayer Side Quests will always use provider games for verifying.
   - Proof: accepted participant proof checklist no longer includes `Provider game found`; proof copy now says provider-game URL and focuses checks on time window, standard chess, and quest-specific rules.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-7gc7l54aj-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route no longer contains `Provider game found`, still contains `public provider-game URL`, `Standard chess`, and `Quest rules`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
