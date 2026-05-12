@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
@@ -39,6 +40,18 @@ export default async function MyQuestLogPage() {
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
   const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
+  const multiplayerVictories = [
+    {
+      placement: "Gold",
+      title: "No Castle Night",
+      completedAt: "May 12, 13:38 CEST",
+      href: "/groupquests/80303?accepted=1#leaderboard-rank-1",
+      seal: "/stamps/side_quest_chess_seal_gold_transparent.png",
+      copy: "First player to complete the full Multiplayer Side Quest stack.",
+      defeated: "3 players bested",
+    },
+  ];
+
   const activeGroupQuests = [
     {
       title: "No Castle Night",
@@ -171,34 +184,78 @@ export default async function MyQuestLogPage() {
             </div>
           </div>
 
-          {completedChallenges.length ? (
+          {completedChallenges.length || multiplayerVictories.length ? (
             <>
               <div className="trophy-case-summary" aria-label="Completed quest ceremony summary">
-                <span><strong>{completedChallenges.length}</strong> questionable triumph{completedChallenges.length === 1 ? "" : "s"}</span>
-                <span><strong>{progress.totalRewardPoints}</strong> points nobody asked to audit</span>
+                <span><strong>{completedChallenges.length}</strong> completed Side Quest{completedChallenges.length === 1 ? "" : "s"}</span>
+                <span><strong>{multiplayerVictories.length}</strong> Multiplayer victory scroll{multiplayerVictories.length === 1 ? "" : "s"}</span>
                 <span><strong>{attempts.length}</strong> receipt{attempts.length === 1 ? "" : "s"} in the evidence drawer</span>
               </div>
-              <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
-                {completedChallenges.map((challenge, index) => {
-                  const latestProof = getLatestPassedAttempt(metadata, challenge.id);
-                  const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
-                  const trophyCopy = getAwkwardTrophyCopy(index);
 
-                  return (
-                    <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item trophy-card" key={challenge.id}>
-                      <span className="trophy-card-ribbon">{trophyCopy.ribbon}</span>
-                      <span className="trophy-card-shine" aria-hidden="true" />
-                      <span className="trophy-card-badge">
-                        <ChallengeBadge challenge={challenge} presentation="art" earned />
-                      </span>
-                      <span className="trophy-card-copy">
-                        <strong>{challenge.title}</strong>
-                        <em>{trophyCopy.line}</em>
-                        <span>{finishedAt ? <>Ceremonially logged <ProofTime value={finishedAt} /></> : "Completed, allegedly."}</span>
-                      </span>
-                    </Link>
-                  );
-                })}
+              <div className="quest-achievement-sections">
+                <section className="quest-achievement-lane" aria-label="Completed solo Side Quests">
+                  <div className="quest-achievement-lane-head">
+                    <div>
+                      <span className="eyebrow">Solo Side Quest coats</span>
+                      <h3>Completed Side Quests</h3>
+                    </div>
+                    <span>{progress.totalRewardPoints} points</span>
+                  </div>
+                  {completedChallenges.length ? (
+                    <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
+                      {completedChallenges.map((challenge, index) => {
+                        const latestProof = getLatestPassedAttempt(metadata, challenge.id);
+                        const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
+                        const trophyCopy = getAwkwardTrophyCopy(index);
+
+                        return (
+                          <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item trophy-card" key={challenge.id}>
+                            <span className="trophy-card-ribbon">{trophyCopy.ribbon}</span>
+                            <span className="trophy-card-shine" aria-hidden="true" />
+                            <span className="trophy-card-badge">
+                              <ChallengeBadge challenge={challenge} presentation="art" earned />
+                            </span>
+                            <span className="trophy-card-copy">
+                              <strong>{challenge.title}</strong>
+                              <em>{trophyCopy.line}</em>
+                              <span>{finishedAt ? <>Ceremonially logged <ProofTime value={finishedAt} /></> : "Completed, allegedly."}</span>
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="empty-collection-state trophy-empty-state">
+                      <p>No completed solo Side Quests yet. Finish one and the coat of arms lands here.</p>
+                      <Link href="/challenges" className="button primary">Choose a Side Quest</Link>
+                    </div>
+                  )}
+                </section>
+
+                <section className="quest-achievement-lane multiplayer-victory-lane" aria-label="Multiplayer Side Quest victories">
+                  <div className="quest-achievement-lane-head">
+                    <div>
+                      <span className="eyebrow">Multiplayer podium scrolls</span>
+                      <h3>Victories against other players</h3>
+                    </div>
+                    <Link href="/groupquests" className="button secondary">Find Multiplayer Quests</Link>
+                  </div>
+                  <div className="multiplayer-victory-grid">
+                    {multiplayerVictories.map((victory) => (
+                      <Link href={victory.href} className="multiplayer-victory-card" key={`${victory.title}-${victory.placement}`}>
+                        <span className="multiplayer-victory-scroll-thumb" aria-hidden="true">
+                          <Image src="/scrolls/sqc-victory-scroll-template.png" alt="" width={78} height={116} />
+                          <Image src={victory.seal} alt="" width={30} height={30} />
+                        </span>
+                        <span className="multiplayer-victory-copy">
+                          <strong>{victory.placement} scroll · {victory.title}</strong>
+                          <em>{victory.copy}</em>
+                          <span>{victory.completedAt} · {victory.defeated}</span>
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
               </div>
             </>
           ) : (

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 23:43 Europe/Stockholm
+Last updated: 2026-05-12 23:55 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -812,6 +812,13 @@ Rules from this point:
   - source: Andreas asked to use the same generated scroll for single Side Quest victory scrolls.
   - Proof: updated `/api/og/proof/[token]` so single Side Quest victory/proof PNGs now use `public/scrolls/sqc-victory-scroll-template-og.jpg` (optimized from the generated scroll) as the full scroll base, with the SQC seal, quest title, coat of arms, unlocked coat name, proof copy, completion date, and points overlaid inside a central safe zone.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; local `next start` smoke for `/api/og/proof/[token]?tz=Europe/Stockholm` returned `200 image/png` at `1200 x 1600` after fixing an ImageResponse explicit-display requirement.
+
+- [x] Split My Side Quests achievements into solo completions and Multiplayer victories.
+  - added_at: 2026-05-12 23:55 Europe/Stockholm
+  - completed_at: 2026-05-12 23:55 Europe/Stockholm
+  - source: Andreas wanted work on how My Side Quests should best show both completed Side Quests and Multiplayer Side Quest victories.
+  - Proof: account achievement/trophy area now has two clear lanes: `Solo Side Quest coats` for completed individual quests/coats of arms, and `Multiplayer podium scrolls` for victories against other players. Added a Multiplayer victory card using the shared victory scroll thumbnail plus placement seal, completion time, and bested-player copy, while summary stats now distinguish completed Side Quests from Multiplayer victory scrolls.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
