@@ -33,8 +33,12 @@ const onboardingSteps = [
   { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
 ];
 
+const competitionStartsAt = "May 12, 10:00 CEST";
+const competitionEndsAt = "May 14, 00:00 CEST";
+
 const ruleSummary = [
-  { label: "Quest window", value: "Live now · 38h left" },
+  { label: "Starts", value: competitionStartsAt },
+  { label: "Ends", value: competitionEndsAt },
   { label: "Games allowed", value: "Lichess or Chess.com" },
   { label: "Variant", value: "Standard chess only" },
   { label: "Proof", value: "Public games after joining" },
@@ -81,10 +85,12 @@ export default async function GroupQuestByIdPage({
               </div>
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="groupquest-seal" src="/stamps/quest-complete-premium-red-wax-sqc-v15.png" alt="Silver Side Quest Chess seal" />
-              <strong>38h left</strong>
-              <span>{leaderboard.length} players are already in</span>
+              <div className="groupquest-seal-frame">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="groupquest-seal" src="/stamps/quest-complete-premium-red-wax-sqc-v15.png" alt="Silver Side Quest Chess seal" />
+              </div>
+              <strong>{competitionStartsAt}</strong>
+              <span>Ends {competitionEndsAt} · {leaderboard.length} players are already in</span>
             </div>
           </section>
 
@@ -194,8 +200,10 @@ export default async function GroupQuestByIdPage({
             </div>
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <div className="groupquest-seal-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="groupquest-seal" src="/stamps/quest-complete-premium-red-wax-sqc-v15.png" alt="Silver Side Quest Chess seal" />
+            </div>
             <strong>{totalReward.toLocaleString()} pts</strong>
             <span>available across {quests.length} quests</span>
           </div>
@@ -215,8 +223,8 @@ export default async function GroupQuestByIdPage({
             <span>Verified quests</span>
           </div>
           <div>
-            <strong>38h</strong>
-            <span>Time left</span>
+            <strong>May 14</strong>
+            <span>Ends 00:00 CEST</span>
           </div>
         </section>
 
@@ -303,7 +311,8 @@ export default async function GroupQuestByIdPage({
             <div className="groupquests-status-strip" aria-label="Multiplayer Side Quest settings">
               <div><strong>Visibility</strong><span>Public listing</span></div>
               <div><strong>Variant</strong><span>Standard chess only</span></div>
-              <div><strong>Window</strong><span>Open · 38h left</span></div>
+              <div><strong>Starts</strong><span>{competitionStartsAt}</span></div>
+              <div><strong>Ends</strong><span>{competitionEndsAt}</span></div>
               <div><strong>Proof</strong><span>Automatic public-game checks</span></div>
             </div>
           </article>
