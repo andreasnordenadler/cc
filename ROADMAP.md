@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 10:58 Europe/Stockholm
+Last updated: 2026-05-12 11:42 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -453,6 +453,13 @@ Rules from this point:
   - source: Andreas supplied a new black Side Quest Chess seal and asked to use that seal instead.
   - Proof: saved the supplied seal as `public/stamps/sqc-side-quest-chess-black-seal.jpg`, wired the Multiplayer Side Quest invite/detail seal image to that asset, and removed the old wax-stamp source from this surface.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-q1izn8t6j-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, reference `sqc-side-quest-chess-black-seal.jpg`, keep start/end dates, and the seal asset returns `200 image/jpeg`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Switch Multiplayer Side Quest page to workspace black transparent seal PNG.
+  - added_at: 2026-05-12 11:42 Europe/Stockholm
+  - completed_at: 2026-05-12 11:42 Europe/Stockholm
+  - source: Andreas added four local seal assets to `public/stamps` and asked to use the black one on the Multiplayer Side Quest page.
+  - Proof: `/groupquests/{id}` invite/detail now references `public/stamps/SQCBLACK SEAL.png`, a real RGBA PNG asset, and no longer uses the earlier JPEG/blend workaround for this surface.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
