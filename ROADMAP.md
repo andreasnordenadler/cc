@@ -741,7 +741,7 @@ Rules from this point:
   - completed_at: 2026-05-12 21:18 Europe/Stockholm
   - source: Andreas clarified scrolls should be available for all users to view; in the current example a clickable miniature scroll should appear next to the gold seal and open the full scroll.
   - Proof: completed podium rows now render a small `Scroll` button next to the earned seal. Clicking opens a public full scroll modal with the placement seal, recipient, proof/points details, and `View on leaderboard` link. Incomplete #2/#3 rows still show no scroll.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-133zrjnm3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquest-scroll-mini`, `Scroll`, gold seal, `#2`, and `#3`; source inspection confirmed modal text `Official Side Quest Chess Scroll`, `groupquest-scroll-modal`, and `View on leaderboard`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
