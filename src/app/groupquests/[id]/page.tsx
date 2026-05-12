@@ -321,15 +321,15 @@ export default async function GroupQuestByIdPage({
                 <h2>Everyone plays under the same receipt.</h2>
               </div>
             </div>
-            <div className="groupquests-status-strip" aria-label="Multiplayer Side Quest settings">
-              <div><strong>Visibility</strong><span>Public listing</span></div>
-              <div><strong>Games allowed</strong><span><GroupQuestDraftValue id={id} field="providerLabel" fallback="Lichess or Chess.com" /></span></div>
-              <div><strong>Variant</strong><span>Standard chess only</span></div>
-              <div><strong>Starts</strong><span>{competitionStartsAt}</span></div>
-              <div><strong>Ends</strong><span>{competitionEndsAt}</span></div>
-              <div><strong>Winner</strong><span>{successCriteria}</span></div>
-              <div><strong>Proof</strong><span>Automatic public-game checks</span></div>
-            </div>
+            <ul className="groupquest-summary-list groupquest-rules-list groupquest-accepted-rules-list" aria-label="Multiplayer Side Quest settings">
+              <li><span>Visibility</span><strong>Public listing</strong></li>
+              <li><span>Games allowed</span><strong><GroupQuestDraftValue id={id} field="providerLabel" fallback="Lichess or Chess.com" /></strong></li>
+              <li><span>Variant</span><strong>Standard chess only</strong></li>
+              <li><span>Starts</span><strong>{competitionStartsAt}</strong></li>
+              <li><span>Ends</span><strong>{competitionEndsAt}</strong></li>
+              <li><span>Winner</span><strong>{successCriteria}</strong></li>
+              <li><span>Proof</span><strong>Automatic public-game checks</strong></li>
+            </ul>
           </article>
 
           <article className="mission-card">

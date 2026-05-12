@@ -1215,6 +1215,10 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-rules-list strong { color: var(--ink); }
 .groupquest-rules-list li:first-child strong,
 .groupquest-rules-list li:nth-child(2) strong { color: var(--gold); }
+.groupquest-accepted-rules-list { width: 100%; max-width: none; margin-top: 12px; }
+.groupquest-accepted-rules-list strong { text-align: right; color: var(--ink); }
+.groupquest-accepted-rules-list li:nth-child(4) strong,
+.groupquest-accepted-rules-list li:nth-child(5) strong { color: var(--gold); }
 
 
 .groupquest-participant-summary { display: grid; grid-template-columns: minmax(190px, .34fr) minmax(0, 1fr); gap: 10px; align-items: center; padding: 13px; background: radial-gradient(circle at 92% 0%, rgba(96,240,175,.12), transparent 34%), linear-gradient(135deg, rgba(96,240,175,.08), rgba(245,200,106,.045)); }

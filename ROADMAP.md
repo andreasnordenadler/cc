@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:18 Europe/Stockholm
+Last updated: 2026-05-12 17:26 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -636,6 +636,13 @@ Rules from this point:
   - source: Andreas questioned whether the `Automatic proof checks / Submit game link / Connect public usernames` card is needed; decision: no, accepted participant verification should rely on connected provider usernames plus refresh checks.
   - Proof: accepted participant page no longer renders the manual proof submission section or `proofChecks` data block.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9m195oh0p-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route no longer contains `Automatic proof checks`, `Submit game link`, `Connect public usernames`, or `Inside quest window`, while `Refresh checks` and `Competition leaderboard` remain; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Convert accepted-page locked rules from boxes to list.
+  - added_at: 2026-05-12 17:26 Europe/Stockholm
+  - completed_at: 2026-05-12 17:26 Europe/Stockholm
+  - source: Andreas asked to make the remaining boxed settings section into a list instead of boxes.
+  - Proof: accepted participant `Locked competition rules` now renders as a plain `groupquest-accepted-rules-list` list with label/value rows instead of `groupquests-status-strip` tiles.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
