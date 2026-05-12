@@ -438,7 +438,7 @@ Rules from this point:
   - completed_at: 2026-05-12 10:14 Europe/Stockholm
   - source: Andreas said nothing inside the seal should be transparent, liked the black/dark grey feel, and asked to replace `38h left` with actual start/stop dates.
   - Proof: the silver SQC seal now sits inside a dark filled circular seal backing so transparent cutouts render as solid dark grey/black instead of showing the card through; the invite summary and rules now show `May 12, 10:00 CEST` start and `May 14, 00:00 CEST` end instead of `38h left`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9zw2k192z-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, include `groupquest-seal-frame`, include `May 12, 10:00 CEST` and `May 14, 00:00 CEST`, and no longer include `38h left`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
