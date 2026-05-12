@@ -525,7 +525,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:56 Europe/Stockholm
   - source: Andreas showed `Games allowed — Lichess or Chess.com` and said it should be a creation setting, default both, with creator able to limit to one provider.
   - Proof: `/groupquests/create` now has step `6 · Games allowed` with choices `Lichess or Chess.com`, `Lichess only`, and `Chess.com only`; default remains both. The preview includes `Games allowed`, saving stores `providerMode` and `providerLabel`, and invite/accepted route rules can read the stored provider label while falling back to both providers.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qoyqlge5v-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; source smoke confirmed builder provider choices/save fields and invite route reader wiring; anonymous `/groupquests/create` still redirects to sign-in; `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200 with `Games allowed` and default `Lichess or Chess.com`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
