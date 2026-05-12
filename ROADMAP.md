@@ -471,7 +471,7 @@ Rules from this point:
   - completed_at: 2026-05-12 11:50 Europe/Stockholm
   - source: Andreas showed the seal/date summary and asked to remove the box around the section, make Start/End the same font size, and make participant count clearer.
   - Proof: the seal summary no longer has an enclosing border/background box; start/end render as matching labeled date rows; participant copy is separated as `4 players participating`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-matvpxj4b-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with `groupquest-date-stack`, `4 players participating`, start/end dates, and `SQCBLACK%20SEAL.png`; `/groupquests/80303?accepted=1` returns 200; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
