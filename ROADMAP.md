@@ -490,7 +490,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:06 Europe/Stockholm
   - source: Andreas suggested using a list instead of the box-like Start/End metadata treatment.
   - Proof: the invite seal summary now uses a simple `Starts / Ends / Players` list under the seal with thin dividers instead of separate date boxes/columns.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-arrlarrja-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with `groupquest-summary-list`, no old `groupquest-date-stack`, and black seal PNG; `/groupquests/80303?accepted=1` returns 200; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
