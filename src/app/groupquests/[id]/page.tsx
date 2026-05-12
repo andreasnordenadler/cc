@@ -313,7 +313,12 @@ export default async function GroupQuestByIdPage({
 
         <GroupQuestLeaderboard
           id={id}
-          quests={quests.map((quest) => ({ id: quest.id, title: quest.title }))}
+          quests={quests.map((quest) => ({
+            id: quest.id,
+            title: quest.title,
+            badgeImage: quest.badgeIdentity.image,
+            badgeName: quest.badgeIdentity.name,
+          }))}
         />
 
         <section className="grid groupquests-dashboard-grid" aria-label="Rules and event feed">

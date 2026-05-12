@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 21:18 Europe/Stockholm
+Last updated: 2026-05-12 21:29 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -742,6 +742,13 @@ Rules from this point:
   - source: Andreas clarified scrolls should be available for all users to view; in the current example a clickable miniature scroll should appear next to the gold seal and open the full scroll.
   - Proof: completed podium rows now render a small `Scroll` button next to the earned seal. Clicking opens a public full scroll modal with the placement seal, recipient, proof/points details, and `View on leaderboard` link. Incomplete #2/#3 rows still show no scroll.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-133zrjnm3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquest-scroll-mini`, `Scroll`, gold seal, `#2`, and `#3`; source inspection confirmed modal text `Official Side Quest Chess Scroll`, `groupquest-scroll-modal`, and `View on leaderboard`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Enrich public podium scroll with quest coats, completion time, and bested players.
+  - added_at: 2026-05-12 21:29 Europe/Stockholm
+  - completed_at: 2026-05-12 21:29 Europe/Stockholm
+  - source: Andreas wanted the public podium scroll to feel like the single Side Quest victory scroll image: show the coat of arms for completed quests, remove points emphasis, include completion date/time, and perhaps list users beaten in SQC wording.
+  - Proof: full scroll modal now replaces points with completion timestamp, renders completed quest coat-of-arms cards with per-quest completion times, and adds a `Players bested on the road` SQC-flavored section. Leaderboard passes each quest badge image/name into the scroll component.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

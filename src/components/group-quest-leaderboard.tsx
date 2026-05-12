@@ -6,6 +6,8 @@ import { useState } from "react";
 type QuestSummary = {
   id: string;
   title: string;
+  badgeImage?: string;
+  badgeName?: string;
 };
 
 type Player = {
@@ -103,6 +105,17 @@ function formatProvider(value: unknown) {
   return "public chess";
 }
 
+
+function completedQuestsFor(player: Player, quests: QuestSummary[]) {
+  return quests.filter((quest) => player.questFinishedAt[quest.id]);
+}
+
+function finalCompletionTimeFor(player: Player, quests: QuestSummary[]) {
+  const completed = completedQuestsFor(player, quests);
+  const finalQuest = completed[completed.length - 1];
+  return finalQuest ? player.questFinishedAt[finalQuest.id] : "Not completed yet";
+}
+
 function readCurrentParticipant(id: string) {
   if (typeof window === "undefined") return null;
 
@@ -133,6 +146,9 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
   const [selectedScroll, setSelectedScroll] = useState<Player | null>(null);
   const selectedSeal = selectedScroll ? rankSealByPlacement[selectedScroll.rank] : null;
+  const selectedCompletedQuests = selectedScroll ? completedQuestsFor(selectedScroll, quests) : [];
+  const selectedFinishedAt = selectedScroll ? finalCompletionTimeFor(selectedScroll, quests) : "";
+  const bestedPlayers = selectedScroll ? players.filter((player) => player.rank > selectedScroll.rank).map((player) => player.name) : [];
 
   return (
     <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
@@ -217,13 +233,26 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
               <span className="eyebrow">Official Side Quest Chess Scroll</span>
               <h3>{selectedSeal.label} awarded to {selectedScroll.name}</h3>
               <p>
-                By public-game proof and many tiny verifier stamps, this player completed every Side Quest in No Castle Night and claimed {selectedSeal.label.toLowerCase()}.
+                By public-game proof and many tiny verifier stamps, {selectedScroll.name} completed every Side Quest in No Castle Night and claimed {selectedSeal.label.toLowerCase()}.
               </p>
               <dl>
                 <div><dt>Placement</dt><dd>#{selectedScroll.rank}</dd></div>
+                <div><dt>Completed</dt><dd>{selectedFinishedAt}</dd></div>
                 <div><dt>Proof</dt><dd>{selectedScroll.proof}</dd></div>
-                <div><dt>Points</dt><dd>{selectedScroll.score.toLocaleString()} pts</dd></div>
               </dl>
+              <div className="groupquest-scroll-quest-coats" aria-label="Completed Side Quest coats of arms">
+                {selectedCompletedQuests.map((quest) => (
+                  <div key={quest.id}>
+                    {quest.badgeImage ? <Image src={quest.badgeImage} alt={quest.badgeName ?? quest.title} width={64} height={64} /> : null}
+                    <strong>{quest.title}</strong>
+                    <small>{selectedScroll.questFinishedAt[quest.id]}</small>
+                  </div>
+                ))}
+              </div>
+              <div className="groupquest-scroll-bested" aria-label="Players bested">
+                <span className="eyebrow">Players bested on the road</span>
+                <p>{bestedPlayers.length ? bestedPlayers.join(" · ") : "The hall was empty, but the verifier still applauded politely."}</p>
+              </div>
               <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
                 View on leaderboard
               </a>

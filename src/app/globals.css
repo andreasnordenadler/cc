@@ -1298,6 +1298,16 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-scroll-paper p { margin: 0; max-width: 42ch; color: rgba(32,20,7,.78); font-weight: 900; line-height: 1.42; }
 .groupquest-scroll-paper dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 4px 0 0; }
 .groupquest-scroll-paper dl div { padding: 10px; border-radius: 16px; background: rgba(255,255,255,.18); border: 1px solid rgba(32,20,7,.12); }
+
+.groupquest-scroll-quest-coats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; }
+.groupquest-scroll-quest-coats div { display: grid; justify-items: center; gap: 5px; padding: 10px; border-radius: 18px; background: rgba(255,255,255,.16); border: 1px solid rgba(32,20,7,.12); }
+.groupquest-scroll-quest-coats img { width: 64px; height: 64px; object-fit: contain; filter: drop-shadow(0 10px 14px rgba(0,0,0,.24)); }
+.groupquest-scroll-quest-coats strong { color: #201407; font-size: .78rem; font-weight: 1000; line-height: 1.12; }
+.groupquest-scroll-quest-coats small { color: rgba(32,20,7,.66); font-size: .68rem; font-weight: 900; line-height: 1.16; }
+.groupquest-scroll-bested { width: 100%; padding: 12px; border-radius: 18px; background: rgba(32,20,7,.1); border: 1px dashed rgba(32,20,7,.22); }
+.groupquest-scroll-bested .eyebrow { display: block; }
+.groupquest-scroll-bested p { margin-top: 4px; max-width: none; }
+@media (max-width: 620px) { .groupquest-scroll-quest-coats { grid-template-columns: 1fr; } }
 .groupquest-scroll-paper dt { color: rgba(32,20,7,.6); font-size: .62rem; font-weight: 1000; letter-spacing: .1em; text-transform: uppercase; }
 .groupquest-scroll-paper dd { margin: 3px 0 0; color: #201407; font-weight: 1000; }
 @media (max-width: 620px) { .groupquest-rank-stack { align-items: flex-start; } .groupquest-scroll-paper dl { grid-template-columns: 1fr; } }
