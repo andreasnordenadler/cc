@@ -1222,12 +1222,20 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-score-strip span { display: block; margin-top: 5px; color: var(--muted); font-size: .75rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
 .groupquest-leaderboard-card { background: radial-gradient(circle at 94% 0%, rgba(96,240,175,.13), transparent 36%), rgba(255,255,255,.075); }
 .groupquest-leaderboard-list { display: grid; gap: 10px; }
-.groupquest-leaderboard-row { display: grid; grid-template-columns: auto minmax(150px, .7fr) minmax(150px, .9fr) minmax(180px, 1fr); gap: 12px; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); }
+.groupquest-leaderboard-row { display: grid; gap: 10px; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); }
+.groupquest-leaderboard-row summary { display: grid; grid-template-columns: auto minmax(150px, .7fr) minmax(150px, .9fr) minmax(180px, 1fr); gap: 12px; align-items: center; cursor: pointer; list-style: none; }
+.groupquest-leaderboard-row summary::-webkit-details-marker { display: none; }
+.groupquest-leaderboard-row summary::after { content: "View finish times"; grid-column: 1 / -1; justify-self: start; color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.groupquest-leaderboard-row[open] summary::after { content: "Hide finish times"; }
 .groupquest-leaderboard-row.gold { border-color: rgba(245,200,106,.36); background: linear-gradient(90deg, rgba(245,200,106,.13), rgba(0,0,0,.14)); }
 .groupquest-leaderboard-row.green { border-color: rgba(96,240,175,.32); background: linear-gradient(90deg, rgba(96,240,175,.12), rgba(0,0,0,.14)); }
 .groupquest-rank { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.15); color: var(--gold); font-weight: 1000; }
 .groupquest-leaderboard-row strong { color: var(--ink); font-weight: 1000; }
 .groupquest-leaderboard-row small { display: block; margin-top: 3px; color: var(--muted); font-size: .77rem; font-weight: 850; line-height: 1.3; }
+.groupquest-finished-detail { display: grid; gap: 7px; padding-top: 10px; border-top: 1px solid rgba(236,228,204,.12); }
+.groupquest-finished-detail div { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.groupquest-finished-detail span { color: var(--muted); font-size: .8rem; font-weight: 900; }
+.groupquest-finished-detail strong { color: var(--ink); font-size: .82rem; text-align: right; }
 .groupquest-progress-bar { height: 13px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.1); }
 .groupquest-progress-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), var(--gold)); }
 .groupquest-competition-grid { grid-template-columns: minmax(0, 1.08fr) minmax(310px, .8fr); align-items: stretch; }
@@ -1263,7 +1271,9 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 860px) {
   .groupquest-competition-hero, .groupquest-competition-grid { grid-template-columns: 1fr; }
   .groupquest-score-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .groupquest-leaderboard-row { grid-template-columns: auto minmax(0, 1fr); }
+  .groupquest-leaderboard-row summary { grid-template-columns: auto minmax(0, 1fr); }
   .groupquest-progress-bar { grid-column: 1 / -1; }
+  .groupquest-finished-detail div { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .groupquest-finished-detail strong { text-align: left; }
 }
 @media (max-width: 560px) { .groupquest-score-strip { grid-template-columns: 1fr; } }

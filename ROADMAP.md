@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 14:03 Europe/Stockholm
+Last updated: 2026-05-12 14:07 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -541,6 +541,13 @@ Rules from this point:
   - source: Andreas disliked `let SQC judge the receipt`, noted the product does not use `SQC`, and suggested language like `climb the leaderboard`.
   - Proof: onboarding heading now says `Accept the quest, play normally, climb the leaderboard.`; step 3 now says `Proof gets checked`; accepted proof heading now says `Submit once. The verifier checks the boring parts.`
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-hy5nli6gz-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with `climb the leaderboard` and `Proof gets checked`, no old `let SQC judge the receipt` or `SQC checks the proof`; accepted route returns 200 with `The verifier checks the boring parts`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Add expandable Multiplayer Side Quest player finish times.
+  - added_at: 2026-05-12 14:07 Europe/Stockholm
+  - completed_at: 2026-05-12 14:07 Europe/Stockholm
+  - source: Andreas showed leaderboard/player boxes and asked that clicking one reveals date/time of each quest finished.
+  - Proof: leaderboard rows now use accessible expandable player rows; clicking a player reveals each selected quest with its finish timestamp or `Not finished yet`; works on invite preview and accepted competition leaderboard.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
