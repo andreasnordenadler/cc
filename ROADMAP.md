@@ -734,7 +734,7 @@ Rules from this point:
   - completed_at: 2026-05-12 21:10 Europe/Stockholm
   - source: Andreas proposed a celebration scroll for gold/silver/bronze that pops up for the user who earns it and links to them on the leaderboard.
   - Proof: accepted leaderboard now has a reusable `groupquest-podium-scroll` reward panel that appears only for the current participant when they are podium-eligible and completed all included Side Quests; it uses the correct placement seal and includes `View on leaderboard`, linking to the participant’s anchored leaderboard row.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-26i2lxd34-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route has anchored leaderboard rows (`leaderboard-rank-1/2/3`) and gold seal still present; source inspection confirmed conditional `groupquest-podium-scroll` and `View on leaderboard` link; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
