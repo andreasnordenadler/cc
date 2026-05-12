@@ -49,12 +49,6 @@ const leaderboardPreview = [
   },
 ];
 
-const proofChecks = [
-  { label: "Inside quest window", state: "Automatic", tone: "green", copy: "Only games after open and before close can count." },
-  { label: "Standard chess", state: "Automatic", tone: "green", copy: "Variants are rejected for this Multiplayer Side Quest." },
-  { label: "Quest-specific rules", state: "Per quest", tone: "gold", copy: "Each selected Side Quest runs its own verifier." },
-];
-
 const eventFeed = [
   { label: "Proof accepted", copy: "CoffeeKnight completed Rookless Rampage and jumped to first." },
   { label: "Automatic check", copy: "QueenlessHero's latest game passed No Castle Club rules." },
@@ -318,28 +312,6 @@ export default async function GroupQuestByIdPage({
           id={id}
           quests={quests.map((quest) => ({ id: quest.id, title: quest.title }))}
         />
-
-        <section className="grid" aria-label="Proof submission">
-          <article className="mission-card groupquests-participant-panel" id="submit-proof">
-            <span className="eyebrow">Automatic proof checks</span>
-            <h2>Submit once. The verifier checks the boring parts.</h2>
-            <p>
-              Paste a public provider-game URL. The verifier checks the time window, standard chess requirement, and the selected Side Quest rules.
-            </p>
-            <div className="groupquests-proof-checklist">
-              {proofChecks.map((check) => (
-                <div className={check.tone} key={check.label}>
-                  <span>{check.label}<small>{check.copy}</small></span>
-                  <strong>{check.state}</strong>
-                </div>
-              ))}
-            </div>
-            <div className="button-row">
-              <button className="button primary" type="button">Submit game link</button>
-              <Link className="button secondary" href="/connect">Connect public usernames</Link>
-            </div>
-          </article>
-        </section>
 
         <section className="grid groupquests-dashboard-grid" aria-label="Rules and event feed">
           <article className="mission-card groupquests-live-card">

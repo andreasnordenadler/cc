@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 16:46 Europe/Stockholm
+Last updated: 2026-05-12 17:18 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -629,6 +629,13 @@ Rules from this point:
   - source: Andreas said the accepted participant leaderboard should not show generic `You`; it should use the provided leaderboard name and list username like other leaderboard rows.
   - Proof: accepted leaderboard moved into a client component that reads the saved participant setup and replaces the current participant row with the provided leaderboard name plus provider-prefixed username, e.g. `lichess: username` or `chess.com: username`.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ngziuiv2v-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route returns 200 and renders the leaderboard shell; source inspection confirmed `GroupQuestLeaderboard` reads `sqc-groupquest-participant:{id}`, uses `leaderboardName`, and renders provider-prefixed username; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Remove accepted-page manual proof submission card.
+  - added_at: 2026-05-12 17:18 Europe/Stockholm
+  - completed_at: 2026-05-12 17:18 Europe/Stockholm
+  - source: Andreas questioned whether the `Automatic proof checks / Submit game link / Connect public usernames` card is needed; decision: no, accepted participant verification should rely on connected provider usernames plus refresh checks.
+  - Proof: accepted participant page no longer renders the manual proof submission section or `proofChecks` data block.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
