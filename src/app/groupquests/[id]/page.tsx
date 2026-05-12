@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
 import GroupQuestDraftValue from "@/components/group-quest-draft-value";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
@@ -132,7 +133,7 @@ export default async function GroupQuestByIdPage({
               <h1>No Castle Night</h1>
               <GroupQuestInviteCopy id={id} fallback={defaultInviteCopy} />
               <div className="hero-actions button-row">
-                <Link className="button primary" href={`/groupquests/${id}?accepted=1`}>Accept this Side Quest</Link>
+                <GroupQuestAcceptModal id={id} questName="No Castle Night" />
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
             </div>
@@ -162,9 +163,10 @@ export default async function GroupQuestByIdPage({
                   );
 
                   return isAcceptStep ? (
-                    <Link className="groupquest-onboarding-step primary-step" href={`/groupquests/${id}?accepted=1`} key={step.title}>
+                    <div className="groupquest-onboarding-step primary-step" key={step.title}>
                       {content}
-                    </Link>
+                      <GroupQuestAcceptModal id={id} questName="No Castle Night" />
+                    </div>
                   ) : (
                     <div className="groupquest-onboarding-step" key={step.title}>
                       {content}
@@ -255,7 +257,7 @@ export default async function GroupQuestByIdPage({
               <h2>Accept this Side Quest.</h2>
               <p>After accepting, you will reach the live competition page with proof checks, leaderboard progress, activity, and share tools.</p>
             </div>
-            <Link className="button primary" href={`/groupquests/${id}?accepted=1`}>Accept this Side Quest</Link>
+            <GroupQuestAcceptModal id={id} questName="No Castle Night" />
           </section>
         </div>
       </main>
