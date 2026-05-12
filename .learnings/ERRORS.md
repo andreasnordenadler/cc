@@ -2998,3 +2998,21 @@ For fast UI iterations, inspect the current nearby source before using exact mul
 - Related Files: src/components/group-quest-draft-builder.tsx
 
 ---
+
+## [ERR-20260512-001] next_start_argument_forwarding
+
+**Logged**: 2026-05-12T09:07:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`pnpm start -- -p 3031` failed because the script forwarded `-p` as a project directory to `next start`.
+
+### Details
+Use `pnpm exec next start -p <port>` for local production smoke checks when the package `start` script is `next start`.
+
+### Suggested Action
+Prefer `pnpm exec next start -p 3031` in this repo.
+
+---

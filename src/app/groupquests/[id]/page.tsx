@@ -26,19 +26,154 @@ const eventFeed = [
   { label: "Your proof", copy: "Knights Before Coffee is verified. Two quests remain." },
 ];
 
+const onboardingSteps = [
+  { label: "1", title: "Accept the Side Quest", copy: "Join No Castle Night so your games can count for this competition." },
+  { label: "2", title: "Play real chess elsewhere", copy: "Use Lichess or Chess.com. No uploads, no private passwords, just public game proof." },
+  { label: "3", title: "SQC checks the proof", copy: "Paste a game link or check latest games. The verifier reads the public receipt." },
+  { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
+];
+
+const ruleSummary = [
+  { label: "Quest window", value: "Live now · 38h left" },
+  { label: "Games allowed", value: "Lichess or Chess.com" },
+  { label: "Variant", value: "Standard chess only" },
+  { label: "Proof", value: "Public games after joining" },
+];
+
 export const metadata = {
   title: "Multiplayer Side Quest · Side Quest Chess",
   description: "A participant-focused Side Quest Chess Multiplayer Side Quest page with leaderboard, proof checks, and quest badges.",
 };
 
-export default async function GroupQuestByIdPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function GroupQuestByIdPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ accepted?: string }>;
+}) {
   const { userId } = await auth();
   const { id } = await params;
+  const query = searchParams ? await searchParams : {};
+  const hasAcceptedInvite = query.accepted === "1";
   const quests = questIds
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
   const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
   const totalReward = quests.reduce((sum, quest) => sum + quest.reward, 0);
+
+  if (!hasAcceptedInvite) {
+    return (
+      <main className="site-shell groupquests-page groupquest-participant-page groupquest-invite-onboarding-page">
+        <SiteNav isSignedIn={Boolean(userId)} active="groupquests" />
+
+        <div className="content-wrap">
+          <section className="hero-card groupquests-hero groupquest-competition-hero groupquest-invite-hero">
+            <div className="groupquest-hero-copy">
+              <span className="eyebrow">You were invited · Multiplayer Side Quest #{id}</span>
+              <h1>No Castle Night</h1>
+              <p className="hero-copy">
+                A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.
+              </p>
+              <div className="hero-actions button-row">
+                <Link className="button primary" href={`/groupquests/${id}?accepted=1`}>Accept this Side Quest</Link>
+                <Link className="button secondary" href="#how-it-works">How it works</Link>
+              </div>
+            </div>
+            <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
+              <div className="groupquest-seal">SQC</div>
+              <strong>38h left</strong>
+              <span>{leaderboard.length} players are already in</span>
+            </div>
+          </section>
+
+          <section className="grid groupquest-onboarding-grid" id="how-it-works" aria-label="Side Quest onboarding">
+            <article className="mission-card groupquest-onboarding-card">
+              <span className="eyebrow">What am I supposed to do?</span>
+              <h2>Accept the quest, play normally, let SQC judge the receipt.</h2>
+              <div className="groupquest-onboarding-steps">
+                {onboardingSteps.map((step) => (
+                  <div key={step.title}>
+                    <em>{step.label}</em>
+                    <span><strong>{step.title}</strong><small>{step.copy}</small></span>
+                  </div>
+                ))}
+              </div>
+            </article>
+
+            <article className="mission-card groupquest-onboarding-card">
+              <span className="eyebrow">What are the side quests?</span>
+              <h2>The quests you are accepting.</h2>
+              <div className="groupquest-badge-stack">
+                {quests.map((quest, index) => (
+                  <div className="groupquest-badge-row" key={quest.id}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={quest.badgeIdentity.image} alt="" />
+                    <div>
+                      <strong>{index + 1}. {quest.title}</strong>
+                      <span>{quest.proofCallout} · {quest.reward} pts</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          </section>
+
+          <section className="grid groupquests-dashboard-grid" aria-label="Rules and participants preview">
+            <article className="mission-card groupquest-leaderboard-card">
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">Who else is participating?</span>
+                  <h2>Competition leaderboard preview.</h2>
+                </div>
+                <span className="badge green">Live</span>
+              </div>
+              <div className="groupquest-leaderboard-list">
+                {leaderboard.slice(0, 3).map((player) => (
+                  <article className={`groupquest-leaderboard-row ${player.tone}`} key={player.name}>
+                    <div className="groupquest-rank">#{player.rank}</div>
+                    <div>
+                      <strong>{player.name}</strong>
+                      <small>{player.proof}</small>
+                    </div>
+                    <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} quests verified`}>
+                      <span style={{ width: `${Math.round((player.completed / quests.length) * 100)}%` }} />
+                    </div>
+                    <div>
+                      <strong>{player.completed} / {quests.length}</strong>
+                      <small>{player.last}</small>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </article>
+
+            <article className="mission-card groupquests-live-card">
+              <span className="eyebrow">Rules and time</span>
+              <h2>What counts for this run.</h2>
+              <p>
+                This competition uses fresh public games. Older personal completions do not automatically count here.
+              </p>
+              <div className="groupquests-status-strip groupquest-onboarding-rules" aria-label="Onboarding rule summary">
+                {ruleSummary.map((rule) => (
+                  <div key={rule.label}><strong>{rule.label}</strong><span>{rule.value}</span></div>
+                ))}
+              </div>
+            </article>
+          </section>
+
+          <section className="mission-card groupquest-accept-card" aria-label="Accept this Side Quest">
+            <div>
+              <span className="eyebrow">Ready?</span>
+              <h2>Accept this Side Quest.</h2>
+              <p>After accepting, you will reach the live competition page with proof checks, leaderboard progress, activity, and share tools.</p>
+            </div>
+            <Link className="button primary" href={`/groupquests/${id}?accepted=1`}>Accept this Side Quest</Link>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="site-shell groupquests-page groupquest-participant-page">

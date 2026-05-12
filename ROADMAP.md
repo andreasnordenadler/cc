@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-09 23:31 Europe/Stockholm
+Last updated: 2026-05-12 08:44 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -418,6 +418,11 @@ Rules from this point:
   - source: Andreas said `/groupquests/80303` should focus on participant experience: competition/leaderboard, automatic proof checks, and graphical quest/seal treatment.
   - Proof: dynamic `/groupquests/{id}` page is leaderboard-first, shows “how am I doing vs others,” automatic proof-check states, selected quest coat-of-arms graphics, SQC seal/trophy summary, share action, and participant-oriented rules/activity. Creator/admin controls are not the main participant page surface.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-h4ju09ziu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke `https://sidequestchess.com/groupquests/80303` returned 200 and contained competition leaderboard, automatic proof checks, quest coats of arms, SQC seal, submit proof CTA, mock player rows, and badge image references; Vercel error logs had no recent logs.
+
+- [ ] Reframe individual Multiplayer Side Quest invite page around first-time invitee orientation before leaderboard density.
+  - added_at: 2026-05-12 08:44 Europe/Stockholm
+  - source: Andreas said the Competition Leaderboard/progress bars idea is good, but a first-time invitee will first ask: what is this, what am I supposed to do, what are the side quests, next step, who else is participating, what are the rules, what about time?
+  - acceptance: before further implementation, the page concept should prioritize invitee clarity: plain-language premise, state-aware next-step card, visible quest explanation, participant/progress context, compact rules/time window, and then leaderboard/activity feed. Planning captured in `docs/SQC_MULTIPLAYER_COMPETITIONS_PLAN_2026-05-09.md` under `First-time invitee clarity pass — 2026-05-12`.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

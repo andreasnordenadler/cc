@@ -305,6 +305,66 @@ Sharable group page should work in multiple states.
 - final group certificate/share image;
 - rematch CTA.
 
+
+## First-time invitee clarity pass — 2026-05-12
+
+Andreas feedback: the Competition Leaderboard/progress-bar idea is promising, but the first invitee experience must answer the basic “I have never seen this before” questions before optimizing the competitive UI.
+
+The invitee should never land on a page that assumes they already understand Side Quest Chess or Multiplayer Side Quests. The page must answer, in order:
+
+1. **What is this?**
+   - “A friend invited you to a chess side quest.”
+   - One plain sentence: play normal games on Lichess/Chess.com, try to satisfy a weird objective, SQC checks the proof.
+
+2. **What am I supposed to do?**
+   - Show a short personal next-step card, not a generic marketing section.
+   - States: `Join`, `Connect/confirm chess username`, `Play a game`, `Check proof`, `Claim result`.
+
+3. **What are the side quests?**
+   - Show the actual quest(s) before or beside the leaderboard.
+   - Each quest needs: name, one-line objective, example/clarifier, win requirement, and whether order matters.
+
+4. **Who else is participating?**
+   - Keep the Competition Leaderboard/progress bars, but frame it as “Who is in this with me?”
+   - Show participants, joined/pending/completed states, and progress toward the quest(s).
+
+5. **What are the rules?**
+   - Rules should be a visible compact panel, not hidden settings.
+   - Must include: eligible sites, time window, win/rated/variant/time-control constraints, proof method, scoring, tie-breaker, and whether older games count.
+
+6. **What about time?**
+   - Show competition state in human language: `Starts in…`, `Live — X left`, `Ended`.
+   - If proof only counts after joining/start, say so plainly near the CTA.
+
+7. **What happens next?**
+   - The primary CTA must always reflect the invitee’s current state.
+   - Avoid multiple equal-weight actions on first view. One main action plus one small “See rules”/“How it works” link is enough.
+
+Recommended page hierarchy for an invite-link landing page:
+
+1. **Invite hero / plain-language premise**
+   - `You were invited to No Castle Night`
+   - `Try to win a real chess game without castling. Side Quest Chess checks your public game and updates this leaderboard.`
+   - Primary CTA: state-aware.
+
+2. **Your next step**
+   - Small checklist with only the next 3–5 steps.
+   - This is the orientation anchor for a confused invitee.
+
+3. **The side quest(s)**
+   - Quest card(s) with objective, example, constraints, and progress.
+
+4. **Competition leaderboard**
+   - Progress bars/status rows stay, but they are now understandable because the quest/rules context came first.
+
+5. **Rules and time window**
+   - Compact, scannable, always available.
+
+6. **Activity / proof feed**
+   - Recent joins, proof checks, completions, lead changes. Good for energy, but lower priority than orientation.
+
+UX rule: if the user has not joined yet, the page should behave more like an invitation than a dashboard. After joining, it can shift toward leaderboard/proof workflow.
+
 ## Live status model
 
 Competition live view should auto-update without being heavy.
