@@ -579,7 +579,7 @@ Rules from this point:
   - completed_at: 2026-05-12 15:40 Europe/Stockholm
   - source: Andreas showed the quest stack lower on the accepted participant page and asked to see the quests to complete somewhere at the top so it is clear what to complete.
   - Proof: accepted participant page now shows a compact `Quests to complete` checklist immediately after the `You’re in` strip and before standings; each quest row links to its full challenge page with badge, title, points, and proof callout; lower quest-card area was converted to a progress tip to avoid duplicating the checklist.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-as76l18jb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route `/groupquests/80303?accepted=1` returns 200 with `groupquest-top-quest-stack`, `Quests to complete`, quest rows and challenge links, no old `The stack to beat`; invite route remains onboarding-only; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
