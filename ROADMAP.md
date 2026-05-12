@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 13:03 Europe/Stockholm
+Last updated: 2026-05-12 13:06 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -484,6 +484,13 @@ Rules from this point:
   - added_at: 2026-05-12 13:03 Europe/Stockholm
   - source: Andreas noted that before/when accepting a Multiplayer Side Quest we need to collect the participant's chess username, leaderboard display name if different, and optional profile/contact fields such as email for updates and location.
   - acceptance: the invite/onboarding acceptance flow should include a lightweight participant setup step that collects required public chess username(s) for proof, required leaderboard display name, optional email updates with explicit consent, and optional location/timezone/profile fields; copy must reassure that SQC never asks for Lichess/Chess.com passwords and uses public games/usernames only.
+
+- [x] Convert Multiplayer Side Quest invite summary metadata to a plain list.
+  - added_at: 2026-05-12 13:06 Europe/Stockholm
+  - completed_at: 2026-05-12 13:06 Europe/Stockholm
+  - source: Andreas suggested using a list instead of the box-like Start/End metadata treatment.
+  - Proof: the invite seal summary now uses a simple `Starts / Ends / Players` list under the seal with thin dividers instead of separate date boxes/columns.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
