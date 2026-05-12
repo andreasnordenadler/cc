@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:43 Europe/Stockholm
+Last updated: 2026-05-12 17:46 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -671,6 +671,13 @@ Rules from this point:
   - source: Andreas pointed out the accepted-page locked-rules list content was bottom/baseline aligned, especially the long `Winner` row.
   - Proof: `groupquest-accepted-rules-list li` now uses `align-items: flex-start`, keeping labels and values aligned to the top.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-drfm73kda-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route still contains the rules list and Winner text, source CSS confirms `groupquest-accepted-rules-list li { align-items: flex-start; }`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Record Multiplayer verifier canon: one game may complete multiple Side Quests.
+  - added_at: 2026-05-12 17:46 Europe/Stockholm
+  - completed_at: 2026-05-12 17:46 Europe/Stockholm
+  - source: Andreas confirmed the desired Multiplayer behavior: check all included Side Quests against the latest public provider games, allowing one valid game to complete multiple quests when it satisfies multiple quest rules.
+  - Product rule: Multiplayer refresh/check runs should evaluate every included Side Quest against the participant’s latest public provider games. Do not enforce one-game-per-quest. If one public game satisfies multiple included quest verifiers, all matching quests may complete from that same game.
+  - Verification: roadmap canon recorded; implementation follow-up should preserve this rule when the real Multiplayer verifier is wired.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
