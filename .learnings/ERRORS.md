@@ -3162,3 +3162,7 @@ After adding new component-specific classes, verify their CSS selectors exist be
 - Tags: css, ui-polish, multiplayer
 
 ---
+
+## 2026-05-12 — ROADMAP targeted edit matched repeated verification text
+- What happened: A direct `edit` replacement for a ROADMAP verification line failed because the same lint/build sentence appeared three times.
+- What to do differently: Include the full surrounding roadmap item block, or use a small scripted replacement keyed by the item title when updating repeated proof text.
