@@ -3139,3 +3139,26 @@ Use `grep -R "removedSymbol"` after refactors, not just fix the first build erro
 - Tags: refactor, typecheck, frontend
 
 ---
+
+## [ERR-20260512-004] missing_leave_button_css
+
+**Logged**: 2026-05-12T20:47:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+The leave action rendered with browser default button styling because the intended `groupquest-leave-*` CSS rules were not present in `globals.css`.
+
+### Details
+A replacement command expected existing leave-button CSS, but `grep` showed only component classes and no CSS rules. Added explicit SQC-style gold button CSS.
+
+### Suggested Action
+After adding new component-specific classes, verify their CSS selectors exist before deploying.
+
+### Metadata
+- Source: error
+- Related Files: src/components/group-quest-leave-action.tsx, src/app/globals.css
+- Tags: css, ui-polish, multiplayer
+
+---

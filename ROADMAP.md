@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:53 Europe/Stockholm
+Last updated: 2026-05-12 20:48 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -692,6 +692,13 @@ Rules from this point:
   - source: Andreas said there is no need to highlight the top user on the Multiplayer leaderboard.
   - Proof: removed the `.groupquest-leaderboard-row.gold` special border/background styling; the gold placement seal remains, but first-place row now uses the standard row treatment.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-bn3cwhned-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route still contains the gold seal and leaderboard content; source CSS confirms `.groupquest-leaderboard-row.gold` highlight styling is removed; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Style bottom leave action as Side Quest Chess gold button.
+  - added_at: 2026-05-12 20:48 Europe/Stockholm
+  - completed_at: 2026-05-12 20:48 Europe/Stockholm
+  - source: Andreas pointed out the bottom `Leave this Side Quest` control was rendering like a default browser button and should match the site style, likely yellow/gold.
+  - Proof: added `groupquest-leave-zone` / `groupquest-leave-button` CSS so the leave action renders as a rounded gold Side Quest Chess-style button with hover/focus treatment.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
