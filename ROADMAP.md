@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 20:48 Europe/Stockholm
+Last updated: 2026-05-12 20:53 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -699,6 +699,21 @@ Rules from this point:
   - source: Andreas pointed out the bottom `Leave this Side Quest` control was rendering like a default browser button and should match the site style, likely yellow/gold.
   - Proof: added `groupquest-leave-zone` / `groupquest-leave-button` CSS so the leave action renders as a rounded gold Side Quest Chess-style button with hover/focus treatment.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-l2ry5eqsc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `Leave this Side Quest`, `groupquest-leave-button`, and `groupquest-leave-zone`; CSS inspection confirmed gold gradient button styling; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [ ] Add Multiplayer finished/winner state for participants.
+  - added_at: 2026-05-12 20:53 Europe/Stockholm
+  - source: Andreas said the accepted Multiplayer page is approved and asked what comes next; likely the page state after a user finishes all quests and wins, including second/third placements.
+  - Scope: add finished participant/result variants for winner, 2nd, 3rd, and non-podium placements; use gold/silver/bronze SQC seals as final placement prizes; make the participant page feel like a reward/proof moment instead of active checklist.
+
+- [ ] Add Multiplayer ended-by-time state.
+  - added_at: 2026-05-12 20:53 Europe/Stockholm
+  - source: Andreas asked for a finished state when the Multiplayer Side Quest time has ended.
+  - Scope: when deadline passes, lock checks, show final leaderboard, explain whether winner was first-to-complete-all or highest-points-at-deadline, show placement rewards, and prevent joining/leaving/refreshing active checks.
+
+- [ ] Define Multiplayer admin/creator post-finish controls.
+  - added_at: 2026-05-12 20:53 Europe/Stockholm
+  - source: follow-up needed after participant finish/ended states so creators can see final status and share results separately from participant view.
+  - Scope: creator-facing final controls for sharing results, copying invite/final link, resolving ties/edge cases if needed, and reviewing verifier events.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
