@@ -3070,3 +3070,26 @@ Swift failed building Foundation/CoreFoundation modules due SDK/compiler mismatc
 Use committed provided assets plus CSS blending, or use a dedicated image tool/provider when a true alpha PNG is required.
 
 ---
+
+## [ERR-20260512-001] exact_text_edit
+
+**Logged**: 2026-05-12T16:36:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+Initial scripted edit for removing the participant-summary proof hint used the wrong surrounding block and failed to match.
+
+### Details
+The text lived directly under `groupquest-participant-summary-head`, not inside a nested quest title block. Lint/build still ran because the shell command did not stop after the Python script exited non-zero.
+
+### Suggested Action
+Use `set -e` or chain commands with `&&` after scripted edits when later checks should only run if the edit succeeds.
+
+### Metadata
+- Source: error
+- Related Files: src/components/group-quest-participant-summary.tsx
+- Tags: shell, exact-match, frontend
+
+---

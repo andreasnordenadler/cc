@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 16:39 Europe/Stockholm
+Last updated: 2026-05-12 16:42 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -615,6 +615,13 @@ Rules from this point:
   - source: Andreas asked to remove the `Progress tip / Complete the quest stack above` section from the accepted participant page.
   - Proof: accepted participant page no longer renders the progress tip card; proof submission section remains.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-hglqth2gh-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route no longer contains `Progress tip`, `Complete the quest stack above`, or `The top quest list is your checklist`, while `Automatic proof checks` and `Submit game link` remain; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Remove accepted participant summary proof hint.
+  - added_at: 2026-05-12 16:42 Europe/Stockholm
+  - completed_at: 2026-05-12 16:42 Europe/Stockholm
+  - source: Andreas asked to remove the text `Play a valid public game, then submit proof.` from the accepted participant page.
+  - Proof: `group-quest-participant-summary` no longer renders that small helper line under the participant name.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

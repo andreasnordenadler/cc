@@ -74,7 +74,6 @@ export default function GroupQuestParticipantSummary({ id }: { id: string }) {
       <div className="groupquest-participant-summary-head">
         <span className="eyebrow">You’re in</span>
         <strong>{participant.leaderboardName}</strong>
-        <small>Play a valid public game, then submit proof.</small>
       </div>
       <dl>
         <div>
