@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 14:07 Europe/Stockholm
+Last updated: 2026-05-12 14:09 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -483,7 +483,8 @@ Rules from this point:
 - [ ] Add Multiplayer Side Quest participant join profile step.
   - added_at: 2026-05-12 13:03 Europe/Stockholm
   - source: Andreas noted that before/when accepting a Multiplayer Side Quest we need to collect the participant's chess username, leaderboard display name if different, and optional profile/contact fields such as email for updates and location.
-  - acceptance: the invite/onboarding acceptance flow should include a lightweight participant setup step that collects required public chess username(s) for proof, required leaderboard display name, optional email updates with explicit consent, and optional location/timezone/profile fields; copy must reassure that SQC never asks for Lichess/Chess.com passwords and uses public games/usernames only.
+  - acceptance: the invite/onboarding acceptance flow should include a lightweight participant setup step that collects required public chess username(s) for proof, required leaderboard display name, optional email updates with explicit consent, and optional location/timezone/profile fields; copy must reassure that Side Quest Chess never asks for Lichess/Chess.com passwords and uses public games/usernames only.
+  - flow decision: clicking `Accept this Side Quest` should open an in-page modal/sheet (not navigate immediately). Modal actions: `Continue` saves/validates the participant setup and then routes to `/groupquests/{id}?accepted=1`; `Cancel` closes the modal and leaves the invite page unchanged.
 
 - [x] Convert Multiplayer Side Quest invite summary metadata to a plain list.
   - added_at: 2026-05-12 13:06 Europe/Stockholm
