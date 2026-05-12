@@ -547,7 +547,7 @@ Rules from this point:
   - completed_at: 2026-05-12 14:07 Europe/Stockholm
   - source: Andreas showed leaderboard/player boxes and asked that clicking one reveals date/time of each quest finished.
   - Proof: leaderboard rows now use accessible expandable player rows; clicking a player reveals each selected quest with its finish timestamp or `Not finished yet`; works on invite preview and accepted competition leaderboard.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-k8x3wl9v5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200 with `groupquest-finished-detail`, sample finish timestamp `May 12, 10:37 CEST`, and `Not finished yet`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
