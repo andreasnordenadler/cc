@@ -1309,5 +1309,4 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-join-note { margin: 0; padding: 11px 12px; border: 1px solid rgba(96,240,175,.22); border-radius: 16px; background: rgba(96,240,175,.08); color: rgba(236,228,204,.86); font-size: .86rem; font-weight: 850; }
 .groupquest-join-error { margin: 0; color: #ff9aa7; font-size: .86rem; font-weight: 950; }
 .groupquest-join-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
-.groupquest-onboarding-step.primary-step .button { width: max-content; margin-top: 8px; padding: 8px 11px; font-size: .78rem; }
 @media (max-width: 560px) { .groupquest-provider-choice > div, .groupquest-join-actions { grid-template-columns: 1fr; } .groupquest-join-actions .button { width: 100%; } }

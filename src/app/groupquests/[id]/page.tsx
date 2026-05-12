@@ -166,7 +166,6 @@ export default async function GroupQuestByIdPage({
                   return isAcceptStep ? (
                     <div className="groupquest-onboarding-step primary-step" key={step.title}>
                       {content}
-                      <GroupQuestAcceptModal id={id} questName="No Castle Night" />
                     </div>
                   ) : (
                     <div className="groupquest-onboarding-step" key={step.title}>
