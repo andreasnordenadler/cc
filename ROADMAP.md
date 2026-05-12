@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 21:10 Europe/Stockholm
+Last updated: 2026-05-12 21:18 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -735,6 +735,13 @@ Rules from this point:
   - source: Andreas proposed a celebration scroll for gold/silver/bronze that pops up for the user who earns it and links to them on the leaderboard.
   - Proof: accepted leaderboard now has a reusable `groupquest-podium-scroll` reward panel that appears only for the current participant when they are podium-eligible and completed all included Side Quests; it uses the correct placement seal and includes `View on leaderboard`, linking to the participant’s anchored leaderboard row.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-26i2lxd34-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route has anchored leaderboard rows (`leaderboard-rank-1/2/3`) and gold seal still present; source inspection confirmed conditional `groupquest-podium-scroll` and `View on leaderboard` link; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Make earned podium scrolls public from leaderboard rows.
+  - added_at: 2026-05-12 21:18 Europe/Stockholm
+  - completed_at: 2026-05-12 21:18 Europe/Stockholm
+  - source: Andreas clarified scrolls should be available for all users to view; in the current example a clickable miniature scroll should appear next to the gold seal and open the full scroll.
+  - Proof: completed podium rows now render a small `Scroll` button next to the earned seal. Clicking opens a public full scroll modal with the placement seal, recipient, proof/points details, and `View on leaderboard` link. Incomplete #2/#3 rows still show no scroll.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

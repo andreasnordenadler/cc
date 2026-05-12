@@ -131,6 +131,8 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
 
   const podiumPlayer = players.find((player) => player.isCurrentParticipant && rankSealByPlacement[player.rank] && player.completed >= quests.length);
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
+  const [selectedScroll, setSelectedScroll] = useState<Player | null>(null);
+  const selectedSeal = selectedScroll ? rankSealByPlacement[selectedScroll.rank] : null;
 
   return (
     <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
@@ -156,12 +158,28 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
         {players.map((player) => (
           <details id={leaderboardAnchorFor(player)} className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
             <summary>
-              <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
+              <div className="groupquest-rank-stack">
+                <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
+                  {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (
+                    <Image src={rankSealByPlacement[player.rank].src} alt={rankSealByPlacement[player.rank].alt} width={42} height={42} />
+                  ) : (
+                    `#${player.rank}`
+                  )}
+                </div>
                 {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (
-                  <Image src={rankSealByPlacement[player.rank].src} alt={rankSealByPlacement[player.rank].alt} width={42} height={42} />
-                ) : (
-                  `#${player.rank}`
-                )}
+                  <button
+                    className="groupquest-scroll-mini"
+                    type="button"
+                    aria-label={`View ${rankSealByPlacement[player.rank].label} scroll for ${player.name}`}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setSelectedScroll(player);
+                    }}
+                  >
+                    Scroll
+                  </button>
+                ) : null}
               </div>
               <div>
                 <strong>{player.name}</strong>
@@ -189,6 +207,30 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
           </details>
         ))}
       </div>
+      {selectedScroll && selectedSeal ? (
+        <div className="groupquest-scroll-modal" role="dialog" aria-modal="true" aria-label={`${selectedSeal.label} winner scroll`}>
+          <div className="groupquest-scroll-backdrop" onClick={() => setSelectedScroll(null)} />
+          <div className="groupquest-scroll-sheet">
+            <button className="groupquest-scroll-close" type="button" onClick={() => setSelectedScroll(null)} aria-label="Close scroll">×</button>
+            <div className="groupquest-scroll-paper">
+              <Image src={selectedSeal.src} alt={selectedSeal.alt} width={96} height={96} />
+              <span className="eyebrow">Official Side Quest Chess Scroll</span>
+              <h3>{selectedSeal.label} awarded to {selectedScroll.name}</h3>
+              <p>
+                By public-game proof and many tiny verifier stamps, this player completed every Side Quest in No Castle Night and claimed {selectedSeal.label.toLowerCase()}.
+              </p>
+              <dl>
+                <div><dt>Placement</dt><dd>#{selectedScroll.rank}</dd></div>
+                <div><dt>Proof</dt><dd>{selectedScroll.proof}</dd></div>
+                <div><dt>Points</dt><dd>{selectedScroll.score.toLocaleString()} pts</dd></div>
+              </dl>
+              <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
+                View on leaderboard
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
