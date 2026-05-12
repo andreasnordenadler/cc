@@ -727,7 +727,7 @@ Rules from this point:
   - completed_at: 2026-05-12 21:03 Europe/Stockholm
   - source: Andreas clarified that in the current example gold is OK because rank 1 completed all quests, but silver/bronze should not show for players who have not completed all quests yet.
   - Proof: leaderboard placement seals now render only when the player is in a seal-eligible placement and `completed >= quests.length`; unfinished #2/#3 rows remain numeric circles until they complete all included Side Quests.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-5gs9nl1gc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains the gold seal, does not contain silver/bronze seal asset references, and still shows `#2`/`#3`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
