@@ -558,7 +558,7 @@ Rules from this point:
   - completed_at: 2026-05-12 15:13 Europe/Stockholm
   - source: Andreas liked the onboarding process and asked to continue with the accepted participant page, explicitly noting it should differ from the creator/admin page.
   - Proof: accepted participant page now includes a `You’re in` participant summary card before standings; it reads the locally saved join setup and shows provider, username, leaderboard name, email updates, and location fallback; hero also links directly to the leaderboard.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-pvdh765fu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route `/groupquests/80303?accepted=1` returns 200 with `groupquest-participant-summary`, `You’re in`, `Provider`, `Leaderboard`, `Email updates`, and hero `#leaderboard` link; invite route stays onboarding-only; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
