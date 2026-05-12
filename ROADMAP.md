@@ -635,7 +635,7 @@ Rules from this point:
   - completed_at: 2026-05-12 17:18 Europe/Stockholm
   - source: Andreas questioned whether the `Automatic proof checks / Submit game link / Connect public usernames` card is needed; decision: no, accepted participant verification should rely on connected provider usernames plus refresh checks.
   - Proof: accepted participant page no longer renders the manual proof submission section or `proofChecks` data block.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9m195oh0p-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route no longer contains `Automatic proof checks`, `Submit game link`, `Connect public usernames`, or `Inside quest window`, while `Refresh checks` and `Competition leaderboard` remain; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
