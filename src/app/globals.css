@@ -1294,15 +1294,15 @@ p { color: var(--muted); line-height: 1.5; }
 
 .groupquest-scroll-artifact-wrap { display: grid; justify-items: center; gap: 14px; }
 .groupquest-scroll-artifact { width: min(100%, 560px); height: auto; display: block; filter: drop-shadow(0 30px 60px rgba(0,0,0,.45)); }
-.groupquest-scroll-artifact .scroll-kicker { fill: rgba(58,32,12,.78); font-size: 19px; font-weight: 1000; letter-spacing: 4px; filter: url(#scrollInkShadow); }
-.groupquest-scroll-artifact .scroll-title { fill: #2d1808; font-size: 48px; font-weight: 1000; letter-spacing: 2px; filter: url(#scrollInkShadow); }
-.groupquest-scroll-artifact .scroll-name { fill: #3b220d; font-size: 44px; font-weight: 1000; filter: url(#scrollInkShadow); }
-.groupquest-scroll-artifact .scroll-body { fill: rgba(45,24,8,.82); font-size: 23px; font-weight: 900; filter: url(#scrollInkShadow); }
-.groupquest-scroll-artifact .scroll-meta { fill: #3b220d; font-size: 21px; font-weight: 1000; filter: url(#scrollInkShadow); }
-.groupquest-scroll-artifact .scroll-section-title { fill: rgba(58,32,12,.74); font-size: 18px; font-weight: 1000; letter-spacing: 3px; filter: url(#scrollInkShadow); }
-.groupquest-scroll-artifact .scroll-quest-title { fill: #201407; font-size: 20px; font-weight: 1000; }
-.groupquest-scroll-artifact .scroll-quest-time { fill: rgba(32,20,7,.66); font-size: 16px; font-weight: 900; }
-.groupquest-scroll-artifact .scroll-footer { fill: rgba(32,20,7,.62); font-size: 18px; font-weight: 900; font-style: italic; }
+.groupquest-scroll-artifact .scroll-kicker { fill: rgba(58,32,12,.78); font-size: 17px; font-weight: 1000; letter-spacing: 3px; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-title { fill: #2d1808; font-size: 38px; font-weight: 1000; letter-spacing: 1.5px; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-name { fill: #3b220d; font-size: 34px; font-weight: 1000; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-body { fill: rgba(45,24,8,.82); font-size: 18px; font-weight: 900; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-meta { fill: #3b220d; font-size: 17px; font-weight: 1000; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-section-title { fill: rgba(58,32,12,.74); font-size: 14px; font-weight: 1000; letter-spacing: 2px; filter: url(#scrollInkShadow); }
+.groupquest-scroll-artifact .scroll-quest-title { fill: #201407; font-size: 15px; font-weight: 1000; }
+.groupquest-scroll-artifact .scroll-quest-time { fill: rgba(32,20,7,.66); font-size: 12px; font-weight: 900; }
+.groupquest-scroll-artifact .scroll-footer { fill: rgba(32,20,7,.62); font-size: 14px; font-weight: 900; font-style: italic; }
 @media (max-width: 620px) { .groupquest-rank-stack { align-items: flex-start; } }
 .groupquest-rank { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.15); color: var(--gold); font-weight: 1000; overflow: hidden; }
 .groupquest-rank img { width: 42px; height: 42px; object-fit: contain; display: block; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }

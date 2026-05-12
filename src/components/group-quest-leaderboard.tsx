@@ -111,11 +111,6 @@ function shortenScrollText(value: string, max = 38) {
   return value.length > max ? `${value.slice(0, max - 1)}…` : value;
 }
 
-function scrollBestedLine(players: string[]) {
-  if (!players.length) return "The hall was empty. The verifier applauded politely.";
-  return `Bested on the road: ${players.join(" · ")}`;
-}
-
 function completedQuestsFor(player: Player, quests: QuestSummary[]) {
   return quests.filter((quest) => player.questFinishedAt[quest.id]);
 }
@@ -251,29 +246,29 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
                   </filter>
                 </defs>
                 <image href="/scrolls/sqc-victory-scroll-template.png" x="0" y="0" width="1024" height="1536" preserveAspectRatio="xMidYMid meet" />
-                <image href={selectedSeal.src} x="441" y="202" width="142" height="142" preserveAspectRatio="xMidYMid meet" filter="url(#scrollCoatShadow)" />
-                <text x="512" y="414" textAnchor="middle" className="scroll-kicker">OFFICIAL SIDE QUEST CHESS SCROLL</text>
-                <text x="512" y="486" textAnchor="middle" className="scroll-title">{selectedSeal.label.toUpperCase()} AWARDED</text>
-                <text x="512" y="558" textAnchor="middle" className="scroll-name">{shortenScrollText(selectedScroll.name, 28)}</text>
-                <text x="512" y="638" textAnchor="middle" className="scroll-body">completed every Side Quest in No Castle Night</text>
-                <text x="512" y="682" textAnchor="middle" className="scroll-body">and claimed {selectedSeal.label.toLowerCase()} by public-game proof.</text>
-                <text x="512" y="756" textAnchor="middle" className="scroll-meta">Completed: {selectedFinishedAt}</text>
-                <text x="512" y="800" textAnchor="middle" className="scroll-meta">Placement: #{selectedScroll.rank} · Proof: {selectedScroll.proof}</text>
-                <path d="M260 854 C360 872 664 872 764 854" fill="none" stroke="#5f3515" strokeWidth="3" opacity="0.34" />
-                <text x="512" y="916" textAnchor="middle" className="scroll-section-title">COATS OF ARMS STAMPED COMPLETE</text>
+                <image href={selectedSeal.src} x="462" y="248" width="100" height="100" preserveAspectRatio="xMidYMid meet" filter="url(#scrollCoatShadow)" />
+                <text x="512" y="398" textAnchor="middle" className="scroll-kicker">OFFICIAL SIDE QUEST CHESS SCROLL</text>
+                <text x="512" y="454" textAnchor="middle" className="scroll-title">{selectedSeal.label.toUpperCase()} AWARDED</text>
+                <text x="512" y="510" textAnchor="middle" className="scroll-name">{shortenScrollText(selectedScroll.name, 28)}</text>
+                <text x="512" y="574" textAnchor="middle" className="scroll-body">completed every Side Quest in No Castle Night</text>
+                <text x="512" y="608" textAnchor="middle" className="scroll-body">and claimed {selectedSeal.label.toLowerCase()} by public-game proof.</text>
+                <text x="512" y="668" textAnchor="middle" className="scroll-meta">Completed: {selectedFinishedAt}</text>
+                <text x="512" y="704" textAnchor="middle" className="scroll-meta">Placement: #{selectedScroll.rank} · Proof: {selectedScroll.proof}</text>
+                <path d="M294 744 C380 760 644 760 730 744" fill="none" stroke="#5f3515" strokeWidth="3" opacity="0.34" />
+                <text x="512" y="792" textAnchor="middle" className="scroll-section-title">COATS OF ARMS STAMPED COMPLETE</text>
                 {selectedCompletedQuests.slice(0, 3).map((quest, index) => {
-                  const x = 246 + index * 266;
+                  const x = 268 + index * 244;
                   return (
                     <g key={quest.id} filter="url(#scrollCoatShadow)">
-                      {quest.badgeImage ? <image href={quest.badgeImage} x={x - 48} y="972" width="108" height="108" preserveAspectRatio="xMidYMid meet" /> : null}
-                      <text x={x} y="1132" textAnchor="middle" className="scroll-quest-title">{shortenScrollText(quest.title, 19)}</text>
-                      <text x={x} y="1166" textAnchor="middle" className="scroll-quest-time">{selectedScroll.questFinishedAt[quest.id]}</text>
+                      {quest.badgeImage ? <image href={quest.badgeImage} x={x - 42} y="832" width="84" height="84" preserveAspectRatio="xMidYMid meet" /> : null}
+                      <text x={x} y="958" textAnchor="middle" className="scroll-quest-title">{shortenScrollText(quest.title, 19)}</text>
+                      <text x={x} y="986" textAnchor="middle" className="scroll-quest-time">{selectedScroll.questFinishedAt[quest.id]}</text>
                     </g>
                   );
                 })}
-                <text x="512" y="1258" textAnchor="middle" className="scroll-section-title">PLAYERS BESTED ON THE ROAD</text>
-                <text x="512" y="1310" textAnchor="middle" className="scroll-body">{shortenScrollText(scrollBestedLine(bestedPlayers), 68)}</text>
-                <text x="512" y="1390" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the leaderboard goblin.</text>
+                <text x="512" y="1068" textAnchor="middle" className="scroll-section-title">PLAYERS BESTED ON THE ROAD</text>
+                <text x="512" y="1112" textAnchor="middle" className="scroll-body">Bested on the road: {shortenScrollText(bestedPlayers.join(" · "), 50)}</text>
+                <text x="512" y="1186" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the leaderboard goblin.</text>
               </svg>
               <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
                 View on leaderboard
