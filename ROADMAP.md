@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 11:42 Europe/Stockholm
+Last updated: 2026-05-12 11:44 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -460,6 +460,11 @@ Rules from this point:
   - source: Andreas added four local seal assets to `public/stamps` and asked to use the black one on the Multiplayer Side Quest page.
   - Proof: `/groupquests/{id}` invite/detail now references `public/stamps/SQCBLACK SEAL.png`, a real RGBA PNG asset, and no longer uses the earlier JPEG/blend workaround for this surface.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ghbolivp1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, reference `SQCBLACK%20SEAL.png`, no longer reference the old JPEG seal, keep start/end dates, and the seal asset returns `200 image/png`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [ ] Use gold/silver/bronze seals as top-three Multiplayer Side Quest finish prizes.
+  - added_at: 2026-05-12 11:44 Europe/Stockholm
+  - source: Andreas said the other three local seal assets should be used as prizes for the top three when a Multiplayer Side Quest finishes.
+  - acceptance: ended Multiplayer Side Quest views/final results should award and display `side_quest_chess_seal_gold_transparent.png` for 1st place, `side_quest_chess_seal_silver_transparent.png` for 2nd place, and `side_quest_chess_seal_bronze_transparent.png` for 3rd place; wording should call them prizes/rewards for final placement, not active-progress badges.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
