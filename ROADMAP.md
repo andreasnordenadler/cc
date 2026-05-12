@@ -419,10 +419,12 @@ Rules from this point:
   - Proof: dynamic `/groupquests/{id}` page is leaderboard-first, shows “how am I doing vs others,” automatic proof-check states, selected quest coat-of-arms graphics, SQC seal/trophy summary, share action, and participant-oriented rules/activity. Creator/admin controls are not the main participant page surface.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-h4ju09ziu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke `https://sidequestchess.com/groupquests/80303` returned 200 and contained competition leaderboard, automatic proof checks, quest coats of arms, SQC seal, submit proof CTA, mock player rows, and badge image references; Vercel error logs had no recent logs.
 
-- [ ] Reframe individual Multiplayer Side Quest invite page around first-time invitee orientation before leaderboard density.
+- [x] Reframe individual Multiplayer Side Quest invite page around first-time invitee orientation before leaderboard density.
   - added_at: 2026-05-12 08:44 Europe/Stockholm
-  - source: Andreas said the Competition Leaderboard/progress bars idea is good, but a first-time invitee will first ask: what is this, what am I supposed to do, what are the side quests, next step, who else is participating, what are the rules, what about time?
-  - acceptance: before further implementation, the page concept should prioritize invitee clarity: plain-language premise, state-aware next-step card, visible quest explanation, participant/progress context, compact rules/time window, and then leaderboard/activity feed. Planning captured in `docs/SQC_MULTIPLAYER_COMPETITIONS_PLAN_2026-05-09.md` under `First-time invitee clarity pass — 2026-05-12`.
+  - completed_at: 2026-05-12 09:15 Europe/Stockholm
+  - source: Andreas said the Competition Leaderboard/progress bars idea is good, but a first-time invitee will first ask: what is this, what am I supposed to do, what are the side quests, next step, who else is participating, what are the rules, what about time? Andreas then approved adding onboarding before the actual side quest, ending with `Accept this Side Quest`.
+  - Proof: `/groupquests/{id}` now defaults to an invite/onboarding view with plain-language premise, how-it-works steps, visible quest cards, participant leaderboard preview, rules/time summary, and repeated `Accept this Side Quest` CTA; accepting routes to `/groupquests/{id}?accepted=1`, which preserves the existing proof/leaderboard competition page.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; local smoke confirmed `/groupquests/80303` shows onboarding and `/groupquests/80303?accepted=1` shows the actual competition page; production deploy `https://cc-6l96415ut-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed both production routes return 200 with expected onboarding/dashboard text; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

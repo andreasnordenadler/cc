@@ -3016,3 +3016,21 @@ Use `pnpm exec next start -p <port>` for local production smoke checks when the 
 Prefer `pnpm exec next start -p 3031` in this repo.
 
 ---
+
+## [ERR-20260512-002] git_add_outside_repository
+
+**Logged**: 2026-05-12T09:16:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: workflow
+
+### Summary
+Tried to `git add` the workspace memory file from inside the `cc` repository, which failed because the memory file is outside the repository.
+
+### Details
+Workspace memory lives at `/Users/sam/.openclaw/workspace/memory/` and should not be added to the project repo from `cc`.
+
+### Suggested Action
+Commit project docs from the project repo separately; update workspace memory as an uncommitted workspace note.
+
+---
