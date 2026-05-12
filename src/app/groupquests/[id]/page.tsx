@@ -269,7 +269,10 @@ export default async function GroupQuestByIdPage({
       <div className="content-wrap">
         <section className="hero-card groupquests-hero groupquest-competition-hero">
           <div className="groupquest-hero-copy">
-            <span className="eyebrow">Multiplayer Side Quest #{id}</span>
+            <div className="groupquest-hero-pills" aria-label="Multiplayer Side Quest identity and dates">
+              <span className="eyebrow groupquest-id-pill">Multiplayer Side Quest <strong>#{id}</strong></span>
+              <span className="eyebrow groupquest-date-pill">May 12 → May 14</span>
+            </div>
             <h1>No Castle Night</h1>
             <p className="hero-copy">
               Three Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.

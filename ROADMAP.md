@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 16:27 Europe/Stockholm
+Last updated: 2026-05-12 16:31 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -593,6 +593,13 @@ Rules from this point:
   - completed_at: 2026-05-12 16:27 Europe/Stockholm
   - source: Andreas asked to remove the quest row numbers and change pills from `quests` to `Side Quests`.
   - Proof: accepted participant quest checklist rows now show quest titles without numeric prefixes; gold count pill and other compact count labels now use `Side Quests` instead of lower-case `quests`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+
+- [x] Highlight accepted-page Multiplayer Side Quest ID and add date pill.
+  - added_at: 2026-05-12 16:31 Europe/Stockholm
+  - completed_at: 2026-05-12 16:31 Europe/Stockholm
+  - source: Andreas asked to highlight the quest ID number in the `Multiplayer Side Quest #80303` pill and add a second pill to the right with start/stop dates only.
+  - Proof: accepted participant hero now renders two compact pills: `Multiplayer Side Quest #80303` with the ID highlighted green, and `May 12 → May 14` as the date-only pill.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
