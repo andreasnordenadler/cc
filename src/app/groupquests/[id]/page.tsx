@@ -100,12 +100,25 @@ export default async function GroupQuestByIdPage({
               <span className="eyebrow">What am I supposed to do?</span>
               <h2>Accept the quest, play normally, let SQC judge the receipt.</h2>
               <div className="groupquest-onboarding-steps">
-                {onboardingSteps.map((step) => (
-                  <div key={step.title}>
-                    <em>{step.label}</em>
-                    <span><strong>{step.title}</strong><small>{step.copy}</small></span>
-                  </div>
-                ))}
+                {onboardingSteps.map((step) => {
+                  const isAcceptStep = step.label === "1";
+                  const content = (
+                    <>
+                      <em>{step.label}</em>
+                      <span><strong>{step.title}</strong><small>{step.copy}</small></span>
+                    </>
+                  );
+
+                  return isAcceptStep ? (
+                    <Link className="groupquest-onboarding-step primary-step" href={`/groupquests/${id}?accepted=1`} key={step.title}>
+                      {content}
+                    </Link>
+                  ) : (
+                    <div className="groupquest-onboarding-step" key={step.title}>
+                      {content}
+                    </div>
+                  );
+                })}
               </div>
             </article>
 
