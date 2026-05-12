@@ -371,7 +371,7 @@ export default async function GroupQuestByIdPage({
           </div>
         </section>
 
-        <section className="grid groupquest-competition-grid" aria-label="Proof and quest stack">
+        <section className="grid" aria-label="Proof submission">
           <article className="mission-card groupquests-participant-panel" id="submit-proof">
             <span className="eyebrow">Automatic proof checks</span>
             <h2>Submit once. The verifier checks the boring parts.</h2>
@@ -390,16 +390,6 @@ export default async function GroupQuestByIdPage({
               <button className="button primary" type="button">Submit game link</button>
               <Link className="button secondary" href="/connect">Connect public usernames</Link>
             </div>
-          </article>
-
-          <article className="mission-card groupquest-quest-badge-card">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Progress tip</span>
-                <h2>Complete the quest stack above.</h2>
-              </div>
-            </div>
-            <p>The top quest list is your checklist. Open a quest for the full rule text, play a valid public game, then submit proof here.</p>
           </article>
         </section>
 
