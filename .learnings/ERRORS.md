@@ -3170,3 +3170,7 @@ After adding new component-specific classes, verify their CSS selectors exist be
 ## 2026-05-12 — JSX SVG desc apostrophe lint failure
 - What happened: `pnpm lint` failed after adding an SVG `<desc>` with `Andreas's` because `react/no-unescaped-entities` also applies inside SVG text nodes.
 - What to do differently: Escape apostrophes in JSX/SVG descriptive text (`&apos;`) before running lint/build.
+
+## 2026-05-12 — Transparent image generation and Swift chroma-key fallback failed
+- What happened: OpenAI image generation rejected transparent-background requests in this runtime, and a local Swift/CoreGraphics chroma-key helper failed because the installed Swift compiler and macOS SDK versions are mismatched.
+- What to do differently: When transparent image generation is unavailable, generate the scroll on a site-matching dark/solid background and use it as the template background directly; avoid relying on local Swift image processing until the toolchain mismatch is fixed.

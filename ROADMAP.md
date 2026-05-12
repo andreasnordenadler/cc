@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 22:59 Europe/Stockholm
+Last updated: 2026-05-12 23:12 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -770,6 +770,13 @@ Rules from this point:
   - source: Andreas supplied a scroll-paper image and clarified Sam should place seal, coat of arms, and text onto it.
   - Proof: added `public/scrolls/multiplayer-podium-scroll-template.jpg` from the supplied image and changed the podium scroll SVG to use that template as the full background, overlaying the placement seal, completion copy, completion date/time, three completed Side Quest coat-of-arms images, and players-bested wording.
   - Verification: `pnpm lint` passed with 3 known warnings after escaping an apostrophe in SVG desc text; `pnpm build` passed; production deploy `https://cc-5mpg5hz96-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live route returned 200; template asset returned `200 image/jpeg`; source inspection confirmed template-backed artifact wiring; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Generate original SQC victory scroll template and wire it into podium scrolls.
+  - added_at: 2026-05-12 23:12 Europe/Stockholm
+  - completed_at: 2026-05-12 23:12 Europe/Stockholm
+  - source: Andreas said sending templates was taking too long and asked Sam to generate a high-quality scroll template and use it for the victory scrolls.
+  - Proof: generated `public/scrolls/sqc-victory-scroll-template.png` as a premium medieval parchment scroll template with a blank center and dark modal-compatible background; updated the public podium SVG artifact to use that generated asset, with placement seal, text, completion time, quest coats, and bested-player wording overlaid in the new 1024×1536 coordinate system.
+  - Verification: image inspection confirmed high-quality parchment/blank center and opaque dark background; `sips` confirmed PNG 1024×1536 with no alpha; `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
