@@ -459,7 +459,7 @@ Rules from this point:
   - completed_at: 2026-05-12 11:42 Europe/Stockholm
   - source: Andreas added four local seal assets to `public/stamps` and asked to use the black one on the Multiplayer Side Quest page.
   - Proof: `/groupquests/{id}` invite/detail now references `public/stamps/SQCBLACK SEAL.png`, a real RGBA PNG asset, and no longer uses the earlier JPEG/blend workaround for this surface.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ghbolivp1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, reference `SQCBLACK%20SEAL.png`, no longer reference the old JPEG seal, keep start/end dates, and the seal asset returns `200 image/png`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
