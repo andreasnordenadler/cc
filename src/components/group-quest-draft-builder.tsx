@@ -10,6 +10,9 @@ type BuilderQuest = {
   difficulty: string;
 };
 
+const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
+const storagePrefix = "sqc-groupquest-draft:";
+
 const inviteModes = [
   {
     id: "public",
@@ -102,6 +105,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(initialQuestId ? [initialQuestId] : []);
   const [questPickerOpen, setQuestPickerOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
+  const [inviteCopy, setInviteCopy] = useState(defaultInviteCopy);
   const [startAt, setStartAt] = useState(defaultStartAt);
   const [endAt, setEndAt] = useState(defaultEndAt);
   const [rules, setRules] = useState<Record<string, string>>({
@@ -158,6 +162,17 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   }, []);
 
   function saveMultiplayerSideQuest() {
+    try {
+      window.localStorage.setItem(
+        `${storagePrefix}${publicId}`,
+        JSON.stringify({
+          name: name.trim() || "Untitled Multiplayer Side Quest",
+          inviteCopy: inviteCopy.trim() || defaultInviteCopy,
+        }),
+      );
+    } catch {
+      // The generated route still works with the default invite copy if local storage is unavailable.
+    }
     hasSavedRef.current = true;
     window.location.href = `/groupquests/${publicId}`;
   }
@@ -186,10 +201,21 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             />
           </label>
 
+          <label className="groupquests-invite-copy-editor">
+            <span>2 · Invite message</span>
+            <textarea
+              value={inviteCopy}
+              onChange={(event) => setInviteCopy(event.target.value)}
+              maxLength={260}
+              rows={4}
+            />
+            <small>Default text for the invite page. Hosts can keep it or personalize the tone before sharing.</small>
+          </label>
+
           <section className="groupquests-quest-picker" aria-label="Choose side quests">
             <div className="groupquests-picker-head">
               <div>
-                <span>2 · Side quests</span>
+                <span>3 · Side quests</span>
                 <strong>{selectedQuests.length} selected</strong>
               </div>
               {!questPickerOpen ? (
@@ -233,7 +259,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           </section>
 
           <div className="groupquests-builder-choice-set" role="group" aria-label="Visibility">
-            <span>3 · Visibility</span>
+            <span>4 · Visibility</span>
             <div>
               {inviteModes.map((mode) => (
                 <button
@@ -251,7 +277,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
 
           <div className="groupquests-rule-builder compact" aria-label="Multiplayer Side Quest schedule">
             <div>
-              <span className="groupquests-rule-title">4 · Schedule</span>
+              <span className="groupquests-rule-title">5 · Schedule</span>
               <p>Set the exact window. For now, qualifying games must be played between open and close.</p>
             </div>
             <div className="groupquests-rule-grid schedule-grid two-up">
@@ -268,7 +294,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
 
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
-              <span className="groupquests-rule-title">5 · Mandatory game rules</span>
+              <span className="groupquests-rule-title">6 · Mandatory game rules</span>
               <p>Hosts can make provider settings mandatory. Multiplayer Side Quests use standard chess only for now; time controls are limited to exact presets we can verify from public Lichess and Chess.com game metadata.</p>
             </div>
             <div className="groupquests-rule-grid">
@@ -292,11 +318,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         <aside className="groupquests-draft-preview" aria-label="Multiplayer Side Quest preview">
           <span className="eyebrow">Multiplayer Side Quest Preview</span>
           <h3>{name.trim() || "Untitled Multiplayer Side Quest"}</h3>
-          <p>
-            {selectedQuests.length > 1
-              ? `Players must complete all ${selectedQuests.length} selected side quests inside the Multiplayer Side Quest window.`
-              : selectedQuests[0]?.objective ?? "Choose at least one side quest to preview the participant view."}
-          </p>
+          <p>{inviteCopy.trim() || defaultInviteCopy}</p>
 
           <div className="groupquests-preview-quest-stack">
             <div className="groupquests-preview-stack-head">

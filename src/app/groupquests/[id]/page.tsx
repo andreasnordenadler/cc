@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -25,6 +26,8 @@ const eventFeed = [
   { label: "Automatic check", copy: "QueenlessHero's latest game passed No Castle Club rules." },
   { label: "Your proof", copy: "Knights Before Coffee is verified. Two quests remain." },
 ];
+
+const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 
 const onboardingSteps = [
   { label: "1", title: "Accept the Side Quest", copy: "Join No Castle Night so your games can count for this competition." },
@@ -76,9 +79,7 @@ export default async function GroupQuestByIdPage({
             <div className="groupquest-hero-copy">
               <span className="eyebrow">You were invited · Multiplayer Side Quest #{id}</span>
               <h1>No Castle Night</h1>
-              <p className="hero-copy">
-                A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.
-              </p>
+              <GroupQuestInviteCopy id={id} fallback={defaultInviteCopy} />
               <div className="hero-actions button-row">
                 <Link className="button primary" href={`/groupquests/${id}?accepted=1`}>Accept this Side Quest</Link>
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
