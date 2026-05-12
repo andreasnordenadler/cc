@@ -445,7 +445,7 @@ Rules from this point:
   - completed_at: 2026-05-12 10:24 Europe/Stockholm
   - source: Andreas said the prior dark backing was almost right but asked to use the original file with transparent background and just change the color to black.
   - Proof: removed the filled `groupquest-seal-frame`; the invite/detail summary now renders the original transparent SQC seal PNG directly with a black/dark grayscale filter, preserving transparent background behavior.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-arrua3fap-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, include `Black Side Quest Chess seal`, no longer include `groupquest-seal-frame`, and keep the start/end dates; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
