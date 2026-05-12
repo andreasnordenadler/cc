@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 08:44 Europe/Stockholm
+Last updated: 2026-05-12 10:04 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -425,6 +425,13 @@ Rules from this point:
   - source: Andreas said the Competition Leaderboard/progress bars idea is good, but a first-time invitee will first ask: what is this, what am I supposed to do, what are the side quests, next step, who else is participating, what are the rules, what about time? Andreas then approved adding onboarding before the actual side quest, ending with `Accept this Side Quest`.
   - Proof: `/groupquests/{id}` now defaults to an invite/onboarding view with plain-language premise, how-it-works steps, visible quest cards, participant leaderboard preview, rules/time summary, and repeated `Accept this Side Quest` CTA; accepting routes to `/groupquests/{id}?accepted=1`, which preserves the existing proof/leaderboard competition page.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; local smoke confirmed `/groupquests/80303` shows onboarding and `/groupquests/80303?accepted=1` shows the actual competition page; production deploy `https://cc-6l96415ut-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed both production routes return 200 with expected onboarding/dashboard text; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Replace Multiplayer Side Quest invite summary red circle with silver SQC seal.
+  - added_at: 2026-05-12 10:04 Europe/Stockholm
+  - completed_at: 2026-05-12 10:04 Europe/Stockholm
+  - source: Andreas approved the onboarding and asked to use the red SQC seal form, but silver instead of red, in place of the simple red circle.
+  - Proof: the Multiplayer Side Quest invite/detail summary now renders the existing ornate SQC wax-seal asset as an image with a silver grayscale/brightness treatment instead of the flat red `SQC` circle.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

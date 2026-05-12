@@ -3034,3 +3034,21 @@ Workspace memory lives at `/Users/sam/.openclaw/workspace/memory/` and should no
 Commit project docs from the project repo separately; update workspace memory as an uncommitted workspace note.
 
 ---
+
+## [ERR-20260512-003] missing_pillow_for_image_asset_transform
+
+**Logged**: 2026-05-12T10:00:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+Attempted to generate a silver SQC seal with Python PIL, but Pillow is not installed in the repo/runtime.
+
+### Details
+For quick SQC seal recolors, prefer CSS filters on an existing transparent seal asset unless an image-generation/editing pass is specifically needed.
+
+### Suggested Action
+Use existing stamp PNG plus `filter: grayscale(...) brightness(...) contrast(...)` for fast visual recolors.
+
+---

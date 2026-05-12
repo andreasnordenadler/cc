@@ -81,7 +81,8 @@ export default async function GroupQuestByIdPage({
               </div>
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
-              <div className="groupquest-seal">SQC</div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="groupquest-seal" src="/stamps/quest-complete-premium-red-wax-sqc-v15.png" alt="Silver Side Quest Chess seal" />
               <strong>38h left</strong>
               <span>{leaderboard.length} players are already in</span>
             </div>
@@ -193,7 +194,8 @@ export default async function GroupQuestByIdPage({
             </div>
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">
-            <div className="groupquest-seal">SQC</div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="groupquest-seal" src="/stamps/quest-complete-premium-red-wax-sqc-v15.png" alt="Silver Side Quest Chess seal" />
             <strong>{totalReward.toLocaleString()} pts</strong>
             <span>available across {quests.length} quests</span>
           </div>
