@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 13:56 Europe/Stockholm
+Last updated: 2026-05-12 14:00 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -526,6 +526,14 @@ Rules from this point:
   - source: Andreas showed `Games allowed — Lichess or Chess.com` and said it should be a creation setting, default both, with creator able to limit to one provider.
   - Proof: `/groupquests/create` now has step `6 · Games allowed` with choices `Lichess or Chess.com`, `Lichess only`, and `Chess.com only`; default remains both. The preview includes `Games allowed`, saving stores `providerMode` and `providerLabel`, and invite/accepted route rules can read the stored provider label while falling back to both providers.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qoyqlge5v-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; source smoke confirmed builder provider choices/save fields and invite route reader wiring; anonymous `/groupquests/create` still redirects to sign-in; `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200 with `Games allowed` and default `Lichess or Chess.com`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Clarify Multiplayer Side Quest winner criteria.
+  - added_at: 2026-05-12 14:00 Europe/Stockholm
+  - completed_at: 2026-05-12 14:00 Europe/Stockholm
+  - source: Andreas asked whether the winner should be first to complete all quests, with highest score winning at deadline if nobody completes all quests.
+  - decision: yes; canonical success criteria is `First to complete all quests wins. If nobody finishes, highest points at the deadline wins.`
+  - Proof: invite/onboarding rules list now includes `Winner`; rules explainer states the same condition in plain language; accepted competition hero and locked rules include the winner rule; creation preview includes a winner-rule preview so creators see the success criteria before sharing.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

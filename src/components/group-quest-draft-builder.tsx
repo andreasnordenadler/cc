@@ -12,6 +12,7 @@ type BuilderQuest = {
 
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 const storagePrefix = "sqc-groupquest-draft:";
+const successCriteria = "First to complete all quests wins. If nobody finishes, highest points at the deadline wins.";
 
 const providerModes = [
   { id: "both", label: "Lichess or Chess.com", copy: "Players can submit public proof from either supported provider." },
@@ -136,6 +137,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     { label: "Rated", value: rules.rated ?? "Any rated state" },
     { label: "Color", value: rules.color ?? "Any color" },
     { label: "Variant", value: "Standard chess only" },
+    { label: "Winner", value: successCriteria },
   ];
   const scheduleLabel = `${formatDateTimeLabel(startAt)} → ${formatDateTimeLabel(endAt)}`;
 
@@ -383,6 +385,10 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                 <span>{rule.value}</span>
               </div>
             ))}
+          </div>
+          <div className="groupquests-rules-preview compact" aria-label="Winner rule preview">
+            <strong>Winner rule</strong>
+            <p>{successCriteria}</p>
           </div>
           <div className="groupquests-preview-link">
             <strong>Public ID + share URL</strong>

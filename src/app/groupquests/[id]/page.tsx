@@ -39,12 +39,14 @@ const onboardingSteps = [
 
 const competitionStartsAt = "May 12, 10:00 CEST";
 const competitionEndsAt = "May 14, 00:00 CEST";
+const successCriteria = "First to complete all quests wins. If nobody finishes, highest points at the deadline wins.";
 
 const ruleSummary = [
   { label: "Starts", value: competitionStartsAt },
   { label: "Ends", value: competitionEndsAt },
   { label: "Variant", value: "Standard chess only" },
   { label: "Proof", value: "Public games after joining" },
+  { label: "Winner", value: successCriteria },
 ];
 
 export const metadata = {
@@ -174,7 +176,7 @@ export default async function GroupQuestByIdPage({
               <span className="eyebrow">Rules and time</span>
               <h2>What counts for this run.</h2>
               <p>
-                This competition uses fresh public games. Older personal completions do not automatically count here.
+                This competition uses fresh public games. Older personal completions do not automatically count here. Winner rule: first to complete every Side Quest wins; otherwise highest points wins when time expires.
               </p>
               <ul className="groupquest-summary-list groupquest-rules-list" aria-label="Onboarding rule summary">
                 <li><span>Games allowed</span><strong><GroupQuestDraftValue id={id} field="providerLabel" fallback="Lichess or Chess.com" /></strong></li>
@@ -208,7 +210,7 @@ export default async function GroupQuestByIdPage({
             <span className="eyebrow">Multiplayer Side Quest #{id}</span>
             <h1>No Castle Night</h1>
             <p className="hero-copy">
-              Three Side Quests. One leaderboard. Submit public game proof, let SQC check it automatically, and try to climb before the window closes.
+              Three Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
             <div className="hero-actions button-row">
               <Link className="button primary" href="#submit-proof">Submit proof</Link>
@@ -328,6 +330,7 @@ export default async function GroupQuestByIdPage({
               <div><strong>Variant</strong><span>Standard chess only</span></div>
               <div><strong>Starts</strong><span>{competitionStartsAt}</span></div>
               <div><strong>Ends</strong><span>{competitionEndsAt}</span></div>
+              <div><strong>Winner</strong><span>{successCriteria}</span></div>
               <div><strong>Proof</strong><span>Automatic public-game checks</span></div>
             </div>
           </article>
