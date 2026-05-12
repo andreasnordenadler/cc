@@ -1209,6 +1209,11 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-summary-list span { color: rgba(236,228,204,.64); font-size: .68rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
 .groupquest-summary-list strong { color: var(--gold); font-size: .9rem; font-weight: 1000; line-height: 1.16; text-align: right; }
 .groupquest-summary-list li:last-child strong { color: var(--green); }
+.groupquest-rules-list { width: 100%; margin-top: 16px; }
+.groupquest-rules-list strong { color: var(--ink); }
+.groupquest-rules-list li:first-child strong,
+.groupquest-rules-list li:nth-child(2) strong { color: var(--gold); }
+
 .groupquest-score-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .groupquest-score-strip div { padding: 14px; border: 1px solid rgba(245,200,106,.2); border-radius: 20px; background: rgba(255,255,255,.07); }
 .groupquest-score-strip strong { display: block; color: var(--gold); font-size: clamp(1.55rem, 3vw, 2.2rem); line-height: 1; }

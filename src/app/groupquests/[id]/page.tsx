@@ -162,11 +162,11 @@ export default async function GroupQuestByIdPage({
               <p>
                 This competition uses fresh public games. Older personal completions do not automatically count here.
               </p>
-              <div className="groupquests-status-strip groupquest-onboarding-rules" aria-label="Onboarding rule summary">
+              <ul className="groupquest-summary-list groupquest-rules-list" aria-label="Onboarding rule summary">
                 {ruleSummary.map((rule) => (
-                  <div key={rule.label}><strong>{rule.label}</strong><span>{rule.value}</span></div>
+                  <li key={rule.label}><span>{rule.label}</span><strong>{rule.value}</strong></li>
                 ))}
-              </div>
+              </ul>
             </article>
           </section>
 
