@@ -1269,6 +1269,13 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-refresh-button { padding: 8px 11px; font-size: .76rem; white-space: nowrap; }
 @media (max-width: 620px) { .groupquest-leaderboard-head { align-items: stretch; grid-template-columns: 1fr; } .groupquest-refresh-button { width: 100%; justify-content: center; } }
 
+
+.groupquest-podium-scroll { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-bottom: 14px; padding: 14px; border: 1px solid rgba(245,200,106,.3); border-radius: 22px; background: radial-gradient(circle at 6% 8%, rgba(245,200,106,.22), transparent 36%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(0,0,0,.18)); }
+.groupquest-podium-scroll img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 12px 20px rgba(0,0,0,.36)); }
+.groupquest-podium-scroll h3 { margin: 2px 0 4px; color: var(--gold); font-size: clamp(1.05rem, 2vw, 1.45rem); line-height: 1.08; }
+.groupquest-podium-scroll p { margin: 0; color: var(--muted); font-size: .86rem; font-weight: 850; line-height: 1.35; }
+.groupquest-podium-scroll .button { white-space: nowrap; }
+@media (max-width: 760px) { .groupquest-podium-scroll { grid-template-columns: 56px minmax(0, 1fr); } .groupquest-podium-scroll img { width: 56px; height: 56px; } .groupquest-podium-scroll .button { grid-column: 1 / -1; justify-content: center; } }
 .groupquest-leaderboard-list { display: grid; gap: 10px; }
 .groupquest-leaderboard-row { display: grid; gap: 10px; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); }
 .groupquest-leaderboard-row summary { display: grid; grid-template-columns: auto minmax(150px, .7fr) minmax(150px, .9fr) minmax(180px, 1fr); gap: 12px; align-items: center; cursor: pointer; list-style: none; }

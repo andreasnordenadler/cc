@@ -30,11 +30,15 @@ type StoredParticipant = {
 const storagePrefix = "sqc-groupquest-participant:";
 
 
-const rankSealByPlacement: Record<number, { src: string; alt: string }> = {
-  1: { src: "/stamps/side_quest_chess_seal_gold_transparent.png", alt: "Gold placement seal" },
-  2: { src: "/stamps/side_quest_chess_seal_silver_transparent.png", alt: "Silver placement seal" },
-  3: { src: "/stamps/side_quest_chess_seal_bronze_transparent.png", alt: "Bronze placement seal" },
+const rankSealByPlacement: Record<number, { src: string; alt: string; label: string }> = {
+  1: { src: "/stamps/side_quest_chess_seal_gold_transparent.png", alt: "Gold placement seal", label: "Gold" },
+  2: { src: "/stamps/side_quest_chess_seal_silver_transparent.png", alt: "Silver placement seal", label: "Silver" },
+  3: { src: "/stamps/side_quest_chess_seal_bronze_transparent.png", alt: "Bronze placement seal", label: "Bronze" },
 };
+
+function leaderboardAnchorFor(player: Pick<Player, "rank">) {
+  return `leaderboard-rank-${player.rank}`;
+}
 
 const baseLeaderboard: Player[] = [
   {
@@ -125,8 +129,22 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
     return { ...player, name: currentParticipant.name, handle: currentParticipant.handle };
   });
 
+  const podiumPlayer = players.find((player) => player.isCurrentParticipant && rankSealByPlacement[player.rank] && player.completed >= quests.length);
+  const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
+
   return (
     <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
+      {podiumPlayer && podiumSeal ? (
+        <div className="groupquest-podium-scroll" role="status" aria-live="polite">
+          <Image src={podiumSeal.src} alt={podiumSeal.alt} width={72} height={72} />
+          <div>
+            <span className="eyebrow">{podiumSeal.label} claimed</span>
+            <h3>{podiumSeal.label} scroll unlocked for {podiumPlayer.name}.</h3>
+            <p>The verifier has stamped every Side Quest complete. The leaderboard goblin has updated the official scroll.</p>
+          </div>
+          <a className="button primary" href={`#${leaderboardAnchorFor(podiumPlayer)}`}>View on leaderboard</a>
+        </div>
+      ) : null}
       <div className="section-head groupquest-leaderboard-head">
         <div>
           <span className="eyebrow">Competition leaderboard</span>
@@ -136,7 +154,7 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
       </div>
       <div className="groupquest-leaderboard-list">
         {players.map((player) => (
-          <details className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
+          <details id={leaderboardAnchorFor(player)} className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
             <summary>
               <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
                 {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (

@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 21:03 Europe/Stockholm
+Last updated: 2026-05-12 21:10 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -728,6 +728,13 @@ Rules from this point:
   - source: Andreas clarified that in the current example gold is OK because rank 1 completed all quests, but silver/bronze should not show for players who have not completed all quests yet.
   - Proof: leaderboard placement seals now render only when the player is in a seal-eligible placement and `completed >= quests.length`; unfinished #2/#3 rows remain numeric circles until they complete all included Side Quests.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-5gs9nl1gc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains the gold seal, does not contain silver/bronze seal asset references, and still shows `#2`/`#3`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Add podium celebration scroll concept to accepted leaderboard.
+  - added_at: 2026-05-12 21:10 Europe/Stockholm
+  - completed_at: 2026-05-12 21:10 Europe/Stockholm
+  - source: Andreas proposed a celebration scroll for gold/silver/bronze that pops up for the user who earns it and links to them on the leaderboard.
+  - Proof: accepted leaderboard now has a reusable `groupquest-podium-scroll` reward panel that appears only for the current participant when they are podium-eligible and completed all included Side Quests; it uses the correct placement seal and includes `View on leaderboard`, linking to the participant’s anchored leaderboard row.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
