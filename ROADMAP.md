@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 21:29 Europe/Stockholm
+Last updated: 2026-05-12 21:34 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -749,6 +749,13 @@ Rules from this point:
   - source: Andreas wanted the public podium scroll to feel like the single Side Quest victory scroll image: show the coat of arms for completed quests, remove points emphasis, include completion date/time, and perhaps list users beaten in SQC wording.
   - Proof: full scroll modal now replaces points with completion timestamp, renders completed quest coat-of-arms cards with per-quest completion times, and adds a `Players bested on the road` SQC-flavored section. Leaderboard passes each quest badge image/name into the scroll component.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ca3i6ydjb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains mini scroll, final completion timestamp, completed quest badge assets, and no `Points</dt>` in scroll markup; source inspection confirmed modal-only `groupquest-scroll-quest-coats` and `Players bested on the road`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Convert public podium scroll modal into single medieval SVG artifact.
+  - added_at: 2026-05-12 21:34 Europe/Stockholm
+  - completed_at: 2026-05-12 21:34 Europe/Stockholm
+  - source: Andreas said the scroll should look like an actual medieval scroll and be the whole thing as a single image.
+  - Proof: full podium scroll view now renders as one SVG artifact with parchment/roller styling, placement seal, recipient, completion date/time, completed quest coat-of-arms images, players-bested line, and SQC footer wording inside the SVG. Only modal chrome and `View on leaderboard` remain outside the artifact.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
