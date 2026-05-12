@@ -1246,6 +1246,11 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-score-strip strong { display: block; color: var(--gold); font-size: clamp(1.55rem, 3vw, 2.2rem); line-height: 1; }
 .groupquest-score-strip span { display: block; margin-top: 5px; color: var(--muted); font-size: .75rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
 .groupquest-leaderboard-card { background: radial-gradient(circle at 94% 0%, rgba(96,240,175,.13), transparent 36%), rgba(255,255,255,.075); }
+
+.groupquest-leaderboard-head { align-items: center; }
+.groupquest-refresh-button { padding: 8px 11px; font-size: .76rem; white-space: nowrap; }
+@media (max-width: 620px) { .groupquest-leaderboard-head { align-items: stretch; grid-template-columns: 1fr; } .groupquest-refresh-button { width: 100%; justify-content: center; } }
+
 .groupquest-leaderboard-list { display: grid; gap: 10px; }
 .groupquest-leaderboard-row { display: grid; gap: 10px; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); }
 .groupquest-leaderboard-row summary { display: grid; grid-template-columns: auto minmax(150px, .7fr) minmax(150px, .9fr) minmax(180px, 1fr); gap: 12px; align-items: center; cursor: pointer; list-style: none; }

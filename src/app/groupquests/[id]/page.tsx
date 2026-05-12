@@ -329,12 +329,12 @@ export default async function GroupQuestByIdPage({
         </section>
 
         <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
-          <div className="section-head">
+          <div className="section-head groupquest-leaderboard-head">
             <div>
               <span className="eyebrow">Competition leaderboard</span>
               <h2>How you’re doing vs everyone else.</h2>
             </div>
-            <span className="badge green">Live checks on</span>
+            <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
           </div>
           <div className="groupquest-leaderboard-list">
             {leaderboard.map((player) => (

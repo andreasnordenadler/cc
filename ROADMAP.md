@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 15:40 Europe/Stockholm
+Last updated: 2026-05-12 15:45 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -580,6 +580,13 @@ Rules from this point:
   - source: Andreas showed the quest stack lower on the accepted participant page and asked to see the quests to complete somewhere at the top so it is clear what to complete.
   - Proof: accepted participant page now shows a compact `Quests to complete` checklist immediately after the `You’re in` strip and before standings; each quest row links to its full challenge page with badge, title, points, and proof callout; lower quest-card area was converted to a progress tip to avoid duplicating the checklist.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-as76l18jb-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route `/groupquests/80303?accepted=1` returns 200 with `groupquest-top-quest-stack`, `Quests to complete`, quest rows and challenge links, no old `The stack to beat`; invite route remains onboarding-only; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Replace misplaced leaderboard live-check pill with refresh action.
+  - added_at: 2026-05-12 15:45 Europe/Stockholm
+  - completed_at: 2026-05-12 15:45 Europe/Stockholm
+  - source: Andreas noted the `Live checks on` pill felt misplaced and requested a refresh button to force an update on the check.
+  - Proof: accepted participant leaderboard header now removes the `Live checks on` badge and shows a compact `Refresh checks` button aligned with the header instead.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
