@@ -3093,3 +3093,49 @@ Use `set -e` or chain commands with `&&` after scripted edits when later checks 
 - Tags: shell, exact-match, frontend
 
 ---
+
+## [ERR-20260512-002] component_extraction_left_reference
+
+**Logged**: 2026-05-12T16:38:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+After extracting the group quest leaderboard into a client component, the server page still referenced the removed `leaderboard` constant for participant count.
+
+### Details
+`pnpm build` failed typecheck on `leaderboard.length` in the invite summary. Replaced it with the static demo participant count.
+
+### Suggested Action
+After extracting constants/components, grep for removed symbol names before running full build.
+
+### Metadata
+- Source: error
+- Related Files: src/app/groupquests/[id]/page.tsx, src/components/group-quest-leaderboard.tsx
+- Tags: refactor, typecheck, frontend
+
+---
+
+## [ERR-20260512-003] component_extraction_second_left_reference
+
+**Logged**: 2026-05-12T16:39:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+A second server-page reference to the removed `leaderboard` constant remained in the invite preview list after extracting the accepted leaderboard.
+
+### Details
+The accepted leaderboard moved into a client component, but the invite onboarding preview still mapped `leaderboard.slice(0, 3)`. Added a dedicated server-safe `leaderboardPreview` constant.
+
+### Suggested Action
+Use `grep -R "removedSymbol"` after refactors, not just fix the first build error.
+
+### Metadata
+- Source: error
+- Related Files: src/app/groupquests/[id]/page.tsx
+- Tags: refactor, typecheck, frontend
+
+---

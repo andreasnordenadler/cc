@@ -3,18 +3,17 @@ import { auth } from "@clerk/nextjs/server";
 import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
 import GroupQuestDraftValue from "@/components/group-quest-draft-value";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
+import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 
 const questIds = ["knights-before-coffee", "no-castle-club", "rookless-rampage"];
 
-const leaderboard = [
+const leaderboardPreview = [
   {
     rank: 1,
     name: "CoffeeKnight",
-    handle: "lichess: coffeeknight",
-    score: 1590,
     completed: 3,
     proof: "3/3 verified",
     last: "Rookless Rampage accepted 12m ago",
@@ -28,8 +27,6 @@ const leaderboard = [
   {
     rank: 2,
     name: "QueenlessHero",
-    handle: "chess.com: queenlesshero",
-    score: 340,
     completed: 2,
     proof: "2/3 verified",
     last: "No Castle Club accepted",
@@ -41,9 +38,7 @@ const leaderboard = [
   },
   {
     rank: 3,
-    name: "You",
-    handle: "participant",
-    score: 40,
+    name: "New participant",
     completed: 1,
     proof: "1/3 verified",
     last: "Knights Before Coffee accepted",
@@ -51,17 +46,6 @@ const leaderboard = [
     questFinishedAt: {
       "knights-before-coffee": "May 12, 12:44 CEST",
     },
-  },
-  {
-    rank: 4,
-    name: "BlunderBaron",
-    handle: "lichess: blunderbaron",
-    score: 0,
-    completed: 0,
-    proof: "checking latest games",
-    last: "Joined · no valid proof yet",
-    tone: "muted",
-    questFinishedAt: {},
   },
 ];
 
@@ -141,7 +125,7 @@ export default async function GroupQuestByIdPage({
               <ul className="groupquest-summary-list" aria-label="Competition summary">
                 <li><span>Starts</span><strong>{competitionStartsAt}</strong></li>
                 <li><span>Ends</span><strong>{competitionEndsAt}</strong></li>
-                <li><span>Players</span><strong>{leaderboard.length} participating</strong></li>
+                <li><span>Players</span><strong>4 participating</strong></li>
               </ul>
             </div>
           </section>
@@ -201,7 +185,7 @@ export default async function GroupQuestByIdPage({
                 <span className="badge green">Live</span>
               </div>
               <div className="groupquest-leaderboard-list">
-                {leaderboard.slice(0, 3).map((player) => (
+                {leaderboardPreview.map((player) => (
                   <details className={`groupquest-leaderboard-row ${player.tone}`} key={player.name}>
                     <summary>
                       <div className="groupquest-rank">#{player.rank}</div>
@@ -330,46 +314,10 @@ export default async function GroupQuestByIdPage({
           </div>
         </section>
 
-        <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
-          <div className="section-head groupquest-leaderboard-head">
-            <div>
-              <span className="eyebrow">Competition leaderboard</span>
-              <h2>How you’re doing vs everyone else.</h2>
-            </div>
-            <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
-          </div>
-          <div className="groupquest-leaderboard-list">
-            {leaderboard.map((player) => (
-              <details className={`groupquest-leaderboard-row ${player.tone}`} key={player.name}>
-                <summary>
-                  <div className="groupquest-rank">#{player.rank}</div>
-                  <div>
-                    <strong>{player.name}</strong>
-                    <small>{player.handle}</small>
-                  </div>
-                  <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} Side Quests verified`}>
-                    <span style={{ width: `${Math.round((player.completed / quests.length) * 100)}%` }} />
-                  </div>
-                  <div>
-                    <strong>{player.score.toLocaleString()} pts</strong>
-                    <small>{player.proof} · {player.last}</small>
-                  </div>
-                </summary>
-                <div className="groupquest-finished-detail" aria-label={`${player.name} quest finish times`}>
-                  {quests.map((quest) => {
-                    const finishedAt = player.questFinishedAt[quest.id as keyof typeof player.questFinishedAt];
-                    return (
-                      <div key={quest.id}>
-                        <span>{quest.title}</span>
-                        <strong>{finishedAt ?? "Not finished yet"}</strong>
-                      </div>
-                    );
-                  })}
-                </div>
-              </details>
-            ))}
-          </div>
-        </section>
+        <GroupQuestLeaderboard
+          id={id}
+          quests={quests.map((quest) => ({ id: quest.id, title: quest.title }))}
+        />
 
         <section className="grid" aria-label="Proof submission">
           <article className="mission-card groupquests-participant-panel" id="submit-proof">

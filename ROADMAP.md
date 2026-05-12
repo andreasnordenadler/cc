@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 16:42 Europe/Stockholm
+Last updated: 2026-05-12 16:46 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -622,6 +622,13 @@ Rules from this point:
   - source: Andreas asked to remove the text `Play a valid public game, then submit proof.` from the accepted participant page.
   - Proof: `group-quest-participant-summary` no longer renders that small helper line under the participant name.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-4ijnugsu0-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route no longer contains the removed proof hint while `You’re in`, `CoffeeKnight`, and `Automatic proof checks` remain; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Use joined participant name and username on accepted leaderboard.
+  - added_at: 2026-05-12 16:46 Europe/Stockholm
+  - completed_at: 2026-05-12 16:46 Europe/Stockholm
+  - source: Andreas said the accepted participant leaderboard should not show generic `You`; it should use the provided leaderboard name and list username like other leaderboard rows.
+  - Proof: accepted leaderboard moved into a client component that reads the saved participant setup and replaces the current participant row with the provided leaderboard name plus provider-prefixed username, e.g. `lichess: username` or `chess.com: username`.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
