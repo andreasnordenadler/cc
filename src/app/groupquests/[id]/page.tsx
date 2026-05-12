@@ -4,7 +4,6 @@ import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
 import GroupQuestDraftValue from "@/components/group-quest-draft-value";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
-import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 
@@ -119,7 +118,6 @@ export default async function GroupQuestByIdPage({
   const quests = questIds
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
-  const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
   const totalReward = quests.reduce((sum, quest) => sum + quest.reward, 0);
 
   if (!hasAcceptedInvite) {
@@ -276,11 +274,7 @@ export default async function GroupQuestByIdPage({
             <p className="hero-copy">
               Three Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
-            <div className="hero-actions button-row">
-              <Link className="button primary" href="#submit-proof">Submit proof</Link>
-              <Link className="button secondary" href="#leaderboard">Leaderboard</Link>
-              <GroupQuestShareButton questName="No Castle Night" shareUrl={shareUrl} />
-            </div>
+
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">
             {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -71,12 +71,10 @@ export default function GroupQuestParticipantSummary({ id }: { id: string }) {
 
   return (
     <section className="mission-card groupquest-participant-summary" aria-label="Your participant setup">
-      <div>
+      <div className="groupquest-participant-summary-head">
         <span className="eyebrow">You’re in</span>
-        <h2>Play your next valid game, then submit proof.</h2>
-        <p>
-          You’re listed as <strong>{participant.leaderboardName}</strong>. Side Quest Chess will use your public {participant.provider} username for proof checks.
-        </p>
+        <strong>{participant.leaderboardName}</strong>
+        <small>Play a valid public game, then submit proof.</small>
       </div>
       <dl>
         <div>
@@ -92,7 +90,7 @@ export default function GroupQuestParticipantSummary({ id }: { id: string }) {
           <dd>{participant.leaderboardName}</dd>
         </div>
         <div>
-          <dt>Email updates</dt>
+          <dt>Email</dt>
           <dd>{participant.emailUpdates}</dd>
         </div>
         <div>

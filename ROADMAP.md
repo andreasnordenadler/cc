@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 15:16 Europe/Stockholm
+Last updated: 2026-05-12 15:31 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -566,6 +566,13 @@ Rules from this point:
   - source: Andreas showed the highlighted step 1 card and asked to remove the embedded `Accept this Side Quest` button from there.
   - Proof: step 1 remains highlighted as onboarding guidance, but no longer renders its own nested Accept button; the main hero/bottom Accept CTAs remain the modal triggers.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-4qnegdrph-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200, primary step exists, no `button primary` inside the primary-step chunk, accepted route returns 200, and Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Compact accepted participant hero and `You’re in` section.
+  - added_at: 2026-05-12 15:31 Europe/Stockholm
+  - completed_at: 2026-05-12 15:31 Europe/Stockholm
+  - source: Andreas showed the accepted participant page and asked to remove the buttons, integrate all parts of the `You’re in` section, and keep it very compact.
+  - Proof: accepted hero action buttons were removed; unused share wiring removed; `You’re in` is now a compact status strip with leaderboard name, next action copy, provider, username, leaderboard name, email, and location in one tight row/grid.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
