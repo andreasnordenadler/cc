@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:47 Europe/Stockholm
+Last updated: 2026-05-12 17:53 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -688,10 +688,10 @@ Rules from this point:
 
 - [x] Remove first-place leaderboard row highlight.
   - added_at: 2026-05-12 17:47 Europe/Stockholm
-  - completed_at: 2026-05-12 17:47 Europe/Stockholm
+  - completed_at: 2026-05-12 17:53 Europe/Stockholm
   - source: Andreas said there is no need to highlight the top user on the Multiplayer leaderboard.
   - Proof: removed the `.groupquest-leaderboard-row.gold` special border/background styling; the gold placement seal remains, but first-place row now uses the standard row treatment.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-bn3cwhned-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route still contains the gold seal and leaderboard content; source CSS confirms `.groupquest-leaderboard-row.gold` highlight styling is removed; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
