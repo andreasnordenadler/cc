@@ -776,7 +776,7 @@ Rules from this point:
   - completed_at: 2026-05-12 23:12 Europe/Stockholm
   - source: Andreas said sending templates was taking too long and asked Sam to generate a high-quality scroll template and use it for the victory scrolls.
   - Proof: generated `public/scrolls/sqc-victory-scroll-template.png` as a premium medieval parchment scroll template with a blank center and dark modal-compatible background; updated the public podium SVG artifact to use that generated asset, with placement seal, text, completion time, quest coats, and bested-player wording overlaid in the new 1024×1536 coordinate system.
-  - Verification: image inspection confirmed high-quality parchment/blank center and opaque dark background; `sips` confirmed PNG 1024×1536 with no alpha; `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: image inspection confirmed high-quality parchment/blank center and opaque dark background; `sips` confirmed PNG 1024×1536 with no alpha; `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-gnntfv384-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live route returned 200, generated template asset returned `200 image/png`, source inspection confirmed the generated template path and 1024×1536 SVG wiring; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
