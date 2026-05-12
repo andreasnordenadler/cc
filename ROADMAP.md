@@ -649,7 +649,7 @@ Rules from this point:
   - completed_at: 2026-05-12 17:30 Europe/Stockholm
   - source: Andreas asked to make `Live activity` into a list as well, with timestamps, keeping only latest 6-7 updates.
   - Proof: accepted participant `Live activity` now renders as `groupquests-activity-list`, an aligned list of 7 latest timestamped updates instead of boxed event cards.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-guvd3mvz1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquests-activity-list`, timestamp entries `13:38` and `10:37`, exactly 7 `<time>` tags, no old `groupquests-feed-list"><p` markup, and `Refresh check`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
