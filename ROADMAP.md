@@ -518,7 +518,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:50 Europe/Stockholm
   - source: Andreas showed the invite hero copy and said the creator should get this text as default, but be able to change/edit it on the Multiplayer Side Quest creation page.
   - Proof: `/groupquests/create` now includes step `2 · Invite message` with the current invite copy as default editable textarea text; the preview uses the edited message; saving stores the draft invite copy in localStorage for the generated invite route, while the public invite page keeps the same default fallback text.
-  - Verification: `pnpm lint` passed with 3 known warnings after fixing a React hooks lint issue; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings after fixing a React hooks lint issue; `pnpm build` passed; production deploy `https://cc-6zjzs5ekk-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; source smoke confirmed the create builder contains `2 · Invite message`, default copy, localStorage draft save, and invite route localStorage reader; anonymous `/groupquests/create` still redirects to sign-in as expected; `/groupquests/80303` returns 200 with the default invite copy; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
