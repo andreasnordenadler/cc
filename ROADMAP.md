@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 21:00 Europe/Stockholm
+Last updated: 2026-05-12 21:03 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -721,6 +721,13 @@ Rules from this point:
   - source: Andreas refined the finish rule: gold is awarded to the first user to complete all included Side Quests, then silver and bronze to the next finishers; once bronze is awarded, the competition is finished and the leaderboard is frozen.
   - Product rule: a Multiplayer Side Quest ends when the third distinct player completes all included Side Quests and bronze is awarded. Gold/silver/bronze are awarded in completion order. After bronze, no more refresh checks can change the leaderboard. If fewer than three players complete all included Side Quests before the deadline, the deadline ends the event and remaining standings/ranks are finalized by points/tie rules.
   - Copy direction: `Gold, silver, and bronze are awarded to the first three players to complete all Side Quests. The event ends when bronze is claimed, or at the deadline if the podium is not filled.`
+
+- [x] Only show placement seals after a player completes all Side Quests.
+  - added_at: 2026-05-12 21:03 Europe/Stockholm
+  - completed_at: 2026-05-12 21:03 Europe/Stockholm
+  - source: Andreas clarified that in the current example gold is OK because rank 1 completed all quests, but silver/bronze should not show for players who have not completed all quests yet.
+  - Proof: leaderboard placement seals now render only when the player is in a seal-eligible placement and `completed >= quests.length`; unfinished #2/#3 rows remain numeric circles until they complete all included Side Quests.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

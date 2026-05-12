@@ -139,7 +139,7 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
           <details className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
             <summary>
               <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
-                {rankSealByPlacement[player.rank] ? (
+                {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (
                   <Image src={rankSealByPlacement[player.rank].src} alt={rankSealByPlacement[player.rank].alt} width={42} height={42} />
                 ) : (
                   `#${player.rank}`
