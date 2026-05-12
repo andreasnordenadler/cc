@@ -25,7 +25,7 @@ export async function GET(
   const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt, timeZone);
   const badgeImage = challenge?.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, request.url).toString() : null;
   const sealImage = new URL("/stamps/sqc-wax-seal-canonical.png", request.url).toString();
-  const scrollTemplateImage = new URL("/scrolls/sqc-victory-scroll-template.png", request.url).toString();
+  const scrollTemplateImage = new URL("/scrolls/sqc-victory-scroll-template-og.jpg", request.url).toString();
   const achievementCopy = payload.challengeId === "finish-any-game"
     ? "A public chess game was completed, verified, and entered into the Side Quest Chess ledgers."
     : "The verifier accepted the public-game proof. The coat of arms may now be displayed with entirely appropriate smugness.";
@@ -126,8 +126,8 @@ export async function GET(
                 </div>
               )}
             </div>
-            <div style={{ color: "rgba(43,23,13,.76)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 24, lineHeight: 1.22, fontWeight: 950, maxWidth: 450 }}>
-              <span>Coat of arms unlocked: </span>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "rgba(43,23,13,.76)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 24, lineHeight: 1.22, fontWeight: 950, maxWidth: 450 }}>
+              <span>Coat of arms unlocked:</span>
               <span style={{ color: "#251109" }}>{payload.badgeName}</span>
             </div>
             <div style={{ color: "rgba(43,23,13,.86)", fontSize: 25, lineHeight: 1.26, fontWeight: 700, marginTop: 24, maxWidth: 455 }}>

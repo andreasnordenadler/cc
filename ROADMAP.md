@@ -810,8 +810,8 @@ Rules from this point:
   - added_at: 2026-05-12 23:43 Europe/Stockholm
   - completed_at: 2026-05-12 23:43 Europe/Stockholm
   - source: Andreas asked to use the same generated scroll for single Side Quest victory scrolls.
-  - Proof: updated `/api/og/proof/[token]` so single Side Quest victory/proof PNGs now use `public/scrolls/sqc-victory-scroll-template.png` as the full scroll base, with the SQC seal, quest title, coat of arms, unlocked coat name, proof copy, completion date, and points overlaid inside a central safe zone.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Proof: updated `/api/og/proof/[token]` so single Side Quest victory/proof PNGs now use `public/scrolls/sqc-victory-scroll-template-og.jpg` (optimized from the generated scroll) as the full scroll base, with the SQC seal, quest title, coat of arms, unlocked coat name, proof copy, completion date, and points overlaid inside a central safe zone.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; local `next start` smoke for `/api/og/proof/[token]?tz=Europe/Stockholm` returned `200 image/png` at `1200 x 1600` after fixing an ImageResponse explicit-display requirement.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

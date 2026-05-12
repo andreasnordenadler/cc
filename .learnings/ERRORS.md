@@ -3174,3 +3174,7 @@ After adding new component-specific classes, verify their CSS selectors exist be
 ## 2026-05-12 — Transparent image generation and Swift chroma-key fallback failed
 - What happened: OpenAI image generation rejected transparent-background requests in this runtime, and a local Swift/CoreGraphics chroma-key helper failed because the installed Swift compiler and macOS SDK versions are mismatched.
 - What to do differently: When transparent image generation is unavailable, generate the scroll on a site-matching dark/solid background and use it as the template background directly; avoid relying on local Swift image processing until the toolchain mismatch is fixed.
+
+## 2026-05-12 — ImageResponse requires explicit flex display on multi-child divs
+- What happened: Local `/api/og/proof/[token]` smoke returned an empty response. Next logs showed `Expected <div> to have explicit display: flex, display: contents, or display: none if it has more than one child node` for an ImageResponse div containing two spans.
+- What to do differently: In `next/og` / `ImageResponse` JSX, every div with multiple child nodes must explicitly set `display` (usually `display: "flex"`). Run a local image smoke after changing OG JSX.
