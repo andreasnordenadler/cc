@@ -497,7 +497,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:40 Europe/Stockholm
   - source: Andreas showed the `Rules and time` section and asked to do the same list cleanup there.
   - Proof: onboarding `Rules and time` now renders `Starts / Ends / Games allowed / Variant / Proof` as a plain aligned list using `groupquest-rules-list` instead of boxed status cards.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9edp5hbez-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with `groupquest-rules-list`, no old boxed `groupquests-status-strip groupquest-onboarding-rules`, rules text, and black seal PNG; `/groupquests/80303?accepted=1` returns 200; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
