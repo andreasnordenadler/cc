@@ -628,7 +628,7 @@ Rules from this point:
   - completed_at: 2026-05-12 16:46 Europe/Stockholm
   - source: Andreas said the accepted participant leaderboard should not show generic `You`; it should use the provided leaderboard name and list username like other leaderboard rows.
   - Proof: accepted leaderboard moved into a client component that reads the saved participant setup and replaces the current participant row with the provided leaderboard name plus provider-prefixed username, e.g. `lichess: username` or `chess.com: username`.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ngziuiv2v-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route returns 200 and renders the leaderboard shell; source inspection confirmed `GroupQuestLeaderboard` reads `sqc-groupquest-participant:{id}`, uses `leaderboardName`, and renders provider-prefixed username; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
