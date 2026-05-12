@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 23:34 Europe/Stockholm
+Last updated: 2026-05-12 23:43 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -804,6 +804,13 @@ Rules from this point:
   - completed_at: 2026-05-12 23:34 Europe/Stockholm
   - source: Andreas asked whether fonts can be larger while maintaining the red-square constraints.
   - Proof: kept all existing safe-zone coordinates unchanged and increased only typography sizes: kicker/title/name/body/meta/section/quest/footer text now reads larger without moving overlays toward the scroll top, bottom, or sides.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+
+- [x] Use generated victory scroll template for single Side Quest proof images.
+  - added_at: 2026-05-12 23:43 Europe/Stockholm
+  - completed_at: 2026-05-12 23:43 Europe/Stockholm
+  - source: Andreas asked to use the same generated scroll for single Side Quest victory scrolls.
+  - Proof: updated `/api/og/proof/[token]` so single Side Quest victory/proof PNGs now use `public/scrolls/sqc-victory-scroll-template.png` as the full scroll base, with the SQC seal, quest title, coat of arms, unlocked coat name, proof copy, completion date, and points overlaid inside a central safe zone.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09

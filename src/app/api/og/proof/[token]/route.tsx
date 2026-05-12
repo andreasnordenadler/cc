@@ -25,9 +25,11 @@ export async function GET(
   const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt, timeZone);
   const badgeImage = challenge?.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, request.url).toString() : null;
   const sealImage = new URL("/stamps/sqc-wax-seal-canonical.png", request.url).toString();
+  const scrollTemplateImage = new URL("/scrolls/sqc-victory-scroll-template.png", request.url).toString();
   const achievementCopy = payload.challengeId === "finish-any-game"
-    ? "A public chess game was, against all odds, completed. Win, loss, or draw — the clerks checked the paperwork and declared this good enough for a coat of arms."
-    : `${payload.summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
+    ? "A public chess game was completed, verified, and entered into the Side Quest Chess ledgers."
+    : "The verifier accepted the public-game proof. The coat of arms may now be displayed with entirely appropriate smugness.";
+  const proofLine = `${payload.summary}`;
 
   return new ImageResponse(
     (
@@ -39,139 +41,107 @@ export async function GET(
           alignItems: "center",
           justifyContent: "center",
           background: "linear-gradient(135deg, #140d0d 0%, #21130d 48%, #0e0b09 100%)",
-          padding: 70,
           fontFamily: "Georgia, serif",
           color: "#2a160d",
+          position: "relative",
         }}
       >
         <div
           style={{
-            width: 860,
-            height: 1380,
+            width: 1024,
+            height: 1536,
             display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
             position: "relative",
-            padding: "88px 72px 250px",
-            overflow: "hidden",
-            borderRadius: "26px 42px 32px 48px",
-            border: "2px solid rgba(82,38,15,.22)",
-            background: "radial-gradient(circle at 50% 28%, rgba(255,255,255,.34), transparent 28%), radial-gradient(circle at 12% 10%, rgba(120,58,18,.22), transparent 18%), radial-gradient(circle at 88% 88%, rgba(120,58,18,.22), transparent 20%), linear-gradient(135deg, #f2d6a5, #c6904f 48%, #f0d2a0)",
-            boxShadow: "inset 0 0 80px rgba(82,38,15,.28), 0 54px 120px rgba(0,0,0,.36)",
+            filter: "drop-shadow(0 42px 76px rgba(0,0,0,.46))",
           }}
         >
-          <div
-            style={{
-              position: "absolute",
-              inset: 24,
-              border: "2px solid rgba(82,38,15,.18)",
-              borderRadius: "30px 48px 34px 44px",
-              background: "linear-gradient(90deg, rgba(82,38,15,.1), transparent 14% 86%, rgba(82,38,15,.12))",
-            }}
+          <img
+            src={scrollTemplateImage}
+            alt=""
+            width="1024"
+            height="1536"
+            style={{ position: "absolute", inset: 0, width: 1024, height: 1536, objectFit: "cover" }}
           />
           <div
             style={{
               position: "absolute",
-              left: -84,
-              top: -88,
-              width: 184,
-              height: 184,
-              borderRadius: 999,
-              background: "radial-gradient(circle, rgba(74,31,11,.5), rgba(120,58,18,.22) 44%, transparent 70%)",
-              opacity: .78,
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              right: -96,
-              top: -72,
-              width: 184,
-              height: 184,
-              borderRadius: 999,
-              background: "radial-gradient(circle, rgba(74,31,11,.5), rgba(120,58,18,.22) 44%, transparent 70%)",
-              opacity: .78,
-            }}
-          />
-
-          <div
-            style={{
-              height: 330,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              position: "relative",
-            }}
-          >
-            {badgeImage ? (
-              <img
-                src={badgeImage}
-                alt=""
-                width="300"
-                height="300"
-                style={{ width: 300, height: 300, objectFit: "contain", filter: "drop-shadow(0 28px 44px rgba(82,38,15,.34))" }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 240,
-                  height: 270,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: "44px 44px 82px 82px",
-                  border: "14px solid #7c2d12",
-                  background: "linear-gradient(160deg, #24100d, #5f1d14)",
-                  color: "#f5c86a",
-                  fontSize: 80,
-                  fontWeight: 900,
-                }}
-              >
-                {payload.badgeMotif || "SQC"}
-              </div>
-            )}
-          </div>
-          <div style={{ color: "rgba(43,23,13,.72)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 22, letterSpacing: 4.2, textTransform: "uppercase", fontWeight: 1000 }}>
-            Quest completed
-          </div>
-          <div style={{ color: "#251109", fontSize: 78, lineHeight: .92, letterSpacing: -3.6, fontWeight: 900, marginTop: 22, maxWidth: 610 }}>
-            {payload.challengeTitle}
-          </div>
-          <div
-            style={{
+              left: 256,
+              top: 276,
+              width: 512,
+              height: 920,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              color: "rgba(43,23,13,.74)",
-              fontFamily: "Arial, Helvetica, sans-serif",
-              fontSize: 25,
-              lineHeight: 1.28,
-              fontWeight: 950,
-              marginTop: 24,
-              maxWidth: 640,
+              textAlign: "center",
+              overflow: "hidden",
             }}
           >
-            <span>Coat of arms unlocked:</span>
-            <span style={{ color: "#251109" }}>{payload.badgeName}</span>
+            <img
+              src={sealImage}
+              alt=""
+              width="86"
+              height="86"
+              style={{ width: 86, height: 86, objectFit: "contain", filter: "drop-shadow(0 12px 16px rgba(82,38,15,.32))" }}
+            />
+            <div style={{ marginTop: 26, color: "rgba(58,32,12,.78)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 21, letterSpacing: 3.1, textTransform: "uppercase", fontWeight: 1000 }}>
+              Side Quest completed
+            </div>
+            <div style={{ color: "#2d1808", fontSize: 56, lineHeight: .95, letterSpacing: -1.8, fontWeight: 900, marginTop: 24, maxWidth: 470 }}>
+              {payload.challengeTitle}
+            </div>
+            <div
+              style={{
+                height: 230,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginTop: 26,
+              }}
+            >
+              {badgeImage ? (
+                <img
+                  src={badgeImage}
+                  alt=""
+                  width="210"
+                  height="210"
+                  style={{ width: 210, height: 210, objectFit: "contain", filter: "drop-shadow(0 22px 30px rgba(82,38,15,.34))" }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 160,
+                    height: 185,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "32px 32px 58px 58px",
+                    border: "10px solid #7c2d12",
+                    background: "linear-gradient(160deg, #24100d, #5f1d14)",
+                    color: "#f5c86a",
+                    fontSize: 54,
+                    fontWeight: 900,
+                  }}
+                >
+                  {payload.badgeMotif || "SQC"}
+                </div>
+              )}
+            </div>
+            <div style={{ color: "rgba(43,23,13,.76)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 24, lineHeight: 1.22, fontWeight: 950, maxWidth: 450 }}>
+              <span>Coat of arms unlocked: </span>
+              <span style={{ color: "#251109" }}>{payload.badgeName}</span>
+            </div>
+            <div style={{ color: "rgba(43,23,13,.86)", fontSize: 25, lineHeight: 1.26, fontWeight: 700, marginTop: 24, maxWidth: 455 }}>
+              {achievementCopy}
+            </div>
+            <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 19, lineHeight: 1.24, marginTop: 26, padding: "16px 0", width: 430, color: "rgba(43,23,13,.76)", fontWeight: 850, borderTop: "2px solid rgba(82,38,15,.2)", borderBottom: "2px solid rgba(82,38,15,.2)" }}>
+              {proofLine}
+            </div>
+            <div style={{ display: "flex", gap: 14, marginTop: 24, color: "rgba(43,23,13,.72)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 17, fontWeight: 1000, letterSpacing: 1.1, textTransform: "uppercase" }}>
+              <span>{dateLabel}</span>
+              <span>·</span>
+              <span>{`+${payload.reward} pts`}</span>
+            </div>
           </div>
-          <div style={{ color: "rgba(43,23,13,.86)", fontSize: 33, lineHeight: 1.43, fontWeight: 700, marginTop: 24, maxWidth: 640 }}>
-            {achievementCopy}
-          </div>
-          <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 27, lineHeight: 1.32, marginTop: 26, padding: "24px 26px", maxWidth: 650, color: "rgba(43,23,13,.76)", fontWeight: 850, borderTop: "2px solid rgba(82,38,15,.18)", borderBottom: "2px solid rgba(82,38,15,.18)" }}>
-            {`Proof accepted: ${payload.challengeTitle} — ${payload.summary}`}
-          </div>
-          <div style={{ display: "flex", gap: 18, marginTop: 24, color: "rgba(43,23,13,.66)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 22, fontWeight: 1000, letterSpacing: 1.6, textTransform: "uppercase" }}>
-            <span style={{ padding: "12px 16px", borderRadius: 999, background: "rgba(82,38,15,.08)" }}>{dateLabel}</span>
-            <span style={{ padding: "12px 16px", borderRadius: 999, background: "rgba(82,38,15,.08)" }}>+{payload.reward} pts</span>
-          </div>
-          <img
-            src={sealImage}
-            alt=""
-            width="190"
-            height="190"
-            style={{ position: "absolute", bottom: 70, left: 335, width: 190, height: 190, objectFit: "contain", transform: "rotate(4deg)", filter: "drop-shadow(0 24px 36px rgba(82,38,15,.42))" }}
-          />
         </div>
         <div
           style={{
