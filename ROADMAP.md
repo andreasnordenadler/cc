@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 16:31 Europe/Stockholm
+Last updated: 2026-05-12 16:34 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -601,6 +601,13 @@ Rules from this point:
   - source: Andreas asked to highlight the quest ID number in the `Multiplayer Side Quest #80303` pill and add a second pill to the right with start/stop dates only.
   - Proof: accepted participant hero now renders two compact pills: `Multiplayer Side Quest #80303` with the ID highlighted green, and `May 12 → May 14` as the date-only pill.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-cmm4t8gi6-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquest-hero-pills`, `groupquest-id-pill`, `groupquest-date-pill`, and `May 12 → May 14`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Remove redundant provider-game proof check row.
+  - added_at: 2026-05-12 16:34 Europe/Stockholm
+  - completed_at: 2026-05-12 16:34 Europe/Stockholm
+  - source: Andreas said the provider-game check is not needed because Multiplayer Side Quests will always use provider games for verifying.
+  - Proof: accepted participant proof checklist no longer includes `Provider game found`; proof copy now says provider-game URL and focuses checks on time window, standard chess, and quest-specific rules.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

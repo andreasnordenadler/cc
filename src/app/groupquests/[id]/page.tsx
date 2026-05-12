@@ -66,7 +66,6 @@ const leaderboard = [
 ];
 
 const proofChecks = [
-  { label: "Provider game found", state: "Ready", tone: "green", copy: "Paste an allowed public game URL from this competition's provider setting." },
   { label: "Inside quest window", state: "Automatic", tone: "green", copy: "Only games after open and before close can count." },
   { label: "Standard chess", state: "Automatic", tone: "green", copy: "Variants are rejected for this Multiplayer Side Quest." },
   { label: "Quest-specific rules", state: "Per quest", tone: "gold", copy: "Each selected Side Quest runs its own verifier." },
@@ -377,7 +376,7 @@ export default async function GroupQuestByIdPage({
             <span className="eyebrow">Automatic proof checks</span>
             <h2>Submit once. The verifier checks the boring parts.</h2>
             <p>
-              Paste a public game URL. The verifier checks the provider data, time window, standard chess requirement, and the selected Side Quest rules.
+              Paste a public provider-game URL. The verifier checks the time window, standard chess requirement, and the selected Side Quest rules.
             </p>
             <div className="groupquests-proof-checklist">
               {proofChecks.map((check) => (
