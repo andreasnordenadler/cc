@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 type QuestSummary = {
@@ -27,6 +28,13 @@ type StoredParticipant = {
 };
 
 const storagePrefix = "sqc-groupquest-participant:";
+
+
+const rankSealByPlacement: Record<number, { src: string; alt: string }> = {
+  1: { src: "/stamps/side_quest_chess_seal_gold_transparent.png", alt: "Gold placement seal" },
+  2: { src: "/stamps/side_quest_chess_seal_silver_transparent.png", alt: "Silver placement seal" },
+  3: { src: "/stamps/side_quest_chess_seal_bronze_transparent.png", alt: "Bronze placement seal" },
+};
 
 const baseLeaderboard: Player[] = [
   {
@@ -130,7 +138,13 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
         {players.map((player) => (
           <details className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
             <summary>
-              <div className="groupquest-rank">#{player.rank}</div>
+              <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
+                {rankSealByPlacement[player.rank] ? (
+                  <Image src={rankSealByPlacement[player.rank].src} alt={rankSealByPlacement[player.rank].alt} width={42} height={42} />
+                ) : (
+                  `#${player.rank}`
+                )}
+              </div>
               <div>
                 <strong>{player.name}</strong>
                 <small>{player.handle}</small>

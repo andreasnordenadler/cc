@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:35 Europe/Stockholm
+Last updated: 2026-05-12 17:40 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -657,6 +657,13 @@ Rules from this point:
   - source: Andreas asked for Live activity to show date + time, only latest 5 events, and include a refresh button that refreshes checks.
   - Proof: accepted participant `Live activity` now shows 5 timestamped events using `May 12, HH:MM` format and includes a `Refresh checks` button in the section header.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-l2t6cycnw-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquests-activity-list`, date-time entries such as `May 12, 13:38`, `Refresh checks`, and exactly 5 `<time>` tags; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Use gold/silver/bronze SQC seals for top-three leaderboard ranks.
+  - added_at: 2026-05-12 17:40 Europe/Stockholm
+  - completed_at: 2026-05-12 17:40 Europe/Stockholm
+  - source: Andreas asked to replace `#1`, `#2`, and `#3` leaderboard rank circles with the gold, silver, and bronze SQC seals at the same size, while keeping `#4` and `#5` unchanged.
+  - Proof: accepted leaderboard rank renderer now maps placements 1/2/3 to the transparent gold/silver/bronze SQC seal assets at 42px; ranks 4+ still render numeric circles.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
