@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import GroupQuestDraftValue from "@/components/group-quest-draft-value";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
@@ -15,7 +16,7 @@ const leaderboard = [
 ];
 
 const proofChecks = [
-  { label: "Provider game found", state: "Ready", tone: "green", copy: "Paste a Lichess or Chess.com public game URL." },
+  { label: "Provider game found", state: "Ready", tone: "green", copy: "Paste an allowed public game URL from this competition's provider setting." },
   { label: "Inside quest window", state: "Automatic", tone: "green", copy: "Only games after open and before close can count." },
   { label: "Standard chess", state: "Automatic", tone: "green", copy: "Variants are rejected for this Multiplayer Side Quest." },
   { label: "Quest-specific rules", state: "Per quest", tone: "gold", copy: "Each selected Side Quest runs its own verifier." },
@@ -31,7 +32,7 @@ const defaultInviteCopy = "A friend invited you to a chess side quest. Try to wi
 
 const onboardingSteps = [
   { label: "1", title: "Accept the Side Quest", copy: "Join No Castle Night so your games can count for this competition." },
-  { label: "2", title: "Play real chess elsewhere", copy: "Use Lichess or Chess.com. No uploads, no private passwords, just public game proof." },
+  { label: "2", title: "Play real chess elsewhere", copy: "Use the allowed chess provider shown below. No uploads, no private passwords, just public game proof." },
   { label: "3", title: "SQC checks the proof", copy: "Paste a game link or check latest games. The verifier reads the public receipt." },
   { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
 ];
@@ -42,7 +43,6 @@ const competitionEndsAt = "May 14, 00:00 CEST";
 const ruleSummary = [
   { label: "Starts", value: competitionStartsAt },
   { label: "Ends", value: competitionEndsAt },
-  { label: "Games allowed", value: "Lichess or Chess.com" },
   { label: "Variant", value: "Standard chess only" },
   { label: "Proof", value: "Public games after joining" },
 ];
@@ -177,6 +177,7 @@ export default async function GroupQuestByIdPage({
                 This competition uses fresh public games. Older personal completions do not automatically count here.
               </p>
               <ul className="groupquest-summary-list groupquest-rules-list" aria-label="Onboarding rule summary">
+                <li><span>Games allowed</span><strong><GroupQuestDraftValue id={id} field="providerLabel" fallback="Lichess or Chess.com" /></strong></li>
                 {ruleSummary.map((rule) => (
                   <li key={rule.label}><span>{rule.label}</span><strong>{rule.value}</strong></li>
                 ))}
@@ -323,6 +324,7 @@ export default async function GroupQuestByIdPage({
             </div>
             <div className="groupquests-status-strip" aria-label="Multiplayer Side Quest settings">
               <div><strong>Visibility</strong><span>Public listing</span></div>
+              <div><strong>Games allowed</strong><span><GroupQuestDraftValue id={id} field="providerLabel" fallback="Lichess or Chess.com" /></span></div>
               <div><strong>Variant</strong><span>Standard chess only</span></div>
               <div><strong>Starts</strong><span>{competitionStartsAt}</span></div>
               <div><strong>Ends</strong><span>{competitionEndsAt}</span></div>

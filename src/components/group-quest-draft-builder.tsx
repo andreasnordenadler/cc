@@ -13,6 +13,12 @@ type BuilderQuest = {
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 const storagePrefix = "sqc-groupquest-draft:";
 
+const providerModes = [
+  { id: "both", label: "Lichess or Chess.com", copy: "Players can submit public proof from either supported provider." },
+  { id: "lichess", label: "Lichess only", copy: "Only public Lichess games count for this Multiplayer Side Quest." },
+  { id: "chesscom", label: "Chess.com only", copy: "Only public Chess.com games count for this Multiplayer Side Quest." },
+];
+
 const inviteModes = [
   {
     id: "public",
@@ -106,6 +112,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [questPickerOpen, setQuestPickerOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
   const [inviteCopy, setInviteCopy] = useState(defaultInviteCopy);
+  const [providerMode, setProviderMode] = useState(providerModes[0].id);
   const [startAt, setStartAt] = useState(defaultStartAt);
   const [endAt, setEndAt] = useState(defaultEndAt);
   const [rules, setRules] = useState<Record<string, string>>({
@@ -120,9 +127,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     [quests, selectedQuestIds],
   );
   const selectedInviteMode = inviteModes.find((mode) => mode.id === inviteMode) ?? inviteModes[0];
+  const selectedProviderMode = providerModes.find((mode) => mode.id === providerMode) ?? providerModes[0];
   const publicId = publicIdFromName(name);
   const shareUrl = `https://sidequestchess.com/groupquests/${publicId}`;
   const previewRules = [
+    { label: "Games allowed", value: selectedProviderMode.label },
     { label: "Time control", value: rules.timeControl ?? "Any time control" },
     { label: "Rated", value: rules.rated ?? "Any rated state" },
     { label: "Color", value: rules.color ?? "Any color" },
@@ -168,6 +177,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         JSON.stringify({
           name: name.trim() || "Untitled Multiplayer Side Quest",
           inviteCopy: inviteCopy.trim() || defaultInviteCopy,
+          providerMode,
+          providerLabel: selectedProviderMode.label,
         }),
       );
     } catch {
@@ -292,10 +303,27 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </div>
           </div>
 
+          <div className="groupquests-builder-choice-set" role="group" aria-label="Allowed game providers">
+            <span>6 · Games allowed</span>
+            <div>
+              {providerModes.map((mode) => (
+                <button
+                  className={mode.id === providerMode ? "active" : undefined}
+                  key={mode.id}
+                  onClick={() => setProviderMode(mode.id)}
+                  type="button"
+                >
+                  <strong>{mode.label}</strong>
+                  <small>{mode.copy}</small>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
             <div>
-              <span className="groupquests-rule-title">6 · Mandatory game rules</span>
-              <p>Hosts can make provider settings mandatory. Multiplayer Side Quests use standard chess only for now; time controls are limited to exact presets we can verify from public Lichess and Chess.com game metadata.</p>
+              <span className="groupquests-rule-title">7 · Mandatory game rules</span>
+              <p>Hosts can make game settings mandatory. Multiplayer Side Quests use standard chess only for now; time controls are limited to exact presets we can verify from public game metadata.</p>
             </div>
             <div className="groupquests-rule-grid">
               {gameRuleGroups.map((group) => (
