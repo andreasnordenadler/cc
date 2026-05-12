@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 23:17 Europe/Stockholm
+Last updated: 2026-05-12 23:22 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -783,6 +783,13 @@ Rules from this point:
   - completed_at: 2026-05-12 23:17 Europe/Stockholm
   - source: Andreas reviewed the generated scroll and asked to ensure everything fits better.
   - Proof: reduced SVG typography sizes, moved the placement seal and text block into the parchment's clean center, tightened vertical spacing, moved completed quest coats upward/smaller, and brought the bested-player/footer copy higher so the whole artifact sits comfortably within the scroll paper.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+
+- [x] Enforce centered safe-zone layout for victory scroll overlays.
+  - added_at: 2026-05-12 23:22 Europe/Stockholm
+  - completed_at: 2026-05-12 23:22 Europe/Stockholm
+  - source: Andreas clarified that all overlay content must stay away from the top, bottom, and sides of the scroll.
+  - Proof: moved every overlay element into a much narrower centered safe zone: seal moved down/inward, title/name/body/meta moved lower and smaller, coat-of-arms row compressed to center x positions, bested-player copy and footer moved above the bottom roll, and all typography was reduced to avoid edge crowding.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
