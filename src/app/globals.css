@@ -1214,6 +1214,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-seal-card span { color: var(--muted); font-weight: 900; }
 .groupquest-summary-list { display: grid; gap: 7px; width: min(100%, 310px); margin: 0; padding: 2px 0 0; list-style: none; text-align: left; }
 .groupquest-summary-list li { display: flex; justify-content: space-between; gap: 14px; align-items: baseline; border-bottom: 1px solid rgba(236,228,204,.12); padding-bottom: 7px; }
+.groupquest-accepted-rules-list li { align-items: flex-start; }
 .groupquest-summary-list li:last-child { border-bottom: 0; padding-bottom: 0; }
 .groupquest-summary-list span { color: rgba(236,228,204,.64); font-size: .68rem; font-weight: 1000; letter-spacing: .12em; text-transform: uppercase; }
 .groupquest-summary-list strong { color: var(--gold); font-size: .9rem; font-weight: 1000; line-height: 1.16; text-align: right; }

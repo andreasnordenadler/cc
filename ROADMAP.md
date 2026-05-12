@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:40 Europe/Stockholm
+Last updated: 2026-05-12 17:43 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -664,6 +664,13 @@ Rules from this point:
   - source: Andreas asked to replace `#1`, `#2`, and `#3` leaderboard rank circles with the gold, silver, and bronze SQC seals at the same size, while keeping `#4` and `#5` unchanged.
   - Proof: accepted leaderboard rank renderer now maps placements 1/2/3 to the transparent gold/silver/bronze SQC seal assets at 42px; ranks 4+ still render numeric circles.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qmzmelj11-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains gold/silver/bronze seal asset references plus `Rank 4` / `#4`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Top-align accepted locked-rules list row content.
+  - added_at: 2026-05-12 17:43 Europe/Stockholm
+  - completed_at: 2026-05-12 17:43 Europe/Stockholm
+  - source: Andreas pointed out the accepted-page locked-rules list content was bottom/baseline aligned, especially the long `Winner` row.
+  - Proof: `groupquest-accepted-rules-list li` now uses `align-items: flex-start`, keeping labels and values aligned to the top.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
