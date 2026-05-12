@@ -663,7 +663,7 @@ Rules from this point:
   - completed_at: 2026-05-12 17:40 Europe/Stockholm
   - source: Andreas asked to replace `#1`, `#2`, and `#3` leaderboard rank circles with the gold, silver, and bronze SQC seals at the same size, while keeping `#4` and `#5` unchanged.
   - Proof: accepted leaderboard rank renderer now maps placements 1/2/3 to the transparent gold/silver/bronze SQC seal assets at 42px; ranks 4+ still render numeric circles.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qmzmelj11-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains gold/silver/bronze seal asset references plus `Rank 4` / `#4`; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
