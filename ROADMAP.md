@@ -511,7 +511,7 @@ Rules from this point:
   - completed_at: 2026-05-12 13:45 Europe/Stockholm
   - source: Andreas showed the onboarding steps and asked to highlight step 1 and make it clickable with the same result as `Accept this Side Quest`.
   - Proof: step 1 now renders as a highlighted full-row link to `/groupquests/{id}?accepted=1`, matching the primary Accept CTA target; other steps remain passive rows.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-9533pxdl7-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with `primary-step` and link target `/groupquests/80303?accepted=1`, accepted route returns 200, and Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
