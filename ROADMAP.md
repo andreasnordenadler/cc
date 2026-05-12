@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 23:28 Europe/Stockholm
+Last updated: 2026-05-12 23:34 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -797,6 +797,13 @@ Rules from this point:
   - completed_at: 2026-05-12 23:28 Europe/Stockholm
   - source: Andreas sent a marked-up scroll showing all overlay content must fit inside the central red square.
   - Proof: adjusted overlay coordinates to fit inside the red-square guide area: top content now begins below the top of the marked box, seal is smaller, all text is smaller, coats are centered in a compact row, and footer/bested text ends well above the bottom edge of the marked box.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+
+- [x] Increase victory scroll fonts within red-square safe zone.
+  - added_at: 2026-05-12 23:34 Europe/Stockholm
+  - completed_at: 2026-05-12 23:34 Europe/Stockholm
+  - source: Andreas asked whether fonts can be larger while maintaining the red-square constraints.
+  - Proof: kept all existing safe-zone coordinates unchanged and increased only typography sizes: kicker/title/name/body/meta/section/quest/footer text now reads larger without moving overlays toward the scroll top, bottom, or sides.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
