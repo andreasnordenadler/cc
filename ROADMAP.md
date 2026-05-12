@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 13:02 Europe/Stockholm
+Last updated: 2026-05-12 13:03 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -479,6 +479,11 @@ Rules from this point:
   - source: Andreas showed the cleaned seal/date summary and said it still looked cluttered.
   - Proof: reduced seal size, tightened the summary min-height/gaps, made Start/End compact two-column metadata, softened labels, and reduced participant count emphasis so the summary reads as one quiet supporting block instead of three competing elements.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-811rf4q5b-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` returns 200 with black seal, compact date stack, participant count, and start/end dates; `/groupquests/80303?accepted=1` returns 200; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [ ] Add Multiplayer Side Quest participant join profile step.
+  - added_at: 2026-05-12 13:03 Europe/Stockholm
+  - source: Andreas noted that before/when accepting a Multiplayer Side Quest we need to collect the participant's chess username, leaderboard display name if different, and optional profile/contact fields such as email for updates and location.
+  - acceptance: the invite/onboarding acceptance flow should include a lightweight participant setup step that collects required public chess username(s) for proof, required leaderboard display name, optional email updates with explicit consent, and optional location/timezone/profile fields; copy must reassure that SQC never asks for Lichess/Chess.com passwords and uses public games/usernames only.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
