@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 17:26 Europe/Stockholm
+Last updated: 2026-05-12 17:30 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -643,6 +643,13 @@ Rules from this point:
   - source: Andreas asked to make the remaining boxed settings section into a list instead of boxes.
   - Proof: accepted participant `Locked competition rules` now renders as a plain `groupquest-accepted-rules-list` list with label/value rows instead of `groupquests-status-strip` tiles.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-h4r2ixodw-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquest-accepted-rules-list`, no longer contains `groupquests-status-strip`, and still contains `Locked competition rules`, `Games allowed`, and `Automatic public-game checks`; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Convert accepted-page live activity into timestamped list.
+  - added_at: 2026-05-12 17:30 Europe/Stockholm
+  - completed_at: 2026-05-12 17:30 Europe/Stockholm
+  - source: Andreas asked to make `Live activity` into a list as well, with timestamps, keeping only latest 6-7 updates.
+  - Proof: accepted participant `Live activity` now renders as `groupquests-activity-list`, an aligned list of 7 latest timestamped updates instead of boxed event cards.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

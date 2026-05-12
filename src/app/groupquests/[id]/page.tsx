@@ -50,9 +50,13 @@ const leaderboardPreview = [
 ];
 
 const eventFeed = [
-  { label: "Proof accepted", copy: "CoffeeKnight completed Rookless Rampage and jumped to first." },
-  { label: "Automatic check", copy: "QueenlessHero's latest game passed No Castle Club rules." },
-  { label: "Your proof", copy: "Knights Before Coffee is verified. Two quests remain." },
+  { time: "13:38", label: "Proof accepted", copy: "CoffeeKnight completed Rookless Rampage and moved into first." },
+  { time: "13:12", label: "Refresh check", copy: "QueenlessHero's latest public game passed No Castle Club rules." },
+  { time: "12:44", label: "Your proof", copy: "Knights Before Coffee verified for your entry." },
+  { time: "12:21", label: "Proof accepted", copy: "QueenlessHero completed No Castle Club." },
+  { time: "11:08", label: "Proof accepted", copy: "CoffeeKnight completed No Castle Club." },
+  { time: "10:52", label: "Proof accepted", copy: "QueenlessHero completed Knights Before Coffee." },
+  { time: "10:37", label: "Proof accepted", copy: "CoffeeKnight completed Knights Before Coffee." },
 ];
 
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
@@ -339,11 +343,14 @@ export default async function GroupQuestByIdPage({
                 <h2>Proof events, not chat noise.</h2>
               </div>
             </div>
-            <div className="groupquests-feed-list">
-              {eventFeed.map((event) => (
-                <p key={event.copy}><strong>{event.label}</strong>{event.copy}</p>
+            <ul className="groupquests-feed-list groupquests-activity-list" aria-label="Latest activity updates">
+              {eventFeed.slice(0, 7).map((event) => (
+                <li key={`${event.time}-${event.copy}`}>
+                  <time>{event.time}</time>
+                  <span><strong>{event.label}</strong>{event.copy}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </article>
         </section>
       </div>
