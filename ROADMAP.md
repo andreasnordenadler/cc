@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 14:00 Europe/Stockholm
+Last updated: 2026-05-12 14:03 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -534,6 +534,13 @@ Rules from this point:
   - decision: yes; canonical success criteria is `First to complete all quests wins. If nobody finishes, highest points at the deadline wins.`
   - Proof: invite/onboarding rules list now includes `Winner`; rules explainer states the same condition in plain language; accepted competition hero and locked rules include the winner rule; creation preview includes a winner-rule preview so creators see the success criteria before sharing.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-oyhvf2pzv-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200 and include `Winner`, `First to complete all quests wins`, and `highest points at the deadline wins`; anonymous create still redirects to sign-in; Vercel production 500 log scan for the last 10m returned no entries.
+
+- [x] Remove internal `SQC` wording from Multiplayer Side Quest onboarding copy.
+  - added_at: 2026-05-12 14:03 Europe/Stockholm
+  - completed_at: 2026-05-12 14:03 Europe/Stockholm
+  - source: Andreas disliked `let SQC judge the receipt`, noted the product does not use `SQC`, and suggested language like `climb the leaderboard`.
+  - Proof: onboarding heading now says `Accept the quest, play normally, climb the leaderboard.`; step 3 now says `Proof gets checked`; accepted proof heading now says `Submit once. The verifier checks the boring parts.`
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 

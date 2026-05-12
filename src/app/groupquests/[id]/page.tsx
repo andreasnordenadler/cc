@@ -33,7 +33,7 @@ const defaultInviteCopy = "A friend invited you to a chess side quest. Try to wi
 const onboardingSteps = [
   { label: "1", title: "Accept the Side Quest", copy: "Join No Castle Night so your games can count for this competition." },
   { label: "2", title: "Play real chess elsewhere", copy: "Use the allowed chess provider shown below. No uploads, no private passwords, just public game proof." },
-  { label: "3", title: "SQC checks the proof", copy: "Paste a game link or check latest games. The verifier reads the public receipt." },
+  { label: "3", title: "Proof gets checked", copy: "Paste a game link or check latest games. The verifier reads the public game proof." },
   { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
 ];
 
@@ -101,7 +101,7 @@ export default async function GroupQuestByIdPage({
           <section className="grid groupquest-onboarding-grid" id="how-it-works" aria-label="Side Quest onboarding">
             <article className="mission-card groupquest-onboarding-card">
               <span className="eyebrow">What am I supposed to do?</span>
-              <h2>Accept the quest, play normally, let SQC judge the receipt.</h2>
+              <h2>Accept the quest, play normally, climb the leaderboard.</h2>
               <div className="groupquest-onboarding-steps">
                 {onboardingSteps.map((step) => {
                   const isAcceptStep = step.label === "1";
@@ -275,7 +275,7 @@ export default async function GroupQuestByIdPage({
         <section className="grid groupquest-competition-grid" aria-label="Proof and quest stack">
           <article className="mission-card groupquests-participant-panel" id="submit-proof">
             <span className="eyebrow">Automatic proof checks</span>
-            <h2>Submit once. SQC checks the boring parts.</h2>
+            <h2>Submit once. The verifier checks the boring parts.</h2>
             <p>
               Paste a public game URL. The verifier checks the provider data, time window, standard chess requirement, and the selected Side Quest rules.
             </p>
