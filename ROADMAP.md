@@ -533,7 +533,7 @@ Rules from this point:
   - source: Andreas asked whether the winner should be first to complete all quests, with highest score winning at deadline if nobody completes all quests.
   - decision: yes; canonical success criteria is `First to complete all quests wins. If nobody finishes, highest points at the deadline wins.`
   - Proof: invite/onboarding rules list now includes `Winner`; rules explainer states the same condition in plain language; accepted competition hero and locked rules include the winner rule; creation preview includes a winner-rule preview so creators see the success criteria before sharing.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-oyhvf2pzv-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200 and include `Winner`, `First to complete all quests wins`, and `highest points at the deadline wins`; anonymous create still redirects to sign-in; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
