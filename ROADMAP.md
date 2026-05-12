@@ -656,7 +656,7 @@ Rules from this point:
   - completed_at: 2026-05-12 17:35 Europe/Stockholm
   - source: Andreas asked for Live activity to show date + time, only latest 5 events, and include a refresh button that refreshes checks.
   - Proof: accepted participant `Live activity` now shows 5 timestamped events using `May 12, HH:MM` format and includes a `Refresh checks` button in the section header.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-l2t6cycnw-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `groupquests-activity-list`, date-time entries such as `May 12, 13:38`, `Refresh checks`, and exactly 5 `<time>` tags; Vercel production 500 log scan for the last 10m returned no entries.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
