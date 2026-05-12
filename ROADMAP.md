@@ -762,7 +762,7 @@ Rules from this point:
   - completed_at: 2026-05-12 21:47 Europe/Stockholm
   - source: Andreas shared a parchment reference and clarified the desired look is an actual old scroll/parchment image, not a certificate-like frame.
   - Proof: SVG artifact now uses an irregular torn parchment body, curled top/bottom rolled edges, parchment noise/stain filters, softer brown ink styling, and shield-like quest coat panels while keeping all text/coats inside one image-like artifact.
-  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-qfk9c4orr-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live route smoke returned 200, confirmed quest badge assets and no old `groupquest-scroll-paper`; Vercel production 500 log scan for the last 10m returned no entries. Note: modal SVG text is client-rendered after clicking the scroll, so it is source-inspected rather than visible in initial HTML.
 
 ## Approved hidden implementation — Multiplayer / group quests — 2026-05-09
 
