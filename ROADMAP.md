@@ -67,6 +67,14 @@ Rules from this point:
 - Do not use old autonomous backlog items as permission to add new website product features.
 - Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
 
+- [x] Polish SQC mobile launch layout without changing desktop UI.
+  - added_at: 2026-05-13 22:12 Europe/Stockholm
+  - completed_at: 2026-05-13 22:25 Europe/Stockholm
+  - source: Andreas asked to optimize the site for mobile after confirming this should not affect the full desktop browser UI.
+  - scope: responsive-only/mobile-first polish for nav wrapping, hero density, CTA placement, key public pages, account/dashboard surfaces, Multiplayer Side Quest pages, create/join flow, and proof/result pages.
+  - constraint: preserve current desktop/full-browser UI; use scoped breakpoints and verify mobile (~390px) plus desktop (~1440px).
+  - proof: `pnpm lint` passed with 0 errors / 3 pre-existing warnings; `pnpm build` passed; local production Playwright smoke at 390x844 and 1440x1000 returned 200 with no horizontal overflow on `/`, `/groupquests`, `/groupquests/create`, `/groupquests/public`, `/challenges/finish-any-game`, `/result`, and `/account`.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

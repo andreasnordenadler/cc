@@ -1446,3 +1446,89 @@ p { color: var(--muted); line-height: 1.5; }
 .won-card-seal.solo img { transform: rotate(-7deg); }
 .won-card-seal.multiplayer img { transform: rotate(5deg); }
 @media (max-width: 640px) { .quest-achievement-lane-head { display: grid; } .multiplayer-victory-card, .trophy-card { grid-template-columns: 64px minmax(0, 1fr) 48px; gap: 10px; } .multiplayer-victory-scroll-thumb, .trophy-card-badge { width: 64px; height: 84px; } .trophy-card-badge .challenge-badge-art, .trophy-card-badge .challenge-badge-art .badge-reference-art { width: 52px; height: 52px; } .won-card-seal, .won-card-seal img { width: 48px; height: 48px; } }
+
+/* Mobile launch polish: scoped to phone widths so the desktop launch-candidate UI stays intact. */
+@media (max-width: 620px) {
+  html { scroll-padding-top: 96px; }
+  .site-shell { padding: 10px; }
+  .site-nav { top: 8px; margin-bottom: 14px; border-radius: 22px; }
+  .site-nav-inner { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px; }
+  .nav-links { display: grid; grid-template-columns: 54px repeat(3, minmax(0, 1fr)); width: 100%; gap: 5px; }
+  .nav-links .nav-brand-mark { width: 54px; height: 36px; margin-right: 0; padding: 0; }
+  .nav-links .nav-brand-mark::before { inset: -6px -4px -5px; filter: blur(6px); }
+  .nav-links a:not(.nav-brand-mark), .nav-pill { min-height: 36px; padding: 8px 7px; display: inline-flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; line-height: 1.05; }
+  .nav-actions { width: 100%; justify-content: stretch; }
+  .nav-actions .button-row, .nav-actions .button-row form, .nav-actions .button-row .button, .nav-actions .nav-pill { width: 100%; }
+  .nav-actions .button-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
+  .nav-actions .button { min-height: 38px; padding: 9px 12px; }
+
+  .content-wrap { gap: 14px; }
+  .card, .hero-card, .challenge-card, .stat-card, .proof-card, .connect-card, .result-poster, .mission-card { border-radius: 22px; }
+  .hero-card, .mission-card, .card { padding: 18px; }
+  h1 { font-size: clamp(2.35rem, 12vw, 3.15rem); line-height: .9; letter-spacing: -.06em; margin-bottom: 12px; }
+  h2 { font-size: clamp(1.45rem, 7.6vw, 2.1rem); line-height: .96; letter-spacing: -.045em; }
+  h3 { font-size: 1.08rem; }
+  .hero-copy { font-size: 1rem; line-height: 1.42; }
+  .eyebrow { padding: 6px 9px; font-size: 10px; letter-spacing: .1em; }
+  .button-row { align-items: stretch; }
+  .button-row .button, .hero-actions .button, .side-quest-mode-card .button, .groupquests-action-card .button, .groupquests-create-card .button { width: 100%; min-height: 42px; }
+  .grid, .big-grid { gap: 12px; grid-template-columns: 1fr; }
+  .steps { grid-template-columns: 1fr; gap: 8px; }
+  .step { padding: 12px; }
+  .section-head { align-items: stretch; display: grid; gap: 10px; }
+
+  .hero-grid { grid-template-columns: 1fr; gap: 12px; }
+  .home-badge-vault-card h2 { font-size: clamp(2.05rem, 11vw, 3rem); }
+  .home-badge-art-row { gap: 8px; }
+  .home-badge-art-row .challenge-badge-art,
+  .home-badge-art-row .challenge-badge-art .badge-reference-art { width: 68px; height: 68px; min-width: 68px; }
+
+  .challenge-card { min-height: 0; padding: 15px; }
+  .challenge-card-title-row { gap: 10px; grid-template-columns: 58px minmax(0, 1fr); }
+  .challenge-badge-art { width: 58px; min-width: 58px; }
+  .challenge-badge-art .badge-reference-art { width: 58px; height: 58px; }
+  .challenge-badge-art.hero, .challenge-badge-art.hero .badge-reference-art { width: min(190px, 68vw); }
+  .badge { padding: 6px 8px; font-size: 10px; }
+
+  .groupquests-page .content-wrap { gap: 14px; }
+  .groupquests-hero { padding-block: 18px; }
+  .groupquests-hero h1 { font-size: clamp(2.25rem, 11.5vw, 3.1rem); line-height: .9; }
+  .groupquests-hero .hero-copy { font-size: .98rem; line-height: 1.4; }
+  .groupquests-story-card, .groupquests-how-card, .groupquests-user-overview, .groupquests-create-minihero, .groupquest-competition-hero, .groupquest-invite-hero { padding: 16px; }
+  .groupquests-how-step, .groupquests-action-card, .groupquests-list-section, .groupquests-room-section { padding: 12px; }
+  .groupquests-create-cta-row { justify-content: stretch; }
+  .groupquests-create-cta-row .button { width: 100%; }
+  .groupquests-compact-room, .groupquests-finished-row, .public-groupquest-row { padding: 12px; }
+  .groupquests-list-heading { grid-template-columns: 1fr; }
+  .groupquests-list-heading .badge { width: max-content; }
+
+  .current-mission-card { padding: 16px; }
+  .current-mission-copy h1 { font-size: clamp(2rem, 10vw, 2.75rem); line-height: .92; }
+  .current-mission-copy h2 { font-size: clamp(1.35rem, 7vw, 1.9rem); }
+  .current-mission-coat, .current-mission-empty { width: 100%; }
+  .quest-log-top-grid .focused-quest-hero h1 { font-size: clamp(2rem, 10vw, 2.75rem); }
+  .quest-log-top-grid .compact-current-quest-card { padding: 16px; }
+
+  .groupquest-hero-copy h1, .groupquest-invite-hero h1, .public-proof-hero h1 { font-size: clamp(2.2rem, 11vw, 3rem); line-height: .9; }
+  .groupquest-seal-card { min-height: 0; padding: 12px; }
+  .groupquest-seal { width: 92px; height: 92px; }
+  .groupquest-summary-list { width: 100%; }
+  .groupquest-summary-list li { flex-direction: column; gap: 3px; }
+  .groupquest-summary-list strong { text-align: left; }
+  .groupquest-leaderboard-row summary { grid-template-columns: 1fr; gap: 8px; }
+  .groupquest-progress-bar { width: 100%; }
+  .groupquest-join-modal { border-radius: 22px; padding: 16px; }
+  .groupquest-join-head { grid-template-columns: 1fr auto; gap: 10px; }
+
+  .result-poster { padding: 18px; }
+  .proof-victory-scroll .victory-scroll-seal, .account-victory-scroll .victory-scroll-seal { width: 84px; }
+  .site-footer { width: 100%; margin-top: 24px; justify-content: center; text-align: center; }
+  .site-footer nav { justify-content: center; }
+}
+
+@media (max-width: 620px) {
+  .content-wrap > *, .hero-grid, .mission-card, .result-poster { max-width: 100%; min-width: 0; }
+  .result-poster { transform: none; }
+  .auth-card { padding-inline: 8px; }
+  [class*="cl-rootBox"], [class*="cl-cardBox"], [class*="cl-card"], [class*="cl-footer"] { max-width: calc(100vw - 44px) !important; }
+}

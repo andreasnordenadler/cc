@@ -3293,3 +3293,71 @@ Always quote dynamic route paths containing square brackets in zsh commands.
 - Tags: zsh, nextjs, dynamic-routes
 
 ---
+
+## [ERR-20260513-006] sqc_admin_grant_wrong_clerk_instance
+
+**Logged**: 2026-05-13T16:31:00+02:00
+**Priority**: high
+**Status**: mitigated
+**Area**: auth
+
+### Summary
+Granting SQC admin with local `.env.production.local` did not affect the deployed app because Vercel production uses a different live Clerk publishable key than local env files.
+
+### Details
+`vercel env pull --environment=production` showed the Vercel production publishable key hash differed from local `.env.production.local` / `.env.local`, which are test Clerk keys. The local helper updated the wrong Clerk instance.
+
+### Suggested Action
+For production Clerk metadata writes, first verify local env matches Vercel production env. For emergency admin gates, allow a known signed-in email through session/current-user claims and then repair the production secret/admin tooling properly.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/app/admin/analytics/page.tsx, src/lib/analytics.ts
+- Tags: sqc, clerk, vercel, admin-access
+
+---
+
+## [ERR-20260513-008] next_start_argument_forwarding
+
+**Logged**: 2026-05-13T22:18:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+`pnpm start -- -p 3107` forwarded `-p` as a project directory to `next start` in this repo.
+
+### Details
+During SQC mobile verification, the command expanded to `next start -- -p 3107` and Next reported `Invalid project directory provided ... /cc/-p`.
+
+### Suggested Action
+Use `pnpm exec next start -p <port>` or set `PORT=<port> pnpm start` for local production-server verification.
+
+### Metadata
+- Source: error
+- Related Files: package.json
+- Tags: nextjs, pnpm, local-verification
+
+---
+
+## [ERR-20260513-009] playwright_browser_cache_missing
+
+**Logged**: 2026-05-13T22:21:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+Repo Playwright package is installed but its managed Chromium cache is missing.
+
+### Details
+A local mobile/desktop verification script failed because Playwright could not find `chromium_headless_shell-1223` and suggested `npx playwright install`.
+
+### Suggested Action
+For quick local verification on this Mac, launch Playwright with the system Chrome executable at `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`; only install Playwright browsers when explicitly needed.
+
+### Metadata
+- Source: error
+- Tags: playwright, browser, local-verification
+
+---
