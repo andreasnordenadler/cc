@@ -124,21 +124,56 @@ export default async function GroupQuestsPage() {
 
         {userId ? (
           <>
+            <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">Multiplayer Side Quest flow</span>
+                  <h2>Create. Invite. Play. Prove.</h2>
+                </div>
+                <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
+              </div>
+              <div className="groupquests-how-grid">
+                {overviewSteps.map((step, index) => {
+                  const content = (
+                    <>
+                      <strong>{index + 1}</strong>
+                      <span>{step.title}</span>
+                      <p>{step.copy}</p>
+                    </>
+                  );
+
+                  return step.href ? (
+                    <Link
+                      className="groupquests-how-step clickable"
+                      href={step.href}
+                      key={step.title}
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <article className="groupquests-how-step" key={step.title}>
+                      {content}
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
             <section className="mission-card groupquests-user-overview" aria-label="Your Multiplayer Side Quests overview">
               <div className="section-head">
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
-                  <h2>What needs me?</h2>
-                  <p>Active Multiplayer Quests first. Finished Multiplayer Quests stay out of the way until you need results.</p>
+                  <h2>Your multiplayer command center.</h2>
+                  <p>See what needs action now, which rooms are open, and where finished results live.</p>
                 </div>
                 <div className="groupquests-dashboard-actions">
-                  <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
+                  <Link className="button secondary" href="/groupquests/public">Find public quests</Link>
                 </div>
               </div>
 
               <div className="groupquests-attention-panel" aria-label="Multiplayer Side Quests needing your attention">
                 <div className="section-head compact">
-                  <h3>Needs your attention</h3>
+                  <h3>Needs action</h3>
                   <span className="badge gold">{attentionItems.length}</span>
                 </div>
                 <div className="groupquests-attention-list">
@@ -166,8 +201,8 @@ export default async function GroupQuestsPage() {
                 <section className="groupquests-room-list-panel" aria-label="Active Multiplayer Quests">
                   <div className="section-head compact">
                     <div>
-                      <h3>Active</h3>
-                      <p>Live, upcoming, and drafts you manage.</p>
+                      <h3>Open Multiplayer Side Quests</h3>
+                      <p>Live rooms, upcoming rooms, and drafts you manage.</p>
                     </div>
                     <span className="badge gold">{activeRooms.length}</span>
                   </div>
@@ -190,8 +225,8 @@ export default async function GroupQuestsPage() {
                 <aside className="groupquests-history-panel" aria-label="Finished Multiplayer Quests">
                   <div className="section-head compact">
                     <div>
-                      <h3>Finished</h3>
-                      <p>Recent results. Full history can become searchable later.</p>
+                      <h3>Finished results</h3>
+                      <p>Recent completed rooms and placements.</p>
                     </div>
                     <span className="badge">24</span>
                   </div>
@@ -250,41 +285,6 @@ export default async function GroupQuestsPage() {
             </section>
           </>
         )}
-
-        {userId ? (
-          <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
-            <div className="section-head">
-              <div>
-                <h2>Create. Invite. Play. Prove.</h2>
-              </div>
-            </div>
-            <div className="groupquests-how-grid">
-              {overviewSteps.map((step, index) => {
-                const content = (
-                  <>
-                    <strong>{index + 1}</strong>
-                    <span>{step.title}</span>
-                    <p>{step.copy}</p>
-                  </>
-                );
-
-                return step.href ? (
-                  <Link
-                    className="groupquests-how-step clickable"
-                    href={step.href}
-                    key={step.title}
-                  >
-                    {content}
-                  </Link>
-                ) : (
-                  <article className="groupquests-how-step" key={step.title}>
-                    {content}
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-        ) : null}
 
         {!userId ? (
           <>

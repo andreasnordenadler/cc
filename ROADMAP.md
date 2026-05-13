@@ -67,6 +67,17 @@ Rules from this point:
 - Do not use old autonomous backlog items as permission to add new website product features.
 - Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
 
+- [ ] Plan official weekly SQC Multiplayer Events.
+  - added_at: 2026-05-13 10:16 Europe/Stockholm
+  - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
+  - status: idea accepted for planning only; implementation remains subject to website feature-freeze approval.
+  - product direction: weekly always-on official event, fresh each week, public/open join, suitable for homepage promotion, and likely powered by the existing Multiplayer Side Quest/group quest model rather than a separate product surface.
+
+- [ ] Clarify signed-in Multiplayer Side Quests dashboard.
+  - added_at: 2026-05-13 10:24 Europe/Stockholm
+  - source: Andreas showed the signed-in Multiplayer Side Quests page and asked to move the `Create. Invite. Play. Prove.` section to the top, then make the `My Multiplayer Side Quests` section clearer.
+  - planned change: put the process/create card first, then rename/reframe the user dashboard around action-needed, open rooms, invite link, and finished results.
+
 - [x] Remove pill-style labels from auth pages.
   - added_at: 2026-05-11 15:00 Europe/Stockholm
   - completed_at: 2026-05-11 15:02 Europe/Stockholm
