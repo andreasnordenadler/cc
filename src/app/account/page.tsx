@@ -49,6 +49,21 @@ export default async function MyQuestLogPage() {
     },
   ];
 
+  const activeGroupQuests = [
+    {
+      title: "No Castle Night",
+      status: "Live",
+      copy: "Fresh No Castle proof needed · 4 players",
+      href: "/groupquests/gq_demo_no_castle_01",
+    },
+    {
+      title: "Beginner Chaos Ladder",
+      status: "Starting soon",
+      copy: "Confirm Blitz 5+3 rules before this opens",
+      href: "/groupquests/gq_demo_no_castle_01",
+    },
+  ];
+
   return (
     <main className="site-shell">
       <SiteNav isSignedIn active="account" />
@@ -83,6 +98,21 @@ export default async function MyQuestLogPage() {
                 <span>Choose a quest</span>
               </Link>
             )}
+          </div>
+        </section>
+
+        <section className="mission-card active-multiplayer-strip" aria-label="Active multiplayer side quests">
+          <div>
+            <span className="eyebrow">Active Multiplayer Side Quests</span>
+            <h2>Open tables</h2>
+          </div>
+          <div className="active-multiplayer-list">
+            {activeGroupQuests.map((quest) => (
+              <Link href={quest.href} className="active-multiplayer-pill" key={quest.title}>
+                <strong>{quest.title}</strong>
+                <span>{quest.status} · {quest.copy}</span>
+              </Link>
+            ))}
           </div>
         </section>
 
