@@ -134,7 +134,6 @@ export default async function GroupQuestsPage() {
                   <span className="eyebrow">Multiplayer Side Quest flow</span>
                   <h2>Create. Invite. Play. Prove.</h2>
                 </div>
-                <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
               </div>
               <div className="groupquests-how-grid">
                 {overviewSteps.map((step, index) => {
@@ -160,6 +159,9 @@ export default async function GroupQuestsPage() {
                     </article>
                   );
                 })}
+              </div>
+              <div className="groupquests-create-cta-row">
+                <Link className="button primary" href="/groupquests/create">Create New Multiplayer Side Quest</Link>
               </div>
             </section>
 
