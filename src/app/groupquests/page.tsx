@@ -164,12 +164,19 @@ export default async function GroupQuestsPage() {
             </section>
 
             <section className="mission-card groupquests-user-overview" aria-label="Your Multiplayer Side Quests overview">
-              <div className="section-head">
+              <div className="section-head groupquests-command-head">
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
                   <h2>Your multiplayer command center.</h2>
                   <p>Your active rooms, public rooms you can join, and closed results — all in one simple list.</p>
                 </div>
+                <Image
+                  alt=""
+                  className="groupquests-command-seal"
+                  height={112}
+                  src="/stamps/SQCBLACK%20SEAL.png"
+                  width={112}
+                />
               </div>
 
               <div className="groupquests-timeline-list" aria-label="Your Multiplayer Quests">
