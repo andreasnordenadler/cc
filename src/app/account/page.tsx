@@ -186,12 +186,6 @@ export default async function MyQuestLogPage() {
 
           {completedChallenges.length || multiplayerVictories.length ? (
             <>
-              <div className="trophy-case-summary" aria-label="Completed quest ceremony summary">
-                <span><strong>{completedChallenges.length}</strong> completed Side Quest{completedChallenges.length === 1 ? "" : "s"}</span>
-                <span><strong>{multiplayerVictories.length}</strong> Multiplayer victory scroll{multiplayerVictories.length === 1 ? "" : "s"}</span>
-                <span><strong>{attempts.length}</strong> receipt{attempts.length === 1 ? "" : "s"} in the evidence drawer</span>
-              </div>
-
               <div className="quest-achievement-sections">
                 <section className="quest-achievement-lane" aria-label="Completed solo Side Quests">
                   <div className="quest-achievement-lane-head">
