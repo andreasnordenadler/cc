@@ -44,3 +44,7 @@ CC_GIT_TEST=1
 .env*.local
 
 apps/mobile/node_modules
+
+# local QA artifacts
+/tmp/
+/.worktrees/

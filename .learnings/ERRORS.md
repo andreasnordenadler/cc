@@ -3178,3 +3178,49 @@ After adding new component-specific classes, verify their CSS selectors exist be
 ## 2026-05-12 — ImageResponse requires explicit flex display on multi-child divs
 - What happened: Local `/api/og/proof/[token]` smoke returned an empty response. Next logs showed `Expected <div> to have explicit display: flex, display: contents, or display: none if it has more than one child node` for an ImageResponse div containing two spans.
 - What to do differently: In `next/og` / `ImageResponse` JSX, every div with multiple child nodes must explicitly set `display` (usually `display: "flex"`). Run a local image smoke after changing OG JSX.
+
+## [ERR-20260513-001] sqc_node_test_chesscom_imports
+
+**Logged**: 2026-05-13T15:28:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: tests
+
+### Summary
+Running `node --experimental-strip-types --test tests/*.mjs` in SQC fails for Chess.com fixture tests because Node ESM cannot resolve extensionless TS imports from `src/lib/chesscom.ts`.
+
+### Details
+The Lichess/direct fixture tests pass, but Chess.com tests that import `src/lib/chesscom.ts` fail with `ERR_MODULE_NOT_FOUND` for `src/lib/pawn-only-picnic` because the TS source uses extensionless imports that Next/Turbopack accepts but raw Node ESM does not.
+
+### Suggested Action
+Add a supported test runner/config for TypeScript path/import resolution, or make test-only imports runnable under Node (e.g. explicit `.ts` extensions or tsx/vitest). Do not treat this as verifier logic failure until the runner issue is fixed.
+
+### Metadata
+- Source: command failure
+- Related Files: tests/*.mjs, src/lib/chesscom.ts, src/lib/pawn-only-picnic.ts
+- Tags: sqc, tests, chesscom, esm
+
+---
+
+## [ERR-20260513-002] launch_qa_commonjs_lint
+
+**Logged**: 2026-05-13T15:54:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Adding `scripts/launch-qa-local.cjs` initially broke `pnpm lint` because project ESLint forbids `require()` imports.
+
+### Details
+The script deliberately uses CommonJS because importing `@clerk/nextjs/server` as ESM from a standalone Node script hit Clerk/Next extensionless import resolution issues. ESLint still scanned `.cjs` and raised `@typescript-eslint/no-require-imports`.
+
+### Suggested Action
+For standalone Node QA scripts that must stay CommonJS, add a file-level ESLint disable for `@typescript-eslint/no-require-imports`, or move scripts to ESM only after verifying Clerk standalone imports work.
+
+### Metadata
+- Source: command failure
+- Related Files: scripts/launch-qa-local.cjs
+- Tags: sqc, lint, qa
+
+---
