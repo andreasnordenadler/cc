@@ -1272,6 +1272,9 @@ p { color: var(--muted); line-height: 1.5; }
 
 .groupquest-podium-scroll { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-bottom: 14px; padding: 14px; border: 1px solid rgba(245,200,106,.3); border-radius: 22px; background: radial-gradient(circle at 6% 8%, rgba(245,200,106,.22), transparent 36%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(0,0,0,.18)); }
 .groupquest-podium-scroll img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 12px 20px rgba(0,0,0,.36)); }
+.groupquest-seal-button { width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 999px; background: transparent; cursor: zoom-in; }
+.groupquest-seal-button.podium { width: 72px; height: 72px; }
+.groupquest-seal-button:hover, .groupquest-seal-button:focus-visible { outline: 2px solid rgba(245,200,106,.68); outline-offset: 3px; filter: brightness(1.08); }
 .groupquest-podium-scroll h3 { margin: 2px 0 4px; color: var(--gold); font-size: clamp(1.05rem, 2vw, 1.45rem); line-height: 1.08; }
 .groupquest-podium-scroll p { margin: 0; color: var(--muted); font-size: .86rem; font-weight: 850; line-height: 1.35; }
 .groupquest-podium-scroll .button { white-space: nowrap; }
@@ -1285,11 +1288,17 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-leaderboard-row.green { border-color: rgba(96,240,175,.32); background: linear-gradient(90deg, rgba(96,240,175,.12), rgba(0,0,0,.14)); }
 
 .groupquest-rank-stack { display: flex; align-items: center; gap: 7px; }
-.groupquest-scroll-mini { width: 38px; height: 30px; display: grid; place-items: center; border: 1px solid rgba(245,200,106,.4); border-radius: 9px; background: linear-gradient(135deg, rgba(245,200,106,.22), rgba(236,228,204,.08)); color: var(--gold); font-size: .54rem; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.14); }
-.groupquest-scroll-mini:hover, .groupquest-scroll-mini:focus-visible { outline: none; border-color: rgba(245,200,106,.82); transform: translateY(-1px); }
-.groupquest-scroll-modal { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 18px; }
+.groupquest-scroll-mini { width: 42px; height: 34px; display: grid; place-items: center; padding: 0; border: 1px solid rgba(245,200,106,.46); border-radius: 11px; background: radial-gradient(circle at 35% 18%, rgba(255,238,188,.24), transparent 42%), linear-gradient(135deg, rgba(245,200,106,.18), rgba(82,49,24,.34)); cursor: pointer; box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 15px rgba(0,0,0,.24); }
+.groupquest-scroll-mini-art { width: 30px; height: 30px; display: block; }
+.groupquest-scroll-mini:hover, .groupquest-scroll-mini:focus-visible { outline: none; border-color: rgba(245,200,106,.82); transform: translateY(-1px); filter: brightness(1.08); }
+.groupquest-scroll-modal, .groupquest-seal-modal { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 18px; }
+.groupquest-seal-modal { z-index: 92; }
 .groupquest-scroll-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,.72); backdrop-filter: blur(6px); }
 .groupquest-scroll-sheet { position: relative; z-index: 1; width: min(100%, 540px); }
+.groupquest-seal-sheet { position: relative; z-index: 1; width: min(100%, 420px); display: grid; justify-items: center; gap: 14px; padding: clamp(22px, 5vw, 34px); border: 1px solid rgba(245,200,106,.34); border-radius: 30px; background: radial-gradient(circle at 50% 14%, rgba(245,200,106,.18), transparent 40%), linear-gradient(135deg, rgba(31,26,19,.98), rgba(13,12,15,.98)); box-shadow: 0 30px 80px rgba(0,0,0,.55); text-align: center; }
+.groupquest-seal-sheet img { width: min(78vw, 320px); height: auto; object-fit: contain; filter: drop-shadow(0 28px 40px rgba(0,0,0,.48)); }
+.groupquest-seal-sheet strong { display: block; color: var(--ink); font-size: clamp(1.15rem, 3vw, 1.55rem); font-weight: 1000; }
+.groupquest-seal-sheet small { display: block; margin-top: 4px; color: var(--muted); font-weight: 850; }
 .groupquest-scroll-close { position: absolute; right: -10px; top: -12px; z-index: 2; width: 36px; height: 36px; border: 1px solid rgba(236,228,204,.28); border-radius: 999px; background: rgba(25,16,8,.92); color: var(--ink); font-size: 1.25rem; font-weight: 1000; cursor: pointer; }
 
 .groupquest-scroll-artifact-wrap { display: grid; justify-items: center; gap: 14px; }
@@ -1304,7 +1313,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-scroll-artifact .scroll-quest-time { fill: rgba(32,20,7,.66); font-size: 9px; font-weight: 900; }
 .groupquest-scroll-artifact .scroll-footer { fill: rgba(32,20,7,.62); font-size: 11px; font-weight: 900; font-style: italic; }
 @media (max-width: 620px) { .groupquest-rank-stack { align-items: flex-start; } }
-.groupquest-rank { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.15); color: var(--gold); font-weight: 1000; overflow: hidden; }
+.groupquest-rank { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.15); color: var(--gold); font-weight: 1000; overflow: visible; }
 .groupquest-rank img { width: 42px; height: 42px; object-fit: contain; display: block; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }
 .groupquest-leaderboard-row strong { color: var(--ink); font-weight: 1000; }
 .groupquest-leaderboard-row small { display: block; margin-top: 3px; color: var(--muted); font-size: .77rem; font-weight: 850; line-height: 1.3; }

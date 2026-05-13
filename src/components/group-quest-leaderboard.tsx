@@ -150,7 +150,9 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
   const podiumPlayer = players.find((player) => player.isCurrentParticipant && rankSealByPlacement[player.rank] && player.completed >= quests.length);
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
   const [selectedScroll, setSelectedScroll] = useState<Player | null>(null);
+  const [selectedSealPreview, setSelectedSealPreview] = useState<Player | null>(null);
   const selectedSeal = selectedScroll ? rankSealByPlacement[selectedScroll.rank] : null;
+  const previewSeal = selectedSealPreview ? rankSealByPlacement[selectedSealPreview.rank] : null;
   const selectedCompletedQuests = selectedScroll ? completedQuestsFor(selectedScroll, quests) : [];
   const selectedFinishedAt = selectedScroll ? finalCompletionTimeFor(selectedScroll, quests) : "";
   const bestedPlayers = selectedScroll ? players.filter((player) => player.rank > selectedScroll.rank).map((player) => player.name) : [];
@@ -159,7 +161,14 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
     <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
       {podiumPlayer && podiumSeal ? (
         <div className="groupquest-podium-scroll" role="status" aria-live="polite">
-          <Image src={podiumSeal.src} alt={podiumSeal.alt} width={72} height={72} />
+          <button
+            className="groupquest-seal-button podium"
+            type="button"
+            aria-label={`View large ${podiumSeal.label.toLowerCase()} seal for ${podiumPlayer.name}`}
+            onClick={() => setSelectedSealPreview(podiumPlayer)}
+          >
+            <Image src={podiumSeal.src} alt={podiumSeal.alt} width={72} height={72} />
+          </button>
           <div>
             <span className="eyebrow">{podiumSeal.label} claimed</span>
             <h3>{podiumSeal.label} scroll unlocked for {podiumPlayer.name}.</h3>
@@ -182,7 +191,18 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
               <div className="groupquest-rank-stack">
                 <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
                   {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (
-                    <Image src={rankSealByPlacement[player.rank].src} alt={rankSealByPlacement[player.rank].alt} width={42} height={42} />
+                    <button
+                      className="groupquest-seal-button"
+                      type="button"
+                      aria-label={`View large ${rankSealByPlacement[player.rank].label.toLowerCase()} seal for ${player.name}`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        setSelectedSealPreview(player);
+                      }}
+                    >
+                      <Image src={rankSealByPlacement[player.rank].src} alt={rankSealByPlacement[player.rank].alt} width={42} height={42} />
+                    </button>
                   ) : (
                     `#${player.rank}`
                   )}
@@ -198,7 +218,24 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
                       setSelectedScroll(player);
                     }}
                   >
-                    Scroll
+                    <span className="sr-only">View {rankSealByPlacement[player.rank].label} scroll for {player.name}</span>
+                    <svg className="groupquest-scroll-mini-art" viewBox="0 0 96 96" aria-hidden="true" focusable="false">
+                      <defs>
+                        <linearGradient id={`miniScrollPaper-${player.rank}`} x1="18" x2="78" y1="22" y2="78" gradientUnits="userSpaceOnUse">
+                          <stop stopColor="#fff2c2" />
+                          <stop offset="0.48" stopColor="#d79c47" />
+                          <stop offset="1" stopColor="#7a4318" />
+                        </linearGradient>
+                        <filter id={`miniScrollShadow-${player.rank}`} x="-25%" y="-25%" width="150%" height="150%">
+                          <feDropShadow dx="0" dy="5" stdDeviation="4" floodColor="#000" floodOpacity="0.36" />
+                        </filter>
+                      </defs>
+                      <g filter={`url(#miniScrollShadow-${player.rank})`}>
+                        <path d="M24 20h48c6 0 11 5 11 11 0 5-3 9-7 10v23c4 1 7 5 7 10 0 6-5 11-11 11H24c-6 0-11-5-11-11 0-5 3-9 7-10V41c-4-1-7-5-7-10 0-6 5-11 11-11Z" fill={`url(#miniScrollPaper-${player.rank})`} />
+                        <path d="M25 33c13-4 32-4 46 0M27 47c13 3 29 3 42 0M29 60c10-3 27-3 38 0" fill="none" stroke="#4b260d" strokeLinecap="round" strokeWidth="3.6" opacity="0.5" />
+                        <path d="M24 20h48c6 0 11 5 11 11 0 5-3 9-7 10v23c4 1 7 5 7 10 0 6-5 11-11 11H24c-6 0-11-5-11-11 0-5 3-9 7-10V41c-4-1-7-5-7-10 0-6 5-11 11-11Z" fill="none" stroke="#f7d783" strokeWidth="2" opacity="0.7" />
+                      </g>
+                    </svg>
                   </button>
                 ) : null}
               </div>
@@ -228,6 +265,20 @@ export default function GroupQuestLeaderboard({ id, quests }: { id: string; ques
           </details>
         ))}
       </div>
+      {selectedSealPreview && previewSeal ? (
+        <div className="groupquest-seal-modal" role="dialog" aria-modal="true" aria-label={`${previewSeal.label} placement seal`}>
+          <div className="groupquest-scroll-backdrop" onClick={() => setSelectedSealPreview(null)} />
+          <div className="groupquest-seal-sheet">
+            <button className="groupquest-scroll-close" type="button" onClick={() => setSelectedSealPreview(null)} aria-label="Close seal preview">×</button>
+            <Image src={previewSeal.src} alt={previewSeal.alt} width={320} height={320} priority />
+            <div>
+              <span className="eyebrow">{previewSeal.label} seal</span>
+              <strong>{selectedSealPreview.name}</strong>
+              <small>{selectedSealPreview.proof}</small>
+            </div>
+          </div>
+        </div>
+      ) : null}
       {selectedScroll && selectedSeal ? (
         <div className="groupquest-scroll-modal" role="dialog" aria-modal="true" aria-label={`${selectedSeal.label} winner scroll`}>
           <div className="groupquest-scroll-backdrop" onClick={() => setSelectedScroll(null)} />
