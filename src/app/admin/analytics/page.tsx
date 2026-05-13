@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { currentUser, clerkClient } from "@clerk/nextjs/server";
+import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsEvent } from "@/lib/analytics";
@@ -33,7 +33,9 @@ type QuestSummary = {
 };
 
 export default async function AdminAnalyticsPage() {
-  const viewer = await currentUser();
+  const { userId } = await auth();
+  const client = await clerkClient();
+  const viewer = userId ? await client.users.getUser(userId) : await currentUser();
   const canView = isAdminAnalyticsViewer(viewer);
 
   if (!canView) {
@@ -54,7 +56,6 @@ export default async function AdminAnalyticsPage() {
     );
   }
 
-  const client = await clerkClient();
   const response = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
   const rows: AnalyticsUserRow[] = response.data.map((user) => {
     const store = getAnalyticsStore(user.privateMetadata);

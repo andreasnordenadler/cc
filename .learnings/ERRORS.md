@@ -3247,3 +3247,26 @@ Include seconds plus a short random suffix in generated QA emails for repeatable
 - Tags: sqc, qa, clerk
 
 ---
+
+## [ERR-20260513-004] sqc_admin_metadata_stale_check
+
+**Logged**: 2026-05-13T16:17:00+02:00
+**Priority**: medium
+**Status**: resolved
+**Area**: auth
+
+### Summary
+SQC analytics admin access was granted in Clerk private metadata, but the deployed dashboard still showed "Admin access needed" for Andreas after re-login.
+
+### Details
+The production Clerk user had `privateMetadata.sqcAdmin = true`, so the grant worked. The dashboard was relying on `currentUser()` for access checks, which can reflect session/user data differently than a fresh Clerk backend fetch.
+
+### Suggested Action
+For admin gates that depend on freshly changed private metadata, use `auth()` to get `userId` and fetch the user with `clerkClient.users.getUser(userId)` before checking access.
+
+### Metadata
+- Source: user_feedback
+- Related Files: src/app/admin/analytics/page.tsx
+- Tags: sqc, clerk, admin, analytics
+
+---
