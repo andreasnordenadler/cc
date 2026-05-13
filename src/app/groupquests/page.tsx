@@ -38,23 +38,6 @@ const loggedOutActions = [
   },
 ];
 
-const attentionItems = [
-  {
-    title: "No Castle Night",
-    copy: "Proof window open · fresh No Castle game needed",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Submit proof",
-    tone: "green",
-  },
-  {
-    title: "Beginner Chaos Ladder",
-    copy: "Starts tonight · confirm Blitz 5+3 rules",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Review rules",
-    tone: "gold",
-  },
-];
-
 const activeRooms = [
   {
     title: "No Castle Night",
@@ -82,6 +65,27 @@ const activeRooms = [
     href: "/groupquests/create",
     action: "Setup",
     tone: "blue",
+  },
+];
+
+const publicRooms = [
+  {
+    title: "No Castle Night",
+    status: "Open",
+    meta: "Public · Blitz 5+3 · 4 players",
+    next: "Join the room",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Join",
+    tone: "green",
+  },
+  {
+    title: "Weekly Chaos Table",
+    status: "Open",
+    meta: "Public · any verified account · fresh proof",
+    next: "Review rules",
+    href: "/groupquests/public",
+    action: "View",
+    tone: "gold",
   },
 ];
 
@@ -164,44 +168,15 @@ export default async function GroupQuestsPage() {
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
                   <h2>Your multiplayer command center.</h2>
-                  <p>See what needs action now, which rooms are open, and where finished results live.</p>
+                  <p>Your active rooms, public rooms you can join, and closed results — all in one simple list.</p>
                 </div>
-                <div className="groupquests-dashboard-actions">
-                  <Link className="button secondary" href="/groupquests/public">Find public quests</Link>
-                </div>
-              </div>
-
-              <div className="groupquests-attention-panel" aria-label="Multiplayer Side Quests needing your attention">
-                <div className="section-head compact">
-                  <h3>Needs action</h3>
-                  <span className="badge gold">{attentionItems.length}</span>
-                </div>
-                <div className="groupquests-attention-list">
-                  {attentionItems.map((item) => (
-                    <Link className={`groupquests-attention-row ${item.tone}`} href={item.href} key={item.title}>
-                      <div>
-                        <strong>{item.title}</strong>
-                        <p>{item.copy}</p>
-                      </div>
-                      <span>{item.action}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="groupquests-compact-invite" id="join-group-side-quest">
-                <div>
-                  <strong>Have an invite link?</strong>
-                  <p>Open the link directly. The Multiplayer Quest page shows rules before anything counts.</p>
-                </div>
-                <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview invite quest</Link>
               </div>
 
               <div className="groupquests-timeline-list" aria-label="Your Multiplayer Quests">
                 <section className="groupquests-list-section" aria-label="Active Multiplayer Quests">
                   <div className="groupquests-list-heading">
                     <div>
-                      <h3>Open Multiplayer Side Quests</h3>
+                      <h3>My Active Multiplayer Side Quests</h3>
                       <p>Live rooms, upcoming rooms, and drafts you manage.</p>
                     </div>
                     <span className="badge gold">{activeRooms.length}</span>
@@ -222,10 +197,34 @@ export default async function GroupQuestsPage() {
                   </div>
                 </section>
 
+                <section className="groupquests-list-section" aria-label="Public Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Public Multiplayer Side Quests</h3>
+                      <p>Open public rooms anyone can inspect and join.</p>
+                    </div>
+                    <span className="badge gold">{publicRooms.length}</span>
+                  </div>
+
+                  <div className="groupquests-compact-room-list">
+                    {publicRooms.map((room) => (
+                      <Link className={`groupquests-compact-room ${room.tone}`} href={room.href} key={room.title}>
+                        <strong>{room.status}</strong>
+                        <div>
+                          <h4>{room.title}</h4>
+                          <p>{room.meta}</p>
+                        </div>
+                        <span>{room.next}</span>
+                        <em>{room.action}</em>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+
                 <section className="groupquests-list-section finished" aria-label="Finished Multiplayer Quests">
                   <div className="groupquests-list-heading">
                     <div>
-                      <h3>Finished results</h3>
+                      <h3>My Closed Multiplayer Side Quests</h3>
                       <p>Recent completed rooms and placements.</p>
                     </div>
                     <span className="badge">24</span>

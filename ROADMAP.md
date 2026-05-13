@@ -80,6 +80,13 @@ Rules from this point:
   - Proof: signed-in `/groupquests` now starts with the `Create. Invite. Play. Prove.` process card and primary create CTA; the dashboard copy now says `Your multiplayer command center`, with clearer `Needs action`, `Open Multiplayer Side Quests`, and `Finished results` sections.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-jhkh2jmma-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200.
 
+- [x] Simplify signed-in Multiplayer dashboard into three lists.
+  - added_at: 2026-05-13 12:52 Europe/Stockholm
+  - completed_at: 2026-05-13 12:55 Europe/Stockholm
+  - source: Andreas asked to remove the highlighted `Needs action` area and show three lists: `My Active Multiplayer Side Quests`, `Public Multiplayer Side Quests`, and `My Closed Multiplayer Side Quests`.
+  - Proof: signed-in `/groupquests` dashboard no longer renders the `Needs action` panel or invite utility block; the room area now renders the three requested stacked list sections.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed locally.
+
 - [x] Remove pill-style labels from auth pages.
   - added_at: 2026-05-11 15:00 Europe/Stockholm
   - completed_at: 2026-05-11 15:02 Europe/Stockholm
