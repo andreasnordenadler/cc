@@ -109,6 +109,12 @@ Rules from this point:
   - Verification: `pnpm qa:launch:providers` passed; `SQC_BASE_URL=http://localhost:3000 pnpm qa:launch:local` passed; results documented in `docs/SQC_LAUNCH_QA_2026-05-13.md`.
   - follow_up: production signed-in automation still needs a dedicated production QA auth path or a working attach to Andreas's signed-in Chrome session; older `tests/*.mjs` fixture runner also needs repair before becoming a clean launch gate.
 
+- [ ] Add first-party SQC user interaction analytics.
+  - added_at: 2026-05-13 15:44 Europe/Stockholm
+  - source: Andreas wants a simple way to closely track whether users start using SQC, follow what they do, and later use the data to identify popular quests and quests that fail.
+  - planned change: store lightweight signed-in user analytics in Clerk private metadata, log anonymous page views to server logs, track page views/profile saves/quest starts/completions/failures/pending checks, and add a protected `/admin/analytics` dashboard.
+
+
 - [x] Remove pill-style labels from auth pages.
   - added_at: 2026-05-11 15:00 Europe/Stockholm
   - completed_at: 2026-05-11 15:02 Europe/Stockholm

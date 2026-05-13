@@ -10,7 +10,8 @@
     "deploy:prod:guard": "node scripts/deploy-production-guard.mjs",
     "deploy:prod": "pnpm deploy:prod:guard && vercel --prod --yes",
     "qa:launch:local": "node scripts/launch-qa-local.cjs",
-    "qa:launch:providers": "node scripts/launch-qa-providers.mjs"
+    "qa:launch:providers": "node scripts/launch-qa-providers.mjs",
+    "admin:grant-analytics": "node scripts/grant-sqc-admin.cjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.0.11",

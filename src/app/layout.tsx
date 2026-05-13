@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
+import AnalyticsTracker from "@/components/analytics/analytics-tracker";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -96,6 +98,9 @@ export default function RootLayout({
     <ClerkProvider appearance={clerkAppearance} localization={clerkLocalization}>
       <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
         <body>
+          <Suspense fallback={null}>
+            <AnalyticsTracker />
+          </Suspense>
           {children}
           <footer className="site-footer" aria-label="Site footer">
             <span>copyright anno 2026 sidequestchess.com</span>

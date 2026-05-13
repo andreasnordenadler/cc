@@ -3224,3 +3224,26 @@ For standalone Node QA scripts that must stay CommonJS, add a file-level ESLint 
 - Tags: sqc, lint, qa
 
 ---
+
+## [ERR-20260513-003] launch_qa_email_collision
+
+**Logged**: 2026-05-13T16:03:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Re-running `pnpm qa:launch:local` within the same minute caused Clerk `form_identifier_exists` because the generated QA email only used a minute-level timestamp.
+
+### Details
+The QA script generated `sqc.qa.YYYYMMDDHHMM@example.com`; two runs inside the same minute collided.
+
+### Suggested Action
+Include seconds plus a short random suffix in generated QA emails for repeatable browser QA runs.
+
+### Metadata
+- Source: command failure
+- Related Files: scripts/launch-qa-local.cjs
+- Tags: sqc, qa, clerk
+
+---

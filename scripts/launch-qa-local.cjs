@@ -27,8 +27,8 @@ async function ensureRedirectUrl(client, url) {
 }
 
 async function createQaUser(client) {
-  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 12);
-  const email = `sqc.qa.${stamp}@example.com`;
+  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 14);
+  const email = `sqc.qa.${stamp}.${crypto.randomBytes(2).toString("hex")}@example.com`;
   const password = `SQC-Qa-${crypto.randomBytes(8).toString("hex")}!1a`;
   const user = await client.users.createUser({
     emailAddress: [email],

@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getChallengeById } from "@/lib/challenges";
 import {
+  appendAnalyticsEvent,
+  getAnalyticsStore,
+  type SQCAnalyticsEvent,
+} from "@/lib/analytics";
+import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
   verifyChessComDrawAsWhiteAttempt,
@@ -585,6 +590,23 @@ async function getUserContext() {
   return { userId: ensuredUserId, metadata };
 }
 
+async function recordSignedInAnalyticsEvent(userId: string, event: Omit<SQCAnalyticsEvent, "at"> & { at?: string }) {
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const existing = getAnalyticsStore(user.privateMetadata);
+  const nextStore = appendAnalyticsEvent(existing, {
+    ...event,
+    at: event.at ?? new Date().toISOString(),
+  });
+
+  await client.users.updateUserMetadata(userId, {
+    privateMetadata: {
+      ...(user.privateMetadata ?? {}),
+      sqcAnalytics: nextStore,
+    },
+  });
+}
+
 export async function saveChessUsernames(formData: FormData) {
   const { userId, metadata } = await getUserContext();
   const lichessUsername = String(formData.get("lichessUsername") ?? "").trim();
@@ -601,6 +623,12 @@ export async function saveChessUsernames(formData: FormData) {
       lichessUsername,
       chessComUsername,
     },
+  });
+
+  await recordSignedInAnalyticsEvent(userId, {
+    type: "profile_saved",
+    path: "/account",
+    source: "server_action",
   });
 
   revalidatePath("/");
@@ -624,6 +652,12 @@ export async function saveRunnerProfile(formData: FormData) {
       lichessUsername,
       chessComUsername,
     },
+  });
+
+  await recordSignedInAnalyticsEvent(userId, {
+    type: "profile_saved",
+    path: "/profile",
+    source: "server_action",
   });
 
   revalidatePath("/");
@@ -706,6 +740,25 @@ export async function startChallenge(formData: FormData) {
       },
     },
   });
+
+  await recordSignedInAnalyticsEvent(userId, {
+    type: "quest_started",
+    questId: challenge.id,
+    path: `/challenges/${challenge.id}`,
+    status: passedCheck ? "completed_on_activation" : (latestCheck?.status ?? "accepted"),
+    source: "server_action",
+  });
+
+  for (const check of providerChecks) {
+    await recordSignedInAnalyticsEvent(userId, {
+      type: check.status === "passed" ? "quest_completed" : check.status === "failed" ? "quest_failed" : "quest_pending",
+      questId: challenge.id,
+      provider: check.provider,
+      status: check.status,
+      gameId: check.gameId,
+      source: "latest_game_check",
+    });
+  }
 
   revalidatePath("/");
   revalidatePath("/account");
