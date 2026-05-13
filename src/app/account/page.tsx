@@ -213,6 +213,9 @@ export default async function MyQuestLogPage() {
                               <em>{trophyCopy.line}</em>
                               <span>{finishedAt ? <>Ceremonially logged <ProofTime value={finishedAt} /></> : "Completed, allegedly."}</span>
                             </span>
+                            <span className="won-card-seal solo" aria-hidden="true">
+                              <Image src="/stamps/sqc-wax-seal-canonical.png" alt="" width={58} height={58} />
+                            </span>
                           </Link>
                         );
                       })}
@@ -244,6 +247,9 @@ export default async function MyQuestLogPage() {
                           <strong>{victory.placement} scroll · {victory.title}</strong>
                           <em>{victory.copy}</em>
                           <span>{victory.completedAt} · {victory.defeated}</span>
+                        </span>
+                        <span className="won-card-seal multiplayer" aria-hidden="true">
+                          <Image src={victory.seal} alt="" width={58} height={58} />
                         </span>
                       </Link>
                     ))}
