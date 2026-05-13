@@ -72,17 +72,19 @@ export default async function MyQuestLogPage() {
         <section className="mission-card current-mission-card" aria-label="Current mission">
           <div className="current-mission-copy">
             <span className="eyebrow">Current mission</span>
-            <h1>{runnerDisplayName}</h1>
+            <div className="current-mission-identity-row">
+              <h1>{runnerDisplayName}</h1>
+              <div className="account-status-strip" aria-label="Connected chess accounts">
+                <span className={lichessUsername ? "connected" : "missing"}>Lichess: <strong>{lichessUsername || "not connected"}</strong></span>
+                <span className={chessComUsername ? "connected" : "missing"}>Chess.com: <strong>{chessComUsername || "not connected"}</strong></span>
+                {!hasChessIdentity ? <Link href="/connect">Connect account</Link> : null}
+              </div>
+            </div>
             <h2>{nextStep.title}</h2>
             <p>{nextStep.copy}</p>
             <div className="button-row">
               <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
               <Link href="/profile" className="button secondary">Edit profile</Link>
-            </div>
-            <div className="account-status-strip" aria-label="Connected chess accounts">
-              <span className={lichessUsername ? "connected" : "missing"}>Lichess: <strong>{lichessUsername || "not connected"}</strong></span>
-              <span className={chessComUsername ? "connected" : "missing"}>Chess.com: <strong>{chessComUsername || "not connected"}</strong></span>
-              {!hasChessIdentity ? <Link href="/connect">Connect account</Link> : null}
             </div>
             <div className="current-mission-multiplayer" aria-label="Active multiplayer side quests">
               <span className="eyebrow">Active Multiplayer Side Quests</span>
