@@ -197,9 +197,9 @@ export default async function GroupQuestsPage() {
                 <Link className="button secondary" href="/groupquests/gq_demo_no_castle_01">Preview invite quest</Link>
               </div>
 
-              <div className="groupquests-scalable-dashboard" aria-label="Your Multiplayer Quests">
-                <section className="groupquests-room-list-panel" aria-label="Active Multiplayer Quests">
-                  <div className="section-head compact">
+              <div className="groupquests-timeline-list" aria-label="Your Multiplayer Quests">
+                <section className="groupquests-list-section" aria-label="Active Multiplayer Quests">
+                  <div className="groupquests-list-heading">
                     <div>
                       <h3>Open Multiplayer Side Quests</h3>
                       <p>Live rooms, upcoming rooms, and drafts you manage.</p>
@@ -222,8 +222,8 @@ export default async function GroupQuestsPage() {
                   </div>
                 </section>
 
-                <aside className="groupquests-history-panel" aria-label="Finished Multiplayer Quests">
-                  <div className="section-head compact">
+                <section className="groupquests-list-section finished" aria-label="Finished Multiplayer Quests">
+                  <div className="groupquests-list-heading">
                     <div>
                       <h3>Finished results</h3>
                       <p>Recent completed rooms and placements.</p>
@@ -246,7 +246,7 @@ export default async function GroupQuestsPage() {
                   <Link className="button secondary groupquests-history-button" href="/groupquests/gq_demo_no_castle_01">
                     View all finished
                   </Link>
-                </aside>
+                </section>
               </div>
             </section>
           </>
