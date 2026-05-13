@@ -108,7 +108,8 @@ export default async function MyQuestLogPage() {
           </div>
           <div className="active-multiplayer-list">
             {activeGroupQuests.map((quest) => (
-              <Link href={quest.href} className="active-multiplayer-pill" key={quest.title}>
+              <Link href={quest.href} className="active-multiplayer-row" key={quest.title}>
+                <Image src="/stamps/SQCBLACK%20SEAL.png" alt="" width={36} height={36} />
                 <strong>{quest.title}</strong>
                 <span>{quest.status} · {quest.copy}</span>
               </Link>

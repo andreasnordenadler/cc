@@ -683,12 +683,14 @@ p { color: var(--muted); line-height: 1.5; }
 .account-status-strip a:hover, .account-status-strip a:focus-visible { text-decoration: underline; outline: none; }
 .active-multiplayer-strip { display: grid; grid-template-columns: minmax(170px, .34fr) minmax(0, 1fr); gap: 14px; align-items: center; padding: 16px; border-color: rgba(96,240,175,.18); background: rgba(0,0,0,.12); }
 .active-multiplayer-strip h2 { margin: 4px 0 0; color: var(--ink); font-size: clamp(1.25rem, 2.2vw, 1.65rem); line-height: 1; }
-.active-multiplayer-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-.active-multiplayer-pill { display: grid; gap: 3px; padding: 10px 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(255,255,255,.045); color: inherit; text-decoration: none; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
-.active-multiplayer-pill:hover, .active-multiplayer-pill:focus-visible { transform: translateY(-1px); border-color: rgba(96,240,175,.34); background: rgba(96,240,175,.07); outline: none; }
-.active-multiplayer-pill strong { color: var(--ink); font-size: .95rem; }
-.active-multiplayer-pill span { color: var(--muted); font-size: .78rem; font-weight: 850; line-height: 1.25; }
+.active-multiplayer-list { display: grid; gap: 0; border-top: 1px solid rgba(255,255,255,.1); }
+.active-multiplayer-row { display: grid; grid-template-columns: 36px minmax(130px, .45fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 2px; border-bottom: 1px solid rgba(255,255,255,.1); color: inherit; text-decoration: none; transition: color .16s ease, background .16s ease; }
+.active-multiplayer-row:hover, .active-multiplayer-row:focus-visible { background: rgba(96,240,175,.055); outline: none; }
+.active-multiplayer-row img { width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 7px 10px rgba(0,0,0,.32)); }
+.active-multiplayer-row strong { color: var(--ink); font-size: .95rem; line-height: 1.08; }
+.active-multiplayer-row span { color: var(--muted); font-size: .78rem; font-weight: 850; line-height: 1.25; }
 @media (max-width: 860px) { .current-mission-card, .active-multiplayer-strip { grid-template-columns: 1fr; } .current-mission-visual { justify-items: start; } .current-mission-coat, .current-mission-empty { width: min(100%, 320px); } .account-status-strip span + span::before, .account-status-strip a::before { content: none; margin: 0; } }
+@media (max-width: 620px) { .active-multiplayer-row { grid-template-columns: 34px minmax(0, 1fr); } .active-multiplayer-row span { grid-column: 2; } }
 .focused-quest-hero .hero-copy { max-width: 760px; }
 .account-connection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
 .connection-card { display: grid; gap: 6px; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.055); }
