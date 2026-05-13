@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import AuthActionButtons from "@/components/auth-action-buttons";
@@ -17,16 +18,50 @@ const activeMultiplayerSideQuests = [
   {
     title: "No Castle Night",
     status: "Live",
-    copy: "Fresh No Castle proof needed · 4 players",
+    meta: "Hosting · 4 players · Blitz 5+3",
+    next: "Submit fresh proof",
     href: "/groupquests/gq_demo_no_castle_01",
-    action: "Open multiplayer quest",
+    action: "Open",
+    tone: "green",
   },
   {
     title: "Beginner Chaos Ladder",
-    status: "Starting soon",
-    copy: "Confirm invite rules before this Multiplayer Side Quest opens.",
+    status: "Soon",
+    meta: "Playing · starts in 2 hours · Blitz only",
+    next: "Review rules",
     href: "/groupquests/gq_demo_no_castle_01",
-    action: "Review rules",
+    action: "Review",
+    tone: "gold",
+  },
+];
+
+const publicMultiplayerSideQuests = [
+  {
+    title: "No Castle Night",
+    status: "Open",
+    meta: "Public · Blitz 5+3 · 4 players",
+    next: "Join the Multiplayer Side Quest",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Join",
+    tone: "green",
+  },
+  {
+    title: "Weekly Chaos Table",
+    status: "Open",
+    meta: "Public · any verified account · fresh proof",
+    next: "Review rules",
+    href: "/groupquests/public",
+    action: "View",
+    tone: "gold",
+  },
+];
+
+const closedMultiplayerSideQuests = [
+  {
+    title: "Proof Loop Warmup",
+    meta: "Finished · you placed 2nd",
+    href: "/groupquests/gq_demo_no_castle_01",
+    action: "Results",
   },
 ];
 
@@ -200,23 +235,94 @@ export default async function Home() {
               </p>
             </Link>
 
-            <section className="mission-card my-group-quests-card home-multiplayer-quests-card" aria-label="Active Multiplayer Side Quests">
-              <div className="section-head">
+            <section className="mission-card groupquests-user-overview home-multiplayer-command-card" aria-label="Multiplayer Side Quests">
+              <div className="section-head groupquests-command-head">
                 <div>
-                  <span className="eyebrow">Active Multiplayer Side Quests</span>
+                  <span className="eyebrow">Multiplayer Side Quests</span>
+                  <h2>Your multiplayer command center.</h2>
+                  <p>Your active Multiplayer Side Quests, public Multiplayer Side Quests you can join, and closed results — all in one simple list.</p>
                 </div>
+                <Image
+                  alt=""
+                  className="groupquests-command-seal"
+                  height={112}
+                  src="/stamps/SQCBLACK%20SEAL.png"
+                  width={112}
+                />
               </div>
-              <div className="my-group-quest-list">
-                {activeMultiplayerSideQuests.map((quest) => (
-                  <Link href={quest.href} className="my-group-quest-row home-multiplayer-quest-row" key={quest.title}>
+
+              <div className="groupquests-timeline-list" aria-label="Home Multiplayer Side Quests overview">
+                <section className="groupquests-list-section" aria-label="My Active Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
                     <div>
-                      <strong>{quest.title}</strong>
-                      <p>{quest.copy}</p>
+                      <h3>My Active Multiplayer Side Quests</h3>
+                      <p>Live Multiplayer Side Quests, upcoming Multiplayer Side Quests, and drafts you manage.</p>
                     </div>
-                    <span>{quest.status}</span>
-                  </Link>
-                ))}
+                    <span className="badge gold">{activeMultiplayerSideQuests.length}</span>
+                  </div>
+
+                  <div className="groupquests-compact-room-list">
+                    {activeMultiplayerSideQuests.map((quest) => (
+                      <Link className={`groupquests-compact-room ${quest.tone}`} href={quest.href} key={quest.title}>
+                        <strong>{quest.status}</strong>
+                        <div>
+                          <h4>{quest.title}</h4>
+                          <p>{quest.meta}</p>
+                        </div>
+                        <span>{quest.next}</span>
+                        <em>{quest.action}</em>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="groupquests-list-section" aria-label="Public Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Public Multiplayer Side Quests</h3>
+                      <p>Open public Multiplayer Side Quests anyone can inspect and join.</p>
+                    </div>
+                    <span className="badge gold">{publicMultiplayerSideQuests.length}</span>
+                  </div>
+
+                  <div className="groupquests-compact-room-list">
+                    {publicMultiplayerSideQuests.map((quest) => (
+                      <Link className={`groupquests-compact-room ${quest.tone}`} href={quest.href} key={quest.title}>
+                        <strong>{quest.status}</strong>
+                        <div>
+                          <h4>{quest.title}</h4>
+                          <p>{quest.meta}</p>
+                        </div>
+                        <span>{quest.next}</span>
+                        <em>{quest.action}</em>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="groupquests-list-section finished" aria-label="My Closed Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>My Closed Multiplayer Side Quests</h3>
+                      <p>Recent completed Multiplayer Side Quests and placements.</p>
+                    </div>
+                    <span className="badge">{closedMultiplayerSideQuests.length}</span>
+                  </div>
+
+                  <div className="groupquests-finished-list">
+                    {closedMultiplayerSideQuests.map((quest) => (
+                      <Link className="groupquests-finished-row" href={quest.href} key={quest.title}>
+                        <div>
+                          <strong>{quest.title}</strong>
+                          <p>{quest.meta}</p>
+                        </div>
+                        <span>{quest.action}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
               </div>
+
               <div className="home-multiplayer-quests-footer">
                 <Link href="/groupquests" className="button secondary">All Multiplayer Side Quests</Link>
               </div>

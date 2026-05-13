@@ -87,6 +87,13 @@ Rules from this point:
   - Proof: signed-in `/groupquests` dashboard no longer renders the `Needs action` panel or invite utility block; the room area now renders the three requested stacked list sections.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed locally.
 
+- [x] Replace signed-in Home multiplayer panel with command-center style.
+  - added_at: 2026-05-13 14:01 Europe/Stockholm
+  - completed_at: 2026-05-13 14:05 Europe/Stockholm
+  - source: Andreas showed the signed-in Home page `Active Multiplayer Side Quests` box and asked to replace it with one more like the Multiplayer Side Quest page command-center/list design.
+  - Proof: signed-in Home now uses the command-center heading, black seal, and stacked active/public/closed Multiplayer Side Quest lists instead of the old compact `Active Multiplayer Side Quests` box.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed locally.
+
 - [x] Remove pill-style labels from auth pages.
   - added_at: 2026-05-11 15:00 Europe/Stockholm
   - completed_at: 2026-05-11 15:02 Europe/Stockholm
