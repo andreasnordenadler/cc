@@ -174,7 +174,6 @@ export default async function MyQuestLogPage() {
         <section className="mission-card quest-log-collection-card awkward-trophy-case">
           <div className="section-head trophy-case-head">
             <div>
-              <span className="eyebrow">Completed Side Quests</span>
               <h2>{completedChallenges.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
               <p>
                 {completedChallenges.length
@@ -190,10 +189,9 @@ export default async function MyQuestLogPage() {
                 <section className="quest-achievement-lane" aria-label="Completed solo Side Quests">
                   <div className="quest-achievement-lane-head">
                     <div>
-                      <span className="eyebrow">Solo Side Quest coats</span>
+                      <span className="eyebrow">Completed Side Quest Coat of Arms</span>
                       <h3>Completed Side Quests</h3>
                     </div>
-                    <span>{progress.totalRewardPoints} points</span>
                   </div>
                   {completedChallenges.length ? (
                     <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
@@ -232,9 +230,8 @@ export default async function MyQuestLogPage() {
                   <div className="quest-achievement-lane-head">
                     <div>
                       <span className="eyebrow">Multiplayer podium scrolls</span>
-                      <h3>Victories against other players</h3>
+                      <h3>Completed Multiplayer Side Quests</h3>
                     </div>
-                    <Link href="/groupquests" className="button secondary">Find Multiplayer Quests</Link>
                   </div>
                   <div className="multiplayer-victory-grid">
                     {multiplayerVictories.map((victory) => (
