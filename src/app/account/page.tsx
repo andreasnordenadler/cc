@@ -204,7 +204,6 @@ export default async function MyQuestLogPage() {
 
                         return (
                           <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item trophy-card" key={challenge.id}>
-                            <span className="trophy-card-ribbon">{trophyCopy.ribbon}</span>
                             <span className="trophy-card-shine" aria-hidden="true" />
                             <span className="trophy-card-badge">
                               <ChallengeBadge challenge={challenge} presentation="art" earned />
