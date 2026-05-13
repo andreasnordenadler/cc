@@ -663,6 +663,24 @@ p { color: var(--muted); line-height: 1.5; }
 }
 
 .focused-quest-log { gap: 24px; }
+.current-mission-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(220px, .55fr); gap: clamp(18px, 4vw, 34px); align-items: center; overflow: hidden; border-color: rgba(96,240,175,.24); background: radial-gradient(circle at 88% 8%, rgba(96,240,175,.17), transparent 34%), radial-gradient(circle at 10% 0%, rgba(245,200,106,.14), transparent 34%), rgba(0,0,0,.16); }
+.current-mission-copy { display: grid; justify-items: start; gap: 10px; min-width: 0; }
+.current-mission-copy h1 { margin: 0; color: var(--ink); font-size: clamp(2.25rem, 5vw, 4.6rem); line-height: .88; letter-spacing: -.065em; }
+.current-mission-copy h2 { margin: 0; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2.45rem); line-height: .95; letter-spacing: -.045em; }
+.current-mission-copy p { max-width: 66ch; margin: 0; color: var(--muted); font-weight: 820; }
+.current-mission-visual { display: grid; justify-items: center; align-items: center; min-width: 0; }
+.current-mission-coat, .current-mission-empty { display: grid; justify-items: center; gap: 8px; width: min(100%, 260px); padding: 16px; border: 1px solid rgba(245,200,106,.22); border-radius: 28px; background: rgba(0,0,0,.18); color: inherit; text-align: center; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.current-mission-coat:hover, .current-mission-coat:focus-visible, .current-mission-empty:hover, .current-mission-empty:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.52); background: rgba(245,200,106,.08); outline: none; }
+.current-mission-coat .challenge-badge-art, .current-mission-coat .challenge-badge-art .badge-reference-art { width: clamp(148px, 18vw, 220px); height: clamp(148px, 18vw, 220px); }
+.current-mission-coat span, .current-mission-empty span { color: var(--gold); font-size: .72rem; font-weight: 1000; letter-spacing: .1em; text-transform: uppercase; }
+.current-mission-coat strong { color: var(--ink); font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.08; }
+.account-status-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.account-status-strip span, .account-status-strip a { padding: 7px 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; background: rgba(0,0,0,.16); color: var(--muted); font-size: .78rem; font-weight: 900; text-decoration: none; }
+.account-status-strip .connected { border-color: rgba(96,240,175,.28); color: rgba(210,255,232,.88); }
+.account-status-strip .missing { border-color: rgba(245,200,106,.22); }
+.account-status-strip strong { color: var(--ink); }
+.account-status-strip a { border-color: rgba(245,200,106,.34); color: var(--gold); }
+@media (max-width: 860px) { .current-mission-card { grid-template-columns: 1fr; } .current-mission-visual { justify-items: start; } .current-mission-coat, .current-mission-empty { width: min(100%, 320px); } }
 .focused-quest-hero .hero-copy { max-width: 760px; }
 .account-connection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
 .connection-card { display: grid; gap: 6px; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.055); }

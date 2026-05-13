@@ -12,7 +12,6 @@ import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
-  getRunnerBio,
   getRunnerDisplayName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -29,8 +28,6 @@ export default async function MyQuestLogPage() {
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const runnerDisplayName = getRunnerDisplayName(metadata) || user.username || user.firstName || "SQC player";
-  const runnerBio = getRunnerBio(metadata);
-  const attempts = getChallengeAttempts(metadata).slice().reverse();
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
@@ -52,122 +49,40 @@ export default async function MyQuestLogPage() {
     },
   ];
 
-  const activeGroupQuests = [
-    {
-      title: "No Castle Night",
-      status: "Live",
-      copy: "Fresh No Castle proof needed · 4 players",
-      href: "/groupquests/gq_demo_no_castle_01",
-      action: "Open multiplayer quest",
-    },
-    {
-      title: "Beginner Chaos Ladder",
-      status: "Starting soon",
-      copy: "Confirm Blitz 5+3 rules before this Multiplayer Quest opens",
-      href: "/groupquests/gq_demo_no_castle_01",
-      action: "Review rules",
-    },
-  ];
-
   return (
     <main className="site-shell">
       <SiteNav isSignedIn active="account" />
 
       <div className="content-wrap my-quest-log focused-quest-log">
-        <section className="mission-card quest-log-next-step-card" aria-label="Next step">
-          <span className="eyebrow">Next step</span>
-          <h2>{nextStep.title}</h2>
-          <p>{nextStep.copy}</p>
-          <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
-        </section>
-
-        <div className="quest-log-top-grid">
-          <section className="hero-card quest-log-hero focused-quest-hero">
-          <div>
+        <section className="mission-card current-mission-card" aria-label="Current mission">
+          <div className="current-mission-copy">
+            <span className="eyebrow">Current mission</span>
             <h1>{runnerDisplayName}</h1>
-            <p className="hero-copy">
-              {runnerBio || "Your connected accounts, current quest, points, proof, and earned coat of arms."}
-            </p>
-          </div>
-          <div className="stats-row">
-            <span>{progress.totalRewardPoints} points</span>
-            <span>{completedChallenges.length} coat{completedChallenges.length === 1 ? "" : "s"} of arms</span>
-            <span>{attempts.length} proof receipt{attempts.length === 1 ? "" : "s"}</span>
-          </div>
-          </section>
-
-
-          <section className="mission-card quest-log-current-card compact-current-quest-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Current Quest</span>
-              {!activeChallengeRecord ? <h2>No active quest.</h2> : null}
+            <h2>{nextStep.title}</h2>
+            <p>{nextStep.copy}</p>
+            <div className="button-row">
+              <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
+              <Link href="/profile" className="button secondary">Edit profile</Link>
+            </div>
+            <div className="account-status-strip" aria-label="Connected chess accounts">
+              <span className={lichessUsername ? "connected" : "missing"}>Lichess: <strong>{lichessUsername || "not connected"}</strong></span>
+              <span className={chessComUsername ? "connected" : "missing"}>Chess.com: <strong>{chessComUsername || "not connected"}</strong></span>
+              {!hasChessIdentity ? <Link href="/connect">Connect account</Link> : null}
             </div>
           </div>
-
-          {activeChallengeRecord ? (
-            <>
-              <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-quest-coat-link" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
+          <div className="current-mission-visual">
+            {activeChallengeRecord ? (
+              <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-mission-coat" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
                 <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
-                <small className="current-quest-coat-caption">{activeChallengeRecord.title}</small>
+                <span>{activeQuestCompleted ? "Completed quest" : "Active quest"}</span>
+                <strong>{activeChallengeRecord.title}</strong>
               </Link>
-            </>
-          ) : (
-            <Link href="/challenges" className="current-quest-empty-link">
-              <div className="quest-log-empty-badge" aria-hidden="true">?</div>
-              <span>Choose a quest</span>
-            </Link>
-          )}
-          </section>
-
-
-        </div>
-
-        <section className="mission-card my-group-quests-card" aria-label="Active Multiplayer Side Quests">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Active Multiplayer Quests</span>
-              <h2>Multiplayer Quests that need you.</h2>
-              <p>Multiplayer Quests live here with your solo quest, so My Side Quests is the command center.</p>
-            </div>
-            <Link href="/groupquests" className="button secondary">All Multiplayer Quests</Link>
-          </div>
-          <div className="my-group-quest-list">
-            {activeGroupQuests.map((quest) => (
-              <Link href={quest.href} className="my-group-quest-row" key={quest.title}>
-                <span>{quest.status}</span>
-                <div>
-                  <strong>{quest.title}</strong>
-                  <p>{quest.copy}</p>
-                </div>
-                <em>{quest.action}</em>
+            ) : (
+              <Link href="/challenges" className="current-mission-empty">
+                <div className="quest-log-empty-badge" aria-hidden="true">?</div>
+                <span>Choose a quest</span>
               </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mission-card quest-log-accounts-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Connected accounts</span>
-              {!hasChessIdentity ? <h2>Connect chess account.</h2> : null}
-            </div>
-          </div>
-          <div className="account-connection-grid">
-            <article className={lichessUsername ? "connection-card connected" : "connection-card"}>
-              <span>Lichess</span>
-              <strong>{lichessUsername || "Not connected"}</strong>
-              <p>{lichessUsername ? "Used for public latest-game proof checks." : "Add your public username. No password needed."}</p>
-            </article>
-            <article className={chessComUsername ? "connection-card connected" : "connection-card"}>
-              <span>Chess.com</span>
-              <strong>{chessComUsername || "Not connected"}</strong>
-              <p>{chessComUsername ? "Used for public latest-game proof checks." : "Add your public username. No password needed."}</p>
-            </article>
-          </div>
-          <div className="button-row">
-            {!hasChessIdentity ? <Link href="/connect" className="button primary">Connect chess account</Link> : null}
-            <Link href="/profile" className="button secondary">Edit profile</Link>
+            )}
           </div>
         </section>
 
