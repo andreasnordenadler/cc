@@ -73,10 +73,12 @@ Rules from this point:
   - status: idea accepted for planning only; implementation remains subject to website feature-freeze approval.
   - product direction: weekly always-on official event, fresh each week, public/open join, suitable for homepage promotion, and likely powered by the existing Multiplayer Side Quest/group quest model rather than a separate product surface.
 
-- [ ] Clarify signed-in Multiplayer Side Quests dashboard.
+- [x] Clarify signed-in Multiplayer Side Quests dashboard.
   - added_at: 2026-05-13 10:24 Europe/Stockholm
+  - completed_at: 2026-05-13 10:29 Europe/Stockholm
   - source: Andreas showed the signed-in Multiplayer Side Quests page and asked to move the `Create. Invite. Play. Prove.` section to the top, then make the `My Multiplayer Side Quests` section clearer.
-  - planned change: put the process/create card first, then rename/reframe the user dashboard around action-needed, open rooms, invite link, and finished results.
+  - Proof: signed-in `/groupquests` now starts with the `Create. Invite. Play. Prove.` process card and primary create CTA; the dashboard copy now says `Your multiplayer command center`, with clearer `Needs action`, `Open Multiplayer Side Quests`, and `Finished results` sections.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-jhkh2jmma-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` returns 200.
 
 - [x] Remove pill-style labels from auth pages.
   - added_at: 2026-05-11 15:00 Europe/Stockholm
