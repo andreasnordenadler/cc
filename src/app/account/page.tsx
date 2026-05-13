@@ -84,6 +84,18 @@ export default async function MyQuestLogPage() {
               <span className={chessComUsername ? "connected" : "missing"}>Chess.com: <strong>{chessComUsername || "not connected"}</strong></span>
               {!hasChessIdentity ? <Link href="/connect">Connect account</Link> : null}
             </div>
+            <div className="current-mission-multiplayer" aria-label="Active multiplayer side quests">
+              <span className="eyebrow">Active Multiplayer Side Quests</span>
+              <div className="active-multiplayer-list">
+                {activeGroupQuests.map((quest) => (
+                  <Link href={quest.href} className="active-multiplayer-row" key={quest.title}>
+                    <Image src="/stamps/SQCBLACK%20SEAL.png" alt="" width={36} height={36} />
+                    <strong>{quest.title}</strong>
+                    <span>{quest.status} · {quest.copy}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
           <div className="current-mission-visual">
             {activeChallengeRecord ? (
@@ -98,22 +110,6 @@ export default async function MyQuestLogPage() {
                 <span>Choose a quest</span>
               </Link>
             )}
-          </div>
-        </section>
-
-        <section className="mission-card active-multiplayer-strip" aria-label="Active multiplayer side quests">
-          <div>
-            <span className="eyebrow">Active Multiplayer Side Quests</span>
-            <h2>Open tables</h2>
-          </div>
-          <div className="active-multiplayer-list">
-            {activeGroupQuests.map((quest) => (
-              <Link href={quest.href} className="active-multiplayer-row" key={quest.title}>
-                <Image src="/stamps/SQCBLACK%20SEAL.png" alt="" width={36} height={36} />
-                <strong>{quest.title}</strong>
-                <span>{quest.status} · {quest.copy}</span>
-              </Link>
-            ))}
           </div>
         </section>
 
