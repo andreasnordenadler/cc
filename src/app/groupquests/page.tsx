@@ -73,7 +73,7 @@ const publicRooms = [
     title: "No Castle Night",
     status: "Open",
     meta: "Public · Blitz 5+3 · 4 players",
-    next: "Join the room",
+    next: "Join the Multiplayer Side Quest",
     href: "/groupquests/gq_demo_no_castle_01",
     action: "Join",
     tone: "green",
@@ -170,7 +170,7 @@ export default async function GroupQuestsPage() {
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
                   <h2>Your multiplayer command center.</h2>
-                  <p>Your active rooms, public rooms you can join, and closed results — all in one simple list.</p>
+                  <p>Your active Multiplayer Side Quests, public Multiplayer Side Quests you can join, and closed results — all in one simple list.</p>
                 </div>
                 <Image
                   alt=""
@@ -186,7 +186,7 @@ export default async function GroupQuestsPage() {
                   <div className="groupquests-list-heading">
                     <div>
                       <h3>My Active Multiplayer Side Quests</h3>
-                      <p>Live rooms, upcoming rooms, and drafts you manage.</p>
+                      <p>Live Multiplayer Side Quests, upcoming Multiplayer Side Quests, and drafts you manage.</p>
                     </div>
                     <span className="badge gold">{activeRooms.length}</span>
                   </div>
@@ -210,7 +210,7 @@ export default async function GroupQuestsPage() {
                   <div className="groupquests-list-heading">
                     <div>
                       <h3>Public Multiplayer Side Quests</h3>
-                      <p>Open public rooms anyone can inspect and join.</p>
+                      <p>Open public Multiplayer Side Quests anyone can inspect and join.</p>
                     </div>
                     <span className="badge gold">{publicRooms.length}</span>
                   </div>
@@ -234,7 +234,7 @@ export default async function GroupQuestsPage() {
                   <div className="groupquests-list-heading">
                     <div>
                       <h3>My Closed Multiplayer Side Quests</h3>
-                      <p>Recent completed rooms and placements.</p>
+                      <p>Recent completed Multiplayer Side Quests and placements.</p>
                     </div>
                     <span className="badge">24</span>
                   </div>
