@@ -612,12 +612,12 @@ p { color: var(--muted); line-height: 1.5; }
 .proof-receipt-facts strong { color: var(--muted); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 .proof-board-wrap { width: min(216px, 42vw); }
 .proof-board-wrap[data-board-state="scroll"] { width: min(560px, 100%); }
-.proof-victory-scroll { min-height: 620px; width: 100%; padding: 28px 26px 132px; }
-.proof-victory-scroll .victory-scroll-crest { min-height: 132px; }
-.proof-victory-scroll .victory-scroll-copy { max-width: 34ch; font-size: clamp(.94rem, 1.45vw, 1.04rem); line-height: 1.36; }
-.proof-victory-scroll .victory-scroll-proof { max-width: 36ch; font-size: .86rem; line-height: 1.32; }
-.proof-victory-scroll .victory-scroll-footer { margin-top: 4px; margin-bottom: 72px; }
-.proof-victory-scroll .victory-scroll-seal { bottom: 44px; width: 104px; }
+.proof-victory-scroll, .account-victory-scroll { min-height: 620px; width: 100%; padding: 28px 26px 132px; }
+.proof-victory-scroll .victory-scroll-crest, .account-victory-scroll .victory-scroll-crest { min-height: 132px; }
+.proof-victory-scroll .victory-scroll-copy, .account-victory-scroll .victory-scroll-copy { max-width: 34ch; font-size: clamp(.94rem, 1.45vw, 1.04rem); line-height: 1.36; }
+.proof-victory-scroll .victory-scroll-proof, .account-victory-scroll .victory-scroll-proof { max-width: 36ch; font-size: .86rem; line-height: 1.32; }
+.proof-victory-scroll .victory-scroll-footer, .account-victory-scroll .victory-scroll-footer { margin-top: 4px; margin-bottom: 72px; }
+.proof-victory-scroll .victory-scroll-seal, .account-victory-scroll .victory-scroll-seal { bottom: 44px; width: 104px; }
 .proof-details-section { display: grid; gap: 12px; }
 .proof-details-section h2 { margin: 0; }
 .proof-details-line { margin: 0; color: var(--muted); font-weight: 800; }

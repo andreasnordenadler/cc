@@ -5,8 +5,8 @@ import { notFound } from "next/navigation";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
-import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
+import VictoryScroll from "@/components/victory-scroll";
 import ResetQuestControl from "@/components/reset-quest-control";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
@@ -167,13 +167,14 @@ export default async function ChallengeDetailPage({
                 <h2>Victory proof is ready.</h2>
               </div>
             </div>
-            {publicProofPath ? (
-              <ProofImage
-                imagePath={publicProofImagePath(publicProofPath.split("/").at(-1) ?? "")}
-                alt={`Victory scroll image for ${challenge.title}`}
-                className="proof-generated-image public-proof-image"
-              />
-            ) : null}
+            <VictoryScroll
+              challenge={challenge}
+              achievementCopy={buildVictoryScrollAchievementCopy(challenge, latestPassedAttempt)}
+              proofLine={<>Proof accepted: <strong>{challenge.title}</strong> — {sanitizeAttemptSummary(latestPassedAttempt?.summary)}</>}
+              dateLabel={<ProofTime value={completedDate} />}
+              reward={challenge.reward}
+              className="public-proof-image account-victory-scroll"
+            />
           </section>
         ) : null}
 
@@ -325,5 +326,27 @@ function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAt
   const summary = sanitizeAttemptSummary(attempt?.summary);
 
   return `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points. ${summary}`;
+}
+
+function buildVictoryScrollAchievementCopy(challenge: Challenge, attempt: ChallengeAttempt | null) {
+  const summary = sanitizeAttemptSummary(attempt?.summary) ?? challenge.objective;
+
+  if (challenge.id === "finish-any-game") {
+    return "A public chess game was completed, verified, and entered into the Side Quest Chess ledgers. Win, loss, or draw — the clerks stamped it valid.";
+  }
+
+  if (challenge.requirement.result === "win") {
+    return `${summary} The bad idea survived contact with reality and still ended in victory.`;
+  }
+
+  if (challenge.requirement.result === "draw") {
+    return `${summary} Nobody won, nobody learned, and yet the scroll department approved the achievement.`;
+  }
+
+  if (challenge.requirement.result === "lose") {
+    return `${summary} Losing on purpose-adjacent terms is still proof, and SQC respects commitment to the bit.`;
+  }
+
+  return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with appropriate smugness.`;
 }
 
