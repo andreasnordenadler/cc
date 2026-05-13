@@ -33,10 +33,10 @@ type QuestSummary = {
 };
 
 export default async function AdminAnalyticsPage() {
-  const { userId } = await auth();
-  const client = await clerkClient();
-  const viewer = userId ? await client.users.getUser(userId) : await currentUser();
-  const canView = isAdminAnalyticsViewer(viewer);
+  const authState = await auth();
+  const viewer = await currentUser().catch(() => null);
+  const claimEmail = getEmailFromClaims(authState.sessionClaims);
+  const canView = isAdminAnalyticsViewer(viewer) || isAllowedAdminEmail(claimEmail);
 
   if (!canView) {
     return (
@@ -56,6 +56,7 @@ export default async function AdminAnalyticsPage() {
     );
   }
 
+  const client = await clerkClient();
   const response = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
   const rows: AnalyticsUserRow[] = response.data.map((user) => {
     const store = getAnalyticsStore(user.privateMetadata);
@@ -175,6 +176,24 @@ export default async function AdminAnalyticsPage() {
       </div>
     </main>
   );
+}
+
+function getEmailFromClaims(claims: unknown) {
+  if (!claims || typeof claims !== "object") return "";
+  const record = claims as Record<string, unknown>;
+  for (const key of ["email", "email_address", "primary_email_address"]) {
+    const value = record[key];
+    if (typeof value === "string" && value.includes("@")) return value.toLowerCase();
+  }
+  return "";
+}
+
+function isAllowedAdminEmail(email: string) {
+  const allowed = (process.env.SQC_ADMIN_EMAILS ?? "andreas.nordenadler@gmail.com")
+    .split(",")
+    .map((entry) => entry.trim().toLowerCase())
+    .filter(Boolean);
+  return Boolean(email && allowed.includes(email));
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

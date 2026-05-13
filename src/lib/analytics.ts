@@ -102,7 +102,7 @@ export function isAdminAnalyticsViewer(user: {
   publicMetadata?: Record<string, unknown> | null;
   privateMetadata?: Record<string, unknown> | null;
   primaryEmailAddress?: { emailAddress?: string | null } | null;
-} | null, adminEmails = process.env.SQC_ADMIN_EMAILS ?? "") {
+} | null, adminEmails = process.env.SQC_ADMIN_EMAILS ?? "andreas.nordenadler@gmail.com") {
   if (!user) return false;
   if (user.publicMetadata?.sqcAdmin === true || user.privateMetadata?.sqcAdmin === true) return true;
   const email = user.primaryEmailAddress?.emailAddress?.toLowerCase();
