@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
+import { listPublicGroupQuests } from "@/lib/groupquests";
 
 const publicQuests = [
   {
@@ -39,6 +40,19 @@ export const metadata = {
 
 export default async function PublicGroupQuestsPage() {
   const { userId } = await auth();
+  const client = await clerkClient();
+  const savedPublicQuests = await listPublicGroupQuests(client);
+  const quests = savedPublicQuests.length
+    ? savedPublicQuests.map((quest) => ({
+        title: quest.name,
+        status: "Open now",
+        players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
+        window: `${quest.startAt} → ${quest.endAt}`,
+        rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
+        copy: quest.inviteCopy,
+        href: `/groupquests/${quest.id}`,
+      }))
+    : publicQuests;
 
   return (
     <main className="site-shell groupquests-page">
@@ -66,7 +80,7 @@ export default async function PublicGroupQuestsPage() {
             </div>
           </div>
           <div className="public-groupquests-list">
-            {publicQuests.map((quest) => (
+            {quests.map((quest) => (
               <Link className="public-groupquest-row" href={quest.href} key={quest.title}>
                 <div>
                   <span>{quest.status}</span>

@@ -3270,3 +3270,26 @@ For admin gates that depend on freshly changed private metadata, use `auth()` to
 - Tags: sqc, clerk, admin, analytics
 
 ---
+
+## [ERR-20260513-005] zsh_dynamic_route_glob
+
+**Logged**: 2026-05-13T16:21:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tooling
+
+### Summary
+Creating Next.js dynamic API route folders failed because zsh expanded `[id]` as a glob.
+
+### Details
+Unquoted paths like `src/app/api/groupquests/[id]/join` produced `zsh: no matches found`.
+
+### Suggested Action
+Always quote dynamic route paths containing square brackets in zsh commands.
+
+### Metadata
+- Source: command failure
+- Related Files: src/app/api/groupquests/[id]/join/route.ts
+- Tags: zsh, nextjs, dynamic-routes
+
+---

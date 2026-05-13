@@ -29,6 +29,13 @@ type StoredParticipant = {
   leaderboardName?: unknown;
 };
 
+type ServerParticipant = {
+  userId: string;
+  provider: "lichess" | "chesscom";
+  username: string;
+  leaderboardName: string;
+};
+
 const storagePrefix = "sqc-groupquest-participant:";
 
 
@@ -140,9 +147,23 @@ function readCurrentParticipant(id: string) {
   }
 }
 
-export default function GroupQuestLeaderboard({ id, quests }: { id: string; quests: QuestSummary[] }) {
+export default function GroupQuestLeaderboard({ id, quests, participants, currentUserId }: { id: string; quests: QuestSummary[]; participants?: ServerParticipant[]; currentUserId?: string | null }) {
   const [currentParticipant] = useState(() => readCurrentParticipant(id));
-  const players = baseLeaderboard.map((player) => {
+  const orderedParticipants = participants ? [...participants].sort((a, b) => Number(b.userId === currentUserId) - Number(a.userId === currentUserId)) : [];
+  const serverPlayers = orderedParticipants.map((participant, index): Player => ({
+    rank: index + 1,
+    name: participant.leaderboardName,
+    handle: `${formatProvider(participant.provider)}: ${participant.username}`,
+    score: 0,
+    completed: 0,
+    proof: "joined · waiting for proof",
+    last: "Joined this Multiplayer Side Quest",
+    tone: index === 0 ? "green" : "muted",
+    isCurrentParticipant: participant.userId === currentUserId,
+    questFinishedAt: {},
+  }));
+  const sourcePlayers = serverPlayers.length ? serverPlayers : baseLeaderboard;
+  const players = sourcePlayers.map((player) => {
     if (!player.isCurrentParticipant || !currentParticipant) return player;
     return { ...player, name: currentParticipant.name, handle: currentParticipant.handle };
   });

@@ -27,7 +27,9 @@ function formatProvider(value: unknown) {
   return "Public chess";
 }
 
-function readParticipant(id: string): ParticipantSummary {
+function readParticipant(id: string, fallback?: ParticipantSummary): ParticipantSummary {
+  if (fallback) return fallback;
+
   if (typeof window === "undefined") {
     return {
       provider: "Public chess",
@@ -66,8 +68,8 @@ function readParticipant(id: string): ParticipantSummary {
   }
 }
 
-export default function GroupQuestParticipantSummary({ id }: { id: string }) {
-  const [participant] = useState(() => readParticipant(id));
+export default function GroupQuestParticipantSummary({ id, initialParticipant }: { id: string; initialParticipant?: ParticipantSummary }) {
+  const [participant] = useState(() => readParticipant(id, initialParticipant));
 
   return (
     <section className="mission-card groupquest-participant-summary" aria-label="Your participant setup">

@@ -121,6 +121,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     rated: "Any rated state",
     color: "Any color",
   });
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const hasSavedRef = useRef(false);
 
   const selectedQuests = useMemo(
@@ -172,7 +174,10 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     };
   }, []);
 
-  function saveMultiplayerSideQuest() {
+  async function saveMultiplayerSideQuest() {
+    setSaving(true);
+    setSaveError("");
+
     try {
       window.localStorage.setItem(
         `${storagePrefix}${publicId}`,
@@ -186,8 +191,35 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     } catch {
       // The generated route still works with the default invite copy if local storage is unavailable.
     }
-    hasSavedRef.current = true;
-    window.location.href = `/groupquests/${publicId}`;
+
+    try {
+      const response = await fetch("/api/groupquests", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name,
+          inviteCopy,
+          inviteMode,
+          questIds: selectedQuestIds,
+          providerMode,
+          providerLabel: selectedProviderMode.label,
+          startAt,
+          endAt,
+          rules,
+        }),
+      });
+      const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
+
+      if (!response.ok || !result?.href) {
+        throw new Error(result?.error ?? "Could not save Multiplayer Side Quest.");
+      }
+
+      hasSavedRef.current = true;
+      window.location.href = result.href;
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save Multiplayer Side Quest.");
+      setSaving(false);
+    }
   }
 
   function toggleQuest(questId: string) {
@@ -398,7 +430,10 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
       </div>
 
       <div className="groupquests-create-actions" aria-label="Create Multiplayer Side Quest actions">
-        <button className="button primary" onClick={saveMultiplayerSideQuest} type="button">Save Multiplayer Side Quest</button>
+        {saveError ? <p className="groupquest-join-error" role="alert">{saveError}</p> : null}
+        <button className="button primary" disabled={saving} onClick={saveMultiplayerSideQuest} type="button">
+          {saving ? "Saving…" : "Save Multiplayer Side Quest"}
+        </button>
       </div>
     </div>
   );

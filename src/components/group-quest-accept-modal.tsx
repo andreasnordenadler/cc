@@ -6,7 +6,7 @@ const storagePrefix = "sqc-groupquest-participant:";
 
 type JoinProvider = "lichess" | "chesscom";
 
-export default function GroupQuestAcceptModal({ id, questName }: { id: string; questName: string }) {
+export default function GroupQuestAcceptModal({ id, questName, isSignedIn = true }: { id: string; questName: string; isSignedIn?: boolean }) {
   const [open, setOpen] = useState(false);
   const [provider, setProvider] = useState<JoinProvider>("lichess");
   const [username, setUsername] = useState("");
@@ -15,12 +15,17 @@ export default function GroupQuestAcceptModal({ id, questName }: { id: string; q
   const [email, setEmail] = useState("");
   const [location, setLocation] = useState("");
   const [error, setError] = useState("");
+  const [joining, setJoining] = useState(false);
 
   const trimmedUsername = username.trim();
   const trimmedLeaderboardName = leaderboardName.trim();
   const canContinue = trimmedUsername.length > 0 && trimmedLeaderboardName.length > 0 && (!wantsEmail || email.trim().length > 0);
 
   function openModal() {
+    if (!isSignedIn) {
+      window.location.href = `/sign-in?redirect_url=${encodeURIComponent(`/groupquests/${id}`)}`;
+      return;
+    }
     setError("");
     setOpen(true);
   }
@@ -30,11 +35,14 @@ export default function GroupQuestAcceptModal({ id, questName }: { id: string; q
     setOpen(false);
   }
 
-  function continueToQuest() {
+  async function continueToQuest() {
     if (!canContinue) {
       setError(wantsEmail && !email.trim() ? "Add an email address or turn off email updates." : "Add your public chess username and leaderboard name.");
       return;
     }
+
+    setJoining(true);
+    setError("");
 
     try {
       window.localStorage.setItem(
@@ -53,12 +61,33 @@ export default function GroupQuestAcceptModal({ id, questName }: { id: string; q
       // Continue even if local persistence is unavailable; server-backed saving comes later.
     }
 
-    window.location.href = `/groupquests/${id}?accepted=1`;
+    try {
+      const response = await fetch(`/api/groupquests/${id}/join`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          provider,
+          username: trimmedUsername,
+          leaderboardName: trimmedLeaderboardName,
+          wantsEmailUpdates: wantsEmail,
+          email: wantsEmail ? email.trim() : "",
+          location: location.trim(),
+        }),
+      });
+      const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
+      if (!response.ok || !result?.href) {
+        throw new Error(result?.error ?? "Could not join this Multiplayer Side Quest.");
+      }
+      window.location.href = result.href;
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Could not join this Multiplayer Side Quest.");
+      setJoining(false);
+    }
   }
 
   return (
     <>
-      <button className="button primary" onClick={openModal} type="button">Accept this Side Quest</button>
+      <button className="button primary" onClick={openModal} type="button">{isSignedIn ? "Accept this Side Quest" : "Sign in to accept"}</button>
 
       {open ? (
         <div className="groupquest-join-overlay" role="presentation">
@@ -114,7 +143,7 @@ export default function GroupQuestAcceptModal({ id, questName }: { id: string; q
 
             <div className="groupquest-join-actions">
               <button className="button secondary" onClick={closeModal} type="button">Cancel</button>
-              <button className="button primary" disabled={!canContinue} onClick={continueToQuest} type="button">Continue</button>
+              <button className="button primary" disabled={!canContinue || joining} onClick={continueToQuest} type="button">{joining ? "Joining…" : "Continue"}</button>
             </div>
           </section>
         </div>

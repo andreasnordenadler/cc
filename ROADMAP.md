@@ -109,6 +109,13 @@ Rules from this point:
   - Verification: `pnpm qa:launch:providers` passed; `SQC_BASE_URL=http://localhost:3000 pnpm qa:launch:local` passed; results documented in `docs/SQC_LAUNCH_QA_2026-05-13.md`.
   - follow_up: production signed-in automation still needs a dedicated production QA auth path or a working attach to Andreas's signed-in Chrome session; older `tests/*.mjs` fixture runner also needs repair before becoming a clean launch gate.
 
+- [x] Make Multiplayer Side Quest invites server-backed instead of browser-local.
+  - added_at: 2026-05-13 16:15 Europe/Stockholm
+  - completed_at: 2026-05-13 16:25 Europe/Stockholm
+  - source: Andreas correctly pointed out that relying on the same user's same browser for Multiplayer Side Quest invite/create/join state is very weak.
+  - shipped: created Multiplayer Side Quests now persist server-side in Clerk private metadata, participants join through a server API, invite/detail pages and public listings read saved server data, anonymous viewers can inspect invites, and accepting requires sign-in so joins survive browser/device changes.
+  - proof: local signed-in browser QA created a server-backed Multiplayer Side Quest via `/api/groupquests`, opened the generated invite URL, joined via `/api/groupquests/{id}/join`, verified the joined participant was stored server-side, and confirmed the accepted page showed the saved participant name. `pnpm lint` and `pnpm build` passed.
+
 - [x] Add first-party SQC user interaction analytics.
   - added_at: 2026-05-13 15:44 Europe/Stockholm
   - completed_at: 2026-05-13 16:07 Europe/Stockholm
