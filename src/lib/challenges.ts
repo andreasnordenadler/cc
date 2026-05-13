@@ -49,7 +49,7 @@ export const CHALLENGES: Challenge[] = [
       "Play any public finished Lichess or Chess.com game. Win, lose, draw, blunder heroically — it all counts. This quest exists so your first coat of arms can arrive without requiring a chess miracle.",
     openingHint: "Literally just play chess. Suspiciously reasonable.",
     reward: 10,
-    category: "Test Quest",
+    category: "Starter Quest",
     difficulty: "Easy",
     completionRate: "First proof",
     flavor: "Your first proof that Side Quest Chess can verify a finished game. Simple, clear, and proudly earned.",
@@ -57,12 +57,12 @@ export const CHALLENGES: Challenge[] = [
     badgeIdentity: {
       name: "The First Game Shield",
       motif: "✓",
-      rarity: "Testing token",
-      unlockCopy: "Complete any public game and prove Side Quest Chess can verify a completed game end to end.",
+      rarity: "Starter token",
+      unlockCopy: "Complete any public game and unlock your first Side Quest Chess coat of arms.",
       heraldry: {
         shield: "Green-gold field with a check mark over a tiny finished chessboard.",
         charge: "Finished game check mark",
-        crest: "Tiny QA flag",
+        crest: "Tiny first-quest banner",
         motto: "First Game Verified",
         meaning: "The check mark represents a finished game accepted as proof; the board marks a quest completed without judging whether the chess was any good.",
         weirdness: "A noble house founded to make the first completed quest easy to understand.",
@@ -73,9 +73,9 @@ export const CHALLENGES: Challenge[] = [
     proofCallout: "Any public finished game · win, loss, or draw accepted",
     rules: [
       "Play any public finished Lichess or Chess.com game.",
-      "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this test quest.",
+      "Win, loss, draw, timeout, resignation, rated, casual, bullet, blitz, rapid, classical, daily — all are acceptable for this starter quest.",
       "Your saved chess username must appear in the game.",
-      "This quest exists to test activation, verification, completion, coat-of-arms unlock, completed list, and sharing.",
+      "This quest exists so every new player can unlock a first coat of arms with one normal finished game.",
     ],
     requirement: {
       side: "either",

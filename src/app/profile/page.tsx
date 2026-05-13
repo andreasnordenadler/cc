@@ -59,7 +59,7 @@ export default async function ProfilePage() {
           </section>
         ) : (
           <section className="mission-card">
-            <span className="eyebrow">Test path</span>
+            <span className="eyebrow">Getting started</span>
             <h2>Login first, then this page becomes editable.</h2>
             <p>After sign-in you can save your display name plus a public Lichess or Chess.com username, pick a side quest, check latest games, and review the proof card.</p>
           </section>

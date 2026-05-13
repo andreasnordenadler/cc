@@ -23,8 +23,8 @@ const publicQuests = [
   },
   {
     title: "Queen? Never Heard of Her Club",
-    status: "Open preview",
-    players: "Public listing mockup",
+    status: "Open soon",
+    players: "Public listing",
     window: "Manual start · host approval later",
     rules: "Standard games · any color",
     copy: "A public table for players who think material advantage is a personality flaw.",
@@ -34,7 +34,7 @@ const publicQuests = [
 
 export const metadata = {
   title: "Public Multiplayer Side Quests · Side Quest Chess",
-  description: "Mockup list of public Side Quest Chess Multiplayer Side Quests open for players to inspect and join.",
+  description: "Public Side Quest Chess Multiplayer Side Quests open for players to inspect and join.",
 };
 
 export default async function PublicGroupQuestsPage() {
@@ -49,7 +49,7 @@ export default async function PublicGroupQuestsPage() {
           <span className="eyebrow">Public Multiplayer Side Quests</span>
           <h1>Join a public bad idea.</h1>
           <p className="hero-copy">
-            These are mock public Multiplayer Side Quest listings: inspect the rules, proof window, and join conditions before committing your next real chess game to the bit.
+            Browse public Multiplayer Side Quest listings, inspect the rules, proof window, and join conditions before committing your next real chess game to the bit.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/groupquests">Back to Multiplayer Side Quests</Link>
@@ -62,7 +62,7 @@ export default async function PublicGroupQuestsPage() {
             <div>
               <span className="eyebrow">Open listings</span>
               <h2>Pick a table before the nonsense starts.</h2>
-              <p>Later, hosts will be able to list Multiplayer Side Quests as public so anyone can enter. For now, this is the intended public-listing shape.</p>
+              <p>Public Multiplayer Side Quests collect open tables anyone can inspect before joining.</p>
             </div>
           </div>
           <div className="public-groupquests-list">

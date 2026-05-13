@@ -94,6 +94,13 @@ Rules from this point:
   - Proof: signed-in Home now uses the command-center heading, black seal, and stacked active/public/closed Multiplayer Side Quest lists instead of the old compact `Active Multiplayer Side Quests` box.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed locally.
 
+- [x] Clean launch-facing beta/testing/demo wording.
+  - added_at: 2026-05-13 14:18 Europe/Stockholm
+  - completed_at: 2026-05-13 14:22 Europe/Stockholm
+  - source: Andreas said SQC feels almost ready and suggested cleaning up any beta/testing data/info.
+  - Proof: public `/groupquests/public` copy no longer says mock/mockup; `Any Game Counts` no longer presents as a test quest/testing token in challenge data/verifier copy; signed-out `/profile` says Getting started instead of Test path; `/brand-test` now redirects home while staying noindex.
+  - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed locally.
+
 - [x] Remove pill-style labels from auth pages.
   - added_at: 2026-05-11 15:00 Europe/Stockholm
   - completed_at: 2026-05-11 15:02 Europe/Stockholm
