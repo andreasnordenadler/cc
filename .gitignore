@@ -45,6 +45,10 @@ CC_GIT_TEST=1
 
 apps/mobile/node_modules
 
+# Expo/mobile local generated artifacts
+apps/mobile/.expo/
+apps/mobile/android/
+
 # local QA artifacts
 /tmp/
 /.worktrees/

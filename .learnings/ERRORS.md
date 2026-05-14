@@ -3515,3 +3515,25 @@ For mixed memory+roadmap edits, prefer one Python heredoc with simple ASCII mark
 - Tags: zsh, heredoc, workflow
 
 ---
+## [ERR-20260514-008] expo-run-android-mutated-managed-app-and-gradle-java25
+
+**Logged**: 2026-05-14T10:55:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: mobile
+
+### Summary
+`expo run:android` for SQC mobile generated a local native `android/` directory and temporarily changed mobile package scripts, then local Gradle build failed under Java 25 with `Unsupported class file major version 69`.
+
+### Details
+The SQC mobile app is an Expo managed app. `expo run:android --device emulator-5554` prebuilt native files before failing to match the device name. The package script mutation was reverted. The generated `apps/mobile/android/` remains local/untracked for emulator bring-up. Running `./gradlew installDebug` then failed because Gradle/Kotlin did not support Java 25 class files.
+
+### Suggested Action
+Use a supported JDK (17 or 21) for local Android builds, and do not commit generated native Expo prebuild output unless intentionally switching workflow. Prefer documenting emulator screenshot scripts that set `JAVA_HOME` explicitly.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/package.json, apps/mobile/android/
+- Tags: expo, android, gradle, java
+
+---
