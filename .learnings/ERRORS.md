@@ -3537,3 +3537,26 @@ Use a supported JDK (17 or 21) for local Android builds, and do not commit gener
 - Tags: expo, android, gradle, java
 
 ---
+## [ERR-20260514-009] eas-build-needs-expo-auth
+
+**Logged**: 2026-05-14T14:36:00+02:00
+**Priority**: medium
+**Status**: blocked-external-auth
+**Area**: mobile-build
+
+### Summary
+Attempting to create an Expo/EAS-hosted Android APK link failed because the machine is not logged into an Expo account and no `EXPO_TOKEN` is configured.
+
+### Details
+Command: `pnpm --dir apps/mobile dlx eas-cli build --platform android --profile android-alpha --non-interactive`
+Result: `An Expo user account is required to proceed. Either log in with eas login or set the EXPO_TOKEN environment variable...`
+
+### Suggested Action
+For install links, either configure Expo auth/token on the machine or use a local standalone APK artifact delivered through OpenClaw/Telegram.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/eas.json
+- Tags: eas, expo, apk, auth
+
+---
