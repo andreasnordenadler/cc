@@ -3361,3 +3361,47 @@ For quick local verification on this Mac, launch Playwright with the system Chro
 - Tags: playwright, browser, local-verification
 
 ---
+## [ERR-20260514-001] sqc-mobile-initial-inspection-command
+
+**Logged**: 2026-05-14T08:08:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+Initial SQC mobile inspection command exited non-zero because it assumed a root `app/` directory exists in the SQC repo; this repo uses `src/app/`.
+
+### Details
+While resuming mobile-app work, a broad `find app src ...` command emitted `find: app: No such file or directory` before continuing through `src/`, causing a non-zero exit even though useful files were found.
+
+### Suggested Action
+For SQC, search `src/app` directly or guard optional paths with existence checks before combining them in verification commands.
+
+### Metadata
+- Source: error
+- Related Files: src/app/api/mobile/account/route.ts, apps/mobile/App.tsx
+- Tags: sqc, shell, repo-layout
+
+---
+## [ERR-20260514-002] git-status-outside-repo-path
+
+**Logged**: 2026-05-14T08:17:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+`git status` failed when asked to include a workspace memory file from inside the `cc` repository.
+
+### Details
+The command mixed repo-relative SQC paths with `/Users/sam/.openclaw/workspace/memory/2026-05-14.md`, which is outside the Git repository at `/Users/sam/.openclaw/workspace/cc`. Git correctly rejected the mixed pathspec.
+
+### Suggested Action
+Run repo status only for repo files, and inspect workspace memory files separately when needed.
+
+### Metadata
+- Source: error
+- Related Files: ROADMAP.md, apps/mobile/App.tsx, memory/2026-05-14.md
+- Tags: git, repo-boundary, sqc
+
+---

@@ -46,7 +46,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.14 / safe-area fix";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.15 / coat shelf";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -723,12 +723,17 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
   const badgeUrl = selectedChallenge.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
 
   if (isAuthenticatedAccount(account) && account.latestReceipt) {
+    const activeCoatUrl = account.activeQuest?.badgeImageUrl ? absoluteAssetUrl(account.activeQuest.badgeImageUrl) : badgeUrl;
+
     return (
       <View style={styles.proofScrollCard}>
         <View style={styles.proofSeal}>
           <Text style={styles.proofSealText}>{account.latestReceipt.status === "passed" ? "PASS" : "SQC"}</Text>
         </View>
         <Text style={styles.eyebrow}>Latest proof receipt</Text>
+        <View style={styles.coatHeroFrame}>
+          {activeCoatUrl ? <Image source={{ uri: activeCoatUrl }} style={styles.coatHeroImage} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
+        </View>
         <Text style={styles.proofTitle}>{account.latestReceipt.headline}</Text>
         <Text style={styles.proofBody}>{account.latestReceipt.detail}</Text>
         <Text style={styles.microcopy}>{account.latestReceipt.meta}</Text>
@@ -737,6 +742,7 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
           <Fact label="Provider" value={account.latestReceipt.provider ?? "Unknown"} />
           <Fact label="Updated" value={account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"} />
         </View>
+        <CoatCollectionCard account={account} selectedChallenge={selectedChallenge} />
         <ProofActionCard challengeId={account.latestReceipt.challengeId} title={account.latestReceipt.headline} mode="receipt" />
       </View>
     );
@@ -747,18 +753,22 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
       <View style={styles.proofSeal}>
         <Text style={styles.proofSealText}>SQC</Text>
       </View>
-      <Text style={styles.eyebrow}>Reward preview</Text>
-      <View style={styles.proofPreviewBadgeFrame}>
-        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.proofPreviewBadge} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
+      <Text style={styles.eyebrow}>Coat of Arms reward</Text>
+      <View style={styles.coatHeroFrame}>
+        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.coatHeroImage} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
       </View>
-      <Text style={styles.proofTitle}>{selectedChallenge.title}</Text>
+      <Text style={styles.proofTitle}>{selectedChallenge.badgeIdentity.name}</Text>
       <Text style={styles.proofSubtitle}>Unlocks {selectedChallenge.badgeIdentity.name}</Text>
-      <Text style={styles.proofBody}>{selectedChallenge.proofCallout}</Text>
-      <Text style={styles.microcopy}>Public mode shows the reward first. Finish a website-backed quest and this becomes a shareable receipt with provider, game id, and verdict.</Text>
+      <Text style={styles.proofBody}>{selectedChallenge.badgeIdentity.unlockCopy}</Text>
+      <Text style={styles.microcopy}>This mirrors the website badge shelf: the app makes the coat feel like loot first, then hands off account-safe proof minting to the web board.</Text>
       <View style={styles.factGrid}>
+        <Fact label="Quest" value={selectedChallenge.title} />
+        <Fact label="Rarity" value={selectedChallenge.badgeIdentity.rarity} />
         <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
         <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
       </View>
+      <CoatLoreCard challenge={selectedChallenge} />
+      <CoatCollectionCard account={account} selectedChallenge={selectedChallenge} />
       <ProofPrepCard challenge={selectedChallenge} />
       <ProofActionCard challengeId={selectedChallenge.id} title={selectedChallenge.title} mode="preview" />
       <WebsiteHandoffCard
@@ -767,6 +777,77 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
         buttonLabel="Open proof checker"
         url={`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`}
       />
+    </View>
+  );
+}
+
+function CoatLoreCard({ challenge }: { challenge: MobileChallenge }) {
+  return (
+    <View style={styles.coatLoreCard}>
+      <Text style={styles.eyebrow}>Heraldry file</Text>
+      <Text style={styles.coatLoreTitle}>What this coat means</Text>
+      <View style={styles.coatLoreRows}>
+        <Fact label="Shield" value={challenge.badgeIdentity.heraldry.shield} />
+        <Fact label="Crest" value={challenge.badgeIdentity.heraldry.crest} />
+        <Fact label="Meaning" value={challenge.badgeIdentity.heraldry.meaning} />
+        <Fact label="Weirdness" value={challenge.badgeIdentity.heraldry.weirdness} />
+      </View>
+    </View>
+  );
+}
+
+function CoatCollectionCard({ account, selectedChallenge }: { account: MobileAccountResponse | null; selectedChallenge: MobileChallenge }) {
+  if (!isAuthenticatedAccount(account)) {
+    return (
+      <View style={styles.coatShelfCard}>
+        <View style={styles.coatShelfHeader}>
+          <View style={styles.coatShelfCopy}>
+            <Text style={styles.eyebrow}>Mobile coat shelf</Text>
+            <Text style={styles.coatShelfTitle}>Locked preview</Text>
+            <Text style={styles.coatShelfBody}>Sign in on the website, complete a quest, and this becomes your earned coat shelf instead of generic proof copy.</Text>
+          </View>
+          <Text style={styles.lockedPill}>Locked</Text>
+        </View>
+        <View style={styles.coatShelfPreviewRow}>
+          <CoatShelfTile title={selectedChallenge.badgeIdentity.name} subtitle="Selected reward" imageUrl={selectedChallenge.badgeIdentity.imageUrl} locked />
+        </View>
+      </View>
+    );
+  }
+
+  const completed = account.completedQuests.slice(0, 4);
+
+  return (
+    <View style={styles.coatShelfCard}>
+      <View style={styles.coatShelfHeader}>
+        <View style={styles.coatShelfCopy}>
+          <Text style={styles.eyebrow}>My Coat shelf</Text>
+          <Text style={styles.coatShelfTitle}>{account.progress.totalCompletedChallenges > 0 ? "Earned heraldry" : "First coat still waiting"}</Text>
+          <Text style={styles.coatShelfBody}>{account.progress.totalCompletedChallenges} unlocked · {account.progress.totalRewardPoints} points · {account.progress.proofReceiptCount} proof receipts</Text>
+        </View>
+        <Text style={styles.syncedPill}>Synced</Text>
+      </View>
+      <View style={styles.coatShelfPreviewRow}>
+        {completed.length > 0 ? (
+          completed.map((quest) => <CoatShelfTile key={quest.id} title={quest.badgeName} subtitle={quest.title} imageUrl={quest.badgeImageUrl} />)
+        ) : (
+          <CoatShelfTile title={selectedChallenge.badgeIdentity.name} subtitle="Next unlock" imageUrl={selectedChallenge.badgeIdentity.imageUrl} locked />
+        )}
+      </View>
+    </View>
+  );
+}
+
+function CoatShelfTile({ title, subtitle, imageUrl, locked = false }: { title: string; subtitle: string; imageUrl: string | null; locked?: boolean }) {
+  const resolvedImageUrl = imageUrl ? absoluteAssetUrl(imageUrl) : null;
+
+  return (
+    <View style={[styles.coatShelfTile, locked && styles.coatShelfTileLocked]}>
+      <View style={styles.coatShelfBadgeFrame}>
+        {resolvedImageUrl ? <Image source={{ uri: resolvedImageUrl }} style={styles.coatShelfBadgeImage} resizeMode="contain" /> : <Text style={styles.trophyGlyph}>♛</Text>}
+      </View>
+      <Text style={styles.coatShelfTileTitle} numberOfLines={2}>{title}</Text>
+      <Text style={styles.coatShelfTileSubtitle} numberOfLines={2}>{locked ? `Locked · ${subtitle}` : subtitle}</Text>
     </View>
   );
 }
@@ -1427,12 +1508,31 @@ const styles = StyleSheet.create({
   proofScrollCard: { gap: 13, padding: 20, paddingTop: 50, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(255,247,232,.1)" },
   proofSeal: { position: "absolute", top: 14, right: 16, width: 54, height: 54, alignItems: "center", justifyContent: "center", borderRadius: 27, backgroundColor: "#9e1d24", borderWidth: 2, borderColor: "rgba(255,255,255,.28)" },
   proofSealText: { color: "#ffe3b3", fontWeight: "900", fontSize: 13 },
+  coatHeroFrame: { alignSelf: "center", width: 188, height: 212, alignItems: "center", justifyContent: "center", borderRadius: 42, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(0,0,0,.26)", shadowColor: colors.gold, shadowOpacity: 0.24, shadowRadius: 18, elevation: 4 },
+  coatHeroImage: { width: 170, height: 194 },
   proofPreviewBadgeFrame: { alignSelf: "center", width: 138, height: 154, alignItems: "center", justifyContent: "center", borderRadius: 34, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.22)" },
   proofPreviewBadge: { width: 124, height: 142 },
   proofPreviewGlyph: { color: colors.gold, fontSize: 52, fontWeight: "900" },
   proofTitle: { color: colors.paper, fontSize: 31, lineHeight: 33, letterSpacing: -1.4, fontWeight: "900" },
   proofSubtitle: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   proofBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  coatLoreCard: { gap: 11, padding: 15, borderRadius: 22, borderWidth: 1, borderColor: "rgba(151,70,255,.28)", backgroundColor: "rgba(151,70,255,.1)" },
+  coatLoreTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7 },
+  coatLoreRows: { gap: 8 },
+  coatShelfCard: { gap: 12, padding: 15, borderRadius: 22, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.085)" },
+  coatShelfHeader: { flexDirection: "row", gap: 10, alignItems: "flex-start" },
+  coatShelfCopy: { flex: 1, gap: 4 },
+  coatShelfTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7 },
+  coatShelfBody: { color: colors.muted, fontSize: 13, lineHeight: 19, fontWeight: "700" },
+  lockedPill: { overflow: "hidden", color: colors.paper, fontSize: 10, fontWeight: "900", textTransform: "uppercase", paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: "rgba(255,255,255,.12)" },
+  syncedPill: { overflow: "hidden", color: "#07110d", fontSize: 10, fontWeight: "900", textTransform: "uppercase", paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, backgroundColor: colors.green },
+  coatShelfPreviewRow: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
+  coatShelfTile: { width: "48%", minWidth: 132, flexGrow: 1, gap: 7, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,.1)", backgroundColor: "rgba(0,0,0,.22)" },
+  coatShelfTileLocked: { opacity: 0.78, borderColor: "rgba(245,200,106,.18)" },
+  coatShelfBadgeFrame: { alignSelf: "center", width: 78, height: 88, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: "rgba(0,0,0,.25)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  coatShelfBadgeImage: { width: 72, height: 82 },
+  coatShelfTileTitle: { color: colors.paper, fontSize: 14, lineHeight: 17, fontWeight: "900", textAlign: "center" },
+  coatShelfTileSubtitle: { color: colors.muted, fontSize: 11, lineHeight: 15, fontWeight: "800", textAlign: "center" },
   proofActionCard: { gap: 10, padding: 15, borderRadius: 22, borderWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "rgba(245,200,106,.085)" },
   proofActionTitle: { color: colors.paper, fontSize: 19, fontWeight: "900", letterSpacing: -0.6 },
   proofActionBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },

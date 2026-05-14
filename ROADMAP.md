@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-12 23:55 Europe/Stockholm
+Last updated: 2026-05-14 08:16 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -1143,10 +1143,18 @@ Andreas requested full focus on SQC Mobile. The next lane is a big UI review bef
   - Proof: replaced manual Android offset approach with `react-native-safe-area-context`, wrapped app in `SafeAreaProvider`, used safe-area edges on the root screen, configured Android status/navigation bar colors, and bumped build label to `Android preview 0.2.14 / safe-area fix`. Proof doc: `docs/SQC_MOBILE_SAFE_AREA_CONTEXT_FIX_2026-05-09.md`.
   - Verification: `pnpm --dir apps/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-safe-area-context`; `pnpm lint` (passed with 3 known warnings). Fresh APK build remains blocked by EAS auth (`Not logged in`).
 
-- [ ] Continue SQC Mobile UI Slice 2: first-class Coat of Arms surface.
+- [x] Continue SQC Mobile UI Slice 2: first-class Coat of Arms surface.
   - added_at: 2026-05-09 10:47 Europe/Stockholm
-  - source: next recommendation from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md`.
+  - completed_at: 2026-05-14 08:16 Europe/Stockholm
+  - source: next recommendation from `docs/SQC_MOBILE_UI_REVIEW_2026-05-09.md`, reactivated when Andreas said to continue the mobile app version after website launch/freeze.
   - Acceptance: mobile `Coats` surface more clearly mirrors the website Coat of Arms page with earned/locked reward previews and less generic proof-preview language; website remains unchanged.
+  - Proof: mobile `Coats`/proof surface now leads with a larger Coat of Arms hero, uses reward/unlock/heraldry language, adds a heraldry file, and shows a locked/synced mobile coat shelf for selected and earned rewards. Latest build label: `Android preview 0.2.15 / coat shelf`; proof doc: `docs/SQC_MOBILE_COAT_SHELF_SLICE_2026-05-14.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-coat-shelf`; `pnpm lint` (passed with 3 known warnings).
+
+- [ ] Continue SQC Mobile Slice 3: native account action plan and first safe mutation.
+  - added_at: 2026-05-14 08:16 Europe/Stockholm
+  - source: Andreas shifted focus to the mobile app version after website launch/freeze.
+  - Acceptance: choose and implement the next app-only safe mutation path without changing frozen website features; likely first candidate is chess username connect/update or quest start/check/reset using existing backend authority, with mobile clearly showing whether the native Clerk token is accepted.
 
 ## Approved UI polish — Quest Hub order — 2026-05-09
 
