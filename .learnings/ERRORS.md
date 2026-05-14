@@ -3493,3 +3493,25 @@ For local route smoke tests, start `pnpm start` (or dev server) first and stop i
 - Tags: local-smoke, nextjs, sqc
 
 ---
+## [ERR-20260514-007] zsh-parse-error-roadmap-memory-inline
+
+**Logged**: 2026-05-14T08:49:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: docs
+
+### Summary
+An inline Python/zsh command for recording the SQC mobile screenshot-review preference hit a zsh parse error.
+
+### Details
+The first combined command mixed heredoc content and shell quoting poorly and failed before writing the roadmap/memory note. Re-ran as a simpler Python-only block and completed the update.
+
+### Suggested Action
+For mixed memory+roadmap edits, prefer one Python heredoc with simple ASCII markers and avoid shell text after complex heredoc content.
+
+### Metadata
+- Source: error
+- Related Files: ROADMAP.md, memory/2026-05-14.md
+- Tags: zsh, heredoc, workflow
+
+---

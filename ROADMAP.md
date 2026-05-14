@@ -1122,6 +1122,12 @@ Planning completed; implementation is now approved only for the hidden `/groupqu
 
 Andreas requested full focus on SQC Mobile. The next lane is a big UI review before further mobile implementation.
 
+Screenshot review workflow - 2026-05-14:
+- Andreas prefers UI review via screenshot sets instead of installing every APK.
+- For UI-heavy mobile slices, capture core app screens/states and send screenshots as the default review artifact.
+- Still produce/install APKs at meaningful checkpoints or when device-specific behavior must be tested.
+
+
 - [x] Complete SQC Mobile UI audit against website look/feel and comparable mobile app best practices.
   - added_at: 2026-05-09 10:27 Europe/Stockholm
   - completed_at: 2026-05-09 10:34 Europe/Stockholm
