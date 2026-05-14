@@ -116,3 +116,17 @@ export type MobileAccountSignedOut = {
 };
 
 export type MobileAccountResponse = MobileAccountState | MobileAccountSignedOut;
+
+export type MobileProfileUpdateResponse = {
+  apiVersion: number;
+  authenticated: boolean;
+  ok?: boolean;
+  message: string;
+  chessAccounts?: {
+    lichessUsername: string | null;
+    chessComUsername: string | null;
+    previousLichessUsername?: string | null;
+    previousChessComUsername?: string | null;
+    hasAny: boolean;
+  };
+};

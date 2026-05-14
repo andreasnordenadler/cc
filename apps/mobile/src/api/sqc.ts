@@ -1,4 +1,4 @@
-import type { MobileAccountResponse, MobileBootstrap } from "../types/sqc";
+import type { MobileAccountResponse, MobileBootstrap, MobileProfileUpdateResponse } from "../types/sqc";
 
 const DEFAULT_API_BASE_URL = "https://sidequestchess.com";
 const DEFAULT_REQUEST_TIMEOUT_MS = 12000;
@@ -42,16 +42,8 @@ export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
 }
 
 export async function fetchMobileAccountState(sessionToken?: string | null): Promise<MobileAccountResponse> {
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-  };
-
-  if (sessionToken) {
-    headers.Authorization = `Bearer ${sessionToken}`;
-  }
-
   const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/account`, {
-    headers,
+    headers: buildMobileAuthHeaders(sessionToken),
   });
 
   if (response.status === 401) {
@@ -63,4 +55,40 @@ export async function fetchMobileAccountState(sessionToken?: string | null): Pro
   }
 
   return response.json() as Promise<MobileAccountResponse>;
+}
+
+export async function updateMobileChessUsernames({
+  sessionToken,
+  lichessUsername,
+  chessComUsername,
+}: {
+  sessionToken?: string | null;
+  lichessUsername: string;
+  chessComUsername: string;
+}): Promise<MobileProfileUpdateResponse> {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/profile`, {
+    method: "PATCH",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ lichessUsername, chessComUsername }),
+  });
+  const payload = await response.json() as MobileProfileUpdateResponse;
+
+  if (!response.ok) {
+    throw new Error(payload.message || `SQC mobile profile update failed: ${response.status}`);
+  }
+
+  return payload;
+}
+
+function buildMobileAuthHeaders(sessionToken?: string | null): Record<string, string> {
+  const headers: Record<string, string> = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  };
+
+  if (sessionToken) {
+    headers.Authorization = `Bearer ${sessionToken}`;
+  }
+
+  return headers;
 }

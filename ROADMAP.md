@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-14 08:16 Europe/Stockholm
+Last updated: 2026-05-14 08:33 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -1151,10 +1151,18 @@ Andreas requested full focus on SQC Mobile. The next lane is a big UI review bef
   - Proof: mobile `Coats`/proof surface now leads with a larger Coat of Arms hero, uses reward/unlock/heraldry language, adds a heraldry file, and shows a locked/synced mobile coat shelf for selected and earned rewards. Latest build label: `Android preview 0.2.15 / coat shelf`; proof doc: `docs/SQC_MOBILE_COAT_SHELF_SLICE_2026-05-14.md`.
   - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; Android `expo export --platform android --output-dir dist-android-coat-shelf`; `pnpm lint` (passed with 3 known warnings).
 
-- [ ] Continue SQC Mobile Slice 3: native account action plan and first safe mutation.
+- [x] Continue SQC Mobile Slice 3: native account action plan and first safe mutation.
   - added_at: 2026-05-14 08:16 Europe/Stockholm
-  - source: Andreas shifted focus to the mobile app version after website launch/freeze.
+  - completed_at: 2026-05-14 08:33 Europe/Stockholm
+  - source: Andreas shifted focus to the mobile app version after website launch/freeze, then asked for a great and strong tempo.
   - Acceptance: choose and implement the next app-only safe mutation path without changing frozen website features; likely first candidate is chess username connect/update or quest start/check/reset using existing backend authority, with mobile clearly showing whether the native Clerk token is accepted.
+  - Proof: added authenticated `PATCH /api/mobile/profile` for mobile chess username saves, expanded Clerk middleware matcher to `/api/mobile/(.*)`, and added a signed-in native `Connect chess usernames` editor in the mobile Account tab. Latest build label: `Android preview 0.2.16 / username save`; proof doc: `docs/SQC_MOBILE_USERNAME_SAVE_SLICE_2026-05-14.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; Android `expo export --platform android --output-dir dist-android-username-save`.
+
+- [ ] Continue SQC Mobile Slice 4: native quest start/check action.
+  - added_at: 2026-05-14 08:33 Europe/Stockholm
+  - source: continue strong SQC mobile tempo after username-save mutation.
+  - Acceptance: add the next narrow mobile mutation using backend-owned quest state, most likely start active quest and/or check active quest via mobile API; keep proof awarding and website-visible behavior aligned with existing server action semantics.
 
 ## Approved UI polish — Quest Hub order — 2026-05-09
 

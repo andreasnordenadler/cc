@@ -15,10 +15,11 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap } from "./src/api/sqc";
+import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
@@ -46,7 +47,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.15 / coat shelf";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.16 / username save";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -246,6 +247,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               authBridge={authBridge}
               onSelectChallenge={selectChallenge}
               onSelectTab={selectTab}
+              onAccountUpdated={() => void loadAccount()}
             />
             <WebsiteParityDockCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
             <FirstRunBriefCard authBridge={authBridge} />
@@ -546,6 +548,7 @@ function ActiveScreen({
   authBridge,
   onSelectChallenge,
   onSelectTab,
+  onAccountUpdated,
 }: {
   activeTab: AppTab;
   bootstrap: MobileBootstrap;
@@ -555,6 +558,7 @@ function ActiveScreen({
   authBridge: MobileAuthBridge;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
   onSelectTab: (tab: AppTab) => void;
+  onAccountUpdated: () => void;
 }) {
   switch (activeTab) {
     case "catalog":
@@ -562,7 +566,7 @@ function ActiveScreen({
     case "quest":
       return <QuestDetailScreen challenge={selectedChallenge} onSelectTab={onSelectTab} />;
     case "account":
-      return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} />;
+      return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />;
     case "status":
       return <StatusShell selectedChallenge={selectedChallenge} account={account} />;
     case "proof":
@@ -615,7 +619,17 @@ function QuestDetailScreen({ challenge, onSelectTab }: { challenge: MobileChalle
   return <QuestDetailCard challenge={challenge} onSelectTab={onSelectTab} />;
 }
 
-function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge }) {
+function AccountShell({
+  bootstrap,
+  account,
+  authBridge,
+  onAccountUpdated,
+}: {
+  bootstrap: MobileBootstrap;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onAccountUpdated: () => void;
+}) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
 
@@ -661,6 +675,7 @@ function AccountShell({ bootstrap, account, authBridge }: { bootstrap: MobileBoo
         <Fact label="Lichess" value={account.chessAccounts.lichessUsername ?? "Not connected"} />
         <Fact label="Chess.com" value={account.chessAccounts.chessComUsername ?? "Not connected"} />
       </View>
+      <ChessUsernameEditor account={account} authBridge={authBridge} onSaved={onAccountUpdated} />
       <QuestProgressStrip completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountMomentumCard completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <MobileAccountStatesCard authBridge={authBridge} account={account} />
@@ -1123,6 +1138,80 @@ function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
   );
 }
 
+function ChessUsernameEditor({
+  account,
+  authBridge,
+  onSaved,
+}: {
+  account: MobileAccountState;
+  authBridge: MobileAuthBridge;
+  onSaved: () => void;
+}) {
+  const [lichessUsername, setLichessUsername] = useState(account.chessAccounts.lichessUsername ?? "");
+  const [chessComUsername, setChessComUsername] = useState(account.chessAccounts.chessComUsername ?? "");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLichessUsername(account.chessAccounts.lichessUsername ?? "");
+    setChessComUsername(account.chessAccounts.chessComUsername ?? "");
+  }, [account.chessAccounts.chessComUsername, account.chessAccounts.lichessUsername]);
+
+  async function saveUsernames() {
+    setSaving(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
+      const result = await updateMobileChessUsernames({ sessionToken, lichessUsername, chessComUsername });
+      setMessage(result.message || "Chess usernames saved.");
+      onSaved();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not save chess usernames.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <View style={styles.usernameEditorCard}>
+      <Text style={styles.eyebrow}>Native account action</Text>
+      <Text style={styles.usernameEditorTitle}>Connect chess usernames</Text>
+      <Text style={styles.usernameEditorBody}>First safe mobile mutation: save public Lichess / Chess.com usernames through the website backend. No chess-site passwords, and the web account stays the source of truth.</Text>
+      <View style={styles.inputStack}>
+        <Text style={styles.inputLabel}>Lichess username</Text>
+        <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={lichessUsername}
+          placeholder="e.g. and72nor"
+          placeholderTextColor="rgba(255,247,232,.42)"
+          style={styles.textInput}
+          onChangeText={setLichessUsername}
+        />
+        <Text style={styles.inputLabel}>Chess.com username</Text>
+        <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={chessComUsername}
+          placeholder="optional"
+          placeholderTextColor="rgba(255,247,232,.42)"
+          style={styles.textInput}
+          onChangeText={setChessComUsername}
+        />
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Save chess usernames" testID="mobile-save-chess-usernames" style={styles.primaryButton} disabled={saving || !authBridge.isSignedIn} onPress={() => void saveUsernames()}>
+        <Text style={styles.primaryButtonText}>{saving ? "Saving…" : "Save usernames"}</Text>
+      </Pressable>
+      {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in with Google first to enable native account edits.</Text> : null}
+      {message ? <Text style={styles.successCopy}>{message}</Text> : null}
+      {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
+    </View>
+  );
+}
+
 function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAuthBridge; account: MobileAccountResponse | null }) {
   const authenticated = isAuthenticatedAccount(account);
   const backendAccepted = authenticated ? "Live account sync accepted" : authBridge.isSignedIn ? "Local sign-in present; backend still pending" : "Website handoff mode";
@@ -1471,6 +1560,13 @@ const styles = StyleSheet.create({
   progressPercent: { color: colors.green, fontSize: 15, fontWeight: "900" },
   progressTrack: { overflow: "hidden", height: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,.09)" },
   progressFill: { height: 10, borderRadius: 999, backgroundColor: colors.green },
+  usernameEditorCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(96,240,175,.075)", borderWidth: 1, borderColor: "rgba(96,240,175,.24)" },
+  usernameEditorTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
+  usernameEditorBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  inputStack: { gap: 7 },
+  inputLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
+  textInput: { color: colors.paper, paddingHorizontal: 13, paddingVertical: 11, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(0,0,0,.24)", fontSize: 15, fontWeight: "800" },
+  successCopy: { color: colors.green, fontSize: 13, lineHeight: 18, fontWeight: "800" },
   momentumCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.08)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   momentumIcon: { width: 38, height: 38, textAlign: "center", textAlignVertical: "center", borderRadius: 19, overflow: "hidden", fontSize: 22, backgroundColor: "rgba(0,0,0,.22)" },
   momentumCopy: { flex: 1, gap: 3 },

@@ -3405,3 +3405,25 @@ Run repo status only for repo files, and inspect workspace memory files separate
 - Tags: git, repo-boundary, sqc
 
 ---
+## [ERR-20260514-003] missing-workdir-for-sqc-mobile-grep
+
+**Logged**: 2026-05-14T08:34:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A grep for `apps/mobile/App.tsx` failed because the command ran from the workspace root instead of the `cc` repository.
+
+### Details
+The relative path exists under `/Users/sam/.openclaw/workspace/cc`, not the global workspace root. Re-running the same command with `workdir=/Users/sam/.openclaw/workspace/cc` succeeded.
+
+### Suggested Action
+For SQC repo-relative paths, always set the exec workdir to `/Users/sam/.openclaw/workspace/cc`.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: sqc, workdir, shell
+
+---
