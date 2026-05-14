@@ -3427,3 +3427,25 @@ For SQC repo-relative paths, always set the exec workdir to `/Users/sam/.opencla
 - Tags: sqc, workdir, shell
 
 ---
+## [ERR-20260514-004] vercel-logs-follow-since-conflict
+
+**Logged**: 2026-05-14T08:40:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+`vercel logs https://sidequestchess.com --since 10m` failed because deployment/URL positional logs imply `--follow`, and this Vercel CLI does not allow filtering while following.
+
+### Details
+The CLI returned: `The --follow flag does not support filtering. Remove: --since`. Retried successfully with project/environment filters: `vercel logs --environment production --level error --since 10m --limit 50 --no-follow`.
+
+### Suggested Action
+For recent filtered Vercel log scans, do not pass the deployment URL; use project/environment filters plus `--no-follow`.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_MOBILE_USERNAME_SAVE_SLICE_2026-05-14.md
+- Tags: vercel, logs, deploy-verify
+
+---

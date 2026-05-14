@@ -41,3 +41,12 @@ Updated `apps/mobile/src/api/sqc.ts` and `apps/mobile/src/types/sqc.ts` with the
 ## Impact
 
 This is the first native mobile account mutation. It is deliberately narrow: chess username connection only, no proof awarding or quest mutation yet. That gives the mobile app a real signed-in action while keeping the website/backend as source of truth.
+
+## Production deploy / smoke
+
+- Production deploy guard passed and Vercel deployed `98b0b7f` to `https://cc-bziqr1x6n-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`.
+- Smoke checks after deploy:
+  - `https://sidequestchess.com/` returned 200
+  - `https://sidequestchess.com/api/mobile/bootstrap` returned 200 with 11 challenges
+  - anonymous `PATCH https://sidequestchess.com/api/mobile/profile` returned expected 401 JSON (`authenticated:false`)
+  - Vercel production error logs for the last 10 minutes returned no logs
