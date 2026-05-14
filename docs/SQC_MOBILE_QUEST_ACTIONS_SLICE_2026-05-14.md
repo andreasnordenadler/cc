@@ -44,3 +44,12 @@ Updated mobile API/types:
 ## Impact
 
 Mobile now has the first real solo quest-loop parity action: users can start and check quests natively once signed in and synced, while the website backend remains the source of truth for verification, proof, and progress.
+
+## Production deploy / smoke
+
+- Production deploy guard passed and Vercel deployed `fca4795` to `https://cc-612lqkcs8-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`.
+- Smoke checks after deploy:
+  - `https://sidequestchess.com/` returned 200
+  - `https://sidequestchess.com/api/mobile/bootstrap` returned 200 with 11 challenges
+  - anonymous `POST https://sidequestchess.com/api/mobile/quest` returned expected 401 JSON (`You must be signed in.`)
+  - Vercel production error logs for the last 10 minutes returned no logs
