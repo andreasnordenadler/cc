@@ -19,7 +19,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, updateMobileChessUsernames } from "./src/api/sqc";
+import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
@@ -47,7 +47,7 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.16 / username save";
+const MOBILE_BUILD_LABEL = "Android preview 0.2.17 / quest actions";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -564,11 +564,11 @@ function ActiveScreen({
     case "catalog":
       return <CatalogScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />;
     case "quest":
-      return <QuestDetailScreen challenge={selectedChallenge} onSelectTab={onSelectTab} />;
+      return <QuestDetailScreen challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "account":
       return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />;
     case "status":
-      return <StatusShell selectedChallenge={selectedChallenge} account={account} />;
+      return <StatusShell selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />;
     case "proof":
       return <ProofShell selectedChallenge={selectedChallenge} account={account} />;
   }
@@ -615,8 +615,20 @@ function CatalogScreen({
   );
 }
 
-function QuestDetailScreen({ challenge, onSelectTab }: { challenge: MobileChallenge; onSelectTab: (tab: AppTab) => void }) {
-  return <QuestDetailCard challenge={challenge} onSelectTab={onSelectTab} />;
+function QuestDetailScreen({
+  challenge,
+  account,
+  authBridge,
+  onSelectTab,
+  onAccountUpdated,
+}: {
+  challenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectTab: (tab: AppTab) => void;
+  onAccountUpdated: () => void;
+}) {
+  return <QuestDetailCard challenge={challenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
 }
 
 function AccountShell({
@@ -691,7 +703,17 @@ function AccountShell({
   );
 }
 
-function StatusShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
+function StatusShell({
+  selectedChallenge,
+  account,
+  authBridge,
+  onAccountUpdated,
+}: {
+  selectedChallenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onAccountUpdated: () => void;
+}) {
   if (isAuthenticatedAccount(account) && account.activeQuest) {
     return (
       <View style={styles.panelCard}>
@@ -710,6 +732,7 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
         <Fact label="Verified" value={account.activeQuest.verifiedAt ? new Date(account.activeQuest.verifiedAt).toLocaleString() : "Waiting for proof"} />
       </View>
       <StatusConfidenceCard mode={account.activeQuest.completed ? "completed" : "active"} />
+      <MobileQuestActionCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSaved={onAccountUpdated} mode="check" />
       </View>
     );
   }
@@ -724,6 +747,7 @@ function StatusShell({ selectedChallenge, account }: { selectedChallenge: Mobile
         <FlowStep title="Get the receipt" body="The checker returns passed, failed, or waiting with a shareable proof card." />
       </View>
       <StatusConfidenceCard mode="preview" />
+      <MobileQuestActionCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSaved={onAccountUpdated} mode="start" />
       <WebsiteHandoffCard
         title="Submit proof on the website."
         body="Mobile keeps the brief in your pocket; the verifier and proof receipt still run on the web board."
@@ -915,7 +939,19 @@ function QuestListCard({ challenge, active, index, onPress }: { challenge: Mobil
   );
 }
 
-function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChallenge; onSelectTab: (tab: AppTab) => void }) {
+function QuestDetailCard({
+  challenge,
+  account,
+  authBridge,
+  onSelectTab,
+  onAccountUpdated,
+}: {
+  challenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectTab: (tab: AppTab) => void;
+  onAccountUpdated: () => void;
+}) {
   const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
 
   return (
@@ -968,6 +1004,7 @@ function QuestDetailCard({ challenge, onSelectTab }: { challenge: MobileChalleng
           <Text style={styles.secondaryButtonText}>Open on website</Text>
         </Pressable>
       </View>
+      <MobileQuestActionCard challenge={challenge} account={account} authBridge={authBridge} onSaved={onAccountUpdated} mode={isAuthenticatedAccount(account) && account.activeQuest?.id === challenge.id ? "check" : "start"} />
       <ProofActionCard challengeId={challenge.id} title={challenge.title} mode="quest" />
       <WebsiteHandoffCard
         title="Ready when you are."
@@ -1006,6 +1043,71 @@ function RequirementPill({ label, value }: { label: string; value: string }) {
     <View style={styles.requirementPill}>
       <Text style={styles.requirementLabel}>{label}</Text>
       <Text style={styles.requirementValue}>{value}</Text>
+    </View>
+  );
+}
+
+function MobileQuestActionCard({
+  challenge,
+  account,
+  authBridge,
+  onSaved,
+  mode,
+}: {
+  challenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSaved: () => void;
+  mode: "start" | "check";
+}) {
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const authenticated = isAuthenticatedAccount(account);
+  const canRun = authBridge.isSignedIn && authenticated;
+  const hasChessUsername = authenticated && account.chessAccounts.hasAny;
+  const actionLabel = mode === "start" ? "Start quest on mobile" : "Check latest games";
+  const body = mode === "start"
+    ? "Starts this quest through the same backend-owned quest state the website uses. If your chess username is saved, SQC may immediately check eligible latest games."
+    : "Runs the website-equivalent latest-game checker from mobile and refreshes your account mirror after the result is saved.";
+
+  async function runAction() {
+    setPending(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
+      const result = await runMobileQuestAction({
+        sessionToken,
+        action: mode,
+        challengeId: challenge.id,
+      });
+      setMessage(result.message || "Quest state saved.");
+      onSaved();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Mobile quest action failed.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <View style={styles.mobileQuestActionCard}>
+      <Text style={styles.eyebrow}>Website parity action</Text>
+      <Text style={styles.mobileQuestActionTitle}>{mode === "start" ? "Start this Side Quest" : "Run the proof checker"}</Text>
+      <Text style={styles.mobileQuestActionBody}>{body}</Text>
+      <View style={styles.factGrid}>
+        <Fact label="Selected" value={challenge.title} />
+        <Fact label="Account" value={canRun ? "Signed in and synced" : authBridge.isSignedIn ? "Waiting for backend account mirror" : "Sign in required"} />
+        <Fact label="Chess username" value={hasChessUsername ? "Connected" : "Needed for live provider checks"} />
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} testID={`mobile-quest-${mode}`} style={styles.primaryButton} disabled={!canRun || pending} onPress={() => void runAction()}>
+        <Text style={styles.primaryButtonText}>{pending ? "Working…" : actionLabel}</Text>
+      </Pressable>
+      {!canRun ? <Text style={styles.microcopy}>Sign in and refresh the account mirror before native quest actions unlock.</Text> : null}
+      {message ? <Text style={styles.successCopy}>{message}</Text> : null}
+      {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
     </View>
   );
 }
@@ -1544,6 +1646,9 @@ const styles = StyleSheet.create({
   requirementPill: { flex: 1, gap: 4, padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)" },
   requirementLabel: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
   requirementValue: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  mobileQuestActionCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(245,200,106,.09)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
+  mobileQuestActionTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8, lineHeight: 24 },
+  mobileQuestActionBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   proofPrepCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(151,70,255,.11)", borderWidth: 1, borderColor: "rgba(151,70,255,.28)" },
   proofPrepTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
   accountChecklistCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(255,255,255,.065)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },

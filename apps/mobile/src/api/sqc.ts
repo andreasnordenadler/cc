@@ -1,4 +1,4 @@
-import type { MobileAccountResponse, MobileBootstrap, MobileProfileUpdateResponse } from "../types/sqc";
+import type { MobileAccountResponse, MobileBootstrap, MobileProfileUpdateResponse, MobileQuestActionResponse } from "../types/sqc";
 
 const DEFAULT_API_BASE_URL = "https://sidequestchess.com";
 const DEFAULT_REQUEST_TIMEOUT_MS = 12000;
@@ -75,6 +75,29 @@ export async function updateMobileChessUsernames({
 
   if (!response.ok) {
     throw new Error(payload.message || `SQC mobile profile update failed: ${response.status}`);
+  }
+
+  return payload;
+}
+
+export async function runMobileQuestAction({
+  sessionToken,
+  action,
+  challengeId,
+}: {
+  sessionToken?: string | null;
+  action: "start" | "check";
+  challengeId?: string;
+}): Promise<MobileQuestActionResponse> {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/quest`, {
+    method: "POST",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ action, challengeId }),
+  }, 20000);
+  const payload = await response.json() as MobileQuestActionResponse;
+
+  if (!response.ok) {
+    throw new Error(payload.message || `SQC mobile quest action failed: ${response.status}`);
   }
 
   return payload;

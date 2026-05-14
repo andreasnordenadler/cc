@@ -3449,3 +3449,47 @@ For recent filtered Vercel log scans, do not pass the deployment URL; use projec
 - Tags: vercel, logs, deploy-verify
 
 ---
+## [ERR-20260514-005] zsh-glob-route-path
+
+**Logged**: 2026-05-14T08:45:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A shell inspection command failed on `src/app/challenges/[id]/page.tsx` because zsh treated `[id]` as a glob pattern.
+
+### Details
+The command printed `zsh:1: no matches found: src/app/challenges/[id]/page.tsx`. Route paths with square brackets must be quoted or escaped in zsh.
+
+### Suggested Action
+Quote Next.js dynamic route paths in shell commands, e.g. `'src/app/challenges/[id]/page.tsx'`.
+
+### Metadata
+- Source: error
+- Related Files: src/app/challenges/[id]/page.tsx
+- Tags: zsh, nextjs, dynamic-routes
+
+---
+## [ERR-20260514-006] local-server-not-running-smoke
+
+**Logged**: 2026-05-14T08:50:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+A local curl smoke for `/api/mobile/quest` failed because no server was running on localhost:3000.
+
+### Details
+The command returned `curl: (7) Failed to connect to localhost port 3000`. Starting `pnpm start` after a successful build and retrying produced the expected anonymous 401 JSON.
+
+### Suggested Action
+For local route smoke tests, start `pnpm start` (or dev server) first and stop it after the smoke check.
+
+### Metadata
+- Source: error
+- Related Files: src/app/api/mobile/quest/route.ts
+- Tags: local-smoke, nextjs, sqc
+
+---

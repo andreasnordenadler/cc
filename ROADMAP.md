@@ -1,6 +1,6 @@
 # CC Roadmap
 
-Last updated: 2026-05-14 08:33 Europe/Stockholm
+Last updated: 2026-05-14 08:52 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
 
@@ -1159,10 +1159,44 @@ Andreas requested full focus on SQC Mobile. The next lane is a big UI review bef
   - Proof: added authenticated `PATCH /api/mobile/profile` for mobile chess username saves, expanded Clerk middleware matcher to `/api/mobile/(.*)`, and added a signed-in native `Connect chess usernames` editor in the mobile Account tab. Latest build label: `Android preview 0.2.16 / username save`; proof doc: `docs/SQC_MOBILE_USERNAME_SAVE_SLICE_2026-05-14.md`.
   - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; Android `expo export --platform android --output-dir dist-android-username-save`.
 
-- [ ] Continue SQC Mobile Slice 4: native quest start/check action.
+- [x] Continue SQC Mobile Slice 4: native quest start/check action.
   - added_at: 2026-05-14 08:33 Europe/Stockholm
-  - source: continue strong SQC mobile tempo after username-save mutation.
+  - completed_at: 2026-05-14 08:52 Europe/Stockholm
+  - source: continue strong SQC mobile tempo after username-save mutation; Andreas explicitly requested feature parity with the website.
+  - parity_matrix: `docs/SQC_MOBILE_FEATURE_PARITY_MATRIX_2026-05-14.md`
   - Acceptance: add the next narrow mobile mutation using backend-owned quest state, most likely start active quest and/or check active quest via mobile API; keep proof awarding and website-visible behavior aligned with existing server action semantics.
+  - Proof: added `POST /api/mobile/quest` for `start` and `check`, using existing website server-action semantics; added mobile `Website parity action` cards on quest/status surfaces. Latest build label: `Android preview 0.2.17 / quest actions`; proof doc: `docs/SQC_MOBILE_QUEST_ACTIONS_SLICE_2026-05-14.md`.
+  - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; Android `expo export --platform android --output-dir dist-android-quest-actions`; local production anonymous `POST /api/mobile/quest` returned expected 401 JSON.
+
+- [ ] SQC Mobile parity queue: complete explicit game/link proof submission.
+  - added_at: 2026-05-14 08:52 Europe/Stockholm
+  - source: mobile feature parity matrix; next solo quest-loop gap after native start/check.
+  - Acceptance: mobile can submit a specific Lichess game id or Chess.com URL to the active/selected quest and refresh the resulting proof receipt/account state.
+
+- [ ] SQC Mobile parity queue: submit specific game/link.
+  - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - source: mobile feature parity matrix.
+  - Acceptance: mobile can submit a Lichess game id or Chess.com URL against the active/selected quest and receive the same passed/failed/pending account state as website proof submission.
+
+- [ ] SQC Mobile parity queue: reset/deactivate quest controls.
+  - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - source: mobile feature parity matrix.
+  - Acceptance: mobile can safely deactivate active quests and reset completed quests with confirmation, matching website semantics and data-risk protections.
+
+- [ ] SQC Mobile parity queue: proof viewer and native share sheet.
+  - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - source: mobile feature parity matrix.
+  - Acceptance: mobile can display latest proof/receipt with coat art, open proof URL, and share native text/link/image where supported.
+
+- [ ] SQC Mobile parity queue: discovery/path/random parity.
+  - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - source: mobile feature parity matrix.
+  - Acceptance: mobile supports website-equivalent suggested path, random quest, and Quest Hub grouping/filter context using backend-driven quest data.
+
+- [ ] SQC Mobile parity queue: Multiplayer Side Quest parity plan and first native read slice.
+  - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - source: mobile feature parity matrix.
+  - Acceptance: define and start native mobile support for public multiplayer list, create/join, room state, leaderboard, and proof states without changing frozen website features.
 
 ## Approved UI polish — Quest Hub order — 2026-05-09
 

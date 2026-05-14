@@ -130,3 +130,12 @@ export type MobileProfileUpdateResponse = {
     hasAny: boolean;
   };
 };
+
+export type MobileQuestActionResponse = {
+  apiVersion: number;
+  authenticated: boolean;
+  ok?: boolean;
+  action?: string;
+  challengeId?: string;
+  message: string;
+};
