@@ -67,6 +67,12 @@ Rules from this point:
 - Do not use old autonomous backlog items as permission to add new website product features.
 - Mobile app/auth work is separate from this website feature freeze unless Andreas explicitly extends the freeze to mobile.
 
+- [ ] Add Facebook login to Clerk for SQC.
+  - added_at: 2026-05-14 15:05 Europe/Stockholm
+  - source: Andreas created a Facebook Developer account and requested Facebook as a Clerk auth provider.
+  - scope: Clerk/Facebook auth configuration plus SQC web/mobile sign-in verification; do not add unrelated website features.
+  - Acceptance: Facebook app is configured with Clerk redirect URI, Clerk production enables Facebook social connection, web Sign In/Up offers Facebook, and mobile auth strategy is reviewed/updated if needed (`oauth_facebook`) with smoke proof.
+
 - [x] Polish SQC mobile launch layout without changing desktop UI.
   - added_at: 2026-05-13 22:12 Europe/Stockholm
   - completed_at: 2026-05-13 22:25 Europe/Stockholm
