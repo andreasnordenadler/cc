@@ -1126,6 +1126,7 @@ Screenshot review workflow - 2026-05-14:
 - Andreas prefers UI review via screenshot sets instead of installing every APK.
 - For UI-heavy mobile slices, capture core app screens/states and send screenshots as the default review artifact.
 - Still produce/install APKs at meaningful checkpoints or when device-specific behavior must be tested.
+- Language quality gate: use `Side Quest` and `Coat of Arms` in user-facing UI/docs/review notes; avoid generic/internal terms like `mission`, `coat`, or `badge` unless explicitly needed for implementation context.
 
 
 - [x] Complete SQC Mobile UI audit against website look/feel and comparable mobile app best practices.

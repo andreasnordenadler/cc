@@ -412,3 +412,23 @@ For unsaved form protection in Next.js App Router, combine `beforeunload` with a
 - Tags: nextjs, unsaved-form, navigation-guard
 
 ---
+## [LEARN-20260514-001] SQC mobile language canon: Side Quest / Coat of Arms
+
+**Logged**: 2026-05-14T12:45:00+02:00
+**Category**: correction
+**Priority**: high
+**Status**: active
+**Area**: product-language
+
+### Summary
+Andreas corrected SQC mobile language: use **Side Quest** and **Coat of Arms**, not generic/internal wording like mission, coat, etc.
+
+### What to do differently
+- UI labels, docs, screenshots, roadmap text, and user-facing copy should say `Side Quest` and `Coat of Arms`.
+- Avoid `mission`, `coat`, `badge`, or shorthand unless describing internal implementation or historical context.
+- Treat terminology consistency as part of SQC mobile UI quality gates.
+
+### Source
+Andreas Telegram instruction, 2026-05-14 12:45 CEST.
+
+---
