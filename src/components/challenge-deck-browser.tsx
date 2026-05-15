@@ -30,39 +30,6 @@ const MAX_VISIBLE_COMING_SOON_QUESTS = 4;
 
 const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
   {
-    id: "pawn-only-picnic",
-    title: "Pawn-Only Picnic",
-    objective: "Win after making your first eight moves with pawns only.",
-    instruction: "Coming soon: launch a very tiny army before any grown-up piece gets involved, then win anyway.",
-    openingHint: "The pieces are observing from HR.",
-    reward: 80,
-    category: "Beginner Quest",
-    difficulty: "Easy",
-    completionRate: "Coming soon",
-    flavor: "Development is delayed because the pawns booked the venue.",
-    badge: "Picnic Formation",
-    badgeIdentity: {
-      name: "Pawn Picnic",
-      motif: "♟",
-      rarity: "Coming soon token",
-      unlockCopy: "Move pawns only at the start, then somehow make it look intentional.",
-      heraldry: {
-        shield: "Grass-green field with eight tiny pawns marching under a lunch flag.",
-        charge: "Eight-pawn blanket",
-        crest: "Tiny picnic banner",
-        motto: "Snacks Before Knights",
-        meaning: "The eight pawns mark the pawn-only opening parade; the banner keeps the nonsense cheerful.",
-        weirdness: "A picnic where every sandwich is a tempo loss.",
-      },
-      colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.36)" },
-      image: "/badges/v7/coming-soon-clean/pawn-only-picnic-badge.png",
-    },
-    proofCallout: "First eight player moves were pawn moves · won the game",
-    rules: [],
-    requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-21",
-  },
-  {
     id: "back-rank-goblin",
     title: "Back Rank Goblin",
     objective: "Deliver a back-rank mate with maximum goblin energy.",
@@ -93,7 +60,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Back-rank mate · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-28",
+    releaseDate: "2026-05-21",
   },
   {
     id: "late-castle-lifestyle",
@@ -126,7 +93,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Castled after move 15 · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-04",
+    releaseDate: "2026-05-28",
   },
   {
     id: "rook-lift-internship",
@@ -159,7 +126,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Early rook lift · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-11",
+    releaseDate: "2026-06-04",
   },
   {
     id: "double-check-drama",
@@ -256,7 +223,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Two sacrifices · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-18",
+    releaseDate: "2026-06-11",
   },
   {
     id: "queen-side-quest",
@@ -289,7 +256,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Queen stayed on first rank · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-25",
+    releaseDate: "2026-06-18",
   },
   {
     id: "underpromotion-union",
@@ -322,7 +289,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Underpromotion played · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-07-02",
+    releaseDate: "2026-06-25",
   },
   {
     id: "lone-king-witness-protection",
@@ -355,7 +322,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Opponent had only king left · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-07-09",
+    releaseDate: "2026-07-02",
   },
 ];
 
