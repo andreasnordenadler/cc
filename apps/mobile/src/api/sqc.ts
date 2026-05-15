@@ -84,15 +84,17 @@ export async function runMobileQuestAction({
   sessionToken,
   action,
   challengeId,
+  gameId,
 }: {
   sessionToken?: string | null;
-  action: "start" | "check";
+  action: "start" | "check" | "submit" | "deactivate" | "reset";
   challengeId?: string;
+  gameId?: string;
 }): Promise<MobileQuestActionResponse> {
   const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/quest`, {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
-    body: JSON.stringify({ action, challengeId }),
+    body: JSON.stringify({ action, challengeId, gameId }),
   }, 20000);
   const payload = await response.json() as MobileQuestActionResponse;
 

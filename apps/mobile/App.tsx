@@ -1008,7 +1008,7 @@ function QuestDetailCard({
       <ProofActionCard challengeId={challenge.id} title={challenge.title} mode="quest" />
       <WebsiteHandoffCard
         title="Ready when you are."
-        body="Start the quest, submit a public game, and share the final receipt from the full web board."
+        body="Start the quest, check latest games, submit a public game link, and reset or deactivate from the mobile cockpit."
         buttonLabel="Start on website"
         url={`${getApiBaseUrl()}/challenges/${challenge.id}`}
       />
@@ -1032,7 +1032,7 @@ function QuestActionPlanCard({ challenge }: { challenge: MobileChallenge }) {
       <View style={styles.actionPlanSteps}>
         <FlowStep done title="Confirm the gimmick" body={challenge.instruction} />
         <FlowStep title="Play a public game" body="Use Lichess or Chess.com with a shareable game URL; no chess-site login is needed here." />
-        <FlowStep title="Return to the web checker" body="The website starts the quest, verifies the public game, and mints the canonical receipt." />
+        <FlowStep title="Use the mobile checker" body="Start, check latest games, or paste a specific public game link directly in the app." />
       </View>
     </View>
   );
@@ -1060,19 +1060,22 @@ function MobileQuestActionCard({
   onSaved: () => void;
   mode: "start" | "check";
 }) {
-  const [pending, setPending] = useState(false);
+  const [pendingAction, setPendingAction] = useState<"start" | "check" | "submit" | "deactivate" | "reset" | null>(null);
+  const [gameUrl, setGameUrl] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const authenticated = isAuthenticatedAccount(account);
   const canRun = authBridge.isSignedIn && authenticated;
   const hasChessUsername = authenticated && account.chessAccounts.hasAny;
+  const isActiveQuest = authenticated && account.activeQuest?.id === challenge.id;
+  const isCompletedQuest = authenticated && account.progress.completedChallengeIds.includes(challenge.id);
   const actionLabel = mode === "start" ? "Start quest on mobile" : "Check latest games";
   const body = mode === "start"
     ? "Starts this quest through the same backend-owned quest state the website uses. If your chess username is saved, SQC may immediately check eligible latest games."
     : "Runs the website-equivalent latest-game checker from mobile and refreshes your account mirror after the result is saved.";
 
-  async function runAction() {
-    setPending(true);
+  async function runAction(action: "start" | "check" | "submit" | "deactivate" | "reset") {
+    setPendingAction(action);
     setMessage(null);
     setError(null);
 
@@ -1080,15 +1083,17 @@ function MobileQuestActionCard({
       const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
       const result = await runMobileQuestAction({
         sessionToken,
-        action: mode,
+        action,
         challengeId: challenge.id,
+        gameId: action === "submit" ? gameUrl.trim() : undefined,
       });
       setMessage(result.message || "Quest state saved.");
+      if (action === "submit") setGameUrl("");
       onSaved();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Mobile quest action failed.");
     } finally {
-      setPending(false);
+      setPendingAction(null);
     }
   }
 
@@ -1102,9 +1107,37 @@ function MobileQuestActionCard({
         <Fact label="Account" value={canRun ? "Signed in and synced" : authBridge.isSignedIn ? "Waiting for backend account mirror" : "Sign in required"} />
         <Fact label="Chess username" value={hasChessUsername ? "Connected" : "Needed for live provider checks"} />
       </View>
-      <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} testID={`mobile-quest-${mode}`} style={styles.primaryButton} disabled={!canRun || pending} onPress={() => void runAction()}>
-        <Text style={styles.primaryButtonText}>{pending ? "Working…" : actionLabel}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel={actionLabel} testID={`mobile-quest-${mode}`} style={styles.primaryButton} disabled={!canRun || Boolean(pendingAction)} onPress={() => void runAction(mode)}>
+        <Text style={styles.primaryButtonText}>{pendingAction === mode ? "Working…" : actionLabel}</Text>
       </Pressable>
+      <View style={styles.inputStack}>
+        <Text style={styles.inputLabel}>Specific game proof</Text>
+        <TextInput
+          autoCapitalize="none"
+          autoCorrect={false}
+          editable={canRun && !pendingAction}
+          onChangeText={setGameUrl}
+          placeholder="Paste Lichess or Chess.com game link"
+          placeholderTextColor="rgba(237,230,213,.48)"
+          style={styles.textInput}
+          value={gameUrl}
+        />
+        <Pressable accessibilityRole="button" accessibilityLabel="Submit game proof" testID="mobile-quest-submit" style={styles.secondaryButton} disabled={!canRun || Boolean(pendingAction) || !gameUrl.trim()} onPress={() => void runAction("submit")}>
+          <Text style={styles.secondaryButtonText}>{pendingAction === "submit" ? "Submitting…" : "Submit game proof"}</Text>
+        </Pressable>
+      </View>
+      <View style={styles.buttonRow}>
+        {isActiveQuest ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Deactivate active quest" testID="mobile-quest-deactivate" style={styles.secondaryButton} disabled={!canRun || Boolean(pendingAction)} onPress={() => void runAction("deactivate")}>
+            <Text style={styles.secondaryButtonText}>{pendingAction === "deactivate" ? "Deactivating…" : "Deactivate"}</Text>
+          </Pressable>
+        ) : null}
+        {isCompletedQuest ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Reset completed quest" testID="mobile-quest-reset" style={styles.secondaryButton} disabled={!canRun || Boolean(pendingAction)} onPress={() => void runAction("reset")}>
+            <Text style={styles.secondaryButtonText}>{pendingAction === "reset" ? "Resetting…" : "Reset quest"}</Text>
+          </Pressable>
+        ) : null}
+      </View>
       {!canRun ? <Text style={styles.microcopy}>Sign in and refresh the account mirror before native quest actions unlock.</Text> : null}
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
