@@ -202,6 +202,12 @@ p { color: var(--muted); line-height: 1.5; }
 .home-badge-art-row .challenge-badge-art { width: clamp(76px, 11vw, 112px); min-width: clamp(76px, 11vw, 112px); }
 .home-badge-art-row .challenge-badge-art .badge-reference-art { width: clamp(76px, 11vw, 112px); height: clamp(76px, 11vw, 112px); }
 .badges-page-hero h1 { max-width: 900px; margin-inline: auto; text-align: center; }
+.badge-roster-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; color: var(--muted); font-size: .82rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.badge-roster-meta span { padding: 7px 10px; border: 1px solid rgba(245,200,106,.2); border-radius: 999px; background: rgba(245,200,106,.08); }
+.badges-live-roster { max-width: 1120px; }
+.badge-live-roster-link { gap: 8px; max-width: 132px; color: var(--ink); font-size: .72rem; font-weight: 950; line-height: 1.1; text-align: center; }
+.badge-live-roster-link:hover, .badge-live-roster-link:focus-visible { transform: translateY(-2px); filter: brightness(1.08); outline: none; }
+.badge-vault-section { display: grid; gap: 18px; }
 .badge-description-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: stretch; }
 .badge-meaning-card { display: grid; gap: 16px; justify-items: center; text-align: center; color: inherit; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease, filter .16s ease; }
 .badge-meaning-card:hover, .badge-meaning-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.095); filter: brightness(1.04); outline: none; }
