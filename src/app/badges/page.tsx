@@ -41,7 +41,7 @@ export default async function CoatOfArmsPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Live quest vault</span>
-              <h2>Active quests with coats of arms.</h2>
+              <h2>Active quests.</h2>
               <p>When a quest is released, its badge comes from the same quest registry as the hub and detail pages.</p>
             </div>
           </div>
