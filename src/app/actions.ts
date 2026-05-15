@@ -240,7 +240,6 @@ function buildLatestGameCheckPayload(
       gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-no-new-game-after-start`,
       summary: `No new eligible games were found since this ${challengeTitle} run was started. Play a new public game after starting the quest, then check again.`,
       evidence: ["Older games are ignored for the active quest run."],
-      ...pickProofReceiptFields(verdict),
     };
   }
 
@@ -250,7 +249,6 @@ function buildLatestGameCheckPayload(
       gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-time-unconfirmed`,
       summary: `Side Quest Chess could not confirm a new eligible game since this ${challengeTitle} run was started. Play a fresh public game after starting the quest, then check again.`,
       evidence: ["The provider result did not include a usable game timestamp."],
-      ...pickProofReceiptFields(verdict),
     };
   }
 

@@ -202,8 +202,13 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
   }
 
   const statusLabel = formatAttemptStatus(attempt.status);
-  const gameLabel = attempt.gameId ? `Game ${attempt.gameId}` : "Game ID missing";
-  const playedAt = attempt.startedGameAt ?? attempt.completedGameAt;
+  const isSyntheticLatestGameStatus = isSyntheticLatestGameReceipt(attempt);
+  const gameLabel = isSyntheticLatestGameStatus
+    ? "No post-start game found yet"
+    : attempt.gameId
+      ? `Game ${attempt.gameId}`
+      : "Game ID missing";
+  const playedAt = isSyntheticLatestGameStatus ? undefined : attempt.startedGameAt ?? attempt.completedGameAt;
   const gameTimeLabel = playedAt ? ` • Game played ${formatTime(playedAt)}` : "";
 
   return {
@@ -211,6 +216,12 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
     detail: sanitizeAttemptSummary(attempt.summary),
     meta: `${gameLabel}${gameTimeLabel} • Receipt updated ${formatTime(attempt.checkedAt)}`,
   };
+}
+
+export function isSyntheticLatestGameReceipt(attempt: Pick<ChallengeAttempt, "gameId" | "status"> | null | undefined): boolean {
+  const gameId = attempt?.gameId ?? "";
+
+  return attempt?.status === "pending" && /-(no-new-game-after-start|new-game-time-unconfirmed)$/.test(gameId);
 }
 
 export function sanitizeAttemptSummary(summary?: string): string {

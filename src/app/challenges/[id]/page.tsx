@@ -23,6 +23,7 @@ import {
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
+  isSyntheticLatestGameReceipt,
   sanitizeAttemptSummary,
   type ChallengeAttempt,
   type UserMetadataRecord,
@@ -270,7 +271,8 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
 }
 
 function ReceiptMeta({ attempt }: { attempt: ChallengeAttempt }) {
-  const playedAt = attempt.startedGameAt ?? attempt.completedGameAt;
+  const isSyntheticStatus = isSyntheticLatestGameReceipt(attempt);
+  const playedAt = isSyntheticStatus ? undefined : attempt.startedGameAt ?? attempt.completedGameAt;
 
   return (
     <>
@@ -284,6 +286,10 @@ function ReceiptMeta({ attempt }: { attempt: ChallengeAttempt }) {
 function ProofReceiptLink({ attempt }: { attempt: ChallengeAttempt | null }) {
   if (!attempt?.gameId) {
     return <>Saved proof receipt</>;
+  }
+
+  if (isSyntheticLatestGameReceipt(attempt)) {
+    return <>No post-start game found yet</>;
   }
 
   const provider = getAttemptProvider(attempt);

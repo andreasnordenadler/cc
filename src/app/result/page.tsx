@@ -12,6 +12,7 @@ import {
   buildAttemptSummary,
   getChallengeProgress,
   getLatestChallengeAttempt,
+  isSyntheticLatestGameReceipt,
   type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -293,11 +294,12 @@ function Fact({ label, value }: { label: string; value: string }) {
 }
 
 function ReceiptMeta({ attempt, gameLabel }: { attempt: ChallengeAttempt; gameLabel: string }) {
-  const playedAt = attempt.startedGameAt ?? attempt.completedGameAt;
+  const isSyntheticStatus = isSyntheticLatestGameReceipt(attempt);
+  const playedAt = isSyntheticStatus ? undefined : attempt.startedGameAt ?? attempt.completedGameAt;
 
   return (
     <>
-      {gameLabel ? `Game ${gameLabel}` : "Game ID missing"}
+      {isSyntheticStatus ? "No post-start game found yet" : gameLabel ? `Game ${gameLabel}` : "Game ID missing"}
       {playedAt ? <> • Game played <ProofTime value={playedAt} /></> : null}
       <> • Receipt updated <ProofTime value={attempt.checkedAt} /></>
     </>
