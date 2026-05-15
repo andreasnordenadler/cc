@@ -3,6 +3,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsEvent } from "@/lib/analytics";
+import { getStoredGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
@@ -40,6 +41,12 @@ type QuestSummary = {
   completions: number;
   failures: number;
   pending: number;
+};
+
+type MultiplayerQuestRow = {
+  quest: ServerGroupQuest;
+  hostName: string;
+  hostEmail: string;
 };
 
 export default async function AdminAnalyticsPage() {
@@ -98,6 +105,13 @@ export default async function AdminAnalyticsPage() {
   });
   const activeRows = rows.filter((row) => row.pageViews || row.questStarts || row.profileSaves || row.questCompletions || row.completedChallengeIds.length || row.recentEvents.length);
   const questSummaries = buildQuestSummaries(rows);
+  const multiplayerQuestRows = response.data
+    .flatMap((user): MultiplayerQuestRow[] => getStoredGroupQuests(user.privateMetadata).map((quest) => ({
+      quest,
+      hostName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || quest.hostName || "Unnamed host",
+      hostEmail: user.primaryEmailAddress?.emailAddress ?? "No email",
+    })))
+    .sort((a, b) => Date.parse(b.quest.createdAt) - Date.parse(a.quest.createdAt));
   const totalUsers = response.data.length;
   const activeUsers = activeRows.length;
   const totalPageViews = sum(activeRows, "pageViews");
@@ -127,6 +141,7 @@ export default async function AdminAnalyticsPage() {
           <Fact label="Quest starts" value={String(totalQuestStarts)} />
           <Fact label="Completed quests" value={String(totalCompletions)} />
           <Fact label="Failed checks" value={String(totalFailures)} />
+          <Fact label="Multiplayer quests" value={String(multiplayerQuestRows.length)} />
         </section>
 
         <section className="mission-card">
@@ -147,6 +162,33 @@ export default async function AdminAnalyticsPage() {
                 </div>
               </div>
             )) : <p>No quest analytics yet.</p>}
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Multiplayer Side Quests</span>
+              <h2>Who created multiplayer quests?</h2>
+              <p>Shows every stored Multiplayer Side Quest, including private/unlisted rooms, with creator and participant counts.</p>
+            </div>
+          </div>
+          <div className="public-groupquests-list">
+            {multiplayerQuestRows.length ? multiplayerQuestRows.map(({ quest, hostName, hostEmail }) => (
+              <Link className="public-groupquest-row" href={`/groupquests/${quest.id}`} key={quest.id}>
+                <div>
+                  <span>{formatDate(quest.createdAt)} · {quest.inviteMode}</span>
+                  <strong>{quest.name}</strong>
+                  <p>Created by {hostName} · {hostEmail}</p>
+                </div>
+                <div className="public-groupquest-meta">
+                  <small>{quest.questIds.length} quests</small>
+                  <small>{quest.participants.length} participants</small>
+                  <small>{quest.providerLabel}</small>
+                  <small>{formatDate(quest.startAt)} → {formatDate(quest.endAt)}</small>
+                </div>
+              </Link>
+            )) : <p>No Multiplayer Side Quests created yet.</p>}
           </div>
         </section>
 
