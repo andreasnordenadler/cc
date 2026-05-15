@@ -3,7 +3,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsEvent } from "@/lib/analytics";
-import { getChallengeAttempts, getChessComUsername, getLichessUsername, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
   title: "SQC Analytics · Side Quest Chess",
@@ -22,6 +22,8 @@ type AnalyticsUserRow = {
   questFailures: number;
   questPending: number;
   profileSaves: number;
+  completedChallengeIds: string[];
+  questStats: ReturnType<typeof getAnalyticsStore>["questStats"];
   lichessUsername: string;
   chessComUsername: string;
   latestGameFetches: number;
@@ -69,6 +71,8 @@ export default async function AdminAnalyticsPage() {
   const rows: AnalyticsUserRow[] = response.data.map((user) => {
     const store = getAnalyticsStore(user.privateMetadata);
     const publicMetadata = user.publicMetadata as UserMetadataRecord;
+    const progress = getChallengeProgress(publicMetadata);
+    const completedChallengeIds = getCompletedChallengeIds(publicMetadata, progress.completedChallengeIds);
     const latestGameFetchesByProvider = countLatestGameFetches(publicMetadata);
 
     return {
@@ -79,10 +83,12 @@ export default async function AdminAnalyticsPage() {
       lastSeenAt: store.lastSeenAt,
       pageViews: store.pageViews ?? 0,
       questStarts: store.questStarts ?? 0,
-      questCompletions: store.questCompletions ?? 0,
+      questCompletions: Math.max(store.questCompletions ?? 0, completedChallengeIds.length),
       questFailures: store.questFailures ?? 0,
       questPending: store.questPending ?? 0,
       profileSaves: store.profileSaves ?? 0,
+      completedChallengeIds,
+      questStats: store.questStats,
       lichessUsername: getLichessUsername(publicMetadata),
       chessComUsername: getChessComUsername(publicMetadata),
       latestGameFetches: latestGameFetchesByProvider.lichess + latestGameFetchesByProvider.chessCom,
@@ -90,8 +96,8 @@ export default async function AdminAnalyticsPage() {
       recentEvents: store.recentEvents ?? [],
     };
   });
-  const activeRows = rows.filter((row) => row.pageViews || row.questStarts || row.profileSaves || row.recentEvents.length);
-  const questSummaries = buildQuestSummaries(response.data.map((user) => getAnalyticsStore(user.privateMetadata).questStats ?? {}));
+  const activeRows = rows.filter((row) => row.pageViews || row.questStarts || row.profileSaves || row.questCompletions || row.completedChallengeIds.length || row.recentEvents.length);
+  const questSummaries = buildQuestSummaries(rows);
   const totalUsers = response.data.length;
   const activeUsers = activeRows.length;
   const totalPageViews = sum(activeRows, "pageViews");
@@ -119,7 +125,7 @@ export default async function AdminAnalyticsPage() {
           <Fact label="Tracked users" value={`${activeUsers} / ${totalUsers}`} />
           <Fact label="Page views" value={String(totalPageViews)} />
           <Fact label="Quest starts" value={String(totalQuestStarts)} />
-          <Fact label="Completions" value={String(totalCompletions)} />
+          <Fact label="Completed quests" value={String(totalCompletions)} />
           <Fact label="Failures" value={String(totalFailures)} />
         </section>
 
@@ -163,7 +169,7 @@ export default async function AdminAnalyticsPage() {
                 <div className="public-groupquest-meta">
                   <small>{row.pageViews} page views</small>
                   <small>{row.questStarts} starts</small>
-                  <small>{row.questCompletions} complete / {row.questFailures} failed / {row.questPending} pending</small>
+                  <small>{row.questCompletions} completed quests / {row.questFailures} failed / {row.questPending} pending</small>
                   <small>{row.latestGameFetches} latest-game fetches</small>
                   <small>{row.latestGameFetchesByProvider.lichess} Lichess / {row.latestGameFetchesByProvider.chessCom} Chess.com</small>
                 </div>
@@ -227,6 +233,27 @@ function sum(rows: AnalyticsUserRow[], key: keyof Pick<AnalyticsUserRow, "pageVi
   return rows.reduce((total, row) => total + row[key], 0);
 }
 
+function getCompletedChallengeIds(metadata: UserMetadataRecord, progressIds: string[]) {
+  const completed = new Set(progressIds);
+
+  for (const attempt of getChallengeAttempts(metadata)) {
+    const challengeId = getAttemptChallengeId(attempt);
+    if (attempt.status === "passed" && challengeId) {
+      completed.add(challengeId);
+    }
+  }
+
+  return [...completed];
+}
+
+function getAttemptChallengeId(attempt: ChallengeAttempt) {
+  return typeof attempt.challengeId === "string"
+    ? attempt.challengeId
+    : typeof attempt.id === "string"
+      ? attempt.id.split(":")[0]
+      : undefined;
+}
+
 function countLatestGameFetches(metadata: UserMetadataRecord) {
   return getChallengeAttempts(metadata).reduce(
     (total, attempt) => {
@@ -255,16 +282,22 @@ function formatChessUsernames(row: Pick<AnalyticsUserRow, "lichessUsername" | "c
   return labels.join(" · ");
 }
 
-function buildQuestSummaries(stores: Array<NonNullable<ReturnType<typeof getAnalyticsStore>["questStats"]>>): QuestSummary[] {
+function buildQuestSummaries(rows: AnalyticsUserRow[]): QuestSummary[] {
   const totals = new Map<string, QuestSummary>();
 
-  for (const stats of stores) {
-    for (const [questId, stat] of Object.entries(stats)) {
+  for (const row of rows) {
+    for (const [questId, stat] of Object.entries(row.questStats ?? {})) {
       const current = totals.get(questId) ?? { questId, starts: 0, completions: 0, failures: 0, pending: 0 };
       current.starts += stat.starts ?? 0;
       current.completions += stat.completions ?? 0;
       current.failures += stat.failures ?? 0;
       current.pending += stat.pending ?? 0;
+      totals.set(questId, current);
+    }
+
+    for (const questId of row.completedChallengeIds) {
+      const current = totals.get(questId) ?? { questId, starts: 0, completions: 0, failures: 0, pending: 0 };
+      current.completions = Math.max(current.completions, 1);
       totals.set(questId, current);
     }
   }
