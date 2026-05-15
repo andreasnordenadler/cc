@@ -810,6 +810,7 @@ export async function startChallenge(formData: FormData) {
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
   revalidatePath("/result");
+  redirect(`/challenges/${challenge.id}`);
 }
 
 export async function deactivateActiveChallenge(formData: FormData) {
