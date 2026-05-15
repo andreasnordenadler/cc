@@ -220,7 +220,7 @@ export default async function ResultPage({
             <h2>{latestAttemptSummary.headline}</h2>
             <p>{latestAttemptSummary.detail}</p>
             <p className="muted">
-              {latestAttempt ? <>{gameLabel ? `Game ${gameLabel}` : "Game ID missing"} • Updated <ProofTime value={latestAttempt.checkedAt} /></> : latestAttemptSummary.meta}
+              {latestAttempt ? <ReceiptMeta attempt={latestAttempt} gameLabel={gameLabel} /> : latestAttemptSummary.meta}
             </p>
             <Link href="/challenges" className="button pink">Try another quest</Link>
           </article>
@@ -289,5 +289,17 @@ function Fact({ label, value }: { label: string; value: string }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  );
+}
+
+function ReceiptMeta({ attempt, gameLabel }: { attempt: ChallengeAttempt; gameLabel: string }) {
+  const playedAt = attempt.startedGameAt ?? attempt.completedGameAt;
+
+  return (
+    <>
+      {gameLabel ? `Game ${gameLabel}` : "Game ID missing"}
+      {playedAt ? <> • Game played <ProofTime value={playedAt} /></> : null}
+      <> • Receipt updated <ProofTime value={attempt.checkedAt} /></>
+    </>
   );
 }

@@ -224,7 +224,7 @@ export default async function ChallengeDetailPage({
               <h3>{latestAttemptSummary.headline}</h3>
               <p>{latestAttemptSummary.detail}</p>
               <small>
-                {displayAttempt ? <>{displayAttempt.gameId ? `Game ${displayAttempt.gameId}` : "Game ID missing"} • Updated <ProofTime value={displayAttempt.checkedAt} /></> : latestAttemptSummary.meta}
+                {displayAttempt ? <ReceiptMeta attempt={displayAttempt} /> : latestAttemptSummary.meta}
               </small>
             </article>
             {isCompleted ? null : (
@@ -264,6 +264,18 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  );
+}
+
+function ReceiptMeta({ attempt }: { attempt: ChallengeAttempt }) {
+  const playedAt = attempt.startedGameAt ?? attempt.completedGameAt;
+
+  return (
+    <>
+      {attempt.gameId ? `Game ${attempt.gameId}` : "Game ID missing"}
+      {playedAt ? <> • Game played <ProofTime value={playedAt} /></> : null}
+      <> • Receipt updated <ProofTime value={attempt.checkedAt} /></>
+    </>
   );
 }
 

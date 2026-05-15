@@ -203,11 +203,13 @@ export function buildAttemptSummary(attempt: ChallengeAttempt | null): {
 
   const statusLabel = formatAttemptStatus(attempt.status);
   const gameLabel = attempt.gameId ? `Game ${attempt.gameId}` : "Game ID missing";
+  const playedAt = attempt.startedGameAt ?? attempt.completedGameAt;
+  const gameTimeLabel = playedAt ? ` • Game played ${formatTime(playedAt)}` : "";
 
   return {
     headline: statusLabel,
     detail: sanitizeAttemptSummary(attempt.summary),
-    meta: `${gameLabel} • Updated ${formatTime(attempt.checkedAt)}`,
+    meta: `${gameLabel}${gameTimeLabel} • Receipt updated ${formatTime(attempt.checkedAt)}`,
   };
 }
 
