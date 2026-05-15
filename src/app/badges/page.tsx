@@ -20,13 +20,6 @@ export default async function CoatOfArmsPage() {
       <div className="content-wrap">
         <section className="hero-card home-badge-vault-card badges-page-hero" aria-label="Coat of arms intro">
           <h1>Every bad idea deserves a coat of arms.</h1>
-          <p className="hero-copy">
-            Side Quest Chess coats of arms are collectible heraldic receipts. This vault is generated from the current live quest roster, so every active quest with a coat of arms appears here.
-          </p>
-          <div className="badge-roster-meta" aria-label="Live coat of arms count">
-            <span>{liveBadgeChallenges.length} live quest coats</span>
-            <span>Auto-synced from active quests</span>
-          </div>
           <div className="home-badge-art-row badges-live-roster" aria-label="Current live Side Quest Chess coats of arms">
             {liveBadgeChallenges.map((challenge) => (
               <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="home-badge-art-link badge-live-roster-link" aria-label={`Open ${challenge.title} quest`}>
@@ -38,13 +31,6 @@ export default async function CoatOfArmsPage() {
         </section>
 
         <section className="badge-vault-section" aria-label="Live quest coat of arms meanings">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Live quest vault</span>
-              <h2>Active quests.</h2>
-              <p>When a quest is released, its badge comes from the same quest registry as the hub and detail pages.</p>
-            </div>
-          </div>
           <div className="badge-description-grid">
             {CHALLENGES.map((challenge) => (
               <BadgeMeaningCard key={challenge.id} challenge={challenge} earned={completedSet.has(challenge.id)} />

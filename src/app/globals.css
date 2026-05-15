@@ -202,8 +202,6 @@ p { color: var(--muted); line-height: 1.5; }
 .home-badge-art-row .challenge-badge-art { width: clamp(76px, 11vw, 112px); min-width: clamp(76px, 11vw, 112px); }
 .home-badge-art-row .challenge-badge-art .badge-reference-art { width: clamp(76px, 11vw, 112px); height: clamp(76px, 11vw, 112px); }
 .badges-page-hero h1 { max-width: 900px; margin-inline: auto; text-align: center; }
-.badge-roster-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; color: var(--muted); font-size: .82rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
-.badge-roster-meta span { padding: 7px 10px; border: 1px solid rgba(245,200,106,.2); border-radius: 999px; background: rgba(245,200,106,.08); }
 .badges-live-roster { max-width: 1120px; }
 .badge-live-roster-link { gap: 8px; max-width: 132px; color: var(--ink); font-size: .72rem; font-weight: 950; line-height: 1.1; text-align: center; }
 .badge-live-roster-link:hover, .badge-live-roster-link:focus-visible { transform: translateY(-2px); filter: brightness(1.08); outline: none; }
