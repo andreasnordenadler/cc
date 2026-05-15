@@ -848,20 +848,22 @@ export async function resetCompletedChallenge(formData: FormData) {
   }
 
   const progress = getChallengeProgress(metadata);
-
-  if (!progress.completedChallengeIds.includes(challenge.id)) {
-    throw new Error("That quest is not completed.");
-  }
-
   const existingAttempts = Array.isArray(metadata.challengeAttempts)
     ? (metadata.challengeAttempts as ChallengeAttempt[])
     : [];
+  const challengeAttempts = existingAttempts.filter((attempt) => getAttemptChallengeId(attempt) === challenge.id);
+  const hasPassedAttempt = challengeAttempts.some((attempt) => attempt.status === "passed");
   const remainingAttempts = existingAttempts.filter((attempt) => getAttemptChallengeId(attempt) !== challenge.id);
   const completedChallengeIds = progress.completedChallengeIds.filter((id) => id !== challenge.id);
   const activeChallenge =
     metadata.activeChallenge && typeof metadata.activeChallenge === "object"
       ? (metadata.activeChallenge as { id?: string })
       : null;
+  const hasVerifiedActiveChallenge = activeChallenge?.id === challenge.id && "status" in activeChallenge && activeChallenge.status === "verified";
+
+  if (!progress.completedChallengeIds.includes(challenge.id) && !hasPassedAttempt && !hasVerifiedActiveChallenge) {
+    redirect(`/challenges/${challenge.id}`);
+  }
 
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
@@ -879,6 +881,7 @@ export async function resetCompletedChallenge(formData: FormData) {
   revalidatePath("/challenges");
   revalidatePath(`/challenges/${challenge.id}`);
   revalidatePath("/result");
+  redirect(`/challenges/${challenge.id}`);
 }
 
 export async function submitChallengeAttempt(formData: FormData) {
