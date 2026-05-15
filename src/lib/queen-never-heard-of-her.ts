@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type QueenChallengeSide = "white" | "black";
 export type QueenChallengeResult = "white" | "black" | "draw" | "unknown";
 export type QueenChallengeTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -138,10 +139,9 @@ export function normalizeLichessQueenChallengeGame(
     return null;
   }
 
+  const moves = normalizeLichessMoveTokens(game.moves);
   const board = { ...INITIAL_BOARD };
-  const captures = game.moves
-    .trim()
-    .split(/\s+/)
+  const captures = moves
     .map((move, index) => applyUciMove(board, move, index + 1))
     .filter((capture): capture is QueenChallengeCaptureEvent => Boolean(capture));
 
@@ -149,7 +149,7 @@ export function normalizeLichessQueenChallengeGame(
     id: game.id,
     playerColor,
     winner: game.winner ?? "unknown",
-    moveCount: Math.ceil(game.moves.trim().split(/\s+/).length / 2),
+    moveCount: Math.ceil(moves.length / 2),
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,

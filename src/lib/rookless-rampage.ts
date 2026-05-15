@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type RooklessSide = "white" | "black";
 export type RooklessResult = "white" | "black" | "draw" | "unknown";
 export type RooklessTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -162,7 +163,7 @@ export function normalizeLichessRooklessRampageGame(
   }
 
   const board = Object.fromEntries(Object.entries(INITIAL_BOARD).map(([square, piece]) => [square, clonePiece(piece)]));
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   const rookLosses = moves
     .map((move, index) => applyUciMove(board, move, index + 1))
     .filter((event): event is RooklessLossEvent => Boolean(event));

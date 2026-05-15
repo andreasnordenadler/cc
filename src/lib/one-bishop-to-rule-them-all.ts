@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type OneBishopSide = "white" | "black";
 export type OneBishopResult = "white" | "black" | "draw" | "unknown";
 export type OneBishopTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -132,7 +133,7 @@ export function normalizeLichessOneBishopToRuleThemAllGame(
   }
 
   const board = Object.fromEntries(Object.entries(INITIAL_BOARD).map(([square, piece]) => [square, { ...piece }]));
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   moves.forEach((move) => applyUciMove(board, move));
 
   return {

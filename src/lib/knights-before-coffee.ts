@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type KnightsBeforeCoffeeSide = "white" | "black";
 export type KnightsBeforeCoffeeResult = KnightsBeforeCoffeeSide | "draw" | "unknown";
 export type KnightsBeforeCoffeeTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -139,7 +140,7 @@ export function normalizeLichessKnightsBeforeCoffeeGame(
     return null;
   }
 
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
 
   return {
     id: game.id,

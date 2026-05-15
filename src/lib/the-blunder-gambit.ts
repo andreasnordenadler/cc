@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type BlunderGambitSide = "white" | "black";
 export type BlunderGambitResult = "white" | "black" | "draw" | "unknown";
 export type BlunderGambitTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -159,7 +160,7 @@ export function normalizeLichessBlunderGambitGame(
   }
 
   const board = { ...INITIAL_BOARD };
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   const captures = moves
     .map((move, index) => applyUciMove(board, move, index + 1))
     .filter((event): event is BlunderGambitCaptureEvent => Boolean(event));

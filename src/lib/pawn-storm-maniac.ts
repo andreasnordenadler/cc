@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type PawnStormSide = "white" | "black";
 export type PawnStormResult = "white" | "black" | "draw" | "unknown";
 export type PawnStormTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -129,7 +130,7 @@ export function normalizeLichessPawnStormManiacGame(
   }
 
   const board = { ...INITIAL_BOARD };
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   const pawnMoves = moves
     .map((move, index) => applyUciMove(board, move, index + 1))
     .filter((event): event is PawnStormMoveEvent => Boolean(event));

@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type EarlyKingWalkSide = "white" | "black";
 export type EarlyKingWalkResult = EarlyKingWalkSide | "draw" | "unknown";
 export type EarlyKingWalkTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -152,7 +153,7 @@ export function normalizeLichessEarlyKingWalkGame(
     return null;
   }
 
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   const kingWalk = trackEarlyKingWalkFromUciMoves(moves, playerColor);
 
   return {

@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type KnightmareSide = "white" | "black";
 export type KnightmareResult = "white" | "black" | "draw" | "unknown";
 export type KnightmareTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -143,7 +144,7 @@ export function normalizeLichessKnightmareModeGame(
   }
 
   const board = { ...INITIAL_BOARD };
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   const finalMove = moves.reduce<KnightmareFinalMove | null>(
     (_last, move, index) => applyUciMove(board, move, index + 1),
     null,

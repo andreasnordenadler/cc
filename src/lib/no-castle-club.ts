@@ -1,3 +1,4 @@
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type NoCastleSide = "white" | "black";
 export type NoCastleResult = "white" | "black" | "draw" | "unknown";
 export type NoCastleTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -78,7 +79,7 @@ export function normalizeLichessNoCastleClubGame(
     return null;
   }
 
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
   const castling = moves
     .map((move, index) => castlingFromUci(move, index + 1))
     .filter((event): event is NonNullable<ReturnType<typeof castlingFromUci>> => Boolean(event));
