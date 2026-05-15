@@ -152,7 +152,7 @@ export default async function AdminAnalyticsPage() {
             </div>
           </div>
           <div className="public-groupquests-list">
-            {activeRows.length ? activeRows.map((row) => (
+            {rows.length ? rows.map((row) => (
               <article className="public-groupquest-row" key={row.id}>
                 <div>
                   <span>{row.email}</span>
@@ -168,7 +168,7 @@ export default async function AdminAnalyticsPage() {
                   <small>{row.latestGameFetchesByProvider.lichess} Lichess / {row.latestGameFetchesByProvider.chessCom} Chess.com</small>
                 </div>
               </article>
-            )) : <p>No signed-in analytics events yet.</p>}
+            )) : <p>No users found yet.</p>}
           </div>
         </section>
 
