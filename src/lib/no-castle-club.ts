@@ -10,6 +10,8 @@ export type NoCastleGame = {
   variant?: "standard" | string;
   timeClass?: NoCastleTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   castling: Array<{
     ply: number;
     color: NoCastleSide;
@@ -25,6 +27,8 @@ type LichessNoCastleGame = {
   variant?: string;
   winner?: NoCastleSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -36,6 +40,8 @@ export type NoCastleVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<NoCastleTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -85,6 +91,8 @@ export function normalizeLichessNoCastleClubGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     castling,
   };
 }
@@ -136,7 +144,7 @@ export async function checkLatestLichessNoCastleClub(username: string): Promise<
       };
     }
 
-    return evaluateNoCastleClub(games[0]);
+    return { ...evaluateNoCastleClub(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

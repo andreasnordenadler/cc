@@ -10,6 +10,8 @@ export type OneBishopGame = {
   variant?: "standard" | string;
   timeClass?: OneBishopTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   finalMinorPieces: Array<{ kind: "bishop" | "knight"; square: string }>;
 };
 
@@ -21,6 +23,8 @@ type LichessOneBishopGame = {
   variant?: string;
   winner?: OneBishopSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -32,6 +36,8 @@ export type OneBishopVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type PieceKind = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
@@ -137,6 +143,8 @@ export function normalizeLichessOneBishopToRuleThemAllGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     finalMinorPieces: collectFinalMinorPieces(board, playerColor),
   };
 }
@@ -188,7 +196,7 @@ export async function checkLatestLichessOneBishopToRuleThemAll(username: string)
       };
     }
 
-    return evaluateOneBishopToRuleThemAll(games[0]);
+    return { ...evaluateOneBishopToRuleThemAll(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

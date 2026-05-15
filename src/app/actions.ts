@@ -219,6 +219,7 @@ function buildProgressRecord(completedChallengeIds: string[]) {
 
 function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<ChallengeAttempt> {
   return {
+    startedGameAt: attempt.startedGameAt,
     completedGameAt: attempt.completedGameAt,
     finalPositionFen: attempt.finalPositionFen,
     lastMoveUci: attempt.lastMoveUci,
@@ -231,12 +232,25 @@ function buildLatestGameCheckPayload(
   challengeTitle: string,
   activatedAfter?: string,
 ) {
-  if (verdict.status === "passed" && activatedAfter && !isAfterActivation(verdict.completedGameAt, activatedAfter)) {
+  const verdictGameTime = verdict.startedGameAt ?? verdict.completedGameAt;
+
+  if (activatedAfter && verdictGameTime && !isAfterActivation(verdictGameTime, activatedAfter)) {
     return {
       status: "pending" as const,
       gameId: verdict.gameId,
-      summary: `Found ${verdict.gameId ?? "the latest game"}, but it was completed before this ${challengeTitle} run was activated. Play a new public game after starting the quest, then check again.`,
-      evidence: ["Only games finished after the current quest activation can complete a reset/restarted quest."],
+      summary: `Found ${verdict.gameId ?? "the latest game"}, but it started before this ${challengeTitle} run was activated. Play a new public game after starting the quest, then check again.`,
+      evidence: ["Only games started after the current quest activation can complete or fail the active run."],
+      ...pickProofReceiptFields(verdict),
+    };
+  }
+
+  if (activatedAfter && verdict.status !== "pending" && !verdictGameTime) {
+    return {
+      status: "pending" as const,
+      gameId: verdict.gameId,
+      summary: `Found ${verdict.gameId ?? "the latest game"}, but Side Quest Chess could not confirm whether it started after this ${challengeTitle} run was activated. Play a fresh public game after starting the quest, then check again.`,
+      evidence: ["The provider result did not include a usable game timestamp."],
+      ...pickProofReceiptFields(verdict),
     };
   }
 
@@ -248,13 +262,13 @@ function buildLatestGameCheckPayload(
   };
 }
 
-function isAfterActivation(completedGameAt?: string, activatedAfter?: string) {
-  if (!completedGameAt || !activatedAfter) return false;
+function isAfterActivation(gameTime?: string, activatedAfter?: string) {
+  if (!gameTime || !activatedAfter) return false;
 
-  const completedAt = Date.parse(completedGameAt);
+  const gameTimestamp = Date.parse(gameTime);
   const activatedAt = Date.parse(activatedAfter);
 
-  return Number.isFinite(completedAt) && Number.isFinite(activatedAt) && completedAt > activatedAt;
+  return Number.isFinite(gameTimestamp) && Number.isFinite(activatedAt) && gameTimestamp > activatedAt;
 }
 
 async function buildLatestGameChecks(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string, activatedAfter?: string) {
@@ -949,11 +963,12 @@ export async function submitChallengeAttempt(formData: FormData) {
                                 : `Submitted ${gameId}. Add your chess username in account settings for cleaner review context.`,
                             };
   const activatedAfter = existingActiveChallenge?.startedAt ?? now;
-  const checkedVerification = verification.status === "passed" && !isAfterActivation(verification.completedGameAt, activatedAfter)
+  const verificationGameTime = verification.startedGameAt ?? verification.completedGameAt;
+  const checkedVerification = verification.status === "passed" && !isAfterActivation(verificationGameTime, activatedAfter)
     ? {
         ...verification,
         status: "pending" as const,
-        summary: `Submitted ${gameId}, but that game finished before this ${challenge.title} run was activated. Play a new public game after starting the quest, then check again.`,
+        summary: `Submitted ${gameId}, but that game started before this ${challenge.title} run was activated. Play a new public game after starting the quest, then check again.`,
       }
     : verification;
   const completedChallengeIds =
@@ -1036,7 +1051,8 @@ export async function checkActiveChallenge() {
 
   const progress = getChallengeProgress(metadata);
   const passedCheck = providerChecks.find((check) => check.status === "passed");
-  const latestCheck = providerChecks.at(-1);
+  const orderedProviderChecks = passedCheck ? [...providerChecks.filter((check) => check !== passedCheck), passedCheck] : providerChecks;
+  const latestCheck = orderedProviderChecks.at(-1);
   const completedChallengeIds =
     passedCheck && !progress.completedChallengeIds.includes(challenge.id)
       ? [...progress.completedChallengeIds, challenge.id]
@@ -1054,7 +1070,7 @@ export async function checkActiveChallenge() {
       },
       challengeAttempts: compactChallengeAttempts([
         ...existingAttempts,
-        ...providerChecks.map((check, index) => ({
+        ...orderedProviderChecks.map((check, index) => ({
           id: `${challenge.id}:${check.provider}:${now}:${index}`,
           challengeId: challenge.id,
           gameId: check.gameId,

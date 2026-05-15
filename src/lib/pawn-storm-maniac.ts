@@ -18,6 +18,8 @@ export type PawnStormGame = {
   variant?: "standard" | string;
   timeClass?: PawnStormTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   pawnMoves: PawnStormMoveEvent[];
 };
 
@@ -29,6 +31,8 @@ type LichessPawnStormGame = {
   variant?: string;
   winner?: PawnStormSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -40,6 +44,8 @@ export type PawnStormVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<PawnStormTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -136,6 +142,8 @@ export function normalizeLichessPawnStormManiacGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     pawnMoves,
   };
 }
@@ -187,7 +195,7 @@ export async function checkLatestLichessPawnStormManiac(username: string): Promi
       };
     }
 
-    return evaluatePawnStormManiac(games[0]);
+    return { ...evaluatePawnStormManiac(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

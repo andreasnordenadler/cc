@@ -16,6 +16,8 @@ export type QueenChallengeGame = {
   variant?: "standard" | string;
   timeClass?: QueenChallengeTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   captures: QueenChallengeCaptureEvent[];
 };
 
@@ -27,6 +29,8 @@ type LichessQueenChallengeGame = {
   variant?: string;
   winner?: QueenChallengeSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -38,6 +42,8 @@ export type QueenChallengeVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<QueenChallengeTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -147,6 +153,8 @@ export function normalizeLichessQueenChallengeGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     captures,
   };
 }
@@ -198,7 +206,7 @@ export async function checkLatestLichessQueenNeverHeardOfHer(username: string): 
       };
     }
 
-    return evaluateQueenNeverHeardOfHer(games[0]);
+    return { ...evaluateQueenNeverHeardOfHer(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

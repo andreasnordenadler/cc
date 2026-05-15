@@ -18,6 +18,8 @@ export type RooklessGame = {
   variant?: "standard" | string;
   timeClass?: RooklessTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   rookLosses: RooklessLossEvent[];
 };
 
@@ -29,6 +31,8 @@ type LichessRooklessGame = {
   variant?: string;
   winner?: RooklessSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -40,6 +44,8 @@ export type RooklessVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type PieceKind = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
@@ -169,6 +175,8 @@ export function normalizeLichessRooklessRampageGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     rookLosses,
   };
 }
@@ -220,7 +228,7 @@ export async function checkLatestLichessRooklessRampage(username: string): Promi
       };
     }
 
-    return evaluateRooklessRampage(games[0]);
+    return { ...evaluateRooklessRampage(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

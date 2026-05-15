@@ -17,6 +17,7 @@ export type PawnOnlyPicnicGame = {
   variant?: "standard" | string;
   timeClass?: PawnOnlyPicnicTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
   completedGameAt?: string;
   firstEightPlayerMovePieces: PieceType[];
 };
@@ -29,6 +30,7 @@ type LichessPawnOnlyPicnicGame = {
   variant?: string;
   winner?: PawnOnlyPicnicSide;
   moves?: string;
+  createdAt?: number;
   lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
@@ -41,6 +43,7 @@ export type PawnOnlyPicnicVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
   completedGameAt?: string;
 };
 
@@ -151,6 +154,7 @@ export function normalizeLichessPawnOnlyPicnicGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     firstEightPlayerMovePieces: playerPiecesFromUciMoves(moves, playerColor),
   };
@@ -203,7 +207,7 @@ export async function checkLatestLichessPawnOnlyPicnic(username: string): Promis
       };
     }
 
-    return evaluatePawnOnlyPicnic(games[0]);
+    return { ...evaluatePawnOnlyPicnic(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

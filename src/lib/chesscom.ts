@@ -9,6 +9,7 @@ import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
 export type ChessComVerificationVerdict = {
   status: "passed" | "failed" | "pending";
   summary: string;
+  startedGameAt?: string;
   completedGameAt?: string;
   finalPositionFen?: string;
   lastMoveUci?: string;
@@ -29,6 +30,8 @@ type QueenChallengeGame = {
   moveCount: number;
   variant?: "standard" | string;
   timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  startedGameAt?: string;
+  completedGameAt?: string;
   captures: QueenChallengeCaptureEvent[];
 };
 
@@ -37,6 +40,8 @@ type QueenChallengeVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComNoCastleGame = {
@@ -46,6 +51,8 @@ type ChessComNoCastleGame = {
   moveCount: number;
   variant?: "standard" | string;
   timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  startedGameAt?: string;
+  completedGameAt?: string;
   castling: Array<{
     ply: number;
     color: "white" | "black";
@@ -58,6 +65,8 @@ type ChessComNoCastleVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComKnightsBeforeCoffeeGame = {
@@ -67,6 +76,8 @@ type ChessComKnightsBeforeCoffeeGame = {
   moveCount: number;
   variant?: "standard" | string;
   timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  startedGameAt?: string;
+  completedGameAt?: string;
   firstFourPlayerMovePieces: Array<"pawn" | "knight" | "bishop" | "rook" | "queen" | "king">;
 };
 
@@ -75,6 +86,8 @@ type ChessComKnightsBeforeCoffeeVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComBishopFieldTripGame = {
@@ -84,6 +97,8 @@ type ChessComBishopFieldTripGame = {
   moveCount: number;
   variant?: "standard" | string;
   timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  startedGameAt?: string;
+  completedGameAt?: string;
   bothBishopsMovedBeforeQueen: boolean;
   movedBishopHomeSquaresBeforeQueen: string[];
   queenMovedOnPlayerMove?: number;
@@ -94,6 +109,8 @@ type ChessComBishopFieldTripVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComEarlyKingWalkGame = {
@@ -103,6 +120,8 @@ type ChessComEarlyKingWalkGame = {
   moveCount: number;
   variant?: "standard" | string;
   timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
+  startedGameAt?: string;
+  completedGameAt?: string;
   earlyKingWalkMove?: number;
   castledBeforeKingWalk: boolean;
 };
@@ -112,6 +131,8 @@ type ChessComEarlyKingWalkVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComPawnStormManiacVerdict = {
@@ -119,6 +140,8 @@ type ChessComPawnStormManiacVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComPawnOnlyPicnicVerdict = PawnOnlyPicnicVerdict;
@@ -128,6 +151,8 @@ type ChessComRooklessRampageVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 type ChessComKnightmareModeVerdict = KnightmareVerdict;
@@ -275,6 +300,16 @@ function getPlayerSideForUsername(game: ChessComGame, chessComUsername: string):
 
 function getChessComCompletedGameAt(game: ChessComGame): string | undefined {
   return typeof game.end_time === "number" ? new Date(game.end_time * 1000).toISOString() : undefined;
+}
+
+function getChessComStartedGameAt(game: ChessComGame): string | undefined {
+  const pgn = game.pgn ?? "";
+  const date = pgn.match(/\[UTCDate "([^"?]+)"\]/)?.[1] ?? pgn.match(/\[Date "([^"?]+)"\]/)?.[1];
+  const time = pgn.match(/\[UTCTime "([^"?]+)"\]/)?.[1] ?? pgn.match(/\[StartTime "([^"?]+)"\]/)?.[1] ?? "00:00:00";
+  if (!date) return undefined;
+
+  const timestamp = Date.parse(`${date.replace(/\./g, "-")}T${time}Z`);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : undefined;
 }
 
 async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Promise<ChessComGame | null | undefined> {
@@ -1003,6 +1038,8 @@ export function normalizeChessComBlunderGambitGame(game: ChessComGame, username:
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     captures: chessComBlunderGambitCapturesFromSan(sanMoves),
   };
 }
@@ -1045,7 +1082,7 @@ export async function checkLatestChessComBlunderGambit(username: string): Promis
         .filter((game): game is BlunderGambitGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComBlunderGambit(normalizedGames[0]);
+        return { ...evaluateChessComBlunderGambit(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1304,6 +1341,8 @@ export function normalizeChessComNoCastleClubGame(game: ChessComGame, username: 
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     castling,
   };
 }
@@ -1346,7 +1385,7 @@ export async function checkLatestChessComNoCastleClub(username: string): Promise
         .filter((game): game is ChessComNoCastleGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComNoCastleClub(normalizedGames[0]);
+        return { ...evaluateChessComNoCastleClub(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1382,6 +1421,8 @@ export function normalizeChessComQueenNeverHeardOfHerGame(game: ChessComGame, us
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     captures: chessComQueenChallengeCapturesFromSan(sanMoves),
   };
 }
@@ -1424,7 +1465,7 @@ export async function checkLatestChessComQueenNeverHeardOfHer(username: string):
         .filter((game): game is QueenChallengeGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComQueenNeverHeardOfHer(normalizedGames[0]);
+        return { ...evaluateChessComQueenNeverHeardOfHer(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1522,6 +1563,8 @@ export function normalizeChessComKnightsBeforeCoffeeGame(game: ChessComGame, use
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     firstFourPlayerMovePieces: chessComPlayerMovePiecesFromSan(sanMoves, playerColor),
   };
 }
@@ -1564,7 +1607,7 @@ export async function checkLatestChessComKnightsBeforeCoffee(username: string): 
         .filter((game): game is ChessComKnightsBeforeCoffeeGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComKnightsBeforeCoffee(normalizedGames[0]);
+        return { ...evaluateChessComKnightsBeforeCoffee(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1600,7 +1643,8 @@ export function normalizeChessComPawnOnlyPicnicGame(game: ChessComGame, username
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
-    completedGameAt: typeof game.end_time === "number" ? new Date(game.end_time * 1000).toISOString() : undefined,
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     firstEightPlayerMovePieces: chessComFirstPlayerMovePiecesFromSan(sanMoves, playerColor, 8),
   };
 }
@@ -1643,7 +1687,7 @@ export async function checkLatestChessComPawnOnlyPicnic(username: string): Promi
         .filter((game): game is PawnOnlyPicnicGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluatePawnOnlyPicnic(normalizedGames[0]);
+        return { ...evaluatePawnOnlyPicnic(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1733,6 +1777,8 @@ export function normalizeChessComEarlyKingWalkGame(game: ChessComGame, username:
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     ...kingWalk,
   };
 }
@@ -1775,7 +1821,7 @@ export async function checkLatestChessComEarlyKingWalk(username: string): Promis
         .filter((game): game is ChessComEarlyKingWalkGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComEarlyKingWalk(normalizedGames[0]);
+        return { ...evaluateChessComEarlyKingWalk(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1867,6 +1913,8 @@ export function normalizeChessComRooklessRampageGame(game: ChessComGame, usernam
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     rookLosses: chessComRooklessLossesFromSan(sanMoves),
   };
 }
@@ -1887,6 +1935,8 @@ export function normalizeChessComOneBishopToRuleThemAllGame(game: ChessComGame, 
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     finalMinorPieces: chessComFinalMinorPiecesFromSan(sanMoves, playerColor),
   };
 }
@@ -1929,7 +1979,7 @@ export async function checkLatestChessComOneBishopToRuleThemAll(username: string
         .filter((game): game is OneBishopGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComOneBishopToRuleThemAll(normalizedGames[0]);
+        return { ...evaluateChessComOneBishopToRuleThemAll(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -1982,7 +2032,7 @@ export async function checkLatestChessComRooklessRampage(username: string): Prom
         .filter((game): game is RooklessGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComRooklessRampage(normalizedGames[0]);
+        return { ...evaluateChessComRooklessRampage(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -2019,6 +2069,8 @@ export function normalizeChessComKnightmareModeGame(game: ChessComGame, username
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     finalMove: chessComFinalMoveFromSan(sanMoves),
   };
 }
@@ -2111,7 +2163,7 @@ export async function checkLatestChessComKnightmareMode(username: string): Promi
         .filter((game): game is KnightmareGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComKnightmareMode(normalizedGames[0]);
+        return { ...evaluateChessComKnightmareMode(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -2198,6 +2250,8 @@ export function normalizeChessComPawnStormManiacGame(game: ChessComGame, usernam
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     pawnMoves: chessComPawnStormMovesFromSan(sanMoves),
   };
 }
@@ -2240,7 +2294,7 @@ export async function checkLatestChessComPawnStormManiac(username: string): Prom
         .filter((game): game is PawnStormGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComPawnStormManiac(normalizedGames[0]);
+        return { ...evaluateChessComPawnStormManiac(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -2333,6 +2387,8 @@ export function normalizeChessComBishopFieldTripGame(game: ChessComGame, usernam
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    startedGameAt: getChessComStartedGameAt(game),
+    completedGameAt: getChessComCompletedGameAt(game),
     ...bishopTrip,
   };
 }
@@ -2375,7 +2431,7 @@ export async function checkLatestChessComBishopFieldTrip(username: string): Prom
         .filter((game): game is ChessComBishopFieldTripGame => Boolean(game));
 
       if (normalizedGames.length) {
-        return evaluateChessComBishopFieldTrip(normalizedGames[0]);
+        return { ...evaluateChessComBishopFieldTrip(normalizedGames[0]), startedGameAt: normalizedGames[0].startedGameAt, completedGameAt: normalizedGames[0].completedGameAt };
       }
     }
 
@@ -2480,6 +2536,7 @@ async function verifyChessComFinishedGameWithSideRequirement({
     return {
       status: "passed",
       summary: passSummary,
+      startedGameAt: getChessComStartedGameAt(game),
       completedGameAt: getChessComCompletedGameAt(game),
       ...buildChessComProofPositionFromPgn(game.pgn),
     };
@@ -2578,6 +2635,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
           status: "passed",
           gameId,
           summary: `Verified Chess.com game. ${username} appears in a finished public game, so Any Game Counts is complete.`,
+          startedGameAt: getChessComStartedGameAt(match),
           completedGameAt: getChessComCompletedGameAt(match),
           ...buildChessComProofPositionFromPgn(match.pgn),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control all count."],

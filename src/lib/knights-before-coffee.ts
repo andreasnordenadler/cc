@@ -17,6 +17,8 @@ export type KnightsBeforeCoffeeGame = {
   variant?: "standard" | string;
   timeClass?: KnightsBeforeCoffeeTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   firstFourPlayerMovePieces: PieceType[];
 };
 
@@ -28,6 +30,8 @@ type LichessKnightsBeforeCoffeeGame = {
   variant?: string;
   winner?: KnightsBeforeCoffeeSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -39,6 +43,8 @@ export type KnightsBeforeCoffeeVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<KnightsBeforeCoffeeTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -143,6 +149,8 @@ export function normalizeLichessKnightsBeforeCoffeeGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     firstFourPlayerMovePieces: playerPiecesFromUciMoves(moves, playerColor),
   };
 }
@@ -194,7 +202,7 @@ export async function checkLatestLichessKnightsBeforeCoffee(username: string): P
       };
     }
 
-    return evaluateKnightsBeforeCoffee(games[0]);
+    return { ...evaluateKnightsBeforeCoffee(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

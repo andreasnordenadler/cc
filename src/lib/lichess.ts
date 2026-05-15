@@ -22,6 +22,7 @@ type LichessGame = {
 export type LichessVerificationVerdict = {
   status: "passed" | "failed" | "pending";
   summary: string;
+  startedGameAt?: string;
   completedGameAt?: string;
 } & Partial<ProofPosition>;
 
@@ -48,6 +49,10 @@ function getPlayerNames(game: LichessGame) {
     whiteName: game.players?.white?.user?.name?.trim().toLowerCase(),
     blackName: game.players?.black?.user?.name?.trim().toLowerCase(),
   };
+}
+
+function getStartedGameAt(game: LichessGame): string | undefined {
+  return typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined;
 }
 
 function getCompletedGameAt(game: LichessGame): string | undefined {
@@ -115,7 +120,8 @@ async function verifyFinishAttempt({
       return {
         status: "passed",
         summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game, so this quest passed.`,
-        completedGameAt: getCompletedGameAt(game),
+        startedGameAt: getStartedGameAt(game),
+      completedGameAt: getCompletedGameAt(game),
         ...proofPosition,
       };
     }
@@ -124,6 +130,7 @@ async function verifyFinishAttempt({
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} finished that Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
       ...proofPosition,
     };
@@ -237,6 +244,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       status: "passed",
       gameId,
       summary: `Verified ${gameId}. ${username} appears in a finished public Lichess game, so Any Game Counts is complete.`,
+      startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
       evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control all count."],
       ...proofPosition,
@@ -318,7 +326,8 @@ async function verifyDrawAttempt({
       return {
         status: "passed",
         summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game with no winning side, so this draw quest passed.`,
-        completedGameAt: getCompletedGameAt(game),
+        startedGameAt: getStartedGameAt(game),
+      completedGameAt: getCompletedGameAt(game),
         ...proofPosition,
       };
     }
@@ -327,6 +336,7 @@ async function verifyDrawAttempt({
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} drew that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
       ...proofPosition,
     };
@@ -443,7 +453,8 @@ async function verifyLoseAttempt({
       return {
         status: "passed",
         summary: `Verified ${gameId}. ${lichessUsername} appears in a finished Lichess game where the opposite side won, so this loss quest passed.`,
-        completedGameAt: getCompletedGameAt(game),
+        startedGameAt: getStartedGameAt(game),
+      completedGameAt: getCompletedGameAt(game),
         ...proofPosition,
       };
     }
@@ -451,6 +462,7 @@ async function verifyLoseAttempt({
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} lost that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
       ...proofPosition,
     };
@@ -558,6 +570,7 @@ async function verifyWinAttempt({
     return {
       status: "passed",
       summary: `Verified ${gameId}. ${lichessUsername} won that finished Lichess game as ${requiredSideLabel}, so this quest passed.`,
+      startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
       ...proofPosition,
     };

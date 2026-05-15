@@ -20,6 +20,8 @@ export type BlunderGambitGame = {
   variant?: "standard" | string;
   timeClass?: BlunderGambitTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   captures: BlunderGambitCaptureEvent[];
 };
 
@@ -31,6 +33,8 @@ type LichessBlunderGambitGame = {
   variant?: string;
   winner?: BlunderGambitSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -42,6 +46,8 @@ export type BlunderGambitVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<BlunderGambitTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -166,6 +172,8 @@ export function normalizeLichessBlunderGambitGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     captures,
   };
 }
@@ -217,7 +225,7 @@ export async function checkLatestLichessBlunderGambit(username: string): Promise
       };
     }
 
-    return evaluateBlunderGambit(games[0]);
+    return { ...evaluateBlunderGambit(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

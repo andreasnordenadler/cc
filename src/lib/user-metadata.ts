@@ -23,6 +23,7 @@ export type ChallengeAttempt = {
   status?: string;
   summary?: string;
   checkedAt?: string;
+  startedGameAt?: string;
   completedGameAt?: string;
   finalPositionFen?: string;
   lastMoveUci?: string;

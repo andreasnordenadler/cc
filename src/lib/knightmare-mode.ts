@@ -20,6 +20,8 @@ export type KnightmareGame = {
   variant?: "standard" | string;
   timeClass?: KnightmareTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   finalMove?: KnightmareFinalMove;
 };
 
@@ -32,6 +34,8 @@ type LichessKnightmareGame = {
   winner?: KnightmareSide;
   status?: KnightmareEndStatus;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -43,6 +47,8 @@ export type KnightmareVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<KnightmareTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -152,6 +158,8 @@ export function normalizeLichessKnightmareModeGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     finalMove: finalMove ?? undefined,
   };
 }
@@ -203,7 +211,7 @@ export async function checkLatestLichessKnightmareMode(username: string): Promis
       };
     }
 
-    return evaluateKnightmareMode(games[0]);
+    return { ...evaluateKnightmareMode(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

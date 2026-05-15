@@ -18,6 +18,8 @@ export type BishopFieldTripGame = {
   variant?: "standard" | string;
   timeClass?: BishopFieldTripTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   bothBishopsMovedBeforeQueen: boolean;
   movedBishopHomeSquaresBeforeQueen: string[];
   queenMovedOnPlayerMove?: number;
@@ -31,6 +33,8 @@ type LichessBishopFieldTripGame = {
   variant?: string;
   winner?: BishopFieldTripSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -42,6 +46,8 @@ export type BishopFieldTripVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<BishopFieldTripTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -159,6 +165,8 @@ export function normalizeLichessBishopFieldTripGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     ...bishopTrip,
   };
 }
@@ -210,7 +218,7 @@ export async function checkLatestLichessBishopFieldTrip(username: string): Promi
       };
     }
 
-    return evaluateBishopFieldTrip(games[0]);
+    return { ...evaluateBishopFieldTrip(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",

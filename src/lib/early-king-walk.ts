@@ -17,6 +17,8 @@ export type EarlyKingWalkGame = {
   variant?: "standard" | string;
   timeClass?: EarlyKingWalkTimeClass;
   rated?: boolean;
+  startedGameAt?: string;
+  completedGameAt?: string;
   earlyKingWalkMove?: number;
   castledBeforeKingWalk: boolean;
 };
@@ -29,6 +31,8 @@ type LichessEarlyKingWalkGame = {
   variant?: string;
   winner?: EarlyKingWalkSide;
   moves?: string;
+  createdAt?: number;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -40,6 +44,8 @@ export type EarlyKingWalkVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  startedGameAt?: string;
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<EarlyKingWalkTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -157,6 +163,8 @@ export function normalizeLichessEarlyKingWalkGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     ...kingWalk,
   };
 }
@@ -208,7 +216,7 @@ export async function checkLatestLichessEarlyKingWalk(username: string): Promise
       };
     }
 
-    return evaluateEarlyKingWalk(games[0]);
+    return { ...evaluateEarlyKingWalk(games[0]), startedGameAt: games[0].startedGameAt, completedGameAt: games[0].completedGameAt };
   } catch {
     return {
       status: "pending",
