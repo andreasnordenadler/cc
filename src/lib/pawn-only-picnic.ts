@@ -4,11 +4,6 @@ export type PawnOnlyPicnicTimeClass = "bullet" | "blitz" | "rapid" | "classical"
 
 type PieceType = "pawn" | "knight" | "bishop" | "rook" | "queen" | "king";
 
-type Piece = {
-  color: PawnOnlyPicnicSide;
-  type: PieceType;
-};
-
 export type PawnOnlyPicnicGame = {
   id: string;
   playerColor: PawnOnlyPicnicSide;
@@ -64,71 +59,26 @@ function normalizeTimeClass(value?: string): PawnOnlyPicnicTimeClass {
     : "unknown";
 }
 
-function buildInitialBoard() {
-  const board = new Map<string, Piece>();
-  const backRank: PieceType[] = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
-  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
+function pieceFromSanMove(move: string): PieceType {
+  const cleanMove = move.replace(/[+#?!]+$/g, "");
 
-  files.forEach((file, index) => {
-    board.set(`${file}1`, { color: "white", type: backRank[index] });
-    board.set(`${file}2`, { color: "white", type: "pawn" });
-    board.set(`${file}7`, { color: "black", type: "pawn" });
-    board.set(`${file}8`, { color: "black", type: backRank[index] });
-  });
+  if (cleanMove === "O-O" || cleanMove === "O-O-O") return "king";
+  if (cleanMove.startsWith("K")) return "king";
+  if (cleanMove.startsWith("Q")) return "queen";
+  if (cleanMove.startsWith("R")) return "rook";
+  if (cleanMove.startsWith("B")) return "bishop";
+  if (cleanMove.startsWith("N")) return "knight";
 
-  return board;
+  return "pawn";
 }
 
-function playerPiecesFromUciMoves(moves: string[], playerColor: PawnOnlyPicnicSide) {
-  const board = buildInitialBoard();
-  const playerPieces: PieceType[] = [];
+function playerPiecesFromSanMoves(moves: string[], playerColor: PawnOnlyPicnicSide) {
+  const playerOffset = playerColor === "white" ? 0 : 1;
 
-  for (const move of moves) {
-    const from = move.slice(0, 2);
-    const to = move.slice(2, 4);
-    const promotion = move.slice(4, 5);
-    const piece = board.get(from);
-
-    if (piece?.color === playerColor) {
-      playerPieces.push(piece.type);
-    }
-
-    board.delete(from);
-
-    if (piece) {
-      if (piece.type === "pawn" && from[0] !== to[0] && !board.has(to)) {
-        board.delete(`${to[0]}${from[1]}`);
-      }
-
-      const promotedType: PieceType | null =
-        promotion === "q" ? "queen" : promotion === "r" ? "rook" : promotion === "b" ? "bishop" : promotion === "n" ? "knight" : null;
-      board.set(to, { color: piece.color, type: promotedType ?? piece.type });
-    }
-
-    if (piece?.type === "king" && from === "e1" && to === "g1") {
-      const rook = board.get("h1");
-      board.delete("h1");
-      if (rook) board.set("f1", rook);
-    } else if (piece?.type === "king" && from === "e1" && to === "c1") {
-      const rook = board.get("a1");
-      board.delete("a1");
-      if (rook) board.set("d1", rook);
-    } else if (piece?.type === "king" && from === "e8" && to === "g8") {
-      const rook = board.get("h8");
-      board.delete("h8");
-      if (rook) board.set("f8", rook);
-    } else if (piece?.type === "king" && from === "e8" && to === "c8") {
-      const rook = board.get("a8");
-      board.delete("a8");
-      if (rook) board.set("d8", rook);
-    }
-
-    if (playerPieces.length >= 8) {
-      break;
-    }
-  }
-
-  return playerPieces.slice(0, 8);
+  return moves
+    .filter((_, index) => index % 2 === playerOffset)
+    .slice(0, 8)
+    .map(pieceFromSanMove);
 }
 
 export function normalizeLichessPawnOnlyPicnicGame(
@@ -156,7 +106,7 @@ export function normalizeLichessPawnOnlyPicnicGame(
     rated: game.rated,
     startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
-    firstEightPlayerMovePieces: playerPiecesFromUciMoves(moves, playerColor),
+    firstEightPlayerMovePieces: playerPiecesFromSanMoves(moves, playerColor),
   };
 }
 

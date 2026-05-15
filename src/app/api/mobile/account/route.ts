@@ -134,8 +134,7 @@ function normalizeCurrentVerifierAttempt(
     return {
       ...latestAttempt,
       status: "pending",
-      summary:
-        "This receipt was created before Side Quest Chess started storing game start times for verifier checks. Refresh once more; only games started after this quest became active can complete or fail the run.",
+      summary: "No new eligible games were found since this quest was started. Play a new public game after starting the quest, then check again.",
     };
   }
 

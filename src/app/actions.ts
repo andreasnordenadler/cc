@@ -237,9 +237,9 @@ function buildLatestGameCheckPayload(
   if (activatedAfter && verdictGameTime && !isAfterActivation(verdictGameTime, activatedAfter)) {
     return {
       status: "pending" as const,
-      gameId: verdict.gameId,
-      summary: `Found ${verdict.gameId ?? "the latest game"}, but it started before this ${challengeTitle} run was activated. Play a new public game after starting the quest, then check again.`,
-      evidence: ["Only games started after the current quest activation can complete or fail the active run."],
+      gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-no-new-game-after-start`,
+      summary: `No new eligible games were found since this ${challengeTitle} run was started. Play a new public game after starting the quest, then check again.`,
+      evidence: ["Older games are ignored for the active quest run."],
       ...pickProofReceiptFields(verdict),
     };
   }
@@ -247,8 +247,8 @@ function buildLatestGameCheckPayload(
   if (activatedAfter && verdict.status !== "pending" && !verdictGameTime) {
     return {
       status: "pending" as const,
-      gameId: verdict.gameId,
-      summary: `Found ${verdict.gameId ?? "the latest game"}, but Side Quest Chess could not confirm whether it started after this ${challengeTitle} run was activated. Play a fresh public game after starting the quest, then check again.`,
+      gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-time-unconfirmed`,
+      summary: `Side Quest Chess could not confirm a new eligible game since this ${challengeTitle} run was started. Play a fresh public game after starting the quest, then check again.`,
       evidence: ["The provider result did not include a usable game timestamp."],
       ...pickProofReceiptFields(verdict),
     };
@@ -968,7 +968,7 @@ export async function submitChallengeAttempt(formData: FormData) {
     ? {
         ...verification,
         status: "pending" as const,
-        summary: `Submitted ${gameId}, but that game started before this ${challenge.title} run was activated. Play a new public game after starting the quest, then check again.`,
+        summary: `No new eligible games were found since this ${challenge.title} run was started. Play a new public game after starting the quest, then check again.`,
       }
     : verification;
   const completedChallengeIds =
