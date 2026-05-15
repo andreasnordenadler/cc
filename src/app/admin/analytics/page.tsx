@@ -3,6 +3,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsEvent } from "@/lib/analytics";
+import { getChallengeAttempts, getChessComUsername, getLichessUsername, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
   title: "SQC Analytics · Side Quest Chess",
@@ -21,6 +22,13 @@ type AnalyticsUserRow = {
   questFailures: number;
   questPending: number;
   profileSaves: number;
+  lichessUsername: string;
+  chessComUsername: string;
+  latestGameFetches: number;
+  latestGameFetchesByProvider: {
+    lichess: number;
+    chessCom: number;
+  };
   recentEvents: SQCAnalyticsEvent[];
 };
 
@@ -60,6 +68,9 @@ export default async function AdminAnalyticsPage() {
   const response = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
   const rows: AnalyticsUserRow[] = response.data.map((user) => {
     const store = getAnalyticsStore(user.privateMetadata);
+    const publicMetadata = user.publicMetadata as UserMetadataRecord;
+    const latestGameFetchesByProvider = countLatestGameFetches(publicMetadata);
+
     return {
       id: user.id,
       name: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || "Unnamed user",
@@ -72,6 +83,10 @@ export default async function AdminAnalyticsPage() {
       questFailures: store.questFailures ?? 0,
       questPending: store.questPending ?? 0,
       profileSaves: store.profileSaves ?? 0,
+      lichessUsername: getLichessUsername(publicMetadata),
+      chessComUsername: getChessComUsername(publicMetadata),
+      latestGameFetches: latestGameFetchesByProvider.lichess + latestGameFetchesByProvider.chessCom,
+      latestGameFetchesByProvider,
       recentEvents: store.recentEvents ?? [],
     };
   });
@@ -143,11 +158,14 @@ export default async function AdminAnalyticsPage() {
                   <span>{row.email}</span>
                   <strong>{row.name}</strong>
                   <p>Last seen {formatDate(row.lastSeenAt)} · first seen {formatDate(row.firstSeenAt)}</p>
+                  <p>{formatChessUsernames(row)}</p>
                 </div>
                 <div className="public-groupquest-meta">
                   <small>{row.pageViews} page views</small>
                   <small>{row.questStarts} starts</small>
                   <small>{row.questCompletions} complete / {row.questFailures} failed / {row.questPending} pending</small>
+                  <small>{row.latestGameFetches} latest-game fetches</small>
+                  <small>{row.latestGameFetchesByProvider.lichess} Lichess / {row.latestGameFetchesByProvider.chessCom} Chess.com</small>
                 </div>
               </article>
             )) : <p>No signed-in analytics events yet.</p>}
@@ -207,6 +225,34 @@ function Fact({ label, value }: { label: string; value: string }) {
 
 function sum(rows: AnalyticsUserRow[], key: keyof Pick<AnalyticsUserRow, "pageViews" | "questStarts" | "questCompletions" | "questFailures">) {
   return rows.reduce((total, row) => total + row[key], 0);
+}
+
+function countLatestGameFetches(metadata: UserMetadataRecord) {
+  return getChallengeAttempts(metadata).reduce(
+    (total, attempt) => {
+      if (!attempt.gameId || attempt.provider === "fixture") return total;
+
+      if (attempt.provider === "lichess") {
+        total.lichess += 1;
+      }
+
+      if (attempt.provider === "chess.com") {
+        total.chessCom += 1;
+      }
+
+      return total;
+    },
+    { lichess: 0, chessCom: 0 },
+  );
+}
+
+function formatChessUsernames(row: Pick<AnalyticsUserRow, "lichessUsername" | "chessComUsername">) {
+  const labels = [
+    row.lichessUsername ? `Lichess: ${row.lichessUsername}` : "Lichess: not set",
+    row.chessComUsername ? `Chess.com: ${row.chessComUsername}` : "Chess.com: not set",
+  ];
+
+  return labels.join(" · ");
 }
 
 function buildQuestSummaries(stores: Array<NonNullable<ReturnType<typeof getAnalyticsStore>["questStats"]>>): QuestSummary[] {

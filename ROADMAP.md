@@ -1,8 +1,19 @@
 # CC Roadmap
 
-Last updated: 2026-05-14 08:52 Europe/Stockholm
+Last updated: 2026-05-15 09:23 Europe/Stockholm
 Owner: Sam  
 Status: SQC-mobile-focus / website-feature-freeze
+
+
+## Active SQC operating priorities — 2026-05-15
+
+Andreas set three active focus lanes on 2026-05-15:
+
+1. **Website quality / operations**: keep `sidequestchess.com` working well, monitor errors and usage, and run quality-control checks. This lane may do bug fixes, production-hardening, monitoring, analytics review, and regression fixes under the existing website feature freeze.
+2. **Marketing**: build a repeatable content and outreach engine. YouTube should focus on tutorials/demos; TikTok/Instagram on funny/meme-like short content; Reddit organic should be careful community participation, while **paid Reddit ads are approved as a channel to plan/use with explicit campaign/budget approval before spend**.
+3. **SQC mobile app development**: highest execution deadline. Andreas wants a **launch-ready mobile app before the end of next week**. Treat mobile parity and release readiness as the main development push while preserving web launch-candidate stability.
+
+Execution posture: run these lanes in parallel where safe; do not add new website features without approval; do move aggressively on mobile app parity, QA, and launch readiness.
 
 ## Mission
 
