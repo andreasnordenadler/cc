@@ -96,12 +96,13 @@ export default async function ChallengeDetailPage({
   const latestPassedAttempt = attempts.find((attempt) => attempt.status === "passed") ?? (latestAttempt?.status === "passed" ? latestAttempt : null);
   const completedDate = latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? activeChallenge?.verifiedAt;
   const completedDateLabel = completedDate ? "Completion time saved" : "Completion date pending next proof check";
-  const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
   const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
-  const isCompleted = progress.completedChallengeIds.includes(challenge.id);
+  const isCompleted = progress.completedChallengeIds.includes(challenge.id) || Boolean(latestPassedAttempt) || activeChallenge?.status === "verified";
+  const displayAttempt = buildCurrentVerifierAttempt(latestAttempt, latestPassedAttempt, activeChallenge, challenge, isCompleted);
+  const latestAttemptSummary = buildAttemptSummary(displayAttempt);
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const publicProofPath = isCompleted
     ? await buildPublicProofPath({
@@ -216,14 +217,14 @@ export default async function ChallengeDetailPage({
               <ProviderStatusCard provider="Lichess" username={lichessUsername} latestAttempt={latestLichessAttempt} />
               <ProviderStatusCard provider="Chess.com" username={chessComUsername} latestAttempt={latestChessComAttempt} />
               <Fact label="Total checks" value={`${attempts.length}`} />
-              <Fact label="Latest receipt" value={latestAttempt ? <ProofTime value={latestAttempt.checkedAt} /> : "not checked yet"} />
+              <Fact label="Latest receipt" value={displayAttempt ? <ProofTime value={displayAttempt.checkedAt} /> : "not checked yet"} />
             </div>
             <article className="note-card latest-check quest-status-receipt">
               <span className="eyebrow">{isCompleted ? "Winning receipt" : "Latest receipt"}</span>
               <h3>{latestAttemptSummary.headline}</h3>
               <p>{latestAttemptSummary.detail}</p>
               <small>
-                {latestAttempt ? <>{latestAttempt.gameId ? `Game ${latestAttempt.gameId}` : "Game ID missing"} • Updated <ProofTime value={latestAttempt.checkedAt} /></> : latestAttemptSummary.meta}
+                {displayAttempt ? <>{displayAttempt.gameId ? `Game ${displayAttempt.gameId}` : "Game ID missing"} • Updated <ProofTime value={displayAttempt.checkedAt} /></> : latestAttemptSummary.meta}
               </small>
             </article>
             {isCompleted ? null : (
@@ -286,6 +287,36 @@ function ProviderStatusCard({
 
 function getLatestProviderAttempt(attempts: ChallengeAttempt[], provider: "lichess" | "chess.com") {
   return attempts.find((attempt) => getAttemptProvider(attempt) === provider) ?? null;
+}
+
+function buildCurrentVerifierAttempt(
+  latestAttempt: ChallengeAttempt | null,
+  latestPassedAttempt: ChallengeAttempt | null,
+  activeChallenge: ReturnType<typeof getActiveChallenge>,
+  challenge: Challenge,
+  isCompleted: boolean,
+): ChallengeAttempt | null {
+  if (latestPassedAttempt) {
+    return latestPassedAttempt;
+  }
+
+  if (!latestAttempt) {
+    return null;
+  }
+
+  const isActiveCurrentQuest = activeChallenge?.id === challenge.id;
+  const isPreTimestampReceipt = isActiveCurrentQuest && !isCompleted && latestAttempt.status !== "passed" && !latestAttempt.startedGameAt;
+
+  if (!isPreTimestampReceipt) {
+    return latestAttempt;
+  }
+
+  return {
+    ...latestAttempt,
+    status: "pending",
+    summary:
+      "This receipt was created before Side Quest Chess started storing game start times for verifier checks. Refresh once more; only games started after this quest became active can complete or fail the run.",
+  };
 }
 
 function getAttemptProvider(attempt: ChallengeAttempt): "lichess" | "chess.com" | "unknown" {

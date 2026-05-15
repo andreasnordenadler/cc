@@ -41,7 +41,9 @@ export async function GET(request: Request) {
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
   const attempts = getChallengeAttempts(metadata);
-  const latestAttempt = getLatestAttemptForChallenge(metadata, activeChallenge?.id) ?? attempts.at(-1) ?? null;
+  const rawLatestAttempt = getLatestAttemptForChallenge(metadata, activeChallenge?.id) ?? attempts.at(-1) ?? null;
+  const latestPassedAttempt = activeChallenge?.id ? getLatestPassedAttempt(metadata, activeChallenge.id) : null;
+  const latestAttempt = normalizeCurrentVerifierAttempt(rawLatestAttempt, latestPassedAttempt, activeChallenge?.id);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
 
   return NextResponse.json({
@@ -100,6 +102,7 @@ export async function GET(request: Request) {
           status: latestAttempt.status ?? null,
           gameId: latestAttempt.gameId ?? null,
           checkedAt: latestAttempt.checkedAt ?? null,
+          startedGameAt: latestAttempt.startedGameAt ?? null,
           completedGameAt: latestAttempt.completedGameAt ?? null,
           headline: latestAttemptSummary.headline,
           detail: latestAttemptSummary.detail,
@@ -112,6 +115,31 @@ export async function GET(request: Request) {
 function getLatestAttemptForChallenge(metadata: UserMetadataRecord, challengeId?: string) {
   if (!challengeId) return null;
   return getChallengeAttempts(metadata, challengeId).at(-1) ?? null;
+}
+
+function normalizeCurrentVerifierAttempt(
+  latestAttempt: ReturnType<typeof getLatestAttemptForChallenge>,
+  latestPassedAttempt: ReturnType<typeof getLatestPassedAttempt>,
+  activeChallengeId?: string,
+) {
+  if (latestPassedAttempt) {
+    return latestPassedAttempt;
+  }
+
+  if (!latestAttempt) {
+    return null;
+  }
+
+  if (activeChallengeId && latestAttempt.challengeId === activeChallengeId && latestAttempt.status !== "passed" && !latestAttempt.startedGameAt) {
+    return {
+      ...latestAttempt,
+      status: "pending",
+      summary:
+        "This receipt was created before Side Quest Chess started storing game start times for verifier checks. Refresh once more; only games started after this quest became active can complete or fail the run.",
+    };
+  }
+
+  return latestAttempt;
 }
 
 function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string) {
