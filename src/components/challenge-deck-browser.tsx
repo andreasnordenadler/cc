@@ -60,7 +60,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "First eight player moves were pawn moves · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-14",
+    releaseDate: "2026-05-21",
   },
   {
     id: "back-rank-goblin",
@@ -93,7 +93,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Back-rank mate · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-21",
+    releaseDate: "2026-05-28",
   },
   {
     id: "late-castle-lifestyle",
@@ -126,7 +126,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Castled after move 15 · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-28",
+    releaseDate: "2026-06-04",
   },
   {
     id: "rook-lift-internship",
@@ -159,7 +159,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Early rook lift · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-04",
+    releaseDate: "2026-06-11",
   },
   {
     id: "double-check-drama",
@@ -256,7 +256,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Two sacrifices · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-11",
+    releaseDate: "2026-06-18",
   },
   {
     id: "queen-side-quest",
@@ -289,7 +289,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Queen stayed on first rank · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-18",
+    releaseDate: "2026-06-25",
   },
   {
     id: "underpromotion-union",
@@ -322,7 +322,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Underpromotion played · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-25",
+    releaseDate: "2026-07-02",
   },
   {
     id: "lone-king-witness-protection",
@@ -355,7 +355,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Opponent had only king left · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-07-02",
+    releaseDate: "2026-07-09",
   },
 ];
 

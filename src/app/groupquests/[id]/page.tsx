@@ -68,7 +68,7 @@ const onboardingSteps = [
 ];
 
 const competitionStartsAt = "May 12, 10:00 CEST";
-const competitionEndsAt = "May 14, 00:00 CEST";
+const competitionEndsAt = "May 21, 00:00 CEST";
 const successCriteria = "First to complete all quests wins. If nobody finishes, highest points at the deadline wins.";
 
 const ruleSummary = [
@@ -327,7 +327,7 @@ export default async function GroupQuestByIdPage({
             <span>Verified Side Quests</span>
           </div>
           <div>
-            <strong>May 14</strong>
+            <strong>May 21</strong>
             <span>Ends 00:00 CEST</span>
           </div>
         </section>
