@@ -81,21 +81,25 @@ export async function GET(
               alt=""
               width="86"
               height="86"
-              style={{ width: 86, height: 86, objectFit: "contain", filter: "drop-shadow(0 12px 16px rgba(82,38,15,.32))" }}
+              style={{ width: 86, height: 86, objectFit: "contain", marginTop: 42, filter: "drop-shadow(0 12px 16px rgba(82,38,15,.32))" }}
             />
-            <div style={{ marginTop: 26, color: "rgba(58,32,12,.78)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 21, letterSpacing: 3.1, textTransform: "uppercase", fontWeight: 1000 }}>
+            <div style={{ marginTop: 18, color: "rgba(58,32,12,.78)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 21, letterSpacing: 3.1, textTransform: "uppercase", fontWeight: 1000 }}>
               Side Quest completed
             </div>
-            <div style={{ color: "#2d1808", fontSize: 56, lineHeight: .95, letterSpacing: -1.8, fontWeight: 900, marginTop: 24, maxWidth: 470 }}>
+            <div style={{ color: "#2d1808", fontSize: 54, lineHeight: .95, letterSpacing: -1.8, fontWeight: 900, marginTop: 18, maxWidth: 470 }}>
               {payload.challengeTitle}
             </div>
             <div
               style={{
-                height: 230,
+                height: 218,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                marginTop: 26,
+                marginTop: 18,
+                width: 240,
+                borderRadius: 48,
+                background: "radial-gradient(circle at 50% 45%, rgba(255,244,219,.98), rgba(236,194,125,.92) 58%, rgba(151,84,36,.18) 78%, transparent 79%)",
+                boxShadow: "inset 0 0 0 3px rgba(82,38,15,.1), 0 18px 30px rgba(82,38,15,.2)",
               }}
             >
               {badgeImage ? (
@@ -104,7 +108,7 @@ export async function GET(
                   alt=""
                   width="210"
                   height="210"
-                  style={{ width: 210, height: 210, objectFit: "contain", filter: "drop-shadow(0 22px 30px rgba(82,38,15,.34))" }}
+                  style={{ width: 210, height: 210, objectFit: "contain", filter: "drop-shadow(0 18px 24px rgba(82,38,15,.3))" }}
                 />
               ) : (
                 <div
@@ -130,13 +134,13 @@ export async function GET(
               <span>Coat of arms unlocked:</span>
               <span style={{ color: "#251109" }}>{payload.badgeName}</span>
             </div>
-            <div style={{ color: "rgba(43,23,13,.86)", fontSize: 25, lineHeight: 1.26, fontWeight: 700, marginTop: 24, maxWidth: 455 }}>
+            <div style={{ color: "rgba(43,23,13,.86)", fontSize: 24, lineHeight: 1.24, fontWeight: 700, marginTop: 18, maxWidth: 455 }}>
               {achievementCopy}
             </div>
-            <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 19, lineHeight: 1.24, marginTop: 26, padding: "16px 0", width: 430, color: "rgba(43,23,13,.76)", fontWeight: 850, borderTop: "2px solid rgba(82,38,15,.2)", borderBottom: "2px solid rgba(82,38,15,.2)" }}>
+            <div style={{ fontFamily: "Arial, Helvetica, sans-serif", fontSize: 18, lineHeight: 1.22, marginTop: 18, padding: "13px 0", width: 430, color: "rgba(43,23,13,.76)", fontWeight: 850, borderTop: "2px solid rgba(82,38,15,.2)", borderBottom: "2px solid rgba(82,38,15,.2)" }}>
               {proofLine}
             </div>
-            <div style={{ display: "flex", gap: 14, marginTop: 24, color: "rgba(43,23,13,.72)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 17, fontWeight: 1000, letterSpacing: 1.1, textTransform: "uppercase" }}>
+            <div style={{ display: "flex", gap: 14, marginTop: 10, color: "rgba(43,23,13,.72)", fontFamily: "Arial, Helvetica, sans-serif", fontSize: 17, fontWeight: 1000, letterSpacing: 1.1, textTransform: "uppercase" }}>
               <span>{dateLabel}</span>
               <span>·</span>
               <span>{`+${payload.reward} pts`}</span>
