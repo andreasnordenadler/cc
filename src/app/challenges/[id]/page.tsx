@@ -94,13 +94,15 @@ export default async function ChallengeDetailPage({
   const attempts = getChallengeAttempts(metadata, challenge.id).slice().reverse();
   const latestAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const latestPassedAttempt = attempts.find((attempt) => attempt.status === "passed") ?? (latestAttempt?.status === "passed" ? latestAttempt : null);
-  const completedDate = latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? activeChallenge?.verifiedAt;
+  const isActiveQuestForDate = activeChallenge?.id === challenge.id;
+  const completedDate = latestPassedAttempt?.completedGameAt ?? latestPassedAttempt?.checkedAt ?? (isActiveQuestForDate ? activeChallenge?.verifiedAt : undefined);
   const completedDateLabel = completedDate ? "Completion time saved" : "Completion date pending next proof check";
   const latestLichessAttempt = getLatestProviderAttempt(attempts, "lichess");
   const latestChessComAttempt = getLatestProviderAttempt(attempts, "chess.com");
   const isSignedIn = Boolean(userId);
   const isActive = activeChallenge?.id === challenge.id;
-  const isCompleted = progress.completedChallengeIds.includes(challenge.id) || Boolean(latestPassedAttempt) || activeChallenge?.status === "verified";
+  const isVerifiedActiveQuest = isActive && activeChallenge?.status === "verified";
+  const isCompleted = progress.completedChallengeIds.includes(challenge.id) || Boolean(latestPassedAttempt) || isVerifiedActiveQuest;
   const displayAttempt = buildCurrentVerifierAttempt(latestAttempt, latestPassedAttempt, activeChallenge, challenge, isCompleted);
   const latestAttemptSummary = buildAttemptSummary(displayAttempt);
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
