@@ -1600,6 +1600,7 @@ export function normalizeChessComPawnOnlyPicnicGame(game: ChessComGame, username
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    completedGameAt: typeof game.end_time === "number" ? new Date(game.end_time * 1000).toISOString() : undefined,
     firstEightPlayerMovePieces: chessComFirstPlayerMovePiecesFromSan(sanMoves, playerColor, 8),
   };
 }

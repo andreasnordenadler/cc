@@ -17,6 +17,7 @@ export type PawnOnlyPicnicGame = {
   variant?: "standard" | string;
   timeClass?: PawnOnlyPicnicTimeClass;
   rated?: boolean;
+  completedGameAt?: string;
   firstEightPlayerMovePieces: PieceType[];
 };
 
@@ -28,6 +29,7 @@ type LichessPawnOnlyPicnicGame = {
   variant?: string;
   winner?: PawnOnlyPicnicSide;
   moves?: string;
+  lastMoveAt?: number;
   players?: {
     white?: { user?: { name?: string } };
     black?: { user?: { name?: string } };
@@ -39,6 +41,7 @@ export type PawnOnlyPicnicVerdict = {
   gameId: string;
   summary: string;
   evidence: string[];
+  completedGameAt?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<PawnOnlyPicnicTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -148,6 +151,7 @@ export function normalizeLichessPawnOnlyPicnicGame(
     variant: game.variant ?? "standard",
     timeClass: normalizeTimeClass(game.perf ?? game.speed),
     rated: game.rated,
+    completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     firstEightPlayerMovePieces: playerPiecesFromUciMoves(moves, playerColor),
   };
 }
@@ -265,6 +269,7 @@ export function evaluatePawnOnlyPicnic(game: PawnOnlyPicnicGame): PawnOnlyPicnic
     status: "passed",
     gameId: game.id,
     summary: "Pawn-only opening confirmed: the first eight player moves were pawns, and the player won anyway.",
+    completedGameAt: game.completedGameAt,
     evidence: [
       `${colorName(game.playerColor)} moved only pawns for the first eight player moves.`,
       `${colorName(game.playerColor)} won after ${game.moveCount} moves.`,
