@@ -9,6 +9,7 @@ import {
   getAnalyticsStore,
   type SQCAnalyticsEvent,
 } from "@/lib/analytics";
+import { sanitizeChessUsername, validateChessComUsername, validateLichessUsername } from "@/lib/chess-username-validation";
 import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
@@ -607,21 +608,45 @@ async function recordSignedInAnalyticsEvent(userId: string, event: Omit<SQCAnaly
   });
 }
 
+async function validateChessAccountsOrThrow(lichessUsername: string, chessComUsername: string) {
+  const [lichessValidation, chessComValidation] = await Promise.all([
+    validateLichessUsername(lichessUsername),
+    validateChessComUsername(chessComUsername),
+  ]);
+
+  const messages = [lichessValidation.message, chessComValidation.message].filter(Boolean);
+
+  if (!lichessValidation.ok || !chessComValidation.ok) {
+    throw new Error(messages.join(" ") || "Could not verify chess username.");
+  }
+
+  return {
+    lichess: lichessValidation.username,
+    chessCom: chessComValidation.username,
+  };
+}
+
 export async function saveChessUsernames(formData: FormData) {
   const { userId, metadata } = await getUserContext();
-  const lichessUsername = String(formData.get("lichessUsername") ?? "").trim();
-  const chessComUsername = String(formData.get("chessComUsername") ?? "").trim();
+  const lichessUsername = sanitizeChessUsername(formData.get("lichessUsername"));
+  const chessComUsername = sanitizeChessUsername(formData.get("chessComUsername"));
+
+  if (lichessUsername === null || chessComUsername === null) {
+    throw new Error("Chess usernames may only use letters, numbers, underscores, or hyphens.");
+  }
 
   if (!lichessUsername && !chessComUsername) {
     throw new Error("Enter at least one chess username.");
   }
 
+  const { lichess, chessCom } = await validateChessAccountsOrThrow(lichessUsername, chessComUsername);
+
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
-      lichessUsername,
-      chessComUsername,
+      lichessUsername: lichess,
+      chessComUsername: chessCom,
     },
   });
 
@@ -640,8 +665,14 @@ export async function saveRunnerProfile(formData: FormData) {
   const { userId, metadata } = await getUserContext();
   const runnerDisplayName = String(formData.get("runnerDisplayName") ?? "").trim().slice(0, 60);
   const runnerBio = String(formData.get("runnerBio") ?? "").trim().slice(0, 180);
-  const lichessUsername = String(formData.get("lichessUsername") ?? "").trim();
-  const chessComUsername = String(formData.get("chessComUsername") ?? "").trim();
+  const lichessUsername = sanitizeChessUsername(formData.get("lichessUsername"));
+  const chessComUsername = sanitizeChessUsername(formData.get("chessComUsername"));
+
+  if (lichessUsername === null || chessComUsername === null) {
+    throw new Error("Chess usernames may only use letters, numbers, underscores, or hyphens.");
+  }
+
+  const { lichess, chessCom } = await validateChessAccountsOrThrow(lichessUsername, chessComUsername);
 
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
@@ -649,8 +680,8 @@ export async function saveRunnerProfile(formData: FormData) {
       ...metadata,
       runnerDisplayName,
       runnerBio,
-      lichessUsername,
-      chessComUsername,
+      lichessUsername: lichess,
+      chessComUsername: chessCom,
     },
   });
 

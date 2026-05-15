@@ -5,9 +5,11 @@ import {
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
-
-const USERNAME_MAX_LENGTH = 40;
-const CHESS_USERNAME_PATTERN = /^[a-zA-Z0-9_-]{0,40}$/;
+import {
+  sanitizeChessUsername,
+  validateChessComUsername,
+  validateLichessUsername,
+} from "@/lib/chess-username-validation";
 
 export async function PATCH(request: Request) {
   const { userId } = await auth();
@@ -40,8 +42,8 @@ export async function PATCH(request: Request) {
   }
 
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
-  const lichessUsername = sanitizeUsername(record.lichessUsername);
-  const chessComUsername = sanitizeUsername(record.chessComUsername);
+  const lichessUsername = sanitizeChessUsername(record.lichessUsername);
+  const chessComUsername = sanitizeChessUsername(record.chessComUsername);
 
   if (lichessUsername === null || chessComUsername === null) {
     return NextResponse.json(
@@ -67,6 +69,23 @@ export async function PATCH(request: Request) {
     );
   }
 
+  const [lichessValidation, chessComValidation] = await Promise.all([
+    validateLichessUsername(lichessUsername),
+    validateChessComUsername(chessComUsername),
+  ]);
+
+  if (!lichessValidation.ok || !chessComValidation.ok) {
+    return NextResponse.json(
+      {
+        apiVersion: 1,
+        authenticated: true,
+        ok: false,
+        message: [lichessValidation.message, chessComValidation.message].filter(Boolean).join(" "),
+      },
+      { status: 400 },
+    );
+  }
+
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
@@ -74,8 +93,8 @@ export async function PATCH(request: Request) {
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
-      lichessUsername,
-      chessComUsername,
+      lichessUsername: lichessValidation.username,
+      chessComUsername: chessComValidation.username,
     },
   });
 
@@ -85,21 +104,11 @@ export async function PATCH(request: Request) {
     ok: true,
     message: "Chess usernames saved for mobile and website sync.",
     chessAccounts: {
-      lichessUsername: lichessUsername || null,
-      chessComUsername: chessComUsername || null,
+      lichessUsername: lichessValidation.username || null,
+      chessComUsername: chessComValidation.username || null,
       previousLichessUsername: getLichessUsername(metadata) || null,
       previousChessComUsername: getChessComUsername(metadata) || null,
-      hasAny: Boolean(lichessUsername || chessComUsername),
+      hasAny: Boolean(lichessValidation.username || chessComValidation.username),
     },
   });
-}
-
-function sanitizeUsername(value: unknown): string | null {
-  const username = typeof value === "string" ? value.trim().slice(0, USERNAME_MAX_LENGTH) : "";
-
-  if (!CHESS_USERNAME_PATTERN.test(username)) {
-    return null;
-  }
-
-  return username;
 }
