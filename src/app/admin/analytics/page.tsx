@@ -117,7 +117,7 @@ export default async function AdminAnalyticsPage() {
           <span className="eyebrow">SQC Analytics</span>
           <h1>User activity command center.</h1>
           <p className="hero-copy">
-            First-party activity tracking for launch: sign-ins, page views, profile saves, quest starts, completions, failures, and pending checks.
+            First-party activity tracking for launch: sign-ins, page views, profile saves, quest starts, saved completed quests, and verifier outcomes.
           </p>
         </section>
 
@@ -126,7 +126,7 @@ export default async function AdminAnalyticsPage() {
           <Fact label="Page views" value={String(totalPageViews)} />
           <Fact label="Quest starts" value={String(totalQuestStarts)} />
           <Fact label="Completed quests" value={String(totalCompletions)} />
-          <Fact label="Failures" value={String(totalFailures)} />
+          <Fact label="Failed checks" value={String(totalFailures)} />
         </section>
 
         <section className="mission-card">
@@ -134,7 +134,7 @@ export default async function AdminAnalyticsPage() {
             <div>
               <span className="eyebrow">Quest signals</span>
               <h2>Popular and painful quests.</h2>
-              <p>Starts show interest. Completion/failure/pending counts show where quests work or frustrate people.</p>
+              <p>Starts show interest. Completed counts come from saved quest state; failed and pending counts are verifier checks, not unique users.</p>
             </div>
           </div>
           <div className="public-groupquests-list">
@@ -143,7 +143,7 @@ export default async function AdminAnalyticsPage() {
                 <div>
                   <span>{quest.questId}</span>
                   <strong>{quest.starts} starts</strong>
-                  <p>{quest.completions} completed · {quest.failures} failed · {quest.pending} pending</p>
+                  <p>{quest.completions} saved completed · {quest.failures} failed checks · {quest.pending} pending checks</p>
                 </div>
               </div>
             )) : <p>No quest analytics yet.</p>}
@@ -169,7 +169,7 @@ export default async function AdminAnalyticsPage() {
                 <div className="public-groupquest-meta">
                   <small>{row.pageViews} page views</small>
                   <small>{row.questStarts} starts</small>
-                  <small>{row.questCompletions} completed quests / {row.questFailures} failed / {row.questPending} pending</small>
+                  <small>{row.questCompletions} completed quests / {row.questFailures} failed checks / {row.questPending} pending checks</small>
                   <small>{row.latestGameFetches} latest-game fetches</small>
                   <small>{row.latestGameFetchesByProvider.lichess} Lichess / {row.latestGameFetchesByProvider.chessCom} Chess.com</small>
                 </div>
