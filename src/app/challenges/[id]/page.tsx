@@ -184,7 +184,7 @@ export default async function ChallengeDetailPage({
             <span className="eyebrow">Proof details</span>
             <h2>Saved and ready to share.</h2>
             <p className="proof-details-line">
-              {challenge.title} completed · <ProofTime value={completedDate} /> · {formatProofReceiptLabel(latestPassedAttempt)}
+              {challenge.title} completed · <ProofTime value={completedDate} /> · <ProofReceiptLink attempt={latestPassedAttempt} />
             </p>
             <ShareProofActions
               copy={buildCompletedQuestShareCopy(challenge, latestPassedAttempt)}
@@ -272,11 +272,44 @@ function ReceiptMeta({ attempt }: { attempt: ChallengeAttempt }) {
 
   return (
     <>
-      {attempt.gameId ? `Game ${attempt.gameId}` : "Game ID missing"}
+      <ProofReceiptLink attempt={attempt} />
       {playedAt ? <> • Game played <ProofTime value={playedAt} /></> : null}
       <> • Receipt updated <ProofTime value={attempt.checkedAt} /></>
     </>
   );
+}
+
+function ProofReceiptLink({ attempt }: { attempt: ChallengeAttempt | null }) {
+  if (!attempt?.gameId) {
+    return <>Saved proof receipt</>;
+  }
+
+  const provider = getAttemptProvider(attempt);
+  const providerLabel = provider === "lichess" ? "Lichess" : provider === "chess.com" ? "Chess.com" : "Verified";
+  const gameUrl = buildGameUrl(attempt);
+
+  if (!gameUrl) {
+    return <>{providerLabel} game {attempt.gameId}</>;
+  }
+
+  return (
+    <a href={gameUrl} target="_blank" rel="noreferrer">
+      {providerLabel} game {attempt.gameId}
+    </a>
+  );
+}
+
+function buildGameUrl(attempt: ChallengeAttempt) {
+  const gameId = attempt.gameId?.trim();
+
+  if (!gameId) return null;
+  if (/^https?:\/\//i.test(gameId)) return gameId;
+
+  const provider = getAttemptProvider(attempt);
+  if (provider === "lichess") return `https://lichess.org/${gameId}`;
+  if (provider === "chess.com") return `https://www.chess.com/game/live/${gameId}`;
+
+  return null;
 }
 
 function ProviderStatusCard({
@@ -354,14 +387,6 @@ function getDifficultyTone(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return "orange";
   if (difficulty === "Absurd") return "absurd";
   return "danger";
-}
-
-function formatProofReceiptLabel(attempt: ChallengeAttempt | null) {
-  if (!attempt) return "Saved proof receipt";
-
-  const provider = attempt.provider === "lichess" ? "Lichess" : attempt.provider === "chess.com" ? "Chess.com" : "Saved";
-
-  return attempt.gameId ? `${provider} game ${attempt.gameId}` : `${provider} proof receipt`;
 }
 
 function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAttempt | null) {
