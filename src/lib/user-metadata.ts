@@ -42,6 +42,45 @@ export function getRunnerDisplayName(metadata: UserMetadataRecord): string {
   return typeof metadata.runnerDisplayName === "string" ? metadata.runnerDisplayName : "";
 }
 
+export function getClerkHumanName(user: {
+  firstName?: string | null;
+  lastName?: string | null;
+  username?: string | null;
+  emailAddress?: string | null;
+}): string {
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ").trim();
+
+  if (fullName) {
+    return fullName;
+  }
+
+  if (user.firstName?.trim()) {
+    return user.firstName.trim();
+  }
+
+  if (user.username?.trim()) {
+    return user.username.trim();
+  }
+
+  if (user.emailAddress?.trim()) {
+    return user.emailAddress.trim();
+  }
+
+  return "";
+}
+
+export function getPreferredRunnerName(
+  metadata: UserMetadataRecord,
+  user: {
+    firstName?: string | null;
+    lastName?: string | null;
+    username?: string | null;
+    emailAddress?: string | null;
+  },
+): string {
+  return getRunnerDisplayName(metadata) || getClerkHumanName(user);
+}
+
 export function getRunnerBio(metadata: UserMetadataRecord): string {
   return typeof metadata.runnerBio === "string" ? metadata.runnerBio : "";
 }

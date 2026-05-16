@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { buildGroupQuest, upsertHostGroupQuest } from "@/lib/groupquests";
+import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export async function POST(request: Request) {
   const { userId } = await auth();
@@ -15,7 +16,12 @@ export async function POST(request: Request) {
 
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
-  const hostName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || user.primaryEmailAddress?.emailAddress || "SQC host";
+  const hostName = getPreferredRunnerName((user.publicMetadata as UserMetadataRecord) ?? {}, {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    emailAddress: user.primaryEmailAddress?.emailAddress,
+  }) || "SQC host";
   const groupQuest = buildGroupQuest({
     ...(payload as Record<string, unknown>),
     hostUserId: userId,

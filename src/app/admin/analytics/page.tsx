@@ -4,7 +4,7 @@ import Link from "next/link";
 import SiteNav from "@/components/site-nav";
 import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsEvent } from "@/lib/analytics";
 import { getStoredGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
-import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
   title: "SQC Analytics · Side Quest Chess",
@@ -84,7 +84,12 @@ export default async function AdminAnalyticsPage() {
 
     return {
       id: user.id,
-      name: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || "Unnamed user",
+      name: getPreferredRunnerName(publicMetadata, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      }) || "Unnamed user",
       email: user.primaryEmailAddress?.emailAddress ?? "No email",
       firstSeenAt: store.firstSeenAt,
       lastSeenAt: store.lastSeenAt,
@@ -108,7 +113,12 @@ export default async function AdminAnalyticsPage() {
   const multiplayerQuestRows = response.data
     .flatMap((user): MultiplayerQuestRow[] => getStoredGroupQuests(user.privateMetadata).map((quest) => ({
       quest,
-      hostName: [user.firstName, user.lastName].filter(Boolean).join(" ") || user.username || quest.hostName || "Unnamed host",
+      hostName: getPreferredRunnerName((user.publicMetadata as UserMetadataRecord) ?? {}, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      }) || quest.hostName || "Unnamed host",
       hostEmail: user.primaryEmailAddress?.emailAddress ?? "No email",
     })))
     .sort((a, b) => Date.parse(b.quest.createdAt) - Date.parse(a.quest.createdAt));

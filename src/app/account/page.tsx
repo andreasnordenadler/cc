@@ -12,7 +12,7 @@ import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
-  getRunnerDisplayName,
+  getPreferredRunnerName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -27,7 +27,12 @@ export default async function MyQuestLogPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
-  const runnerDisplayName = getRunnerDisplayName(metadata) || user.username || user.firstName || "SQC player";
+  const runnerDisplayName = getPreferredRunnerName(metadata, {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    emailAddress: user.primaryEmailAddress?.emailAddress,
+  }) || "SQC player";
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));

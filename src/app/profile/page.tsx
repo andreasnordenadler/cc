@@ -6,14 +6,21 @@ import {
   getChessComUsername,
   getLichessUsername,
   getRunnerBio,
-  getRunnerDisplayName,
+  getPreferredRunnerName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
 export default async function ProfilePage() {
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
-  const runnerDisplayName = getRunnerDisplayName(metadata) || user?.username || user?.firstName || "";
+  const runnerDisplayName = user
+    ? getPreferredRunnerName(metadata, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      })
+    : "";
   const runnerBio = getRunnerBio(metadata);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);

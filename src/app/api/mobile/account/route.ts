@@ -9,8 +9,8 @@ import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
+  getPreferredRunnerName,
   getRunnerBio,
-  getRunnerDisplayName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -51,7 +51,12 @@ export async function GET(request: Request) {
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: getRunnerDisplayName(metadata) || user.username || user.firstName || "SQC player",
+      displayName: getPreferredRunnerName(metadata, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      }) || "SQC player",
       bio: getRunnerBio(metadata),
       imageUrl: user.imageUrl || null,
     },
