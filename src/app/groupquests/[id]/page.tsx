@@ -5,7 +5,6 @@ import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
 import GroupQuestLeaveAction from "@/components/group-quest-leave-action";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
-import GroupQuestRefreshButton from "@/components/group-quest-refresh-button";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -290,7 +289,7 @@ export default async function GroupQuestByIdPage({
           currentUserId={userId}
         />
 
-        <section className="grid groupquests-dashboard-grid" aria-label="Rules and event feed">
+        <section className="grid groupquests-dashboard-grid" aria-label="Rules">
           <article className="mission-card groupquests-live-card">
             <div className="section-head">
               <div>
@@ -306,22 +305,6 @@ export default async function GroupQuestByIdPage({
               <li><span>Ends</span><strong>{endsAt}</strong></li>
               <li><span>Winner</span><strong>{successCriteria}</strong></li>
               <li><span>Proof</span><strong>Automatic public-game checks</strong></li>
-            </ul>
-          </article>
-
-          <article className="mission-card">
-            <div className="section-head groupquest-leaderboard-head">
-              <div>
-                <span className="eyebrow">Live activity</span>
-                <h2>Proof events, not chat noise.</h2>
-              </div>
-              <GroupQuestRefreshButton id={id} />
-            </div>
-            <ul className="groupquests-feed-list groupquests-activity-list" aria-label="Latest activity updates">
-              <li>
-                <time>Now</time>
-                <span><strong>No proof events yet.</strong> Activity will appear here after players join and verification checks start.</span>
-              </li>
             </ul>
           </article>
         </section>
