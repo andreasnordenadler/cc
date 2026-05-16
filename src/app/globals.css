@@ -668,13 +668,13 @@ p { color: var(--muted); line-height: 1.5; }
 }
 
 .focused-quest-log { gap: 24px; }
-.current-mission-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(220px, .55fr); gap: clamp(18px, 4vw, 34px); align-items: center; overflow: hidden; border-color: rgba(96,240,175,.24); background: radial-gradient(circle at 88% 8%, rgba(96,240,175,.17), transparent 34%), radial-gradient(circle at 10% 0%, rgba(245,200,106,.14), transparent 34%), rgba(0,0,0,.16); }
+.current-mission-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(220px, .55fr); gap: clamp(18px, 4vw, 34px); align-items: start; overflow: hidden; border-color: rgba(96,240,175,.24); background: radial-gradient(circle at 88% 8%, rgba(96,240,175,.17), transparent 34%), radial-gradient(circle at 10% 0%, rgba(245,200,106,.14), transparent 34%), rgba(0,0,0,.16); }
 .current-mission-copy { display: grid; justify-items: start; gap: 10px; min-width: 0; }
 .current-mission-identity-row { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: end; width: 100%; }
 .current-mission-copy h1 { margin: 0; color: var(--ink); font-size: clamp(2.25rem, 5vw, 4.6rem); line-height: .88; letter-spacing: -.065em; }
 .current-mission-copy h2 { margin: 0; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2.45rem); line-height: .95; letter-spacing: -.045em; }
 .current-mission-copy p { max-width: 66ch; margin: 0; color: var(--muted); font-weight: 820; }
-.current-mission-visual { display: grid; justify-items: center; align-items: center; min-width: 0; }
+.current-mission-visual { display: grid; justify-items: center; align-items: start; align-self: start; min-width: 0; }
 .current-mission-coat, .current-mission-empty { position: relative; display: grid; justify-items: center; gap: 8px; width: min(100%, 260px); padding: 16px; border: 1px solid rgba(245,200,106,.22); border-radius: 28px; background: rgba(0,0,0,.18); color: inherit; text-align: center; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .current-mission-coat:hover, .current-mission-coat:focus-visible, .current-mission-empty:hover, .current-mission-empty:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.52); background: rgba(245,200,106,.08); outline: none; }
 .current-mission-coat .challenge-badge-art, .current-mission-coat .challenge-badge-art .badge-reference-art { width: clamp(148px, 18vw, 220px); height: clamp(148px, 18vw, 220px); }

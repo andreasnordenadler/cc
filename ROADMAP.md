@@ -97,6 +97,7 @@ Rules from this point:
 - 2026-05-16 ux polish: completed current-mission coat of arms should show a red completion seal on account page.
 - 2026-05-16 ux polish: account-page multiplayer list should end with a clear button to open the full Multiplayer Side Quests hub at `/groupquests`.
 - 2026-05-16 layout polish: account-page `Open Multiplayer Side Quests` action should use the same primary button styling as `Open active side quest`.
+- 2026-05-16 layout polish: account-page current coat of arms should stay top-aligned in its column instead of leaving dead vertical space above it.
 - 2026-05-16 layout polish: accepted multiplayer quest page should place `Quests to complete` below the stats strip, not above it.
 - 2026-05-16 layout polish: accepted multiplayer quest rules card should span full width after the separate activity card was removed.
 
