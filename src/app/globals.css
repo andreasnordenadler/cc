@@ -675,11 +675,13 @@ p { color: var(--muted); line-height: 1.5; }
 .current-mission-copy h2 { margin: 0; color: var(--gold); font-size: clamp(1.45rem, 3vw, 2.45rem); line-height: .95; letter-spacing: -.045em; }
 .current-mission-copy p { max-width: 66ch; margin: 0; color: var(--muted); font-weight: 820; }
 .current-mission-visual { display: grid; justify-items: center; align-items: center; min-width: 0; }
-.current-mission-coat, .current-mission-empty { display: grid; justify-items: center; gap: 8px; width: min(100%, 260px); padding: 16px; border: 1px solid rgba(245,200,106,.22); border-radius: 28px; background: rgba(0,0,0,.18); color: inherit; text-align: center; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.current-mission-coat, .current-mission-empty { position: relative; display: grid; justify-items: center; gap: 8px; width: min(100%, 260px); padding: 16px; border: 1px solid rgba(245,200,106,.22); border-radius: 28px; background: rgba(0,0,0,.18); color: inherit; text-align: center; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .current-mission-coat:hover, .current-mission-coat:focus-visible, .current-mission-empty:hover, .current-mission-empty:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.52); background: rgba(245,200,106,.08); outline: none; }
 .current-mission-coat .challenge-badge-art, .current-mission-coat .challenge-badge-art .badge-reference-art { width: clamp(148px, 18vw, 220px); height: clamp(148px, 18vw, 220px); }
 .current-mission-coat span, .current-mission-empty span { color: var(--gold); font-size: .72rem; font-weight: 1000; letter-spacing: .1em; text-transform: uppercase; }
 .current-mission-coat strong { color: var(--ink); font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.08; }
+.current-mission-complete-seal { position: absolute; right: -10px; top: -10px; z-index: 3; width: 72px; height: 72px; display: grid; place-items: center; pointer-events: none; }
+.current-mission-complete-seal img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 14px 18px rgba(0,0,0,.42)); transform: rotate(9deg); }
 .account-status-strip { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 2px; color: var(--muted); font-size: .8rem; font-weight: 850; }
 .account-status-strip span, .account-status-strip a { color: var(--muted); text-decoration: none; }
 .account-status-strip .connected strong { color: rgba(210,255,232,.94); }

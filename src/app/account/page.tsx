@@ -3,6 +3,7 @@ import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
+import { unstable_noStore as noStore } from "next/cache";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
 import { CHALLENGES } from "@/lib/challenges";
@@ -27,6 +28,7 @@ function deriveGroupQuestStatus(startAt: string, endAt: string) {
 }
 
 export default async function MyQuestLogPage() {
+  noStore();
   const user = await currentUser();
 
   if (!user) {
@@ -65,6 +67,7 @@ export default async function MyQuestLogPage() {
   const client = await clerkClient();
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, user.id);
   const activeGroupQuests = relatedGroupQuests
+    .filter((quest) => quest.hostUserId === user.id || quest.participants.some((participant) => participant.userId === user.id))
     .map((quest) => {
       const isHost = quest.hostUserId === user.id;
       const status = deriveGroupQuestStatus(quest.startAt, quest.endAt);
@@ -97,6 +100,7 @@ export default async function MyQuestLogPage() {
             <p>{nextStep.copy}</p>
             <div className="button-row">
               <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
+              {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
               <Link href="/profile" className="button secondary">Edit profile</Link>
             </div>
             <div className="current-mission-multiplayer" aria-label="Active multiplayer side quests">
@@ -115,6 +119,11 @@ export default async function MyQuestLogPage() {
           <div className="current-mission-visual">
             {activeChallengeRecord ? (
               <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-mission-coat" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
+                {activeQuestCompleted ? (
+                  <span className="current-mission-complete-seal" aria-hidden="true">
+                    <Image src="/stamps/quest-complete-real-red-wax-sqc-v8.png" alt="" width={72} height={72} />
+                  </span>
+                ) : null}
                 <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
                 <span>{activeQuestCompleted ? "Completed quest" : "Active quest"}</span>
                 <strong>{activeChallengeRecord.title}</strong>
@@ -252,10 +261,10 @@ function getNextStep({
 
   if (activeQuestCompleted) {
     return {
-      title: "Share the proof, then pick another.",
-      copy: `${activeChallengeRecord.title} is complete. Your coat of arms is ready; the next bad idea is waiting.`,
-      href: `/challenges/${activeChallengeRecord.id}`,
-      cta: "Open victory proof",
+      title: "Quest finished. Pick your next one.",
+      copy: `${activeChallengeRecord.title} is complete. Your coat of arms is sealed; choose the next bad idea whenever you are ready.`,
+      href: "/challenges",
+      cta: "Pick your next quest",
     };
   }
 
