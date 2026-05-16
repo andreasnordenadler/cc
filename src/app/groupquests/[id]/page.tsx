@@ -290,24 +290,22 @@ export default async function GroupQuestByIdPage({
           currentUserId={userId}
         />
 
-        <section className="grid groupquests-dashboard-grid" aria-label="Rules">
-          <article className="mission-card groupquests-live-card">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Locked competition rules</span>
-                <h2>Everyone plays under the same receipt.</h2>
-              </div>
+        <section className="mission-card groupquests-live-card" aria-label="Rules">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Locked competition rules</span>
+              <h2>Everyone plays under the same receipt.</h2>
             </div>
-            <ul className="groupquest-summary-list groupquest-rules-list groupquest-accepted-rules-list" aria-label="Multiplayer Side Quest settings">
-              <li><span>Visibility</span><strong>{visibilityLabel}</strong></li>
-              <li><span>Games allowed</span><strong>{providerLabel}</strong></li>
-              <li><span>Variant</span><strong>Standard chess only</strong></li>
-              <li><span>Starts</span><strong>{startsAt}</strong></li>
-              <li><span>Ends</span><strong>{endsAt}</strong></li>
-              <li><span>Winner</span><strong>{successCriteria}</strong></li>
-              <li><span>Proof</span><strong>Automatic public-game checks</strong></li>
-            </ul>
-          </article>
+          </div>
+          <ul className="groupquest-summary-list groupquest-rules-list groupquest-accepted-rules-list" aria-label="Multiplayer Side Quest settings">
+            <li><span>Visibility</span><strong>{visibilityLabel}</strong></li>
+            <li><span>Games allowed</span><strong>{providerLabel}</strong></li>
+            <li><span>Variant</span><strong>Standard chess only</strong></li>
+            <li><span>Starts</span><strong>{startsAt}</strong></li>
+            <li><span>Ends</span><strong>{endsAt}</strong></li>
+            <li><span>Winner</span><strong>{successCriteria}</strong></li>
+            <li><span>Proof</span><strong>Automatic public-game checks</strong></li>
+          </ul>
         </section>
 
         <GroupQuestLeaveAction id={id} />
