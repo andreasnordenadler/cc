@@ -5,6 +5,7 @@ import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
 import GroupQuestLeaveAction from "@/components/group-quest-leave-action";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
+import GroupQuestRefreshButton from "@/components/group-quest-refresh-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { findGroupQuestById } from "@/lib/groupquests";
@@ -296,7 +297,7 @@ export default async function GroupQuestByIdPage({
                 <span className="eyebrow">Live activity</span>
                 <h2>Proof events, not chat noise.</h2>
               </div>
-              <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
+              <GroupQuestRefreshButton />
             </div>
             <ul className="groupquests-feed-list groupquests-activity-list" aria-label="Latest activity updates">
               <li>

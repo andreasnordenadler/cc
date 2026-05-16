@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import GroupQuestRefreshButton from "@/components/group-quest-refresh-button";
 
 type QuestSummary = {
   id: string;
@@ -145,7 +146,7 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
           <span className="eyebrow">Competition leaderboard</span>
           <h2>How you’re doing vs everyone else.</h2>
         </div>
-        <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
+        <GroupQuestRefreshButton />
       </div>
       {players.length === 0 ? (
         <div className="groupquest-empty-state" role="status">
