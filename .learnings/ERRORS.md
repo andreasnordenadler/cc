@@ -3560,3 +3560,30 @@ For install links, either configure Expo auth/token on the machine or use a loca
 - Tags: eas, expo, apk, auth
 
 ---
+## [ERR-20250518-001] multiplayer-refresh-build-helper-mismatch
+
+**Logged**: 2025-05-18T00:00:00Z
+**Priority**: medium
+**Status**: in_progress
+**Area**: backend
+
+### Summary
+Initial multiplayer refresh implementation assumed Lichess latest-game helper exports that do not exist in this codebase.
+
+### Error
+```
+Turbopack build failed: export checkLatestLichessBishopFieldTrip / related latest-game helpers do not exist in src/lib/lichess.ts
+```
+
+### Context
+- Attempted to wire multiplayer refresh against per-challenge latest-game helper imports.
+- This repo only exposes latest finished-game lookup for Lichess, while most richer challenge checks are game-id based.
+
+### Suggested Fix
+Scope multiplayer refresh to supported latest-game verification paths first (finish-any-game), then add provider-specific adapters for other multiplayer quests.
+
+### Metadata
+- Reproducible: yes
+- Related Files: src/lib/groupquest-proof.ts, src/lib/lichess.ts
+
+---

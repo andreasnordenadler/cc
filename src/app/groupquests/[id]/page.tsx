@@ -65,8 +65,17 @@ export default async function GroupQuestByIdPage({
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
   const totalReward = quests.reduce((sum, quest) => sum + quest.reward, 0);
-  const participantCount = savedQuest?.participants.length ?? 0;
-  const currentParticipantRank = serverParticipant ? (savedQuest?.participants.findIndex((participant) => participant.userId === userId) ?? -1) + 1 : null;
+  const rankedParticipants = savedQuest?.participants
+    ? [...savedQuest.participants].sort((a, b) => {
+        const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        const completedDiff = (b.completedQuestIds?.length ?? 0) - (a.completedQuestIds?.length ?? 0);
+        if (completedDiff !== 0) return completedDiff;
+        return Date.parse(a.joinedAt) - Date.parse(b.joinedAt);
+      })
+    : [];
+  const participantCount = rankedParticipants.length;
+  const currentParticipantRank = serverParticipant ? rankedParticipants.findIndex((participant) => participant.userId === userId) + 1 : null;
 
   if (!hasAcceptedInvite) {
     return (
@@ -247,11 +256,11 @@ export default async function GroupQuestByIdPage({
             <span>Your rank</span>
           </div>
           <div>
-            <strong>0</strong>
+            <strong>{serverParticipant?.score ?? 0}</strong>
             <span>Your points</span>
           </div>
           <div>
-            <strong>0 / {quests.length}</strong>
+            <strong>{serverParticipant?.completedQuestIds?.length ?? 0} / {quests.length}</strong>
             <span>Verified Side Quests</span>
           </div>
           <div>
@@ -297,7 +306,7 @@ export default async function GroupQuestByIdPage({
                 <span className="eyebrow">Live activity</span>
                 <h2>Proof events, not chat noise.</h2>
               </div>
-              <GroupQuestRefreshButton />
+              <GroupQuestRefreshButton id={id} />
             </div>
             <ul className="groupquests-feed-list groupquests-activity-list" aria-label="Latest activity updates">
               <li>

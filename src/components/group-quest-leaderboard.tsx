@@ -35,6 +35,10 @@ type ServerParticipant = {
   provider: "lichess" | "chesscom";
   username: string;
   leaderboardName: string;
+  score?: number;
+  completedQuestIds?: string[];
+  questFinishedAt?: Record<string, string>;
+  lastProofSummary?: string;
 };
 
 const storagePrefix = "sqc-groupquest-participant:";
@@ -93,18 +97,26 @@ function readCurrentParticipant(id: string) {
 
 export default function GroupQuestLeaderboard({ id, quests, participants, currentUserId }: { id: string; quests: QuestSummary[]; participants?: ServerParticipant[]; currentUserId?: string | null }) {
   const [currentParticipant] = useState(() => readCurrentParticipant(id));
-  const orderedParticipants = participants ? [...participants].sort((a, b) => Number(b.userId === currentUserId) - Number(a.userId === currentUserId)) : [];
+  const orderedParticipants = participants
+    ? [...participants].sort((a, b) => {
+        const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        const completedDiff = (b.completedQuestIds?.length ?? 0) - (a.completedQuestIds?.length ?? 0);
+        if (completedDiff !== 0) return completedDiff;
+        return Number(b.userId === currentUserId) - Number(a.userId === currentUserId);
+      })
+    : [];
   const serverPlayers = orderedParticipants.map((participant, index): Player => ({
     rank: index + 1,
     name: participant.leaderboardName,
     handle: `${formatProvider(participant.provider)}: ${participant.username}`,
-    score: 0,
-    completed: 0,
-    proof: "joined · waiting for proof",
-    last: "Joined this Multiplayer Side Quest",
+    score: participant.score ?? 0,
+    completed: participant.completedQuestIds?.length ?? 0,
+    proof: `${participant.completedQuestIds?.length ?? 0}/${quests.length} verified`,
+    last: participant.lastProofSummary ?? "Joined this Multiplayer Side Quest",
     tone: index === 0 ? "green" : "muted",
     isCurrentParticipant: participant.userId === currentUserId,
-    questFinishedAt: {},
+    questFinishedAt: participant.questFinishedAt ?? {},
   }));
   const players = serverPlayers.map((player) => {
     if (!player.isCurrentParticipant || !currentParticipant) return player;
@@ -146,7 +158,7 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
           <span className="eyebrow">Competition leaderboard</span>
           <h2>How you’re doing vs everyone else.</h2>
         </div>
-        <GroupQuestRefreshButton />
+        <GroupQuestRefreshButton id={id} />
       </div>
       {players.length === 0 ? (
         <div className="groupquest-empty-state" role="status">

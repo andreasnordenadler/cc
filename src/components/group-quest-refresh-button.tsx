@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function GroupQuestRefreshButton() {
+export default function GroupQuestRefreshButton({ id }: { id: string }) {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -12,10 +12,14 @@ export default function GroupQuestRefreshButton() {
       className="button secondary groupquest-refresh-button"
       type="button"
       disabled={refreshing}
-      onClick={() => {
+      onClick={async () => {
         setRefreshing(true);
-        router.refresh();
-        setTimeout(() => setRefreshing(false), 700);
+        try {
+          await fetch(`/api/groupquests/${id}/refresh`, { method: "POST" });
+        } finally {
+          router.refresh();
+          setTimeout(() => setRefreshing(false), 700);
+        }
       }}
     >
       {refreshing ? "Refreshing…" : "Refresh checks"}

@@ -11,6 +11,11 @@ export type GroupQuestParticipant = {
   email?: string;
   location?: string;
   joinedAt: string;
+  score?: number;
+  completedQuestIds?: string[];
+  questFinishedAt?: Record<string, string>;
+  lastProofSummary?: string;
+  lastProofAt?: string;
 };
 
 export type ServerGroupQuest = {
@@ -122,11 +127,27 @@ export function upsertHostGroupQuest(metadata: unknown, groupQuest: ServerGroupQ
 }
 
 export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQuestParticipant): ServerGroupQuest {
+  const existing = groupQuest.participants.find((entry) => entry.userId === participant.userId);
   const participants = [
-    participant,
+    {
+      ...existing,
+      ...participant,
+      score: existing?.score ?? participant.score ?? 0,
+      completedQuestIds: existing?.completedQuestIds ?? participant.completedQuestIds ?? [],
+      questFinishedAt: existing?.questFinishedAt ?? participant.questFinishedAt ?? {},
+      lastProofSummary: existing?.lastProofSummary ?? participant.lastProofSummary,
+      lastProofAt: existing?.lastProofAt ?? participant.lastProofAt,
+    },
     ...groupQuest.participants.filter((entry) => entry.userId !== participant.userId),
   ].slice(0, MAX_PARTICIPANTS);
   return { ...groupQuest, participants };
+}
+
+export function updateParticipantProgress(groupQuest: ServerGroupQuest, userId: string, patch: Partial<GroupQuestParticipant>): ServerGroupQuest {
+  return {
+    ...groupQuest,
+    participants: groupQuest.participants.map((participant) => participant.userId === userId ? { ...participant, ...patch } : participant),
+  };
 }
 
 export function buildParticipant(input: {
@@ -150,6 +171,9 @@ export function buildParticipant(input: {
     email: cleanText(input.email, 120),
     location: cleanText(input.location, 80),
     joinedAt: new Date().toISOString(),
+    score: 0,
+    completedQuestIds: [],
+    questFinishedAt: {},
   };
 }
 
@@ -195,6 +219,15 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
     wantsEmailUpdates: record.wantsEmailUpdates === true,
     email: cleanText(record.email, 120),
     location: cleanText(record.location, 80),
+    score: typeof record.score === "number" && record.score >= 0 ? record.score : 0,
+    completedQuestIds: Array.isArray(record.completedQuestIds) ? record.completedQuestIds.filter((entry): entry is string => typeof entry === "string") : [],
+    questFinishedAt: record.questFinishedAt && typeof record.questFinishedAt === "object"
+      ? (Object.fromEntries(
+          Object.entries(record.questFinishedAt as Record<string, unknown>).filter(([, value]) => typeof value === "string"),
+        ) as Record<string, string>)
+      : {},
+    lastProofSummary: cleanText(record.lastProofSummary, 240),
+    lastProofAt: cleanText(record.lastProofAt, 40),
   };
 }
 
