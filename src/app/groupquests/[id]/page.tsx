@@ -185,7 +185,7 @@ export default async function GroupQuestByIdPage({
                     <img src={quest.badgeIdentity.image} alt="" />
                     <div>
                       <strong>{quest.title}</strong>
-                      <span>{quest.proofCallout} · {quest.reward} pts · View full quest</span>
+                      <span>View full quest</span>
                     </div>
                   </Link>
                 ))}
@@ -317,7 +317,7 @@ export default async function GroupQuestByIdPage({
                 <img src={quest.badgeIdentity.image} alt="" />
                 <span>
                   <strong>{quest.title}</strong>
-                  <small>{quest.reward} pts · {quest.proofCallout}</small>
+
                 </span>
               </Link>
             ))}
