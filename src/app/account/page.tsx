@@ -114,6 +114,9 @@ export default async function MyQuestLogPage() {
                   </Link>
                 )) : <p>No active Multiplayer Side Quests yet.</p>}
               </div>
+              <div className="button-row current-mission-multiplayer-actions">
+                <Link href="/groupquests" className="button secondary">Open Multiplayer Side Quests</Link>
+              </div>
             </div>
           </div>
           <div className="current-mission-visual">
