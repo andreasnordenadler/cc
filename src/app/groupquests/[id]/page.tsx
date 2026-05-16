@@ -11,53 +11,6 @@ import { findGroupQuestById } from "@/lib/groupquests";
 
 const questIds = ["knights-before-coffee", "no-castle-club", "rookless-rampage"];
 
-const leaderboardPreview = [
-  {
-    rank: 1,
-    name: "CoffeeKnight",
-    completed: 3,
-    proof: "3/3 verified",
-    last: "Rookless Rampage accepted 12m ago",
-    tone: "gold",
-    questFinishedAt: {
-      "knights-before-coffee": "May 12, 10:37 CEST",
-      "no-castle-club": "May 12, 11:08 CEST",
-      "rookless-rampage": "May 12, 13:38 CEST",
-    },
-  },
-  {
-    rank: 2,
-    name: "QueenlessHero",
-    completed: 2,
-    proof: "2/3 verified",
-    last: "No Castle Club accepted",
-    tone: "blue",
-    questFinishedAt: {
-      "knights-before-coffee": "May 12, 10:52 CEST",
-      "no-castle-club": "May 12, 12:21 CEST",
-    },
-  },
-  {
-    rank: 3,
-    name: "New participant",
-    completed: 1,
-    proof: "1/3 verified",
-    last: "Knights Before Coffee accepted",
-    tone: "green",
-    questFinishedAt: {
-      "knights-before-coffee": "May 12, 12:44 CEST",
-    },
-  },
-];
-
-const eventFeed = [
-  { time: "May 12, 13:38", label: "Proof accepted", copy: "CoffeeKnight completed Rookless Rampage and moved into first." },
-  { time: "May 12, 13:12", label: "Refresh check", copy: "QueenlessHero's latest public game passed No Castle Club rules." },
-  { time: "May 12, 12:44", label: "Your proof", copy: "Knights Before Coffee verified for your entry." },
-  { time: "May 12, 12:21", label: "Proof accepted", copy: "QueenlessHero completed No Castle Club." },
-  { time: "May 12, 11:08", label: "Proof accepted", copy: "CoffeeKnight completed No Castle Club." },
-];
-
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 
 const onboardingSteps = [
@@ -111,6 +64,8 @@ export default async function GroupQuestByIdPage({
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
   const totalReward = quests.reduce((sum, quest) => sum + quest.reward, 0);
+  const participantCount = savedQuest?.participants.length ?? 0;
+  const currentParticipantRank = serverParticipant ? (savedQuest?.participants.findIndex((participant) => participant.userId === userId) ?? -1) + 1 : null;
 
   if (!hasAcceptedInvite) {
     return (
@@ -193,36 +148,8 @@ export default async function GroupQuestByIdPage({
                 </div>
                 <span className="badge green">Live</span>
               </div>
-              <div className="groupquest-leaderboard-list">
-                {leaderboardPreview.map((player) => (
-                  <details className={`groupquest-leaderboard-row ${player.tone}`} key={player.name}>
-                    <summary>
-                      <div className="groupquest-rank">#{player.rank}</div>
-                      <div>
-                        <strong>{player.name}</strong>
-                        <small>{player.proof}</small>
-                      </div>
-                      <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} Side Quests verified`}>
-                        <span style={{ width: `${Math.round((player.completed / quests.length) * 100)}%` }} />
-                      </div>
-                      <div>
-                        <strong>{player.completed} / {quests.length}</strong>
-                        <small>{player.last}</small>
-                      </div>
-                    </summary>
-                    <div className="groupquest-finished-detail" aria-label={`${player.name} quest finish times`}>
-                      {quests.map((quest) => {
-                        const finishedAt = player.questFinishedAt[quest.id as keyof typeof player.questFinishedAt];
-                        return (
-                          <div key={quest.id}>
-                            <span>{quest.title}</span>
-                            <strong>{finishedAt ?? "Not finished yet"}</strong>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </details>
-                ))}
+              <div className="groupquest-empty-state" role="status">
+                <p>{participantCount === 0 ? "No players have joined yet." : `${participantCount} player${participantCount === 1 ? " has" : "s have"} joined so far.`}</p>
               </div>
             </article>
 
@@ -315,20 +242,20 @@ export default async function GroupQuestByIdPage({
 
         <section className="groupquest-score-strip" aria-label="Your competition standing">
           <div>
-            <strong>#3</strong>
+            <strong>{currentParticipantRank ? `#${currentParticipantRank}` : "—"}</strong>
             <span>Your rank</span>
           </div>
           <div>
-            <strong>40</strong>
+            <strong>0</strong>
             <span>Your points</span>
           </div>
           <div>
-            <strong>1 / {quests.length}</strong>
+            <strong>0 / {quests.length}</strong>
             <span>Verified Side Quests</span>
           </div>
           <div>
-            <strong>May 21</strong>
-            <span>Ends 00:00 CEST</span>
+            <strong>{participantCount}</strong>
+            <span>{participantCount === 1 ? "Participant" : "Participants"}</span>
           </div>
         </section>
 
@@ -372,12 +299,10 @@ export default async function GroupQuestByIdPage({
               <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
             </div>
             <ul className="groupquests-feed-list groupquests-activity-list" aria-label="Latest activity updates">
-              {eventFeed.slice(0, 5).map((event) => (
-                <li key={`${event.time}-${event.copy}`}>
-                  <time>{event.time}</time>
-                  <span><strong>{event.label}</strong>{event.copy}</span>
-                </li>
-              ))}
+              <li>
+                <time>Now</time>
+                <span><strong>No proof events yet.</strong> Activity will appear here after players join and verification checks start.</span>
+              </li>
             </ul>
           </article>
         </section>

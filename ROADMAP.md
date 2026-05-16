@@ -81,6 +81,7 @@ Rules from this point:
 - 2026-05-16 ops addition: new-signup Telegram ping should use a production-backed internal monitor path so alerts match the live SQC dashboard rather than local test Clerk.
 - 2026-05-16 approved website polish: prefer SQC display name and real human name over odd Clerk usernames in account/admin/group-quest surfaces, using Clerk username only as a fallback.
 - 2026-05-16 bugfix: multiplayer quest creation/join should compact SQC analytics before writing Clerk private metadata so group-quest saves do not fail on the 8 KB private_metadata limit.
+- 2026-05-16 bugfix: multiplayer quest pages must not show fake populated leaderboard/activity placeholder data when the real participant/event state is empty.
 - 2026-05-16 bugfix: multiplayer quest creators should land already joined when they already have a saved chess username, and the join modal should not trigger browser login/password autofill prompts for a non-auth username field.
 
 - [ ] Add Facebook login to Clerk for SQC.

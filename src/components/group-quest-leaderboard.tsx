@@ -49,63 +49,6 @@ function leaderboardAnchorFor(player: Pick<Player, "rank">) {
   return `leaderboard-rank-${player.rank}`;
 }
 
-const baseLeaderboard: Player[] = [
-  {
-    rank: 1,
-    name: "CoffeeKnight",
-    handle: "lichess: coffeeknight",
-    score: 1590,
-    completed: 3,
-    proof: "3/3 verified",
-    last: "Rookless Rampage accepted 12m ago",
-    tone: "gold",
-    questFinishedAt: {
-      "knights-before-coffee": "May 12, 10:37 CEST",
-      "no-castle-club": "May 12, 11:08 CEST",
-      "rookless-rampage": "May 12, 13:38 CEST",
-    },
-  },
-  {
-    rank: 2,
-    name: "QueenlessHero",
-    handle: "chess.com: queenlesshero",
-    score: 340,
-    completed: 2,
-    proof: "2/3 verified",
-    last: "No Castle Club accepted",
-    tone: "blue",
-    questFinishedAt: {
-      "knights-before-coffee": "May 12, 10:52 CEST",
-      "no-castle-club": "May 12, 12:21 CEST",
-    },
-  },
-  {
-    rank: 3,
-    name: "You",
-    handle: "participant",
-    score: 40,
-    completed: 1,
-    proof: "1/3 verified",
-    last: "Knights Before Coffee accepted",
-    tone: "green",
-    isCurrentParticipant: true,
-    questFinishedAt: {
-      "knights-before-coffee": "May 12, 12:44 CEST",
-    },
-  },
-  {
-    rank: 4,
-    name: "BlunderBaron",
-    handle: "lichess: blunderbaron",
-    score: 0,
-    completed: 0,
-    proof: "checking latest games",
-    last: "Joined · no valid proof yet",
-    tone: "muted",
-    questFinishedAt: {},
-  },
-];
-
 function formatProvider(value: unknown) {
   if (value === "chesscom") return "chess.com";
   if (value === "lichess") return "lichess";
@@ -162,8 +105,7 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
     isCurrentParticipant: participant.userId === currentUserId,
     questFinishedAt: {},
   }));
-  const sourcePlayers = serverPlayers.length ? serverPlayers : baseLeaderboard;
-  const players = sourcePlayers.map((player) => {
+  const players = serverPlayers.map((player) => {
     if (!player.isCurrentParticipant || !currentParticipant) return player;
     return { ...player, name: currentParticipant.name, handle: currentParticipant.handle };
   });
@@ -205,6 +147,11 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
         </div>
         <button className="button secondary groupquest-refresh-button" type="button">Refresh checks</button>
       </div>
+      {players.length === 0 ? (
+        <div className="groupquest-empty-state" role="status">
+          <p>No participants have joined this Multiplayer Side Quest yet.</p>
+        </div>
+      ) : null}
       <div className="groupquest-leaderboard-list">
         {players.map((player) => (
           <details id={leaderboardAnchorFor(player)} className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
