@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
-import { getStoredGroupQuests, listPublicGroupQuests } from "@/lib/groupquests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 
 const overviewSteps = [
   {
@@ -66,20 +66,20 @@ export default async function GroupQuestsPage() {
 
   if (userId) {
     const client = await clerkClient();
-    const user = await client.users.getUser(userId);
-    const ownQuests = getStoredGroupQuests(user.privateMetadata).sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt));
+    const ownQuests = await listUserRelatedGroupQuests(client, userId);
     const publicQuests = (await listPublicGroupQuests(client)).filter((quest) => quest.hostUserId !== userId);
 
     activeRooms = ownQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
       .map((quest) => {
         const state = deriveQuestState(quest.startAt, quest.endAt);
+        const isHost = quest.hostUserId === userId;
         return {
           title: quest.name,
           status: state.status,
-          meta: `${quest.inviteMode === "public" ? "Public" : quest.inviteMode === "unlisted-link" ? "Unlisted" : "Invite-only"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+          meta: `${isHost ? "Hosting" : "Playing"} · ${quest.inviteMode === "public" ? "Public" : quest.inviteMode === "unlisted-link" ? "Unlisted" : "Invite-only"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
           next: state.next,
-          href: `/groupquests/${quest.id}`,
+          href: `/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`,
           action: state.status === "Soon" ? "Review" : "Open",
           tone: state.tone,
         };
@@ -87,12 +87,15 @@ export default async function GroupQuestsPage() {
 
     finishedRooms = ownQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status === "Finished")
-      .map((quest) => ({
-        title: quest.name,
-        meta: `Finished · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
-        href: `/groupquests/${quest.id}`,
-        action: "Results",
-      }));
+      .map((quest) => {
+        const isHost = quest.hostUserId === userId;
+        return {
+          title: quest.name,
+          meta: `Finished · ${isHost ? "Hosted" : "Played"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+          href: `/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`,
+          action: "Results",
+        };
+      });
 
     publicRooms = publicQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
@@ -173,7 +176,7 @@ export default async function GroupQuestsPage() {
                   <div className="groupquests-list-heading">
                     <div>
                       <h3>My Active Multiplayer Side Quests</h3>
-                      <p>Live Multiplayer Side Quests, upcoming Multiplayer Side Quests, and drafts you manage.</p>
+                      <p>Live Multiplayer Side Quests, upcoming Multiplayer Side Quests, and joined runs tied to your account.</p>
                     </div>
                     <span className="badge gold">{activeRooms.length}</span>
                   </div>

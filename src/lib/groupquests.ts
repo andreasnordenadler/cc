@@ -111,6 +111,24 @@ export async function findGroupQuestById(
   return null;
 }
 
+
+export async function listUserRelatedGroupQuests(
+  client: { users: { getUserList: (params: { limit: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  userId: string,
+) {
+  const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
+  const related = users.data
+    .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
+    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId));
+
+  const seen = new Set<string>();
+  return related.filter((quest) => {
+    if (seen.has(quest.id)) return false;
+    seen.add(quest.id);
+    return true;
+  }).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+}
+
 export async function listPublicGroupQuests(
   client: { users: { getUserList: (params: { limit: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
 ) {
@@ -141,6 +159,13 @@ export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQ
     ...groupQuest.participants.filter((entry) => entry.userId !== participant.userId),
   ].slice(0, MAX_PARTICIPANTS);
   return { ...groupQuest, participants };
+}
+
+export function removeParticipantFromGroupQuest(groupQuest: ServerGroupQuest, userId: string): ServerGroupQuest {
+  return {
+    ...groupQuest,
+    participants: groupQuest.participants.filter((participant) => participant.userId !== userId),
+  };
 }
 
 export function updateParticipantProgress(groupQuest: ServerGroupQuest, userId: string, patch: Partial<GroupQuestParticipant>): ServerGroupQuest {

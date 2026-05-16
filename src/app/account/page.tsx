@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
 import { CHALLENGES } from "@/lib/challenges";
@@ -15,6 +15,16 @@ import {
   getPreferredRunnerName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
+import { listUserRelatedGroupQuests } from "@/lib/groupquests";
+
+function deriveGroupQuestStatus(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = Date.parse(startAt);
+  const end = Date.parse(endAt);
+  if (Number.isFinite(start) && start > now) return "Soon";
+  if (Number.isFinite(end) && end < now) return "Finished";
+  return "Live";
+}
 
 export default async function MyQuestLogPage() {
   const user = await currentUser();
@@ -42,32 +52,30 @@ export default async function MyQuestLogPage() {
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
   const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
-  const multiplayerVictories = [
-    {
-      placement: "Gold",
-      title: "No Castle Night",
-      completedAt: "May 12, 13:38 CEST",
-      href: "/groupquests/80303?accepted=1#leaderboard-rank-1",
-      seal: "/stamps/side_quest_chess_seal_gold_transparent.png",
-      copy: "First player to complete the full Multiplayer Side Quest stack.",
-      defeated: "3 players bested",
-    },
-  ];
+  const multiplayerVictories: Array<{
+    placement: string;
+    title: string;
+    completedAt: string;
+    href: string;
+    seal: string;
+    copy: string;
+    defeated: string;
+  }> = [];
 
-  const activeGroupQuests = [
-    {
-      title: "No Castle Night",
-      status: "Live",
-      copy: "Fresh No Castle proof needed · 4 players",
-      href: "/groupquests/gq_demo_no_castle_01",
-    },
-    {
-      title: "Beginner Chaos Ladder",
-      status: "Starting soon",
-      copy: "Confirm Blitz 5+3 rules before this opens",
-      href: "/groupquests/gq_demo_no_castle_01",
-    },
-  ];
+  const client = await clerkClient();
+  const relatedGroupQuests = await listUserRelatedGroupQuests(client, user.id);
+  const activeGroupQuests = relatedGroupQuests
+    .map((quest) => {
+      const isHost = quest.hostUserId === user.id;
+      const status = deriveGroupQuestStatus(quest.startAt, quest.endAt);
+      return {
+        title: quest.name,
+        status,
+        copy: `${isHost ? "Hosting" : "Playing"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+        href: `/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`,
+      };
+    })
+    .filter((quest) => quest.status !== "Finished");
 
   return (
     <main className="site-shell">
@@ -94,13 +102,13 @@ export default async function MyQuestLogPage() {
             <div className="current-mission-multiplayer" aria-label="Active multiplayer side quests">
               <span className="eyebrow">Active Multiplayer Side Quests</span>
               <div className="active-multiplayer-list">
-                {activeGroupQuests.map((quest) => (
+                {activeGroupQuests.length ? activeGroupQuests.map((quest) => (
                   <Link href={quest.href} className="active-multiplayer-row" key={quest.title}>
                     <Image src="/stamps/SQCBLACK%20SEAL.png" alt="" width={36} height={36} />
                     <strong>{quest.title}</strong>
                     <span>{quest.status} · {quest.copy}</span>
                   </Link>
-                ))}
+                )) : <p>No active Multiplayer Side Quests yet.</p>}
               </div>
             </div>
           </div>

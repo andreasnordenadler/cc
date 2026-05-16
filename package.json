@@ -9,6 +9,7 @@
     "lint": "eslint",
     "deploy:prod:guard": "node scripts/deploy-production-guard.mjs",
     "deploy:prod": "pnpm deploy:prod:guard && vercel --prod --yes",
+    "qa:multiplayer:local": "node scripts/multiplayer-qa-local.cjs",
     "qa:launch:local": "node scripts/launch-qa-local.cjs",
     "qa:launch:providers": "node scripts/launch-qa-providers.mjs",
     "admin:grant-analytics": "node scripts/grant-sqc-admin.cjs"

@@ -109,6 +109,15 @@ Rules from this point:
   - added_at: 2026-05-16 11:49 Europe/Stockholm
   - source: Andreas said the `Leave...` button was too prominent, as if we wanted users to leave.
 
+- [x] Show real Multiplayer Side Quests on My Side Quest surfaces.
+  - added_at: 2026-05-16 11:51 Europe/Stockholm
+  - source: Andreas said the My Side Quest page did not show the actual Multiplayer quests.
+
+- [ ] Run a full Multiplayer Side Quest regression sweep and fix remaining server/UI mismatches.
+  - added_at: 2026-05-16 11:59 Europe/Stockholm
+  - source: Andreas said multiplayer issues are top priority and need proper testing plus immediate fixes.
+  - scope: create → share → join → accepted page → refresh/proof sync → account/home/groupquests visibility → leave flow.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

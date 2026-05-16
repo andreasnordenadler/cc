@@ -6,23 +6,39 @@ import { useState } from "react";
 export default function GroupQuestRefreshButton({ id }: { id: string }) {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
 
   return (
-    <button
-      className="button secondary groupquest-refresh-button"
-      type="button"
-      disabled={refreshing}
-      onClick={async () => {
-        setRefreshing(true);
-        try {
-          await fetch(`/api/groupquests/${id}/refresh`, { method: "POST" });
-        } finally {
-          router.refresh();
-          setTimeout(() => setRefreshing(false), 700);
-        }
-      }}
-    >
-      {refreshing ? "Refreshing…" : "Refresh checks"}
-    </button>
+    <>
+      <button
+        className="button secondary groupquest-refresh-button"
+        type="button"
+        disabled={refreshing}
+        onClick={async () => {
+          setRefreshing(true);
+          setStatus(null);
+          try {
+            const response = await fetch(`/api/groupquests/${id}/refresh`, { method: "POST" });
+            const payload = await response.json().catch(() => null);
+            if (!response.ok) {
+              setStatus(payload?.error === "not_joined"
+                ? "Join this Multiplayer Side Quest before refreshing checks."
+                : payload?.error === "sign_in_required"
+                  ? "Sign in to refresh Multiplayer Side Quest checks."
+                  : "Could not refresh checks right now.");
+            } else if (Array.isArray(payload?.checks)) {
+              const passed = payload.checks.filter((check: { status?: string }) => check.status === "passed").length;
+              setStatus(`${passed} of ${payload.checks.length} Side Quests verified.`);
+            }
+          } finally {
+            router.refresh();
+            setTimeout(() => setRefreshing(false), 700);
+          }
+        }}
+      >
+        {refreshing ? "Refreshing…" : "Refresh checks"}
+      </button>
+      {status ? <small>{status}</small> : null}
+    </>
   );
 }

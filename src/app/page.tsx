@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import AuthActionButtons from "@/components/auth-action-buttons";
 import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
@@ -12,58 +12,22 @@ import {
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
+import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 
 
-const activeMultiplayerSideQuests = [
-  {
-    title: "No Castle Night",
-    status: "Live",
-    meta: "Hosting · 4 players · Blitz 5+3",
-    next: "Submit fresh proof",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Open",
-    tone: "green",
-  },
-  {
-    title: "Beginner Chaos Ladder",
-    status: "Soon",
-    meta: "Playing · starts in 2 hours · Blitz only",
-    next: "Review rules",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Review",
-    tone: "gold",
-  },
-];
+function toTimestamp(value: string) {
+  const ts = Date.parse(value);
+  return Number.isFinite(ts) ? ts : 0;
+}
 
-const publicMultiplayerSideQuests = [
-  {
-    title: "No Castle Night",
-    status: "Open",
-    meta: "Public · Blitz 5+3 · 4 players",
-    next: "Join the Multiplayer Side Quest",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Join",
-    tone: "green",
-  },
-  {
-    title: "Weekly Chaos Table",
-    status: "Open",
-    meta: "Public · any verified account · fresh proof",
-    next: "Review rules",
-    href: "/groupquests/public",
-    action: "View",
-    tone: "gold",
-  },
-];
-
-const closedMultiplayerSideQuests = [
-  {
-    title: "Proof Loop Warmup",
-    meta: "Finished · you placed 2nd",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Results",
-  },
-];
+function deriveQuestState(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = toTimestamp(startAt);
+  const end = toTimestamp(endAt);
+  if (start && now < start) return { status: "Soon", tone: "gold", next: "Review rules", action: "Review" };
+  if (end && now > end) return { status: "Finished", tone: "muted", next: "View results", action: "Results" };
+  return { status: "Live", tone: "green", next: "Open", action: "Open" };
+}
 
 const heroismOptions = [
   {
@@ -100,6 +64,55 @@ export default async function Home() {
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
   const connectedIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" / ");
+  let activeMultiplayerSideQuests: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
+  let publicMultiplayerSideQuests: typeof activeMultiplayerSideQuests = [];
+  let closedMultiplayerSideQuests: Array<{ title: string; meta: string; href: string; action: string }> = [];
+
+  if (userId) {
+    const client = await clerkClient();
+    const related = await listUserRelatedGroupQuests(client, userId);
+    const publicQuests = (await listPublicGroupQuests(client)).filter((quest) => quest.hostUserId !== userId);
+
+    activeMultiplayerSideQuests = related
+      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
+      .map((quest) => {
+        const state = deriveQuestState(quest.startAt, quest.endAt);
+        const isHost = quest.hostUserId === userId;
+        return {
+          title: quest.name,
+          status: state.status,
+          meta: `${isHost ? "Hosting" : "Playing"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+          next: state.next,
+          href: `/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`,
+          action: state.action,
+          tone: state.tone,
+        };
+      });
+
+    publicMultiplayerSideQuests = publicQuests
+      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
+      .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
+      .slice(0, 12)
+      .map((quest) => ({
+        title: quest.name,
+        status: "Open",
+        meta: `Public · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+        next: "Inspect and join",
+        href: `/groupquests/${quest.id}`,
+        action: "Join",
+        tone: "green",
+      }));
+
+    closedMultiplayerSideQuests = related
+      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status === "Finished")
+      .map((quest) => ({
+        title: quest.name,
+        meta: `Finished · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+        href: `/groupquests/${quest.id}`,
+        action: "Results",
+      }));
+  }
+
   const badgePreviewChallenges = CHALLENGES.filter((challenge) => challenge.badgeIdentity.image).slice(0, 6);
   const heroismChoices = heroismOptions
     .map((option) => {
@@ -262,7 +275,7 @@ export default async function Home() {
                   </div>
 
                   <div className="groupquests-compact-room-list">
-                    {activeMultiplayerSideQuests.map((quest) => (
+                    {activeMultiplayerSideQuests.length ? activeMultiplayerSideQuests.map((quest) => (
                       <Link className={`groupquests-compact-room ${quest.tone}`} href={quest.href} key={quest.title}>
                         <strong>{quest.status}</strong>
                         <div>
@@ -272,7 +285,7 @@ export default async function Home() {
                         <span>{quest.next}</span>
                         <em>{quest.action}</em>
                       </Link>
-                    ))}
+                    )) : <p>No active Multiplayer Side Quests yet.</p>}
                   </div>
                 </section>
 
@@ -286,7 +299,7 @@ export default async function Home() {
                   </div>
 
                   <div className="groupquests-compact-room-list">
-                    {publicMultiplayerSideQuests.map((quest) => (
+                    {publicMultiplayerSideQuests.length ? publicMultiplayerSideQuests.map((quest) => (
                       <Link className={`groupquests-compact-room ${quest.tone}`} href={quest.href} key={quest.title}>
                         <strong>{quest.status}</strong>
                         <div>
@@ -296,7 +309,7 @@ export default async function Home() {
                         <span>{quest.next}</span>
                         <em>{quest.action}</em>
                       </Link>
-                    ))}
+                    )) : <p>No public Multiplayer Side Quests available right now.</p>}
                   </div>
                 </section>
 
@@ -310,7 +323,7 @@ export default async function Home() {
                   </div>
 
                   <div className="groupquests-finished-list">
-                    {closedMultiplayerSideQuests.map((quest) => (
+                    {closedMultiplayerSideQuests.length ? closedMultiplayerSideQuests.map((quest) => (
                       <Link className="groupquests-finished-row" href={quest.href} key={quest.title}>
                         <div>
                           <strong>{quest.title}</strong>
@@ -318,7 +331,7 @@ export default async function Home() {
                         </div>
                         <span>{quest.action}</span>
                       </Link>
-                    ))}
+                    )) : <p>No finished Multiplayer Side Quests yet.</p>}
                   </div>
                 </section>
               </div>

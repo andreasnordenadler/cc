@@ -1429,8 +1429,10 @@ p { color: var(--muted); line-height: 1.5; }
 
 .groupquest-leave-zone { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0 2px; opacity: .82; }
 .groupquest-leave-zone p { margin: 0; font-size: .78rem; color: var(--muted); }
+.groupquest-leave-zone small { font-size: .74rem; color: var(--muted); }
 .groupquest-leave-button { border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(255,255,255,.03); color: var(--muted); box-shadow: none; padding: 8px 12px; font: inherit; font-size: .78rem; font-weight: 700; letter-spacing: .01em; cursor: pointer; }
 .groupquest-leave-button:hover, .groupquest-leave-button:focus-visible { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.06); color: var(--text); outline: none; }
+.groupquest-leave-button:disabled { opacity: .6; cursor: wait; }
 .quest-achievement-sections { display: grid; gap: 18px; }
 .quest-achievement-lane { display: grid; gap: 14px; padding: 14px; border: 1px solid rgba(236,228,204,.12); border-radius: 26px; background: rgba(0,0,0,.12); }
 .quest-achievement-lane-head { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
