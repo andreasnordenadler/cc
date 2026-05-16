@@ -1385,6 +1385,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-onboarding-steps { display: grid; gap: 10px; margin-top: 14px; }
 .groupquest-onboarding-step { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 10px; align-items: start; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.16); color: inherit; text-decoration: none; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
 .groupquest-onboarding-step:hover, .groupquest-onboarding-step:focus-visible { border-color: rgba(245,200,106,.42); background: rgba(245,200,106,.08); transform: translateY(-1px); outline: none; }
+.groupquest-onboarding-step-button { width: 100%; text-align: left; font: inherit; cursor: pointer; }
 .groupquest-onboarding-step.primary-step { border-color: rgba(96,240,175,.45); background: linear-gradient(135deg, rgba(96,240,175,.17), rgba(245,200,106,.09)); box-shadow: 0 14px 30px rgba(0,0,0,.18); }
 .groupquest-onboarding-step.primary-step em { background: var(--green); color: #102016; }
 .groupquest-onboarding-steps em { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.18); color: var(--gold); font-style: normal; font-weight: 1000; }

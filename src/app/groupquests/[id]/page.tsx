@@ -153,9 +153,19 @@ export default async function GroupQuestByIdPage({
                   );
 
                   return isAcceptStep ? (
-                    <div className="groupquest-onboarding-step primary-step" key={step.title}>
+                    <GroupQuestAcceptModal
+                      id={id}
+                      questName={questName}
+                      isSignedIn={Boolean(userId)}
+                      defaultProvider={acceptProvider}
+                      defaultUsername={acceptUsername}
+                      defaultLeaderboardName={acceptLeaderboardName}
+                      canAutoJoin={canAutoAccept}
+                      buttonClassName="groupquest-onboarding-step primary-step groupquest-onboarding-step-button"
+                      key={step.title}
+                    >
                       {content}
-                    </div>
+                    </GroupQuestAcceptModal>
                   ) : (
                     <div className="groupquest-onboarding-step" key={step.title}>
                       {content}

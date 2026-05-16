@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 const storagePrefix = "sqc-groupquest-participant:";
 
@@ -14,6 +14,9 @@ export default function GroupQuestAcceptModal({
   defaultUsername = "",
   defaultLeaderboardName = "",
   canAutoJoin = false,
+  buttonClassName = "button primary",
+  buttonLabel,
+  children,
 }: {
   id: string;
   questName: string;
@@ -22,6 +25,9 @@ export default function GroupQuestAcceptModal({
   defaultUsername?: string;
   defaultLeaderboardName?: string;
   canAutoJoin?: boolean;
+  buttonClassName?: string;
+  buttonLabel?: string;
+  children?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [provider, setProvider] = useState<JoinProvider>(defaultProvider);
@@ -118,7 +124,9 @@ export default function GroupQuestAcceptModal({
 
   return (
     <>
-      <button className="button primary" onClick={openModal} type="button">{isSignedIn ? "Accept this Side Quest" : "Sign in to accept"}</button>
+      <button className={buttonClassName} onClick={openModal} type="button">
+        {children ?? (isSignedIn ? (buttonLabel ?? "Accept this Side Quest") : (buttonLabel ?? "Sign in to accept"))}
+      </button>
 
       {open ? (
         <div className="groupquest-join-overlay" role="presentation">
