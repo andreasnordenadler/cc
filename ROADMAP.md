@@ -90,6 +90,7 @@ Rules from this point:
 - 2026-05-16 bugfix: signed-in users with saved chess identity should accept a Multiplayer Side Quest directly instead of seeing the manual join form again.
 - 2026-05-16 layout polish: multiplayer accepted/invite action buttons should stay on one row instead of stacking awkwardly.
 - 2026-05-16 ux polish: onboarding step 1 on the multiplayer invite page should be clickable and trigger the same accept flow as the main Accept button.
+- 2026-05-16 bugfix: signed-in multiplayer command center should still display open public quests when the current user is the host, and public rows should expose a clear Open/Join action into the quest page.
 - 2026-05-16 layout polish: accepted multiplayer quest page should place `Quests to complete` below the stats strip, not above it.
 - 2026-05-16 layout polish: accepted multiplayer quest rules card should span full width after the separate activity card was removed.
 

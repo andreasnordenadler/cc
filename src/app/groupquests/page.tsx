@@ -67,7 +67,7 @@ export default async function GroupQuestsPage() {
   if (userId) {
     const client = await clerkClient();
     const ownQuests = await listUserRelatedGroupQuests(client, userId);
-    const publicQuests = (await listPublicGroupQuests(client)).filter((quest) => quest.hostUserId !== userId);
+    const publicQuests = await listPublicGroupQuests(client);
 
     activeRooms = ownQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
@@ -101,15 +101,19 @@ export default async function GroupQuestsPage() {
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
       .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
       .slice(0, 12)
-      .map((quest) => ({
-        title: quest.name,
-        status: "Open",
-        meta: `Public · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
-        next: "Inspect and join",
-        href: `/groupquests/${quest.id}`,
-        action: "Join",
-        tone: "green",
-      }));
+      .map((quest) => {
+        const isHost = quest.hostUserId === userId;
+        const isParticipant = quest.participants.some((participant) => participant.userId === userId);
+        return {
+          title: quest.name,
+          status: "Open",
+          meta: `${isHost ? "Hosted public quest" : isParticipant ? "Joined public quest" : "Public"} · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+          next: isHost ? "Open listing" : isParticipant ? "Open joined quest" : "Inspect and join",
+          href: `/groupquests/${quest.id}${!isHost && isParticipant ? "?accepted=1" : ""}`,
+          action: isHost || isParticipant ? "Open" : "Join",
+          tone: "green",
+        };
+      });
   }
 
   return (
