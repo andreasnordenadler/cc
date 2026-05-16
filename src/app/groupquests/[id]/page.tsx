@@ -256,7 +256,7 @@ export default async function GroupQuestByIdPage({
             </div>
             <h1>{questName}</h1>
             <p className="hero-copy">
-              Three Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
+              Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
             {canShareQuest ? (
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
