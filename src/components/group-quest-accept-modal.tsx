@@ -112,12 +112,20 @@ export default function GroupQuestAcceptModal({ id, questName, isSignedIn = true
 
               <label>
                 <span>Public username</span>
-                <input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder={provider === "lichess" ? "e.g. coffeeKnight" : "e.g. queenlesshero"} />
+                <input
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder={provider === "lichess" ? "e.g. coffeeKnight" : "e.g. queenlesshero"}
+                />
               </label>
 
               <label>
                 <span>Leaderboard name</span>
-                <input value={leaderboardName} onChange={(event) => setLeaderboardName(event.target.value)} placeholder="Name shown on the leaderboard" />
+                <input autoComplete="nickname" value={leaderboardName} onChange={(event) => setLeaderboardName(event.target.value)} placeholder="Name shown on the leaderboard" />
               </label>
 
               <label className="groupquest-checkbox-row">
