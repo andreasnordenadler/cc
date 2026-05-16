@@ -1,6 +1,5 @@
 import { getChallengeById } from "@/lib/challenges";
-import { checkLatestChessComFinishedGame } from "@/lib/chesscom";
-import { checkLatestLichessFinishedGame } from "@/lib/lichess";
+import { checkLatestChallengeForProvider } from "@/lib/challenge-latest-verifiers";
 
 export type GroupQuestCheckResult = {
   status: "passed" | "failed" | "pending";
@@ -68,19 +67,10 @@ export async function checkLatestGroupQuestChallenge(input: {
     };
   }
 
-  if (challengeId === "finish-any-game") {
-    if (provider === "lichess") {
-      return buildWindowedResult(challengeId, await checkLatestLichessFinishedGame(username), startAt, endAt);
-    }
-
-    if (provider === "chesscom") {
-      return buildWindowedResult(challengeId, await checkLatestChessComFinishedGame(username), startAt, endAt);
-    }
-  }
-
-  return {
-    status: "pending",
-    gameId: `${challengeId}-unsupported`,
-    summary: `Latest-game checking is not wired for ${getChallengeById(challengeId)?.title ?? challengeId} on this provider yet.`,
-  };
+  return buildWindowedResult(
+    challengeId,
+    await checkLatestChallengeForProvider({ challengeId, provider, username }),
+    startAt,
+    endAt,
+  );
 }

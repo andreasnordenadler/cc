@@ -91,6 +91,7 @@ Rules from this point:
 - 2026-05-16 layout polish: multiplayer accepted/invite action buttons should stay on one row instead of stacking awkwardly.
 - 2026-05-16 ux polish: onboarding step 1 on the multiplayer invite page should be clickable and trigger the same accept flow as the main Accept button.
 - 2026-05-16 bugfix: signed-in multiplayer command center should still display open public quests when the current user is the host, and public rows should expose a clear Open/Join action into the quest page.
+- 2026-05-16 architecture: multiplayer refresh/proof sync must support every current and future Side Quest through one shared verifier interface, not quest-specific one-offs.
 - 2026-05-16 bugfix: account-page multiplayer list should refresh from live membership after leave/join changes instead of hanging onto stale rows.
 - 2026-05-16 ux polish: when the active side quest is already completed and no new quest has been picked yet, account page should show a `Pick your next quest` CTA to `/challenges`.
 - 2026-05-16 ux polish: completed current-mission coat of arms should show a red completion seal on account page.
