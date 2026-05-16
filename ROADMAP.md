@@ -84,6 +84,7 @@ Rules from this point:
 - 2026-05-16 bugfix: multiplayer quest pages must not show fake populated leaderboard/activity placeholder data when the real participant/event state is empty.
 - 2026-05-16 bugfix: multiplayer quest creators should land already joined when they already have a saved chess username, and the join modal should not trigger browser login/password autofill prompts for a non-auth username field.
 - 2026-05-16 bugfix: multiplayer quest `Refresh checks` buttons must trigger a real server refresh instead of being dead UI.
+- 2026-05-16 bugfix: multiplayer command center must read live saved quest data instead of prototype demo arrays so newly created quests appear immediately.
 
 - [ ] Add Facebook login to Clerk for SQC.
   - added_at: 2026-05-14 15:05 Europe/Stockholm

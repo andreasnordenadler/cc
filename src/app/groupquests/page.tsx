@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
+import { getStoredGroupQuests, listPublicGroupQuests } from "@/lib/groupquests";
 
 const overviewSteps = [
   {
@@ -11,7 +12,7 @@ const overviewSteps = [
   },
   {
     title: "Invite",
-    copy: "Share the invite link so players can inspect the side quests, proof window, locked rules, and join conditions before committing.",
+    copy: "Share the invite link so players can inspect the side quests, proof window, and join conditions before committing.",
   },
   {
     title: "Play",
@@ -38,79 +39,75 @@ const loggedOutActions = [
   },
 ];
 
-const activeRooms = [
-  {
-    title: "No Castle Night",
-    status: "Live",
-    meta: "Hosting · 4 players · Blitz 5+3",
-    next: "Submit fresh proof",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Open",
-    tone: "green",
-  },
-  {
-    title: "Beginner Chaos Ladder",
-    status: "Soon",
-    meta: "Playing · starts in 2 hours · Blitz only",
-    next: "Review rules",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Review",
-    tone: "gold",
-  },
-  {
-    title: "Friday Fool’s Mate Sprint",
-    status: "Draft",
-    meta: "Managing · invite link not shared yet",
-    next: "Add players",
-    href: "/groupquests/create",
-    action: "Setup",
-    tone: "blue",
-  },
-];
-
-const publicRooms = [
-  {
-    title: "No Castle Night",
-    status: "Open",
-    meta: "Public · Blitz 5+3 · 4 players",
-    next: "Join the Multiplayer Side Quest",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Join",
-    tone: "green",
-  },
-  {
-    title: "Weekly Chaos Table",
-    status: "Open",
-    meta: "Public · any verified account · fresh proof",
-    next: "Review rules",
-    href: "/groupquests/public",
-    action: "View",
-    tone: "gold",
-  },
-];
-
-const finishedRooms = [
-  {
-    title: "Proof Loop Warmup",
-    meta: "Finished · you placed 2nd",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Results",
-  },
-  {
-    title: "Pawn Storm Weekend",
-    meta: "Finished · final proof saved",
-    href: "/groupquests/gq_demo_no_castle_01",
-    action: "Results",
-  },
-];
-
 export const metadata = {
   title: "Multiplayer Side Quests · Side Quest Chess",
   description: "Side Quest Chess Multiplayer Side Quests for shared side quests, fresh proof, and multiplayer leaderboards.",
 };
 
+function toTimestamp(value: string) {
+  const ts = Date.parse(value);
+  return Number.isFinite(ts) ? ts : 0;
+}
+
+function deriveQuestState(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = toTimestamp(startAt);
+  const end = toTimestamp(endAt);
+  if (start && now < start) return { status: "Soon", tone: "gold", next: "Review rules" };
+  if (end && now > end) return { status: "Finished", tone: "muted", next: "View results" };
+  return { status: "Live", tone: "green", next: "Open" };
+}
+
 export default async function GroupQuestsPage() {
   const { userId } = await auth();
+  let activeRooms: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
+  let publicRooms: typeof activeRooms = [];
+  let finishedRooms: Array<{ title: string; meta: string; href: string; action: string }> = [];
+
+  if (userId) {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const ownQuests = getStoredGroupQuests(user.privateMetadata).sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt));
+    const publicQuests = (await listPublicGroupQuests(client)).filter((quest) => quest.hostUserId !== userId);
+
+    activeRooms = ownQuests
+      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
+      .map((quest) => {
+        const state = deriveQuestState(quest.startAt, quest.endAt);
+        return {
+          title: quest.name,
+          status: state.status,
+          meta: `${quest.inviteMode === "public" ? "Public" : quest.inviteMode === "unlisted-link" ? "Unlisted" : "Invite-only"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+          next: state.next,
+          href: `/groupquests/${quest.id}`,
+          action: state.status === "Soon" ? "Review" : "Open",
+          tone: state.tone,
+        };
+      });
+
+    finishedRooms = ownQuests
+      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status === "Finished")
+      .map((quest) => ({
+        title: quest.name,
+        meta: `Finished · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+        href: `/groupquests/${quest.id}`,
+        action: "Results",
+      }));
+
+    publicRooms = publicQuests
+      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
+      .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
+      .slice(0, 12)
+      .map((quest) => ({
+        title: quest.name,
+        status: "Open",
+        meta: `Public · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+        next: "Inspect and join",
+        href: `/groupquests/${quest.id}`,
+        action: "Join",
+        tone: "green",
+      }));
+  }
 
   return (
     <main className="site-shell groupquests-page">
@@ -146,11 +143,7 @@ export default async function GroupQuestsPage() {
                   );
 
                   return step.href ? (
-                    <Link
-                      className="groupquests-how-step clickable"
-                      href={step.href}
-                      key={step.title}
-                    >
+                    <Link className="groupquests-how-step clickable" href={step.href} key={step.title}>
                       {content}
                     </Link>
                   ) : (
@@ -172,13 +165,7 @@ export default async function GroupQuestsPage() {
                   <h2>Your multiplayer command center.</h2>
                   <p>Your active Multiplayer Side Quests, public Multiplayer Side Quests you can join, and closed results — all in one simple list.</p>
                 </div>
-                <Image
-                  alt=""
-                  className="groupquests-command-seal"
-                  height={112}
-                  src="/stamps/SQCBLACK%20SEAL.png"
-                  width={112}
-                />
+                <Image alt="" className="groupquests-command-seal" height={112} src="/stamps/SQCBLACK%20SEAL.png" width={112} />
               </div>
 
               <div className="groupquests-timeline-list" aria-label="Your Multiplayer Quests">
@@ -191,19 +178,21 @@ export default async function GroupQuestsPage() {
                     <span className="badge gold">{activeRooms.length}</span>
                   </div>
 
-                  <div className="groupquests-compact-room-list">
-                    {activeRooms.map((room) => (
-                      <Link className={`groupquests-compact-room ${room.tone}`} href={room.href} key={room.title}>
-                        <strong>{room.status}</strong>
-                        <div>
-                          <h4>{room.title}</h4>
-                          <p>{room.meta}</p>
-                        </div>
-                        <span>{room.next}</span>
-                        <em>{room.action}</em>
-                      </Link>
-                    ))}
-                  </div>
+                  {activeRooms.length ? (
+                    <div className="groupquests-compact-room-list">
+                      {activeRooms.map((room) => (
+                        <Link className={`groupquests-compact-room ${room.tone}`} href={room.href} key={room.href}>
+                          <strong>{room.status}</strong>
+                          <div>
+                            <h4>{room.title}</h4>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.next}</span>
+                          <em>{room.action}</em>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>No active Multiplayer Side Quests yet. Create one to start the chaos.</p>}
                 </section>
 
                 <section className="groupquests-list-section" aria-label="Public Multiplayer Side Quests">
@@ -215,19 +204,21 @@ export default async function GroupQuestsPage() {
                     <span className="badge gold">{publicRooms.length}</span>
                   </div>
 
-                  <div className="groupquests-compact-room-list">
-                    {publicRooms.map((room) => (
-                      <Link className={`groupquests-compact-room ${room.tone}`} href={room.href} key={room.title}>
-                        <strong>{room.status}</strong>
-                        <div>
-                          <h4>{room.title}</h4>
-                          <p>{room.meta}</p>
-                        </div>
-                        <span>{room.next}</span>
-                        <em>{room.action}</em>
-                      </Link>
-                    ))}
-                  </div>
+                  {publicRooms.length ? (
+                    <div className="groupquests-compact-room-list">
+                      {publicRooms.map((room) => (
+                        <Link className={`groupquests-compact-room ${room.tone}`} href={room.href} key={room.href}>
+                          <strong>{room.status}</strong>
+                          <div>
+                            <h4>{room.title}</h4>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.next}</span>
+                          <em>{room.action}</em>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>No public Multiplayer Side Quests available right now.</p>}
                 </section>
 
                 <section className="groupquests-list-section finished" aria-label="Finished Multiplayer Quests">
@@ -236,24 +227,22 @@ export default async function GroupQuestsPage() {
                       <h3>My Closed Multiplayer Side Quests</h3>
                       <p>Recent completed Multiplayer Side Quests and placements.</p>
                     </div>
-                    <span className="badge">24</span>
+                    <span className="badge">{finishedRooms.length}</span>
                   </div>
 
-                  <div className="groupquests-finished-list">
-                    {finishedRooms.map((room) => (
-                      <Link className="groupquests-finished-row" href={room.href} key={room.title}>
-                        <div>
-                          <strong>{room.title}</strong>
-                          <p>{room.meta}</p>
-                        </div>
-                        <span>{room.action}</span>
-                      </Link>
-                    ))}
-                  </div>
-
-                  <Link className="button secondary groupquests-history-button" href="/groupquests/gq_demo_no_castle_01">
-                    View all finished
-                  </Link>
+                  {finishedRooms.length ? (
+                    <div className="groupquests-finished-list">
+                      {finishedRooms.map((room) => (
+                        <Link className="groupquests-finished-row" href={room.href} key={room.href}>
+                          <div>
+                            <strong>{room.title}</strong>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.action}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>No finished Multiplayer Side Quests yet.</p>}
                 </section>
               </div>
             </section>
@@ -271,14 +260,7 @@ export default async function GroupQuestsPage() {
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
-                <Image
-                  alt="Noble men and women comically arguing around a chess table during a Multiplayer Side Quest"
-                  className="groupquests-knight-competition-art"
-                  height={1024}
-                  priority={false}
-                  src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png"
-                  width={1024}
-                />
+                <Image alt="Noble men and women comically arguing around a chess table during a Multiplayer Side Quest" className="groupquests-knight-competition-art" height={1024} priority={false} src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png" width={1024} />
               </div>
             </section>
 
@@ -313,11 +295,7 @@ export default async function GroupQuestsPage() {
                   );
 
                   return step.href ? (
-                    <Link
-                      className="groupquests-how-step clickable"
-                      href={step.href}
-                      key={step.title}
-                    >
+                    <Link className="groupquests-how-step clickable" href={step.href} key={step.title}>
                       {content}
                     </Link>
                   ) : (
