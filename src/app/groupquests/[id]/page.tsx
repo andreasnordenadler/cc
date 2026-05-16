@@ -108,7 +108,7 @@ export default async function GroupQuestByIdPage({
         <div className="content-wrap">
           <section className="hero-card groupquests-hero groupquest-competition-hero groupquest-invite-hero">
             <div className="groupquest-hero-copy">
-              <span className="eyebrow">You were invited · Multiplayer Side Quest #{id}</span>
+              <span className="eyebrow">You were invited · Multiplayer Side Quest # {id}</span>
               <h1>{questName}</h1>
               <GroupQuestInviteCopy id={id} fallback={inviteCopy} />
               <div className="hero-actions button-row">
