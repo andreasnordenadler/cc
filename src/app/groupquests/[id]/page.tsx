@@ -9,6 +9,12 @@ import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { findGroupQuestById } from "@/lib/groupquests";
+import {
+  getChessComUsername,
+  getLichessUsername,
+  getPreferredRunnerName,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 const questIds = ["knights-before-coffee", "no-castle-club", "rookless-rampage"];
 
@@ -51,6 +57,21 @@ export default async function GroupQuestByIdPage({
   const client = await clerkClient();
   const savedRecord = await findGroupQuestById(client, id);
   const savedQuest = savedRecord?.groupQuest;
+  const signedInUser = userId ? await client.users.getUser(userId) : null;
+  const signedInMetadata = (signedInUser?.publicMetadata as UserMetadataRecord | undefined) ?? {};
+  const signedInLichessUsername = getLichessUsername(signedInMetadata);
+  const signedInChessComUsername = getChessComUsername(signedInMetadata);
+  const acceptProvider = signedInLichessUsername ? "lichess" : signedInChessComUsername ? "chesscom" : "lichess";
+  const acceptUsername = acceptProvider === "lichess" ? signedInLichessUsername : signedInChessComUsername;
+  const acceptLeaderboardName = signedInUser
+    ? (getPreferredRunnerName(signedInMetadata, {
+        firstName: signedInUser.firstName,
+        lastName: signedInUser.lastName,
+        username: signedInUser.username,
+        emailAddress: signedInUser.primaryEmailAddress?.emailAddress,
+      }) || "")
+    : "";
+  const canAutoAccept = Boolean(acceptUsername && acceptLeaderboardName);
   const serverParticipant = userId ? savedQuest?.participants.find((participant) => participant.userId === userId) : undefined;
   const activeQuestIds = savedQuest?.questIds.length ? savedQuest.questIds : questIds;
   const hasServerParticipant = Boolean(serverParticipant);
@@ -91,7 +112,15 @@ export default async function GroupQuestByIdPage({
               <h1>{questName}</h1>
               <GroupQuestInviteCopy id={id} fallback={inviteCopy} />
               <div className="hero-actions button-row">
-                <GroupQuestAcceptModal id={id} questName={questName} isSignedIn={Boolean(userId)} />
+                <GroupQuestAcceptModal
+                  id={id}
+                  questName={questName}
+                  isSignedIn={Boolean(userId)}
+                  defaultProvider={acceptProvider}
+                  defaultUsername={acceptUsername}
+                  defaultLeaderboardName={acceptLeaderboardName}
+                  canAutoJoin={canAutoAccept}
+                />
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
               {canShareQuest ? (
@@ -189,7 +218,15 @@ export default async function GroupQuestByIdPage({
               <h2>Accept this Side Quest.</h2>
               <p>After accepting, you will reach the live competition page with proof checks, leaderboard progress, activity, and share tools.</p>
             </div>
-            <GroupQuestAcceptModal id={id} questName={questName} isSignedIn={Boolean(userId)} />
+            <GroupQuestAcceptModal
+              id={id}
+              questName={questName}
+              isSignedIn={Boolean(userId)}
+              defaultProvider={acceptProvider}
+              defaultUsername={acceptUsername}
+              defaultLeaderboardName={acceptLeaderboardName}
+              canAutoJoin={canAutoAccept}
+            />
           </section>
         </div>
       </main>

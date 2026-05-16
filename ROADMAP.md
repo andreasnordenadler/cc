@@ -87,6 +87,8 @@ Rules from this point:
 - 2026-05-16 bugfix: multiplayer command center must read live saved quest data instead of prototype demo arrays so newly created quests appear immediately.
 - 2026-05-16 bugfix: multiplayer `Refresh checks` must run a real participant proof sync and write leaderboard progress/score back into the multiplayer quest record.
 - 2026-05-16 bugfix: multiplayer accepted quest page should not keep a separate stale `Live activity` card when leaderboard refresh is the real proof control; keep one truthful refresh surface instead.
+- 2026-05-16 bugfix: signed-in users with saved chess identity should accept a Multiplayer Side Quest directly instead of seeing the manual join form again.
+- 2026-05-16 layout polish: multiplayer accepted/invite action buttons should stay on one row instead of stacking awkwardly.
 - 2026-05-16 layout polish: accepted multiplayer quest page should place `Quests to complete` below the stats strip, not above it.
 - 2026-05-16 layout polish: accepted multiplayer quest rules card should span full width after the separate activity card was removed.
 

@@ -6,11 +6,27 @@ const storagePrefix = "sqc-groupquest-participant:";
 
 type JoinProvider = "lichess" | "chesscom";
 
-export default function GroupQuestAcceptModal({ id, questName, isSignedIn = true }: { id: string; questName: string; isSignedIn?: boolean }) {
+export default function GroupQuestAcceptModal({
+  id,
+  questName,
+  isSignedIn = true,
+  defaultProvider = "lichess",
+  defaultUsername = "",
+  defaultLeaderboardName = "",
+  canAutoJoin = false,
+}: {
+  id: string;
+  questName: string;
+  isSignedIn?: boolean;
+  defaultProvider?: JoinProvider;
+  defaultUsername?: string;
+  defaultLeaderboardName?: string;
+  canAutoJoin?: boolean;
+}) {
   const [open, setOpen] = useState(false);
-  const [provider, setProvider] = useState<JoinProvider>("lichess");
-  const [username, setUsername] = useState("");
-  const [leaderboardName, setLeaderboardName] = useState("");
+  const [provider, setProvider] = useState<JoinProvider>(defaultProvider);
+  const [username, setUsername] = useState(defaultUsername);
+  const [leaderboardName, setLeaderboardName] = useState(defaultLeaderboardName);
   const [wantsEmail, setWantsEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [location, setLocation] = useState("");
@@ -21,12 +37,60 @@ export default function GroupQuestAcceptModal({ id, questName, isSignedIn = true
   const trimmedLeaderboardName = leaderboardName.trim();
   const canContinue = trimmedUsername.length > 0 && trimmedLeaderboardName.length > 0 && (!wantsEmail || email.trim().length > 0);
 
-  function openModal() {
+  async function joinQuest(joinProvider: JoinProvider, joinUsername: string, joinLeaderboardName: string) {
+    try {
+      window.localStorage.setItem(
+        `${storagePrefix}${id}`,
+        JSON.stringify({
+          provider: joinProvider,
+          username: joinUsername,
+          leaderboardName: joinLeaderboardName,
+          wantsEmailUpdates: wantsEmail,
+          email: wantsEmail ? email.trim() : "",
+          location: location.trim(),
+          joinedAt: new Date().toISOString(),
+        }),
+      );
+    } catch {
+      // Continue even if local persistence is unavailable; server-backed saving comes later.
+    }
+
+    const response = await fetch(`/api/groupquests/${id}/join`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        provider: joinProvider,
+        username: joinUsername,
+        leaderboardName: joinLeaderboardName,
+        wantsEmailUpdates: wantsEmail,
+        email: wantsEmail ? email.trim() : "",
+        location: location.trim(),
+      }),
+    });
+    const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
+    if (!response.ok || !result?.href) {
+      throw new Error(result?.error ?? "Could not join this Multiplayer Side Quest.");
+    }
+    window.location.href = result.href;
+  }
+
+  async function openModal() {
     if (!isSignedIn) {
       window.location.href = `/sign-in?redirect_url=${encodeURIComponent(`/groupquests/${id}`)}`;
       return;
     }
     setError("");
+    if (canAutoJoin && defaultUsername.trim() && defaultLeaderboardName.trim()) {
+      setJoining(true);
+      try {
+        await joinQuest(defaultProvider, defaultUsername.trim(), defaultLeaderboardName.trim());
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Could not join this Multiplayer Side Quest.");
+        setJoining(false);
+        setOpen(true);
+      }
+      return;
+    }
     setOpen(true);
   }
 
@@ -45,40 +109,7 @@ export default function GroupQuestAcceptModal({ id, questName, isSignedIn = true
     setError("");
 
     try {
-      window.localStorage.setItem(
-        `${storagePrefix}${id}`,
-        JSON.stringify({
-          provider,
-          username: trimmedUsername,
-          leaderboardName: trimmedLeaderboardName,
-          wantsEmailUpdates: wantsEmail,
-          email: wantsEmail ? email.trim() : "",
-          location: location.trim(),
-          joinedAt: new Date().toISOString(),
-        }),
-      );
-    } catch {
-      // Continue even if local persistence is unavailable; server-backed saving comes later.
-    }
-
-    try {
-      const response = await fetch(`/api/groupquests/${id}/join`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          provider,
-          username: trimmedUsername,
-          leaderboardName: trimmedLeaderboardName,
-          wantsEmailUpdates: wantsEmail,
-          email: wantsEmail ? email.trim() : "",
-          location: location.trim(),
-        }),
-      });
-      const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
-      if (!response.ok || !result?.href) {
-        throw new Error(result?.error ?? "Could not join this Multiplayer Side Quest.");
-      }
-      window.location.href = result.href;
+      await joinQuest(provider, trimmedUsername, trimmedLeaderboardName);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Could not join this Multiplayer Side Quest.");
       setJoining(false);

@@ -1292,6 +1292,10 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-top-quest-row img { width: 52px; height: 52px; object-fit: contain; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }
 .groupquest-top-quest-row strong { display: block; color: var(--ink); font-size: .9rem; font-weight: 1000; line-height: 1.08; }
 .groupquest-top-quest-row small { display: block; margin-top: 3px; color: var(--muted); font-size: .74rem; font-weight: 850; line-height: 1.25; }
+.groupquest-participant-page .hero-actions.button-row,
+.groupquest-participant-page .share-actions .button-row { flex-wrap: nowrap; }
+.groupquest-participant-page .hero-actions.button-row .button,
+.groupquest-participant-page .share-actions .button-row .button { width: auto; flex: 1 1 0; }
 @media (max-width: 900px) { .groupquest-top-quest-list { grid-template-columns: 1fr; } }
 
 
@@ -1480,6 +1484,10 @@ p { color: var(--muted); line-height: 1.5; }
   .eyebrow { padding: 6px 9px; font-size: 10px; letter-spacing: .1em; }
   .button-row { align-items: stretch; }
   .button-row .button, .hero-actions .button, .side-quest-mode-card .button, .groupquests-action-card .button, .groupquests-create-card .button { width: 100%; min-height: 42px; }
+  .groupquest-participant-page .hero-actions.button-row,
+  .groupquest-participant-page .share-actions .button-row { flex-wrap: nowrap; }
+  .groupquest-participant-page .hero-actions.button-row .button,
+  .groupquest-participant-page .share-actions .button-row .button { width: auto; flex: 1 1 0; }
   .grid, .big-grid { gap: 12px; grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; gap: 8px; }
   .step { padding: 12px; }
