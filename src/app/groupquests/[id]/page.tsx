@@ -236,6 +236,25 @@ export default async function GroupQuestByIdPage({
         />
 
 
+        <section className="groupquest-score-strip" aria-label="Your competition standing">
+          <div>
+            <strong>{currentParticipantRank ? `#${currentParticipantRank}` : "—"}</strong>
+            <span>Your rank</span>
+          </div>
+          <div>
+            <strong>{serverParticipant?.score ?? 0}</strong>
+            <span>Your points</span>
+          </div>
+          <div>
+            <strong>{serverParticipant?.completedQuestIds?.length ?? 0} / {quests.length}</strong>
+            <span>Verified Side Quests</span>
+          </div>
+          <div>
+            <strong>{participantCount}</strong>
+            <span>{participantCount === 1 ? "Participant" : "Participants"}</span>
+          </div>
+        </section>
+
         <section className="mission-card groupquest-top-quest-stack" aria-label="Quests to complete">
           <div className="section-head compact">
             <div>
@@ -258,24 +277,6 @@ export default async function GroupQuestByIdPage({
           </div>
         </section>
 
-        <section className="groupquest-score-strip" aria-label="Your competition standing">
-          <div>
-            <strong>{currentParticipantRank ? `#${currentParticipantRank}` : "—"}</strong>
-            <span>Your rank</span>
-          </div>
-          <div>
-            <strong>{serverParticipant?.score ?? 0}</strong>
-            <span>Your points</span>
-          </div>
-          <div>
-            <strong>{serverParticipant?.completedQuestIds?.length ?? 0} / {quests.length}</strong>
-            <span>Verified Side Quests</span>
-          </div>
-          <div>
-            <strong>{participantCount}</strong>
-            <span>{participantCount === 1 ? "Participant" : "Participants"}</span>
-          </div>
-        </section>
 
         <GroupQuestLeaderboard
           id={id}
