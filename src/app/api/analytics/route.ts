@@ -2,6 +2,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import {
   appendAnalyticsEvent,
+  compactAnalyticsStore,
   getAnalyticsStore,
   normalizeAnalyticsEvent,
 } from "@/lib/analytics";
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
   await client.users.updateUserMetadata(userId, {
     privateMetadata: {
       ...(user?.privateMetadata ?? {}),
-      sqcAnalytics: nextStore,
+      sqcAnalytics: compactAnalyticsStore(nextStore),
     },
   });
 

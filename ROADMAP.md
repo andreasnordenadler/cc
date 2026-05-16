@@ -80,6 +80,7 @@ Rules from this point:
 - 2026-05-16 approved website clarity delta: make missing Lichess/Chess.com username obviously required after sign-up and before quest start; keep it as activation/UX clarity rather than a broad new feature.
 - 2026-05-16 ops addition: new-signup Telegram ping should use a production-backed internal monitor path so alerts match the live SQC dashboard rather than local test Clerk.
 - 2026-05-16 approved website polish: prefer SQC display name and real human name over odd Clerk usernames in account/admin/group-quest surfaces, using Clerk username only as a fallback.
+- 2026-05-16 bugfix: multiplayer quest creation/join should compact SQC analytics before writing Clerk private metadata so group-quest saves do not fail on the 8 KB private_metadata limit.
 
 - [ ] Add Facebook login to Clerk for SQC.
   - added_at: 2026-05-14 15:05 Europe/Stockholm

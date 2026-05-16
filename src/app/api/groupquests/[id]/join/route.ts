@@ -6,6 +6,7 @@ import {
   joinGroupQuest,
   upsertHostGroupQuest,
 } from "@/lib/groupquests";
+import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -36,6 +37,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   await client.users.updateUserMetadata(found.userId, {
     privateMetadata: {
       ...(host.privateMetadata ?? {}),
+      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
       sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, joined),
     },
   });

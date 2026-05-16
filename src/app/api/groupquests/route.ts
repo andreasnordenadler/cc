@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { buildGroupQuest, upsertHostGroupQuest } from "@/lib/groupquests";
+import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export async function POST(request: Request) {
@@ -31,6 +32,7 @@ export async function POST(request: Request) {
   await client.users.updateUserMetadata(userId, {
     privateMetadata: {
       ...(user.privateMetadata ?? {}),
+      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(user.privateMetadata)),
       sqcGroupQuests: upsertHostGroupQuest(user.privateMetadata, groupQuest),
     },
   });

@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getChallengeById } from "@/lib/challenges";
 import {
   appendAnalyticsEvent,
+  compactAnalyticsStore,
   getAnalyticsStore,
   type SQCAnalyticsEvent,
 } from "@/lib/analytics";
@@ -615,7 +616,7 @@ async function recordSignedInAnalyticsEvent(userId: string, event: Omit<SQCAnaly
   await client.users.updateUserMetadata(userId, {
     privateMetadata: {
       ...(user.privateMetadata ?? {}),
-      sqcAnalytics: nextStore,
+      sqcAnalytics: compactAnalyticsStore(nextStore),
     },
   });
 }

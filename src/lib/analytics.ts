@@ -38,7 +38,9 @@ export type SQCAnalyticsStore = {
   }>;
 };
 
-const MAX_RECENT_EVENTS = 80;
+const MAX_RECENT_EVENTS = 40;
+const COMPACT_RECENT_EVENTS = 12;
+const COMPACT_QUEST_STATS = 12;
 
 export function getAnalyticsStore(metadata: unknown): SQCAnalyticsStore {
   if (!metadata || typeof metadata !== "object") return {};
@@ -82,7 +84,7 @@ export function appendAnalyticsEvent(store: SQCAnalyticsStore, event: SQCAnalyti
     questStats[event.questId] = current;
   }
 
-  return {
+  return compactAnalyticsStore({
     ...store,
     firstSeenAt: store.firstSeenAt ?? now,
     lastSeenAt: now,
@@ -95,6 +97,45 @@ export function appendAnalyticsEvent(store: SQCAnalyticsStore, event: SQCAnalyti
     profileSaves: (store.profileSaves ?? 0) + (event.type === "profile_saved" ? 1 : 0),
     recentEvents,
     questStats,
+  });
+}
+
+export function compactAnalyticsStore(store: SQCAnalyticsStore): SQCAnalyticsStore {
+  const recentEvents = Array.isArray(store.recentEvents)
+    ? store.recentEvents.slice(-COMPACT_RECENT_EVENTS).map((event) => ({
+        type: event.type,
+        at: event.at,
+        path: event.path,
+        questId: event.questId,
+        provider: event.provider,
+        status: event.status,
+      }))
+    : [];
+
+  const questStatsEntries = Object.entries(store.questStats ?? {})
+    .sort((a, b) => (b[1]?.lastEventAt ?? "").localeCompare(a[1]?.lastEventAt ?? ""))
+    .slice(0, COMPACT_QUEST_STATS)
+    .map(([questId, stats]) => [questId, {
+      starts: stats.starts ?? 0,
+      completions: stats.completions ?? 0,
+      failures: stats.failures ?? 0,
+      pending: stats.pending ?? 0,
+      lastStatus: stats.lastStatus,
+      lastEventAt: stats.lastEventAt,
+    }]);
+
+  return {
+    firstSeenAt: store.firstSeenAt,
+    lastSeenAt: store.lastSeenAt,
+    totalEvents: store.totalEvents ?? 0,
+    pageViews: store.pageViews ?? 0,
+    questStarts: store.questStarts ?? 0,
+    questCompletions: store.questCompletions ?? 0,
+    questFailures: store.questFailures ?? 0,
+    questPending: store.questPending ?? 0,
+    profileSaves: store.profileSaves ?? 0,
+    recentEvents,
+    questStats: Object.fromEntries(questStatsEntries),
   };
 }
 
