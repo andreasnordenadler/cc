@@ -23,10 +23,10 @@ export default async function ProfilePage() {
       <SiteNav isSignedIn={Boolean(user)} active="profile" />
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">Edit user profile</span>
-          <h1>{user ? "Set up your SQC identity." : "Sign in to save your profile."}</h1>
+          <span className="eyebrow">Step 2 · activate quest verification</span>
+          <h1>{user ? "Add a chess username to unlock quests." : "Sign in to save your profile."}</h1>
           <p className="hero-copy">
-            This is the quick end-to-end setup: profile name, short brag line, and the chess username SQC uses for verifier checks.
+            Your public Lichess or Chess.com username is the key piece. SQC uses it to check public games, verify quests, and save proof receipts.
           </p>
           {!user ? <Link href="/sign-in" className="button primary">Sign in to edit profile</Link> : null}
         </section>
@@ -49,8 +49,9 @@ export default async function ProfilePage() {
               </label>
               <label className="input-card">
                 <span>Chess.com username</span>
-                <input type="text" name="chessComUsername" defaultValue={chessComUsername} placeholder="optional" />
+                <input type="text" name="chessComUsername" defaultValue={chessComUsername} placeholder="e.g. and72nor" />
               </label>
+              <p className="form-helper-copy">Add at least one. Public username only — never a chess-site password.</p>
               <div className="button-row">
                 <button type="submit" className="button primary">Save profile</button>
                 <Link href="/account" className="button secondary">Back to My Side Quests</Link>
@@ -61,7 +62,7 @@ export default async function ProfilePage() {
           <section className="mission-card">
             <span className="eyebrow">Getting started</span>
             <h2>Login first, then this page becomes editable.</h2>
-            <p>After sign-in you can save your display name plus a public Lichess or Chess.com username, pick a side quest, check latest games, and review the proof card.</p>
+            <p>After sign-in, add at least one public Lichess or Chess.com username first. That unlocks quest starting, latest-game checks, and proof cards.</p>
           </section>
         )}
       </div>

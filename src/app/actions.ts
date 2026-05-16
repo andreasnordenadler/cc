@@ -670,7 +670,10 @@ export async function saveChessUsernames(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/account");
+  revalidatePath("/connect");
+  revalidatePath("/profile");
   revalidatePath("/challenges");
+  redirect("/account?connected=saved");
 }
 
 export async function saveRunnerProfile(formData: FormData) {
@@ -682,6 +685,10 @@ export async function saveRunnerProfile(formData: FormData) {
 
   if (lichessUsername === null || chessComUsername === null) {
     throw new Error("Chess usernames may only use letters, numbers, underscores, or hyphens.");
+  }
+
+  if (!lichessUsername && !chessComUsername) {
+    throw new Error("Enter at least one chess username to unlock quest verification.");
   }
 
   const { lichess, chessCom } = await validateChessAccountsOrThrow(lichessUsername, chessComUsername);

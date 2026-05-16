@@ -27,7 +27,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
         <section className="hero-card auth-copy-card">
           <h1>Make a profile for your chess side quests.</h1>
           <p className="hero-copy">
-            One lightweight account. Add a public Lichess or Chess.com username, pick a side quest, play real chess, and let SQC check the receipt.
+            One lightweight account. Right after sign-up, add one public Lichess or Chess.com username — that is what unlocks quest verification.
           </p>
         </section>
         <section className="auth-card" aria-label="Sign up form">

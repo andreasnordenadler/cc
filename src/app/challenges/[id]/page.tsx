@@ -152,7 +152,7 @@ export default async function ChallengeDetailPage({
               {!isSignedIn ? (
                 <Link href="/sign-in" className="button primary">Sign in to start this side quest</Link>
               ) : !hasChessIdentity ? (
-                <Link href="/connect" className="button primary">Connect chess account</Link>
+                <Link href="/connect" className="button primary">Add username to start</Link>
               ) : isActive ? (
                 <a href="#latest-game-checker" className="button primary">Check latest game</a>
               ) : (
@@ -162,6 +162,15 @@ export default async function ChallengeDetailPage({
             </div>
           ) : null}
         </section>
+
+        {isSignedIn && !hasChessIdentity && !isCompleted ? (
+          <section className="mission-card quest-detail-section">
+            <span className="eyebrow">Username required</span>
+            <h2>Add one public chess username before starting.</h2>
+            <p>SQC needs a Lichess or Chess.com username so it knows which public games to check for this quest. No chess-site password needed.</p>
+            <Link href="/connect" className="button primary">Add chess username</Link>
+          </section>
+        ) : null}
 
         {isSignedIn && isCompleted ? (
           <section className="mission-card quest-detail-section" aria-label="Completed quest victory proof">
