@@ -9,7 +9,7 @@ export default function GroupQuestLeaveAction({ id }: { id: string }) {
 
   function leaveSideQuest() {
     const confirmed = window.confirm(
-      "Retire from this Side Quest? Your coat of arms will dramatically sigh, your leaderboard goblin will pack up the tiny scoreboard, and your current entry will be removed from this device."
+      "Leave this Multiplayer Side Quest? Your leaderboard entry on this device will be removed, but you can rejoin later if the quest is still open."
     );
 
     if (!confirmed) return;
@@ -20,8 +20,9 @@ export default function GroupQuestLeaveAction({ id }: { id: string }) {
 
   return (
     <section className="groupquest-leave-zone" aria-label="Leave this Multiplayer Side Quest">
+      <p>Need to leave this Multiplayer Side Quest?</p>
       <button className="groupquest-leave-button" type="button" onClick={leaveSideQuest}>
-        Leave this Side Quest
+        Leave quest
       </button>
     </section>
   );

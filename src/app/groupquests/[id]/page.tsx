@@ -6,6 +6,7 @@ import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
 import GroupQuestLeaveAction from "@/components/group-quest-leave-action";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
 import GroupQuestRefreshButton from "@/components/group-quest-refresh-button";
+import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { findGroupQuestById } from "@/lib/groupquests";
@@ -61,6 +62,8 @@ export default async function GroupQuestByIdPage({
   const endsAt = savedQuest?.endAt ?? competitionEndsAt;
   const visibilityLabel = savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : savedQuest?.inviteMode === "invite-only" ? "Invite-only" : "Public listing";
   const providerLabel = savedQuest?.providerLabel ?? "Lichess or Chess.com";
+  const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
+  const canShareQuest = savedQuest?.inviteMode !== "invite-only";
   const quests = activeQuestIds
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
@@ -92,6 +95,9 @@ export default async function GroupQuestByIdPage({
                 <GroupQuestAcceptModal id={id} questName={questName} isSignedIn={Boolean(userId)} />
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
+              {canShareQuest ? (
+                <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+              ) : null}
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -206,6 +212,9 @@ export default async function GroupQuestByIdPage({
             <p className="hero-copy">
               Three Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
+            {canShareQuest ? (
+              <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+            ) : null}
 
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">

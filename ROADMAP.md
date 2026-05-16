@@ -101,6 +101,14 @@ Rules from this point:
   - constraint: preserve current desktop/full-browser UI; use scoped breakpoints and verify mobile (~390px) plus desktop (~1440px).
   - proof: `pnpm lint` passed with 0 errors / 3 pre-existing warnings; `pnpm build` passed; local production Playwright smoke at 390x844 and 1440x1000 returned 200 with no horizontal overflow on `/`, `/groupquests`, `/groupquests/create`, `/groupquests/public`, `/challenges/finish-any-game`, `/result`, and `/account`.
 
+- [x] Add obvious share actions to public Multiplayer Side Quest pages.
+  - added_at: 2026-05-16 11:52 Europe/Stockholm
+  - source: Andreas said public Multiplayer Side Quests should have a clear way to share the quest.
+
+- [x] Tone down the accepted-page Leave quest action.
+  - added_at: 2026-05-16 11:49 Europe/Stockholm
+  - source: Andreas said the `Leave...` button was too prominent, as if we wanted users to leave.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

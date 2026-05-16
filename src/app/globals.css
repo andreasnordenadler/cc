@@ -1427,9 +1427,10 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-join-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
 @media (max-width: 560px) { .groupquest-provider-choice > div, .groupquest-join-actions { grid-template-columns: 1fr; } .groupquest-join-actions .button { width: 100%; } }
 
-.groupquest-leave-zone { display: flex; justify-content: center; padding: 8px 0 2px; }
-.groupquest-leave-button { border: 1px solid rgba(245,200,106,.78); border-radius: 999px; background: linear-gradient(135deg, var(--gold), #f7d98b); color: #191008; box-shadow: 0 14px 28px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.38); padding: 10px 16px; font: inherit; font-size: .82rem; font-weight: 1000; letter-spacing: .01em; cursor: pointer; }
-.groupquest-leave-button:hover, .groupquest-leave-button:focus-visible { transform: translateY(-1px); box-shadow: 0 18px 34px rgba(0,0,0,.28), 0 0 0 3px rgba(245,200,106,.14); outline: none; }
+.groupquest-leave-zone { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 4px 0 2px; opacity: .82; }
+.groupquest-leave-zone p { margin: 0; font-size: .78rem; color: var(--muted); }
+.groupquest-leave-button { border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(255,255,255,.03); color: var(--muted); box-shadow: none; padding: 8px 12px; font: inherit; font-size: .78rem; font-weight: 700; letter-spacing: .01em; cursor: pointer; }
+.groupquest-leave-button:hover, .groupquest-leave-button:focus-visible { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.06); color: var(--text); outline: none; }
 .quest-achievement-sections { display: grid; gap: 18px; }
 .quest-achievement-lane { display: grid; gap: 14px; padding: 14px; border: 1px solid rgba(236,228,204,.12); border-radius: 26px; background: rgba(0,0,0,.12); }
 .quest-achievement-lane-head { display: flex; align-items: start; justify-content: space-between; gap: 14px; }
