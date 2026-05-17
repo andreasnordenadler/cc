@@ -169,6 +169,12 @@ Rules from this point:
   - source: Andreas pointed out the Multiplayer quest page still showed `available across ... Side Quests` under points.
   - proof: removed the redundant hero-card line from `src/app/groupquests/[id]/page.tsx`. Verification: `pnpm lint`, `pnpm build`, production deploy, and live page smoke check.
 
+- [x] Clear all test Multiplayer Side Quests and remove public fallback demo listings.
+  - added_at: 2026-05-17 18:56 Europe/Stockholm
+  - completed_at: 2026-05-17 19:00 Europe/Stockholm
+  - source: Andreas said every Multiplayer Quest created so far was testing and asked to remove them all.
+  - proof: cleared 4 stored Clerk `sqcGroupQuests` records across 4 users, verified remaining stored quests = 0, removed hard-coded fallback demo listings from `/groupquests/public`, and changed empty public state to `No public Multiplayer Side Quests are available right now.` Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

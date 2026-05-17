@@ -3,36 +3,6 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { listPublicGroupQuests } from "@/lib/groupquests";
 
-const publicQuests = [
-  {
-    title: "No Castle Night",
-    status: "Open now",
-    players: "4 players joined",
-    window: "7 days · fresh games only",
-    rules: "Any time control · any rated state · any color",
-    copy: "Win without castling. The king stays brave, confused, and uninsured.",
-    href: "/groupquests/gq_demo_no_castle_01",
-  },
-  {
-    title: "Knights Before Coffee Ladder",
-    status: "Starting soon",
-    players: "2 players waiting",
-    window: "48 hours · starts tonight",
-    rules: "Standard games · any time control",
-    copy: "Move horses first, ask strategic questions later. Beginner-friendly public chaos.",
-    href: "/groupquests/gq_demo_no_castle_01",
-  },
-  {
-    title: "Queen? Never Heard of Her Club",
-    status: "Open soon",
-    players: "Public listing",
-    window: "Manual start · host approval later",
-    rules: "Standard games · any color",
-    copy: "A public table for players who think material advantage is a personality flaw.",
-    href: "/groupquests/gq_demo_no_castle_01",
-  },
-];
-
 export const metadata = {
   title: "Public Multiplayer Side Quests · Side Quest Chess",
   description: "Public Side Quest Chess Multiplayer Side Quests open for players to inspect and join.",
@@ -43,17 +13,15 @@ export default async function PublicGroupQuestsPage() {
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
   const displayablePublicQuests = savedPublicQuests.filter(isDisplayablePublicQuest);
-  const quests = displayablePublicQuests.length
-    ? displayablePublicQuests.map((quest) => ({
-        title: quest.name,
-        status: getQuestStatus(quest.startAt, quest.endAt),
-        players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
-        window: `${formatDateTime(quest.startAt)} → ${formatDateTime(quest.endAt)}`,
-        rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
-        copy: quest.inviteCopy,
-        href: `/groupquests/${quest.id}`,
-      }))
-    : publicQuests;
+  const quests = displayablePublicQuests.map((quest) => ({
+    title: quest.name,
+    status: getQuestStatus(quest.startAt, quest.endAt),
+    players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
+    window: `${formatDateTime(quest.startAt)} → ${formatDateTime(quest.endAt)}`,
+    rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
+    copy: quest.inviteCopy,
+    href: `/groupquests/${quest.id}`,
+  }));
 
   return (
     <main className="site-shell groupquests-page">
@@ -80,23 +48,30 @@ export default async function PublicGroupQuestsPage() {
               <p>Public Multiplayer Side Quests collect open tables anyone can inspect before joining.</p>
             </div>
           </div>
-          <div className="public-groupquests-list">
-            {quests.map((quest) => (
-              <Link className="public-groupquest-row" href={quest.href} key={quest.title}>
-                <div>
-                  <span>{quest.status}</span>
-                  <strong>{quest.title}</strong>
-                  <p>{quest.copy}</p>
-                </div>
-                <div className="public-groupquest-meta">
-                  <small>{quest.players}</small>
-                  <small>{quest.window}</small>
-                  <small>{quest.rules}</small>
-                </div>
-                <em>Inspect and join</em>
-              </Link>
-            ))}
-          </div>
+          {quests.length ? (
+            <div className="public-groupquests-list">
+              {quests.map((quest) => (
+                <Link className="public-groupquest-row" href={quest.href} key={quest.title}>
+                  <div>
+                    <span>{quest.status}</span>
+                    <strong>{quest.title}</strong>
+                    <p>{quest.copy}</p>
+                  </div>
+                  <div className="public-groupquest-meta">
+                    <small>{quest.players}</small>
+                    <small>{quest.window}</small>
+                    <small>{quest.rules}</small>
+                  </div>
+                  <em>Inspect and join</em>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="groupquest-empty-state" role="status">
+              <p>No public Multiplayer Side Quests are available right now.</p>
+              <Link className="button primary" href="/groupquests/create">Create the first one</Link>
+            </div>
+          )}
         </section>
       </div>
     </main>
