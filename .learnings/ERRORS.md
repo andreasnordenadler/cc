@@ -3633,3 +3633,26 @@ For future one-off production Clerk metadata cleanup, prefer a short-lived prote
 - Tags: clerk, vercel, production-cleanup, metadata
 
 ---
+
+## [ERR-20260517-003] user_browser_attach_unavailable_for_sqc_admin_action
+
+**Logged**: 2026-05-17T20:45:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: browser-automation
+
+### Summary
+Attempting to attach to the existing user Chrome session for an SQC admin-side action failed because Chrome MCP could not find/connect to the user profile DevTools port.
+
+### Details
+The browser status reported Chrome running, but `browser.open` with `profile="user"` failed with missing `DevToolsActivePort`. The task continued via production runtime maintenance instead.
+
+### Suggested Action
+When existing-login browser automation matters, first verify the user browser is launched with remote debugging/approved attach. If not, use another authenticated/server-side path rather than spending time on repeated browser attach retries.
+
+### Metadata
+- Source: browser tool error
+- Related Files: none
+- Tags: browser, chrome-mcp, user-profile, admin-maintenance
+
+---
