@@ -3,6 +3,8 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import { listPublicGroupQuests } from "@/lib/groupquests";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Public Multiplayer Side Quests · Side Quest Chess",
   description: "Public Side Quest Chess Multiplayer Side Quests open for players to inspect and join.",

@@ -173,7 +173,7 @@ Rules from this point:
   - added_at: 2026-05-17 18:56 Europe/Stockholm
   - completed_at: 2026-05-17 19:00 Europe/Stockholm
   - source: Andreas said every Multiplayer Quest created so far was testing and asked to remove them all.
-  - proof: cleared 4 stored Clerk `sqcGroupQuests` records across 4 users, verified remaining stored quests = 0, removed hard-coded fallback demo listings from `/groupquests/public`, and changed empty public state to `No public Multiplayer Side Quests are available right now.` Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
+  - proof: cleared 4 stored Clerk `sqcGroupQuests` records across 4 users, verified remaining stored quests = 0, removed hard-coded fallback demo listings from `/groupquests/public`, forced the public list route dynamic to prevent stale cached test listings, and changed empty public state to `No public Multiplayer Side Quests are available right now.` Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
 
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
