@@ -1,6 +1,6 @@
 "use client";
 
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
 
 type AuthActionButtonsProps = {
   variant?: "nav" | "connect" | "home";
@@ -17,14 +17,9 @@ export default function AuthActionButtons({ variant = "nav" }: AuthActionButtons
 
   if (variant === "home") {
     return (
-      <>
-        <SignUpButton mode="modal" fallbackRedirectUrl="/connect">
-          <button type="button" className="button primary">Start with Google</button>
-        </SignUpButton>
-        <SignInButton mode="modal" fallbackRedirectUrl="/account">
-          <button type="button" className="button secondary">I already have an account</button>
-        </SignInButton>
-      </>
+      <SignInButton mode="modal" fallbackRedirectUrl="/account">
+        <button type="button" className="button primary">Sign in</button>
+      </SignInButton>
     );
   }
 

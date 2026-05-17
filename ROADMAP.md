@@ -206,6 +206,12 @@ Rules from this point:
   - source: Andreas asked to change the homepage `Sign in...` explainer text.
   - proof: homepage hero text now says: `Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games.` Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
 
+- [x] Remove homepage Sign up button.
+  - added_at: 2026-05-17 22:24 Europe/Stockholm
+  - completed_at: 2026-05-17 22:24 Europe/Stockholm
+  - source: Andreas asked to remove the homepage `Sign up` button from the signed-out hero area.
+  - proof: home variant of `AuthActionButtons` now renders a single primary `Sign in` button and removes the separate sign-up/start button. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
