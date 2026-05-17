@@ -3587,3 +3587,26 @@ Scope multiplayer refresh to supported latest-game verification paths first (fin
 - Related Files: src/lib/groupquest-proof.ts, src/lib/lichess.ts
 
 ---
+
+## [ERR-20260517-001] smoke_check_path_commands
+
+**Logged**: 2026-05-17T14:25:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: tests
+
+### Summary
+SQC production smoke command failed because bare `curl`, `grep`, `wc`, `tr`, and `python3` were unavailable in the shell PATH during one exec session.
+
+### Details
+The binaries existed under absolute paths such as `/usr/bin/curl` and `/usr/bin/python3`. Re-running smoke checks with absolute paths succeeded.
+
+### Suggested Action
+For important smoke-check one-liners in this environment, prefer absolute `/usr/bin/...` paths or verify PATH first when using core system tools.
+
+### Metadata
+- Source: error
+- Related Files: none
+- Tags: smoke-test, path, shell
+
+---
