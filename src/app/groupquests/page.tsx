@@ -77,7 +77,7 @@ export default async function GroupQuestsPage() {
         return {
           title: quest.name,
           status: state.status,
-          meta: `${isHost ? "Hosting" : "Playing"} · ${quest.inviteMode === "public" ? "Public" : quest.inviteMode === "unlisted-link" ? "Unlisted" : "Invite-only"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+          meta: `${isHost ? "Hosting" : "Playing"} · ${quest.inviteMode === "unlisted-link" ? "Unlisted" : "Public"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
           next: state.next,
           href: `/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`,
           action: state.status === "Soon" ? "Review" : "Open",

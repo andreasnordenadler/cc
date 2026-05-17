@@ -1,4 +1,4 @@
-export type GroupQuestInviteMode = "public" | "unlisted-link" | "invite-only";
+export type GroupQuestInviteMode = "public" | "unlisted-link";
 export type GroupQuestProviderMode = "both" | "lichess" | "chesscom";
 export type GroupQuestJoinProvider = "lichess" | "chesscom";
 
@@ -257,7 +257,7 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
 }
 
 function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
-  if (value === "unlisted-link" || value === "invite-only") return value;
+  if (value === "unlisted-link") return value;
   return "public";
 }
 

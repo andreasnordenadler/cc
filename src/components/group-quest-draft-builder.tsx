@@ -31,11 +31,6 @@ const inviteModes = [
     label: "Unlisted link",
     copy: "Anyone with the Multiplayer Side Quest link can join while sharing is open.",
   },
-  {
-    id: "invite-only",
-    label: "Invite-only",
-    copy: "Only named friends or approved invitees can join.",
-  },
 ];
 
 function toDateTimeLocal(date: Date) {

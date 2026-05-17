@@ -139,6 +139,12 @@ Rules from this point:
   - scope: create → share → join → accepted page → refresh/proof sync → account/home/groupquests visibility → leave flow.
   - proof: fixed accepted-page truth so query params no longer fake membership; replaced hard-coded invite dates with saved quest dates; filtered obvious public-listing test/spam rows and formatted dates; aligned rule copy with verifier reality; renamed refresh action to `Check my latest games`; simplified create flow with quick-start note and collapsed advanced rules. Verification: `pnpm lint`, `pnpm build`, production deploy, and live smoke checks.
 
+- [x] Remove Invite-only visibility from Multiplayer Side Quest creation until proper invite enforcement exists.
+  - added_at: 2026-05-17 18:13 Europe/Stockholm
+  - completed_at: 2026-05-17 18:13 Europe/Stockholm
+  - source: Andreas reviewed the visibility modes and said to remove Invite-only for now.
+  - proof: removed Invite-only from the builder, narrowed the server invite-mode type/normalizer to public/unlisted only, made old invite-only records normalize to Public listing, and kept sharing available. Verification: `pnpm lint`, `pnpm build`, production deploy, and live create-page smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
