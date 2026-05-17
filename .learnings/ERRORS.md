@@ -3610,3 +3610,26 @@ For important smoke-check one-liners in this environment, prefer absolute `/usr/
 - Tags: smoke-test, path, shell
 
 ---
+
+## [ERR-20260517-002] production_clerk_cleanup_env_mismatch
+
+**Logged**: 2026-05-17T19:08:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: infra
+
+### Summary
+Local Clerk cleanup scripts did not affect live SQC Multiplayer Quest records because Vercel production used a hidden/different Clerk runtime secret; `vercel env pull` returned an empty `CLERK_SECRET_KEY` value.
+
+### Details
+Clearing local/test Clerk metadata reported zero remaining records, but the live `/groupquests/public` page still showed stored production quests. A temporary protected production endpoint, executed inside Vercel runtime, successfully scanned production Clerk users and cleared the live `sqcGroupQuests` records. The endpoint was then removed and redeployed.
+
+### Suggested Action
+For future one-off production Clerk metadata cleanup, prefer a short-lived protected production runtime endpoint or server-side maintenance action, then remove it immediately after verification. Do not assume pulled local env values match production runtime secrets.
+
+### Metadata
+- Source: error
+- Related Files: src/app/api/internal/groupquests/clear-tests/route.ts, src/app/groupquests/public/page.tsx
+- Tags: clerk, vercel, production-cleanup, metadata
+
+---
