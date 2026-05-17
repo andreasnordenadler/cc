@@ -218,6 +218,12 @@ Rules from this point:
   - source: Andreas replied `Undo that` to the nav auth button rename.
   - proof: default nav auth button restored to `Sign In/Up` while keeping the separate homepage sign-up/start button removed. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
 
+- [x] Remove extra homepage hero `Sign In/Up` button.
+  - added_at: 2026-05-17 22:44 Europe/Stockholm
+  - completed_at: 2026-05-17 22:44 Europe/Stockholm
+  - source: Andreas showed the remaining homepage hero `Sign In/Up` button and asked to remove it.
+  - proof: homepage hero now only shows the Solo and Multiplayer mode buttons; the top-nav auth button remains available. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage browser snapshot.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
