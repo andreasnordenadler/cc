@@ -1561,3 +1561,12 @@ p { color: var(--muted); line-height: 1.5; }
   .auth-card { padding-inline: 8px; }
   [class*="cl-rootBox"], [class*="cl-cardBox"], [class*="cl-card"], [class*="cl-footer"] { max-width: calc(100vw - 44px) !important; }
 }
+
+.official-sqc-badge { display: inline-flex; width: max-content; align-items: center; border-radius: 999px; padding: 4px 9px; background: rgba(255, 209, 102, .18); color: var(--gold); border: 1px solid rgba(255, 209, 102, .42); font-weight: 950; letter-spacing: .02em; text-transform: uppercase; font-size: .68rem; }
+.public-groupquests-list-stack { display: grid; gap: 18px; }
+.public-groupquests-section { display: grid; gap: 12px; }
+.public-groupquest-row.official, .groupquests-compact-room.official, .groupquests-list-section.official { border-color: rgba(255, 209, 102, .34); box-shadow: 0 0 0 1px rgba(255, 209, 102, .08), 0 18px 50px rgba(255, 209, 102, .07); }
+.groupquests-official-toggle { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 12px; border: 1px solid rgba(255, 209, 102, .28); border-radius: 16px; background: rgba(255, 209, 102, .08); }
+.groupquests-official-toggle input { margin-top: 3px; }
+.groupquests-official-toggle span { display: grid; gap: 3px; }
+.groupquests-official-toggle small { color: var(--muted); line-height: 1.35; }

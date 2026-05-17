@@ -75,6 +75,7 @@ export default async function GroupQuestByIdPage({
   const endsAtLabel = formatDateTime(endsAt);
   const visibilityLabel = savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : "Public listing";
   const providerLabel = savedQuest?.providerLabel ?? "Lichess or Chess.com";
+  const officialLabel = savedQuest?.officialLabel ?? "Official SQC Multiplayer Side Quest";
   const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
   const quests = activeQuestIds
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
@@ -101,6 +102,7 @@ export default async function GroupQuestByIdPage({
           <section className="hero-card groupquests-hero groupquest-competition-hero groupquest-invite-hero">
             <div className="groupquest-hero-copy">
               <span className="eyebrow">You were invited · Multiplayer Side Quest # {id}</span>
+              {savedQuest?.official ? <span className="badge gold official-sqc-badge">{officialLabel}</span> : null}
               <h1>{questName}</h1>
               <GroupQuestInviteCopy id={id} fallback={inviteCopy} />
               <div className="hero-actions button-row">
@@ -245,6 +247,7 @@ export default async function GroupQuestByIdPage({
           <div className="groupquest-hero-copy">
             <div className="groupquest-hero-pills" aria-label="Multiplayer Side Quest identity and dates">
               <span className="eyebrow groupquest-id-pill">Multiplayer Side Quest <strong>#{id}</strong></span>
+              {savedQuest?.official ? <span className="eyebrow official-sqc-badge">{officialLabel}</span> : null}
               <span className="eyebrow groupquest-date-pill">{startsAtLabel} → {endsAtLabel}</span>
             </div>
             <h1>{questName}</h1>

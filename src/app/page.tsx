@@ -65,6 +65,7 @@ export default async function Home() {
     : null;
   const connectedIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" / ");
   let activeMultiplayerSideQuests: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
+  let officialMultiplayerSideQuests: typeof activeMultiplayerSideQuests = [];
   let publicMultiplayerSideQuests: typeof activeMultiplayerSideQuests = [];
   let closedMultiplayerSideQuests: Array<{ title: string; meta: string; href: string; action: string }> = [];
 
@@ -89,11 +90,22 @@ export default async function Home() {
         };
       });
 
-    publicMultiplayerSideQuests = publicQuests
+    const openPublicMultiplayerSideQuests = publicQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
-      .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
-      .slice(0, 12)
-      .map((quest) => ({
+      .sort((a, b) => Number(Boolean(b.official)) - Number(Boolean(a.official)) || toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
+      .slice(0, 12);
+
+    officialMultiplayerSideQuests = openPublicMultiplayerSideQuests.filter((quest) => quest.official).map((quest) => ({
+        title: quest.name,
+        status: "Open",
+        meta: `${quest.officialLabel ?? "Official SQC"} · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+        next: "Inspect and join",
+        href: `/groupquests/${quest.id}`,
+        action: "Join",
+        tone: "green",
+      }));
+
+    publicMultiplayerSideQuests = openPublicMultiplayerSideQuests.filter((quest) => !quest.official).map((quest) => ({
         title: quest.name,
         status: "Open",
         meta: `Public · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
@@ -284,6 +296,31 @@ export default async function Home() {
                         <em>{quest.action}</em>
                       </Link>
                     )) : <p>No active Multiplayer Side Quests yet.</p>}
+                  </div>
+                </section>
+
+                <section className="groupquests-list-section official" aria-label="Official SQC Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Official SQC Multiplayer Side Quests</h3>
+                      <p>Curated public SQC events you can join right away.</p>
+                    </div>
+                    <span className="badge gold">{officialMultiplayerSideQuests.length}</span>
+                  </div>
+
+                  <div className="groupquests-compact-room-list">
+                    {officialMultiplayerSideQuests.length ? officialMultiplayerSideQuests.map((quest) => (
+                      <Link className={`groupquests-compact-room official ${quest.tone}`} href={quest.href} key={quest.title}>
+                        <strong>{quest.status}</strong>
+                        <div>
+                          <small className="official-sqc-badge">Official SQC</small>
+                          <h4>{quest.title}</h4>
+                          <p>{quest.meta}</p>
+                        </div>
+                        <span>{quest.next}</span>
+                        <em>{quest.action}</em>
+                      </Link>
+                    )) : <p>No official SQC Multiplayer Side Quests available right now.</p>}
                   </div>
                 </section>
 

@@ -4,6 +4,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestEditForm from "@/components/group-quest-edit-form";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { isAdminAnalyticsViewer } from "@/lib/analytics";
 import { findGroupQuestById } from "@/lib/groupquests";
 
 export const metadata = {
@@ -20,6 +21,8 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
   const record = await findGroupQuestById(client, id);
   if (!record) notFound();
   if (record.groupQuest.hostUserId !== userId) redirect(`/groupquests/${id}`);
+  const signedInUser = await client.users.getUser(userId);
+  const canMarkOfficial = isAdminAnalyticsViewer(signedInUser);
 
   return (
     <main className="site-shell groupquests-page">
@@ -34,7 +37,7 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
           </div>
         </section>
 
-        <GroupQuestEditForm groupQuest={record.groupQuest} quests={CHALLENGES} />
+        <GroupQuestEditForm canMarkOfficial={canMarkOfficial} groupQuest={record.groupQuest} quests={CHALLENGES} />
       </div>
     </main>
   );

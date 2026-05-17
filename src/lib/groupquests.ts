@@ -28,6 +28,8 @@ export type ServerGroupQuest = {
   questIds: string[];
   providerMode: GroupQuestProviderMode;
   providerLabel: string;
+  official?: boolean;
+  officialLabel?: string;
   startAt: string;
   endAt: string;
   rules: Record<string, string>;
@@ -90,6 +92,7 @@ export function buildGroupQuest(input: {
     questIds: questIds.length ? questIds : ["knights-before-coffee"],
     providerMode: normalizeProviderMode(input.providerMode),
     providerLabel: cleanText(input.providerLabel, 80) ?? providerLabelFor(input.providerMode),
+    official: false,
     startAt: cleanText(input.startAt, 40) ?? now,
     endAt: cleanText(input.endAt, 40) ?? now,
     rules: normalizeRules(input.rules),
@@ -223,6 +226,8 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
     questIds: Array.isArray(record.questIds) ? record.questIds.filter((entry): entry is string => typeof entry === "string") : ["knights-before-coffee"],
     providerMode: normalizeProviderMode(record.providerMode),
     providerLabel: cleanText(record.providerLabel, 80) ?? providerLabelFor(record.providerMode),
+    official: record.official === true,
+    officialLabel: cleanText(record.officialLabel, 80),
     startAt: cleanText(record.startAt, 40) ?? "Not set",
     endAt: cleanText(record.endAt, 40) ?? "Not set",
     rules: normalizeRules(record.rules),

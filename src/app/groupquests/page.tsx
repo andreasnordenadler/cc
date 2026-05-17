@@ -61,6 +61,7 @@ function deriveQuestState(startAt: string, endAt: string) {
 export default async function GroupQuestsPage() {
   const { userId } = await auth();
   let activeRooms: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
+  let officialRooms: typeof activeRooms = [];
   let publicRooms: typeof activeRooms = [];
   let finishedRooms: Array<{ title: string; meta: string; href: string; action: string }> = [];
 
@@ -85,6 +86,8 @@ export default async function GroupQuestsPage() {
         };
       });
 
+
+
     finishedRooms = ownQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status === "Finished")
       .map((quest) => {
@@ -97,11 +100,26 @@ export default async function GroupQuestsPage() {
         };
       });
 
-    publicRooms = publicQuests
+    const openPublicQuests = publicQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
-      .sort((a, b) => toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
-      .slice(0, 12)
-      .map((quest) => {
+      .sort((a, b) => Number(Boolean(b.official)) - Number(Boolean(a.official)) || toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
+      .slice(0, 12);
+
+    officialRooms = openPublicQuests.filter((quest) => quest.official).map((quest) => {
+        const isHost = quest.hostUserId === userId;
+        const isParticipant = quest.participants.some((participant) => participant.userId === userId);
+        return {
+          title: quest.name,
+          status: "Open",
+          meta: `${quest.officialLabel ?? "Official SQC"} · ${isHost ? "Hosted" : isParticipant ? "Joined" : "Public"} · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+          next: isHost ? "Open listing" : isParticipant ? "Open joined quest" : "Inspect and join",
+          href: `/groupquests/${quest.id}${!isHost && isParticipant ? "?accepted=1" : ""}`,
+          action: isHost || isParticipant ? "Open" : "Join",
+          tone: "green",
+        };
+      });
+
+    publicRooms = openPublicQuests.filter((quest) => !quest.official).map((quest) => {
         const isHost = quest.hostUserId === userId;
         const isParticipant = quest.participants.some((participant) => participant.userId === userId);
         return {
@@ -200,6 +218,33 @@ export default async function GroupQuestsPage() {
                       ))}
                     </div>
                   ) : <p>No active Multiplayer Side Quests yet. Create one to start the chaos.</p>}
+                </section>
+
+                <section className="groupquests-list-section official" aria-label="Official SQC Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Official SQC Multiplayer Side Quests</h3>
+                      <p>Curated SQC public events, highlighted first for easy joining.</p>
+                    </div>
+                    <span className="badge gold">{officialRooms.length}</span>
+                  </div>
+
+                  {officialRooms.length ? (
+                    <div className="groupquests-compact-room-list">
+                      {officialRooms.map((room) => (
+                        <Link className={`groupquests-compact-room official ${room.tone}`} href={room.href} key={room.href}>
+                          <strong>{room.status}</strong>
+                          <div>
+                            <small className="official-sqc-badge">Official SQC</small>
+                            <h4>{room.title}</h4>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.next}</span>
+                          <em>{room.action}</em>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>No official SQC Multiplayer Side Quests available right now.</p>}
                 </section>
 
                 <section className="groupquests-list-section" aria-label="Public Multiplayer Side Quests">

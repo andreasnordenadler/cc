@@ -15,15 +15,9 @@ export default async function PublicGroupQuestsPage() {
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
   const displayablePublicQuests = savedPublicQuests.filter(isDisplayablePublicQuest);
-  const quests = displayablePublicQuests.map((quest) => ({
-    title: quest.name,
-    status: getQuestStatus(quest.startAt, quest.endAt),
-    players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
-    window: `${formatDateTime(quest.startAt)} → ${formatDateTime(quest.endAt)}`,
-    rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
-    copy: quest.inviteCopy,
-    href: `/groupquests/${quest.id}`,
-  }));
+  const officialQuests = displayablePublicQuests.filter((quest) => quest.official).map(toPublicQuestCard);
+  const communityQuests = displayablePublicQuests.filter((quest) => !quest.official).map(toPublicQuestCard);
+  const totalQuests = officialQuests.length + communityQuests.length;
 
   return (
     <main className="site-shell groupquests-page">
@@ -50,23 +44,22 @@ export default async function PublicGroupQuestsPage() {
               <p>Public Multiplayer Side Quests collect open tables anyone can inspect before joining.</p>
             </div>
           </div>
-          {quests.length ? (
-            <div className="public-groupquests-list">
-              {quests.map((quest) => (
-                <Link className="public-groupquest-row" href={quest.href} key={quest.title}>
-                  <div>
-                    <span>{quest.status}</span>
-                    <strong>{quest.title}</strong>
-                    <p>{quest.copy}</p>
-                  </div>
-                  <div className="public-groupquest-meta">
-                    <small>{quest.players}</small>
-                    <small>{quest.window}</small>
-                    <small>{quest.rules}</small>
-                  </div>
-                  <em>Inspect and join</em>
-                </Link>
-              ))}
+          {totalQuests ? (
+            <div className="public-groupquests-list-stack">
+              {officialQuests.length ? (
+                <PublicQuestSection
+                  title="Official SQC Multiplayer Side Quests"
+                  copy="Curated SQC events, highlighted first for players who want the cleanest public table to join."
+                  quests={officialQuests}
+                />
+              ) : null}
+              {communityQuests.length ? (
+                <PublicQuestSection
+                  title="Public Multiplayer Side Quests"
+                  copy="Community-created public tables anyone can inspect and join."
+                  quests={communityQuests}
+                />
+              ) : null}
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
@@ -77,6 +70,52 @@ export default async function PublicGroupQuestsPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number]) {
+  return {
+    title: quest.name,
+    status: getQuestStatus(quest.startAt, quest.endAt),
+    players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
+    window: `${formatDateTime(quest.startAt)} → ${formatDateTime(quest.endAt)}`,
+    rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
+    copy: quest.inviteCopy,
+    href: `/groupquests/${quest.id}`,
+    official: Boolean(quest.official),
+    officialLabel: quest.officialLabel ?? "Official SQC Multiplayer Side Quest",
+  };
+}
+
+function PublicQuestSection({ copy, quests, title }: { copy: string; quests: ReturnType<typeof toPublicQuestCard>[]; title: string }) {
+  return (
+    <section className={quests.some((quest) => quest.official) ? "public-groupquests-section official" : "public-groupquests-section"}>
+      <div className="groupquests-list-heading">
+        <div>
+          <h3>{title}</h3>
+          <p>{copy}</p>
+        </div>
+        <span className="badge gold">{quests.length}</span>
+      </div>
+      <div className="public-groupquests-list">
+        {quests.map((quest) => (
+          <Link className={quest.official ? "public-groupquest-row official" : "public-groupquest-row"} href={quest.href} key={quest.title}>
+            <div>
+              <span>{quest.status}</span>
+              {quest.official ? <small className="official-sqc-badge">{quest.officialLabel}</small> : null}
+              <strong>{quest.title}</strong>
+              <p>{quest.copy}</p>
+            </div>
+            <div className="public-groupquest-meta">
+              <small>{quest.players}</small>
+              <small>{quest.window}</small>
+              <small>{quest.rules}</small>
+            </div>
+            <em>Inspect and join</em>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 

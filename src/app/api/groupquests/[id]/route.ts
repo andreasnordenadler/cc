@@ -1,6 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
+import { compactAnalyticsStore, getAnalyticsStore, isAdminAnalyticsViewer } from "@/lib/analytics";
 import { findGroupQuestById, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -17,7 +17,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (record.groupQuest.hostUserId !== userId) return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
 
   const host = await client.users.getUser(record.userId);
-  const updatedQuest = patchGroupQuest(record.groupQuest, payload as Record<string, unknown>);
+  const signedInUser = await client.users.getUser(userId);
+  const canSetOfficial = isAdminAnalyticsViewer(signedInUser);
+  const updatedQuest = patchGroupQuest(record.groupQuest, payload as Record<string, unknown>, canSetOfficial);
   await client.users.updateUserMetadata(record.userId, {
     privateMetadata: {
       ...(host.privateMetadata ?? {}),
@@ -29,7 +31,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return NextResponse.json({ ok: true, href: `/groupquests/${id}${updatedQuest.participants.some((participant) => participant.userId === userId) ? "?accepted=1" : ""}` });
 }
 
-function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>): ServerGroupQuest {
+function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean): ServerGroupQuest {
   const providerMode = normalizeProviderMode(payload.providerMode);
   return {
     ...current,
@@ -41,6 +43,8 @@ function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unkn
       : current.questIds,
     providerMode,
     providerLabel: cleanText(payload.providerLabel, 80) ?? providerLabelFor(providerMode),
+    official: canSetOfficial && typeof payload.official === "boolean" ? payload.official : current.official,
+    officialLabel: canSetOfficial ? cleanText(payload.officialLabel, 80) ?? current.officialLabel : current.officialLabel,
     startAt: normalizeDateTimeValue(payload.startAt) ?? current.startAt,
     endAt: normalizeDateTimeValue(payload.endAt) ?? current.endAt,
     rules: normalizeRules(payload.rules, current.rules),

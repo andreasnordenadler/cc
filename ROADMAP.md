@@ -193,6 +193,11 @@ Rules from this point:
   - source: Andreas asked both homepage choice buttons to be yellow and the words `Solo` and `Multiplayer` to be red.
   - proof: both hero choice links now use the yellow primary button style and wrap the key words in red spans. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
 
+- [ ] Add `Official SQC Multiplayer Side Quest` classification and public grouping.
+  - added_at: 2026-05-17 20:34 Europe/Stockholm
+  - source: Andreas suggested public Multiplayer Side Quests should have a specific official SQC type.
+  - scope: add an official flag/type for host-created official events, display an official badge, separate/highlight official quests on `/groupquests/public` and Multiplayer landing surfaces, and preserve normal public user-created quests as a separate category.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
