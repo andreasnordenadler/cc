@@ -144,7 +144,7 @@ export default async function Home() {
             <p className="hero-copy">
               {isSignedIn
                 ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
-                : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, and let SQC check your latest real game."}
+                : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
             </p>
             <div className="button-row hero-actions home-mode-actions" aria-label="Choose Solo or Multiplayer Side Quest mode">
               <Link href="/challenges" className="button primary home-choice-button">Go on a <span>Solo</span> Side Quest</Link>

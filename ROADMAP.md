@@ -200,6 +200,12 @@ Rules from this point:
   - scope: add an official flag/type for host-created official events, display an official badge, separate/highlight official quests on `/groupquests/public` and Multiplayer landing surfaces, and preserve normal public user-created quests as a separate category.
   - proof: added `official` / `officialLabel` group quest fields, admin-only official controls in the host editor, official badges on quest pages/cards, and separate `Official SQC Multiplayer Side Quests` sections on the public list, Multiplayer landing page, and signed-in homepage. Production maintenance marked the three official public quests as official (`changedUsers: 1`, `changedQuests: 3`), then the temporary maintenance route was removed. Verification: `pnpm lint`, `pnpm build`, production deploy, maintenance response, final production deploy, and live public-list smoke check.
 
+- [x] Update homepage sign-in explainer copy.
+  - added_at: 2026-05-17 22:22 Europe/Stockholm
+  - completed_at: 2026-05-17 22:22 Europe/Stockholm
+  - source: Andreas asked to change the homepage `Sign in...` explainer text.
+  - proof: homepage hero text now says: `Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games.` Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
