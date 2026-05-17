@@ -163,6 +163,12 @@ Rules from this point:
   - source: Andreas asked to put Multiplayer more in focus by adding two homepage buttons: Solo Side Quest and Multiplayer Side Quest.
   - proof: homepage hero now shows two primary mode choices: `Go on a Solo Side Quest` linking to `/challenges` and `Join a Multiplayer Side Quest` linking to `/groupquests`; signed-out auth remains as follow-up. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
 
+- [x] Remove redundant `available across ... Side Quests` text from Multiplayer quest hero.
+  - added_at: 2026-05-17 18:55 Europe/Stockholm
+  - completed_at: 2026-05-17 18:55 Europe/Stockholm
+  - source: Andreas pointed out the Multiplayer quest page still showed `available across ... Side Quests` under points.
+  - proof: removed the redundant hero-card line from `src/app/groupquests/[id]/page.tsx`. Verification: `pnpm lint`, `pnpm build`, production deploy, and live page smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

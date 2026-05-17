@@ -256,7 +256,6 @@ export default async function GroupQuestByIdPage({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="groupquest-seal" src="/stamps/SQCBLACK%20SEAL.png" alt="Black Side Quest Chess seal" />
             <strong>{totalReward.toLocaleString()} pts</strong>
-            <span>available across {quests.length} Side Quests</span>
           </div>
         </section>
 
