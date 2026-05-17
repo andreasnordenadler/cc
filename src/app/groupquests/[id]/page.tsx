@@ -21,23 +21,13 @@ const questIds = ["knights-before-coffee", "no-castle-club", "rookless-rampage"]
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 
 const onboardingSteps = [
-  { label: "1", title: "Accept the Side Quest", copy: "Join No Castle Night so your games can count for this competition." },
+  { label: "1", title: "Accept the Side Quest", copy: "Join this Multiplayer Side Quest so your games can count for this leaderboard." },
   { label: "2", title: "Play real chess elsewhere", copy: "Use the allowed chess provider shown below. No uploads, no private passwords, just public game proof." },
   { label: "3", title: "Proof gets checked", copy: "Paste a game link or check latest games. The verifier reads the public game proof." },
   { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
 ];
 
-const competitionStartsAt = "May 12, 10:00 CEST";
-const competitionEndsAt = "May 21, 00:00 CEST";
 const successCriteria = "First to complete all quests wins. If nobody finishes, highest points at the deadline wins.";
-
-const ruleSummary = [
-  { label: "Starts", value: competitionStartsAt },
-  { label: "Ends", value: competitionEndsAt },
-  { label: "Variant", value: "Standard chess only" },
-  { label: "Proof", value: "Public games after joining" },
-  { label: "Winner", value: successCriteria },
-];
 
 export const metadata = {
   title: "Multiplayer Side Quest · Side Quest Chess",
@@ -53,7 +43,7 @@ export default async function GroupQuestByIdPage({
 }) {
   const { userId } = await auth();
   const { id } = await params;
-  const query = searchParams ? await searchParams : {};
+  await searchParams;
   const client = await clerkClient();
   const savedRecord = await findGroupQuestById(client, id);
   const savedQuest = savedRecord?.groupQuest;
@@ -75,11 +65,13 @@ export default async function GroupQuestByIdPage({
   const serverParticipant = userId ? savedQuest?.participants.find((participant) => participant.userId === userId) : undefined;
   const activeQuestIds = savedQuest?.questIds.length ? savedQuest.questIds : questIds;
   const hasServerParticipant = Boolean(serverParticipant);
-  const hasAcceptedInvite = query.accepted === "1" || hasServerParticipant;
+  const hasAcceptedInvite = hasServerParticipant;
   const questName = savedQuest?.name ?? "No Castle Night";
   const inviteCopy = savedQuest?.inviteCopy ?? defaultInviteCopy;
-  const startsAt = savedQuest?.startAt ?? competitionStartsAt;
-  const endsAt = savedQuest?.endAt ?? competitionEndsAt;
+  const startsAt = savedQuest?.startAt ?? new Date().toISOString();
+  const endsAt = savedQuest?.endAt ?? new Date().toISOString();
+  const startsAtLabel = formatDateTime(startsAt);
+  const endsAtLabel = formatDateTime(endsAt);
   const visibilityLabel = savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : savedQuest?.inviteMode === "invite-only" ? "Invite-only" : "Public listing";
   const providerLabel = savedQuest?.providerLabel ?? "Lichess or Chess.com";
   const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
@@ -131,9 +123,9 @@ export default async function GroupQuestByIdPage({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="groupquest-seal" src="/stamps/SQCBLACK%20SEAL.png" alt="Black Side Quest Chess seal" />
               <ul className="groupquest-summary-list" aria-label="Competition summary">
-                <li><span>Starts</span><strong>{startsAt}</strong></li>
-                <li><span>Ends</span><strong>{endsAt}</strong></li>
-                <li><span>Players</span><strong>{savedQuest?.participants.length ?? 4} participating</strong></li>
+                <li><span>Starts</span><strong>{startsAtLabel}</strong></li>
+                <li><span>Ends</span><strong>{endsAtLabel}</strong></li>
+                <li><span>Players</span><strong>{savedQuest?.participants.length ?? 0} participating</strong></li>
               </ul>
             </div>
           </section>
@@ -215,9 +207,11 @@ export default async function GroupQuestByIdPage({
               </p>
               <ul className="groupquest-summary-list groupquest-rules-list" aria-label="Onboarding rule summary">
                 <li><span>Games allowed</span><strong>{providerLabel}</strong></li>
-                {ruleSummary.map((rule) => (
-                  <li key={rule.label}><span>{rule.label}</span><strong>{rule.value}</strong></li>
-                ))}
+                <li><span>Starts</span><strong>{startsAtLabel}</strong></li>
+                <li><span>Ends</span><strong>{endsAtLabel}</strong></li>
+                <li><span>Variant</span><strong>Standard chess only</strong></li>
+                <li><span>Proof</span><strong>Fresh public games inside this window</strong></li>
+                <li><span>Winner</span><strong>{successCriteria}</strong></li>
               </ul>
             </article>
           </section>
@@ -252,7 +246,7 @@ export default async function GroupQuestByIdPage({
           <div className="groupquest-hero-copy">
             <div className="groupquest-hero-pills" aria-label="Multiplayer Side Quest identity and dates">
               <span className="eyebrow groupquest-id-pill">Multiplayer Side Quest <strong>#{id}</strong></span>
-              <span className="eyebrow groupquest-date-pill">{startsAt} → {endsAt}</span>
+              <span className="eyebrow groupquest-date-pill">{startsAtLabel} → {endsAtLabel}</span>
             </div>
             <h1>{questName}</h1>
             <p className="hero-copy">
@@ -340,18 +334,19 @@ export default async function GroupQuestByIdPage({
         <section className="mission-card groupquests-live-card" aria-label="Rules">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Locked competition rules</span>
+              <span className="eyebrow">Competition rules</span>
               <h2>Everyone plays under the same receipt.</h2>
+              <p>Automatic checks enforce the quest objective, public provider, and event window. Extra host settings are shown for clarity while verifier coverage expands.</p>
             </div>
           </div>
           <ul className="groupquest-summary-list groupquest-rules-list groupquest-accepted-rules-list" aria-label="Multiplayer Side Quest settings">
             <li><span>Visibility</span><strong>{visibilityLabel}</strong></li>
             <li><span>Games allowed</span><strong>{providerLabel}</strong></li>
             <li><span>Variant</span><strong>Standard chess only</strong></li>
-            <li><span>Starts</span><strong>{startsAt}</strong></li>
-            <li><span>Ends</span><strong>{endsAt}</strong></li>
+            <li><span>Starts</span><strong>{startsAtLabel}</strong></li>
+            <li><span>Ends</span><strong>{endsAtLabel}</strong></li>
             <li><span>Winner</span><strong>{successCriteria}</strong></li>
-            <li><span>Proof</span><strong>Automatic public-game checks</strong></li>
+            <li><span>Proof</span><strong>Automatic checks for quest, provider, and window</strong></li>
           </ul>
         </section>
 
@@ -359,4 +354,17 @@ export default async function GroupQuestByIdPage({
       </div>
     </main>
   );
+}
+
+function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value || "Not set";
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Stockholm",
+    timeZoneName: "short",
+  }).format(date);
 }

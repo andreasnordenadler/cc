@@ -236,6 +236,11 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
     <div className="groupquests-builder-shell">
       <div className="groupquests-builder" aria-label="Create Multiplayer Side Quest builder">
         <div className="groupquests-builder-form">
+          <div className="groupquests-quickstart-note" role="note">
+            <strong>Quick start</strong>
+            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof.</span>
+          </div>
+
           <label>
             <span>1 · Multiplayer Side Quest name</span>
             <input
@@ -337,44 +342,48 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             </div>
           </div>
 
-          <div className="groupquests-builder-choice-set" role="group" aria-label="Allowed game providers">
-            <span>6 · Games allowed</span>
-            <div>
-              {providerModes.map((mode) => (
-                <button
-                  className={mode.id === providerMode ? "active" : undefined}
-                  key={mode.id}
-                  onClick={() => setProviderMode(mode.id)}
-                  type="button"
-                >
-                  <strong>{mode.label}</strong>
-                  <small>{mode.copy}</small>
-                </button>
-              ))}
-            </div>
-          </div>
+          <details className="groupquests-advanced-settings">
+            <summary>Advanced rules <span>optional</span></summary>
 
-          <div className="groupquests-rule-builder" aria-label="Mandatory game settings">
-            <div>
-              <span className="groupquests-rule-title">7 · Mandatory game rules</span>
-              <p>Hosts can make game settings mandatory. Multiplayer Side Quests use standard chess only for now; time controls are limited to exact presets we can verify from public game metadata.</p>
-            </div>
-            <div className="groupquests-rule-grid">
-              {gameRuleGroups.map((group) => (
-                <label key={group.id}>
-                  <span>{group.label}</span>
-                  <select
-                    value={rules[group.id]}
-                    onChange={(event) => setRules((current) => ({ ...current, [group.id]: event.target.value }))}
+            <div className="groupquests-builder-choice-set" role="group" aria-label="Allowed game providers">
+              <span>6 · Games allowed</span>
+              <div>
+                {providerModes.map((mode) => (
+                  <button
+                    className={mode.id === providerMode ? "active" : undefined}
+                    key={mode.id}
+                    onClick={() => setProviderMode(mode.id)}
+                    type="button"
                   >
-                    {group.options.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+                    <strong>{mode.label}</strong>
+                    <small>{mode.copy}</small>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+
+            <div className="groupquests-rule-builder" aria-label="Host game settings">
+              <div>
+                <span className="groupquests-rule-title">7 · Host game settings</span>
+                <p>Automatic checks currently enforce the Side Quest objective, public provider, and event window. These extra settings describe the intended run while verifier coverage expands.</p>
+              </div>
+              <div className="groupquests-rule-grid">
+                {gameRuleGroups.map((group) => (
+                  <label key={group.id}>
+                    <span>{group.label}</span>
+                    <select
+                      value={rules[group.id]}
+                      onChange={(event) => setRules((current) => ({ ...current, [group.id]: event.target.value }))}
+                    >
+                      {group.options.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </details>
         </div>
 
         <aside className="groupquests-draft-preview" aria-label="Multiplayer Side Quest preview">

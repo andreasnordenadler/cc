@@ -42,12 +42,13 @@ export default async function PublicGroupQuestsPage() {
   const { userId } = await auth();
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
-  const quests = savedPublicQuests.length
-    ? savedPublicQuests.map((quest) => ({
+  const displayablePublicQuests = savedPublicQuests.filter(isDisplayablePublicQuest);
+  const quests = displayablePublicQuests.length
+    ? displayablePublicQuests.map((quest) => ({
         title: quest.name,
-        status: "Open now",
+        status: getQuestStatus(quest.startAt, quest.endAt),
         players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
-        window: `${quest.startAt} → ${quest.endAt}`,
+        window: `${formatDateTime(quest.startAt)} → ${formatDateTime(quest.endAt)}`,
         rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
         copy: quest.inviteCopy,
         href: `/groupquests/${quest.id}`,
@@ -100,4 +101,35 @@ export default async function PublicGroupQuestsPage() {
       </div>
     </main>
   );
+}
+
+function isDisplayablePublicQuest(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number]) {
+  const text = `${quest.name} ${quest.inviteCopy}`.toLowerCase();
+  const end = Date.parse(quest.endAt);
+  if (Number.isFinite(end) && end < Date.now()) return false;
+  if (/(cokok|asdf|test test|lorem|dummy|prototype)/i.test(text)) return false;
+  if (quest.name.trim().length < 4 || quest.inviteCopy.trim().length < 24) return false;
+  return true;
+}
+
+function getQuestStatus(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = Date.parse(startAt);
+  const end = Date.parse(endAt);
+  if (Number.isFinite(end) && now > end) return "Finished";
+  if (Number.isFinite(start) && now < start) return "Starting soon";
+  return "Open now";
+}
+
+function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value || "Not set";
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Stockholm",
+    timeZoneName: "short",
+  }).format(date);
 }

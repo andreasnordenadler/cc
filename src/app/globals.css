@@ -962,6 +962,14 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-builder-form { display: grid; gap: 12px; }
 .groupquests-builder label, .groupquests-builder-choice-set { display: grid; gap: 7px; }
 .groupquests-builder label span, .groupquests-builder-choice-set > span { color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-quickstart-note { display: grid; gap: 3px; padding: 12px 13px; border: 1px solid rgba(96,240,175,.24); border-radius: 16px; background: rgba(96,240,175,.1); }
+.groupquests-quickstart-note strong { color: var(--ink); font-weight: 1000; }
+.groupquests-quickstart-note span { color: var(--muted); font-size: .9rem; font-weight: 800; line-height: 1.4; }
+.groupquests-advanced-settings { display: grid; gap: 12px; padding: 12px 13px; border: 1px solid rgba(255,255,255,.13); border-radius: 18px; background: rgba(0,0,0,.12); }
+.groupquests-advanced-settings summary { cursor: pointer; color: var(--ink); font-weight: 1000; list-style-position: inside; }
+.groupquests-advanced-settings summary span { color: var(--muted); font-size: .78rem; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; }
+.groupquests-advanced-settings[open] { gap: 14px; }
+.groupquests-advanced-settings[open] summary { margin-bottom: 10px; }
 .groupquests-builder input, .groupquests-builder select, .groupquests-builder textarea { width: 100%; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; background: rgba(6,5,7,.72); color: var(--ink); padding: 12px 13px; font-weight: 850; outline: none; }
 .groupquests-builder input:focus, .groupquests-builder select:focus, .groupquests-builder textarea:focus { border-color: rgba(245,200,106,.62); box-shadow: 0 0 0 3px rgba(245,200,106,.16); }
 .groupquests-builder textarea { min-height: 108px; resize: vertical; line-height: 1.45; }

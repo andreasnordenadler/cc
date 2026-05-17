@@ -28,7 +28,7 @@ export default function GroupQuestRefreshButton({ id }: { id: string }) {
                   : "Could not refresh checks right now.");
             } else if (Array.isArray(payload?.checks)) {
               const passed = payload.checks.filter((check: { status?: string }) => check.status === "passed").length;
-              setStatus(`${passed} of ${payload.checks.length} Side Quests verified.`);
+              setStatus(`${passed} of ${payload.checks.length} Side Quests verified from your latest public games.`);
             }
           } finally {
             router.refresh();
@@ -36,7 +36,7 @@ export default function GroupQuestRefreshButton({ id }: { id: string }) {
           }
         }}
       >
-        {refreshing ? "Refreshing…" : "Refresh checks"}
+        {refreshing ? "Checking…" : "Check my latest games"}
       </button>
       {status ? <small>{status}</small> : null}
     </>

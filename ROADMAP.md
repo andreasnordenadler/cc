@@ -132,10 +132,12 @@ Rules from this point:
   - added_at: 2026-05-16 11:51 Europe/Stockholm
   - source: Andreas said the My Side Quest page did not show the actual Multiplayer quests.
 
-- [ ] Run a full Multiplayer Side Quest regression sweep and fix remaining server/UI mismatches.
+- [x] Run a full Multiplayer Side Quest regression sweep and fix remaining server/UI mismatches.
   - added_at: 2026-05-16 11:59 Europe/Stockholm
+  - completed_at: 2026-05-17 14:16 Europe/Stockholm
   - source: Andreas said multiplayer issues are top priority and need proper testing plus immediate fixes.
   - scope: create → share → join → accepted page → refresh/proof sync → account/home/groupquests visibility → leave flow.
+  - proof: fixed accepted-page truth so query params no longer fake membership; replaced hard-coded invite dates with saved quest dates; filtered obvious public-listing test/spam rows and formatted dates; aligned rule copy with verifier reality; renamed refresh action to `Check my latest games`; simplified create flow with quick-start note and collapsed advanced rules. Verification: `pnpm lint`, `pnpm build`, production deploy, and live smoke checks.
 
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
