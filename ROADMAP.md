@@ -145,6 +145,12 @@ Rules from this point:
   - source: Andreas reviewed the visibility modes and said to remove Invite-only for now.
   - proof: removed Invite-only from the builder, narrowed the server invite-mode type/normalizer to public/unlisted only, made old invite-only records normalize to Public listing, and kept sharing available. Verification: `pnpm lint`, `pnpm build`, production deploy, and live create-page smoke check.
 
+- [x] Default Multiplayer Side Quest opening time to now.
+  - added_at: 2026-05-17 18:15 Europe/Stockholm
+  - completed_at: 2026-05-17 18:15 Europe/Stockholm
+  - source: Andreas asked that Multiplayer `Opens` defaults to the user’s current time so quests are open straight away.
+  - proof: create builder `defaultStartAt()` now uses the browser/user current local minute instead of current time +1 hour. Verification: `pnpm lint`, `pnpm build`, production deploy, and live create-page smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

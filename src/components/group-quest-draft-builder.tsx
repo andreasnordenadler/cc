@@ -40,7 +40,7 @@ function toDateTimeLocal(date: Date) {
 
 function defaultStartAt() {
   const date = new Date();
-  date.setHours(date.getHours() + 1, 0, 0, 0);
+  date.setSeconds(0, 0);
   return toDateTimeLocal(date);
 }
 
