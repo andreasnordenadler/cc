@@ -8,14 +8,14 @@ Give Andreas a simple launch-monitoring view of whether users start using Side Q
 
 Stored for signed-in users in Clerk private metadata under `sqcAnalytics`:
 
-- `page_view` for in-app route changes
+- `page_view` for in-app route changes, including device classification when available
 - `profile_saved` when chess usernames/profile details are saved
 - `quest_started` when a quest is activated
 - `quest_completed` when a latest-game verifier passes
 - `quest_failed` when a latest-game verifier fails
 - `quest_pending` when a latest-game verifier cannot prove completion yet
 
-Anonymous page views are accepted by `/api/analytics` and logged server-side, but not tied to a user profile.
+Anonymous page views are accepted by `/api/analytics` and logged server-side, but not tied to a user profile. The API also falls back to request `User-Agent` classification if the client does not send a device type.
 
 ## Dashboard
 
@@ -33,6 +33,7 @@ Dashboard sections:
 - quest popularity and failure/pending summary
 - per-user activity rows
 - recent event trail
+- device split: mobile, desktop/PC, tablet, and bot/unknown
 
 ## Admin helper
 

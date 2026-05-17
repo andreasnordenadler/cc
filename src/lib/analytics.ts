@@ -6,6 +6,8 @@ export type SQCAnalyticsEventType =
   | "quest_failed"
   | "quest_pending";
 
+export type SQCAnalyticsDeviceType = "mobile" | "tablet" | "desktop" | "bot" | "unknown";
+
 export type SQCAnalyticsEvent = {
   type: SQCAnalyticsEventType;
   at: string;
@@ -15,6 +17,7 @@ export type SQCAnalyticsEvent = {
   status?: string;
   gameId?: string;
   source?: string;
+  deviceType?: SQCAnalyticsDeviceType;
 };
 
 export type SQCAnalyticsStore = {
@@ -27,6 +30,7 @@ export type SQCAnalyticsStore = {
   questFailures?: number;
   questPending?: number;
   profileSaves?: number;
+  deviceCounts?: Partial<Record<SQCAnalyticsDeviceType, number>>;
   recentEvents?: SQCAnalyticsEvent[];
   questStats?: Record<string, {
     starts?: number;
@@ -62,6 +66,7 @@ export function normalizeAnalyticsEvent(event: Partial<SQCAnalyticsEvent>): SQCA
     status: cleanText(event.status, 40),
     gameId: cleanText(event.gameId, 120),
     source: cleanText(event.source, 40),
+    deviceType: normalizeDeviceType(event.deviceType),
   };
 }
 
@@ -72,6 +77,11 @@ export function appendAnalyticsEvent(store: SQCAnalyticsStore, event: SQCAnalyti
     event,
   ].slice(-MAX_RECENT_EVENTS);
   const questStats = { ...(store.questStats ?? {}) };
+  const deviceCounts = { ...(store.deviceCounts ?? {}) };
+
+  if (event.deviceType) {
+    deviceCounts[event.deviceType] = (deviceCounts[event.deviceType] ?? 0) + 1;
+  }
 
   if (event.questId) {
     const current = { ...(questStats[event.questId] ?? {}) };
@@ -95,6 +105,7 @@ export function appendAnalyticsEvent(store: SQCAnalyticsStore, event: SQCAnalyti
     questFailures: (store.questFailures ?? 0) + (event.type === "quest_failed" ? 1 : 0),
     questPending: (store.questPending ?? 0) + (event.type === "quest_pending" ? 1 : 0),
     profileSaves: (store.profileSaves ?? 0) + (event.type === "profile_saved" ? 1 : 0),
+    deviceCounts,
     recentEvents,
     questStats,
   });
@@ -109,6 +120,7 @@ export function compactAnalyticsStore(store: SQCAnalyticsStore): SQCAnalyticsSto
         questId: event.questId,
         provider: event.provider,
         status: event.status,
+        deviceType: event.deviceType,
       }))
     : [];
 
@@ -134,9 +146,19 @@ export function compactAnalyticsStore(store: SQCAnalyticsStore): SQCAnalyticsSto
     questFailures: store.questFailures ?? 0,
     questPending: store.questPending ?? 0,
     profileSaves: store.profileSaves ?? 0,
+    deviceCounts: sanitizeDeviceCounts(store.deviceCounts),
     recentEvents,
     questStats: Object.fromEntries(questStatsEntries),
   };
+}
+
+export function detectDeviceType(userAgent: string | null | undefined): SQCAnalyticsDeviceType {
+  const ua = (userAgent ?? "").toLowerCase();
+  if (!ua) return "unknown";
+  if (/bot|crawler|spider|crawling|preview|facebookexternalhit|slackbot|telegrambot|discordbot/.test(ua)) return "bot";
+  if (/ipad|tablet|kindle|silk|playbook/.test(ua) || (/android/.test(ua) && !/mobile/.test(ua))) return "tablet";
+  if (/mobi|iphone|ipod|android.*mobile|windows phone|blackberry|opera mini/.test(ua)) return "mobile";
+  return "desktop";
 }
 
 export function isAdminAnalyticsViewer(user: {
@@ -152,6 +174,27 @@ export function isAdminAnalyticsViewer(user: {
     .map((entry) => entry.trim().toLowerCase())
     .filter(Boolean);
   return Boolean(email && allowed.includes(email));
+}
+
+function normalizeDeviceType(value: unknown): SQCAnalyticsDeviceType | undefined {
+  if (typeof value !== "string") return undefined;
+  return isKnownDeviceType(value) ? value : undefined;
+}
+
+function sanitizeDeviceCounts(value: unknown): Partial<Record<SQCAnalyticsDeviceType, number>> {
+  if (!value || typeof value !== "object") return {};
+  const counts: Partial<Record<SQCAnalyticsDeviceType, number>> = {};
+  for (const type of ["mobile", "tablet", "desktop", "bot", "unknown"] satisfies SQCAnalyticsDeviceType[]) {
+    const count = (value as Partial<Record<SQCAnalyticsDeviceType, unknown>>)[type];
+    if (typeof count === "number" && Number.isFinite(count) && count > 0) {
+      counts[type] = Math.floor(count);
+    }
+  }
+  return counts;
+}
+
+function isKnownDeviceType(type: string): type is SQCAnalyticsDeviceType {
+  return ["mobile", "tablet", "desktop", "bot", "unknown"].includes(type);
 }
 
 function isKnownEventType(type: string): type is SQCAnalyticsEventType {

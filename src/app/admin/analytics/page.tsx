@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
-import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsEvent } from "@/lib/analytics";
+import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsDeviceType, type SQCAnalyticsEvent } from "@/lib/analytics";
 import { getStoredGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -32,6 +32,8 @@ type AnalyticsUserRow = {
     lichess: number;
     chessCom: number;
   };
+  deviceCounts: Partial<Record<SQCAnalyticsDeviceType, number>>;
+  topDeviceType: SQCAnalyticsDeviceType | "none";
   recentEvents: SQCAnalyticsEvent[];
 };
 
@@ -105,6 +107,8 @@ export default async function AdminAnalyticsPage() {
       chessComUsername: getChessComUsername(publicMetadata),
       latestGameFetches: latestGameFetchesByProvider.lichess + latestGameFetchesByProvider.chessCom,
       latestGameFetchesByProvider,
+      deviceCounts: store.deviceCounts ?? {},
+      topDeviceType: getTopDeviceType(store.deviceCounts),
       recentEvents: store.recentEvents ?? [],
     };
   });
@@ -128,6 +132,7 @@ export default async function AdminAnalyticsPage() {
   const totalQuestStarts = sum(activeRows, "questStarts");
   const totalCompletions = sum(activeRows, "questCompletions");
   const totalFailures = sum(activeRows, "questFailures");
+  const deviceTotals = mergeDeviceCounts(activeRows.map((row) => row.deviceCounts));
   const recentEvents = activeRows
     .flatMap((row) => row.recentEvents.map((event) => ({ ...event, user: row.name, email: row.email })))
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
@@ -152,6 +157,22 @@ export default async function AdminAnalyticsPage() {
           <Fact label="Completed quests" value={String(totalCompletions)} />
           <Fact label="Failed checks" value={String(totalFailures)} />
           <Fact label="Multiplayer quests" value={String(multiplayerQuestRows.length)} />
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Device mix</span>
+              <h2>Mobile vs desktop usage.</h2>
+              <p>Classified from browser/device signals on tracked web events. Tablet and bot traffic are separated where possible.</p>
+            </div>
+          </div>
+          <div className="grid lean-status-grid" aria-label="Device analytics summary">
+            <Fact label="Mobile" value={String(deviceTotals.mobile ?? 0)} />
+            <Fact label="Desktop / PC" value={String(deviceTotals.desktop ?? 0)} />
+            <Fact label="Tablet" value={String(deviceTotals.tablet ?? 0)} />
+            <Fact label="Bot / unknown" value={String((deviceTotals.bot ?? 0) + (deviceTotals.unknown ?? 0))} />
+          </div>
         </section>
 
         <section className="mission-card">
@@ -224,6 +245,7 @@ export default async function AdminAnalyticsPage() {
                   <small>{row.questCompletions} completed quests / {row.questFailures} failed checks / {row.questPending} pending checks</small>
                   <small>{row.latestGameFetches} latest-game fetches</small>
                   <small>{row.latestGameFetchesByProvider.lichess} Lichess / {row.latestGameFetchesByProvider.chessCom} Chess.com</small>
+                  <small>{formatDeviceLabel(row.topDeviceType)} dominant device</small>
                 </div>
               </article>
             )) : <p>No users found yet.</p>}
@@ -243,7 +265,7 @@ export default async function AdminAnalyticsPage() {
                 <div>
                   <span>{formatDate(event.at)} · {event.user}</span>
                   <strong>{event.type.replaceAll("_", " ")}</strong>
-                  <p>{[event.path, event.questId, event.provider, event.status].filter(Boolean).join(" · ") || event.email}</p>
+                  <p>{[event.path, event.questId, event.provider, event.status, event.deviceType ? formatDeviceLabel(event.deviceType) : undefined].filter(Boolean).join(" · ") || event.email}</p>
                 </div>
               </div>
             )) : <p>No events yet.</p>}
@@ -252,6 +274,27 @@ export default async function AdminAnalyticsPage() {
       </div>
     </main>
   );
+}
+
+function mergeDeviceCounts(counts: Partial<Record<SQCAnalyticsDeviceType, number>>[]) {
+  return counts.reduce<Partial<Record<SQCAnalyticsDeviceType, number>>>((total, current) => {
+    for (const type of ["mobile", "tablet", "desktop", "bot", "unknown"] satisfies SQCAnalyticsDeviceType[]) {
+      total[type] = (total[type] ?? 0) + (current[type] ?? 0);
+    }
+    return total;
+  }, {});
+}
+
+function getTopDeviceType(counts?: Partial<Record<SQCAnalyticsDeviceType, number>>): SQCAnalyticsDeviceType | "none" {
+  const entries = Object.entries(counts ?? {}) as [SQCAnalyticsDeviceType, number][];
+  const [top] = entries.filter(([, count]) => count > 0).sort((a, b) => b[1] - a[1]);
+  return top?.[0] ?? "none";
+}
+
+function formatDeviceLabel(value?: SQCAnalyticsDeviceType | "none") {
+  if (!value || value === "none") return "No device data";
+  if (value === "desktop") return "Desktop / PC";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function getEmailFromClaims(claims: unknown) {
