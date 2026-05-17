@@ -62,6 +62,7 @@ export default async function GroupQuestByIdPage({
       }) || "")
     : "";
   const canAutoAccept = Boolean(acceptUsername && acceptLeaderboardName);
+  const isHost = Boolean(savedQuest && userId === savedQuest.hostUserId);
   const serverParticipant = userId ? savedQuest?.participants.find((participant) => participant.userId === userId) : undefined;
   const activeQuestIds = savedQuest?.questIds.length ? savedQuest.questIds : questIds;
   const hasServerParticipant = Boolean(serverParticipant);
@@ -115,6 +116,7 @@ export default async function GroupQuestByIdPage({
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+              {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -250,6 +252,7 @@ export default async function GroupQuestByIdPage({
               Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+            {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">

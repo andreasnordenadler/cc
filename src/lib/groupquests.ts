@@ -99,16 +99,20 @@ export function buildGroupQuest(input: {
 }
 
 export async function findGroupQuestById(
-  client: { users: { getUserList: (params: { limit: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
   id: string,
 ): Promise<GroupQuestHostRecord | null> {
-  const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
-  for (const user of users.data) {
-    const quests = getStoredGroupQuests(user.privateMetadata);
-    const groupQuest = quests.find((quest) => quest.id === id);
-    if (groupQuest) return { userId: user.id, groupQuest };
+  let offset = 0;
+  while (true) {
+    const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
+    for (const user of users.data) {
+      const quests = getStoredGroupQuests(user.privateMetadata);
+      const groupQuest = quests.find((quest) => quest.id === id);
+      if (groupQuest) return { userId: user.id, groupQuest };
+    }
+    if (users.data.length < 100) return null;
+    offset += users.data.length;
   }
-  return null;
 }
 
 

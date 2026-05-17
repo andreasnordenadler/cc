@@ -181,6 +181,12 @@ Rules from this point:
   - source: Andreas reported newly created Multiplayer Quests still start in the future despite the default being intended as immediate.
   - proof: create form now sends timezone-aware ISO timestamps from the user-local datetime controls; API also normalizes timezone-less schedule values and clamps near-future default starts to actual creation time. Existing official public quests were patched via a temporary protected endpoint: scanned 44 production users and updated 3 public quests to open immediately, then removed the endpoint. Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
 
+- [x] Add host-only edit option for Multiplayer Side Quests.
+  - added_at: 2026-05-17 20:23 Europe/Stockholm
+  - completed_at: 2026-05-17 20:23 Europe/Stockholm
+  - source: Andreas reported the host who created a Multiplayer Side Quest needs an option to edit it.
+  - proof: added host-only `Edit quest` link on quest pages, `/groupquests/[id]/edit` host editor, and `PATCH /api/groupquests/[id]` preserving participants while updating name, invite text, visibility, schedule, quest stack, provider, and host rule settings. Verification: `pnpm lint`, `pnpm build`, production deploy, and live route smoke checks.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
