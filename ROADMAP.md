@@ -175,6 +175,12 @@ Rules from this point:
   - source: Andreas said every Multiplayer Quest created so far was testing and asked to remove them all.
   - proof: cleared the first local/test Clerk page, then used a temporary protected production cleanup endpoint to scan 44 production Clerk users and clear 6 real stored `sqcGroupQuests` from 1 user; removed the temporary endpoint afterward; removed hard-coded fallback demo listings from `/groupquests/public`, forced the public list route dynamic to prevent stale cached test listings, and changed empty public state to `No public Multiplayer Side Quests are available right now.` Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
 
+- [x] Fix Multiplayer quest start time serialization so default opens immediately.
+  - added_at: 2026-05-17 20:18 Europe/Stockholm
+  - completed_at: 2026-05-17 20:18 Europe/Stockholm
+  - source: Andreas reported newly created Multiplayer Quests still start in the future despite the default being intended as immediate.
+  - proof: create form now sends timezone-aware ISO timestamps from the user-local datetime controls; API also normalizes timezone-less schedule values and clamps near-future default starts to actual creation time. Existing official public quests were patched to be open immediately. Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

@@ -51,6 +51,12 @@ function defaultEndAt() {
   return toDateTimeLocal(date);
 }
 
+
+function toIsoFromDateTimeLocal(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toISOString();
+}
+
 function formatDateTimeLabel(value: string) {
   if (!value) return "Not set";
   const date = new Date(value);
@@ -110,6 +116,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const [inviteCopy, setInviteCopy] = useState(defaultInviteCopy);
   const [providerMode, setProviderMode] = useState(providerModes[0].id);
   const [startAt, setStartAt] = useState(defaultStartAt);
+  const [startAtEdited, setStartAtEdited] = useState(false);
   const [endAt, setEndAt] = useState(defaultEndAt);
   const [rules, setRules] = useState<Record<string, string>>({
     timeControl: "Any time control",
@@ -197,8 +204,9 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           questIds: selectedQuestIds,
           providerMode,
           providerLabel: selectedProviderMode.label,
-          startAt,
-          endAt,
+          startAt: toIsoFromDateTimeLocal(startAt),
+          endAt: toIsoFromDateTimeLocal(endAt),
+          openImmediately: !startAtEdited,
           rules,
         }),
       });
@@ -327,7 +335,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             <div className="groupquests-rule-grid schedule-grid two-up">
               <label>
                 <span>Opens</span>
-                <input type="datetime-local" value={startAt} onChange={(event) => setStartAt(event.target.value)} />
+                <input type="datetime-local" value={startAt} onChange={(event) => { setStartAtEdited(true); setStartAt(event.target.value); }} />
               </label>
               <label>
                 <span>Closes</span>

@@ -28,8 +28,9 @@ export async function POST(request: Request) {
     username: user.username,
     emailAddress: user.primaryEmailAddress?.emailAddress,
   }) || "SQC host";
+  const normalizedPayload = normalizeSchedulePayload(payload as Record<string, unknown>);
   const groupQuest = buildGroupQuest({
-    ...(payload as Record<string, unknown>),
+    ...normalizedPayload,
     hostUserId: userId,
     hostName,
   });
@@ -68,4 +69,23 @@ export async function POST(request: Request) {
     id: groupQuest.id,
     href: `/groupquests/${groupQuest.id}${hostParticipant ? "?accepted=1" : ""}`,
   });
+}
+
+
+function normalizeSchedulePayload(payload: Record<string, unknown>) {
+  const startAt = normalizeDateTimeValue(payload.startAt);
+  const endAt = normalizeDateTimeValue(payload.endAt);
+  return {
+    ...payload,
+    startAt: payload.openImmediately === true ? new Date().toISOString() : (startAt ?? payload.startAt),
+    endAt: endAt ?? payload.endAt,
+  };
+}
+
+function normalizeDateTimeValue(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const parsed = new Date(trimmed);
+  return Number.isNaN(parsed.getTime()) ? trimmed : parsed.toISOString();
 }
