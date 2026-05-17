@@ -179,7 +179,7 @@ Rules from this point:
   - added_at: 2026-05-17 20:18 Europe/Stockholm
   - completed_at: 2026-05-17 20:18 Europe/Stockholm
   - source: Andreas reported newly created Multiplayer Quests still start in the future despite the default being intended as immediate.
-  - proof: create form now sends timezone-aware ISO timestamps from the user-local datetime controls; API also normalizes timezone-less schedule values and clamps near-future default starts to actual creation time. Existing official public quests were patched to be open immediately. Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
+  - proof: create form now sends timezone-aware ISO timestamps from the user-local datetime controls; API also normalizes timezone-less schedule values and clamps near-future default starts to actual creation time. Existing official public quests were patched via a temporary protected endpoint: scanned 44 production users and updated 3 public quests to open immediately, then removed the endpoint. Verification: `pnpm lint`, `pnpm build`, production deploy, and live public-list smoke check.
 
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
