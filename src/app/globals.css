@@ -100,6 +100,8 @@ p { color: var(--muted); line-height: 1.5; }
 .button.pink { background: var(--pink); color: #111; }
 .button.danger { background: rgba(255,122,102,.14); color: #ffd6cf; border: 1px solid rgba(255,122,102,.44); }
 .hero-actions { margin-top: 22px; }
+.home-choice-button { gap: .28em; }
+.home-choice-button span { color: var(--red); }
 
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; }
 .step { padding: 14px; border-radius: 20px; background: rgba(0,0,0,.18); }

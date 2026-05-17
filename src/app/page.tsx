@@ -135,8 +135,8 @@ export default async function Home() {
                 : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, and let SQC check your latest real game."}
             </p>
             <div className="button-row hero-actions home-mode-actions" aria-label="Choose Solo or Multiplayer Side Quest mode">
-              <Link href="/challenges" className="button primary">Go on a Solo Side Quest</Link>
-              <Link href="/groupquests" className="button secondary">Join a Multiplayer Side Quest</Link>
+              <Link href="/challenges" className="button primary home-choice-button">Go on a <span>Solo</span> Side Quest</Link>
+              <Link href="/groupquests" className="button primary home-choice-button">Join a <span>Multiplayer</span> Side Quest</Link>
             </div>
             {!isSignedIn ? (
               <div className="button-row hero-actions signed-out-hero-auth-actions home-auth-followup" aria-label="Sign in or connect">

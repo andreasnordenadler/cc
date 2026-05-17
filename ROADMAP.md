@@ -187,6 +187,12 @@ Rules from this point:
   - source: Andreas reported the host who created a Multiplayer Side Quest needs an option to edit it.
   - proof: added host-only `Edit quest` link on quest pages, `/groupquests/[id]/edit` host editor, and `PATCH /api/groupquests/[id]` preserving participants while updating name, invite text, visibility, schedule, quest stack, provider, and host rule settings. Verification: `pnpm lint`, `pnpm build`, production deploy, and live route smoke checks.
 
+- [x] Style homepage Solo/Multiplayer choice buttons with yellow buttons and red keywords.
+  - added_at: 2026-05-17 20:26 Europe/Stockholm
+  - completed_at: 2026-05-17 20:26 Europe/Stockholm
+  - source: Andreas asked both homepage choice buttons to be yellow and the words `Solo` and `Multiplayer` to be red.
+  - proof: both hero choice links now use the yellow primary button style and wrap the key words in red spans. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
