@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -20,6 +20,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://sidequestchess.com"),
   title: "Side Quest Chess — Chess side quests",
   description: "Chess, but with stupidly hard side quests. Pick a ridiculous quest, play real games, and prove it worked.",
+};
+
+export const viewport: Viewport = {
+  width: 1110,
+  initialScale: 1,
 };
 
 const clerkAppearance = {

@@ -104,6 +104,7 @@ Rules from this point:
 - 2026-05-16 layout polish: accepted multiplayer quest page should place `Quests to complete` below the stats strip, not above it.
 - 2026-05-16 layout polish: accepted multiplayer quest rules card should span full width after the separate activity card was removed.
 - 2026-05-17 approved analytics delta: admin analytics should classify visits as mobile/tablet/desktop where possible and show the device split on `/admin/analytics`.
+- 2026-05-17 approved website test: force mobile browsers into a desktop-width viewport for now; no user toggle needed because native mobile app will be the later mobile-first surface.
 
 - [ ] Add Facebook login to Clerk for SQC.
   - added_at: 2026-05-14 15:05 Europe/Stockholm
