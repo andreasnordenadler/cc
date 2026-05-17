@@ -212,6 +212,12 @@ Rules from this point:
   - source: Andreas asked to remove the homepage `Sign up` button from the signed-out hero area.
   - proof: home variant of `AuthActionButtons` now renders a single primary `Sign in` button and removes the separate sign-up/start button. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
 
+- [x] Remove remaining nav `Sign In/Up` wording.
+  - added_at: 2026-05-17 22:39 Europe/Stockholm
+  - completed_at: 2026-05-17 22:39 Europe/Stockholm
+  - source: Andreas showed the top-nav button still said `Sign In/Up` after the homepage sign-up button removal.
+  - proof: default nav auth button now says `Sign in` only. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
