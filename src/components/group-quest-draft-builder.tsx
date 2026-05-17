@@ -127,7 +127,6 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
   const selectedInviteMode = inviteModes.find((mode) => mode.id === inviteMode) ?? inviteModes[0];
   const selectedProviderMode = providerModes.find((mode) => mode.id === providerMode) ?? providerModes[0];
   const publicId = publicIdFromName(name);
-  const shareUrl = `https://sidequestchess.com/groupquests/${publicId}`;
   const previewRules = [
     { label: "Games allowed", value: selectedProviderMode.label },
     { label: "Time control", value: rules.timeControl ?? "Any time control" },
@@ -427,8 +426,8 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
             <p>{successCriteria}</p>
           </div>
           <div className="groupquests-preview-link">
-            <strong>Public ID + share URL</strong>
-            <span>{shareUrl}</span>
+            <strong>Share URL</strong>
+            <span>Created after saving.</span>
           </div>
         </aside>
       </div>

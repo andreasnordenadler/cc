@@ -151,6 +151,12 @@ Rules from this point:
   - source: Andreas asked that Multiplayer `Opens` defaults to the user’s current time so quests are open straight away.
   - proof: create builder `defaultStartAt()` now uses the browser/user current local minute instead of current time +1 hour. Verification: `pnpm lint`, `pnpm build`, production deploy, and live create-page smoke check.
 
+- [x] Remove premature Multiplayer draft share URL from create preview.
+  - added_at: 2026-05-17 18:20 Europe/Stockholm
+  - completed_at: 2026-05-17 18:20 Europe/Stockholm
+  - source: Andreas noticed the create preview showed a not-yet-created share URL and asked to remove it.
+  - proof: preview now says the share URL is created after saving, avoiding fake/premature group quest links. Verification: `pnpm lint`, `pnpm build`, production deploy, and code/live-route smoke checks.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
