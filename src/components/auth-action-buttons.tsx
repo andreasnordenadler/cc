@@ -25,7 +25,7 @@ export default function AuthActionButtons({ variant = "nav" }: AuthActionButtons
 
   return (
     <SignInButton mode="modal" fallbackRedirectUrl="/account">
-      <button type="button" className="button primary">Sign in</button>
+      <button type="button" className="button primary">Sign In/Up</button>
     </SignInButton>
   );
 }
