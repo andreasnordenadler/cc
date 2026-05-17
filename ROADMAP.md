@@ -157,6 +157,12 @@ Rules from this point:
   - source: Andreas noticed the create preview showed a not-yet-created share URL and asked to remove it.
   - proof: preview now says the share URL is created after saving, avoiding fake/premature group quest links. Verification: `pnpm lint`, `pnpm build`, production deploy, and code/live-route smoke checks.
 
+- [x] Put Solo and Multiplayer choices in homepage hero.
+  - added_at: 2026-05-17 18:30 Europe/Stockholm
+  - completed_at: 2026-05-17 18:30 Europe/Stockholm
+  - source: Andreas asked to put Multiplayer more in focus by adding two homepage buttons: Solo Side Quest and Multiplayer Side Quest.
+  - proof: homepage hero now shows two primary mode choices: `Go on a Solo Side Quest` linking to `/challenges` and `Join a Multiplayer Side Quest` linking to `/groupquests`; signed-out auth remains as follow-up. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage smoke check.
+
 - [ ] Plan official weekly SQC Multiplayer Events.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.

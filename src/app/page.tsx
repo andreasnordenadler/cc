@@ -134,17 +134,15 @@ export default async function Home() {
                 ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
                 : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, and let SQC check your latest real game."}
             </p>
-            {isSignedIn ? (
-              <>
-                <div className="button-row hero-actions">
-                  <Link href="/challenges" className="button primary">Browse quests</Link>
-                </div>
-              </>
-            ) : (
-              <div className="button-row hero-actions signed-out-hero-auth-actions" aria-label="Sign in or connect">
+            <div className="button-row hero-actions home-mode-actions" aria-label="Choose Solo or Multiplayer Side Quest mode">
+              <Link href="/challenges" className="button primary">Go on a Solo Side Quest</Link>
+              <Link href="/groupquests" className="button secondary">Join a Multiplayer Side Quest</Link>
+            </div>
+            {!isSignedIn ? (
+              <div className="button-row hero-actions signed-out-hero-auth-actions home-auth-followup" aria-label="Sign in or connect">
                 <AuthActionButtons />
               </div>
-            )}
+            ) : null}
           </article>
 
           <aside className="side-card card recommended-quests-panel signed-out-start-panel heroism-selector-panel">
