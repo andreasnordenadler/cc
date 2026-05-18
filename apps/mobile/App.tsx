@@ -778,30 +778,38 @@ function AccountShell({
 }) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
+    const primaryLabel = authBridge.configured ? "Sign in with Google" : "Open sign in";
+    const handlePrimaryPress = () => {
+      if (authBridge.startGoogleSignIn) {
+        return void authBridge.startGoogleSignIn();
+      }
+      return void openExternalUrl(`${getApiBaseUrl()}/sign-in?redirect_url=${encodeURIComponent("/account")}`);
+    };
 
     return (
       <View style={styles.screenStack}>
-        <EmptyStateCard
-          eyebrow="Account"
-          title={signedInButRejected ? "Token is local; backend verification still needs help." : "Ready for your royal paperwork."}
-          body={
-            signedInButRejected
-              ? "Google sign-in is local, but the website API did not accept the mobile token yet. The app stays usable while backend verification is finished."
-              : "Use the website to sign in, connect chess usernames, and start real quests. This Android preview keeps catalog and reward views available until account sync is enabled."
-          }
-          facts={[
-            ["Source", bootstrap.product.canonicalUrl],
-            ["Local session", authBridge.isSignedIn ? "Signed in with Clerk Expo" : "Signed out / no mobile token"],
-            ["Catalog", "Still available without auth"],
-          ]}
-        />
-        <WebsiteHandoffCard
-          title="Finish account setup on the website."
-          body="Connect chess usernames, start a real quest, and let mobile mirror the verified website state."
-          buttonLabel="Open account portal"
-          url={`${getApiBaseUrl()}/account`}
-        />
-        <AccountSetupChecklistCard authBridge={authBridge} />
+        <View style={styles.accountAuthCopyCard}>
+          <Text style={styles.accountAuthTitle}>Sign in, then go make terrible chess decisions.</Text>
+          <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active side quest, badges, and proof cards.</Text>
+          <View style={styles.authLightweightCopy} accessibilityLabel="Lightweight sign-in notes">
+            <Text style={styles.authNote}><Text style={styles.authNoteStrong}>Lightweight by design.</Text> We do not need or ask for any Lichess or Chess.com passwords.</Text>
+            <Text style={styles.authNote}>Use a public chess username only. SQC checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</Text>
+            <Text style={styles.authNote}>You can browse Side Quests before signing in. Sign in when you want SQC to save progress, verify proof, or manage Multiplayer Quests.</Text>
+          </View>
+        </View>
+
+        <View style={styles.accountAuthFormCard} accessibilityLabel="Sign in form">
+          <Text style={styles.eyebrow}>Account</Text>
+          <Text style={styles.cardTitle}>{signedInButRejected ? "Token is local; backend verification still needs help." : "Continue to your account."}</Text>
+          <Text style={styles.cardBody}>{signedInButRejected ? "Google sign-in is local, but the website API did not accept the mobile token yet. The app stays usable while backend verification is finished." : "Use Google to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={handlePrimaryPress}>
+            <Text style={styles.primaryButtonText}>{primaryLabel}</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Browse Side Quests" style={styles.secondaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges`)}>
+            <Text style={styles.secondaryButtonText}>Browse Side Quests</Text>
+          </Pressable>
+        </View>
+
         <MobileAccountStatesCard authBridge={authBridge} account={account} />
       </View>
     );
@@ -907,20 +915,6 @@ function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileCha
         </View>
       </View>
     </Pressable>
-  );
-}
-
-function AccountSetupChecklistCard({ authBridge }: { authBridge: MobileAuthBridge }) {
-  return (
-    <View style={styles.accountChecklistCard}>
-      <Text style={styles.eyebrow}>Account checklist</Text>
-      <Text style={styles.accountChecklistTitle}>Nothing important is hidden behind native auth.</Text>
-      <View style={styles.checkerFlow}>
-        <FlowStep done title="Browse quests" body="The APK loads the public quest board in live or offline-preview mode." />
-        <FlowStep done={authBridge.configured} title="Optional Google smoke" body={authBridge.configured ? "Native Google SSO can be tested from the mobile account card." : "Waiting for the Clerk mobile publishable key before native sign-in appears."} />
-        <FlowStep title="Finish setup on web" body="Connect chess usernames, start quests, and submit proof through the canonical website." />
-      </View>
-    </View>
   );
 }
 
@@ -1090,21 +1084,6 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
         <FlowStep done title="Public catalog" body="Quest board, rules, rewards, and website handoffs load without native auth." />
         <FlowStep done={authBridge.configured} title="Native Clerk bridge" body={authBridge.configured ? "Google SSO button is available for smoke testing." : "Waiting for the mobile publishable key from Clerk."} />
         <FlowStep done={authenticated} title="Backend account mirror" body={backendAccepted} />
-      </View>
-    </View>
-  );
-}
-
-function EmptyStateCard({ eyebrow, title, body, facts }: { eyebrow: string; title: string; body: string; facts: Array<[string, string]> }) {
-  return (
-    <View style={styles.panelCard}>
-      <Text style={styles.eyebrow}>{eyebrow}</Text>
-      <Text style={styles.cardTitle}>{title}</Text>
-      <Text style={styles.cardBody}>{body}</Text>
-      <View style={styles.factGrid}>
-        {facts.map(([label, value]) => (
-          <Fact key={label} label={label} value={value} />
-        ))}
       </View>
     </View>
   );
@@ -1427,6 +1406,13 @@ const styles = StyleSheet.create({
   rulesTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   rule: { color: colors.muted, fontSize: 14, lineHeight: 21 },
   authCard: { gap: 9, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
+  accountAuthCopyCard: { gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  accountAuthTitle: { color: colors.paper, fontSize: 31, fontWeight: "900", letterSpacing: -1.35, lineHeight: 35 },
+  accountAuthHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  authLightweightCopy: { gap: 10, padding: 14, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.11)", backgroundColor: "rgba(255,255,255,.07)" },
+  authNote: { color: colors.muted, fontSize: 13, lineHeight: 19 },
+  authNoteStrong: { color: colors.paper, fontWeight: "900" },
+  accountAuthFormCard: { gap: 12, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
   readinessCard: { gap: 10, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.075)" },
   readinessTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
   readinessBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
