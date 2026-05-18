@@ -398,8 +398,10 @@ function BottomNav({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab:
           style={[styles.bottomNavItem, activeTab === tab.id && styles.bottomNavItemActive]}
           onPress={() => onSelectTab(tab.id)}
         >
-          <Text style={[styles.bottomNavIcon, activeTab === tab.id && styles.bottomNavTextActive]}>{tab.icon}</Text>
+          {activeTab === tab.id ? <View style={styles.bottomNavActiveGlow} /> : null}
+          <Text style={[styles.bottomNavIcon, activeTab === tab.id && styles.bottomNavIconActive]}>{tab.icon}</Text>
           <Text style={[styles.bottomNavText, activeTab === tab.id && styles.bottomNavTextActive]} numberOfLines={1}>{tab.label}</Text>
+          {activeTab === tab.id ? <View style={styles.bottomNavActiveDot} /> : null}
         </Pressable>
       ))}
     </View>
@@ -1422,10 +1424,13 @@ const styles = StyleSheet.create({
   firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
   firstRunSteps: { gap: 9 },
-  bottomNavBar: { position: "absolute", left: 10, right: 10, bottom: 8, flexDirection: "row", gap: 6, padding: 8, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(12,11,15,.96)" },
-  bottomNavItem: { flex: 1, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 18 },
-  bottomNavItemActive: { backgroundColor: "rgba(245,200,106,.16)" },
-  bottomNavIcon: { color: colors.muted, fontSize: 17, fontWeight: "900" },
+  bottomNavBar: { position: "absolute", left: 10, right: 10, bottom: 8, flexDirection: "row", gap: 6, padding: 8, borderRadius: 28, borderWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "rgba(12,11,15,.97)", shadowColor: "#000", shadowOpacity: 0.5, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 14 },
+  bottomNavItem: { position: "relative", overflow: "hidden", flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "transparent" },
+  bottomNavItemActive: { borderColor: "rgba(245,200,106,.82)", backgroundColor: "rgba(245,200,106,.2)", shadowColor: colors.gold, shadowOpacity: 0.34, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
+  bottomNavActiveGlow: { position: "absolute", top: -16, width: 54, height: 28, borderRadius: 28, backgroundColor: "rgba(245,200,106,.38)" },
+  bottomNavActiveDot: { width: 18, height: 3, borderRadius: 999, backgroundColor: colors.gold, marginTop: 2 },
+  bottomNavIcon: { color: colors.muted, fontSize: 18, fontWeight: "900" },
+  bottomNavIconActive: { color: colors.gold, transform: [{ translateY: -1 }] },
   bottomNavText: { color: colors.muted, fontSize: 10, fontWeight: "900" },
   bottomNavTextActive: { color: colors.paper },
   tabRail: { gap: 8, paddingRight: 18 },
