@@ -385,7 +385,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
     <>
       <section className="mission-card quest-filter-panel" aria-label="Quest filters and sorting">
         <div>
-          <h2>Find your next quest.</h2>
+          <h2>Find your next Side Quest.</h2>
         </div>
         <div className="quest-filter-grid">
           <label>
