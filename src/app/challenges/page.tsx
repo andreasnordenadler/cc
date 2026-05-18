@@ -50,13 +50,13 @@ export default async function ChallengesPage() {
             <span className="eyebrow">Solo Side Quests</span>
             <h2>One player. One ridiculous rule. One proof receipt.</h2>
             <p>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</p>
-            <Link href="#solo-side-quest-deck" className="button primary">Browse solo quests</Link>
+            <Link href="#solo-side-quest-deck" className="button primary">Browse Solo Side Quests</Link>
           </article>
           <article className="mission-card side-quest-mode-card group-mode-card">
             <span className="eyebrow">Multiplayer Side Quests</span>
             <h2>Multiplayer. Same nonsense, now with witnesses.</h2>
             <p>Create or join a Multiplayer Quest with shared rules, a proof window, a leaderboard, and multiplayer-valid proof separate from solo progress.</p>
-            <Link href="/groupquests" className="button primary">Open multiplayer quests</Link>
+            <Link href="/groupquests" className="button primary">Open Multiplayer Side Quests</Link>
           </article>
         </section>
 
