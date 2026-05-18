@@ -3701,3 +3701,26 @@ Use the successful APK for auth smoke, then either wait for quota reset, upgrade
 - Tags: eas, quota, android, mobile-release
 
 ---
+
+## [ERR-20260518-003] sqc_android_device_crash_missing_clerk_peer
+
+**Logged**: 2026-05-18T13:16:07.256119+00:00
+**Priority**: high
+**Status**: pending
+**Area**: mobile | auth
+
+### Summary
+SQC Android APK crashed on Andreas's real device during launch/auth smoke. Local audit found `@clerk/clerk-expo` had an unmet native peer dependency on `expo-crypto`.
+
+### Details
+`expo-doctor` passed, but Clerk's package peer list includes `expo-crypto >=12`; the mobile package did not declare it directly. Added SDK-compatible `expo-crypto@~15.0.9`, verified TypeScript/lint/export, and built a local debug APK successfully with Java/Android SDK env vars.
+
+### Suggested Action
+Keep Clerk Expo native peers explicit in `apps/mobile/package.json`; for crash reports, produce a local debug APK when EAS quota is exhausted.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/package.json, pnpm-lock.yaml
+- Tags: android, clerk, expo, crash
+
+---
