@@ -24,7 +24,7 @@ import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } fro
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
-type AppTab = "catalog" | "quest" | "account" | "status" | "proof";
+type AppTab = "home" | "sideQuests" | "coatOfArms" | "account";
 
 type MobileShellState = {
   bootstrap: MobileBootstrap | null;
@@ -47,7 +47,6 @@ type MobileAuthBridge = {
   signedInLabel: string | null;
 };
 
-const MOBILE_BUILD_LABEL = "Android preview 0.2.17 / quest actions";
 const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
@@ -63,11 +62,10 @@ const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
 });
 
 const TABS: Array<{ id: AppTab; label: string; icon: string }> = [
-  { id: "catalog", label: "Side Quests", icon: "♞" },
-  { id: "quest", label: "Mission", icon: "⚔" },
-  { id: "proof", label: "Coats", icon: "🛡" },
-  { id: "account", label: "My SQC", icon: "♛" },
-  { id: "status", label: "Proof", icon: "✓" },
+  { id: "home", label: "Home", icon: "⌂" },
+  { id: "sideQuests", label: "Side Quests", icon: "♞" },
+  { id: "coatOfArms", label: "Coat of Arms", icon: "🛡" },
+  { id: "account", label: "Account", icon: "♛" },
 ];
 
 export default function App() {
@@ -131,7 +129,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     bootstrap: null,
     account: null,
     selectedChallengeId: null,
-    activeTab: "catalog",
+    activeTab: "home",
     loading: true,
     refreshing: false,
     catalogMode: "live",
@@ -202,7 +200,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     return () => clearTimeout(accountTimer);
   }, [loadAccount]);
 
-  function selectChallenge(challengeId: string, nextTab: AppTab = "quest") {
+  function selectChallenge(challengeId: string, nextTab: AppTab = "sideQuests") {
     setShell((current) => ({ ...current, selectedChallengeId: challengeId, activeTab: nextTab }));
   }
 
@@ -218,14 +216,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
       >
-        <HeroHeader selectedChallenge={selectedChallenge} />
-
-        {shell.bootstrap && selectedChallenge ? (
-          <>
-            <QuickStartCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
-            <TabBar activeTab={shell.activeTab} onSelectTab={selectTab} />
-          </>
-        ) : null}
+        <MobileTopHeader authBridge={authBridge} onSelectTab={selectTab} />
 
         {shell.loading ? (
           <View style={styles.loadingCard}>
@@ -237,215 +228,91 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         {shell.catalogMode === "offline" ? <OfflinePreviewCard reason={shell.catalogNotice} onRetry={() => void loadBootstrap()} /> : null}
 
         {shell.bootstrap && selectedChallenge ? (
-          <>
-            <ActiveScreen
-              activeTab={shell.activeTab}
-              bootstrap={shell.bootstrap}
-              catalogMode={shell.catalogMode}
-              selectedChallenge={selectedChallenge}
-              account={shell.account}
-              authBridge={authBridge}
-              onSelectChallenge={selectChallenge}
-              onSelectTab={selectTab}
-              onAccountUpdated={() => void loadAccount()}
-            />
-            <WebsiteParityDockCard selectedChallenge={selectedChallenge} account={shell.account} authBridge={authBridge} onSelectTab={selectTab} />
-            <FirstRunBriefCard authBridge={authBridge} />
-            <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => void loadAccount()} />
-            <ClerkReadinessCard authBridge={authBridge} />
-            <SyncCard bootstrap={shell.bootstrap} />
-          </>
+          <ActiveScreen
+            activeTab={shell.activeTab}
+            bootstrap={shell.bootstrap}
+            catalogMode={shell.catalogMode}
+            selectedChallenge={selectedChallenge}
+            account={shell.account}
+            authBridge={authBridge}
+            onSelectChallenge={selectChallenge}
+            onSelectTab={selectTab}
+            onAccountUpdated={() => void loadAccount()}
+          />
         ) : null}
       </ScrollView>
+      <BottomNav activeTab={shell.activeTab} onSelectTab={selectTab} />
     </SafeAreaView>
   );
+
 }
 
-function HeroHeader({ selectedChallenge }: { selectedChallenge: MobileChallenge | null }) {
-  const badgeUrl = selectedChallenge?.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
-
+function MobileTopHeader({ authBridge, onSelectTab }: { authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void }) {
   return (
-    <View style={styles.heroCard}>
-      <View style={styles.heroGlowOne} />
-      <View style={styles.heroGlowTwo} />
-      <View style={styles.navBrandRow}>
+    <View style={styles.mobileTopHeader}>
+      <View style={styles.navBrandRowCompact}>
         <Image source={{ uri: `${getApiBaseUrl()}/brand/sqc-alt-logo-topbar-20260507-v2.png` }} style={styles.logoMark} resizeMode="contain" />
         <View style={styles.navBrandCopy}>
           <Text style={styles.navKicker}>Side Quest Chess</Text>
-          <Text style={styles.navSub}>Quest board companion</Text>
-        </View>
-        <Text style={styles.navSubPill}>Mobile</Text>
-      </View>
-
-      <View style={styles.heroMainRow}>
-        <View style={styles.heroCopyBlock}>
-          <Text style={styles.eyebrow}>Chess, but weird on purpose</Text>
-          <Text style={styles.title}>Today’s side quest.</Text>
-          <Text style={styles.heroCopy} numberOfLines={2}>Pick one ridiculous chess quest, play a real Lichess or Chess.com game, then come back for proof.</Text>
-        </View>
-        <View style={styles.heroBadgeFrameCompact}>
-          {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroBadgeImageCompact} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>♞</Text>}
+          <Text style={styles.navSub}>Chess, but with side quests</Text>
         </View>
       </View>
+      <Pressable accessibilityRole="button" accessibilityLabel="Sign In/Up" testID="mobile-header-sign-in" style={styles.headerSignInButton} onPress={() => authBridge.isSignedIn ? onSelectTab("account") : void openExternalUrl(`${getApiBaseUrl()}/sign-in`)}>
+        <Text style={styles.headerSignInText}>{authBridge.isSignedIn ? "Account" : "Sign In/Up"}</Text>
+      </Pressable>
     </View>
   );
 }
 
-function QuickStartCard({
-  selectedChallenge,
-  account,
-  authBridge,
-  onSelectTab,
-}: {
-  selectedChallenge: MobileChallenge;
-  account: MobileAccountResponse | null;
-  authBridge: MobileAuthBridge;
-  onSelectTab: (tab: AppTab) => void;
-}) {
-  const accountMode = isAuthenticatedAccount(account)
-    ? `Signed in · ${account.progress.totalCompletedChallenges} coats earned`
-    : authBridge.configured
-      ? "Google sign-in ready when you want account sync"
-      : "Browse mode · setup opens on the web board";
-  const completedCount = isAuthenticatedAccount(account) ? account.progress.totalCompletedChallenges : 0;
-  const receiptCount = isAuthenticatedAccount(account) ? account.progress.proofReceiptCount : 0;
+function HomeScreen({ account, authBridge, onSelectTab }: { account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void }) {
+  if (isAuthenticatedAccount(account)) {
+    return (
+      <View style={styles.screenStack}>
+        <View style={styles.homeHeroCard}>
+          <Text style={styles.eyebrow}>HOME</Text>
+          <Text style={styles.homeHeroTitle}>Welcome back, {account.profile.displayName}.</Text>
+          <Text style={styles.homeHeroBody}>Your Side Quest Chess account is synced. Choose a quest, play where you already play, and get the receipt.</Text>
+          <View style={styles.scoreboardRow}>
+            <BigScore label="Points" value={`${account.progress.totalRewardPoints}`} />
+            <BigScore label="Coats" value={`${account.progress.totalCompletedChallenges}`} />
+            <BigScore label="Proofs" value={`${account.progress.proofReceiptCount}`} />
+          </View>
+        </View>
+        <WebsiteRitualCard compact />
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.quickStartCard}>
-      <View style={styles.quickStartTopRow}>
-        <View style={styles.quickStartCopy}>
-          <Text style={styles.eyebrow}>Today’s Side Quest</Text>
-          <Text style={styles.quickStartTitle}>{selectedChallenge.title}</Text>
-          <Text style={styles.quickStartBody} numberOfLines={2}>{selectedChallenge.objective}</Text>
+    <View style={styles.screenStack}>
+      <View style={styles.homeHeroCard}>
+        <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
+        <Text style={styles.homeHeroBody}>Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games.</Text>
+        <View style={styles.homeHeroActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
+            <Text style={styles.primaryButtonText}>Go on a Solo Side Quest</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.secondaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests/public`)}>
+            <Text style={styles.secondaryButtonText}>Join a Multiplayer Side Quest</Text>
+          </Pressable>
         </View>
-        <View style={styles.quickScoreRail}>
-          <Text style={styles.quickScoreValue}>{completedCount}</Text>
-          <Text style={styles.quickScoreLabel}>Coats</Text>
-          <Text style={styles.quickScoreValueSmall}>{receiptCount}</Text>
-          <Text style={styles.quickScoreLabel}>Proofs</Text>
-        </View>
       </View>
-      <View style={styles.quickActionStack}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Read the selected mission" testID="quick-start-read-mission" style={styles.primaryButtonWide} onPress={() => onSelectTab("quest")}>
-          <Text style={styles.primaryButtonText}>Read mission</Text>
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Preview the selected coat reward" testID="quick-start-see-reward" style={styles.secondaryButtonWide} onPress={() => onSelectTab("proof")}>
-          <Text style={styles.secondaryButtonText}>View coat reward</Text>
-        </Pressable>
-      </View>
-      <View style={styles.questFlowStrip}>
-        <Text style={styles.questFlowStep}>1 Read</Text>
-        <Text style={styles.questFlowArrow}>→</Text>
-        <Text style={styles.questFlowStep}>2 Play</Text>
-        <Text style={styles.questFlowArrow}>→</Text>
-        <Text style={styles.questFlowStep}>3 Verify</Text>
-      </View>
-      <View style={styles.accountModeStrip}>
-        <Text style={styles.accountModeDot}>●</Text>
-        <Text style={styles.accountModeCopy}>{accountMode}</Text>
-      </View>
+      <WebsiteRitualCard />
+      {authBridge.configured ? <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => undefined} /> : null}
     </View>
   );
 }
 
-
-function WebsiteParityDockCard({
-  selectedChallenge,
-  account,
-  authBridge,
-  onSelectTab,
-}: {
-  selectedChallenge: MobileChallenge;
-  account: MobileAccountResponse | null;
-  authBridge: MobileAuthBridge;
-  onSelectTab: (tab: AppTab) => void;
-}) {
-  const authenticated = isAuthenticatedAccount(account);
-  const accountMode = authenticated
-    ? `${account.progress.totalCompletedChallenges} coats · ${account.progress.proofReceiptCount} receipts`
-    : authBridge.configured
-      ? authBridge.isSignedIn
-        ? "Local Google session; waiting for backend mirror"
-        : "Sign in optional; website owns setup"
-      : "Browse safely; website owns setup";
-  const activeQuestLabel = authenticated && account.activeQuest ? account.activeQuest.title : selectedChallenge.title;
-
+function WebsiteRitualCard({ compact = false }: { compact?: boolean }) {
   return (
-    <View style={styles.parityDockCard}>
-      <View style={styles.parityDockHeader}>
-        <View style={styles.parityDockHeaderCopy}>
-          <Text style={styles.eyebrow}>Website parity dock</Text>
-          <Text style={styles.parityDockTitle}>The main web board, compressed for Android.</Text>
-          <Text style={styles.parityDockBody}>Fast paths mirror the website GUI without pretending mobile can mutate account state before Clerk/backend verification is settled.</Text>
-        </View>
-        <Text style={styles.parityModePill}>{authenticated ? "Synced" : "Safe mode"}</Text>
-      </View>
-
-      <View style={styles.parityRouteGrid}>
-        <ParityRouteButton icon="♞" title="Quest deck" body={`${selectedChallenge.badgeIdentity.name} selected`} onPress={() => onSelectTab("catalog")} />
-        <ParityRouteButton icon="⚔" title="Mission brief" body={activeQuestLabel} onPress={() => onSelectTab("quest")} />
-        <ParityRouteButton icon="✓" title="Checker" body="Open canonical proof flow" onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`)} />
-        <ParityRouteButton icon="♛" title="My Side Quests" body={accountMode} onPress={() => authenticated ? onSelectTab("account") : void openExternalUrl(`${getApiBaseUrl()}/account`)} />
-        <ParityRouteButton icon="🏆" title="Scoreboard" body="View public standings" onPress={() => void openExternalUrl(`${getApiBaseUrl()}/scoreboard`)} />
-        <ParityRouteButton icon="🛡" title="Badges" body="Browse coats of arms" onPress={() => void openExternalUrl(`${getApiBaseUrl()}/badges`)} />
-      </View>
-
-      <View style={styles.paritySafetyStrip}>
-        <Text style={styles.noticeIcon}>🧭</Text>
-        <Text style={styles.noticeCopy}>Auth-sensitive actions still hand off to the website; public browsing, mission briefs, reward previews, status labels, and share links stay native.</Text>
-      </View>
-    </View>
-  );
-}
-
-function ParityRouteButton({ icon, title, body, onPress }: { icon: string; title: string; body: string; onPress: () => void }) {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel={title} testID={`parity-route-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} style={styles.parityRouteButton} onPress={onPress}>
-      <Text style={styles.parityRouteIcon}>{icon}</Text>
-      <View style={styles.parityRouteCopy}>
-        <Text style={styles.parityRouteTitle}>{title}</Text>
-        <Text style={styles.parityRouteBody} numberOfLines={2}>{body}</Text>
-      </View>
-    </Pressable>
-  );
-}
-
-function FirstRunBriefCard({ authBridge }: { authBridge: MobileAuthBridge }) {
-  const accountStep = authBridge.configured ? "Tap Google only when you are ready to test native sign-in." : "Use the website for account setup until the Clerk mobile key is enabled.";
-
-  return (
-    <View style={styles.firstRunCard}>
-      <Text style={styles.eyebrow}>First run</Text>
-      <Text style={styles.firstRunTitle}>Three-tap tour</Text>
-      <View style={styles.firstRunSteps}>
-        <FlowStep done title="Browse the live board" body="Quests come from sidequestchess.com, so the app stays in sync with the website." />
-        <FlowStep title="Read the mission brief" body="Open Detail for rules, reward, and the public game evidence the verifier expects." />
-        <FlowStep title="Keep account work safe" body={accountStep} />
-      </View>
-    </View>
-  );
-}
-
-function ClerkReadinessCard({ authBridge }: { authBridge: MobileAuthBridge }) {
-  const readinessFacts: Array<[string, string]> = [
-    ["Current mode", authBridge.configured ? "Native Clerk bridge enabled" : "Public browse mode"],
-    ["Redirect", mobileOAuthRedirectUrl],
-    ["Authority", "Website owns account edits + proof"],
-  ];
-
-  return (
-    <View style={styles.readinessCard}>
-      <Text style={styles.eyebrow}>Clerk readiness</Text>
-      <Text style={styles.readinessTitle}>{authBridge.configured ? "Ready for Google SSO smoke." : "Safe until the mobile key is added."}</Text>
-      <Text style={styles.readinessBody}>
-        {authBridge.configured
-          ? "This build can open the Expo Clerk Google flow and then asks the web API whether the bearer token is accepted. If backend verification rejects it, the app says so without blocking quest browsing."
-          : "No publishable key is bundled, so the APK cannot accidentally create a broken native sign-in path. Testers still get the live catalog, reward previews, and website handoff."}
-      </Text>
-      <View style={styles.factGrid}>
-        {readinessFacts.map(([label, value]) => (
-          <Fact key={label} label={label} value={value} />
-        ))}
+    <View style={styles.websiteRitualCard}>
+      <Text style={styles.eyebrow}>WHAT HAPPENS AFTER SIGN-IN</Text>
+      <Text style={styles.sectionTitle}>A tiny ritual, not another chess dashboard.</Text>
+      {!compact ? <Text style={styles.sectionBody}>The app follows the same Side Quest Chess workflow as the website.</Text> : null}
+      <View style={styles.websiteRitualSteps}>
+        <FlowStep done title="Choose solo or multiplayer" body="Start one quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses." />
+        <FlowStep title="Play where you already play" body="Use a normal public Lichess or Chess.com game. Side Quest Chess never asks for chess-site passwords." />
+        <FlowStep title="Get the receipt" body="The latest-game checker returns passed, failed, or pending with a shareable proof card, solo progress, and multiplayer leaderboard proof when relevant." />
       </View>
     </View>
   );
@@ -518,27 +385,26 @@ function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridg
   );
 }
 
-function TabBar({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
+function BottomNav({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabRail}>
+    <View style={styles.bottomNavBar}>
       {TABS.map((tab) => (
         <Pressable
           key={tab.id}
           accessibilityRole="tab"
           accessibilityState={{ selected: activeTab === tab.id }}
-          accessibilityLabel={`Open ${tab.label} tab`}
-          testID={`mobile-tab-${tab.id}`}
-          style={[styles.tabPill, activeTab === tab.id && styles.tabPillActive]}
+          accessibilityLabel={`Open ${tab.label}`}
+          testID={`mobile-bottom-nav-${tab.id}`}
+          style={[styles.bottomNavItem, activeTab === tab.id && styles.bottomNavItemActive]}
           onPress={() => onSelectTab(tab.id)}
         >
-          <Text style={[styles.tabIcon, activeTab === tab.id && styles.tabTextActive]}>{tab.icon}</Text>
-          <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>{tab.label}</Text>
+          <Text style={[styles.bottomNavIcon, activeTab === tab.id && styles.bottomNavTextActive]}>{tab.icon}</Text>
+          <Text style={[styles.bottomNavText, activeTab === tab.id && styles.bottomNavTextActive]} numberOfLines={1}>{tab.label}</Text>
         </Pressable>
       ))}
-    </ScrollView>
+    </View>
   );
 }
-
 function ActiveScreen({
   activeTab,
   bootstrap,
@@ -561,17 +427,53 @@ function ActiveScreen({
   onAccountUpdated: () => void;
 }) {
   switch (activeTab) {
-    case "catalog":
-      return <CatalogScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />;
-    case "quest":
-      return <QuestDetailScreen challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
+    case "home":
+      return <HomeScreen account={account} authBridge={authBridge} onSelectTab={onSelectTab} />;
+    case "sideQuests":
+      return <SideQuestsScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
+    case "coatOfArms":
+      return <ProofShell selectedChallenge={selectedChallenge} account={account} />;
     case "account":
       return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />;
-    case "status":
-      return <StatusShell selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />;
-    case "proof":
-      return <ProofShell selectedChallenge={selectedChallenge} account={account} />;
   }
+}
+
+function SideQuestsScreen({
+  bootstrap,
+  catalogMode,
+  selectedChallenge,
+  account,
+  authBridge,
+  onSelectChallenge,
+  onSelectTab,
+  onAccountUpdated,
+}: {
+  bootstrap: MobileBootstrap;
+  catalogMode: "live" | "offline";
+  selectedChallenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+  onSelectTab: (tab: AppTab) => void;
+  onAccountUpdated: () => void;
+}) {
+  return (
+    <View style={styles.screenStack}>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.eyebrow}>SIDE QUESTS</Text>
+        <Text style={styles.sectionTitle}>Browse Solo Side Quests</Text>
+        <Text style={styles.sectionBody}>Pick a solo quest, play on Lichess or Chess.com, and let SQC check your latest public games.</Text>
+      </View>
+      <CatalogScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} onSelectChallenge={onSelectChallenge} />
+      <QuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
+      <WebsiteHandoffCard
+        title="Open Multiplayer Side Quests"
+        body="Join a Multiplayer Side Quest when the bad idea deserves witnesses."
+        buttonLabel="Open multiplayer quests"
+        url={`${getApiBaseUrl()}/groupquests/public`}
+      />
+    </View>
+  );
 }
 
 function CatalogScreen({
@@ -608,29 +510,12 @@ function CatalogScreen({
           challenge={challenge}
           index={index}
           active={challenge.id === selectedChallenge.id}
-          onPress={() => onSelectChallenge(challenge.id, "quest")}
+          onPress={() => onSelectChallenge(challenge.id, "sideQuests")}
         />
       ))}
     </View>
   );
 }
-
-function QuestDetailScreen({
-  challenge,
-  account,
-  authBridge,
-  onSelectTab,
-  onAccountUpdated,
-}: {
-  challenge: MobileChallenge;
-  account: MobileAccountResponse | null;
-  authBridge: MobileAuthBridge;
-  onSelectTab: (tab: AppTab) => void;
-  onAccountUpdated: () => void;
-}) {
-  return <QuestDetailCard challenge={challenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
-}
-
 function AccountShell({
   bootstrap,
   account,
@@ -648,7 +533,7 @@ function AccountShell({
     return (
       <View style={styles.screenStack}>
         <EmptyStateCard
-          eyebrow="My Side Quest"
+          eyebrow="Account"
           title={signedInButRejected ? "Token is local; backend verification still needs help." : "Ready for your royal paperwork."}
           body={
             signedInButRejected
@@ -675,7 +560,7 @@ function AccountShell({
 
   return (
     <View style={styles.panelCard}>
-      <Text style={styles.eyebrow}>My Side Quest</Text>
+      <Text style={styles.eyebrow}>Account</Text>
       <Text style={styles.cardTitle}>{account.profile.displayName}</Text>
       <Text style={styles.cardBody}>{account.profile.bio || "Your live backend-owned account state is now readable by mobile."}</Text>
       <View style={styles.scoreboardRow}>
@@ -702,62 +587,6 @@ function AccountShell({
     </View>
   );
 }
-
-function StatusShell({
-  selectedChallenge,
-  account,
-  authBridge,
-  onAccountUpdated,
-}: {
-  selectedChallenge: MobileChallenge;
-  account: MobileAccountResponse | null;
-  authBridge: MobileAuthBridge;
-  onAccountUpdated: () => void;
-}) {
-  if (isAuthenticatedAccount(account) && account.activeQuest) {
-    return (
-      <View style={styles.panelCard}>
-        <Text style={styles.eyebrow}>Quest status</Text>
-        <Text style={styles.cardTitle}>{account.activeQuest.completed ? "Quest completed." : account.activeQuest.title}</Text>
-        <Text style={styles.cardBody}>{account.activeQuest.banner}</Text>
-        <View style={styles.statusRibbon}>
-          <Text style={styles.statusRibbonIcon}>{account.activeQuest.completed ? "🏆" : "⚔"}</Text>
-          <View style={styles.statusRibbonCopy}>
-            <Text style={styles.statusRibbonTitle}>{account.activeQuest.status}</Text>
-            <Text style={styles.statusRibbonBody}>{account.latestReceipt?.headline ?? "No latest check yet"}</Text>
-          </View>
-        </View>
-      <View style={styles.factGrid}>
-        <Fact label="Started" value={account.activeQuest.startedAt ? new Date(account.activeQuest.startedAt).toLocaleString() : "Not started"} />
-        <Fact label="Verified" value={account.activeQuest.verifiedAt ? new Date(account.activeQuest.verifiedAt).toLocaleString() : "Waiting for proof"} />
-      </View>
-      <StatusConfidenceCard mode={account.activeQuest.completed ? "completed" : "active"} />
-      <MobileQuestActionCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSaved={onAccountUpdated} mode="check" />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.panelCard}>
-      <Text style={styles.eyebrow}>Quest ritual</Text>
-      <Text style={styles.cardTitle}>Pick one quest. Play one real game. Return for judgment.</Text>
-      <View style={styles.checkerFlow}>
-        <FlowStep done title="Choose one quest" body={selectedChallenge.title} />
-        <FlowStep title="Play where you already play" body="Use a public Lichess or Chess.com game. No chess-site passwords." />
-        <FlowStep title="Get the receipt" body="The checker returns passed, failed, or waiting with a shareable proof card." />
-      </View>
-      <StatusConfidenceCard mode="preview" />
-      <MobileQuestActionCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSaved={onAccountUpdated} mode="start" />
-      <WebsiteHandoffCard
-        title="Submit proof on the website."
-        body="Mobile keeps the brief in your pocket; the verifier and proof receipt still run on the web board."
-        buttonLabel="Open verifier"
-        url={`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`}
-      />
-    </View>
-  );
-}
-
 function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
   const badgeUrl = selectedChallenge.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
 
@@ -972,7 +801,7 @@ function QuestDetailCard({
       </View>
 
       <View style={styles.questInstructionCard}>
-        <Text style={styles.instructionLabel}>Mobile mission brief</Text>
+        <Text style={styles.instructionLabel}>Quest brief</Text>
         <Text style={styles.instructionCopy}>{challenge.instruction}</Text>
         <Text style={styles.openingHint}>{challenge.openingHint}</Text>
       </View>
@@ -994,11 +823,11 @@ function QuestDetailCard({
       ))}
 
       <View style={styles.buttonRow}>
-        <Pressable style={styles.primaryButton} onPress={() => onSelectTab("status")}>
-          <Text style={styles.primaryButtonText}>See quest status</Text>
+        <Pressable style={styles.primaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges/${challenge.id}`)}>
+          <Text style={styles.primaryButtonText}>Open challenge page</Text>
         </Pressable>
-        <Pressable style={styles.secondaryButton} onPress={() => onSelectTab("proof")}>
-          <Text style={styles.secondaryButtonText}>Preview proof</Text>
+        <Pressable style={styles.secondaryButton} onPress={() => onSelectTab("coatOfArms")}>
+          <Text style={styles.secondaryButtonText}>Preview coat of arms</Text>
         </Pressable>
         <Pressable style={styles.secondaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges/${challenge.id}`)}>
           <Text style={styles.secondaryButtonText}>Open on website</Text>
@@ -1365,36 +1194,18 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
   );
 }
 
-function StatusConfidenceCard({ mode }: { mode: "preview" | "active" | "completed" }) {
-  const copy = {
-    preview: ["Checker not started", "Pick the quest here, then open the website when you have a public game ready."],
-    active: ["Quest in progress", "The mobile app mirrors the web status without attempting risky account mutations before Clerk is settled."],
-    completed: ["Receipt ready", "The latest backend verdict is visible here; use the web proof page for canonical sharing until native share cards are fully wired."],
-  } satisfies Record<"preview" | "active" | "completed", [string, string]>;
-
-  return (
-    <View style={styles.confidenceCard}>
-      <Text style={styles.confidenceIcon}>{mode === "completed" ? "🏆" : mode === "active" ? "⚔" : "🧭"}</Text>
-      <View style={styles.confidenceCopy}>
-        <Text style={styles.confidenceTitle}>{copy[mode][0]}</Text>
-        <Text style={styles.confidenceBody}>{copy[mode][1]}</Text>
-      </View>
-    </View>
-  );
-}
-
 function ProofActionCard({ challengeId, title, mode, proofUrl }: { challengeId: string | null; title: string; mode: "quest" | "preview" | "receipt"; proofUrl?: string | null }) {
   const challengeUrl = challengeId ? `${getApiBaseUrl()}/challenges/${challengeId}` : getApiBaseUrl();
   const canonicalUrl = proofUrl ?? challengeUrl;
   const shareTitle = mode === "receipt" ? "Side Quest Chess proof" : `Side Quest Chess: ${title}`;
   const shareMessage = mode === "receipt"
     ? `${title}\n\nSide Quest Chess proof: ${canonicalUrl}`
-    : `I am looking at this ridiculous Side Quest Chess mission: ${title}\n${canonicalUrl}`;
+    : `I am looking at this ridiculous Side Quest Chess quest: ${title}\n${canonicalUrl}`;
 
   return (
     <View style={styles.proofActionCard}>
       <Text style={styles.eyebrow}>{mode === "receipt" ? "Proof actions" : "Native handoff"}</Text>
-      <Text style={styles.proofActionTitle}>{mode === "receipt" ? "Share the verdict without guessing." : "Keep the mission in your pocket."}</Text>
+      <Text style={styles.proofActionTitle}>{mode === "receipt" ? "Share the verdict without guessing." : "Keep the quest in your pocket."}</Text>
       <Text style={styles.proofActionBody}>{mode === "receipt" ? (proofUrl ? "Android now shares the canonical minted proof receipt from your account state." : "Android can share the canonical web link while the website remains the source of truth for generated proof images.") : "Send the quest link to yourself or a friend, or jump to the web checker when your public game is ready."}</Text>
       <View style={styles.buttonRow}>
         <Pressable accessibilityRole="button" accessibilityLabel="Share Side Quest Chess link" testID={`proof-share-${mode}`} style={styles.primaryButton} onPress={() => void shareSideQuest(shareTitle, shareMessage, canonicalUrl)}>
@@ -1436,18 +1247,6 @@ function WebsiteHandoffCard({ title, body, buttonLabel, url }: { title: string; 
     </View>
   );
 }
-
-function SyncCard({ bootstrap }: { bootstrap: MobileBootstrap }) {
-  return (
-    <View style={styles.syncCard}>
-      <Text style={styles.eyebrow}>Parity check</Text>
-      <Text style={styles.syncTitle}>Mobile follows the website.</Text>
-      <Text style={styles.syncCopy}>{bootstrap.mobile.recommendedUpdatePolicy}</Text>
-      <Text style={styles.microcopy}>API v{bootstrap.apiVersion} · {MOBILE_BUILD_LABEL} · Generated {new Date(bootstrap.generatedAt).toLocaleString()}</Text>
-    </View>
-  );
-}
-
 function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.miniStat}>
@@ -1532,7 +1331,7 @@ const colors = {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { gap: 14, padding: 14, paddingBottom: 42 },
+  content: { gap: 14, padding: 14, paddingBottom: 118 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
@@ -1545,6 +1344,16 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
+  mobileTopHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 12, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.065)" },
+  navBrandRowCompact: { flex: 1, flexDirection: "row", alignItems: "center", gap: 9 },
+  headerSignInButton: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
+  headerSignInText: { color: "#111", fontSize: 12, fontWeight: "900" },
+  homeHeroCard: { gap: 14, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "#111016" },
+  homeHeroTitle: { color: colors.paper, fontSize: 30, fontWeight: "900", letterSpacing: -1.5, lineHeight: 33 },
+  homeHeroBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  homeHeroActions: { gap: 10 },
+  websiteRitualCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
+  websiteRitualSteps: { gap: 9 },
   navBrandRow: { flexDirection: "row", alignItems: "center", gap: 9 },
   logoMark: { width: 38, height: 38, borderRadius: 13 },
   navBrandCopy: { flex: 1 },
@@ -1613,6 +1422,12 @@ const styles = StyleSheet.create({
   firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
   firstRunSteps: { gap: 9 },
+  bottomNavBar: { position: "absolute", left: 10, right: 10, bottom: 8, flexDirection: "row", gap: 6, padding: 8, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(12,11,15,.96)" },
+  bottomNavItem: { flex: 1, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 18 },
+  bottomNavItemActive: { backgroundColor: "rgba(245,200,106,.16)" },
+  bottomNavIcon: { color: colors.muted, fontSize: 17, fontWeight: "900" },
+  bottomNavText: { color: colors.muted, fontSize: 10, fontWeight: "900" },
+  bottomNavTextActive: { color: colors.paper },
   tabRail: { gap: 8, paddingRight: 18 },
   tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,255,255,.07)" },
   tabPillActive: { borderColor: "rgba(245,200,106,.78)", backgroundColor: "rgba(245,200,106,.16)" },
