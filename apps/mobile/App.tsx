@@ -18,7 +18,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
@@ -125,6 +125,7 @@ const signedOutAuthBridge: MobileAuthBridge = {
 };
 
 function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
+  const insets = useSafeAreaInsets();
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
     account: null,
@@ -209,11 +210,11 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "bottom", "left", "right"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <ScrollView
         style={styles.screen}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: 118 + Math.max(insets.bottom, 16) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
       >
         {shell.loading ? (
@@ -237,7 +238,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           />
         ) : null}
       </ScrollView>
-      <BottomNav activeTab={shell.activeTab} onSelectTab={selectTab} />
+      <BottomNav activeTab={shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
@@ -374,9 +375,9 @@ function WebsiteRitualCard({ compact = false }: { compact?: boolean }) {
     </View>
   );
 }
-function BottomNav({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
+function BottomNav({ activeTab, bottomInset, onSelectTab }: { activeTab: AppTab; bottomInset: number; onSelectTab: (tab: AppTab) => void }) {
   return (
-    <View style={styles.bottomNavBar}>
+    <View style={[styles.bottomNavBar, { bottom: Math.max(bottomInset + 10, 14) }]}>
       {TABS.map((tab) => (
         <Pressable
           key={tab.id}
@@ -1298,7 +1299,7 @@ const colors = {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { gap: 14, padding: 14, paddingBottom: 118 },
+  content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
