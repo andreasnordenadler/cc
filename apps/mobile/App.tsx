@@ -216,8 +216,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
       >
-        <MobileTopHeader authBridge={authBridge} onSelectTab={selectTab} />
-
         {shell.loading ? (
           <View style={styles.loadingCard}>
             <ActivityIndicator color="#f5c86a" />
@@ -243,23 +241,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     </SafeAreaView>
   );
 
-}
-
-function MobileTopHeader({ authBridge, onSelectTab }: { authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void }) {
-  return (
-    <View style={styles.mobileTopHeader}>
-      <View style={styles.navBrandRowCompact}>
-        <Image source={{ uri: `${getApiBaseUrl()}/brand/sqc-alt-logo-topbar-20260507-v2.png` }} style={styles.logoMark} resizeMode="contain" />
-        <View style={styles.navBrandCopy}>
-          <Text style={styles.navKicker}>Side Quest Chess</Text>
-          <Text style={styles.navSub}>Chess, but with side quests</Text>
-        </View>
-      </View>
-      <Pressable accessibilityRole="button" accessibilityLabel="Sign In/Up" testID="mobile-header-sign-in" style={styles.headerSignInButton} onPress={() => authBridge.isSignedIn ? onSelectTab("account") : void openExternalUrl(`${getApiBaseUrl()}/sign-in`)}>
-        <Text style={styles.headerSignInText}>{authBridge.isSignedIn ? "Account" : "Sign In/Up"}</Text>
-      </Pressable>
-    </View>
-  );
 }
 
 function HomeScreen({
@@ -1330,10 +1311,6 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
-  mobileTopHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, padding: 12, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.065)" },
-  navBrandRowCompact: { flex: 1, flexDirection: "row", alignItems: "center", gap: 9 },
-  headerSignInButton: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
-  headerSignInText: { color: "#111", fontSize: 12, fontWeight: "900" },
   homeHeroCard: { gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
