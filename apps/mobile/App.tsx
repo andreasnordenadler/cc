@@ -285,6 +285,7 @@ function HomeScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
+        <HeroCoatPreview challenges={heroismChoices.map((choice) => choice.challenge)} />
         <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
@@ -340,6 +341,26 @@ function HomeScreen({
           </View>
         </View>
       ) : null}
+    </View>
+  );
+}
+
+
+function HeroCoatPreview({ challenges }: { challenges: MobileChallenge[] }) {
+  return (
+    <View style={styles.heroCoatPreview}>
+      <View style={styles.heroCoatGlow} />
+      <Text style={styles.heroCoatEyebrow}>Coats of arms to unlock</Text>
+      <View style={styles.heroCoatRow}>
+        {challenges.slice(0, 3).map((challenge, index) => {
+          const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+          return (
+            <View key={challenge.id} style={[styles.heroCoatFrame, index === 1 && styles.heroCoatFrameFeatured]}>
+              {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.heroCoatImage, index === 1 && styles.heroCoatImageFeatured]} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>{challenge.badgeIdentity.motif}</Text>}
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }
@@ -1312,7 +1333,15 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
-  homeHeroCard: { gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  heroCoatPreview: { position: "relative", overflow: "hidden", gap: 8, alignItems: "center", paddingVertical: 10, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(0,0,0,.22)" },
+  heroCoatGlow: { position: "absolute", top: -70, width: 220, height: 160, borderRadius: 110, backgroundColor: "rgba(245,200,106,.18)" },
+  heroCoatEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", letterSpacing: 1.1, textTransform: "uppercase" },
+  heroCoatRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  heroCoatFrame: { width: 72, height: 84, alignItems: "center", justifyContent: "center", borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.06)" },
+  heroCoatFrameFeatured: { width: 92, height: 108, borderRadius: 28, borderColor: "rgba(245,200,106,.46)", backgroundColor: "rgba(245,200,106,.1)" },
+  heroCoatImage: { width: 66, height: 78 },
+  heroCoatImageFeatured: { width: 84, height: 98 },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   homeHeroActions: { gap: 10 },
