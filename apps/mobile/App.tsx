@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -74,11 +75,14 @@ const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
   path: "sso-callback",
 });
 
-const TABS: Array<{ id: AppTab; label: string; icon: string }> = [
-  { id: "home", label: "Home", icon: "⌂" },
-  { id: "sideQuests", label: "Side Quests", icon: "♞" },
-  { id: "coatOfArms", label: "Coat of Arms", icon: "🛡" },
-  { id: "account", label: "Account", icon: "♛" },
+const TABS: Array<
+  | { id: AppTab; label: string; iconKind: "image"; imagePath: string }
+  | { id: AppTab; label: string; iconKind: "vector"; iconName: keyof typeof MaterialCommunityIcons.glyphMap }
+> = [
+  { id: "home", label: "Home", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
+  { id: "sideQuests", label: "Side Quests", iconKind: "vector", iconName: "chess-knight" },
+  { id: "coatOfArms", label: "Coat of Arms", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
+  { id: "account", label: "Account", iconKind: "vector", iconName: "account-circle" },
 ];
 
 export default function App() {
@@ -402,7 +406,13 @@ function BottomNav({ activeTab, bottomInset, onSelectTab }: { activeTab: AppTab;
           onPress={() => onSelectTab(tab.id)}
         >
           {activeTab === tab.id ? <View style={styles.bottomNavActiveGlow} /> : null}
-          <Text style={[styles.bottomNavIcon, activeTab === tab.id && styles.bottomNavIconActive]}>{tab.icon}</Text>
+          <View style={[styles.bottomNavIconFrame, activeTab === tab.id && styles.bottomNavIconFrameActive]}>
+            {tab.iconKind === "image" ? (
+              <Image source={{ uri: absoluteAssetUrl(tab.imagePath) }} style={tab.id === "coatOfArms" ? styles.bottomNavCoatImage : styles.bottomNavLogoImage} resizeMode="contain" />
+            ) : (
+              <MaterialCommunityIcons name={tab.iconName} size={24} color={activeTab === tab.id ? colors.gold : colors.muted} />
+            )}
+          </View>
           <Text style={[styles.bottomNavText, activeTab === tab.id && styles.bottomNavTextActive]} numberOfLines={1}>{tab.label}</Text>
           {activeTab === tab.id ? <View style={styles.bottomNavActiveDot} /> : null}
         </Pressable>
@@ -1423,8 +1433,10 @@ const styles = StyleSheet.create({
   bottomNavItemActive: { borderColor: "rgba(245,200,106,.82)", backgroundColor: "rgba(245,200,106,.2)", shadowColor: colors.gold, shadowOpacity: 0.34, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
   bottomNavActiveGlow: { position: "absolute", top: -16, width: 54, height: 28, borderRadius: 28, backgroundColor: "rgba(245,200,106,.38)" },
   bottomNavActiveDot: { width: 18, height: 3, borderRadius: 999, backgroundColor: colors.gold, marginTop: 2 },
-  bottomNavIcon: { color: colors.muted, fontSize: 18, fontWeight: "900" },
-  bottomNavIconActive: { color: colors.gold, transform: [{ translateY: -1 }] },
+  bottomNavIconFrame: { width: 28, height: 26, alignItems: "center", justifyContent: "center", transform: [{ translateY: 0 }] },
+  bottomNavIconFrameActive: { transform: [{ translateY: -1 }] },
+  bottomNavLogoImage: { width: 25, height: 25, borderRadius: 7 },
+  bottomNavCoatImage: { width: 28, height: 28 },
   bottomNavText: { color: colors.muted, fontSize: 10, fontWeight: "900" },
   bottomNavTextActive: { color: colors.paper },
   tabRail: { gap: 8, paddingRight: 18 },
