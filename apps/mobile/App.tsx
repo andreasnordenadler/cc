@@ -27,7 +27,7 @@ import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } fro
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
 
-type AppTab = "home" | "sideQuests" | "coatOfArms" | "account";
+type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
 type MobileShellState = {
   bootstrap: MobileBootstrap | null;
@@ -284,7 +284,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
       </ScrollView>
       <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
-      <BottomNav activeTab={shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
+      <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
@@ -360,7 +360,7 @@ function HomeScreen({
           <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
             <Text style={styles.primaryButtonText}>Go on a <Text style={styles.buttonEmphasis}>Solo</Text> Side Quest</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.primaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests`)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("multiplayerSideQuests")}>
             <Text style={styles.primaryButtonText}>Join a <Text style={styles.buttonEmphasis}>Multiplayer</Text> Side Quest</Text>
           </Pressable>
         </View>
@@ -387,7 +387,7 @@ function HomeScreen({
           <Text style={styles.eyebrow}>Multiplayer Side Quests</Text>
           <Text style={styles.sectionTitle}>Same nonsense, now with witnesses.</Text>
           <Text style={styles.sectionBody}>Join public Multiplayer Side Quests, inspect the rules before committing, or sign in when you want to create one and invite friends.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quests" testID="home-join-multiplayer-callout" style={styles.secondaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests`)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quests" testID="home-join-multiplayer-callout" style={styles.secondaryButtonWide} onPress={() => onSelectTab("multiplayerSideQuests")}>
             <Text style={styles.secondaryButtonText}>Join Multiplayer Side Quests</Text>
           </Pressable>
         </View>
@@ -493,6 +493,8 @@ function ActiveScreen({
       return <HomeScreen bootstrap={bootstrap} account={account} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />;
     case "sideQuests":
       return <SideQuestsScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
+    case "multiplayerSideQuests":
+      return <MultiplayerSideQuestsScreen onSelectTab={onSelectTab} />;
     case "coatOfArms":
       return <CoatOfArmsScreen bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} />;
     case "account":
@@ -504,6 +506,7 @@ function SideQuestsScreen({
   bootstrap,
   account,
   onSelectChallenge,
+  onSelectTab,
 }: {
   bootstrap: MobileBootstrap;
   catalogMode: "live" | "offline";
@@ -540,7 +543,7 @@ function SideQuestsScreen({
           <Text style={styles.eyebrow}>Multiplayer Side Quests</Text>
           <Text style={styles.sideQuestModeTitle}>Multiplayer. Same nonsense, now with witnesses.</Text>
           <Text style={styles.sideQuestModeCopy}>Create or join a Multiplayer Side Quest with shared rules, a proof window, a leaderboard, and multiplayer-valid proof separate from solo progress.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" testID="sidequests-open-multiplayer" style={styles.primaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests`)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" testID="sidequests-open-multiplayer" style={styles.primaryButton} onPress={() => onSelectTab("multiplayerSideQuests")}>
             <Text style={styles.primaryButtonText}>Open Multiplayer Side Quests</Text>
           </Pressable>
         </View>
@@ -568,6 +571,99 @@ function SideQuestsScreen({
         activeQuestId={activeQuestId}
         onSelectChallenge={onSelectChallenge}
       />
+    </View>
+  );
+}
+
+function MultiplayerSideQuestsScreen({ onSelectTab }: { onSelectTab: (tab: AppTab) => void }) {
+  const overviewSteps = [
+    {
+      title: "Create",
+      copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
+      href: "/groupquests/create",
+    },
+    {
+      title: "Invite",
+      copy: "Share the invite link so players can inspect the side quests, proof window, and join conditions before committing.",
+    },
+    {
+      title: "Play",
+      copy: "Everyone plays real games elsewhere. SQC only counts proof that matches the Multiplayer Side Quest rules.",
+    },
+    {
+      title: "Prove",
+      copy: "Each Multiplayer Side Quest gets its own leaderboard, event feed, and multiplayer-valid proof separate from solo progress.",
+    },
+  ];
+  const loggedOutActions = [
+    {
+      title: "Create a New Multiplayer Side Quest",
+      copy: "Start the ridiculous dare, choose the side quests, and invite the people who deserve trouble.",
+      action: "Create Multiplayer Side Quest",
+      href: "/groupquests/create",
+    },
+    {
+      title: "Join a Public Multiplayer Side Quest",
+      copy: "Find public Multiplayer Side Quests that hosts have opened for anyone to enter, then inspect the rules before joining.",
+      action: "Join Public Side Quest",
+      href: "/groupquests/public",
+    },
+  ];
+
+  return (
+    <View style={styles.screenStack}>
+      <View style={styles.groupquestsHero}>
+        <Text style={styles.groupquestsHeroTitle}>Multiplayer Side Quests.</Text>
+        <Text style={styles.groupquestsHeroCopy}>Sign In/Up and start a ridiculous chess dare with friends. Pick the nonsense, set the rules, then see who can actually prove it over the board.</Text>
+      </View>
+
+      <View style={styles.groupquestsStoryCard} accessibilityLabel="What Multiplayer Side Quests are">
+        <View style={styles.groupquestsStoryCopy}>
+          <Text style={styles.sectionTitle}>A tiny chess tournament for bad ideas.</Text>
+          <Text style={styles.sectionBody}>Multiplayer Side Quests turn normal chess nights into a shared challenge: one player creates a Multiplayer Side Quest, everyone agrees on the side quests and game rules, then players prove their results with real games from Lichess or Chess.com.</Text>
+          <Text style={styles.sectionBody}>Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but the Multiplayer Quest only counts proof earned inside that Multiplayer Side Quest.</Text>
+        </View>
+        <View style={styles.groupquestsProcessGraphic}>
+          <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.groupquestsKnightArt} resizeMode="contain" />
+        </View>
+      </View>
+
+      <View style={styles.groupquestsLoggedOutActions} accessibilityLabel="Start or join Multiplayer Side Quests">
+        {loggedOutActions.map((item) => (
+          <View style={styles.groupquestsActionCard} key={item.title}>
+            <Text style={styles.sideQuestModeTitle}>{item.title}.</Text>
+            <Text style={styles.sideQuestModeCopy}>{item.copy}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={item.action} style={styles.primaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}${item.href}`)}>
+              <Text style={styles.primaryButtonText}>{item.action}</Text>
+            </Pressable>
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.groupquestsHowCard} accessibilityLabel="How Multiplayer Side Quests work">
+        <View style={styles.sectionHeadMobile}>
+          <Text style={styles.sectionTitle}>Create. Invite. Play. Prove.</Text>
+        </View>
+        <View style={styles.groupquestsHowGrid}>
+          {overviewSteps.map((step, index) => (
+            <Pressable key={step.title} accessibilityRole={step.href ? "button" : undefined} style={styles.groupquestsHowStep} onPress={step.href ? () => void openExternalUrl(`${getApiBaseUrl()}${step.href}`) : undefined}>
+              <Text style={styles.groupquestsHowNumber}>{index + 1}</Text>
+              <Text style={styles.groupquestsHowTitle}>{step.title}</Text>
+              <Text style={styles.groupquestsHowCopy}>{step.copy}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.groupquestsRulesCard} accessibilityLabel="Multiplayer Side Quest completion rules">
+        <Text style={styles.eyebrow}>Proof rule</Text>
+        <Text style={styles.sectionTitle}>Personal proof and multiplayer proof are different ledgers.</Text>
+        <Text style={styles.sectionBody}>Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.</Text>
+      </View>
+
+      <Pressable accessibilityRole="button" accessibilityLabel="Back to Side Quests" style={styles.secondaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
+        <Text style={styles.secondaryButtonText}>Back to Side Quests</Text>
+      </Pressable>
     </View>
   );
 }
@@ -1134,6 +1230,22 @@ const styles = StyleSheet.create({
   sideQuestModeGrid: { gap: 12 },
   sideQuestModeCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
   groupModeCard: { borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
+  groupquestsHero: { gap: 12, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  groupquestsHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
+  groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  groupquestsStoryCard: { gap: 16, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
+  groupquestsStoryCopy: { gap: 10 },
+  groupquestsProcessGraphic: { alignItems: "center", justifyContent: "center", borderRadius: 24, backgroundColor: "rgba(0,0,0,.18)", overflow: "hidden" },
+  groupquestsKnightArt: { width: "100%", height: 230 },
+  groupquestsLoggedOutActions: { gap: 12 },
+  groupquestsActionCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
+  groupquestsHowCard: { gap: 14, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
+  groupquestsHowGrid: { gap: 10 },
+  groupquestsHowStep: { gap: 5, padding: 13, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,.1)", backgroundColor: "rgba(0,0,0,.2)" },
+  groupquestsHowNumber: { color: colors.gold, fontSize: 22, fontWeight: "900" },
+  groupquestsHowTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
+  groupquestsHowCopy: { color: colors.muted, fontSize: 13, lineHeight: 18 },
+  groupquestsRulesCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   sideQuestModeTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -0.9, lineHeight: 26 },
   sideQuestModeCopy: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   questFilterPanel: { gap: 14, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
