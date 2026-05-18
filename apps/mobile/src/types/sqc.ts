@@ -86,6 +86,13 @@ export type MobileAccountState = {
     proofHref: string | null;
     badgeImageUrl: string | null;
   } | null;
+  activeGroupQuests: Array<{
+    id: string;
+    title: string;
+    status: string;
+    copy: string;
+    href: string;
+  }>;
   completedQuests: Array<{
     id: string;
     title: string;

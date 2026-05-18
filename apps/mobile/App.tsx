@@ -22,7 +22,7 @@ import {
   type NativeSyntheticEvent,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, updateMobileChessUsernames } from "./src/api/sqc";
+import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
@@ -254,8 +254,8 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <ScrollView
-        style={styles.screen}
-        contentContainerStyle={[styles.content, { paddingBottom: 118 + Math.max(insets.bottom, 16) }]}
+        style={[styles.screen, { marginBottom: Math.max(insets.bottom + 92, 104) }]}
+        contentContainerStyle={[styles.content, { paddingBottom: 28 }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
         scrollEventThrottle={32}
         onScroll={handleScroll}
@@ -301,7 +301,7 @@ function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScr
         </View>
       ) : null}
       {canScrollDown ? (
-        <View style={[styles.scrollHintPill, styles.scrollHintPillBottom, { bottom: Math.max(bottomInset + 92, 96) }]}>
+        <View style={[styles.scrollHintPill, styles.scrollHintPillBottom, { bottom: Math.max(bottomInset + 104, 112) }]}>
           <MaterialCommunityIcons name="chevron-down" size={24} color={colors.gold} />
         </View>
       ) : null}
@@ -504,9 +504,12 @@ function ActiveScreen({
 
 function SideQuestsScreen({
   bootstrap,
+  selectedChallenge,
   account,
+  authBridge,
   onSelectChallenge,
   onSelectTab,
+  onAccountUpdated,
 }: {
   bootstrap: MobileBootstrap;
   catalogMode: "live" | "offline";
@@ -548,6 +551,8 @@ function SideQuestsScreen({
           </Pressable>
         </View>
       </View>
+
+      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />
 
       <QuestFilterPanel />
       <AvailableQuestGrid challenges={bootstrap.challenges} completedIds={completedIds} activeQuestId={activeQuestId} onSelectChallenge={onSelectChallenge} />
@@ -764,6 +769,154 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
   );
 }
 
+function SelectedQuestDetailCard({
+  challenge,
+  account,
+  authBridge,
+  onAccountUpdated,
+}: {
+  challenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onAccountUpdated: () => void;
+}) {
+  const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const authenticated = isAuthenticatedAccount(account);
+  const completed = authenticated ? account.progress.completedChallengeIds.includes(challenge.id) : false;
+  const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
+  const badgeUrl = getChallengeCoatImageUrl(challenge);
+  const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
+  const actionTitle = completed ? "Quest completed. Coat of arms unlocked." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
+  const actionBody = completed
+    ? "Your proof is ready. Open the victory proof, proof log, or pick the next bad idea."
+    : activeQuest
+      ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
+      : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
+
+  async function runAction(action: "start" | "check" | "deactivate" | "reset") {
+    if (!authenticated || !authBridge.isSignedIn) {
+      setActionState({ busy: false, message: null, error: "Sign in with Google first to save quest progress." });
+      return;
+    }
+
+    setActionState({ busy: true, message: null, error: null });
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      const result = await runMobileQuestAction({ sessionToken, action, challengeId: challenge.id });
+      setActionState({ busy: false, message: result.message, error: null });
+      onAccountUpdated();
+    } catch (caught) {
+      setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not update this Side Quest." });
+    }
+  }
+
+  return (
+    <View style={styles.questCard} accessibilityLabel={`${challenge.title} details`}>
+      <View style={styles.questCardHeader}>
+        <View style={styles.questCardCopy}>
+          <Text style={styles.eyebrow}>Selected Side Quest</Text>
+          <Text style={styles.questTitle}>{challenge.title}</Text>
+          <Text style={styles.questObjective}>{challenge.objective}</Text>
+        </View>
+        <View style={styles.badgeImageFrame}>{badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.badgeImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>{challenge.badgeIdentity.motif}</Text>}</View>
+      </View>
+
+      <View style={styles.questFlavorCard}>
+        <Text style={styles.questFlavor}>{challenge.flavor}</Text>
+      </View>
+
+      <View style={styles.questInstructionCard}>
+        <Text style={styles.instructionLabel}>What SQC checks</Text>
+        <Text style={styles.instructionCopy}>{challenge.instruction}</Text>
+        <Text style={styles.openingHint}>{challenge.openingHint}</Text>
+      </View>
+
+      <View style={styles.requirementPairRow}>
+        <View style={styles.requirementPill}>
+          <Text style={styles.requirementLabel}>Side</Text>
+          <Text style={styles.requirementValue}>{challenge.requirement.side}</Text>
+        </View>
+        <View style={styles.requirementPill}>
+          <Text style={styles.requirementLabel}>Result</Text>
+          <Text style={styles.requirementValue}>{challenge.requirement.result}</Text>
+        </View>
+      </View>
+
+      <View style={styles.proofActionCard}>
+        <Text style={styles.proofActionTitle}>{actionTitle}</Text>
+        <Text style={styles.proofActionBody}>{actionBody}</Text>
+        <View style={styles.buttonRow}>
+          {completed && (activeQuest?.proofHref || latestReceipt?.proofHref) ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="View victory proof" style={styles.primaryButton} onPress={() => void openExternalUrl(activeQuest?.proofHref ?? latestReceipt?.proofHref ?? `${getApiBaseUrl()}/account`)}>
+              <Text style={styles.primaryButtonText}>View victory proof</Text>
+            </Pressable>
+          ) : null}
+          {completed ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Open proof log" style={styles.secondaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/account`)}>
+              <Text style={styles.secondaryButtonText}>Open proof log</Text>
+            </Pressable>
+          ) : activeQuest ? (
+            <>
+              <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
+                <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Reset quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("reset")}>
+                <Text style={styles.secondaryButtonText}>Reset quest</Text>
+              </Pressable>
+            </>
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel="Start this Side Quest" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("start")}>
+              <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting…" : "Start this Side Quest"}</Text>
+            </Pressable>
+          )}
+          <Pressable accessibilityRole="button" accessibilityLabel="Open website quest page" style={styles.secondaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges/${challenge.id}`)}>
+            <Text style={styles.secondaryButtonText}>Open website quest page</Text>
+          </Pressable>
+        </View>
+        {latestReceipt ? <Text style={styles.successCopy}>{latestReceipt.headline} · {latestReceipt.detail}</Text> : null}
+        {actionState.message ? <Text style={styles.successCopy}>{actionState.message}</Text> : null}
+        {actionState.error ? <Text style={styles.errorCopy}>{actionState.error}</Text> : null}
+      </View>
+    </View>
+  );
+}
+
+function getMobileAccountNextStep(account: MobileAccountState) {
+  if (!account.chessAccounts.hasAny) {
+    return {
+      title: "Connect your chess username.",
+      copy: "Add a public Lichess or Chess.com username first. SQC never needs your chess-site password.",
+      href: "/connect",
+      cta: "Connect chess account",
+    };
+  }
+
+  if (!account.activeQuest) {
+    return {
+      title: "Pick one side quest.",
+      copy: "Choose the ridiculous rule SQC should judge after your next public game.",
+      href: "/challenges",
+      cta: "Choose a Side Quest",
+    };
+  }
+
+  if (account.activeQuest.completed) {
+    return {
+      title: "Your latest side quest is complete.",
+      copy: "The coat of arms is unlocked. Open the proof, admire the paperwork, then pick the next bad idea.",
+      href: account.activeQuest.proofHref || account.activeQuest.href.replace(getApiBaseUrl(), "") || "/account",
+      cta: account.activeQuest.proofHref ? "View victory proof" : "Open completed quest",
+    };
+  }
+
+  return {
+    title: `${account.activeQuest.title} is on the royal docket — play one new eligible game, then check the proof.`,
+    copy: "SQC will inspect your latest public game after this quest started and decide whether the bad idea counts.",
+    href: account.activeQuest.href.replace(getApiBaseUrl(), "") || `/challenges/${account.activeQuest.id}`,
+    cta: "Open active quest",
+  };
+}
+
 
 function AccountShell({
   bootstrap,
@@ -815,32 +968,82 @@ function AccountShell({
     );
   }
 
+  const nextStep = getMobileAccountNextStep(account);
+  const activeChallenge = account.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === account.activeQuest?.id) ?? null : null;
+  const activeBadgeUrl = account.activeQuest?.badgeImageUrl ?? (activeChallenge ? getChallengeCoatImageUrl(activeChallenge) : null);
+
   return (
-    <View style={styles.panelCard}>
-      <Text style={styles.eyebrow}>Account</Text>
-      <Text style={styles.cardTitle}>{account.profile.displayName}</Text>
-      <Text style={styles.cardBody}>{account.profile.bio || "Your live backend-owned account state is now readable by mobile."}</Text>
-      <View style={styles.scoreboardRow}>
-        <BigScore label="Points" value={`${account.progress.totalRewardPoints}`} />
-        <BigScore label="Coats" value={`${account.progress.totalCompletedChallenges}`} />
-        <BigScore label="Proofs" value={`${account.progress.proofReceiptCount}`} />
+    <View style={styles.screenStack}>
+      <View style={styles.currentMissionCard} accessibilityLabel="Current mission">
+        <View style={styles.currentMissionCopy}>
+          <Text style={styles.eyebrow}>Current mission</Text>
+          <Text style={styles.currentMissionName}>{account.profile.displayName}</Text>
+          <View style={styles.accountStatusStrip} accessibilityLabel="Connected chess accounts">
+            <Text style={account.chessAccounts.lichessUsername ? styles.accountStatusConnected : styles.accountStatusMissing}>Lichess: <Text style={styles.accountStatusStrong}>{account.chessAccounts.lichessUsername || "not connected"}</Text></Text>
+            <Text style={account.chessAccounts.chessComUsername ? styles.accountStatusConnected : styles.accountStatusMissing}>Chess.com: <Text style={styles.accountStatusStrong}>{account.chessAccounts.chessComUsername || "not connected"}</Text></Text>
+          </View>
+          <Text style={styles.currentMissionTitle}>{nextStep.title}</Text>
+          <Text style={styles.currentMissionBody}>{nextStep.copy}</Text>
+          <View style={styles.buttonRow}>
+            <Pressable accessibilityRole="button" accessibilityLabel={nextStep.cta} style={styles.primaryButton} onPress={() => void openExternalUrl(absoluteAssetUrl(nextStep.href))}>
+              <Text style={styles.primaryButtonText}>{nextStep.cta}</Text>
+            </Pressable>
+            {account.activeQuest?.completed && account.activeQuest.href ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Open completed quest" style={styles.secondaryButton} onPress={() => void openExternalUrl(account.activeQuest?.href ?? `${getApiBaseUrl()}/account`)}>
+                <Text style={styles.secondaryButtonText}>Open completed quest</Text>
+              </Pressable>
+            ) : null}
+            <Pressable accessibilityRole="button" accessibilityLabel="Edit profile" style={styles.secondaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/profile`)}>
+              <Text style={styles.secondaryButtonText}>Edit profile</Text>
+            </Pressable>
+          </View>
+          <View style={styles.currentMissionMultiplayer} accessibilityLabel="Active Multiplayer Side Quests">
+            <Text style={styles.eyebrow}>Active Multiplayer Side Quests</Text>
+            {account.activeGroupQuests.length ? account.activeGroupQuests.map((quest) => (
+              <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open ${quest.title}`} style={styles.activeMultiplayerRow} onPress={() => void openExternalUrl(quest.href)}>
+                <Image source={{ uri: absoluteAssetUrl("/stamps/SQCBLACK%20SEAL.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+                <View style={styles.activeMultiplayerCopy}>
+                  <Text style={styles.activeMultiplayerTitle}>{quest.title}</Text>
+                  <Text style={styles.activeMultiplayerMeta}>{quest.status} · {quest.copy}</Text>
+                </View>
+              </Pressable>
+            )) : <Text style={styles.sectionBody}>No active Multiplayer Side Quests yet.</Text>}
+            <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" style={styles.primaryButton} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests`)}>
+              <Text style={styles.primaryButtonText}>Open Multiplayer Side Quests</Text>
+            </Pressable>
+          </View>
+        </View>
+        <View style={styles.currentMissionVisual}>
+          {account.activeQuest ? (
+            <Pressable accessibilityRole="button" accessibilityLabel={`Open ${account.activeQuest.title} quest page`} style={styles.currentMissionCoat} onPress={() => void openExternalUrl(account.activeQuest?.href ?? `${getApiBaseUrl()}/account`)}>
+              {account.activeQuest.completed ? <Text style={styles.completedQuestStampText}>Completed quest</Text> : <Text style={styles.activeQuestStampText}>Active quest</Text>}
+              {activeBadgeUrl ? <Image source={{ uri: activeBadgeUrl }} style={styles.currentMissionCoatImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>?</Text>}
+              <Text style={styles.currentMissionCoatLabel}>{account.activeQuest.title}</Text>
+            </Pressable>
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel="Choose a quest" style={styles.currentMissionEmpty} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/challenges`)}>
+              <Text style={styles.currentMissionEmptyBadge}>?</Text>
+              <Text style={styles.currentMissionCoatLabel}>Choose a quest</Text>
+            </Pressable>
+          )}
+        </View>
       </View>
-      <View style={styles.factGrid}>
-        <Fact label="Lichess" value={account.chessAccounts.lichessUsername ?? "Not connected"} />
-        <Fact label="Chess.com" value={account.chessAccounts.chessComUsername ?? "Not connected"} />
+
+      <View style={styles.questLogCollectionCard}>
+        <Text style={styles.sectionTitle}>{account.completedQuests.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</Text>
+        <Text style={styles.sectionBody}>{account.completedQuests.length ? "Officially impressive. Socially complicated. Please admire responsibly." : "No tiny heraldic paperwork yet. The shame is currently very organized."}</Text>
+        <View style={styles.scoreboardRow}>
+          <BigScore label="Points" value={`${account.progress.totalRewardPoints}`} />
+          <BigScore label="Coats" value={`${account.progress.totalCompletedChallenges}`} />
+          <BigScore label="Proofs" value={`${account.progress.proofReceiptCount}`} />
+        </View>
+        <CompletedQuestShelf account={account} />
       </View>
+
       <ChessUsernameEditor account={account} authBridge={authBridge} onSaved={onAccountUpdated} />
       <QuestProgressStrip completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
-      <AccountMomentumCard completed={account.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
-      <MobileAccountStatesCard authBridge={authBridge} account={account} />
       <AccountNextActionsCard account={account} />
-      <CompletedQuestShelf account={account} />
-      <WebsiteHandoffCard
-        title="Manage quests on the full board."
-        body="The website remains the authority for account edits, proof submission, and share cards."
-        buttonLabel="Open my account"
-        url={`${getApiBaseUrl()}/account`}
-      />
+      <MobileAccountStatesCard authBridge={authBridge} account={account} />
     </View>
   );
 }
@@ -855,11 +1058,24 @@ function CoatOfArmsScreen({
 }) {
   const earnedIds = new Set(isAuthenticatedAccount(account) ? account.completedQuests.map((quest) => quest.id) : []);
   const liveBadgeChallenges = bootstrap.challenges.filter((challenge) => getChallengeCoatImageUrl(challenge));
+  const earnedCount = earnedIds.size;
 
   return (
     <View style={styles.screenStack}>
       <View style={styles.badgesHeroCard}>
         <Text style={styles.badgesHeroTitle}>Every bad idea deserves a coat of arms.</Text>
+        {isAuthenticatedAccount(account) ? (
+          <View style={styles.coatShelfCard}>
+            <View style={styles.coatShelfHeader}>
+              <View style={styles.coatShelfCopy}>
+                <Text style={styles.eyebrow}>Your Coat of Arms</Text>
+                <Text style={styles.coatShelfTitle}>{earnedCount ? `${earnedCount} unlocked so far.` : "No completed side quests yet."}</Text>
+                <Text style={styles.coatShelfBody}>{earnedCount ? "Earned coats stay bright. Locked coats remain visible so the next bad idea is easy to spot." : "Finish one quest and the coat of arms lands here with too much ceremony and not enough dignity."}</Text>
+              </View>
+              <Text style={earnedCount ? styles.syncedPill : styles.lockedPill}>{earnedCount}/{liveBadgeChallenges.length}</Text>
+            </View>
+          </View>
+        ) : null}
         <View style={styles.liveCoatRoster} accessibilityLabel="Current live Side Quest Chess coats of arms">
           {liveBadgeChallenges.map((challenge) => (
             <LiveCoatRosterItem key={challenge.id} challenge={challenge} earned={earnedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
@@ -949,24 +1165,6 @@ function QuestProgressStrip({ completed, total }: { completed: number; total: nu
         <View style={[styles.progressFill, { width: `${percent}%` }]} />
       </View>
       <Text style={styles.microcopy}>{completed} of {total} coats earned on this account.</Text>
-    </View>
-  );
-}
-
-function AccountMomentumCard({ completed, total }: { completed: number; total: number }) {
-  const remaining = Math.max(total - completed, 0);
-  const title = completed > 0 ? "Trophy shelf is alive." : "First coat is still waiting.";
-  const body = completed > 0
-    ? `${completed} completed, ${remaining} still taunting you from the board.`
-    : "Complete any starter quest and this screen turns from setup paperwork into actual loot.";
-
-  return (
-    <View style={styles.momentumCard}>
-      <Text style={styles.momentumIcon}>{completed > 0 ? "🏆" : "♟"}</Text>
-      <View style={styles.momentumCopy}>
-        <Text style={styles.momentumTitle}>{title}</Text>
-        <Text style={styles.momentumBody}>{body}</Text>
-      </View>
     </View>
   );
 }
@@ -1089,33 +1287,11 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
   );
 }
 
-function WebsiteHandoffCard({ title, body, buttonLabel, url }: { title: string; body: string; buttonLabel: string; url: string }) {
-  return (
-    <View style={styles.handoffCard}>
-      <View style={styles.handoffCopy}>
-        <Text style={styles.handoffTitle}>{title}</Text>
-        <Text style={styles.handoffBody}>{body}</Text>
-      </View>
-      <Pressable accessibilityRole="button" accessibilityLabel={buttonLabel} testID={`website-handoff-${buttonLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} style={styles.handoffButton} onPress={() => void openExternalUrl(url)}>
-        <Text style={styles.handoffButtonText}>{buttonLabel} ↗</Text>
-      </Pressable>
-    </View>
-  );
-}
 function BigScore({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.bigScore}>
       <Text style={styles.bigScoreValue}>{value}</Text>
       <Text style={styles.bigScoreLabel}>{label}</Text>
-    </View>
-  );
-}
-
-function Fact({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.fact}>
-      <Text style={styles.factLabel}>{label}</Text>
-      <Text style={styles.factValue}>{value}</Text>
     </View>
   );
 }
@@ -1413,6 +1589,28 @@ const styles = StyleSheet.create({
   authNote: { color: colors.muted, fontSize: 13, lineHeight: 19 },
   authNoteStrong: { color: colors.paper, fontWeight: "900" },
   accountAuthFormCard: { gap: 12, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
+  currentMissionCard: { gap: 16, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  currentMissionCopy: { gap: 12 },
+  currentMissionName: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.5, lineHeight: 37 },
+  accountStatusStrip: { gap: 7, padding: 12, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,.1)", backgroundColor: "rgba(0,0,0,.2)" },
+  accountStatusConnected: { color: colors.green, fontSize: 12, fontWeight: "800" },
+  accountStatusMissing: { color: colors.muted, fontSize: 12, fontWeight: "800" },
+  accountStatusStrong: { color: colors.paper, fontWeight: "900" },
+  currentMissionTitle: { color: colors.paper, fontSize: 25, fontWeight: "900", letterSpacing: -1, lineHeight: 28 },
+  currentMissionBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  currentMissionMultiplayer: { gap: 10, padding: 13, borderRadius: 20, borderWidth: 1, borderColor: "rgba(96,240,175,.2)", backgroundColor: "rgba(96,240,175,.07)" },
+  activeMultiplayerRow: { flexDirection: "row", gap: 10, alignItems: "center", padding: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,255,255,.1)", backgroundColor: "rgba(0,0,0,.2)" },
+  activeMultiplayerSeal: { width: 36, height: 36 },
+  activeMultiplayerCopy: { flex: 1, gap: 2 },
+  activeMultiplayerTitle: { color: colors.paper, fontSize: 14, fontWeight: "900" },
+  activeMultiplayerMeta: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
+  currentMissionVisual: { alignItems: "center" },
+  currentMissionCoat: { width: "100%", gap: 10, alignItems: "center", padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(0,0,0,.22)" },
+  currentMissionCoatImage: { width: 150, height: 168 },
+  currentMissionCoatLabel: { color: colors.paper, fontSize: 15, fontWeight: "900", textAlign: "center" },
+  currentMissionEmpty: { width: "100%", gap: 10, alignItems: "center", padding: 18, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(0,0,0,.2)" },
+  currentMissionEmptyBadge: { width: 72, height: 72, textAlign: "center", textAlignVertical: "center", borderRadius: 36, overflow: "hidden", color: colors.gold, fontSize: 38, fontWeight: "900", backgroundColor: "rgba(255,255,255,.08)" },
+  questLogCollectionCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   readinessCard: { gap: 10, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.075)" },
   readinessTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
   readinessBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },

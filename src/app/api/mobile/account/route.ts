@@ -2,6 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { CHALLENGES } from "@/lib/challenges";
 import { buildPublicProofPath } from "@/lib/proof-share";
+import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -84,6 +85,21 @@ export async function GET(request: Request) {
       badgeImageUrl: challenge.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, baseUrl).toString() : null,
     };
   }));
+  const relatedGroupQuests = await listUserRelatedGroupQuests(client, userId);
+  const activeGroupQuests = relatedGroupQuests
+    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
+    .map((quest) => {
+      const isHost = quest.hostUserId === userId;
+      const status = deriveGroupQuestStatus(quest.startAt, quest.endAt);
+      return {
+        id: quest.id,
+        title: quest.name,
+        status,
+        copy: `${isHost ? "Hosting" : "Playing"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+        href: new URL(`/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`, baseUrl).toString(),
+      };
+    })
+    .filter((quest) => quest.status !== "Finished");
 
   return NextResponse.json({
     apiVersion: 1,
@@ -121,6 +137,7 @@ export async function GET(request: Request) {
             : null,
         }
       : null,
+    activeGroupQuests,
     completedQuests: completedQuestPayloads,
     latestReceipt: latestAttempt
       ? {
@@ -140,6 +157,15 @@ export async function GET(request: Request) {
         }
       : null,
   });
+}
+
+function deriveGroupQuestStatus(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = Date.parse(startAt);
+  const end = Date.parse(endAt);
+  if (Number.isFinite(start) && start > now) return "Soon";
+  if (Number.isFinite(end) && end < now) return "Finished";
+  return "Live";
 }
 
 function getLatestAttemptForChallenge(metadata: UserMetadataRecord, challengeId?: string) {
