@@ -41,7 +41,7 @@ export default async function ChallengesPage() {
         <section className="hero-card side-quests-hub-hero">
           <h1>Pick your next bad idea.</h1>
           <p className="hero-copy">
-            Side Quests is the hub: pick a solo quest for yourself, or start a Multiplayer Side Quest when the bad idea deserves witnesses.
+            Side Quests is the hub: pick a Solo Side Quest for yourself, or start a Multiplayer Side Quest when the bad idea deserves witnesses.
           </p>
         </section>
 
