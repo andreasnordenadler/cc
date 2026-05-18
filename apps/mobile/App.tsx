@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ClerkProvider, SignedIn, SignedOut, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -225,8 +225,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
-        {shell.catalogMode === "offline" ? <OfflinePreviewCard reason={shell.catalogNotice} onRetry={() => void loadBootstrap()} /> : null}
-
         {shell.bootstrap && selectedChallenge ? (
           <ActiveScreen
             activeTab={shell.activeTab}
@@ -264,42 +262,120 @@ function MobileTopHeader({ authBridge, onSelectTab }: { authBridge: MobileAuthBr
   );
 }
 
-function HomeScreen({ account, authBridge, onSelectTab }: { account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void }) {
-  if (isAuthenticatedAccount(account)) {
-    return (
-      <View style={styles.screenStack}>
-        <View style={styles.homeHeroCard}>
-          <Text style={styles.eyebrow}>HOME</Text>
-          <Text style={styles.homeHeroTitle}>Welcome back, {account.profile.displayName}.</Text>
-          <Text style={styles.homeHeroBody}>Your Side Quest Chess account is synced. Choose a quest, play where you already play, and get the receipt.</Text>
+function HomeScreen({
+  bootstrap,
+  account,
+  onSelectTab,
+  onSelectChallenge,
+}: {
+  bootstrap: MobileBootstrap;
+  account: MobileAccountResponse | null;
+  onSelectTab: (tab: AppTab) => void;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+}) {
+  const isSignedIn = isAuthenticatedAccount(account);
+  const heroismChoices = [
+    {
+      label: "Cautiously heroic",
+      copy: "I want chaos, but survivable.",
+      cta: "Start with Knights Before Coffee",
+      challengeId: "knights-before-coffee",
+    },
+    {
+      label: "Recklessly meaningful",
+      copy: "I can handle one objectively bad idea.",
+      cta: "Try No Castle Club",
+      challengeId: "no-castle-club",
+    },
+    {
+      label: "Historically unwise",
+      copy: "I am here to become a cautionary tale.",
+      cta: "Lose the queen, win anyway",
+      challengeId: "queen-never-heard-of-her",
+    },
+  ]
+    .map((option) => {
+      const challenge = bootstrap.challenges.find((candidate) => candidate.id === option.challengeId);
+      return challenge ? { ...option, challenge } : null;
+    })
+    .filter((entry): entry is { label: string; copy: string; cta: string; challengeId: string; challenge: MobileChallenge } => Boolean(entry));
+
+  return (
+    <View style={styles.screenStack}>
+      <View style={styles.homeHeroCard}>
+        <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
+        <Text style={styles.homeHeroBody}>
+          {isSignedIn
+            ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
+            : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
+        </Text>
+        <View style={styles.homeHeroActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
+            <Text style={styles.primaryButtonText}>Go on a <Text style={styles.buttonEmphasis}>Solo</Text> Side Quest</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.primaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests`)}>
+            <Text style={styles.primaryButtonText}>Join a <Text style={styles.buttonEmphasis}>Multiplayer</Text> Side Quest</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      <View style={styles.whereBeginCard}>
+        <Text style={styles.eyebrow}>Where to begin</Text>
+        <Text style={styles.sectionTitle}>How heroic are you feeling today?</Text>
+        <Text style={styles.sectionBody}>Pick a starting quest based on your current tolerance for terrible chess decisions.</Text>
+        <View style={styles.heroismChoiceList}>
+          {heroismChoices.map(({ label, copy, cta, challenge }) => (
+            <HeroismChoiceCard key={challenge.id} label={label} copy={copy} cta={cta} challenge={challenge} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
+          ))}
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Find your own path" testID="home-find-own-path" onPress={() => onSelectTab("sideQuests")}>
+          <Text style={styles.heroismCustomPath}>Or go find your own path.</Text>
+        </Pressable>
+      </View>
+
+      {!isSignedIn ? <WebsiteRitualCard /> : null}
+
+      {!isSignedIn ? (
+        <View style={styles.multiplayerCalloutCard}>
+          <Text style={styles.eyebrow}>Multiplayer Side Quests</Text>
+          <Text style={styles.sectionTitle}>Same nonsense, now with witnesses.</Text>
+          <Text style={styles.sectionBody}>Join public Multiplayer Side Quests, inspect the rules before committing, or sign in when you want to create one and invite friends.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quests" testID="home-join-multiplayer-callout" style={styles.secondaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests`)}>
+            <Text style={styles.secondaryButtonText}>Join Multiplayer Side Quests</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
+      {isSignedIn ? (
+        <View style={styles.homeStatusCard}>
+          <Text style={styles.eyebrow}>Active Solo Side Quest</Text>
+          <Text style={styles.sectionTitle}>{account.activeQuest ? account.activeQuest.title : "No active solo quest yet."}</Text>
+          <Text style={styles.sectionBody}>{account.activeQuest ? "Open the active quest page for rules, badge details, and the next weird chess side quest." : "Choose one solo quest first so My Side Quests knows which weird rule to judge after your next public game."}</Text>
           <View style={styles.scoreboardRow}>
             <BigScore label="Points" value={`${account.progress.totalRewardPoints}`} />
             <BigScore label="Coats" value={`${account.progress.totalCompletedChallenges}`} />
             <BigScore label="Proofs" value={`${account.progress.proofReceiptCount}`} />
           </View>
         </View>
-        <WebsiteRitualCard compact />
-      </View>
-    );
-  }
+      ) : null}
+    </View>
+  );
+}
+
+function HeroismChoiceCard({ label, copy, cta, challenge, onPress }: { label: string; copy: string; cta: string; challenge: MobileChallenge; onPress: () => void }) {
+  const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
 
   return (
-    <View style={styles.screenStack}>
-      <View style={styles.homeHeroCard}>
-        <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
-        <Text style={styles.homeHeroBody}>Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games.</Text>
-        <View style={styles.homeHeroActions}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
-            <Text style={styles.primaryButtonText}>Go on a Solo Side Quest</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.secondaryButtonWide} onPress={() => void openExternalUrl(`${getApiBaseUrl()}/groupquests/public`)}>
-            <Text style={styles.secondaryButtonText}>Join a Multiplayer Side Quest</Text>
-          </Pressable>
-        </View>
+    <Pressable accessibilityRole="button" accessibilityLabel={cta} testID={`home-heroism-${challenge.id}`} style={styles.heroismChoiceCard} onPress={onPress}>
+      <View style={styles.heroismBadgeFrame}>
+        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroismBadgeImage} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
       </View>
-      <WebsiteRitualCard />
-      {authBridge.configured ? <MobileAuthSessionCard authBridge={authBridge} onAuthActionComplete={() => undefined} /> : null}
-    </View>
+      <View style={styles.heroismChoiceCopy}>
+        <Text style={styles.heroismChoiceLabel}>{label}</Text>
+        <Text style={styles.heroismChoiceSmall}>{copy}</Text>
+        <Text style={styles.heroismChoiceCta}>{cta}</Text>
+      </View>
+    </Pressable>
   );
 }
 
@@ -317,74 +393,6 @@ function WebsiteRitualCard({ compact = false }: { compact?: boolean }) {
     </View>
   );
 }
-
-function MobileAuthSessionCard({ authBridge, onAuthActionComplete }: { authBridge: MobileAuthBridge; onAuthActionComplete: () => void }) {
-  const [authActionPending, setAuthActionPending] = useState(false);
-  const [authActionError, setAuthActionError] = useState<string | null>(null);
-
-  async function runAuthAction(action: () => Promise<void>) {
-    setAuthActionPending(true);
-    setAuthActionError(null);
-
-    try {
-      await action();
-      onAuthActionComplete();
-    } catch (caught) {
-      setAuthActionError(caught instanceof Error ? caught.message : "Mobile sign-in failed.");
-    } finally {
-      setAuthActionPending(false);
-    }
-  }
-
-  if (!authBridge.configured) {
-    return (
-      <View style={styles.authCard}>
-        <Text style={styles.eyebrow}>Website account handoff</Text>
-        <Text style={styles.cardTitle}>Public quest mode is active.</Text>
-        <Text style={styles.cardBody}>You can browse quests and reward previews now. Sign in on the website to connect chess usernames, start quests, and keep account changes authoritative.</Text>
-        <View style={styles.factGrid}>
-          <Fact label="Provider" value="Clerk Expo installed" />
-          <Fact label="Needed env" value="EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY" />
-          <Fact label="Redirect" value={mobileOAuthRedirectUrl} />
-        </View>
-        <View style={styles.noticeStrip}>
-          <Text style={styles.noticeIcon}>🛡</Text>
-          <Text style={styles.noticeCopy}>No dead end: read the brief here, then use the website handoff for account setup, proof submission, and sharing.</Text>
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.authCard}>
-      <Text style={styles.eyebrow}>Mobile account</Text>
-      <SignedIn>
-        <Text style={styles.cardTitle}>Signed in{authBridge.signedInLabel ? ` as ${authBridge.signedInLabel}` : ""}.</Text>
-        <Text style={styles.cardBody}>Account, active quest, and latest proof receipt refresh from the website backend.</Text>
-        {authBridge.signOut ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Sign out of Side Quest Chess mobile" testID="mobile-auth-sign-out" style={styles.secondaryButton} disabled={authActionPending} onPress={() => void runAuthAction(authBridge.signOut!)}>
-            <Text style={styles.secondaryButtonText}>{authActionPending ? "Working…" : "Sign out"}</Text>
-          </Pressable>
-        ) : null}
-      </SignedIn>
-      <SignedOut>
-        <Text style={styles.cardTitle}>Sign in to sync your quest log.</Text>
-        <Text style={styles.cardBody}>Google sign-in mirrors your website quest log on mobile. If the native handoff needs another try, quests still work and the website remains the source of truth.</Text>
-        {authBridge.startGoogleSignIn ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Sign in with Google" testID="mobile-auth-google-sign-in" style={styles.primaryButton} disabled={authActionPending || !authBridge.isLoaded} onPress={() => void runAuthAction(authBridge.startGoogleSignIn!)}>
-            <Text style={styles.primaryButtonText}>{authActionPending ? "Opening Google…" : "Sign in with Google"}</Text>
-          </Pressable>
-        ) : null}
-        <View style={styles.noticeStrip}>
-          <Text style={styles.noticeIcon}>⚙</Text>
-          <Text style={styles.noticeCopy}>If sign-in needs another try, keep browsing. Account data stays website-owned and safe.</Text>
-        </View>
-      </SignedOut>
-      {authActionError ? <Text style={styles.errorCopy}>{authActionError}</Text> : null}
-    </View>
-  );
-}
-
 function BottomNav({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
   return (
     <View style={styles.bottomNavBar}>
@@ -430,7 +438,7 @@ function ActiveScreen({
 }) {
   switch (activeTab) {
     case "home":
-      return <HomeScreen account={account} authBridge={authBridge} onSelectTab={onSelectTab} />;
+      return <HomeScreen bootstrap={bootstrap} account={account} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />;
     case "sideQuests":
       return <SideQuestsScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
@@ -721,30 +729,6 @@ function CoatShelfTile({ title, subtitle, imageUrl, locked = false }: { title: s
     </View>
   );
 }
-
-function OfflinePreviewCard({ reason, onRetry }: { reason: string | null; onRetry: () => void }) {
-  return (
-    <View style={styles.offlineCard}>
-      <View style={styles.offlineHeaderRow}>
-        <Text style={styles.offlineIcon}>☁</Text>
-        <View style={styles.offlineHeaderCopy}>
-          <Text style={styles.offlineTitle}>Offline preview loaded.</Text>
-          <Text style={styles.offlineCopy}>The live quest board could not be reached, so this APK is showing bundled sample quests instead of a hard error.</Text>
-        </View>
-      </View>
-      <Text style={styles.microcopy}>{reason ? `Last sync attempt: ${reason}` : "Live sync will retry when you pull to refresh or tap retry."}</Text>
-      <View style={styles.buttonRow}>
-        <Pressable style={styles.primaryButton} onPress={onRetry}>
-          <Text style={styles.primaryButtonText}>Retry live sync</Text>
-        </Pressable>
-        <Pressable style={styles.secondaryButton} onPress={() => void openExternalUrl(getApiBaseUrl())}>
-          <Text style={styles.secondaryButtonText}>Open website</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
 function QuestListCard({ challenge, active, index, onPress }: { challenge: MobileChallenge; active: boolean; index: number; onPress: () => void }) {
   const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
 
@@ -1350,10 +1334,23 @@ const styles = StyleSheet.create({
   navBrandRowCompact: { flex: 1, flexDirection: "row", alignItems: "center", gap: 9 },
   headerSignInButton: { paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   headerSignInText: { color: "#111", fontSize: 12, fontWeight: "900" },
-  homeHeroCard: { gap: 14, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "#111016" },
-  homeHeroTitle: { color: colors.paper, fontSize: 30, fontWeight: "900", letterSpacing: -1.5, lineHeight: 33 },
-  homeHeroBody: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  homeHeroCard: { gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
+  homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   homeHeroActions: { gap: 10 },
+  buttonEmphasis: { fontWeight: "900" },
+  whereBeginCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
+  heroismChoiceList: { gap: 10 },
+  heroismChoiceCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(0,0,0,.2)" },
+  heroismBadgeFrame: { width: 58, height: 66, alignItems: "center", justifyContent: "center", borderRadius: 18, backgroundColor: "rgba(0,0,0,.24)", borderWidth: 1, borderColor: "rgba(245,200,106,.2)" },
+  heroismBadgeImage: { width: 52, height: 60 },
+  heroismChoiceCopy: { flex: 1, gap: 3 },
+  heroismChoiceLabel: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  heroismChoiceSmall: { color: colors.muted, fontSize: 13, lineHeight: 18 },
+  heroismChoiceCta: { color: colors.gold, fontSize: 13, fontWeight: "900" },
+  heroismCustomPath: { color: colors.gold, fontSize: 14, fontWeight: "900", textDecorationLine: "underline" },
+  multiplayerCalloutCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
+  homeStatusCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
   websiteRitualCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   websiteRitualSteps: { gap: 9 },
   navBrandRow: { flexDirection: "row", alignItems: "center", gap: 9 },
