@@ -3656,3 +3656,26 @@ When existing-login browser automation matters, first verify the user browser is
 - Tags: browser, chrome-mcp, user-profile, admin-maintenance
 
 ---
+
+## [ERR-20260518-001] eas_android_build_stale_native_dir
+
+**Logged**: 2026-05-18T12:09:42.891061+00:00
+**Priority**: high
+**Status**: pending
+**Area**: mobile | infra
+
+### Summary
+EAS Android internal build failed because an ignored local `apps/mobile/android/` native directory was included in the EAS archive and made Gradle resolve stale native modules (`react-native-safe-area-context`, `solana-mobile_mobile-wallet-adapter-protocol`) with no variants.
+
+### Details
+The mobile app is configured like a managed Expo app, but the local ignored native Android directory existed and EAS detected/uploaded it. The fix is to exclude generated native/export artifacts from `.easignore` and remove stale local generated native output before rebuilding.
+
+### Suggested Action
+Keep `apps/mobile/android/` and `apps/mobile/dist-*` out of EAS archives unless deliberately switching to a committed bare/prebuild workflow.
+
+### Metadata
+- Source: error
+- Related Files: .easignore, apps/mobile/android
+- Tags: eas, expo, android, gradle
+
+---
