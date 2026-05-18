@@ -298,7 +298,6 @@ function HomeScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
-        <HeroCoatPreview challenges={getHeroCoatChallenges(bootstrap, heroismChoices.map((choice) => choice.challenge))} />
         <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
@@ -354,36 +353,6 @@ function HomeScreen({
           </View>
         </View>
       ) : null}
-    </View>
-  );
-}
-
-
-
-function getHeroCoatChallenges(bootstrap: MobileBootstrap, heroismChallenges: MobileChallenge[]) {
-  const seen = new Set<string>();
-  const ordered = [...heroismChallenges, ...bootstrap.challenges].filter((challenge) => {
-    if (seen.has(challenge.id)) return false;
-    seen.add(challenge.id);
-    return Boolean(challenge.badgeIdentity.imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id]);
-  });
-  return ordered.slice(0, 3);
-}
-
-function HeroCoatPreview({ challenges }: { challenges: MobileChallenge[] }) {
-  return (
-    <View style={styles.heroCoatPreview}>
-      <View style={styles.heroCoatGlow} />
-      <View style={styles.heroCoatRow}>
-        {challenges.slice(0, 3).map((challenge, index) => {
-          const badgeUrl = getChallengeCoatImageUrl(challenge);
-          return (
-            <View key={challenge.id} style={[styles.heroCoatFrame, index === 1 && styles.heroCoatFrameFeatured]}>
-              {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.heroCoatImage, index === 1 && styles.heroCoatImageFeatured]} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>{challenge.badgeIdentity.motif}</Text>}
-            </View>
-          );
-        })}
-      </View>
     </View>
   );
 }
@@ -1363,14 +1332,6 @@ const styles = StyleSheet.create({
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
   homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
-  heroCoatPreview: { position: "relative", overflow: "hidden", alignItems: "center", paddingVertical: 8, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(0,0,0,.22)" },
-  heroCoatGlow: { position: "absolute", top: -60, width: 260, height: 170, borderRadius: 130, backgroundColor: "rgba(245,200,106,.2)" },
-  heroCoatEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", letterSpacing: 1.1, textTransform: "uppercase" },
-  heroCoatRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 },
-  heroCoatFrame: { width: 78, height: 92, alignItems: "center", justifyContent: "center", borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.06)" },
-  heroCoatFrameFeatured: { width: 112, height: 132, borderRadius: 30, borderColor: "rgba(245,200,106,.52)", backgroundColor: "rgba(245,200,106,.1)" },
-  heroCoatImage: { width: 74, height: 88 },
-  heroCoatImageFeatured: { width: 106, height: 124 },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   homeHeroActions: { gap: 10 },
