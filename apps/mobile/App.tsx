@@ -447,7 +447,7 @@ function ActiveScreen({
     case "sideQuests":
       return <SideQuestsScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
-      return <ProofShell selectedChallenge={selectedChallenge} account={account} />;
+      return <CoatOfArmsScreen bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} />;
     case "account":
       return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} onAccountUpdated={onAccountUpdated} />;
   }
@@ -602,138 +602,80 @@ function AccountShell({
     </View>
   );
 }
-function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
-  const badgeUrl = getChallengeCoatImageUrl(selectedChallenge);
-
-  if (isAuthenticatedAccount(account) && account.latestReceipt) {
-    const activeCoatUrl = account.activeQuest?.badgeImageUrl ? absoluteAssetUrl(account.activeQuest.badgeImageUrl) : badgeUrl;
-
-    return (
-      <View style={styles.proofScrollCard}>
-        <View style={styles.proofSeal}>
-          <Text style={styles.proofSealText}>{account.latestReceipt.status === "passed" ? "PASS" : "SQC"}</Text>
-        </View>
-        <Text style={styles.eyebrow}>Latest proof receipt</Text>
-        <View style={styles.coatHeroFrame}>
-          {activeCoatUrl ? <Image source={{ uri: activeCoatUrl }} style={styles.coatHeroImage} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
-        </View>
-        <Text style={styles.proofTitle}>{account.latestReceipt.headline}</Text>
-        <Text style={styles.proofBody}>{account.latestReceipt.detail}</Text>
-        <Text style={styles.microcopy}>{account.latestReceipt.meta}</Text>
-        <View style={styles.factGrid}>
-          <Fact label="Game" value={account.latestReceipt.gameId ?? "No game id"} />
-          <Fact label="Provider" value={account.latestReceipt.provider ?? "Unknown"} />
-          <Fact label="Updated" value={account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"} />
-        </View>
-        <CoatCollectionCard account={account} selectedChallenge={selectedChallenge} />
-        <ProofActionCard challengeId={account.latestReceipt.challengeId} title={account.latestReceipt.headline} mode="receipt" proofUrl={account.latestReceipt.proofHref} />
-      </View>
-    );
-  }
+function CoatOfArmsScreen({
+  bootstrap,
+  account,
+  onSelectChallenge,
+}: {
+  bootstrap: MobileBootstrap;
+  account: MobileAccountResponse | null;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+}) {
+  const earnedIds = new Set(isAuthenticatedAccount(account) ? account.completedQuests.map((quest) => quest.id) : []);
+  const liveBadgeChallenges = bootstrap.challenges.filter((challenge) => getChallengeCoatImageUrl(challenge));
 
   return (
-    <View style={styles.proofScrollCard}>
-      <View style={styles.proofSeal}>
-        <Text style={styles.proofSealText}>SQC</Text>
+    <View style={styles.screenStack}>
+      <View style={styles.badgesHeroCard}>
+        <Text style={styles.badgesHeroTitle}>Every bad idea deserves a coat of arms.</Text>
+        <View style={styles.liveCoatRoster} accessibilityLabel="Current live Side Quest Chess coats of arms">
+          {liveBadgeChallenges.map((challenge) => (
+            <LiveCoatRosterItem key={challenge.id} challenge={challenge} earned={earnedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
+          ))}
+        </View>
       </View>
-      <Text style={styles.eyebrow}>Coat of Arms reward</Text>
-      <View style={styles.coatHeroFrame}>
-        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.coatHeroImage} resizeMode="contain" /> : <Text style={styles.proofPreviewGlyph}>{selectedChallenge.badgeIdentity.motif}</Text>}
-      </View>
-      <Text style={styles.proofTitle}>{selectedChallenge.badgeIdentity.name}</Text>
-      <Text style={styles.proofSubtitle}>Unlocks {selectedChallenge.badgeIdentity.name}</Text>
-      <Text style={styles.proofBody}>{selectedChallenge.badgeIdentity.unlockCopy}</Text>
-      <Text style={styles.microcopy}>This mirrors the website badge shelf: the app makes the coat feel like loot first, then hands off account-safe proof minting to the web board.</Text>
-      <View style={styles.factGrid}>
-        <Fact label="Quest" value={selectedChallenge.title} />
-        <Fact label="Rarity" value={selectedChallenge.badgeIdentity.rarity} />
-        <Fact label="Motto" value={selectedChallenge.badgeIdentity.heraldry.motto} />
-        <Fact label="Charge" value={selectedChallenge.badgeIdentity.heraldry.charge} />
-      </View>
-      <CoatLoreCard challenge={selectedChallenge} />
-      <CoatCollectionCard account={account} selectedChallenge={selectedChallenge} />
-      <ProofPrepCard challenge={selectedChallenge} />
-      <ProofActionCard challengeId={selectedChallenge.id} title={selectedChallenge.title} mode="preview" />
-      <WebsiteHandoffCard
-        title="Ready to make it official?"
-        body="Open the challenge page to paste a public game and mint the real proof receipt."
-        buttonLabel="Open proof checker"
-        url={`${getApiBaseUrl()}/challenges/${selectedChallenge.id}`}
-      />
-    </View>
-  );
-}
 
-function CoatLoreCard({ challenge }: { challenge: MobileChallenge }) {
-  return (
-    <View style={styles.coatLoreCard}>
-      <Text style={styles.eyebrow}>Heraldry file</Text>
-      <Text style={styles.coatLoreTitle}>What this coat means</Text>
-      <View style={styles.coatLoreRows}>
-        <Fact label="Shield" value={challenge.badgeIdentity.heraldry.shield} />
-        <Fact label="Crest" value={challenge.badgeIdentity.heraldry.crest} />
-        <Fact label="Meaning" value={challenge.badgeIdentity.heraldry.meaning} />
-        <Fact label="Weirdness" value={challenge.badgeIdentity.heraldry.weirdness} />
+      <View style={styles.badgeMeaningList} accessibilityLabel="Live quest coat of arms meanings">
+        {bootstrap.challenges.map((challenge) => (
+          <BadgeMeaningCard key={challenge.id} challenge={challenge} earned={earnedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
+        ))}
       </View>
     </View>
   );
 }
 
-function CoatCollectionCard({ account, selectedChallenge }: { account: MobileAccountResponse | null; selectedChallenge: MobileChallenge }) {
-  if (!isAuthenticatedAccount(account)) {
-    return (
-      <View style={styles.coatShelfCard}>
-        <View style={styles.coatShelfHeader}>
-          <View style={styles.coatShelfCopy}>
-            <Text style={styles.eyebrow}>Mobile coat shelf</Text>
-            <Text style={styles.coatShelfTitle}>Locked preview</Text>
-            <Text style={styles.coatShelfBody}>Sign in on the website, complete a quest, and this becomes your earned coat shelf instead of generic proof copy.</Text>
+function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileChallenge; earned: boolean; onPress: () => void }) {
+  const badgeUrl = getChallengeCoatImageUrl(challenge);
+
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.liveCoatRosterItem} onPress={onPress}>
+      <View style={[styles.liveCoatBadgeFrame, !earned && styles.liveCoatBadgeFrameLocked]}>
+        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.liveCoatBadgeImage, !earned && styles.liveCoatBadgeImageLocked]} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+      </View>
+      <Text style={styles.liveCoatRosterTitle} numberOfLines={2}>{challenge.title}</Text>
+    </Pressable>
+  );
+}
+
+function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileChallenge; earned: boolean; onPress: () => void }) {
+  const badgeUrl = getChallengeCoatImageUrl(challenge);
+
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.badgeMeaningCard} onPress={onPress}>
+      <View style={[styles.badgeMeaningArtLink, !earned && styles.badgeMeaningArtLocked]}>
+        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.badgeMeaningImage, !earned && styles.badgeMeaningImageLocked]} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+      </View>
+      <View style={styles.badgeMeaningCopy}>
+        <Text style={styles.badgeMeaningTitle}>{challenge.badgeIdentity.name}</Text>
+        <View style={styles.badgeMeaningRows}>
+          <View style={styles.badgeMeaningRow}>
+            <Text style={styles.badgeMeaningTerm}>Shield</Text>
+            <Text style={styles.badgeMeaningDefinition}>{challenge.badgeIdentity.heraldry.shield}</Text>
           </View>
-          <Text style={styles.lockedPill}>Locked</Text>
-        </View>
-        <View style={styles.coatShelfPreviewRow}>
-          <CoatShelfTile title={selectedChallenge.badgeIdentity.name} subtitle="Selected reward" imageUrl={selectedChallenge.badgeIdentity.imageUrl} locked />
+          <View style={styles.badgeMeaningRow}>
+            <Text style={styles.badgeMeaningTerm}>Meaning</Text>
+            <Text style={styles.badgeMeaningDefinition}>{challenge.badgeIdentity.heraldry.meaning}</Text>
+          </View>
+          <View style={styles.badgeMeaningRow}>
+            <Text style={styles.badgeMeaningTerm}>Quest</Text>
+            <Text style={styles.badgeMeaningDefinition}>{challenge.title}</Text>
+          </View>
         </View>
       </View>
-    );
-  }
-
-  const completed = account.completedQuests.slice(0, 4);
-
-  return (
-    <View style={styles.coatShelfCard}>
-      <View style={styles.coatShelfHeader}>
-        <View style={styles.coatShelfCopy}>
-          <Text style={styles.eyebrow}>My Coat shelf</Text>
-          <Text style={styles.coatShelfTitle}>{account.progress.totalCompletedChallenges > 0 ? "Earned heraldry" : "First coat still waiting"}</Text>
-          <Text style={styles.coatShelfBody}>{account.progress.totalCompletedChallenges} unlocked · {account.progress.totalRewardPoints} points · {account.progress.proofReceiptCount} proof receipts</Text>
-        </View>
-        <Text style={styles.syncedPill}>Synced</Text>
-      </View>
-      <View style={styles.coatShelfPreviewRow}>
-        {completed.length > 0 ? (
-          completed.map((quest) => <CoatShelfTile key={quest.id} title={quest.badgeName} subtitle={quest.title} imageUrl={quest.badgeImageUrl} />)
-        ) : (
-          <CoatShelfTile title={selectedChallenge.badgeIdentity.name} subtitle="Next unlock" imageUrl={selectedChallenge.badgeIdentity.imageUrl} locked />
-        )}
-      </View>
-    </View>
+    </Pressable>
   );
 }
 
-function CoatShelfTile({ title, subtitle, imageUrl, locked = false }: { title: string; subtitle: string; imageUrl: string | null; locked?: boolean }) {
-  const resolvedImageUrl = imageUrl ? absoluteAssetUrl(imageUrl) : null;
-
-  return (
-    <View style={[styles.coatShelfTile, locked && styles.coatShelfTileLocked]}>
-      <View style={styles.coatShelfBadgeFrame}>
-        {resolvedImageUrl ? <Image source={{ uri: resolvedImageUrl }} style={styles.coatShelfBadgeImage} resizeMode="contain" /> : <Text style={styles.trophyGlyph}>♛</Text>}
-      </View>
-      <Text style={styles.coatShelfTileTitle} numberOfLines={2}>{title}</Text>
-      <Text style={styles.coatShelfTileSubtitle} numberOfLines={2}>{locked ? `Locked · ${subtitle}` : subtitle}</Text>
-    </View>
-  );
-}
 function QuestListCard({ challenge, active, index, onPress }: { challenge: MobileChallenge; active: boolean; index: number; onPress: () => void }) {
   const badgeUrl = getChallengeCoatImageUrl(challenge);
 
@@ -961,20 +903,6 @@ function MobileQuestActionCard({
       {!canRun ? <Text style={styles.microcopy}>Sign in and refresh the account mirror before native quest actions unlock.</Text> : null}
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
-    </View>
-  );
-}
-
-function ProofPrepCard({ challenge }: { challenge: MobileChallenge }) {
-  return (
-    <View style={styles.proofPrepCard}>
-      <Text style={styles.eyebrow}>Proof prep</Text>
-      <Text style={styles.proofPrepTitle}>Bring the checker exactly what it needs.</Text>
-      <View style={styles.checkerFlow}>
-        <FlowStep done title="Quest context" body={`${challenge.title} · ${challenge.badgeIdentity.name}`} />
-        <FlowStep title="Public game link" body="Paste a completed Lichess or Chess.com game on the web challenge page." />
-        <FlowStep title="Verifier verdict" body="The receipt records provider, game id, checked time, and pass/pending/fail state." />
-      </View>
     </View>
   );
 }
@@ -1358,6 +1286,27 @@ const styles = StyleSheet.create({
   heroismCustomPath: { color: colors.gold, fontSize: 14, fontWeight: "900", textDecorationLine: "underline" },
   multiplayerCalloutCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   homeStatusCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
+  badgesHeroCard: { gap: 18, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  badgesHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37, textAlign: "center" },
+  liveCoatRoster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 10 },
+  liveCoatRosterItem: { width: "30%", minWidth: 92, alignItems: "center", gap: 6, padding: 8, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(0,0,0,.18)" },
+  liveCoatBadgeFrame: { width: 74, height: 78, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "rgba(245,200,106,.08)" },
+  liveCoatBadgeFrameLocked: { borderColor: "rgba(255,255,255,.16)", backgroundColor: "rgba(0,0,0,.2)" },
+  liveCoatBadgeImage: { width: 70, height: 70 },
+  liveCoatBadgeImageLocked: { opacity: 0.72 },
+  liveCoatRosterTitle: { color: colors.paper, fontSize: 11, fontWeight: "900", lineHeight: 13, textAlign: "center" },
+  badgeMeaningList: { gap: 12 },
+  badgeMeaningCard: { flexDirection: "row", gap: 14, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,255,255,.075)" },
+  badgeMeaningArtLink: { width: 92, alignItems: "center", justifyContent: "center", borderRadius: 22, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(0,0,0,.18)" },
+  badgeMeaningArtLocked: { borderColor: "rgba(255,255,255,.12)" },
+  badgeMeaningImage: { width: 84, height: 94 },
+  badgeMeaningImageLocked: { opacity: 0.74 },
+  badgeMeaningCopy: { flex: 1, gap: 10 },
+  badgeMeaningTitle: { color: colors.paper, fontSize: 21, lineHeight: 23, fontWeight: "900", letterSpacing: -0.7 },
+  badgeMeaningRows: { gap: 7 },
+  badgeMeaningRow: { gap: 2 },
+  badgeMeaningTerm: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
+  badgeMeaningDefinition: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
   websiteRitualCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   websiteRitualSteps: { gap: 9 },
   navBrandRow: { flexDirection: "row", alignItems: "center", gap: 9 },
