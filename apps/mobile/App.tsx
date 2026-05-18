@@ -56,6 +56,19 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
+
+const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
+  "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
+  "knights-before-coffee": "/badges/v6/knights-before-coffee-badge.png",
+  "bishop-field-trip": "/badges/v6/bishop-field-trip-badge.png",
+  "early-king-walk": "/badges/v6/early-king-walk-badge.png",
+  "pawn-only-picnic": "/badges/v7/coming-soon-clean/pawn-only-picnic-badge.png",
+  "queen-never-heard-of-her": "/badges/v4/queen-never-heard-of-her.png",
+  "no-castle-club": "/badges/v4/no-castle-club-badge.png",
+  "the-blunder-gambit": "/badges/v4/the-blunder-gambit-badge.png",
+  "knightmare-mode": "/badges/v4/knightmare-mode-badge.png",
+};
+
 const mobileOAuthRedirectUrl = AuthSession.makeRedirectUri({
   scheme: "sidequestchess",
   path: "sso-callback",
@@ -285,7 +298,7 @@ function HomeScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
-        <HeroCoatPreview challenges={heroismChoices.map((choice) => choice.challenge)} />
+        <HeroCoatPreview challenges={getHeroCoatChallenges(bootstrap, heroismChoices.map((choice) => choice.challenge))} />
         <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
@@ -346,14 +359,24 @@ function HomeScreen({
 }
 
 
+
+function getHeroCoatChallenges(bootstrap: MobileBootstrap, heroismChallenges: MobileChallenge[]) {
+  const seen = new Set<string>();
+  const ordered = [...heroismChallenges, ...bootstrap.challenges].filter((challenge) => {
+    if (seen.has(challenge.id)) return false;
+    seen.add(challenge.id);
+    return Boolean(challenge.badgeIdentity.imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id]);
+  });
+  return ordered.slice(0, 3);
+}
+
 function HeroCoatPreview({ challenges }: { challenges: MobileChallenge[] }) {
   return (
     <View style={styles.heroCoatPreview}>
       <View style={styles.heroCoatGlow} />
-      <Text style={styles.heroCoatEyebrow}>Coats of arms to unlock</Text>
       <View style={styles.heroCoatRow}>
         {challenges.slice(0, 3).map((challenge, index) => {
-          const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+          const badgeUrl = getChallengeCoatImageUrl(challenge);
           return (
             <View key={challenge.id} style={[styles.heroCoatFrame, index === 1 && styles.heroCoatFrameFeatured]}>
               {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.heroCoatImage, index === 1 && styles.heroCoatImageFeatured]} resizeMode="contain" /> : <Text style={styles.heroBadgeGlyph}>{challenge.badgeIdentity.motif}</Text>}
@@ -366,7 +389,7 @@ function HeroCoatPreview({ challenges }: { challenges: MobileChallenge[] }) {
 }
 
 function HeroismChoiceCard({ label, copy, cta, challenge, onPress }: { label: string; copy: string; cta: string; challenge: MobileChallenge; onPress: () => void }) {
-  const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+  const badgeUrl = getChallengeCoatImageUrl(challenge);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={cta} testID={`home-heroism-${challenge.id}`} style={styles.heroismChoiceCard} onPress={onPress}>
@@ -601,7 +624,7 @@ function AccountShell({
   );
 }
 function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileChallenge; account: MobileAccountResponse | null }) {
-  const badgeUrl = selectedChallenge.badgeIdentity.imageUrl ? absoluteAssetUrl(selectedChallenge.badgeIdentity.imageUrl) : null;
+  const badgeUrl = getChallengeCoatImageUrl(selectedChallenge);
 
   if (isAuthenticatedAccount(account) && account.latestReceipt) {
     const activeCoatUrl = account.activeQuest?.badgeImageUrl ? absoluteAssetUrl(account.activeQuest.badgeImageUrl) : badgeUrl;
@@ -733,7 +756,7 @@ function CoatShelfTile({ title, subtitle, imageUrl, locked = false }: { title: s
   );
 }
 function QuestListCard({ challenge, active, index, onPress }: { challenge: MobileChallenge; active: boolean; index: number; onPress: () => void }) {
-  const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+  const badgeUrl = getChallengeCoatImageUrl(challenge);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open quest ${challenge.title}`} accessibilityState={{ selected: active }} testID={`quest-card-${challenge.id}`} style={[styles.questListCard, active && styles.questListCardActive]} onPress={onPress}>
@@ -770,7 +793,7 @@ function QuestDetailCard({
   onSelectTab: (tab: AppTab) => void;
   onAccountUpdated: () => void;
 }) {
-  const badgeUrl = challenge.badgeIdentity.imageUrl ? absoluteAssetUrl(challenge.badgeIdentity.imageUrl) : null;
+  const badgeUrl = getChallengeCoatImageUrl(challenge);
 
   return (
     <View style={styles.questCard}>
@@ -1284,6 +1307,12 @@ function formatRequirementValue(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1).replace(/-/g, " ");
 }
 
+
+function getChallengeCoatImageUrl(challenge: MobileChallenge) {
+  const imageUrl = challenge.badgeIdentity.imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id];
+  return imageUrl ? absoluteAssetUrl(imageUrl) : null;
+}
+
 function absoluteAssetUrl(url: string) {
   if (url.startsWith("http")) return url;
   return `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
@@ -1334,14 +1363,14 @@ const styles = StyleSheet.create({
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
   homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
-  heroCoatPreview: { position: "relative", overflow: "hidden", gap: 8, alignItems: "center", paddingVertical: 10, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(0,0,0,.22)" },
-  heroCoatGlow: { position: "absolute", top: -70, width: 220, height: 160, borderRadius: 110, backgroundColor: "rgba(245,200,106,.18)" },
+  heroCoatPreview: { position: "relative", overflow: "hidden", alignItems: "center", paddingVertical: 8, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(0,0,0,.22)" },
+  heroCoatGlow: { position: "absolute", top: -60, width: 260, height: 170, borderRadius: 130, backgroundColor: "rgba(245,200,106,.2)" },
   heroCoatEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", letterSpacing: 1.1, textTransform: "uppercase" },
-  heroCoatRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
-  heroCoatFrame: { width: 72, height: 84, alignItems: "center", justifyContent: "center", borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.06)" },
-  heroCoatFrameFeatured: { width: 92, height: 108, borderRadius: 28, borderColor: "rgba(245,200,106,.46)", backgroundColor: "rgba(245,200,106,.1)" },
-  heroCoatImage: { width: 66, height: 78 },
-  heroCoatImageFeatured: { width: 84, height: 98 },
+  heroCoatRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 },
+  heroCoatFrame: { width: 78, height: 92, alignItems: "center", justifyContent: "center", borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.06)" },
+  heroCoatFrameFeatured: { width: 112, height: 132, borderRadius: 30, borderColor: "rgba(245,200,106,.52)", backgroundColor: "rgba(245,200,106,.1)" },
+  heroCoatImage: { width: 74, height: 88 },
+  heroCoatImageFeatured: { width: 106, height: 124 },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   homeHeroActions: { gap: 10 },
