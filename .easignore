@@ -18,3 +18,9 @@ docs/
 
 # Web-only generated/static comparison assets are not needed by the Expo app.
 public/
+
+# Local Expo/generated mobile artifacts; EAS should generate native projects for managed builds.
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/dist-*/
+app.json

@@ -83,6 +83,7 @@ export type MobileAccountState = {
     completed: boolean;
     banner: string;
     href: string;
+    proofHref: string | null;
     badgeImageUrl: string | null;
   } | null;
   completedQuests: Array<{
@@ -92,6 +93,7 @@ export type MobileAccountState = {
     badgeName: string;
     completedAt: string | null;
     href: string;
+    proofHref: string | null;
     badgeImageUrl: string | null;
   }>;
   latestReceipt: {
@@ -105,6 +107,8 @@ export type MobileAccountState = {
     headline: string;
     detail: string;
     meta: string;
+    proofHref: string | null;
+    proofImageUrl: string | null;
   } | null;
 };
 

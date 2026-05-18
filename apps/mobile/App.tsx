@@ -782,7 +782,7 @@ function ProofShell({ selectedChallenge, account }: { selectedChallenge: MobileC
           <Fact label="Updated" value={account.latestReceipt.checkedAt ? new Date(account.latestReceipt.checkedAt).toLocaleString() : "Not checked"} />
         </View>
         <CoatCollectionCard account={account} selectedChallenge={selectedChallenge} />
-        <ProofActionCard challengeId={account.latestReceipt.challengeId} title={account.latestReceipt.headline} mode="receipt" />
+        <ProofActionCard challengeId={account.latestReceipt.challengeId} title={account.latestReceipt.headline} mode="receipt" proofUrl={account.latestReceipt.proofHref} />
       </View>
     );
   }
@@ -1383,24 +1383,25 @@ function StatusConfidenceCard({ mode }: { mode: "preview" | "active" | "complete
   );
 }
 
-function ProofActionCard({ challengeId, title, mode }: { challengeId: string | null; title: string; mode: "quest" | "preview" | "receipt" }) {
+function ProofActionCard({ challengeId, title, mode, proofUrl }: { challengeId: string | null; title: string; mode: "quest" | "preview" | "receipt"; proofUrl?: string | null }) {
   const challengeUrl = challengeId ? `${getApiBaseUrl()}/challenges/${challengeId}` : getApiBaseUrl();
+  const canonicalUrl = proofUrl ?? challengeUrl;
   const shareTitle = mode === "receipt" ? "Side Quest Chess proof" : `Side Quest Chess: ${title}`;
   const shareMessage = mode === "receipt"
-    ? `${title}\n\nSide Quest Chess proof: ${challengeUrl}`
-    : `I am looking at this ridiculous Side Quest Chess mission: ${title}\n${challengeUrl}`;
+    ? `${title}\n\nSide Quest Chess proof: ${canonicalUrl}`
+    : `I am looking at this ridiculous Side Quest Chess mission: ${title}\n${canonicalUrl}`;
 
   return (
     <View style={styles.proofActionCard}>
       <Text style={styles.eyebrow}>{mode === "receipt" ? "Proof actions" : "Native handoff"}</Text>
       <Text style={styles.proofActionTitle}>{mode === "receipt" ? "Share the verdict without guessing." : "Keep the mission in your pocket."}</Text>
-      <Text style={styles.proofActionBody}>{mode === "receipt" ? "Android can share the canonical web link while the website remains the source of truth for generated proof images." : "Send the quest link to yourself or a friend, or jump to the web checker when your public game is ready."}</Text>
+      <Text style={styles.proofActionBody}>{mode === "receipt" ? (proofUrl ? "Android now shares the canonical minted proof receipt from your account state." : "Android can share the canonical web link while the website remains the source of truth for generated proof images.") : "Send the quest link to yourself or a friend, or jump to the web checker when your public game is ready."}</Text>
       <View style={styles.buttonRow}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Share Side Quest Chess link" testID={`proof-share-${mode}`} style={styles.primaryButton} onPress={() => void shareSideQuest(shareTitle, shareMessage, challengeUrl)}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Share Side Quest Chess link" testID={`proof-share-${mode}`} style={styles.primaryButton} onPress={() => void shareSideQuest(shareTitle, shareMessage, canonicalUrl)}>
           <Text style={styles.primaryButtonText}>Share link</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Open canonical Side Quest Chess page" testID={`proof-open-${mode}`} style={styles.secondaryButton} onPress={() => void openExternalUrl(challengeUrl)}>
-          <Text style={styles.secondaryButtonText}>Open canonical page</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open canonical Side Quest Chess page" testID={`proof-open-${mode}`} style={styles.secondaryButton} onPress={() => void openExternalUrl(canonicalUrl)}>
+          <Text style={styles.secondaryButtonText}>{proofUrl ? "Open proof receipt" : "Open canonical page"}</Text>
         </Pressable>
       </View>
     </View>

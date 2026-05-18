@@ -1,6 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { CHALLENGES } from "@/lib/challenges";
+import { buildPublicProofPath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -45,18 +46,51 @@ export async function GET(request: Request) {
   const latestPassedAttempt = activeChallenge?.id ? getLatestPassedAttempt(metadata, activeChallenge.id) : null;
   const latestAttempt = normalizeCurrentVerifierAttempt(rawLatestAttempt, latestPassedAttempt, activeChallenge?.id);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
+  const latestChallengeRecord = latestAttempt?.challengeId
+    ? CHALLENGES.find((challenge) => challenge.id === latestAttempt.challengeId) ?? null
+    : null;
+  const latestProofPath = latestAttempt && latestAttempt.status === "passed" && latestChallengeRecord
+    ? await buildPublicProofPath({
+        attempt: latestAttempt,
+        challenge: latestChallengeRecord,
+        runnerName: getPreferredRunnerName(metadata, {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          emailAddress: user.primaryEmailAddress?.emailAddress,
+        }),
+      })
+    : null;
+  const runnerName = getPreferredRunnerName(metadata, {
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    emailAddress: user.primaryEmailAddress?.emailAddress,
+  });
+  const completedQuestPayloads = await Promise.all(completedChallenges.map(async (challenge) => {
+    const latestPassed = getLatestPassedAttempt(metadata, challenge.id);
+    const proofPath = latestPassed
+      ? await buildPublicProofPath({ attempt: latestPassed, challenge, runnerName })
+      : null;
+
+    return {
+      id: challenge.id,
+      title: challenge.title,
+      reward: challenge.reward,
+      badgeName: challenge.badgeIdentity.name,
+      completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
+      href: new URL(`/challenges/${challenge.id}`, baseUrl).toString(),
+      proofHref: proofPath ? new URL(proofPath, baseUrl).toString() : null,
+      badgeImageUrl: challenge.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, baseUrl).toString() : null,
+    };
+  }));
 
   return NextResponse.json({
     apiVersion: 1,
     authenticated: true,
     generatedAt: new Date().toISOString(),
     profile: {
-      displayName: getPreferredRunnerName(metadata, {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-        emailAddress: user.primaryEmailAddress?.emailAddress,
-      }) || "SQC player",
+      displayName: runnerName || "SQC player",
       bio: getRunnerBio(metadata),
       imageUrl: user.imageUrl || null,
     },
@@ -81,24 +115,13 @@ export async function GET(request: Request) {
           completed: completedSet.has(activeChallengeRecord.id),
           banner: challengeBanner(activeChallenge),
           href: new URL(`/challenges/${activeChallengeRecord.id}`, baseUrl).toString(),
+          proofHref: latestProofPath && latestAttempt?.challengeId === activeChallengeRecord.id ? new URL(latestProofPath, baseUrl).toString() : null,
           badgeImageUrl: activeChallengeRecord.badgeIdentity.image
             ? new URL(activeChallengeRecord.badgeIdentity.image, baseUrl).toString()
             : null,
         }
       : null,
-    completedQuests: completedChallenges.map((challenge) => {
-      const latestPassed = getLatestPassedAttempt(metadata, challenge.id);
-
-      return {
-        id: challenge.id,
-        title: challenge.title,
-        reward: challenge.reward,
-        badgeName: challenge.badgeIdentity.name,
-        completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
-        href: new URL(`/challenges/${challenge.id}`, baseUrl).toString(),
-        badgeImageUrl: challenge.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, baseUrl).toString() : null,
-      };
-    }),
+    completedQuests: completedQuestPayloads,
     latestReceipt: latestAttempt
       ? {
           id: latestAttempt.id ?? null,
@@ -112,6 +135,8 @@ export async function GET(request: Request) {
           headline: latestAttemptSummary.headline,
           detail: latestAttemptSummary.detail,
           meta: latestAttemptSummary.meta,
+          proofHref: latestProofPath ? new URL(latestProofPath, baseUrl).toString() : null,
+          proofImageUrl: latestProofPath ? new URL(`/api/og${latestProofPath}`, baseUrl).toString() : null,
         }
       : null,
   });
