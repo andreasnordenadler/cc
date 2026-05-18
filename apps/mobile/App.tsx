@@ -17,6 +17,9 @@ import {
   Text,
   TextInput,
   View,
+  type LayoutChangeEvent,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, updateMobileChessUsernames } from "./src/api/sqc";
@@ -145,6 +148,7 @@ const signedOutAuthBridge: MobileAuthBridge = {
 
 function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const insets = useSafeAreaInsets();
+  const [scrollState, setScrollState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
     account: null,
@@ -226,7 +230,25 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
   function selectTab(activeTab: AppTab) {
     setShell((current) => ({ ...current, activeTab }));
+    setScrollState((current) => ({ ...current, y: 0 }));
   }
+
+  function handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+    setScrollState({ y: contentOffset.y, viewportHeight: layoutMeasurement.height, contentHeight: contentSize.height });
+  }
+
+  function handleViewportLayout(event: LayoutChangeEvent) {
+    const viewportHeight = event.nativeEvent.layout.height;
+    setScrollState((current) => ({ ...current, viewportHeight }));
+  }
+
+  function handleContentSizeChange(_width: number, contentHeight: number) {
+    setScrollState((current) => ({ ...current, contentHeight }));
+  }
+
+  const canScrollUp = scrollState.y > 18;
+  const canScrollDown = scrollState.contentHeight > 0 && scrollState.viewportHeight > 0 && scrollState.y + scrollState.viewportHeight < scrollState.contentHeight - 18;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -235,6 +257,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: 118 + Math.max(insets.bottom, 16) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
+        scrollEventThrottle={32}
+        onScroll={handleScroll}
+        onLayout={handleViewportLayout}
+        onContentSizeChange={handleContentSizeChange}
       >
         {shell.loading ? (
           <View style={styles.loadingCard}>
@@ -257,10 +283,30 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           />
         ) : null}
       </ScrollView>
+      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
       <BottomNav activeTab={shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
+}
+
+function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScrollUp: boolean; canScrollDown: boolean; bottomInset: number }) {
+  if (!canScrollUp && !canScrollDown) return null;
+
+  return (
+    <View pointerEvents="none" style={styles.scrollHintLayer}>
+      {canScrollUp ? (
+        <View style={[styles.scrollHintPill, styles.scrollHintPillTop]}>
+          <MaterialCommunityIcons name="chevron-up" size={24} color={colors.gold} />
+        </View>
+      ) : null}
+      {canScrollDown ? (
+        <View style={[styles.scrollHintPill, styles.scrollHintPillBottom, { bottom: Math.max(bottomInset + 92, 96) }]}>
+          <MaterialCommunityIcons name="chevron-down" size={24} color={colors.gold} />
+        </View>
+      ) : null}
+    </View>
+  );
 }
 
 function HomeScreen({
@@ -1050,6 +1096,10 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.bg },
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
+  scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  scrollHintPill: { position: "absolute", alignSelf: "center", width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(12,11,15,.84)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
+  scrollHintPillTop: { top: 8 },
+  scrollHintPillBottom: {},
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
