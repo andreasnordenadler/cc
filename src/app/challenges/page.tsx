@@ -55,7 +55,7 @@ export default async function ChallengesPage() {
           <article className="mission-card side-quest-mode-card group-mode-card">
             <span className="eyebrow">Multiplayer Side Quests</span>
             <h2>Multiplayer. Same nonsense, now with witnesses.</h2>
-            <p>Create or join a Multiplayer Quest with shared rules, a proof window, a leaderboard, and multiplayer-valid proof separate from solo progress.</p>
+            <p>Create or join a Multiplayer Side Quest with shared rules, a proof window, a leaderboard, and multiplayer-valid proof separate from solo progress.</p>
             <Link href="/groupquests" className="button primary">Open Multiplayer Side Quests</Link>
           </article>
         </section>
