@@ -3679,3 +3679,25 @@ Keep `apps/mobile/android/` and `apps/mobile/dist-*` out of EAS archives unless 
 - Tags: eas, expo, android, gradle
 
 ---
+
+## [ERR-20260518-002] eas_android_free_plan_quota
+
+**Logged**: 2026-05-18T12:18:38.550957+00:00
+**Priority**: medium
+**Status**: pending
+**Area**: mobile | infra
+
+### Summary
+A second EAS Android internal build failed because the Expo account has used its monthly free Android build quota.
+
+### Details
+The first post-fix Android build succeeded and produced an installable auth-smoke APK. A follow-up build from the latest proof-receipt-sharing commit was blocked by EAS monthly quota reset timing.
+
+### Suggested Action
+Use the successful APK for auth smoke, then either wait for quota reset, upgrade EAS, or build locally after installing a Java runtime/Android build toolchain.
+
+### Metadata
+- Source: error
+- Tags: eas, quota, android, mobile-release
+
+---
