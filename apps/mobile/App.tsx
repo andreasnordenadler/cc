@@ -453,7 +453,6 @@ function BottomNav({ activeTab, bottomInset, onSelectTab }: { activeTab: AppTab;
           style={[styles.bottomNavItem, activeTab === tab.id && styles.bottomNavItemActive]}
           onPress={() => onSelectTab(tab.id)}
         >
-          {activeTab === tab.id ? <View style={styles.bottomNavActiveGlow} /> : null}
           <View style={[styles.bottomNavIconFrame, activeTab === tab.id && styles.bottomNavIconFrameActive]}>
             {tab.iconKind === "image" ? (
               <Image source={{ uri: absoluteAssetUrl(tab.imagePath) }} style={tab.id === "coatOfArms" ? styles.bottomNavCoatImage : styles.bottomNavLogoImage} resizeMode="contain" />
@@ -1263,7 +1262,6 @@ const styles = StyleSheet.create({
   bottomNavBar: { position: "absolute", left: 10, right: 10, bottom: 8, flexDirection: "row", gap: 6, padding: 8, borderRadius: 28, borderWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "rgba(12,11,15,.97)", shadowColor: "#000", shadowOpacity: 0.5, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 14 },
   bottomNavItem: { position: "relative", overflow: "hidden", flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "transparent" },
   bottomNavItemActive: { borderColor: "rgba(245,200,106,.82)", backgroundColor: "rgba(245,200,106,.2)", shadowColor: colors.gold, shadowOpacity: 0.34, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
-  bottomNavActiveGlow: { position: "absolute", top: -16, width: 54, height: 28, borderRadius: 28, backgroundColor: "rgba(245,200,106,.38)" },
   bottomNavActiveDot: { width: 18, height: 3, borderRadius: 999, backgroundColor: colors.gold, marginTop: 2 },
   bottomNavIconFrame: { width: 28, height: 26, alignItems: "center", justifyContent: "center", transform: [{ translateY: 0 }] },
   bottomNavIconFrameActive: { transform: [{ translateY: -1 }] },
