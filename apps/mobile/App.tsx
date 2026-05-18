@@ -254,7 +254,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <ScrollView
-        style={[styles.screen, { marginBottom: Math.max(insets.bottom + 92, 104) }]}
+        style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: 28 }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
         scrollEventThrottle={32}
@@ -283,14 +283,14 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           />
         ) : null}
       </ScrollView>
-      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
+      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} />
       <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
 }
 
-function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScrollUp: boolean; canScrollDown: boolean; bottomInset: number }) {
+function ScrollHintOverlay({ canScrollUp, canScrollDown }: { canScrollUp: boolean; canScrollDown: boolean }) {
   if (!canScrollUp && !canScrollDown) return null;
 
   return (
@@ -301,7 +301,7 @@ function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScr
         </View>
       ) : null}
       {canScrollDown ? (
-        <View style={[styles.scrollHintPill, styles.scrollHintPillBottom, { bottom: Math.max(bottomInset + 104, 112) }]}>
+        <View style={[styles.scrollHintPill, styles.scrollHintPillBottom]}>
           <MaterialCommunityIcons name="chevron-down" size={24} color={colors.gold} />
         </View>
       ) : null}
@@ -442,7 +442,7 @@ function WebsiteRitualCard({ compact = false }: { compact?: boolean }) {
 }
 function BottomNav({ activeTab, bottomInset, onSelectTab }: { activeTab: AppTab; bottomInset: number; onSelectTab: (tab: AppTab) => void }) {
   return (
-    <View style={[styles.bottomNavBar, { bottom: Math.max(bottomInset + 10, 14) }]}>
+    <View style={[styles.bottomNavBar, { paddingBottom: Math.max(bottomInset, 0) }]}>
       {TABS.map((tab) => (
         <Pressable
           key={tab.id}
@@ -1343,13 +1343,13 @@ const colors = {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.bg },
+  safeArea: { flex: 1, backgroundColor: "#171119" },
   screen: { flex: 1, backgroundColor: colors.bg },
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  scrollHintPill: { position: "absolute", alignSelf: "center", width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(12,11,15,.84)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
+  scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(12,11,15,.84)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
   scrollHintPillTop: { top: 8 },
-  scrollHintPillBottom: {},
+  scrollHintPillBottom: { top: 54 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
@@ -1526,7 +1526,7 @@ const styles = StyleSheet.create({
   firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,255,255,.12)", backgroundColor: "rgba(255,247,232,.07)" },
   firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
   firstRunSteps: { gap: 9 },
-  bottomNavBar: { position: "absolute", left: 10, right: 10, bottom: 8, flexDirection: "row", gap: 6, padding: 8, borderRadius: 28, borderWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "rgba(12,11,15,.97)", shadowColor: "#000", shadowOpacity: 0.5, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 14 },
+  bottomNavBar: { flexDirection: "row", gap: 6, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 8, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderTopWidth: 1, borderColor: "rgba(245,200,106,.26)", backgroundColor: "#171119" },
   bottomNavItem: { position: "relative", overflow: "hidden", flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "transparent" },
   bottomNavItemActive: { borderColor: "rgba(245,200,106,.82)", backgroundColor: "rgba(245,200,106,.2)", shadowColor: colors.gold, shadowOpacity: 0.34, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
   bottomNavActiveDot: { width: 18, height: 3, borderRadius: 999, backgroundColor: colors.gold, marginTop: 2 },
