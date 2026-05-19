@@ -262,7 +262,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
-        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 112, 132) }]}
+        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 178, 196) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
         scrollEventThrottle={32}
         onScroll={handleScroll}
@@ -300,7 +300,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScrollUp: boolean; canScrollDown: boolean; bottomInset: number }) {
   if (!canScrollUp && !canScrollDown) return null;
 
-  const bottomHintOffset = Math.max(112, bottomInset + 104);
+  const bottomHintOffset = Math.max(148, bottomInset + 140);
 
   return (
     <View pointerEvents="none" style={styles.scrollHintLayer}>
@@ -1155,6 +1155,7 @@ function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileC
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.liveCoatRosterItem} onPress={onPress}>
       <View style={[styles.liveCoatBadgeFrame, !earned && styles.liveCoatBadgeFrameLocked]}>
         {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.liveCoatBadgeImage, !earned && styles.liveCoatBadgeImageLocked]} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+        {!earned ? <Text style={styles.liveCoatLockedLabel}>Locked</Text> : null}
       </View>
       <Text style={styles.liveCoatRosterTitle} numberOfLines={2}>{challenge.title}</Text>
     </Pressable>
@@ -1436,7 +1437,7 @@ const styles = StyleSheet.create({
   multiplayerCalloutCard: { gap: 12, marginHorizontal: -14, paddingHorizontal: 20, paddingVertical: 16, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   homeStatusCard: { gap: 13, marginHorizontal: -14, paddingHorizontal: 20, paddingVertical: 16, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
   sideQuestHubHero: { overflow: "hidden", gap: 12, marginHorizontal: -14, paddingHorizontal: 20, paddingVertical: 20, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
-  sideQuestHubTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
+  sideQuestHubTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -0.5, lineHeight: 37 },
   sideQuestHubCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   sideQuestModeGrid: { gap: 12 },
   sideQuestModeCard: { gap: 11, marginHorizontal: -14, paddingHorizontal: 20, paddingVertical: 16, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
@@ -1492,13 +1493,14 @@ const styles = StyleSheet.create({
   challengeCardObjectiveMobile: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   challengeCardHintMobile: { color: colors.gold, fontSize: 13, lineHeight: 18, fontStyle: "italic", fontWeight: "800" },
   badgesHeroCard: { overflow: "hidden", gap: 18, marginHorizontal: -14, paddingHorizontal: 20, paddingVertical: 20, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
-  badgesHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37, textAlign: "center" },
+  badgesHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -0.5, lineHeight: 37, textAlign: "center" },
   liveCoatRoster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 10 },
   liveCoatRosterItem: { width: "30%", minWidth: 92, alignItems: "center", gap: 6, paddingVertical: 6 },
   liveCoatBadgeFrame: { width: 78, height: 82, alignItems: "center", justifyContent: "center" },
-  liveCoatBadgeFrameLocked: {},
+  liveCoatBadgeFrameLocked: { opacity: 0.5 },
   liveCoatBadgeImage: { width: 76, height: 76 },
-  liveCoatBadgeImageLocked: { opacity: 0.78 },
+  liveCoatBadgeImageLocked: { opacity: 0.34 },
+  liveCoatLockedLabel: { position: "absolute", bottom: 2, overflow: "hidden", color: colors.paper, fontSize: 8, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.6, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 999, backgroundColor: "rgba(0,0,0,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   liveCoatRosterTitle: { color: colors.paper, fontSize: 11, fontWeight: "900", lineHeight: 13, textAlign: "center" },
   badgeMeaningList: { gap: 12 },
   badgeMeaningCard: { flexDirection: "row", gap: 14, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
