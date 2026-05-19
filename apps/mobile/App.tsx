@@ -256,6 +256,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <GradientBackdrop />
+      <View pointerEvents="none" style={styles.appWatermarkFrame}>
+        <Image source={{ uri: absoluteAssetUrl("/sqc-logo-v11.png") }} style={styles.appWatermarkImage} resizeMode="contain" />
+      </View>
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
@@ -1402,6 +1405,8 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: "transparent" },
   appGradientFrame: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   appGradientLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  appWatermarkFrame: { position: "absolute", left: -118, top: 104, width: 620, height: 620, opacity: 0.055 },
+  appWatermarkImage: { width: "100%", height: "100%" },
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(23,17,25,.92)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
