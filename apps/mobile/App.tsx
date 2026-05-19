@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as AuthSession from "expo-auth-session";
@@ -148,6 +148,7 @@ const signedOutAuthBridge: MobileAuthBridge = {
 
 function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
   const [scrollState, setScrollState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
@@ -229,8 +230,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }
 
   function selectTab(activeTab: AppTab) {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
     setShell((current) => ({ ...current, activeTab }));
     setScrollState((current) => ({ ...current, y: 0 }));
+    requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
 
   function handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
@@ -254,6 +257,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
       <ScrollView
+        ref={scrollViewRef}
         style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: 28 }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
