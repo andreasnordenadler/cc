@@ -882,7 +882,7 @@ function SelectedQuestDetailCard({
         <Text style={styles.proofActionBody}>{actionBody}</Text>
         <View style={styles.buttonRow}>
           {completed && (activeQuest?.proofHref || latestReceipt?.proofHref) ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="View victory proof" style={styles.primaryButton} onPress={() => onSelectTab("account")}>
+            <Pressable accessibilityRole="button" accessibilityLabel="View victory proof" style={styles.primaryButton} onPress={() => void openExternalAppUrl(activeQuest?.proofHref ?? latestReceipt?.proofHref ?? "/account")}>
               <Text style={styles.primaryButtonText}>View victory proof</Text>
             </Pressable>
           ) : null}
@@ -1024,6 +1024,11 @@ function AccountShell({
     }
 
     if (signedInAccount.activeQuest.id) {
+      if (signedInAccount.activeQuest.completed && signedInAccount.activeQuest.proofHref) {
+        void openExternalAppUrl(signedInAccount.activeQuest.proofHref);
+        return;
+      }
+
       onSelectChallenge(signedInAccount.activeQuest.id, "sideQuests");
       return;
     }
@@ -1387,6 +1392,11 @@ function absoluteAssetUrl(url: string) {
 
 function showNativeOnlyNotice(message: string) {
   Alert.alert("Staying in the app", message);
+}
+
+async function openExternalAppUrl(url: string) {
+  const absoluteUrl = url.startsWith("http") ? url : `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
+  await WebBrowser.openBrowserAsync(absoluteUrl);
 }
 
 const colors = {
