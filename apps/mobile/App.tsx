@@ -66,18 +66,18 @@ const APP_BACKGROUND_GRADIENT_URI = svgDataUri(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844">
     <defs>
       <radialGradient id="gold" cx="20%" cy="0%" r="48%">
-        <stop offset="0%" stop-color="#f5c86a" stop-opacity="0.28"/>
-        <stop offset="55%" stop-color="#f5c86a" stop-opacity="0.08"/>
+        <stop offset="0%" stop-color="#f5c86a" stop-opacity="0.36"/>
+        <stop offset="55%" stop-color="#f5c86a" stop-opacity="0.18"/>
         <stop offset="100%" stop-color="#f5c86a" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="pink" cx="84%" cy="18%" r="48%">
-        <stop offset="0%" stop-color="#ff5f9f" stop-opacity="0.24"/>
-        <stop offset="62%" stop-color="#ff5f9f" stop-opacity="0.07"/>
+        <stop offset="0%" stop-color="#ff5f9f" stop-opacity="0.32"/>
+        <stop offset="62%" stop-color="#ff5f9f" stop-opacity="0.10"/>
         <stop offset="100%" stop-color="#ff5f9f" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="blue" cx="50%" cy="75%" r="52%">
-        <stop offset="0%" stop-color="#76a9ff" stop-opacity="0.14"/>
-        <stop offset="65%" stop-color="#76a9ff" stop-opacity="0.045"/>
+        <stop offset="0%" stop-color="#76a9ff" stop-opacity="0.20"/>
+        <stop offset="65%" stop-color="#76a9ff" stop-opacity="0.07"/>
         <stop offset="100%" stop-color="#76a9ff" stop-opacity="0"/>
       </radialGradient>
       <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
@@ -95,17 +95,17 @@ const CARD_GRADIENT_URI = svgDataUri(`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 260">
     <defs>
       <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#f5c86a" stop-opacity="0.22"/>
-        <stop offset="50%" stop-color="#fff7e8" stop-opacity="0.075"/>
+        <stop offset="0%" stop-color="#f5c86a" stop-opacity="0.30"/>
+        <stop offset="50%" stop-color="#fff7e8" stop-opacity="0.10"/>
         <stop offset="100%" stop-color="#171119" stop-opacity="0.88"/>
       </linearGradient>
       <radialGradient id="pink" cx="82%" cy="8%" r="45%">
-        <stop offset="0%" stop-color="#ff5f9f" stop-opacity="0.34"/>
-        <stop offset="70%" stop-color="#ff5f9f" stop-opacity="0.06"/>
+        <stop offset="0%" stop-color="#ff5f9f" stop-opacity="0.42"/>
+        <stop offset="70%" stop-color="#ff5f9f" stop-opacity="0.10"/>
         <stop offset="100%" stop-color="#ff5f9f" stop-opacity="0"/>
       </radialGradient>
       <radialGradient id="blue" cx="35%" cy="95%" r="55%">
-        <stop offset="0%" stop-color="#76a9ff" stop-opacity="0.12"/>
+        <stop offset="0%" stop-color="#76a9ff" stop-opacity="0.18"/>
         <stop offset="100%" stop-color="#76a9ff" stop-opacity="0"/>
       </radialGradient>
     </defs>
@@ -1465,7 +1465,7 @@ const styles = StyleSheet.create({
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
   cardGradientFrame: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, opacity: 1 },
   cardGradientImage: { width: "100%", height: "100%" },
-  homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
+  homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   homeHeroActions: { gap: 10 },
@@ -1482,22 +1482,22 @@ const styles = StyleSheet.create({
   heroismCustomPath: { color: colors.gold, fontSize: 14, fontWeight: "900", textDecorationLine: "underline" },
   multiplayerCalloutCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   homeStatusCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
-  sideQuestHubHero: { overflow: "hidden", gap: 12, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
+  sideQuestHubHero: { overflow: "hidden", gap: 12, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   sideQuestHubTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
   sideQuestHubCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   sideQuestModeGrid: { gap: 12 },
-  sideQuestModeCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  sideQuestModeCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupModeCard: { borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   groupquestsHero: { gap: 12, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
   groupquestsHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
   groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
-  groupquestsStoryCard: { gap: 16, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  groupquestsStoryCard: { gap: 16, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupquestsStoryCopy: { gap: 10 },
   groupquestsProcessGraphic: { alignItems: "center", justifyContent: "center", borderRadius: 24, backgroundColor: "rgba(0,0,0,.16)", overflow: "hidden" },
   groupquestsKnightArt: { width: "100%", height: 230 },
   groupquestsLoggedOutActions: { gap: 12 },
-  groupquestsActionCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
-  groupquestsHowCard: { gap: 14, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  groupquestsActionCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
+  groupquestsHowCard: { gap: 14, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupquestsHowGrid: { gap: 10 },
   groupquestsHowStep: { gap: 5, padding: 13, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.18)" },
   groupquestsHowNumber: { color: colors.gold, fontSize: 22, fontWeight: "900" },
@@ -1506,7 +1506,7 @@ const styles = StyleSheet.create({
   groupquestsRulesCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   sideQuestModeTitle: { color: colors.paper, fontSize: 23, fontWeight: "900", letterSpacing: -0.9, lineHeight: 26 },
   sideQuestModeCopy: { color: colors.muted, fontSize: 14, lineHeight: 20 },
-  questFilterPanel: { gap: 14, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  questFilterPanel: { gap: 14, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   questFilterTitle: { color: colors.paper, fontSize: 24, fontWeight: "900", letterSpacing: -0.9 },
   questFilterGrid: { gap: 10 },
   filterField: { gap: 5 },
@@ -1515,9 +1515,9 @@ const styles = StyleSheet.create({
   filterResetButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", opacity: 0.62 },
   filterResetText: { color: colors.muted, fontWeight: "900" },
   availableQuestGrid: { gap: 12 },
-  sideQuestSection: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  sideQuestSection: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   sectionHeadMobile: { gap: 6 },
-  challengeCardMobile: { gap: 13, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  challengeCardMobile: { gap: 13, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   challengeCardMobileFeatured: { borderColor: "rgba(245,200,106,.42)", backgroundColor: "rgba(245,200,106,.1)" },
   challengeCardMobileActive: { borderColor: "rgba(96,240,175,.5)", backgroundColor: "rgba(96,240,175,.1)" },
   challengeCardMobileCompleted: { borderColor: "rgba(245,200,106,.35)" },
@@ -1538,7 +1538,7 @@ const styles = StyleSheet.create({
   challengeCardTitleMobile: { color: colors.paper, fontSize: 22, lineHeight: 24, fontWeight: "900", letterSpacing: -0.8 },
   challengeCardObjectiveMobile: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   challengeCardHintMobile: { color: colors.gold, fontSize: 13, lineHeight: 18, fontStyle: "italic", fontWeight: "800" },
-  badgesHeroCard: { overflow: "hidden", gap: 18, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
+  badgesHeroCard: { overflow: "hidden", gap: 18, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   badgesHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37, textAlign: "center" },
   liveCoatRoster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 10 },
   liveCoatRosterItem: { width: "30%", minWidth: 92, alignItems: "center", gap: 6, paddingVertical: 6 },
@@ -1548,7 +1548,7 @@ const styles = StyleSheet.create({
   liveCoatBadgeImageLocked: { opacity: 0.78 },
   liveCoatRosterTitle: { color: colors.paper, fontSize: 11, fontWeight: "900", lineHeight: 13, textAlign: "center" },
   badgeMeaningList: { gap: 12 },
-  badgeMeaningCard: { flexDirection: "row", gap: 14, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  badgeMeaningCard: { flexDirection: "row", gap: 14, padding: 15, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   badgeMeaningArtLink: { width: 92, alignItems: "center", justifyContent: "center" },
   badgeMeaningArtLocked: {},
   badgeMeaningImage: { width: 88, height: 98 },
@@ -1685,13 +1685,13 @@ const styles = StyleSheet.create({
   rulesTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   rule: { color: colors.muted, fontSize: 14, lineHeight: 21 },
   authCard: { gap: 9, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
-  accountAuthCopyCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
+  accountAuthCopyCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   accountAuthTitle: { color: colors.paper, fontSize: 31, fontWeight: "900", letterSpacing: -1.35, lineHeight: 35 },
   accountAuthHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   authLightweightCopy: { gap: 10, padding: 14, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(255,247,232,.055)" },
   authNote: { color: colors.muted, fontSize: 13, lineHeight: 19 },
   authNoteStrong: { color: colors.paper, fontWeight: "900" },
-  accountAuthFormCard: { gap: 12, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.075)" },
+  accountAuthFormCard: { gap: 12, padding: 18, borderRadius: 28, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   currentMissionCard: { gap: 16, padding: 18, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
   currentMissionCopy: { gap: 12 },
   currentMissionName: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.5, lineHeight: 37 },
@@ -1790,7 +1790,7 @@ const styles = StyleSheet.create({
   flowCopy: { flex: 1, gap: 3 },
   flowTitle: { color: colors.paper, fontWeight: "900", fontSize: 15 },
   flowBody: { color: colors.muted, lineHeight: 19 },
-  confidenceCard: { flexDirection: "row", gap: 12, alignItems: "center", padding: 14, borderRadius: 20, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  confidenceCard: { flexDirection: "row", gap: 12, alignItems: "center", padding: 14, borderRadius: 20, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
   confidenceIcon: { width: 40, height: 40, textAlign: "center", textAlignVertical: "center", borderRadius: 20, overflow: "hidden", fontSize: 22, backgroundColor: "rgba(0,0,0,.22)" },
   confidenceCopy: { flex: 1, gap: 3 },
   confidenceTitle: { color: colors.paper, fontSize: 16, fontWeight: "900" },
