@@ -255,10 +255,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
+      <View pointerEvents="none" style={styles.appWatermarkFrame}>
+        <Image source={{ uri: absoluteAssetUrl("/sqc-logo-v11.png") }} style={styles.appWatermark} resizeMode="contain" />
+      </View>
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
-        contentContainerStyle={[styles.content, { paddingBottom: 28 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 104, 118) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
         scrollEventThrottle={32}
         onScroll={handleScroll}
@@ -273,17 +276,20 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
 
         {shell.bootstrap && selectedChallenge ? (
-          <ActiveScreen
-            activeTab={shell.activeTab}
-            bootstrap={shell.bootstrap}
-            catalogMode={shell.catalogMode}
-            selectedChallenge={selectedChallenge}
-            account={shell.account}
-            authBridge={authBridge}
-            onSelectChallenge={selectChallenge}
-            onSelectTab={selectTab}
-            onAccountUpdated={() => void loadAccount()}
-          />
+            <>
+              <TopWebNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} onSelectTab={selectTab} />
+              <ActiveScreen
+                activeTab={shell.activeTab}
+                bootstrap={shell.bootstrap}
+                catalogMode={shell.catalogMode}
+                selectedChallenge={selectedChallenge}
+                account={shell.account}
+                authBridge={authBridge}
+                onSelectChallenge={selectChallenge}
+                onSelectTab={selectTab}
+                onAccountUpdated={() => void loadAccount()}
+              />
+          </>
         ) : null}
       </ScrollView>
       <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} topInset={insets.top} />
@@ -291,6 +297,29 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     </SafeAreaView>
   );
 
+}
+
+function TopWebNav({ activeTab, onSelectTab }: { activeTab: AppTab; onSelectTab: (tab: AppTab) => void }) {
+  return (
+    <View style={styles.webTopNav}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.webTopNavInner}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Side Quest Chess" style={styles.webBrandPill} onPress={() => onSelectTab("home")}>
+          <Image source={{ uri: absoluteAssetUrl("/brand/sqc-alt-logo-topbar-20260507-v2.png") }} style={styles.webBrandLogo} resizeMode="contain" />
+        </Pressable>
+        {TABS.map((tab) => (
+          <Pressable
+            key={tab.id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === tab.id }}
+            style={[styles.webNavPill, activeTab === tab.id && styles.webNavPillActive]}
+            onPress={() => onSelectTab(tab.id)}
+          >
+            <Text style={[styles.webNavPillText, activeTab === tab.id && styles.webNavPillTextActive]} numberOfLines={1}>{tab.label}</Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+    </View>
+  );
 }
 
 function ScrollHintOverlay({ canScrollUp, canScrollDown, topInset }: { canScrollUp: boolean; canScrollDown: boolean; topInset: number }) {
@@ -356,6 +385,8 @@ function HomeScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
+        <View pointerEvents="none" style={styles.homeHeroGoldGlow} />
+        <View pointerEvents="none" style={styles.homeHeroPinkGlow} />
         <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
@@ -1375,7 +1406,9 @@ const colors = {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#171119" },
   screen: { flex: 1, backgroundColor: colors.bg },
-  content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
+  appWatermarkFrame: { position: "absolute", left: -90, top: 88, width: 520, height: 520, opacity: 0.035, zIndex: 0 },
+  appWatermark: { width: "100%", height: "100%" },
+  content: { gap: 22, padding: 16, paddingTop: 16, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(23,17,25,.92)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
   screenStack: { gap: 14 },
@@ -1390,11 +1423,21 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
-  homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
-  homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
-  homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
-  homeHeroActions: { gap: 10 },
-  buttonEmphasis: { fontWeight: "900" },
+  webTopNav: { borderWidth: 1, borderColor: colors.stroke, borderRadius: 26, backgroundColor: "rgba(6,5,7,.76)", shadowColor: "#000", shadowOpacity: 0.22, shadowRadius: 22, shadowOffset: { width: 0, height: 12 }, elevation: 8 },
+  webTopNavInner: { alignItems: "center", gap: 8, paddingHorizontal: 14, paddingVertical: 12 },
+  webBrandPill: { position: "relative", alignItems: "center", justifyContent: "center", width: 82, height: 44, marginRight: 8, borderRadius: 999, backgroundColor: "transparent", shadowColor: "#fff", shadowOpacity: 0.26, shadowRadius: 18 },
+  webBrandLogo: { width: 76, height: 42 },
+  webNavPill: { alignItems: "center", justifyContent: "center", paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "transparent", backgroundColor: "rgba(255,255,255,.06)" },
+  webNavPillActive: { borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.14)" },
+  webNavPillText: { color: colors.muted, fontSize: 13, fontWeight: "900" },
+  webNavPillTextActive: { color: colors.gold },
+  homeHeroCard: { overflow: "hidden", gap: 18, padding: 24, borderRadius: 30, borderWidth: 1, borderColor: "rgba(255,255,255,.14)", backgroundColor: "rgba(255,255,255,.075)", shadowColor: "#000", shadowOpacity: 0.25, shadowRadius: 34, shadowOffset: { width: 0, height: 18 }, elevation: 6 },
+  homeHeroGoldGlow: { position: "absolute", right: -72, top: -52, width: 210, height: 210, borderRadius: 105, backgroundColor: "rgba(245,200,106,.16)" },
+  homeHeroPinkGlow: { position: "absolute", left: -88, bottom: -96, width: 220, height: 220, borderRadius: 110, backgroundColor: "rgba(255,95,159,.13)" },
+  homeHeroTitle: { color: colors.paper, fontSize: 47, fontWeight: "900", letterSpacing: -3.2, lineHeight: 42 },
+  homeHeroBody: { color: colors.muted, fontSize: 18, lineHeight: 27 },
+  homeHeroActions: { gap: 10, marginTop: 6 },
+  buttonEmphasis: { color: colors.red, fontWeight: "900" },
   whereBeginCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(245,200,106,.14)" },
   heroismChoiceList: { gap: 10 },
   heroismChoiceCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.18)" },
@@ -1517,8 +1560,8 @@ const styles = StyleSheet.create({
   offlineCopy: { color: colors.muted, lineHeight: 20 },
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
   primaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, backgroundColor: colors.gold },
-  primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
-  primaryButtonText: { color: "#17120c", fontWeight: "900" },
+  primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 18, paddingVertical: 15, borderRadius: 999, backgroundColor: colors.gold },
+  primaryButtonText: { color: "#17120c", fontSize: 15, fontWeight: "900" },
   secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
