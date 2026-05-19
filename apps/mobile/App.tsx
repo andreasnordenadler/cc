@@ -565,6 +565,8 @@ function SideQuestsScreen({
         <Text style={styles.sideQuestHubCopy}>Side Quests is the hub: pick a Solo Side Quest for yourself, or start a Multiplayer Side Quest when the bad idea deserves witnesses.</Text>
       </View>
 
+      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
+
       <View style={styles.sideQuestModeGrid} accessibilityLabel="Side Quest modes">
         <View style={styles.sideQuestModeCard}>
           <Text style={styles.eyebrow}>Solo Side Quests</Text>
@@ -584,8 +586,6 @@ function SideQuestsScreen({
           </Pressable>
         </View>
       </View>
-
-      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
 
       <QuestFilterPanel />
       <AvailableQuestGrid challenges={bootstrap.challenges} completedIds={completedIds} activeQuestId={activeQuestId} onSelectChallenge={onSelectChallenge} />
@@ -1083,9 +1083,6 @@ function AccountShell({
                 <Text style={styles.secondaryButtonText}>Open quest details</Text>
               </Pressable>
             ) : null}
-            <Pressable accessibilityRole="button" accessibilityLabel="Edit profile" style={styles.secondaryButton} onPress={() => showNativeOnlyNotice("Profile editing will stay native; chess usernames can already be edited below.")}>
-              <Text style={styles.secondaryButtonText}>Edit profile</Text>
-            </Pressable>
           </View>
           <View style={styles.currentMissionMultiplayer} accessibilityLabel="Active Multiplayer Side Quests">
             <Text style={styles.eyebrow}>Active Multiplayer Side Quests</Text>
@@ -1131,6 +1128,9 @@ function AccountShell({
       </View>
 
       <ChessUsernameEditor account={signedInAccount} authBridge={authBridge} onSaved={onAccountUpdated} />
+      <Pressable accessibilityRole="button" accessibilityLabel="Edit profile" style={styles.secondaryButtonWide} onPress={() => showNativeOnlyNotice("Profile editing will stay native; chess usernames can already be edited here.")}>
+        <Text style={styles.secondaryButtonText}>Edit profile</Text>
+      </Pressable>
       <QuestProgressStrip completed={signedInAccount.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountNextActionsCard account={signedInAccount} />
       <MobileAccountStatesCard authBridge={authBridge} account={account} />
