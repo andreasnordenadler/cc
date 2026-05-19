@@ -1582,7 +1582,7 @@ const styles = StyleSheet.create({
   firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(245,200,106,.14)" },
   firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
   firstRunSteps: { gap: 9 },
-  bottomNavBar: { flexDirection: "row", gap: 6, paddingHorizontal: 10, paddingTop: 8, paddingBottom: 8, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderTopWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.12)" },
+  bottomNavBar: { flexDirection: "row", gap: 6, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, borderTopWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.12)" },
   bottomNavItem: { position: "relative", overflow: "hidden", flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.06)", backgroundColor: "rgba(255,247,232,.045)" },
   bottomNavItemActive: { borderColor: "rgba(245,200,106,.86)", backgroundColor: "rgba(245,200,106,.26)", shadowColor: colors.gold, shadowOpacity: 0.28, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
   bottomNavActiveDot: { width: 18, height: 3, borderRadius: 999, backgroundColor: colors.gold, marginTop: 2 },
