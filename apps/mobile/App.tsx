@@ -283,25 +283,27 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           />
         ) : null}
       </ScrollView>
-      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} />
+      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} topInset={insets.top} />
       <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
 }
 
-function ScrollHintOverlay({ canScrollUp, canScrollDown }: { canScrollUp: boolean; canScrollDown: boolean }) {
+function ScrollHintOverlay({ canScrollUp, canScrollDown, topInset }: { canScrollUp: boolean; canScrollDown: boolean; topInset: number }) {
   if (!canScrollUp && !canScrollDown) return null;
+
+  const topHintOffset = Math.max(52, topInset + 14);
 
   return (
     <View pointerEvents="none" style={styles.scrollHintLayer}>
       {canScrollUp ? (
-        <View style={[styles.scrollHintPill, styles.scrollHintPillTop]}>
+        <View style={[styles.scrollHintPill, { top: topHintOffset }]}>
           <MaterialCommunityIcons name="chevron-up" size={24} color={colors.gold} />
         </View>
       ) : null}
       {canScrollDown ? (
-        <View style={[styles.scrollHintPill, styles.scrollHintPillBottom]}>
+        <View style={[styles.scrollHintPill, { top: topHintOffset + 46 }]}>
           <MaterialCommunityIcons name="chevron-down" size={24} color={colors.gold} />
         </View>
       ) : null}
@@ -1348,8 +1350,6 @@ const styles = StyleSheet.create({
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(12,11,15,.84)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
-  scrollHintPillTop: { top: 8 },
-  scrollHintPillBottom: { top: 54 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
