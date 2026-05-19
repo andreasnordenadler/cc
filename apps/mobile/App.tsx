@@ -290,30 +290,24 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           />
         ) : null}
       </ScrollView>
-      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} topInset={insets.top} />
+      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
       <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
 }
 
-function ScrollHintOverlay({ canScrollUp, canScrollDown, topInset }: { canScrollUp: boolean; canScrollDown: boolean; topInset: number }) {
+function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScrollUp: boolean; canScrollDown: boolean; bottomInset: number }) {
   if (!canScrollUp && !canScrollDown) return null;
 
-  const topHintOffset = Math.max(52, topInset + 14);
+  const bottomHintOffset = Math.max(112, bottomInset + 104);
 
   return (
     <View pointerEvents="none" style={styles.scrollHintLayer}>
-      {canScrollUp ? (
-        <View style={[styles.scrollHintPill, { top: topHintOffset }]}>
-          <MaterialCommunityIcons name="chevron-up" size={24} color={colors.gold} />
-        </View>
-      ) : null}
-      {canScrollDown ? (
-        <View style={[styles.scrollHintPill, { top: topHintOffset + 46 }]}>
-          <MaterialCommunityIcons name="chevron-down" size={24} color={colors.gold} />
-        </View>
-      ) : null}
+      <View style={[styles.scrollHintPill, { bottom: bottomHintOffset }]}>
+        {canScrollUp ? <MaterialCommunityIcons name="chevron-up" size={18} color="rgba(255,247,232,.72)" /> : null}
+        {canScrollDown ? <MaterialCommunityIcons name="chevron-down" size={18} color="rgba(255,247,232,.72)" /> : null}
+      </View>
     </View>
   );
 }
@@ -1409,7 +1403,7 @@ const styles = StyleSheet.create({
   appWatermarkImage: { width: "100%", height: "100%" },
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(23,17,25,.92)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
+  scrollHintPill: { position: "absolute", right: 14, minWidth: 32, minHeight: 32, alignItems: "center", justifyContent: "center", paddingHorizontal: 7, paddingVertical: 5, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.075)", opacity: 0.72 },
   screenStack: { gap: 14 },
   heroCard: {
     overflow: "hidden",
