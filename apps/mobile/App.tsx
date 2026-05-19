@@ -58,6 +58,62 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
+function svgDataUri(svg: string) {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+const APP_BACKGROUND_GRADIENT_URI = svgDataUri(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 844">
+    <defs>
+      <radialGradient id="gold" cx="20%" cy="0%" r="48%">
+        <stop offset="0%" stop-color="#f5c86a" stop-opacity="0.28"/>
+        <stop offset="55%" stop-color="#f5c86a" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#f5c86a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="pink" cx="84%" cy="18%" r="48%">
+        <stop offset="0%" stop-color="#ff5f9f" stop-opacity="0.24"/>
+        <stop offset="62%" stop-color="#ff5f9f" stop-opacity="0.07"/>
+        <stop offset="100%" stop-color="#ff5f9f" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="blue" cx="50%" cy="75%" r="52%">
+        <stop offset="0%" stop-color="#76a9ff" stop-opacity="0.14"/>
+        <stop offset="65%" stop-color="#76a9ff" stop-opacity="0.045"/>
+        <stop offset="100%" stop-color="#76a9ff" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#101018"/>
+        <stop offset="100%" stop-color="#060507"/>
+      </linearGradient>
+    </defs>
+    <rect width="390" height="844" fill="url(#base)"/>
+    <rect width="390" height="844" fill="url(#gold)"/>
+    <rect width="390" height="844" fill="url(#pink)"/>
+    <rect width="390" height="844" fill="url(#blue)"/>
+  </svg>`);
+
+const CARD_GRADIENT_URI = svgDataUri(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 260">
+    <defs>
+      <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#f5c86a" stop-opacity="0.22"/>
+        <stop offset="50%" stop-color="#fff7e8" stop-opacity="0.075"/>
+        <stop offset="100%" stop-color="#171119" stop-opacity="0.88"/>
+      </linearGradient>
+      <radialGradient id="pink" cx="82%" cy="8%" r="45%">
+        <stop offset="0%" stop-color="#ff5f9f" stop-opacity="0.34"/>
+        <stop offset="70%" stop-color="#ff5f9f" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="#ff5f9f" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="blue" cx="35%" cy="95%" r="55%">
+        <stop offset="0%" stop-color="#76a9ff" stop-opacity="0.12"/>
+        <stop offset="100%" stop-color="#76a9ff" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="390" height="260" fill="url(#panel)"/>
+    <rect width="390" height="260" fill="url(#pink)"/>
+    <rect width="390" height="260" fill="url(#blue)"/>
+  </svg>`);
+
 
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
   "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
@@ -255,9 +311,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
-      <View pointerEvents="none" style={styles.appBgGlowGold} />
-      <View pointerEvents="none" style={styles.appBgGlowPink} />
-      <View pointerEvents="none" style={styles.appBgGlowBlue} />
+      <View pointerEvents="none" style={styles.appGradientFrame}>
+        <Image source={{ uri: APP_BACKGROUND_GRADIENT_URI }} style={styles.appGradientImage} resizeMode="cover" />
+      </View>
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
@@ -421,11 +477,9 @@ function HomeScreen({
 
 function WebsiteGradientGlows() {
   return (
-    <>
-      <View pointerEvents="none" style={styles.cardGlowGold} />
-      <View pointerEvents="none" style={styles.cardGlowPink} />
-      <View pointerEvents="none" style={styles.cardGlowBlue} />
-    </>
+    <View pointerEvents="none" style={styles.cardGradientFrame}>
+      <Image source={{ uri: CARD_GRADIENT_URI }} style={styles.cardGradientImage} resizeMode="cover" />
+    </View>
   );
 }
 
@@ -1392,9 +1446,8 @@ const colors = {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#171119" },
   screen: { flex: 1, backgroundColor: "transparent" },
-  appBgGlowGold: { position: "absolute", left: -96, top: -70, width: 260, height: 260, borderRadius: 130, backgroundColor: "rgba(245,200,106,.18)" },
-  appBgGlowPink: { position: "absolute", right: -120, top: 126, width: 280, height: 280, borderRadius: 140, backgroundColor: "rgba(255,95,159,.14)" },
-  appBgGlowBlue: { position: "absolute", left: 56, bottom: 92, width: 300, height: 300, borderRadius: 150, backgroundColor: "rgba(118,169,255,.08)" },
+  appGradientFrame: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
+  appGradientImage: { width: "100%", height: "100%" },
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(23,17,25,.92)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
@@ -1410,9 +1463,8 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
-  cardGlowGold: { position: "absolute", right: -70, top: -72, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(245,200,106,.22)" },
-  cardGlowPink: { position: "absolute", left: -88, bottom: -96, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(255,95,159,.16)" },
-  cardGlowBlue: { position: "absolute", right: 34, bottom: -118, width: 210, height: 210, borderRadius: 105, backgroundColor: "rgba(118,169,255,.08)" },
+  cardGradientFrame: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, opacity: 1 },
+  cardGradientImage: { width: "100%", height: "100%" },
   homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
