@@ -291,7 +291,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
       </ScrollView>
       <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
-      <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} bottomInset={insets.bottom} onSelectTab={selectTab} />
+      <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} account={shell.account} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
@@ -465,7 +465,9 @@ function WebsiteRitualCard({ compact = false }: { compact?: boolean }) {
     </View>
   );
 }
-function BottomNav({ activeTab, bottomInset, onSelectTab }: { activeTab: AppTab; bottomInset: number; onSelectTab: (tab: AppTab) => void }) {
+function BottomNav({ activeTab, account, bottomInset, onSelectTab }: { activeTab: AppTab; account: MobileAccountResponse | null; bottomInset: number; onSelectTab: (tab: AppTab) => void }) {
+  const authenticated = isAuthenticatedAccount(account);
+
   return (
     <View style={[styles.bottomNavBar, { paddingBottom: Math.max(bottomInset, 0) }]}>
       {TABS.map((tab) => (
@@ -481,6 +483,10 @@ function BottomNav({ activeTab, bottomInset, onSelectTab }: { activeTab: AppTab;
           <View style={[styles.bottomNavIconFrame, activeTab === tab.id && styles.bottomNavIconFrameActive]}>
             {tab.iconKind === "image" ? (
               <Image source={{ uri: absoluteAssetUrl(tab.imagePath) }} style={tab.id === "coatOfArms" ? styles.bottomNavCoatImage : tab.id === "sideQuests" ? styles.bottomNavSideQuestImage : styles.bottomNavLogoImage} resizeMode="contain" />
+            ) : tab.id === "account" && authenticated ? (
+              <View style={[styles.bottomNavLoggedInBadge, activeTab === tab.id && styles.bottomNavLoggedInBadgeActive]}>
+                <MaterialCommunityIcons name="shield-check" size={21} color={activeTab === tab.id ? "#17120c" : colors.green} />
+              </View>
             ) : (
               <MaterialCommunityIcons name={tab.iconName} size={24} color={activeTab === tab.id ? colors.gold : colors.muted} />
             )}
@@ -1593,6 +1599,8 @@ const styles = StyleSheet.create({
   bottomNavLogoImage: { width: 34, height: 34, borderRadius: 9 },
   bottomNavSideQuestImage: { width: 31, height: 31 },
   bottomNavCoatImage: { width: 28, height: 28 },
+  bottomNavLoggedInBadge: { width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 14, borderWidth: 1, borderColor: "rgba(96,240,175,.45)", backgroundColor: "rgba(96,240,175,.1)" },
+  bottomNavLoggedInBadgeActive: { borderColor: "rgba(245,200,106,.86)", backgroundColor: colors.gold },
   bottomNavText: { color: "#e8dcc3", fontSize: 10, fontWeight: "900" },
   bottomNavTextActive: { color: colors.paper },
   tabRail: { gap: 8, paddingRight: 18 },
