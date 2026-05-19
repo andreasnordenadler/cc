@@ -255,6 +255,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <StatusBar barStyle="light-content" backgroundColor={colors.bg} translucent={false} />
+      <View pointerEvents="none" style={styles.appBgGlowGold} />
+      <View pointerEvents="none" style={styles.appBgGlowPink} />
+      <View pointerEvents="none" style={styles.appBgGlowBlue} />
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
@@ -356,6 +359,7 @@ function HomeScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
+        <WebsiteGradientGlows />
         <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
@@ -412,6 +416,16 @@ function HomeScreen({
         </View>
       ) : null}
     </View>
+  );
+}
+
+function WebsiteGradientGlows() {
+  return (
+    <>
+      <View pointerEvents="none" style={styles.cardGlowGold} />
+      <View pointerEvents="none" style={styles.cardGlowPink} />
+      <View pointerEvents="none" style={styles.cardGlowBlue} />
+    </>
   );
 }
 
@@ -535,6 +549,7 @@ function SideQuestsScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.sideQuestHubHero}>
+        <WebsiteGradientGlows />
         <Text style={styles.sideQuestHubTitle}>Pick your next bad idea.</Text>
         <Text style={styles.sideQuestHubCopy}>Side Quests is the hub: pick a Solo Side Quest for yourself, or start a Multiplayer Side Quest when the bad idea deserves witnesses.</Text>
       </View>
@@ -955,6 +970,7 @@ function AccountShell({
     return (
       <View style={styles.screenStack}>
         <View style={styles.accountAuthCopyCard}>
+          <WebsiteGradientGlows />
           <Text style={styles.accountAuthTitle}>Sign in, then go make terrible chess decisions.</Text>
           <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active side quest, badges, and proof cards.</Text>
           <View style={styles.authLightweightCopy} accessibilityLabel="Lightweight sign-in notes">
@@ -1097,6 +1113,7 @@ function CoatOfArmsScreen({
   return (
     <View style={styles.screenStack}>
       <View style={styles.badgesHeroCard}>
+        <WebsiteGradientGlows />
         <Text style={styles.badgesHeroTitle}>Every bad idea deserves a coat of arms.</Text>
         {isAuthenticatedAccount(account) ? (
           <View style={styles.coatShelfCard}>
@@ -1374,7 +1391,10 @@ const colors = {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#171119" },
-  screen: { flex: 1, backgroundColor: colors.bg },
+  screen: { flex: 1, backgroundColor: "transparent" },
+  appBgGlowGold: { position: "absolute", left: -96, top: -70, width: 260, height: 260, borderRadius: 130, backgroundColor: "rgba(245,200,106,.18)" },
+  appBgGlowPink: { position: "absolute", right: -120, top: 126, width: 280, height: 280, borderRadius: 140, backgroundColor: "rgba(255,95,159,.14)" },
+  appBgGlowBlue: { position: "absolute", left: 56, bottom: 92, width: 300, height: 300, borderRadius: 150, backgroundColor: "rgba(118,169,255,.08)" },
   content: { gap: 14, padding: 14, paddingTop: 18, paddingBottom: 118 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   scrollHintPill: { position: "absolute", right: 18, width: 42, height: 30, alignItems: "center", justifyContent: "center", borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(23,17,25,.92)", shadowColor: "#000", shadowOpacity: 0.34, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 7 },
@@ -1390,7 +1410,10 @@ const styles = StyleSheet.create({
   },
   heroGlowOne: { position: "absolute", right: -80, top: -70, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(245,200,106,.18)" },
   heroGlowTwo: { position: "absolute", left: -70, bottom: -90, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(151,70,255,.18)" },
-  homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  cardGlowGold: { position: "absolute", right: -70, top: -72, width: 180, height: 180, borderRadius: 90, backgroundColor: "rgba(245,200,106,.22)" },
+  cardGlowPink: { position: "absolute", left: -88, bottom: -96, width: 190, height: 190, borderRadius: 95, backgroundColor: "rgba(255,95,159,.16)" },
+  cardGlowBlue: { position: "absolute", right: 34, bottom: -118, width: 210, height: 210, borderRadius: 105, backgroundColor: "rgba(118,169,255,.08)" },
+  homeHeroCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
   homeHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.8, lineHeight: 37 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   homeHeroActions: { gap: 10 },
@@ -1407,7 +1430,7 @@ const styles = StyleSheet.create({
   heroismCustomPath: { color: colors.gold, fontSize: 14, fontWeight: "900", textDecorationLine: "underline" },
   multiplayerCalloutCard: { gap: 12, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   homeStatusCard: { gap: 13, padding: 16, borderRadius: 26, borderWidth: 1, borderColor: "rgba(96,240,175,.24)", backgroundColor: "rgba(96,240,175,.08)" },
-  sideQuestHubHero: { gap: 12, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  sideQuestHubHero: { overflow: "hidden", gap: 12, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
   sideQuestHubTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
   sideQuestHubCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   sideQuestModeGrid: { gap: 12 },
@@ -1463,7 +1486,7 @@ const styles = StyleSheet.create({
   challengeCardTitleMobile: { color: colors.paper, fontSize: 22, lineHeight: 24, fontWeight: "900", letterSpacing: -0.8 },
   challengeCardObjectiveMobile: { color: colors.muted, fontSize: 14, lineHeight: 20 },
   challengeCardHintMobile: { color: colors.gold, fontSize: 13, lineHeight: 18, fontStyle: "italic", fontWeight: "800" },
-  badgesHeroCard: { gap: 18, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  badgesHeroCard: { overflow: "hidden", gap: 18, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
   badgesHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37, textAlign: "center" },
   liveCoatRoster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 10 },
   liveCoatRosterItem: { width: "30%", minWidth: 92, alignItems: "center", gap: 6, paddingVertical: 6 },
@@ -1610,7 +1633,7 @@ const styles = StyleSheet.create({
   rulesTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   rule: { color: colors.muted, fontSize: 14, lineHeight: 21 },
   authCard: { gap: 9, padding: 14, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
-  accountAuthCopyCard: { gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "#171119" },
+  accountAuthCopyCard: { overflow: "hidden", gap: 16, padding: 20, borderRadius: 30, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.075)" },
   accountAuthTitle: { color: colors.paper, fontSize: 31, fontWeight: "900", letterSpacing: -1.35, lineHeight: 35 },
   accountAuthHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   authLightweightCopy: { gap: 10, padding: 14, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(255,247,232,.055)" },
