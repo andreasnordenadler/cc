@@ -3724,3 +3724,164 @@ Keep Clerk Expo native peers explicit in `apps/mobile/package.json`; for crash r
 - Tags: android, clerk, expo, crash
 
 ---
+
+## [ERR-20260518-004] expo-doctor-not-on-mobile-path
+
+**Logged**: 2026-05-18T18:36:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: mobile tooling
+
+### Summary
+`pnpm exec expo-doctor` failed from `apps/mobile` because `expo-doctor` was not available on that package path.
+
+### Details
+During the SQC mobile website-workflow navigation redesign verification, `pnpm exec expo-doctor` in `apps/mobile` returned `Command "expo-doctor" not found`. Previous successful doctor checks used the repo/tooling context with `pnpm dlx expo-doctor` or equivalent.
+
+### Suggested Action
+For mobile doctor checks, prefer `pnpm dlx expo-doctor` from `apps/mobile` or add an explicit package script/dependency if we want `pnpm exec expo-doctor` to be stable.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/package.json
+- Tags: expo, mobile, verification
+
+---
+
+## [ERR-20260518-005] partial-function-removal-left-type-tail
+
+**Logged**: 2026-05-18T19:56:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: frontend
+
+### Summary
+A scripted removal of `HeroCoatPreview` left the function parameter/type tail behind and temporarily broke TypeScript parsing.
+
+### Details
+While removing a non-web coat strip from `apps/mobile/App.tsx`, the helper removal script did not match the function declaration fully, leaving `: { challenges: MobileChallenge[] }) { ... }` in the file. `pnpm --filter @sidequestchess/mobile typecheck` caught it immediately.
+
+### Suggested Action
+After scripted function removals in TSX, run a quick grep/read around the edited boundary before running broader checks, or use a parser-aware edit when possible.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: tsx, scripted-edit, mobile
+
+---
+
+## [ERR-20260519-001] Playwright package present but bundled browser missing
+
+**Logged**: 2026-05-19T08:40:00+02:00
+**Context**: Regenerating SQC mobile screenshots for bottom safe-area QA.
+**What happened**: `chromium.launch()` failed because Playwright's cached Chromium headless shell was not installed.
+**Fix/workaround**: Launch Playwright with the system Chrome executable path: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`.
+**Impact**: Screenshots succeeded after the workaround.
+
+## [ERR-20260519-001] vercel_logs_follow_filter_default
+
+**Logged**: 2026-05-19T07:00:00Z
+**Priority**: low
+**Status**: resolved
+**Area**: infra
+
+### Summary
+Initial SQC daily ops log scan used `vercel logs sidequestchess.com --since 24h --limit 50`, which implicitly enabled follow mode for a deployment/domain target and rejected filtering.
+
+### Error
+```
+Error: The --follow flag does not support filtering. Remove: --since, --limit
+```
+
+### Context
+- Command attempted during SQC daily three-lane report production log scan.
+- Vercel CLI 50.20.0 treats positional URL/deployment log targets as streaming unless `--no-follow` is provided.
+
+### Suggested Fix
+Use linked-project filters without a positional URL, or include `--no-follow` when filtering historical logs, e.g. `vercel logs --environment production --since 24h --level error --no-follow --limit 50 --json`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: docs/SQC_DAILY_THREE_LANE_REPORT_2026-05-19.md
+
+### Resolution
+- **Resolved**: 2026-05-19T07:00:00Z
+- **Notes**: Re-ran the log scan with `--no-follow`; 500/502/503/504 filtered scans completed with no entries.
+
+---
+
+## [ERR-20260519-002] browser_user_profile_devtools_port_missing
+
+**Logged**: 2026-05-19T07:00:00Z
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+During the SQC daily ops report, `browser status` reported the user Chrome profile as running/CDP-ready, but `browser tabs` could not attach because the Chrome DevToolsActivePort file was missing.
+
+### Error
+```
+Error: Could not connect to Chrome. Check if Chrome is running.
+Cause: Could not find DevToolsActivePort for chrome at /Users/sam/Library/Application Support/Google/Chrome/DevToolsActivePort
+```
+
+### Context
+- Attempted to use the existing user browser profile only to see whether authenticated `/admin/analytics` data was accessible.
+- Unauthenticated HTTP check still verified `/admin/analytics` is reachable, but data was not visible in the sampled HTML.
+
+### Suggested Fix
+Restart or reattach the user Chrome session with remote debugging enabled before using `profile="user"` browser automation for authenticated checks.
+
+### Metadata
+- Reproducible: unknown
+- Related Files: docs/SQC_DAILY_THREE_LANE_REPORT_2026-05-19.md
+
+---
+
+## [ERR-20260519-001] sqc_android_local_java_home_sdk_env
+
+**Logged**: 2026-05-19T10:30:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: mobile | build
+
+### Summary
+Local SQC Android APK build initially failed because `/usr/libexec/java_home` did not see Homebrew Java and `ANDROID_HOME` defaulted to a nonexistent path.
+
+### Details
+Use explicit Homebrew paths for local Gradle APK builds on this Mac: `JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home` and `ANDROID_HOME=/opt/homebrew/share/android-commandlinetools`.
+
+### Suggested Action
+Persist these Android build env defaults in future SQC mobile build scripts or docs so local APK packaging does not fail before Gradle starts.
+
+### Metadata
+- Source: conversation
+- Related Files: apps/mobile/android, artifacts/sqc-mobile-test-release-arm64-2026-05-19.apk
+- Tags: android, gradle, java, sdk
+
+---
+
+## [ERR-20260519-002] sqc_mobile_account_narrowing_after_native_navigation_edit
+
+**Logged**: 2026-05-19T11:28:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: mobile | typescript
+
+### Summary
+While removing website-opening mobile button actions, the first typecheck failed because nested handlers lost the authenticated account narrowing.
+
+### Details
+`AccountShell` returns early for signed-out accounts, but TypeScript does not safely preserve that narrowing inside nested callbacks unless the signed-in account is captured in a narrowed local constant and used consistently.
+
+### Suggested Action
+For SQC mobile account screens, define `const signedInAccount = account` immediately after the `isAuthenticatedAccount(account)` guard and use that inside callbacks/JSX.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: react-native, typescript, narrowing
+
+---
