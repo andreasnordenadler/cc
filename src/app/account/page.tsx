@@ -124,7 +124,7 @@ export default async function MyQuestLogPage() {
               <Link href={`/challenges/${activeChallengeRecord.id}`} className="current-mission-coat" aria-label={`Open ${activeChallengeRecord.title} quest page`}>
                 {activeQuestCompleted ? (
                   <span className="current-mission-complete-seal" aria-hidden="true">
-                    <Image src="/stamps/quest-complete-real-red-wax-sqc-v8.png" alt="" width={72} height={72} />
+                    <Image src="/stamps/quest-complete-premium-red-wax-sqc-v15.png" alt="" width={72} height={72} />
                   </span>
                 ) : null}
                 <ChallengeBadge challenge={activeChallengeRecord} presentation="art" size="hero" earned={completedSet.has(activeChallengeRecord.id)} />
