@@ -106,6 +106,13 @@ Rules from this point:
 - 2026-05-17 approved analytics delta: admin analytics should classify visits as mobile/tablet/desktop where possible and show the device split on `/admin/analytics`.
 - 2026-05-17 approved website test: force mobile browsers into a desktop-width viewport for now; no user toggle needed because native mobile app will be the later mobile-first surface. Tuned from 1110px to 980px after Andreas tested the first pass.
 
+- [x] Add internal SQC testing SDK for repeatable smoke/API checks.
+  - added_at: 2026-05-20 09:20 Europe/Stockholm
+  - completed_at: 2026-05-20 09:27 Europe/Stockholm
+  - source: Andreas asked to create an SDK for testing.
+  - scope: internal/dev-facing SDK only; no new website product features; support public smoke checks, mobile bootstrap contract checks, optional authenticated account/quest API checks via caller-supplied cookies, and red-seal regression checks.
+  - proof: added `testing-sdk/index.mjs`, `testing-sdk/index.d.ts`, `testing-sdk/smoke.mjs`, `docs/SQC_TESTING_SDK.md`, and `pnpm sdk:smoke`; `pnpm sdk:smoke` passed against production, including bootstrap contract, red seal asset, and public page smoke; `pnpm lint` passed with 0 errors / 3 pre-existing warnings; `pnpm build` passed.
+
 - [ ] Add Facebook login to Clerk for SQC.
   - added_at: 2026-05-14 15:05 Europe/Stockholm
   - source: Andreas created a Facebook Developer account and requested Facebook as a Clerk auth provider.
