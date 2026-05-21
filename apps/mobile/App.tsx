@@ -224,6 +224,15 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     return () => clearTimeout(accountTimer);
   }, [loadAccount]);
 
+  useEffect(() => {
+    if (!authBridge.isLoaded || !authBridge.isSignedIn || isAuthenticatedAccount(shell.account)) {
+      return;
+    }
+
+    const retryTimers = [400, 1100, 2500, 4500].map((delay) => setTimeout(() => void loadAccount(), delay));
+    return () => retryTimers.forEach(clearTimeout);
+  }, [authBridge.isLoaded, authBridge.isSignedIn, loadAccount, shell.account]);
+
   function selectChallenge(challengeId: string, nextTab: AppTab = "sideQuests") {
     setShell((current) => ({ ...current, selectedChallengeId: challengeId, activeTab: nextTab }));
   }
@@ -995,8 +1004,12 @@ function AccountShell({
 }) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
-    const primaryLabel = authBridge.configured ? "Sign in with Google" : "Open sign in";
+    const primaryLabel = signedInButRejected ? "Sync account" : authBridge.configured ? "Sign in with Google" : "Open sign in";
     const handlePrimaryPress = () => {
+      if (signedInButRejected) {
+        return onAccountUpdated();
+      }
+
       if (authBridge.startGoogleSignIn) {
         return void authBridge.startGoogleSignIn();
       }
