@@ -1,5 +1,6 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { CHALLENGES } from "@/lib/challenges";
 import { buildPublicProofPath } from "@/lib/proof-share";
 import { listUserRelatedGroupQuests } from "@/lib/groupquests";
@@ -17,7 +18,7 @@ import {
 } from "@/lib/user-metadata";
 
 export async function GET(request: Request) {
-  const { userId } = await auth();
+  const userId = await getMobileRequestUserId(request);
 
   if (!userId) {
     return NextResponse.json(

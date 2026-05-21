@@ -1,5 +1,6 @@
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import {
   getChessComUsername,
   getLichessUsername,
@@ -12,7 +13,7 @@ import {
 } from "@/lib/chess-username-validation";
 
 export async function PATCH(request: Request) {
-  const { userId } = await auth();
+  const userId = await getMobileRequestUserId(request);
 
   if (!userId) {
     return NextResponse.json(
