@@ -402,16 +402,17 @@ function TodayDashboard({
   const activeCoatSource = activeChallenge
     ? getChallengeCoatImageSource(activeChallenge)
     : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
-  const latestCheckText = latestReceipt?.headline ? normalizeCheckHeadline(latestReceipt.headline) : null;
+  const activeQuestReceipt = latestReceipt?.challengeId === signedIn?.activeQuest?.id ? latestReceipt : null;
+  const latestCheckText = activeQuestReceipt?.headline ? normalizeCheckHeadline(activeQuestReceipt.headline) : null;
   const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
-  const latestProofHref = signedIn?.activeQuest?.proofHref ?? latestReceipt?.proofHref ?? null;
+  const latestProofHref = signedIn?.activeQuest?.proofHref ?? activeQuestReceipt?.proofHref ?? null;
   const canViewCurrentProof = Boolean(signedIn?.activeQuest?.completed || (latestCheckPassed && latestProofHref));
   const activeStatus = signedIn?.activeQuest?.completed || latestCheckPassed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
   const activeQuestNote = signedIn?.activeQuest?.completed
     ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
     : signedIn?.activeQuest
-      ? "Check your latest public game when you think it qualifies."
+      ? `Latest check: ${formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn.activeQuest.verifiedAt)}`
       : "Pick a Side Quest before your next game.";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
@@ -496,7 +497,7 @@ function TodayDashboard({
           <View style={compactStyles.currentQuestText}>
             <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "Pick your next bad idea"}</Text>
             <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
-            <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : latestCheckText ? `Last check: ${latestCheckText}` : activeQuestNote}</Text>
+            <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : activeQuestNote}</Text>
           </View>
         </View>
         <View style={compactStyles.actionRowTight}>
@@ -505,19 +506,15 @@ function TodayDashboard({
               <Text style={compactStyles.primaryActionText}>View result</Text>
             </Pressable>
           ) : signedIn.activeQuest ? (
-            <Pressable accessibilityRole="button" style={compactStyles.primaryAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
-              <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check my latest game"}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={compactStyles.refreshAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+              {actionState.busy ? <ActivityIndicator color="#111" size="small" /> : <MaterialCommunityIcons name="refresh" size={22} color="#111" />}
             </Pressable>
           ) : (
             <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
               <Text style={compactStyles.primaryActionText}>Pick Side Quest</Text>
             </Pressable>
           )}
-          {signedIn.activeQuest?.id ? (
-            <Pressable accessibilityRole="button" style={compactStyles.secondaryAction} onPress={() => onSelectChallenge(signedIn.activeQuest?.id ?? "", "sideQuests")}>
-              <Text style={compactStyles.secondaryActionText}>How it works</Text>
-            </Pressable>
-          ) : null}
+
         </View>
         {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
         {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
@@ -556,6 +553,13 @@ function TodayDashboard({
       </AppSection>
     </View>
   );
+}
+
+function formatLatestCheckTime(value: string | null | undefined): string {
+  if (!value) return "not yet";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "not yet";
+  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 function normalizeCheckHeadline(headline: string): string {
@@ -2001,22 +2005,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       proofHref: `/result/${challenge.id}`,
       badgeImageUrl: challenge.badgeIdentity.imageUrl,
     })),
-    latestReceipt: completed[0]
-      ? {
-          id: "preview-receipt",
-          challengeId: completed[0].id,
-          provider: "lichess",
-          status: "passed",
-          gameId: "preview",
-          checkedAt: new Date().toISOString(),
-          completedGameAt: new Date().toISOString(),
-          headline: "Latest proof passed",
-          detail: `${completed[0].title} counted from the latest public game.`,
-          meta: "Preview account",
-          proofHref: `/result/${completed[0].id}`,
-          proofImageUrl: null,
-        }
-      : null,
+    latestReceipt: null,
   };
 }
 
@@ -2099,6 +2088,7 @@ const compactStyles = StyleSheet.create({
   actionRowTight: { flexDirection: "row", alignItems: "center", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   primaryActionText: { color: "#111", fontSize: 13, fontWeight: "900" },
+  refreshAction: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   secondaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 13, borderRadius: 999, backgroundColor: "rgba(255,255,255,.08)", borderWidth: 1, borderColor: "rgba(255,255,255,.13)" },
   secondaryActionText: { color: colors.paper, fontSize: 13, fontWeight: "900" },
   appSection: { gap: 6 },

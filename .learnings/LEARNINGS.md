@@ -631,3 +631,16 @@ Do not iterate from the previous native UI as a baseline. Treat it as disposable
 
 Andreas showed the mobile screen and pointed back to `https://sidequestchess.com/challenges` because the glow still looked hard/dirty. The important distinction: the website challenge-card treatment reads like a soft colored glow attached to the badge art, not a duplicated tinted badge and not a separate oval halo. For React Native Android, generate blurred glow PNGs from the Coat of Arms alpha masks and tint those behind the clean badge image.
 
+
+## [LRN-20260522-001] correction
+
+**Logged**: 2026-05-22T20:24:00+02:00
+**Priority**: high
+
+### Summary
+When reviewing SQC mobile `Current Side Quest`, Andreas explicitly wanted the active non-completed Solo Side Quest state. I accidentally optimized the completed/latest-proof state because the dev preview account had a completed latest receipt unrelated to the active quest, which made the Home card display completed-result copy.
+
+### What to do differently
+For mobile Home UI review, keep the emulator preview account aligned with the state being designed. Only let latest receipt/proof affect the Current Side Quest card when `latestReceipt.challengeId === activeQuest.id`; otherwise show active in-progress state.
+
+---
