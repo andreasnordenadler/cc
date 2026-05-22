@@ -371,6 +371,12 @@ function TodayDashboard({
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const latestReceipt = signedIn?.latestReceipt;
+  const activeChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeCoatUrl = signedIn?.activeQuest?.badgeImageUrl
+    ? absoluteAssetUrl(signedIn.activeQuest.badgeImageUrl)
+    : activeChallenge
+      ? getChallengeCoatImageUrl(activeChallenge)
+      : absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png");
   const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "None";
   const activeCheckStatus = signedIn?.activeQuest?.completed ? "Proof" : signedIn?.activeQuest ? "Check progress" : "Pick Solo Side Quest";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
@@ -414,15 +420,20 @@ function TodayDashboard({
         </View>
       ) : (
         <View style={compactStyles.todayFeed}>
-          <FeedSection title="Solo">
+          <FeedSection title="Current Side Quest">
             <View style={compactStyles.matchCard}>
               {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
-              <Pressable accessibilityRole="button" accessibilityLabel="Open current Solo Side Quest" onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
-                <View style={compactStyles.matchCardTopline}>
-                  <Text style={compactStyles.matchLeague}>Current</Text>
-                  <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentSideQuestPressable} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
+                <View style={compactStyles.currentCoatFrame}>
+                  {activeCoatUrl ? <Image source={{ uri: activeCoatUrl }} style={compactStyles.currentCoatImage} resizeMode="contain" /> : <Text style={compactStyles.currentCoatFallback}>SQC</Text>}
                 </View>
-                <Text style={compactStyles.matchSideTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
+                <View style={compactStyles.currentSideQuestCopy}>
+                  <View style={compactStyles.matchCardTopline}>
+                    <Text style={compactStyles.matchLeague}>Solo Side Quest</Text>
+                    <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
+                  </View>
+                  <Text style={compactStyles.matchSideTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
+                </View>
               </Pressable>
               {signedIn.activeQuest?.completed ? (
                 <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => void openExternalAppUrl(signedIn.activeQuest?.proofHref ?? latestReceipt?.proofHref ?? "/account")}>
@@ -442,13 +453,13 @@ function TodayDashboard({
             </View>
           </FeedSection>
 
-          <FeedSection title="My Multiplayer">
-            {activeMultiplayer.length ? activeMultiplayer.slice(0, 3).map((quest) => (
+          <FeedSection title="My Multiplayer Side Quests">
+            {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
               <FeedRow key={quest.id} title={quest.title} status={quest.status} meta={quest.copy} onPress={() => void openExternalAppUrl(quest.href)} />
             )) : <FeedRow title="No active Multiplayer Side Quest" status="—" meta="Join one below" onPress={() => onSelectTab("multiplayerSideQuests")} />}
           </FeedSection>
 
-          <FeedSection title="Official Multiplayer">
+          <FeedSection title="Official Multiplayer Side Quests">
             {officialPublic.length ? officialPublic.map((quest) => (
               <FeedRow key={quest.id} title={quest.title} status={quest.status} meta={quest.copy} onPress={() => void openExternalAppUrl(quest.href)} />
             )) : <FeedRow title="Official Multiplayer Side Quests" status="Open" meta="Browse official public board" onPress={() => onSelectTab("multiplayerSideQuests")} />}
@@ -1945,6 +1956,11 @@ const compactStyles = StyleSheet.create({
   refreshPill: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(255,247,232,.06)" },
   refreshPillText: { color: colors.paper, fontSize: 11, fontWeight: "900" },
   matchCard: { position: "relative", overflow: "hidden", gap: 10, padding: 11, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.07)" },
+  currentSideQuestPressable: { flexDirection: "row", alignItems: "center", gap: 10 },
+  currentCoatFrame: { width: 68, height: 78, alignItems: "center", justifyContent: "center", borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(0,0,0,.18)" },
+  currentCoatImage: { width: 58, height: 68 },
+  currentCoatFallback: { color: colors.gold, fontSize: 13, fontWeight: "900" },
+  currentSideQuestCopy: { flex: 1, minWidth: 0, gap: 5 },
   matchCardTopline: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   matchLeague: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
   statusPill: { overflow: "hidden", color: colors.gold, fontSize: 11, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
