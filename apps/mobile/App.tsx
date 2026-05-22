@@ -2034,10 +2034,11 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         id: "official-preview-no-castle",
         title: "No Castle Club Night",
         status: "Joined",
-        copy: "14 players · 2d left",
+        copy: "14 players · 2d left · #4",
         href: "/groupquests/official-preview-no-castle?accepted=1",
         playersLabel: "14 players",
         timeLeftLabel: "2d left",
+        positionLabel: "#4",
         joinState: "Joined",
       },
       {

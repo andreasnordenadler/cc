@@ -104,6 +104,7 @@ export type MobileAccountState = {
     href: string;
     playersLabel?: string;
     timeLeftLabel?: string;
+    positionLabel?: string;
     joinState?: "Join" | "Joined";
   }>;
   completedQuests: Array<{

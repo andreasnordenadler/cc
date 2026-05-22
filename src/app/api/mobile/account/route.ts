@@ -109,14 +109,16 @@ export async function GET(request: Request) {
     .filter((quest) => quest.hostUserId !== userId && quest.official)
     .map((quest) => {
       const joined = quest.participants.some((participant) => participant.userId === userId);
+      const positionLabel = joined ? getParticipantPositionLabel(quest, userId) : null;
       return {
         id: quest.id,
         title: quest.name,
         status: joined ? "Joined" : "Join",
-        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt)].filter(Boolean).join(" · "),
+        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
         href: new URL(`/groupquests/${quest.id}${joined ? "?accepted=1" : ""}`, baseUrl).toString(),
         playersLabel: formatPlayersLabel(quest.participants.length),
         timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        positionLabel: positionLabel ?? undefined,
         joinState: joined ? "Joined" as const : "Join" as const,
       };
     })
