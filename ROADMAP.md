@@ -253,6 +253,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile account API/types + Home preview; include `positionLabel` for joined official public Multiplayer Side Quests and include it in row metadata alongside players/time left.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/69-fresh-home-joined-official-position.png`.
 
+- [x] Add Multiplayer medal wins to SQC mobile Trophy Cabinet.
+  - added_at: 2026-05-22 22:59 Europe/Stockholm
+  - completed_at: 2026-05-22 23:05 Europe/Stockholm
+  - source: Andreas asked `Trophy cabinet` to be `Trophy Cabinet` and to include gold/silver/bronze Multiplayer wins, with one added for this user.
+  - scope: mobile app Home preview/types; title-case Trophy Cabinet and add a preview Multiplayer trophy entry using the Black SQC Seal, `Gold` status, and `Multiplayer win · 1st place` metadata while preserving completed Side Quest Coat of Arms rows.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/70-fresh-home-trophy-cabinet-multiplayer-gold.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

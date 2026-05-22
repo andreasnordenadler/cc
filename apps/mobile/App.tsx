@@ -555,8 +555,19 @@ function TodayDashboard({
         )) : <AppRow title="No official rows right now" meta="Check back for the next public Multiplayer Side Quest." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />}
       </AppSection>
 
-      <AppSection title="Trophy cabinet">
-        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 4).map((quest) => {
+      <AppSection title="Trophy Cabinet">
+        {signedIn.multiplayerTrophies?.map((trophy) => (
+          <AppRow
+            key={trophy.id}
+            title={trophy.title}
+            meta={`Multiplayer win · ${trophy.rankLabel}`}
+            status={trophy.placement}
+            imageSource={SQC_BLACK_SEAL_ASSET}
+            variant="seal"
+            onPress={() => void openExternalAppUrl(trophy.href)}
+          />
+        ))}
+        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 3).map((quest) => {
           const completedChallenge = bootstrap.challenges.find((challenge) => challenge.id === quest.id) ?? null;
           return (
             <AppRow
@@ -570,9 +581,9 @@ function TodayDashboard({
               onPress={() => quest.proofHref ? void openExternalAppUrl(quest.proofHref) : onSelectChallenge(quest.id, "coatOfArms")}
             />
           );
-        }) : (
+        }) : !signedIn.multiplayerTrophies?.length ? (
           <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
-        )}
+        ) : null}
       </AppSection>
 
       <View style={compactStyles.pullRefreshHint}>
@@ -2062,6 +2073,16 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       proofHref: `/result/${challenge.id}`,
       badgeImageUrl: challenge.badgeIdentity.imageUrl,
     })),
+    multiplayerTrophies: [
+      {
+        id: "review-room-gold",
+        title: "Friday Night Bad Ideas",
+        placement: "Gold",
+        rankLabel: "1st place",
+        completedAt: new Date().toISOString(),
+        href: "/groupquests/review-room?accepted=1",
+      },
+    ],
     latestReceipt: null,
   };
 }

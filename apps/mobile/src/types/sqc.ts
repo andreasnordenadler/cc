@@ -117,6 +117,14 @@ export type MobileAccountState = {
     proofHref: string | null;
     badgeImageUrl: string | null;
   }>;
+  multiplayerTrophies?: Array<{
+    id: string;
+    title: string;
+    placement: "Gold" | "Silver" | "Bronze";
+    rankLabel: string;
+    completedAt: string | null;
+    href: string;
+  }>;
   latestReceipt: {
     id: string | null;
     challengeId: string | null;
