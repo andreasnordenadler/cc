@@ -694,12 +694,12 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
             </View>
           ))}
           <View style={styles.buttonRow}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Open active Multiplayer Quest" style={styles.primaryButton} onPress={() => showNativeOnlyNotice("Native Multiplayer Quest detail is the next app screen; this button is now correctly focused on the active quest instead of the generic intro.")}>
-              <Text style={styles.primaryButtonText}>Open active quest</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="View multiplayer proof" style={styles.secondaryButton} onPress={() => showNativeOnlyNotice("Multiplayer proof will stay in the app; no website jump for this dashboard action.")}>
-              <Text style={styles.secondaryButtonText}>View proof</Text>
-            </Pressable>
+            <View style={styles.disabledActionButton} accessibilityLabel="Native Multiplayer Quest detail coming soon">
+              <Text style={styles.disabledActionButtonText}>Quest detail coming soon</Text>
+            </View>
+            <View style={styles.disabledSecondaryButton} accessibilityLabel="Native multiplayer proof coming soon">
+              <Text style={styles.disabledSecondaryButtonText}>Proof coming soon</Text>
+            </View>
           </View>
         </View>
       ) : null}
@@ -709,9 +709,9 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
           <View style={styles.groupquestsActionCard} key={item.title}>
             <Text style={styles.sideQuestModeTitle}>{item.title}.</Text>
             <Text style={styles.sideQuestModeCopy}>{item.copy}</Text>
-            <Pressable accessibilityRole="button" accessibilityLabel={item.action} style={styles.primaryButton} onPress={() => showNativeOnlyNotice("Multiplayer Side Quest creation and public joining are being kept inside the app next — no website jump.")}>
-              <Text style={styles.primaryButtonText}>{item.action}</Text>
-            </Pressable>
+            <View style={styles.disabledActionButton} accessibilityLabel={`${item.action} coming soon`}>
+              <Text style={styles.disabledActionButtonText}>{item.action} — coming soon</Text>
+            </View>
           </View>
         ))}
       </View>
@@ -732,11 +732,11 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
         </View>
         <View style={styles.groupquestsHowGrid}>
           {overviewSteps.map((step, index) => (
-            <Pressable key={step.title} accessibilityRole={step.href ? "button" : undefined} style={styles.groupquestsHowStep} onPress={step.href ? () => showNativeOnlyNotice("Multiplayer Side Quest setup will stay in the app instead of opening the website.") : undefined}>
+            <View key={step.title} style={styles.groupquestsHowStep}>
               <Text style={styles.groupquestsHowNumber}>{index + 1}</Text>
               <Text style={styles.groupquestsHowTitle}>{step.title}</Text>
               <Text style={styles.groupquestsHowCopy}>{step.copy}</Text>
-            </Pressable>
+            </View>
           ))}
         </View>
       </View>
@@ -1151,9 +1151,9 @@ function AccountShell({
       </View>
 
       <ChessUsernameEditor account={signedInAccount} authBridge={authBridge} onSaved={onAccountUpdated} />
-      <Pressable accessibilityRole="button" accessibilityLabel="Edit profile" style={styles.secondaryButtonWide} onPress={() => showNativeOnlyNotice("Profile editing will stay native; chess usernames can already be edited here.")}>
-        <Text style={styles.secondaryButtonText}>Edit profile</Text>
-      </Pressable>
+      <View style={styles.disabledWideButton} accessibilityLabel="Profile editing coming soon">
+        <Text style={styles.disabledSecondaryButtonText}>Profile editing coming soon</Text>
+      </View>
       <QuestProgressStrip completed={signedInAccount.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountNextActionsCard account={signedInAccount} />
       <MobileAccountStatesCard authBridge={authBridge} account={account} />
@@ -1393,9 +1393,9 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
     <View style={styles.stateBoardCard}>
       <Text style={styles.eyebrow}>Account state clarity</Text>
       <Text style={styles.stateBoardTitle}>No mystery loading rooms.</Text>
-      <Text style={styles.stateBoardBody}>This build names exactly which layer is active, so Android testers can tell public browsing, local Clerk, and backend account sync apart.</Text>
+      <Text style={styles.stateBoardBody}>This build names exactly which layer is active, so Android testers can tell public browsing, local Clerk, and SQC account sync apart.</Text>
       <View style={styles.stateTimeline}>
-        <FlowStep done title="Public catalog" body="Quest board, rules, rewards, and website handoffs load without native auth." />
+        <FlowStep done title="Public catalog" body="Quest board, rules, rewards, and coat previews load without native auth." />
         <FlowStep done={authBridge.configured} title="Native Clerk bridge" body={authBridge.configured ? "Google SSO button is available for smoke testing." : "Waiting for the mobile publishable key from Clerk."} />
         <FlowStep done={authenticated} title="Backend account mirror" body={backendAccepted} />
       </View>
@@ -1625,6 +1625,11 @@ const styles = StyleSheet.create({
   primaryButtonText: { color: "#17120c", fontWeight: "900" },
   secondaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
+  disabledActionButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.16)", backgroundColor: "rgba(245,200,106,.07)", opacity: 0.74 },
+  disabledActionButtonText: { color: "rgba(245,200,106,.72)", fontWeight: "900" },
+  disabledSecondaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
+  disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
+  disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },
   quickStartTopRow: { flexDirection: "row", gap: 12, alignItems: "center" },
