@@ -106,6 +106,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile Home; remove section action labels and non-state row labels like Open/Proof, strengthen website-style white halo behind Coat of Arms, and add small Coat of Arms icons with glow to Trophy cabinet rows.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/36-fresh-home-trophy-row-coats.png`.
 
+- [x] Replace bad Coat of Arms oval glow with transparent website-style glow asset.
+  - added_at: 2026-05-22 18:15 Europe/Stockholm
+  - completed_at: 2026-05-22 18:20 Europe/Stockholm
+  - source: Andreas said the Coat of Arms glow looked bad and asked to get it right this time.
+  - scope: mobile app Home; replace View/shadow-generated solid oval glows with a transparent soft halo PNG asset used behind the current Coat of Arms and Trophy cabinet row icons.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/37-fresh-home-transparent-coat-glow-asset.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

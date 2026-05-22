@@ -4065,3 +4065,23 @@ Inspected matching lines with `grep`, then used targeted `edit` replacements for
 - Tags: edit-script, exact-replacement
 
 ---
+
+## [ERR-20260522-004] PIL_unavailable_for_glow_asset
+
+**Logged**: 2026-05-22T18:18:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: mobile-assets
+
+### Summary
+Tried to generate a proper SQC mobile Coat of Arms glow PNG using Python Pillow, but Pillow is not installed in the environment.
+
+### Resolution
+Generated the transparent RGBA PNG manually with Python stdlib (`struct` + `zlib`) instead.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/assets/ui/coat-glow.png
+- Tags: image-generation, python, mobile-assets
+
+---

@@ -60,6 +60,8 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
+const COAT_GLOW_ASSET = require("./assets/ui/coat-glow.png");
+
 const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "finish-any-game": require("./assets/badges/v6/proof-loop-test-badge.png"),
   "knights-before-coffee": require("./assets/badges/v6/knights-before-coffee-badge.png"),
@@ -466,7 +468,7 @@ function TodayDashboard({
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentQuestRow} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
           <View style={compactStyles.coatMarker}>
-            <View style={compactStyles.coatMarkerGlow} />
+            <Image source={COAT_GLOW_ASSET} style={compactStyles.coatMarkerGlow} resizeMode="stretch" />
             <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
           </View>
           <View style={compactStyles.currentQuestText}>
@@ -562,7 +564,7 @@ function AppRow({ title, meta, status, imageSource, onPress }: { title: string; 
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
-          <View style={compactStyles.rowCoatGlow} />
+          <Image source={COAT_GLOW_ASSET} style={compactStyles.rowCoatGlow} resizeMode="stretch" />
           <Image source={imageSource} style={compactStyles.rowCoatImage} resizeMode="contain" />
         </View>
       ) : null}
@@ -2022,7 +2024,7 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
   coatMarker: { width: 54, height: 60, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatMarkerGlow: { position: "absolute", width: 58, height: 42, borderRadius: 29, backgroundColor: "rgba(255,255,255,.34)", transform: [{ scaleX: 1.2 }], shadowColor: "#fff7e8", shadowOpacity: .46, shadowRadius: 16, elevation: 5 },
+  coatMarkerGlow: { position: "absolute", width: 92, height: 62, opacity: .96 },
   coatMarkerImage: { width: 48, height: 56 },
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
@@ -2037,7 +2039,7 @@ const compactStyles = StyleSheet.create({
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   appRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  rowCoatGlow: { position: "absolute", width: 32, height: 22, borderRadius: 16, backgroundColor: "rgba(255,255,255,.28)", transform: [{ scaleX: 1.24 }], shadowColor: "#fff7e8", shadowOpacity: .34, shadowRadius: 9, elevation: 3 },
+  rowCoatGlow: { position: "absolute", width: 58, height: 40, opacity: .9 },
   rowCoatImage: { width: 30, height: 34 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
