@@ -85,6 +85,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app definition only; discard previous UI concepts as binding; define logged-in user jobs, v1 app structure, navigation, data contract, first-build order, and acceptance checklist.
   - proof: definition doc `docs/SQC_MOBILE_APP_DEFINITION_RESET_2026-05-22.md` created.
 
+- [x] Build first fresh logged-in SQC native app Home.
+  - added_at: 2026-05-22 18:01 Europe/Stockholm
+  - completed_at: 2026-05-22 18:08 Europe/Stockholm
+  - source: Andreas accepted the reset definition and said he looked forward to seeing the first version of the app.
+  - scope: mobile app; replace previous Home concept with logged-in command-center Home focused on chess account readiness, Current Side Quest, Check/View proof/Pick actions, My Multiplayer Side Quests, Official Multiplayer Side Quests, and recent proof.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/31-fresh-logged-in-command-center-v1-refined.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
