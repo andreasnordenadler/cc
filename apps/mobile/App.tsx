@@ -436,6 +436,7 @@ function TodayDashboard({
               {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
               <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentSideQuestPressable} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
                 <View style={compactStyles.currentCoatFrame}>
+                  <View style={compactStyles.currentCoatGlow} />
                   <Image source={activeCoatSource} style={compactStyles.currentCoatImage} resizeMode="contain" />
                 </View>
                 <View style={compactStyles.currentSideQuestCopy}>
@@ -1972,8 +1973,9 @@ const compactStyles = StyleSheet.create({
   refreshPillText: { color: colors.paper, fontSize: 11, fontWeight: "900" },
   matchCard: { position: "relative", overflow: "hidden", gap: 10, padding: 11, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.07)" },
   currentSideQuestPressable: { flexDirection: "row", alignItems: "center", gap: 10 },
-  currentCoatFrame: { width: 68, height: 78, alignItems: "center", justifyContent: "center", borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(0,0,0,.18)" },
-  currentCoatImage: { width: 58, height: 68 },
+  currentCoatFrame: { width: 76, height: 84, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  currentCoatGlow: { position: "absolute", width: 64, height: 64, borderRadius: 32, backgroundColor: "rgba(245,200,106,.22)", shadowColor: colors.gold, shadowOpacity: .72, shadowRadius: 24, elevation: 8 },
+  currentCoatImage: { width: 66, height: 76, shadowColor: colors.gold, shadowOpacity: .42, shadowRadius: 18 },
   currentCoatFallback: { color: colors.gold, fontSize: 13, fontWeight: "900" },
   currentSideQuestCopy: { flex: 1, minWidth: 0, gap: 5 },
   matchCardTopline: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },

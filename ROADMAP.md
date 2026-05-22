@@ -57,6 +57,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app; rename sections to Current Side Quest / My Multiplayer Side Quests / Official Multiplayer Side Quests; render all active multiplayer rows; add bundled Coat of Arms image assets for current Side Quest rendering.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/22-first-screen-current-side-quest-coat-visible.png`.
 
+- [x] Replace SQC Mobile current Coat of Arms square frame with website-style glow.
+  - added_at: 2026-05-22 17:31 Europe/Stockholm
+  - completed_at: 2026-05-22 17:34 Europe/Stockholm
+  - source: Andreas disliked the square behind the current Side Quest Coat of Arms and asked for the glow treatment used on the website.
+  - scope: mobile app; remove framed square/background/border behind current Coat of Arms and render the crest over a soft gold glow/shadow.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/23-current-side-quest-coat-glow-no-square.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
