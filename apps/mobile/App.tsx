@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars */
+/* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -19,6 +19,7 @@ import {
   View,
   type LayoutChangeEvent,
   type NativeScrollEvent,
+  type ImageSourcePropType,
   type NativeSyntheticEvent,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -58,6 +59,18 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 };
 
 WebBrowser.maybeCompleteAuthSession();
+
+const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
+  "finish-any-game": require("./assets/badges/v6/proof-loop-test-badge.png"),
+  "knights-before-coffee": require("./assets/badges/v6/knights-before-coffee-badge.png"),
+  "bishop-field-trip": require("./assets/badges/v6/bishop-field-trip-badge.png"),
+  "early-king-walk": require("./assets/badges/v6/early-king-walk-badge.png"),
+  "pawn-only-picnic": require("./assets/badges/v7/coming-soon-clean/pawn-only-picnic-badge.png"),
+  "queen-never-heard-of-her": require("./assets/badges/v4/queen-never-heard-of-her.png"),
+  "no-castle-club": require("./assets/badges/v4/no-castle-club-badge.png"),
+  "the-blunder-gambit": require("./assets/badges/v4/the-blunder-gambit-badge.png"),
+  "knightmare-mode": require("./assets/badges/v4/knightmare-mode-badge.png"),
+};
 
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
   "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
@@ -372,11 +385,9 @@ function TodayDashboard({
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const latestReceipt = signedIn?.latestReceipt;
   const activeChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
-  const activeCoatUrl = signedIn?.activeQuest?.badgeImageUrl
-    ? absoluteAssetUrl(signedIn.activeQuest.badgeImageUrl)
-    : activeChallenge
-      ? getChallengeCoatImageUrl(activeChallenge)
-      : absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png");
+  const activeCoatSource = activeChallenge
+    ? getChallengeCoatImageSource(activeChallenge)
+    : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
   const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "None";
   const activeCheckStatus = signedIn?.activeQuest?.completed ? "Proof" : signedIn?.activeQuest ? "Check progress" : "Pick Solo Side Quest";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
@@ -425,7 +436,7 @@ function TodayDashboard({
               {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
               <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentSideQuestPressable} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
                 <View style={compactStyles.currentCoatFrame}>
-                  {activeCoatUrl ? <Image source={{ uri: activeCoatUrl }} style={compactStyles.currentCoatImage} resizeMode="contain" /> : <Text style={compactStyles.currentCoatFallback}>SQC</Text>}
+                  <Image source={activeCoatSource} style={compactStyles.currentCoatImage} resizeMode="contain" />
                 </View>
                 <View style={compactStyles.currentSideQuestCopy}>
                   <View style={compactStyles.matchCardTopline}>
@@ -1854,6 +1865,10 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
 
 function isAuthenticatedAccount(account: MobileAccountResponse | null): account is MobileAccountState {
   return Boolean(account?.authenticated);
+}
+
+function getChallengeCoatImageSource(challenge: MobileChallenge): ImageSourcePropType {
+  return CHALLENGE_COAT_IMAGE_ASSETS[challenge.id] ?? { uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
 }
 
 function getChallengeCoatImageUrl(challenge: MobileChallenge) {

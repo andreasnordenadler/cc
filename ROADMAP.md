@@ -50,6 +50,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app plus mobile account API; add official public Multiplayer Side Quest payload to mobile account state; replace Today with compact Solo / My Multiplayer / Official Multiplayer feed rows; remove extra Tracker/Live Board language.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/18-first-screen-feed-reduced-language.png`.
 
+- [x] Add explicit Side Quest labels and current Coat of Arms graphic to SQC Mobile first screen.
+  - added_at: 2026-05-22 17:23 Europe/Stockholm
+  - completed_at: 2026-05-22 17:31 Europe/Stockholm
+  - source: Andreas clarified that first-screen labels should spell out Side Quest / Side Quests, that users may have multiple active Multiplayer Side Quests, that there will always be multiple Official Multiplayer Side Quests, and that the current Side Quest needs the Coat of Arms graphic.
+  - scope: mobile app; rename sections to Current Side Quest / My Multiplayer Side Quests / Official Multiplayer Side Quests; render all active multiplayer rows; add bundled Coat of Arms image assets for current Side Quest rendering.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/22-first-screen-current-side-quest-coat-visible.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
