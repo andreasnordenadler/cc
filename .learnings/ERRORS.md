@@ -4085,3 +4085,23 @@ Generated the transparent RGBA PNG manually with Python stdlib (`struct` + `zlib
 - Tags: image-generation, python, mobile-assets
 
 ---
+
+## [ERR-20260522-005] expo_run_android_unknown_clear_arg
+
+**Logged**: 2026-05-22T18:24:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: mobile-dev
+
+### Summary
+Tried `pnpm exec expo run:android --clear` while checking SQC mobile glow asset changes, but this Expo command does not accept `--clear`.
+
+### Resolution
+Reran `expo run:android` without `--clear`; asset cache busting was handled by using a new versioned asset filename.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx, apps/mobile/assets/ui/coat-glow-website-v2.png
+- Tags: expo, android, cli
+
+---

@@ -60,7 +60,7 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
-const COAT_GLOW_ASSET = require("./assets/ui/coat-glow.png");
+const COAT_GLOW_ASSET = require("./assets/ui/coat-glow-website-v2.png");
 
 const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "finish-any-game": require("./assets/badges/v6/proof-loop-test-badge.png"),
@@ -2024,8 +2024,8 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
   coatMarker: { width: 54, height: 60, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatMarkerGlow: { position: "absolute", width: 92, height: 62, opacity: .96 },
-  coatMarkerImage: { width: 48, height: 56 },
+  coatMarkerGlow: { position: "absolute", width: 96, height: 58, opacity: .95 },
+  coatMarkerImage: { width: 48, height: 56, shadowColor: "#ffffff", shadowOpacity: .36, shadowRadius: 10 },
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
@@ -2039,8 +2039,8 @@ const compactStyles = StyleSheet.create({
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   appRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  rowCoatGlow: { position: "absolute", width: 58, height: 40, opacity: .9 },
-  rowCoatImage: { width: 30, height: 34 },
+  rowCoatGlow: { position: "absolute", width: 52, height: 32, opacity: .9 },
+  rowCoatImage: { width: 30, height: 34, shadowColor: "#ffffff", shadowOpacity: .28, shadowRadius: 7 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },
