@@ -402,12 +402,14 @@ function TodayDashboard({
   const activeCoatSource = activeChallenge
     ? getChallengeCoatImageSource(activeChallenge)
     : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
-  const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
-  const activeQuestBrief = activeChallenge?.proofCallout ?? activeChallenge?.objective ?? "Choose one Side Quest to attempt in your next real chess game.";
-  const activeQuestNext = signedIn?.activeQuest?.completed
+  const latestCheckText = latestReceipt?.headline ? normalizeCheckHeadline(latestReceipt.headline) : null;
+  const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
+  const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : latestCheckPassed ? "Check passed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
+  const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
+  const activeQuestNote = signedIn?.activeQuest?.completed
     ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
     : signedIn?.activeQuest
-      ? activeChallenge?.objective ?? "Play a public game, then check if it counted."
+      ? "Check your latest public game when you think it qualifies."
       : "Pick a Side Quest before your next game.";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
@@ -484,27 +486,16 @@ function TodayDashboard({
           <Text style={compactStyles.freshSectionTitle}>Current Side Quest</Text>
           <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentQuestRow} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
+        <View style={compactStyles.currentQuestRow}>
           <View style={compactStyles.coatMarker}>
             {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
             <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
           </View>
           <View style={compactStyles.currentQuestText}>
             <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "Pick your next bad idea"}</Text>
-            <Text style={compactStyles.currentQuestMeta} numberOfLines={2}>{activeQuestNext}</Text>
+            <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
+            <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Latest game qualifies" : latestCheckText ? `Last check: ${latestCheckText}` : activeQuestNote}</Text>
           </View>
-        </Pressable>
-        {activeChallenge ? (
-          <View style={compactStyles.currentFactRow}>
-            <Text style={compactStyles.currentFact}>{activeChallenge.difficulty}</Text>
-            <Text style={compactStyles.currentFact}>+{activeChallenge.reward}</Text>
-            <Text style={compactStyles.currentFact}>{formatRequirementResult(activeChallenge.requirement.result)}</Text>
-          </View>
-        ) : null}
-        <View style={compactStyles.currentInfoBox}>
-          <Text style={compactStyles.currentInfoLabel}>Counts when</Text>
-          <Text style={compactStyles.currentInfoText} numberOfLines={2}>{activeQuestBrief}</Text>
-          {latestReceipt?.headline ? <Text style={compactStyles.currentLatestText} numberOfLines={1}>Last check: {normalizeCheckHeadline(latestReceipt.headline)}</Text> : null}
         </View>
         <View style={compactStyles.actionRowTight}>
           {signedIn.activeQuest?.completed ? (
@@ -513,7 +504,7 @@ function TodayDashboard({
             </Pressable>
           ) : signedIn.activeQuest ? (
             <Pressable accessibilityRole="button" style={compactStyles.primaryAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
-              <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check"}</Text>
+              <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
             </Pressable>
           ) : (
             <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
@@ -522,7 +513,7 @@ function TodayDashboard({
           )}
           {signedIn.activeQuest?.id ? (
             <Pressable accessibilityRole="button" style={compactStyles.secondaryAction} onPress={() => onSelectChallenge(signedIn.activeQuest?.id ?? "", "sideQuests")}>
-              <Text style={compactStyles.secondaryActionText}>Rules</Text>
+              <Text style={compactStyles.secondaryActionText}>Details</Text>
             </Pressable>
           ) : null}
         </View>
@@ -565,16 +556,12 @@ function TodayDashboard({
   );
 }
 
-function formatRequirementResult(result: string): string {
-  if (result === "win") return "Must win";
-  if (result === "loss") return "Must lose";
-  if (result === "draw") return "Must draw";
-  if (result === "any") return "Any result";
-  return result;
-}
-
 function normalizeCheckHeadline(headline: string): string {
-  return headline.replace(/^latest\s+/i, "").trim();
+  return headline
+    .replace(/^latest\s+/i, "")
+    .replace(/^proof\s+/i, "")
+    .trim()
+    .toLowerCase();
 }
 
 function AccountIdentityLine({ name, lichessUsername, chessComUsername }: { name: string; lichessUsername: string | null; chessComUsername: string | null }) {
@@ -2105,12 +2092,8 @@ const compactStyles = StyleSheet.create({
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
-  currentFactRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
-  currentFact: { overflow: "hidden", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, color: colors.paper, backgroundColor: "rgba(255,255,255,.08)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)", fontSize: 11, lineHeight: 13, fontWeight: "900" },
-  currentInfoBox: { gap: 3, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 14, backgroundColor: "rgba(6,5,7,.22)", borderWidth: 1, borderColor: "rgba(255,255,255,.08)" },
-  currentInfoLabel: { color: colors.gold, fontSize: 10, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
-  currentInfoText: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
-  currentLatestText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800", marginTop: 1 },
+  currentQuestMetaStrong: { color: colors.gold, fontWeight: "900" },
+  currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
   actionRowTight: { flexDirection: "row", alignItems: "center", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   primaryActionText: { color: "#111", fontSize: 13, fontWeight: "900" },

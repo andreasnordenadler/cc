@@ -162,6 +162,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; add objective/next-step copy, difficulty/reward/result chips, a `Counts when` proof condition box, and a clearer last-check line while keeping the card compact/native.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshots captured at `artifacts/mobile-live-review-2026-05-22/48-fresh-home-current-side-quest-informative.png` and polished `artifacts/mobile-live-review-2026-05-22/49-fresh-home-current-side-quest-info-polished.png`.
 
+- [x] Simplify SQC mobile Current Side Quest card actions and meaning.
+  - added_at: 2026-05-22 20:11 Europe/Stockholm
+  - completed_at: 2026-05-22 20:18 Europe/Stockholm
+  - source: Andreas said the more-informative card was unclear, repeated rules, and asked what tapping the card does versus `Check`.
+  - scope: mobile app Home; remove hidden row tap, remove repeated chips/counts box, present one clear `Goal`, one latest-result support line, and explicit `Check latest game` versus `Details` actions.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshots captured at `artifacts/mobile-live-review-2026-05-22/50-fresh-home-current-side-quest-simplified-actions.png`, `51-fresh-home-current-side-quest-goal-check-clear.png`, and `52-fresh-home-current-side-quest-latest-qualified.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
