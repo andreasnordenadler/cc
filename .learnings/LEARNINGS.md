@@ -432,3 +432,157 @@ Andreas corrected SQC mobile language: use **Side Quest** and **Coat of Arms**, 
 Andreas Telegram instruction, 2026-05-14 12:45 CEST.
 
 ---
+
+## [LRN-20260518-001] correction
+
+**Logged**: 2026-05-18T18:51:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: mobile-ui
+
+### Summary
+When Andreas asks for mobile to match the website homepage, do not compress it into a generic app dashboard.
+
+### Details
+The first SQC mobile redesign kept the bottom nav direction but made the rest feel unlike the web homepage and exposed an offline-preview error card in the review shell. The correct move is to preserve the website homepage sections and exact copy structure first: hero, CTAs, Where to begin, signed-out explainer, and multiplayer callout.
+
+### Suggested Action
+For website-parity mobile slices, inspect the source web page and port its visible section hierarchy before inventing app-specific cards. Hide noisy technical fallback states from normal review screenshots unless they are the actual feature under review.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx, src/app/page.tsx
+- Tags: sqc, mobile, design-parity
+
+---
+
+## [LRN-20260518-002] correction
+
+**Logged**: 2026-05-18T19:47:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: messaging
+
+### Summary
+Telegram screenshot delivery was unreliable when using repo artifact paths directly.
+
+### Details
+Andreas repeatedly did not receive screenshots until asking again. Repo artifact `MEDIA:` paths may not reliably render as Telegram attachments in this context.
+
+### Suggested Action
+Before sending screenshots to Telegram, copy the final image into OpenClaw's media/outbound area and reference that copied path in the assistant reply.
+
+### Metadata
+- Source: user_feedback
+- Related Files: artifacts/mobile-real-coat-hero-2026-05-18/02-real-coats-home-three.png
+- Tags: telegram, media, screenshots
+
+---
+
+## 2026-05-19 — SQC mobile palette correction
+- Context: Andreas corrected the first post-feedback mobile palette pass: screenshots had a white background.
+- Learning: “Not too dark” did not mean a white shell; SQC web/mobile should keep a dark-gold fantasy base with warm parchment/gold accents.
+- Action: Rebalanced mobile palette back to dark-gold in commit 04a53dd and captured fresh screenshots.
+
+## 2026-05-19 — SQC mobile web-parity correction
+- Context: Andreas said the dark-gold mobile pass was better but still very different from the website.
+- Learning: Use a live website mobile screenshot as visual reference before tuning native app proportions. Matching palette alone is insufficient; top nav, hero scale, card treatment, background watermark/glow, and spacing matter.
+- Action: Added website-style top nav, faint SQC logo watermark, web-like hero card/glow/typography, fixed bottom padding, then tightened proportions in commits 1a30776 and 73b0dc0.
+
+## 2026-05-19 — SQC mobile gradient-only refinement
+- Context: Andreas asked to try gradients like the website after rejecting structural top-bar changes.
+- Action: Kept layout unchanged and added only decorative website-style gradient/glow color treatment to background and existing hero cards in commit c2dba58.
+- Guardrail: No new nav/top bar or structural changes; screenshots verified individual Home screen still has existing content + bottom nav only.
+
+## [LRN-20260520-001] correction
+
+**Logged**: 2026-05-20T09:34:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: communication
+
+### Summary
+When Andreas asks for an "SDK for testing" in the SQC mobile context, confirm whether he means a mobile test build/APK before creating developer tooling.
+
+### Details
+I interpreted "SDK" as an internal testing SDK and built dev tooling, but Andreas wanted an SQC Mobile APK to test.
+
+### Suggested Action
+For ambiguous acronyms around mobile/testing, ask one concise clarification or infer from active mobile context and produce the installable artifact first.
+
+### Metadata
+- Source: user_feedback
+- Related Files: testing-sdk/, docs/SQC_TESTING_SDK.md
+- Tags: sqc, mobile, apk, clarification
+
+## [LRN-20260520-002] correction
+
+**Logged**: 2026-05-20T09:40:00+02:00
+**Priority**: high
+**Status**: pending
+**Area**: mobile
+
+### Summary
+SQC Mobile APK builds previously used Homebrew Java 17 explicitly, not `/usr/libexec/java_home`.
+
+### Details
+I incorrectly concluded no Java runtime was available because macOS `java_home` failed. The working JDK exists at `/opt/homebrew/opt/openjdk@17`, and previous APKs were produced locally by exporting `JAVA_HOME` to that path. Existing APK artifacts are in `cc/artifacts/`.
+
+### Suggested Action
+For SQC Android local builds, use `JAVA_HOME=/opt/homebrew/opt/openjdk@17` and do not rely on `/usr/libexec/java_home`.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/android, artifacts/*.apk
+- Tags: sqc, mobile, apk, java, gradle
+
+## 2026-05-21 — Correction: APK links should use Vercel URL, not Telegram MEDIA path
+Category: correction
+Andreas corrected APK delivery: for SQC mobile test builds, provide a clickable Vercel-hosted URL as before, not only a local `MEDIA:` attachment path. Preferred quick path when EAS quota is blocked: place APK under `public/downloads/`, run a Vercel preview deploy, verify the `/downloads/*.apk` URL with `curl -I`, then send the URL.
+
+## 2026-05-21 — Correction: SQC APK login needs EAS/original signing key
+Category: correction
+The locally re-signed SQC APK can break Google/Clerk login because Android OAuth is tied to package name plus signing certificate SHA fingerprints. For SQC mobile APK fixes when EAS quota is blocked, download EAS credentials, patch/export current JS bundle, then re-sign with the EAS keystore. Verify SHA1 `F4:E0:C8:40:95:18:CA:44:7E:1F:D6:6D:86:5A:C3:1A:B5:7D:E3:21` before sharing.
+
+## [LRN-20260522-001] correction
+
+**Logged**: 2026-05-22T15:32:30+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: workflow
+
+### Summary
+When Andreas says UI work for SQC mobile, default to native Android/iOS app review, not Expo web preview.
+
+### Details
+I prepared an Expo web preview for SQC mobile UI review, but Andreas clarified he wants to work on the APP (Android/iOS), not web UI.
+
+### Suggested Action
+For SQC mobile app UI sessions on the Mac mini, first check Android/iOS simulator/device availability and run native app paths (`expo run:android`, `expo run:ios`, EAS/APK, or Expo Go/dev client as appropriate) before considering web preview.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx, apps/mobile/package.json
+- Tags: sqc, mobile, native, workflow
+
+---
+
+## [LRN-20260522-003] SQC mobile Apple Sports means dense utility, not themed cards
+
+**Logged**: 2026-05-22T17:48:00+02:00
+**Priority**: medium
+**Status**: active
+**Area**: mobile-design
+
+### Summary
+Andreas corrected the SQC mobile direction: the Apple Sports reference should drive a dense native utility/feed layout, not website-like fantasy cards or decorative glow treatments. Top menu/navigation chrome was disliked.
+
+### What to do differently
+For SQC mobile first-screen work, bias toward Apple Sports patterns: compact brand/context header, minimal/no heavy navigation, dense live rows/tables, restrained navy surfaces, small status labels, and the Coat of Arms as a small team-logo-style marker rather than a large decorative framed/glowing hero asset.
+
+### Metadata
+- Source: user correction
+- Related Files: apps/mobile/App.tsx
+- Tags: sqc-mobile, apple-sports, design-direction
+
+---
