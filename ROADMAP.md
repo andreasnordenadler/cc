@@ -92,6 +92,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app; replace previous Home concept with logged-in command-center Home focused on chess account readiness, Current Side Quest, Check/View proof/Pick actions, My Multiplayer Side Quests, Official Multiplayer Side Quests, and recent proof.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/31-fresh-logged-in-command-center-v1-refined.png`.
 
+- [x] Rename fresh SQC mobile Home proof section to Trophy cabinet list.
+  - added_at: 2026-05-22 18:07 Europe/Stockholm
+  - completed_at: 2026-05-22 18:10 Europe/Stockholm
+  - source: Andreas suggested `Recent Proof` should perhaps instead be `Trophy cabinet` and show the list.
+  - scope: mobile app Home; replace recent-proof singleton section with Trophy cabinet list of completed Side Quests, each showing Coat of Arms name and proof/done status.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/32-fresh-home-trophy-cabinet-list.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

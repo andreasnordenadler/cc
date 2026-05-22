@@ -510,11 +510,19 @@ function TodayDashboard({
         )) : <AppRow title="No official rows right now" meta="Check back for the next public Multiplayer Side Quest." status="Open" onPress={() => onSelectTab("multiplayerSideQuests")} />}
       </AppSection>
 
-      {latestReceipt ? (
-        <AppSection title="Recent proof" action={latestReceipt.proofHref ? "Share" : undefined} onAction={latestReceipt.proofHref ? () => void openExternalAppUrl(latestReceipt.proofHref ?? "/account") : undefined}>
-          <AppRow title={latestReceipt.headline} meta={latestReceipt.meta || latestReceipt.detail} status={latestReceipt.status ?? "—"} onPress={() => latestReceipt.proofHref ? void openExternalAppUrl(latestReceipt.proofHref) : onSelectTab("sideQuests")} />
-        </AppSection>
-      ) : null}
+      <AppSection title="Trophy cabinet" action="Open" onAction={() => onSelectTab("coatOfArms")}>
+        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 4).map((quest) => (
+          <AppRow
+            key={quest.id}
+            title={quest.title}
+            meta={`Coat of Arms: ${quest.badgeName}`}
+            status={quest.proofHref ? "Proof" : "Done"}
+            onPress={() => quest.proofHref ? void openExternalAppUrl(quest.proofHref) : onSelectChallenge(quest.id, "coatOfArms")}
+          />
+        )) : (
+          <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." status="—" onPress={() => onSelectTab("sideQuests")} />
+        )}
+      </AppSection>
     </View>
   );
 }
