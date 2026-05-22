@@ -267,6 +267,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app assets + Trophy Cabinet rendering; bundle transparent gold/silver/bronze seal assets from `public/stamps/` into `apps/mobile/assets/stamps/` and select the correct seal image by trophy placement.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/71-fresh-home-trophy-cabinet-gold-seal.png`.
 
+- [x] Add native Current Active Side Quest detail screen on mobile.
+  - added_at: 2026-05-22 23:10 Europe/Stockholm
+  - completed_at: 2026-05-22 23:18 Europe/Stockholm
+  - source: Andreas approved a focused detail view for tapping the active Current Side Quest and suggested a close button like the Apple Sports screenshot.
+  - scope: mobile app Home; tapping the Current Active Side Quest opens a native full-screen modal detail with X close button, Coat of Arms hero, rule/goal, status rows, latest check/account/reward info, explicit `Check latest game`, `Switch Side Quest`, and optional proof/web actions.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/73-current-active-side-quest-detail-close-screen-refined.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -442,6 +443,7 @@ function TodayDashboard({
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
   const hasChessAccount = Boolean(signedIn?.chessAccounts.hasAny);
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const [currentDetailOpen, setCurrentDetailOpen] = useState(false);
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
@@ -511,7 +513,7 @@ function TodayDashboard({
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>Current Active Side Quest</Text>
         </View>
-        <View style={compactStyles.freshPanel}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => signedIn.activeQuest ? setCurrentDetailOpen(true) : onSelectTab("sideQuests")}>
           {activeStatus === "Completed" ? (
             <View style={compactStyles.currentStatusRow}>
               <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
@@ -543,8 +545,28 @@ function TodayDashboard({
           ) : null}
           {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
           {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
-        </View>
+        </Pressable>
       </View>
+
+      <CurrentSideQuestDetailModal
+        visible={currentDetailOpen}
+        signedIn={signedIn}
+        challenge={activeChallenge}
+        activeCoatSource={activeCoatSource}
+        activeQuestGoal={activeQuestGoal}
+        activeQuestNote={activeQuestNote}
+        latestCheckPassed={latestCheckPassed}
+        canViewCurrentProof={canViewCurrentProof}
+        latestProofHref={latestProofHref}
+        actionState={actionState}
+        onClose={() => setCurrentDetailOpen(false)}
+        onRunCheck={() => void runActiveCheck()}
+        onViewProof={() => void openExternalAppUrl(latestProofHref ?? "/account")}
+        onSwitchQuest={() => {
+          setCurrentDetailOpen(false);
+          onSelectTab("sideQuests");
+        }}
+      />
 
       <AppSection title="My Multiplayer Side Quests">
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
@@ -593,6 +615,112 @@ function TodayDashboard({
         <MaterialCommunityIcons name="arrow-down" size={13} color="rgba(199,189,169,.72)" />
         <Text style={compactStyles.pullRefreshHintText}>Pull down to refresh</Text>
       </View>
+    </View>
+  );
+}
+
+function CurrentSideQuestDetailModal({
+  visible,
+  signedIn,
+  challenge,
+  activeCoatSource,
+  activeQuestGoal,
+  activeQuestNote,
+  latestCheckPassed,
+  canViewCurrentProof,
+  latestProofHref,
+  actionState,
+  onClose,
+  onRunCheck,
+  onViewProof,
+  onSwitchQuest,
+}: {
+  visible: boolean;
+  signedIn: MobileAccountState;
+  challenge: MobileChallenge | null;
+  activeCoatSource: ImageSourcePropType;
+  activeQuestGoal: string;
+  activeQuestNote: string;
+  latestCheckPassed: boolean;
+  canViewCurrentProof: boolean;
+  latestProofHref: string | null;
+  actionState: { busy: boolean; message: string | null; error: string | null };
+  onClose: () => void;
+  onRunCheck: () => void;
+  onViewProof: () => void;
+  onSwitchQuest: () => void;
+}) {
+  const activeQuest = signedIn.activeQuest;
+  if (!activeQuest) return null;
+
+  const completed = activeQuest.completed || latestCheckPassed;
+  const accountLabel = signedIn.chessAccounts.lichessUsername
+    ? `lichess · ${signedIn.chessAccounts.lichessUsername}`
+    : signedIn.chessAccounts.chessComUsername
+      ? `chess.com · ${signedIn.chessAccounts.chessComUsername}`
+      : "No chess account connected";
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
+      <SafeAreaView style={compactStyles.detailScreen}>
+        <View style={compactStyles.detailTopBar}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close Current Active Side Quest" style={compactStyles.detailCloseButton} onPress={onClose}>
+            <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+          </Pressable>
+        </View>
+        <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <View style={compactStyles.detailHero}>
+            <View style={compactStyles.detailCoatFrame}>
+              {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+              <Image source={activeCoatSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
+            </View>
+            <Text style={compactStyles.detailEyebrow}>Current Active Side Quest</Text>
+            <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
+            <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
+          </View>
+
+          <View style={compactStyles.detailPanel}>
+            <DetailRow label="State" value={completed ? "Completed" : "Active"} tone={completed ? "good" : "default"} />
+            <DetailRow label="Latest check" value={formatLatestCheckTime(activeQuest.verifiedAt)} />
+            <DetailRow label="Account" value={accountLabel} />
+            <DetailRow label="Reward" value={challenge?.badgeIdentity.name ? `Coat of Arms · ${challenge.badgeIdentity.name}` : "Coat of Arms"} />
+          </View>
+
+          <View style={compactStyles.detailPanelStrong}>
+            <Text style={compactStyles.detailPanelTitle}>{completed ? "Proof ready" : "Ready to check"}</Text>
+            <Text style={compactStyles.detailPanelCopy}>{completed ? "Your latest eligible game completed this Side Quest." : activeQuestNote}</Text>
+            {canViewCurrentProof ? (
+              <Pressable accessibilityRole="button" style={compactStyles.detailPrimaryButton} onPress={onViewProof}>
+                <Text style={compactStyles.detailPrimaryButtonText}>View victory proof</Text>
+              </Pressable>
+            ) : (
+              <Pressable accessibilityRole="button" disabled={actionState.busy} style={[compactStyles.detailPrimaryButton, actionState.busy && compactStyles.detailPrimaryButtonDisabled]} onPress={onRunCheck}>
+                <Text style={compactStyles.detailPrimaryButtonText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
+              </Pressable>
+            )}
+            {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+            {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
+          </View>
+
+          <Pressable accessibilityRole="button" style={compactStyles.detailSecondaryButton} onPress={onSwitchQuest}>
+            <Text style={compactStyles.detailSecondaryButtonText}>Switch Side Quest</Text>
+          </Pressable>
+          {latestProofHref ? (
+            <Pressable accessibilityRole="button" style={compactStyles.detailQuietButton} onPress={() => void openExternalAppUrl(latestProofHref)}>
+              <Text style={compactStyles.detailQuietButtonText}>Open on web</Text>
+            </Pressable>
+          ) : null}
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
+function DetailRow({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "good" }) {
+  return (
+    <View style={compactStyles.detailRow}>
+      <Text style={compactStyles.detailRowLabel}>{label}</Text>
+      <Text style={[compactStyles.detailRowValue, tone === "good" && compactStyles.detailRowValueGood]} numberOfLines={2}>{value}</Text>
     </View>
   );
 }
@@ -2193,6 +2321,32 @@ const compactStyles = StyleSheet.create({
   appRowMeta: { color: colors.muted, fontSize: 12 },
   appRowStatus: { maxWidth: 88, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
   appRowStatusJoined: { color: colors.green },
+  detailScreen: { flex: 1, backgroundColor: colors.bg },
+  detailTopBar: { height: 58, paddingHorizontal: 14, paddingTop: 10, justifyContent: "center" },
+  detailCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.12)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  detailContent: { paddingHorizontal: 18, paddingBottom: 28, gap: 14 },
+  detailHero: { alignItems: "center", gap: 7, paddingTop: 4, paddingBottom: 4 },
+  detailCoatFrame: { width: 124, height: 134, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  detailCoatGlowImage: { position: "absolute", width: 160, height: 174, opacity: .72, transform: [{ translateY: 8 }] },
+  detailCoatImage: { width: 112, height: 124 },
+  detailEyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
+  detailTitle: { color: colors.paper, fontSize: 29, lineHeight: 32, fontWeight: "900", textAlign: "center", letterSpacing: -1.2 },
+  detailGoal: { maxWidth: 310, color: colors.muted, fontSize: 14, lineHeight: 19, fontWeight: "700", textAlign: "center" },
+  detailPanel: { overflow: "hidden", borderRadius: 20, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
+  detailPanelStrong: { gap: 9, padding: 14, borderRadius: 22, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  detailPanelTitle: { color: colors.paper, fontSize: 17, fontWeight: "900", letterSpacing: -.25 },
+  detailPanelCopy: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
+  detailRow: { minHeight: 48, gap: 4, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.075)" },
+  detailRowLabel: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
+  detailRowValue: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
+  detailRowValueGood: { color: colors.green },
+  detailPrimaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.gold },
+  detailPrimaryButtonDisabled: { opacity: .62 },
+  detailPrimaryButtonText: { color: "#111", fontSize: 14, fontWeight: "900" },
+  detailSecondaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 999, backgroundColor: "rgba(255,247,232,.09)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  detailSecondaryButtonText: { color: colors.paper, fontSize: 14, fontWeight: "900" },
+  detailQuietButton: { alignItems: "center", paddingVertical: 4 },
+  detailQuietButtonText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 2, paddingBottom: 4, opacity: .72 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
