@@ -239,6 +239,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile account API + mobile Home preview/types; include player/time/position/join-state metadata, render concise row copy (`players · time left · #position`), use `Join`/`Joined` official status indicators, and remove redundant official-label copy.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/67-fresh-home-multiplayer-players-time-position-join.png`.
 
+- [x] Color joined Official Multiplayer status green on SQC mobile.
+  - added_at: 2026-05-22 21:03 Europe/Stockholm
+  - completed_at: 2026-05-22 21:06 Europe/Stockholm
+  - source: Andreas asked whether `Joined` should be a different color, e.g. green.
+  - scope: mobile app Home Multiplayer rows; keep `Join` gold/action-colored and render `Joined` as green positive state.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/68-fresh-home-joined-status-green.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

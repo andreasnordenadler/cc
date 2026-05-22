@@ -659,7 +659,7 @@ function AppRow({ title, meta, status, imageSource, glowSource, glowColor, varia
         <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
         <Text style={compactStyles.appRowMeta} numberOfLines={1}>{meta}</Text>
       </View>
-      {visibleStatus ? <Text style={compactStyles.appRowStatus} numberOfLines={1}>{visibleStatus}</Text> : null}
+      {visibleStatus ? <Text style={[compactStyles.appRowStatus, visibleStatus.toLowerCase() === "joined" && compactStyles.appRowStatusJoined]} numberOfLines={1}>{visibleStatus}</Text> : null}
     </Pressable>
   );
 }
@@ -2161,6 +2161,7 @@ const compactStyles = StyleSheet.create({
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },
   appRowStatus: { maxWidth: 88, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
+  appRowStatusJoined: { color: colors.green },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 2, paddingBottom: 4, opacity: .72 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
