@@ -433,7 +433,7 @@ function TodayDashboard({
   const activeQuestNote = signedIn?.activeQuest?.completed
     ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
     : signedIn?.activeQuest
-      ? `Latest check: ${formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn.activeQuest.verifiedAt)} · Pull down to refresh`
+      ? `Latest check: ${formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn.activeQuest.verifiedAt)}`
       : "Pick a Side Quest before your next game.";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
@@ -575,6 +575,11 @@ function TodayDashboard({
           <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
         )}
       </AppSection>
+
+      <View style={compactStyles.pullRefreshHint}>
+        <MaterialCommunityIcons name="arrow-down" size={13} color="rgba(199,189,169,.72)" />
+        <Text style={compactStyles.pullRefreshHintText}>Pull down to refresh</Text>
+      </View>
     </View>
   );
 }
@@ -2128,6 +2133,8 @@ const compactStyles = StyleSheet.create({
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },
   appRowStatus: { maxWidth: 88, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
+  pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 2, paddingBottom: 4, opacity: .72 },
+  pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
   topNavHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   topNavMeta: { color: "rgba(255,247,232,.58)", fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },

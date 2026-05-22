@@ -204,6 +204,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; wire pull-to-refresh to run the active non-completed Side Quest latest-game check when applicable, remove the in-card refresh icon, and add `Latest check: ... · Pull down to refresh` as subtle discoverability copy.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshots captured at `artifacts/mobile-live-review-2026-05-22/61-fresh-home-pull-refresh-no-icon.png` and `62-fresh-home-pull-refresh-hint.png`.
 
+- [x] Move SQC mobile pull-to-refresh hint to bottom.
+  - added_at: 2026-05-22 20:48 Europe/Stockholm
+  - completed_at: 2026-05-22 20:52 Europe/Stockholm
+  - source: Andreas asked for a subtle pull-to-refresh thing at the bottom.
+  - scope: mobile app Home; remove pull-refresh instruction from the Current Active Side Quest card and add a subtle bottom footer hint with arrow + `Pull down to refresh`.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/63-fresh-home-bottom-pull-refresh-hint.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
