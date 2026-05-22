@@ -29,6 +29,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app tracker UI; remove PTS as a primary Today metric; update top nav and visible tracker copy to Side Quest / Coat of Arms language.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/09-side-quest-coat-of-arms-no-points.png`.
 
+- [x] Test Apple Sports-style live board layout for SQC Mobile Today.
+  - added_at: 2026-05-22 16:29 Europe/Stockholm
+  - completed_at: 2026-05-22 16:36 Europe/Stockholm
+  - source: Andreas wanted to try a stronger Apple Sports-inspired board/table layout from the upcoming Apple Sports app reference.
+  - scope: mobile app only; convert Today from stacked explainer cards to a compact live Side Quest Board with active match-style card, status/check pills, table rows, and quick paths.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; final emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/13-apple-sports-scoreboard-account-label-fixed.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
