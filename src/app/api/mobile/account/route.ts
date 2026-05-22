@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { CHALLENGES } from "@/lib/challenges";
 import { buildPublicProofPath } from "@/lib/proof-share";
-import { listUserRelatedGroupQuests } from "@/lib/groupquests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -87,6 +87,7 @@ export async function GET(request: Request) {
     };
   }));
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, userId);
+  const publicGroupQuests = await listPublicGroupQuests(client);
   const activeGroupQuests = relatedGroupQuests
     .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
     .map((quest) => {
@@ -101,6 +102,17 @@ export async function GET(request: Request) {
       };
     })
     .filter((quest) => quest.status !== "Finished");
+  const officialPublicGroupQuests = publicGroupQuests
+    .filter((quest) => quest.hostUserId !== userId && quest.official && !quest.participants.some((participant) => participant.userId === userId))
+    .map((quest) => ({
+      id: quest.id,
+      title: quest.name,
+      status: deriveGroupQuestStatus(quest.startAt, quest.endAt),
+      copy: `${quest.officialLabel ?? "Official SQC"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+      href: new URL(`/groupquests/${quest.id}`, baseUrl).toString(),
+    }))
+    .filter((quest) => quest.status !== "Finished")
+    .slice(0, 3);
 
   return NextResponse.json({
     apiVersion: 1,
@@ -139,6 +151,7 @@ export async function GET(request: Request) {
         }
       : null,
     activeGroupQuests,
+    officialPublicGroupQuests,
     completedQuests: completedQuestPayloads,
     latestReceipt: latestAttempt
       ? {

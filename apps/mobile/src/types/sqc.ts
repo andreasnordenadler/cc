@@ -93,6 +93,13 @@ export type MobileAccountState = {
     copy: string;
     href: string;
   }>;
+  officialPublicGroupQuests?: Array<{
+    id: string;
+    title: string;
+    status: string;
+    copy: string;
+    href: string;
+  }>;
   completedQuests: Array<{
     id: string;
     title: string;

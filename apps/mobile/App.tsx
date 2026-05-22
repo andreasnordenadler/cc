@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as AuthSession from "expo-auth-session";
@@ -316,15 +316,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 }
 
 
-function TopTrackerNav({ activeTab, account, onSelectTab }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void }) {
-  const authenticated = isAuthenticatedAccount(account);
-
+function TopTrackerNav({ activeTab, account: _account, onSelectTab }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void }) {
   return (
     <View style={compactStyles.topNavPanel} accessibilityLabel="SQC tracker sections">
-      <View style={compactStyles.topNavHeader}>
-        <Text style={compactStyles.kicker}>Tracker</Text>
-        <Text style={compactStyles.topNavMeta}>{authenticated ? "Live board" : "Sign-in preview"}</Text>
-      </View>
       <View style={compactStyles.topNavRail}>
         {TABS.map((tab) => (
           <Pressable
@@ -377,8 +371,10 @@ function TodayDashboard({
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const latestReceipt = signedIn?.latestReceipt;
-  const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
-  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "Refresh check" : "Pick one";
+  const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "None";
+  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Proof" : signedIn?.activeQuest ? "Check progress" : "Pick Solo Side Quest";
+  const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
+  const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
 
   function handleSignIn() {
@@ -417,34 +413,20 @@ function TodayDashboard({
           </Pressable>
         </View>
       ) : (
-        <View style={compactStyles.liveBoardPanel}>
-          <View style={compactStyles.liveBoardHeader}>
-            <View>
-              <Text style={compactStyles.kicker}>Today</Text>
-              <Text style={compactStyles.boardTitle}>Side Quest Board</Text>
-            </View>
-          </View>
-
-          <View style={compactStyles.matchCard}>
-            {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
-            <Pressable accessibilityRole="button" accessibilityLabel="Open active Side Quest" onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
-              <View style={compactStyles.matchCardTopline}>
-                <Text style={compactStyles.matchLeague}>Current Solo Side Quest</Text>
-                <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
-              </View>
-              <View style={compactStyles.matchMainRow}>
-                <View style={compactStyles.matchSideBlock}>
-                  <Text style={compactStyles.matchSideLabel}>Status</Text>
-                  <Text style={compactStyles.matchSideTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
-                  <Text style={compactStyles.matchSideMeta} numberOfLines={2}>{signedIn.activeQuest?.completed ? "Completed. Your red seal and proof receipt are ready." : signedIn.activeQuest ? "In progress. Play a public game, then refresh the check." : "Pick one Solo Side Quest to put on the board."}</Text>
+        <View style={compactStyles.todayFeed}>
+          <FeedSection title="Solo">
+            <View style={compactStyles.matchCard}>
+              {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
+              <Pressable accessibilityRole="button" accessibilityLabel="Open current Solo Side Quest" onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
+                <View style={compactStyles.matchCardTopline}>
+                  <Text style={compactStyles.matchLeague}>Current</Text>
+                  <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
                 </View>
-                <Text style={compactStyles.matchDivider}>›</Text>
-              </View>
-            </Pressable>
-            <View style={compactStyles.currentQuestActionRow}>
+                <Text style={compactStyles.matchSideTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
+              </Pressable>
               {signedIn.activeQuest?.completed ? (
                 <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => void openExternalAppUrl(signedIn.activeQuest?.proofHref ?? latestReceipt?.proofHref ?? "/account")}>
-                  <Text style={compactStyles.goldButtonText}>View completed proof</Text>
+                  <Text style={compactStyles.goldButtonText}>View proof</Text>
                 </Pressable>
               ) : signedIn.activeQuest ? (
                 <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
@@ -452,17 +434,50 @@ function TodayDashboard({
                 </Pressable>
               ) : (
                 <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => onSelectTab("sideQuests")}>
-                  <Text style={compactStyles.goldButtonText}>Pick Solo Side Quest</Text>
+                  <Text style={compactStyles.goldButtonText}>{activeCheckStatus}</Text>
                 </Pressable>
               )}
+              {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+              {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
             </View>
-            {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
-            {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
-          </View>
+          </FeedSection>
+
+          <FeedSection title="My Multiplayer">
+            {activeMultiplayer.length ? activeMultiplayer.slice(0, 3).map((quest) => (
+              <FeedRow key={quest.id} title={quest.title} status={quest.status} meta={quest.copy} onPress={() => void openExternalAppUrl(quest.href)} />
+            )) : <FeedRow title="No active Multiplayer Side Quest" status="—" meta="Join one below" onPress={() => onSelectTab("multiplayerSideQuests")} />}
+          </FeedSection>
+
+          <FeedSection title="Official Multiplayer">
+            {officialPublic.length ? officialPublic.map((quest) => (
+              <FeedRow key={quest.id} title={quest.title} status={quest.status} meta={quest.copy} onPress={() => void openExternalAppUrl(quest.href)} />
+            )) : <FeedRow title="Official Multiplayer Side Quests" status="Open" meta="Browse official public board" onPress={() => onSelectTab("multiplayerSideQuests")} />}
+          </FeedSection>
         </View>
       )}
 
     </View>
+  );
+}
+
+function FeedSection({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <View style={compactStyles.feedSection}>
+      <Text style={compactStyles.feedSectionTitle}>{title}</Text>
+      <View style={compactStyles.feedRows}>{children}</View>
+    </View>
+  );
+}
+
+function FeedRow({ title, status, meta, onPress }: { title: string; status: string; meta: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" style={compactStyles.feedRow} onPress={onPress}>
+      <View style={compactStyles.feedRowCopy}>
+        <Text style={compactStyles.feedRowTitle} numberOfLines={1}>{title}</Text>
+        <Text style={compactStyles.feedRowMeta} numberOfLines={1}>{meta}</Text>
+      </View>
+      <Text style={compactStyles.feedRowStatus} numberOfLines={1}>{status}</Text>
+    </Pressable>
   );
 }
 
@@ -1783,9 +1798,18 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       {
         id: "review-room",
         title: "Friday Night Bad Ideas",
-        status: "live",
-        copy: "3 players · proof window open",
+        status: "Live",
+        copy: "Playing · 3 players",
         href: "/groupquests/review-room",
+      },
+    ],
+    officialPublicGroupQuests: [
+      {
+        id: "official-preview",
+        title: "First Blood: Knights Before Coffee",
+        status: "Open",
+        copy: "Official SQC · 8 players",
+        href: "/groupquests/official-preview",
       },
     ],
     completedQuests: completed.map((challenge) => ({
@@ -1854,7 +1878,7 @@ const colors = {
 
 const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
-  topNavPanel: { gap: 8, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.22)" },
+  topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
   topNavHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   topNavMeta: { color: "rgba(255,247,232,.58)", fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },
   topNavRail: { flexDirection: "row", gap: 5 },
@@ -1906,6 +1930,15 @@ const compactStyles = StyleSheet.create({
   coatTileTitle: { minHeight: 30, color: colors.paper, fontSize: 11, lineHeight: 14, textAlign: "center", fontWeight: "800" },
   earnedText: { color: colors.green, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   lockedText: { color: colors.gold, fontSize: 10, fontWeight: "900" },
+  todayFeed: { gap: 8 },
+  feedSection: { gap: 5 },
+  feedSectionTitle: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .8, paddingHorizontal: 3 },
+  feedRows: { gap: 3, overflow: "hidden", borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.2)" },
+  feedRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, paddingLeft: 11, paddingRight: 14, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.06)" },
+  feedRowCopy: { flex: 1, minWidth: 0 },
+  feedRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "900" },
+  feedRowMeta: { color: colors.muted, fontSize: 12, marginTop: 2 },
+  feedRowStatus: { maxWidth: 90, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
   liveBoardPanel: { gap: 8, padding: 9, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.2)" },
   liveBoardHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   boardTitle: { color: colors.paper, fontSize: 22, fontWeight: "900", letterSpacing: -.7 },

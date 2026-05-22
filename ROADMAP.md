@@ -43,6 +43,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app only; remove Today metric strip, table, quick-path clutter, and duplicate refresh; keep one current Solo Side Quest card with status, one refresh/check action, and completed proof/seal treatment.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; final emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/16-current-solo-side-quest-single-refresh.png`.
 
+- [x] Reframe SQC Mobile first screen as a minimal Solo/Multiplayer feed.
+  - added_at: 2026-05-22 17:01 Europe/Stockholm
+  - completed_at: 2026-05-22 17:08 Europe/Stockholm
+  - source: Andreas said the Today screen had too much repeated language and clarified first-screen priorities: current Solo Side Quest, current Multiplayer Side Quests the user participates in, and available Official Public Multiplayer Side Quests.
+  - scope: mobile app plus mobile account API; add official public Multiplayer Side Quest payload to mobile account state; replace Today with compact Solo / My Multiplayer / Official Multiplayer feed rows; remove extra Tracker/Live Board language.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/18-first-screen-feed-reduced-language.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
