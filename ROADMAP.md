@@ -232,6 +232,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home dev preview account; expand `officialPublicGroupQuests` from one to three active official rows so the first screen reflects the intended steady-state product model. Production mobile API already returns up to 3 real official public Multiplayer Side Quests when available.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/66-fresh-home-three-official-multiplayer-side-quests.png`.
 
+- [x] Add SQC mobile Multiplayer row status info.
+  - added_at: 2026-05-22 21:00 Europe/Stockholm
+  - completed_at: 2026-05-22 21:05 Europe/Stockholm
+  - source: Andreas asked Multiplayer Side Quest rows to show player count and time left, joined rows to show user's current position, Official rows to show Join/Joined, and official rows to omit `Official SQC` text.
+  - scope: mobile account API + mobile Home preview/types; include player/time/position/join-state metadata, render concise row copy (`players · time left · #position`), use `Join`/`Joined` official status indicators, and remove redundant official-label copy.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/67-fresh-home-multiplayer-players-time-position-join.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

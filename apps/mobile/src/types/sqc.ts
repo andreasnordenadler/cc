@@ -92,6 +92,9 @@ export type MobileAccountState = {
     status: string;
     copy: string;
     href: string;
+    playersLabel?: string;
+    timeLeftLabel?: string;
+    positionLabel?: string;
   }>;
   officialPublicGroupQuests?: Array<{
     id: string;
@@ -99,6 +102,9 @@ export type MobileAccountState = {
     status: string;
     copy: string;
     href: string;
+    playersLabel?: string;
+    timeLeftLabel?: string;
+    joinState?: "Join" | "Joined";
   }>;
   completedQuests: Array<{
     id: string;

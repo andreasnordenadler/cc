@@ -97,21 +97,30 @@ export async function GET(request: Request) {
         id: quest.id,
         title: quest.name,
         status,
-        copy: `${isHost ? "Hosting" : "Playing"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} · ${quest.providerLabel}`,
+        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), getParticipantPositionLabel(quest, userId)].filter(Boolean).join(" · "),
         href: new URL(`/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`, baseUrl).toString(),
+        playersLabel: formatPlayersLabel(quest.participants.length),
+        timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        positionLabel: getParticipantPositionLabel(quest, userId),
       };
     })
     .filter((quest) => quest.status !== "Finished");
   const officialPublicGroupQuests = publicGroupQuests
-    .filter((quest) => quest.hostUserId !== userId && quest.official && !quest.participants.some((participant) => participant.userId === userId))
-    .map((quest) => ({
-      id: quest.id,
-      title: quest.name,
-      status: deriveGroupQuestStatus(quest.startAt, quest.endAt),
-      copy: `${quest.officialLabel ?? "Official SQC"} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
-      href: new URL(`/groupquests/${quest.id}`, baseUrl).toString(),
-    }))
-    .filter((quest) => quest.status !== "Finished")
+    .filter((quest) => quest.hostUserId !== userId && quest.official)
+    .map((quest) => {
+      const joined = quest.participants.some((participant) => participant.userId === userId);
+      return {
+        id: quest.id,
+        title: quest.name,
+        status: joined ? "Joined" : "Join",
+        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt)].filter(Boolean).join(" · "),
+        href: new URL(`/groupquests/${quest.id}${joined ? "?accepted=1" : ""}`, baseUrl).toString(),
+        playersLabel: formatPlayersLabel(quest.participants.length),
+        timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        joinState: joined ? "Joined" as const : "Join" as const,
+      };
+    })
+    .filter((quest) => deriveGroupQuestStatus(publicGroupQuests.find((source) => source.id === quest.id)?.startAt ?? "", publicGroupQuests.find((source) => source.id === quest.id)?.endAt ?? "") !== "Finished")
     .slice(0, 3);
 
   return NextResponse.json({
@@ -171,6 +180,28 @@ export async function GET(request: Request) {
         }
       : null,
   });
+}
+
+function formatPlayersLabel(count: number) {
+  return `${count} player${count === 1 ? "" : "s"}`;
+}
+
+function formatTimeLeftLabel(endAt: string) {
+  const end = Date.parse(endAt);
+  if (!Number.isFinite(end)) return "Time TBA";
+  const remainingMs = end - Date.now();
+  if (remainingMs <= 0) return "Ended";
+  const minutes = Math.ceil(remainingMs / 60000);
+  if (minutes < 60) return `${minutes}m left`;
+  const hours = Math.ceil(minutes / 60);
+  if (hours < 48) return `${hours}h left`;
+  return `${Math.ceil(hours / 24)}d left`;
+}
+
+function getParticipantPositionLabel(quest: { participants: Array<{ userId: string; score?: number }> }, userId: string) {
+  const ranked = [...quest.participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  const index = ranked.findIndex((participant) => participant.userId === userId);
+  return index >= 0 ? `#${index + 1}` : null;
 }
 
 function deriveGroupQuestStatus(startAt: string, endAt: string) {
