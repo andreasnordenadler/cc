@@ -218,6 +218,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; remove the large brand title from logged-in header and promote the player identity/platform account line as the top header, saving vertical space.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/64-fresh-home-no-brand-title.png`.
 
+- [x] Split SQC mobile account header into name and account rows.
+  - added_at: 2026-05-22 20:53 Europe/Stockholm
+  - completed_at: 2026-05-22 20:57 Europe/Stockholm
+  - source: Andreas noted long display names and long Lichess/Chess.com usernames would run out of space if kept on one line.
+  - scope: mobile app Home header; put display name on the first line and platform username pills on a wrapped second line with capped account widths.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/65-fresh-home-two-line-account-header.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

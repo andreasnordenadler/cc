@@ -602,18 +602,20 @@ function AccountIdentityLine({ name, lichessUsername, chessComUsername }: { name
   return (
     <View style={compactStyles.identityLine} accessibilityLabel={`Signed in as ${name}`}>
       <Text style={compactStyles.identityName} numberOfLines={1}>{name}</Text>
-      {lichessUsername ? (
-        <View style={compactStyles.identityAccount}>
-          <Text style={[compactStyles.identityPlatform, compactStyles.identityPlatformLichess]}>lichess</Text>
-          <Text style={compactStyles.identityUsername} numberOfLines={1}>{lichessUsername}</Text>
-        </View>
-      ) : null}
-      {chessComUsername ? (
-        <View style={compactStyles.identityAccount}>
-          <Text style={[compactStyles.identityPlatform, compactStyles.identityPlatformChessCom]}>chess.com</Text>
-          <Text style={compactStyles.identityUsername} numberOfLines={1}>{chessComUsername}</Text>
-        </View>
-      ) : null}
+      <View style={compactStyles.identityAccountsLine}>
+        {lichessUsername ? (
+          <View style={compactStyles.identityAccount}>
+            <Text style={[compactStyles.identityPlatform, compactStyles.identityPlatformLichess]}>lichess</Text>
+            <Text style={compactStyles.identityUsername} numberOfLines={1}>{lichessUsername}</Text>
+          </View>
+        ) : null}
+        {chessComUsername ? (
+          <View style={compactStyles.identityAccount}>
+            <Text style={[compactStyles.identityPlatform, compactStyles.identityPlatformChessCom]}>chess.com</Text>
+            <Text style={compactStyles.identityUsername} numberOfLines={1}>{chessComUsername}</Text>
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -2083,9 +2085,10 @@ const compactStyles = StyleSheet.create({
   identityBlock: { flex: 1, minWidth: 0, gap: 4 },
   freshTitle: { color: colors.paper, fontSize: 24, lineHeight: 28, fontWeight: "900", letterSpacing: -.65 },
   freshSubtle: { color: colors.muted, fontSize: 12, fontWeight: "800", marginTop: 2 },
-  identityLine: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", columnGap: 7, rowGap: 3 },
+  identityLine: { gap: 4, minWidth: 0 },
   identityName: { color: colors.paper, fontSize: 17, lineHeight: 21, fontWeight: "900", letterSpacing: -.25 },
-  identityAccount: { flexDirection: "row", alignItems: "center", gap: 4 },
+  identityAccountsLine: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", columnGap: 7, rowGap: 3 },
+  identityAccount: { flexDirection: "row", alignItems: "center", gap: 4, maxWidth: "48%" },
   identityPlatform: { overflow: "hidden", paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, fontSize: 8, lineHeight: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .25 },
   identityPlatformLichess: { color: colors.green, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   identityPlatformChessCom: { color: "#76a9ff", backgroundColor: "rgba(118,169,255,.1)", borderWidth: 1, borderColor: "rgba(118,169,255,.18)" },
