@@ -404,7 +404,9 @@ function TodayDashboard({
     : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
   const latestCheckText = latestReceipt?.headline ? normalizeCheckHeadline(latestReceipt.headline) : null;
   const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
-  const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : latestCheckPassed ? "Check passed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
+  const latestProofHref = signedIn?.activeQuest?.proofHref ?? latestReceipt?.proofHref ?? null;
+  const canViewCurrentProof = Boolean(signedIn?.activeQuest?.completed || (latestCheckPassed && latestProofHref));
+  const activeStatus = signedIn?.activeQuest?.completed || latestCheckPassed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
   const activeQuestNote = signedIn?.activeQuest?.completed
     ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
@@ -494,17 +496,17 @@ function TodayDashboard({
           <View style={compactStyles.currentQuestText}>
             <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "Pick your next bad idea"}</Text>
             <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
-            <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Latest game qualifies" : latestCheckText ? `Last check: ${latestCheckText}` : activeQuestNote}</Text>
+            <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : latestCheckText ? `Last check: ${latestCheckText}` : activeQuestNote}</Text>
           </View>
         </View>
         <View style={compactStyles.actionRowTight}>
-          {signedIn.activeQuest?.completed ? (
-            <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => void openExternalAppUrl(signedIn.activeQuest?.proofHref ?? latestReceipt?.proofHref ?? "/account")}>
-              <Text style={compactStyles.primaryActionText}>View proof</Text>
+          {canViewCurrentProof ? (
+            <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => void openExternalAppUrl(latestProofHref ?? "/account")}>
+              <Text style={compactStyles.primaryActionText}>View result</Text>
             </Pressable>
           ) : signedIn.activeQuest ? (
             <Pressable accessibilityRole="button" style={compactStyles.primaryAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
-              <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
+              <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check my latest game"}</Text>
             </Pressable>
           ) : (
             <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
@@ -513,7 +515,7 @@ function TodayDashboard({
           )}
           {signedIn.activeQuest?.id ? (
             <Pressable accessibilityRole="button" style={compactStyles.secondaryAction} onPress={() => onSelectChallenge(signedIn.activeQuest?.id ?? "", "sideQuests")}>
-              <Text style={compactStyles.secondaryActionText}>Details</Text>
+              <Text style={compactStyles.secondaryActionText}>How it works</Text>
             </Pressable>
           ) : null}
         </View>

@@ -169,6 +169,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; remove hidden row tap, remove repeated chips/counts box, present one clear `Goal`, one latest-result support line, and explicit `Check latest game` versus `Details` actions.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshots captured at `artifacts/mobile-live-review-2026-05-22/50-fresh-home-current-side-quest-simplified-actions.png`, `51-fresh-home-current-side-quest-goal-check-clear.png`, and `52-fresh-home-current-side-quest-latest-qualified.png`.
 
+- [x] Replace SQC mobile Current Side Quest verifier jargon with user-facing completion language.
+  - added_at: 2026-05-22 20:17 Europe/Stockholm
+  - completed_at: 2026-05-22 20:25 Europe/Stockholm
+  - source: Andreas said `Check passed`, `Latest game qualifies`, and `Check latest game` were confusing to a normal user.
+  - scope: mobile app Home; replace verifier/status jargon with `Completed`, `Verified in your latest game.`, and state-aware primary action `View result` when proof is available; keep `Check my latest game` only for unresolved active Side Quests.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshots captured at `artifacts/mobile-live-review-2026-05-22/53-fresh-home-current-side-quest-plain-language.png`, `54-fresh-home-current-side-quest-state-aware-proof.png`, `55-fresh-home-current-side-quest-proof-ready.png`, and `56-fresh-home-current-side-quest-completed-result.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
