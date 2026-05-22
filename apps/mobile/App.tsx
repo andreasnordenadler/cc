@@ -242,6 +242,27 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
   }, [loadAccount, loadBootstrap]);
 
+  const refreshCurrentScreen = useCallback(async () => {
+    const accountForRefresh = shell.bootstrap ? getDevTrackerPreviewAccount(shell.account, shell.bootstrap) : shell.account;
+    const activeQuestId = isAuthenticatedAccount(accountForRefresh) && accountForRefresh.activeQuest && !accountForRefresh.activeQuest.completed
+      ? accountForRefresh.activeQuest.id
+      : null;
+
+    setShell((current) => ({ ...current, refreshing: true }));
+    try {
+      if (shell.activeTab === "home" && activeQuestId && authBridge.isSignedIn) {
+        const sessionToken = await authBridge.getSessionToken();
+        await runMobileQuestAction({ sessionToken, action: "check", challengeId: activeQuestId });
+        await loadAccount();
+        return;
+      }
+
+      await refreshBoardAndAccount();
+    } finally {
+      setShell((current) => ({ ...current, refreshing: false }));
+    }
+  }, [authBridge, loadAccount, refreshBoardAndAccount, shell.account, shell.activeTab, shell.bootstrap]);
+
   useEffect(() => {
     const bootstrapTimer = setTimeout(() => void loadBootstrap(), 0);
     return () => clearTimeout(bootstrapTimer);
@@ -301,7 +322,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ref={scrollViewRef}
         style={styles.screen}
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 34, 54) }]}
-        refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
+        refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshCurrentScreen()} />}
         scrollEventThrottle={32}
         onScroll={handleScroll}
         onLayout={handleViewportLayout}
@@ -412,7 +433,7 @@ function TodayDashboard({
   const activeQuestNote = signedIn?.activeQuest?.completed
     ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
     : signedIn?.activeQuest
-      ? `Latest check: ${formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn.activeQuest.verifiedAt)}`
+      ? `Latest check: ${formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn.activeQuest.verifiedAt)} · Pull down to refresh`
       : "Pick a Side Quest before your next game.";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
@@ -505,21 +526,19 @@ function TodayDashboard({
               <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : activeQuestNote}</Text>
             </View>
           </View>
-          <View style={compactStyles.actionRowTight}>
-            {canViewCurrentProof ? (
+          {canViewCurrentProof ? (
+            <View style={compactStyles.actionRowTight}>
               <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => void openExternalAppUrl(latestProofHref ?? "/account")}>
                 <Text style={compactStyles.primaryActionText}>View result</Text>
               </Pressable>
-            ) : signedIn.activeQuest ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={compactStyles.refreshAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
-                {actionState.busy ? <ActivityIndicator color="#111" size="small" /> : <MaterialCommunityIcons name="refresh" size={22} color="#111" />}
-              </Pressable>
-            ) : (
+            </View>
+          ) : !signedIn.activeQuest ? (
+            <View style={compactStyles.actionRowTight}>
               <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
                 <Text style={compactStyles.primaryActionText}>Pick Side Quest</Text>
               </Pressable>
-            )}
-          </View>
+            </View>
+          ) : null}
           {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
           {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
         </View>
