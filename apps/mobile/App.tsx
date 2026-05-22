@@ -486,7 +486,6 @@ function TodayDashboard({
     <View style={compactStyles.freshShell}>
       <View style={compactStyles.freshHeader}>
         <View style={compactStyles.identityBlock}>
-          <Text style={compactStyles.freshTitle}>Side Quest Chess</Text>
           <AccountIdentityLine
             name={signedIn.profile.displayName}
             lichessUsername={signedIn.chessAccounts.lichessUsername}
@@ -2080,12 +2079,12 @@ const colors = {
 const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
   freshShell: { gap: 12 },
-  freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 2, paddingTop: 2 },
+  freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 2, paddingTop: 0 },
   identityBlock: { flex: 1, minWidth: 0, gap: 4 },
   freshTitle: { color: colors.paper, fontSize: 24, lineHeight: 28, fontWeight: "900", letterSpacing: -.65 },
   freshSubtle: { color: colors.muted, fontSize: 12, fontWeight: "800", marginTop: 2 },
   identityLine: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", columnGap: 7, rowGap: 3 },
-  identityName: { color: colors.muted, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  identityName: { color: colors.paper, fontSize: 17, lineHeight: 21, fontWeight: "900", letterSpacing: -.25 },
   identityAccount: { flexDirection: "row", alignItems: "center", gap: 4 },
   identityPlatform: { overflow: "hidden", paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, fontSize: 8, lineHeight: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .25 },
   identityPlatformLichess: { color: colors.green, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },

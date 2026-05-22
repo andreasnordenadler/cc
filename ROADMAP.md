@@ -211,6 +211,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; remove pull-refresh instruction from the Current Active Side Quest card and add a subtle bottom footer hint with arrow + `Pull down to refresh`.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/63-fresh-home-bottom-pull-refresh-hint.png`.
 
+- [x] Remove redundant SQC mobile Home brand title.
+  - added_at: 2026-05-22 20:51 Europe/Stockholm
+  - completed_at: 2026-05-22 20:55 Europe/Stockholm
+  - source: Andreas questioned whether the logged-in Home needs the top `Side Quest Chess` text.
+  - scope: mobile app Home; remove the large brand title from logged-in header and promote the player identity/platform account line as the top header, saving vertical space.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/64-fresh-home-no-brand-title.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
