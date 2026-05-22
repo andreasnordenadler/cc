@@ -148,6 +148,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; replace top readiness cards with a compact identity line under `Side Quest Chess` showing display name, Lichess username, and Chess.com username with small chess platform marks.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/46-fresh-home-compact-account-usernames.png`.
 
+- [x] Replace SQC mobile chess-piece account marks with platform username pills.
+  - added_at: 2026-05-22 20:02 Europe/Stockholm
+  - completed_at: 2026-05-22 20:06 Europe/Stockholm
+  - source: Andreas agreed the compact identity line should use clearer platform marks rather than generic chess-piece placeholders.
+  - scope: mobile app Home; render small `lichess` and `chess.com` text pills before each username in the header identity line.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/47-fresh-home-platform-username-pills.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
