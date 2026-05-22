@@ -78,6 +78,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app product model; document Apple Sports functional mapping, SQC website color constraint, launch-critical app functions, anti-goals, and API gaps; remove `Live Board` visible copy and restore website color tokens in mobile.
   - proof: research doc `docs/SQC_MOBILE_APP_FUNCTION_RESEARCH_2026-05-22.md`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/29-website-colors-my-side-quests.png`.
 
+- [x] Reset SQC native app definition from scratch around logged-in functionality.
+  - added_at: 2026-05-22 17:58 Europe/Stockholm
+  - completed_at: 2026-05-22 18:02 Europe/Stockholm
+  - source: Andreas said to start over from scratch, keep nothing from the previous mobile direction, and focus 100% on logged-in user content/functionality.
+  - scope: mobile app definition only; discard previous UI concepts as binding; define logged-in user jobs, v1 app structure, navigation, data contract, first-build order, and acceptance checklist.
+  - proof: definition doc `docs/SQC_MOBILE_APP_DEFINITION_RESET_2026-05-22.md` created.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

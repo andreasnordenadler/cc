@@ -606,3 +606,23 @@ Before changing SQC mobile UI, anchor it in launch-critical functions: current S
 - Tags: sqc-mobile, product-scope, design-system, apple-sports
 
 ---
+
+## [LRN-20260522-005] SQC mobile reset: logged-in app definition first
+
+**Logged**: 2026-05-22T18:02:00+02:00
+**Priority**: high
+**Status**: active
+**Area**: mobile-product
+
+### Summary
+Andreas reset the SQC native app direction: start over from scratch, keep nothing from previous mobile UI experiments, and focus 100% on logged-in user content/functionality.
+
+### What to do differently
+Do not iterate from the previous native UI as a baseline. Treat it as disposable. Define and build around logged-in user jobs: current Side Quest, check latest games, proof/Coat of Arms, My Multiplayer Side Quests, Official Multiplayer Side Quests, and account readiness. Marketing/website parity is out of scope for the app center.
+
+### Metadata
+- Source: user correction
+- Related Files: docs/SQC_MOBILE_APP_DEFINITION_RESET_2026-05-22.md
+- Tags: sqc-mobile, reset, logged-in-first, product-definition
+
+---
