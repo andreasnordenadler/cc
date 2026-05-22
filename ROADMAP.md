@@ -190,6 +190,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home active/not-completed Current Side Quest state; moved heading outside the rounded card, kept status inside the card top-right, and right-aligned the refresh icon action.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/59-fresh-home-current-section-title-refresh-right.png`.
 
+- [x] Remove redundant active status pill from SQC mobile Current Active Side Quest.
+  - added_at: 2026-05-22 20:40 Europe/Stockholm
+  - completed_at: 2026-05-22 20:43 Europe/Stockholm
+  - source: Andreas suggested saving space by removing `In progress` and renaming `Current Side Quest` to `Current Active Side Quest`.
+  - scope: mobile app Home active/not-completed Current Side Quest state; renamed section heading and hide the in-card active-state pill while preserving completed-state status display.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/60-fresh-home-current-active-title-no-pill.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

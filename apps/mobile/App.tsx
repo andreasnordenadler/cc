@@ -486,12 +486,14 @@ function TodayDashboard({
 
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>Current Side Quest</Text>
+          <Text style={compactStyles.freshSectionTitle}>Current Active Side Quest</Text>
         </View>
         <View style={compactStyles.freshPanel}>
-          <View style={compactStyles.currentStatusRow}>
-            <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
-          </View>
+          {activeStatus === "Completed" ? (
+            <View style={compactStyles.currentStatusRow}>
+              <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
+            </View>
+          ) : null}
           <View style={compactStyles.currentQuestRow}>
             <View style={compactStyles.coatMarker}>
               {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
