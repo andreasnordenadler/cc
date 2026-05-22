@@ -4132,3 +4132,10 @@ Used the canonical SQC blue literal `#76a9ff` for the Chess.com account mark.
 - **Symptom**: `pnpm --filter @sidequestchess/mobile typecheck` failed because `SQC_GOLD_SEAL_ASSET`, `SQC_SILVER_SEAL_ASSET`, and `SQC_BRONZE_SEAL_ASSET` were referenced but not defined.
 - **Fix**: Inspect the actual const block before replacing; added all seal constants next to the black seal with explicit `ImageSourcePropType` casts.
 - **Prevention**: For codegen/scripted replacements on recently edited mobile files, grep the exact target line first or use AST/smaller edit tool replacements.
+
+## [ERR-20260522-008] conditional_hook_in_detail_modal
+- **Date**: 2026-05-22
+- **Context**: While adding the SQC mobile Coat of Arms lightbox state to `CurrentSideQuestDetailModal`, `useState` was inserted after an early `if (!activeQuest) return null`.
+- **Symptom**: `pnpm lint` failed with `React Hook "useState" is called conditionally`.
+- **Fix**: Move `useState` before any early return in the component.
+- **Prevention**: When adding state to an existing component with guard returns, place hooks immediately after props destructuring and before all conditionals.

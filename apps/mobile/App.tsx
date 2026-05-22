@@ -560,7 +560,7 @@ function TodayDashboard({
         latestProofHref={latestProofHref}
         actionState={actionState}
         onClose={() => setCurrentDetailOpen(false)}
-        onRunCheck={() => void runActiveCheck()}
+        onRunCheck={runActiveCheck}
         onViewProof={() => void openExternalAppUrl(latestProofHref ?? "/account")}
         onSwitchQuest={() => {
           setCurrentDetailOpen(false);
@@ -646,10 +646,11 @@ function CurrentSideQuestDetailModal({
   latestProofHref: string | null;
   actionState: { busy: boolean; message: string | null; error: string | null };
   onClose: () => void;
-  onRunCheck: () => void;
+  onRunCheck: () => Promise<void>;
   onViewProof: () => void;
   onSwitchQuest: () => void;
 }) {
+  const [coatExpanded, setCoatExpanded] = useState(false);
   const activeQuest = signedIn.activeQuest;
   if (!activeQuest) return null;
 
@@ -668,35 +669,44 @@ function CurrentSideQuestDetailModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
-        <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={compactStyles.detailContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={actionState.busy} tintColor={colors.gold} onRefresh={() => void onRunCheck()} />}
+        >
           <View style={compactStyles.detailHero}>
-            <View style={compactStyles.detailCoatFrame}>
+            <Pressable accessibilityRole="imagebutton" accessibilityLabel="Enlarge Coat of Arms" style={compactStyles.detailCoatFrame} onPress={() => setCoatExpanded(true)}>
               {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
-            </View>
+            </Pressable>
             <Text style={compactStyles.detailEyebrow}>Current Active Side Quest</Text>
             <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
+            <Text style={compactStyles.detailHint}>Tap Coat of Arms to enlarge · Pull down to refresh</Text>
           </View>
 
           <View style={compactStyles.detailPanel}>
             <DetailRow label="State" value={completed ? "Completed" : "Active"} tone={completed ? "good" : "default"} />
+            <DetailRow label="Difficulty" value={challenge?.difficulty ?? "Standard"} />
+            <DetailRow label="Started" value={formatLatestCheckTime(activeQuest.startedAt)} />
             <DetailRow label="Latest check" value={formatLatestCheckTime(activeQuest.verifiedAt)} />
-            <DetailRow label="Account" value={accountLabel} />
+            <DetailRow label="Check platform" value={accountLabel} />
+            <DetailRow label="Result needed" value={`${challenge?.requirement.side ?? "Any side"} · ${challenge?.requirement.result ?? "Any result"}`} />
             <DetailRow label="Reward" value={challenge?.badgeIdentity.name ? `Coat of Arms · ${challenge.badgeIdentity.name}` : "Coat of Arms"} />
           </View>
 
           <View style={compactStyles.detailPanelStrong}>
-            <Text style={compactStyles.detailPanelTitle}>{completed ? "Proof ready" : "Ready to check"}</Text>
+            <Text style={compactStyles.detailPanelTitle}>{completed ? "Proof ready" : "Check by refreshing"}</Text>
             <Text style={compactStyles.detailPanelCopy}>{completed ? "Your latest eligible game completed this Side Quest." : activeQuestNote}</Text>
             {canViewCurrentProof ? (
               <Pressable accessibilityRole="button" style={compactStyles.detailPrimaryButton} onPress={onViewProof}>
                 <Text style={compactStyles.detailPrimaryButtonText}>View victory proof</Text>
               </Pressable>
             ) : (
-              <Pressable accessibilityRole="button" disabled={actionState.busy} style={[compactStyles.detailPrimaryButton, actionState.busy && compactStyles.detailPrimaryButtonDisabled]} onPress={onRunCheck}>
-                <Text style={compactStyles.detailPrimaryButtonText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
-              </Pressable>
+              <View style={compactStyles.detailRefreshHintBox}>
+                <MaterialCommunityIcons name="arrow-down" size={15} color={colors.gold} />
+                <Text style={compactStyles.detailRefreshHintText}>{actionState.busy ? "Checking latest game…" : "Pull down to check latest game"}</Text>
+              </View>
             )}
             {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
@@ -711,6 +721,15 @@ function CurrentSideQuestDetailModal({
             </Pressable>
           ) : null}
         </ScrollView>
+        <Modal visible={coatExpanded} transparent animationType="fade" onRequestClose={() => setCoatExpanded(false)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close enlarged Coat of Arms" style={compactStyles.coatLightbox} onPress={() => setCoatExpanded(false)}>
+            <View style={compactStyles.coatLightboxCard}>
+              {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.coatLightboxGlow, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+              <Image source={activeCoatSource} style={compactStyles.coatLightboxImage} resizeMode="contain" />
+              <Text style={compactStyles.coatLightboxTitle}>{challenge?.badgeIdentity.name ?? "Coat of Arms"}</Text>
+            </View>
+          </Pressable>
+        </Modal>
       </SafeAreaView>
     </Modal>
   );
@@ -2332,6 +2351,7 @@ const compactStyles = StyleSheet.create({
   detailEyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
   detailTitle: { color: colors.paper, fontSize: 29, lineHeight: 32, fontWeight: "900", textAlign: "center", letterSpacing: -1.2 },
   detailGoal: { maxWidth: 310, color: colors.muted, fontSize: 14, lineHeight: 19, fontWeight: "700", textAlign: "center" },
+  detailHint: { color: "rgba(199,189,169,.72)", fontSize: 11, lineHeight: 14, fontWeight: "800", textAlign: "center" },
   detailPanel: { overflow: "hidden", borderRadius: 20, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
   detailPanelStrong: { gap: 9, padding: 14, borderRadius: 22, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   detailPanelTitle: { color: colors.paper, fontSize: 17, fontWeight: "900", letterSpacing: -.25 },
@@ -2343,10 +2363,17 @@ const compactStyles = StyleSheet.create({
   detailPrimaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.gold },
   detailPrimaryButtonDisabled: { opacity: .62 },
   detailPrimaryButtonText: { color: "#111", fontSize: 14, fontWeight: "900" },
+  detailRefreshHintBox: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(0,0,0,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  detailRefreshHintText: { color: colors.gold, fontSize: 13, fontWeight: "900" },
   detailSecondaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 999, backgroundColor: "rgba(255,247,232,.09)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
   detailSecondaryButtonText: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   detailQuietButton: { alignItems: "center", paddingVertical: 4 },
   detailQuietButtonText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
+  coatLightbox: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: "rgba(6,5,7,.82)" },
+  coatLightboxCard: { alignItems: "center", justifyContent: "center", gap: 12, width: "100%", minHeight: 420, borderRadius: 32, backgroundColor: "rgba(255,247,232,.06)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)", overflow: "visible" },
+  coatLightboxGlow: { position: "absolute", width: 330, height: 360, opacity: .78 },
+  coatLightboxImage: { width: 238, height: 268 },
+  coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 2, paddingBottom: 4, opacity: .72 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },

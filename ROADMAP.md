@@ -274,6 +274,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; tapping the Current Active Side Quest opens a native full-screen modal detail with X close button, Coat of Arms hero, rule/goal, status rows, latest check/account/reward info, explicit `Check latest game`, `Switch Side Quest`, and optional proof/web actions.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/73-current-active-side-quest-detail-close-screen-refined.png`.
 
+- [x] Polish SQC mobile Current Active Side Quest detail.
+  - added_at: 2026-05-22 23:17 Europe/Stockholm
+  - completed_at: 2026-05-22 23:28 Europe/Stockholm
+  - source: Andreas asked to polish the active detail, keep pull-down refresh, show more data such as started/latest check/check platform/difficulty, and enlarge the Coat of Arms on tap.
+  - scope: mobile app Current Active Side Quest detail; removed explicit check button in favor of pull-to-refresh, added started time, latest check time, check platform, difficulty, result needed, reward details, helper copy, and tap-to-enlarge Coat of Arms lightbox with dimmed backdrop.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; screenshots captured at `artifacts/mobile-live-review-2026-05-22/74-current-active-side-quest-detail-polished-data.png` and `artifacts/mobile-live-review-2026-05-22/75-current-active-side-quest-coat-lightbox.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
