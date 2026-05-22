@@ -85,7 +85,10 @@ const CHALLENGE_COAT_GLOW_ASSETS: Record<string, ImageSourcePropType> = {
   "knightmare-mode": require("./assets/badges/glow/knightmare-mode-glow.png"),
 };
 
-const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png");
+const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
+const SQC_GOLD_SEAL_ASSET = require("./assets/stamps/sqc-gold-seal.png") as ImageSourcePropType;
+const SQC_SILVER_SEAL_ASSET = require("./assets/stamps/sqc-silver-seal.png") as ImageSourcePropType;
+const SQC_BRONZE_SEAL_ASSET = require("./assets/stamps/sqc-bronze-seal.png") as ImageSourcePropType;
 
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
   "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
@@ -562,7 +565,7 @@ function TodayDashboard({
             title={trophy.title}
             meta={`Multiplayer win · ${trophy.rankLabel}`}
             status={trophy.placement}
-            imageSource={SQC_BLACK_SEAL_ASSET}
+            imageSource={getMultiplayerTrophySealSource(trophy.placement)}
             variant="seal"
             onPress={() => void openExternalAppUrl(trophy.href)}
           />
@@ -673,6 +676,12 @@ function AppRow({ title, meta, status, imageSource, glowSource, glowColor, varia
       {visibleStatus ? <Text style={[compactStyles.appRowStatus, visibleStatus.toLowerCase() === "joined" && compactStyles.appRowStatusJoined]} numberOfLines={1}>{visibleStatus}</Text> : null}
     </Pressable>
   );
+}
+
+function getMultiplayerTrophySealSource(placement: "Gold" | "Silver" | "Bronze"): ImageSourcePropType {
+  if (placement === "Gold") return SQC_GOLD_SEAL_ASSET;
+  if (placement === "Silver") return SQC_SILVER_SEAL_ASSET;
+  return SQC_BRONZE_SEAL_ASSET;
 }
 
 function getChallengeCoatGlowSource(challengeId: string): ImageSourcePropType {

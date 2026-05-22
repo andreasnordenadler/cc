@@ -260,6 +260,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home preview/types; title-case Trophy Cabinet and add a preview Multiplayer trophy entry using the Black SQC Seal, `Gold` status, and `Multiplayer win · 1st place` metadata while preserving completed Side Quest Coat of Arms rows.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/70-fresh-home-trophy-cabinet-multiplayer-gold.png`.
 
+- [x] Use gold/silver/bronze seals for SQC mobile Multiplayer trophies.
+  - added_at: 2026-05-22 23:02 Europe/Stockholm
+  - completed_at: 2026-05-22 23:08 Europe/Stockholm
+  - source: Andreas clarified gold/silver/bronze seals should be used in the Trophy Cabinet.
+  - scope: mobile app assets + Trophy Cabinet rendering; bundle transparent gold/silver/bronze seal assets from `public/stamps/` into `apps/mobile/assets/stamps/` and select the correct seal image by trophy placement.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/71-fresh-home-trophy-cabinet-gold-seal.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

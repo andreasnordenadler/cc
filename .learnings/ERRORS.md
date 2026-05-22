@@ -4125,3 +4125,10 @@ Used the canonical SQC blue literal `#76a9ff` for the Chess.com account mark.
 - Tags: typescript, mobile-ui, sqc-palette
 
 ---
+
+## [ERR-20260522-007] seal_asset_const_replacement_missed_type_suffix
+- **Date**: 2026-05-22
+- **Context**: While adding gold/silver/bronze mobile seal assets, a scripted replace searched for `SQC_BLACK_SEAL_ASSET` with an `as ImageSourcePropType` suffix that was not present in the file.
+- **Symptom**: `pnpm --filter @sidequestchess/mobile typecheck` failed because `SQC_GOLD_SEAL_ASSET`, `SQC_SILVER_SEAL_ASSET`, and `SQC_BRONZE_SEAL_ASSET` were referenced but not defined.
+- **Fix**: Inspect the actual const block before replacing; added all seal constants next to the black seal with explicit `ImageSourcePropType` casts.
+- **Prevention**: For codegen/scripted replacements on recently edited mobile files, grep the exact target line first or use AST/smaller edit tool replacements.
