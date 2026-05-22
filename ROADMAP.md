@@ -22,6 +22,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app only; remove persistent bottom dock; add compact top segmented tracker navigation; reduce bottom padding.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/08-no-bottom-bar-top-tracker-nav.png`.
 
+- [x] De-emphasize points and enforce Side Quest / Coat of Arms terminology in SQC Mobile tracker.
+  - added_at: 2026-05-22 16:23 Europe/Stockholm
+  - completed_at: 2026-05-22 16:24 Europe/Stockholm
+  - source: Andreas clarified that points are only really relevant in Multiplayer Side Quest right now, and mobile must always say Side Quest (not Quest) and Coat of Arms (not Coats).
+  - scope: mobile app tracker UI; remove PTS as a primary Today metric; update top nav and visible tracker copy to Side Quest / Coat of Arms language.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/09-side-quest-coat-of-arms-no-points.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

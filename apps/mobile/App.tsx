@@ -84,8 +84,8 @@ const TABS: Array<
   | { id: AppTab; label: string; iconKind: "vector"; iconName: keyof typeof MaterialCommunityIcons.glyphMap }
 > = [
   { id: "home", label: "Today", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
-  { id: "sideQuests", label: "Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
-  { id: "coatOfArms", label: "Coats", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
+  { id: "sideQuests", label: "Side Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
+  { id: "coatOfArms", label: "Coat of Arms", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
   { id: "account", label: "Account", iconKind: "vector", iconName: "account-circle" },
 ];
 
@@ -380,7 +380,6 @@ function TodayDashboard({
   const suggestedChallenge = activeChallenge ?? bootstrap.challenges[0];
   const completedCount = signedIn?.progress.totalCompletedChallenges ?? 0;
   const proofCount = signedIn?.progress.proofReceiptCount ?? 0;
-  const points = signedIn?.progress.totalRewardPoints ?? 0;
   const latestReceipt = signedIn?.latestReceipt;
 
   function handleSignIn() {
@@ -394,7 +393,7 @@ function TodayDashboard({
         <View style={compactStyles.heroPanel}>
           <Text style={compactStyles.kicker}>Side Quest Chess</Text>
           <Text style={compactStyles.heroTitle}>Sign in to track your side quests.</Text>
-          <Text style={compactStyles.heroCopy}>The app is now for existing players: active quest, latest game status, unlocked coats, and proof — no website-style homepage.</Text>
+          <Text style={compactStyles.heroCopy}>The app is now for existing players: active quest, latest game status, unlocked Coat of Arms, and proof — no website-style homepage.</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Sign in with Google" style={compactStyles.goldButton} onPress={handleSignIn}>
             <Text style={compactStyles.goldButtonText}>Sign in with Google</Text>
           </Pressable>
@@ -405,16 +404,16 @@ function TodayDashboard({
             <Text style={compactStyles.kicker}>Today</Text>
             <Text style={compactStyles.livePill}>Live account</Text>
           </View>
-          <Text style={compactStyles.heroTitle}>{signedIn.activeQuest?.title ?? "No active side quest"}</Text>
-          <Text style={compactStyles.heroCopy}>{signedIn.activeQuest?.completed ? "Quest complete. Your coat and proof are ready." : signedIn.activeQuest ? "Play one eligible public game, then check proof." : "Pick one side quest to put on the board."}</Text>
+          <Text style={compactStyles.heroTitle}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
+          <Text style={compactStyles.heroCopy}>{signedIn.activeQuest?.completed ? "Side Quest complete. Your Coat of Arms and proof are ready." : signedIn.activeQuest ? "Play one eligible public game, then check proof." : "Pick one Side Quest to put on the board."}</Text>
           <View style={compactStyles.metricGrid}>
-            <CompactMetric label="Pts" value={`${points}`} />
-            <CompactMetric label="Coats" value={`${completedCount}`} />
+            <CompactMetric label="Active" value={signedIn.activeQuest ? "1" : "—"} />
+            <CompactMetric label="Coat of Arms" value={`${completedCount}`} />
             <CompactMetric label="Proofs" value={`${proofCount}`} />
           </View>
           <View style={compactStyles.actionRow}>
             <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
-              <Text style={compactStyles.goldButtonText}>{signedIn.activeQuest ? "Open quest" : "Pick quest"}</Text>
+              <Text style={compactStyles.goldButtonText}>{signedIn.activeQuest ? "Open Side Quest" : "Pick Side Quest"}</Text>
             </Pressable>
             <Pressable accessibilityRole="button" style={compactStyles.darkButtonSmall} onPress={onAccountUpdated}>
               <Text style={compactStyles.darkButtonText}>Refresh</Text>
@@ -425,15 +424,15 @@ function TodayDashboard({
 
       <View style={compactStyles.scorePanel}>
         <Text style={compactStyles.panelTitle}>Board</Text>
-        <CompactStatusRow label="Now" title={signedIn?.activeQuest?.title ?? "No active quest"} meta={signedIn?.activeQuest ? (signedIn.activeQuest.completed ? "Completed" : "Waiting for latest-game proof") : "Choose one quest"} onPress={() => signedIn?.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")} />
-        <CompactStatusRow label="Next" title={suggestedChallenge?.title ?? "Quest deck"} meta={suggestedChallenge ? `+${suggestedChallenge.reward} · ${suggestedChallenge.difficulty}` : "Browse available quests"} onPress={() => suggestedChallenge ? onSelectChallenge(suggestedChallenge.id, "sideQuests") : onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Now" title={signedIn?.activeQuest?.title ?? "No active Side Quest"} meta={signedIn?.activeQuest ? (signedIn.activeQuest.completed ? "Completed" : "Waiting for latest-game proof") : "Choose one Side Quest"} onPress={() => signedIn?.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Next" title={suggestedChallenge?.title ?? "Side Quest deck"} meta={suggestedChallenge ? `+${suggestedChallenge.reward} · ${suggestedChallenge.difficulty}` : "Browse available Side Quests"} onPress={() => suggestedChallenge ? onSelectChallenge(suggestedChallenge.id, "sideQuests") : onSelectTab("sideQuests")} />
         <CompactStatusRow label="Recent" title={latestReceipt?.headline ?? "No proof receipt yet"} meta={latestReceipt?.detail ?? "Finish a quest to create the first receipt"} onPress={() => onSelectTab("account")} />
       </View>
 
       <View style={compactStyles.scorePanel}>
         <Text style={compactStyles.panelTitle}>Quick paths</Text>
-        <CompactStatusRow label="Quest" title="Active / Available / Completed" meta="Dense side quest board" onPress={() => onSelectTab("sideQuests")} />
-        <CompactStatusRow label="Coats" title={`${completedCount} unlocked`} meta="Trophy shelf and next unlock" onPress={() => onSelectTab("coatOfArms")} />
+        <CompactStatusRow label="Side Quest" title="Active / Available / Completed" meta="Dense Side Quest board" onPress={() => onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Coat of Arms" title={`${completedCount} unlocked`} meta="Trophy shelf and next unlock" onPress={() => onSelectTab("coatOfArms")} />
         <CompactStatusRow label="User" title={signedIn?.profile.displayName ?? "Signed out"} meta={signedIn?.chessAccounts.hasAny ? "Chess usernames connected" : "Chess usernames missing"} onPress={() => onSelectTab("account")} />
       </View>
     </View>
@@ -471,7 +470,7 @@ function QuestBoardDashboard({
   return (
     <View style={compactStyles.stack}>
       <View style={compactStyles.headerPanel}>
-        <Text style={compactStyles.kicker}>Quests</Text>
+        <Text style={compactStyles.kicker}>Side Quests</Text>
         <Text style={compactStyles.panelTitle}>Track, check, continue.</Text>
         <Text style={compactStyles.micro}>Built for logged-in players. Dense rows, fast state changes, no website explainer copy.</Text>
       </View>
@@ -501,7 +500,7 @@ function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstr
     <View style={compactStyles.stack}>
       <View style={compactStyles.heroPanel}>
         <Text style={compactStyles.kicker}>Coats</Text>
-        <Text style={compactStyles.heroTitle}>{earnedIds.size}/{bootstrap.challenges.length} unlocked</Text>
+        <Text style={compactStyles.heroTitle}>Coat of Arms: {earnedIds.size}/{bootstrap.challenges.length}</Text>
         <Text style={compactStyles.heroCopy}>{nextLocked ? `Next target: ${nextLocked.title}` : "Everything unlocked. Suspiciously heroic."}</Text>
       </View>
       <View style={compactStyles.coatGrid}>
@@ -525,7 +524,7 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onAccountUp
         <View style={compactStyles.heroPanel}>
           <Text style={compactStyles.kicker}>Account</Text>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
-          <Text style={compactStyles.heroCopy}>The mobile app is intentionally useful after sign-in: quest state, latest proof, coats, and connected usernames.</Text>
+          <Text style={compactStyles.heroCopy}>The mobile app is intentionally useful after sign-in: Side Quest state, latest proof, Coat of Arms, and connected usernames.</Text>
           <Pressable accessibilityRole="button" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Native Google sign-in is not configured in this build.")}>
             <Text style={compactStyles.goldButtonText}>Sign in with Google</Text>
           </Pressable>
@@ -550,7 +549,7 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onAccountUp
         </View>
       </View>
       <View style={compactStyles.scorePanel}>
-        <CompactStatusRow label="Active" title={signedIn.activeQuest?.title ?? "No active quest"} meta={signedIn.activeQuest ? (signedIn.activeQuest.completed ? "Complete" : "In progress") : "Pick one from Quests"} onPress={() => onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Active" title={signedIn.activeQuest?.title ?? "No active Side Quest"} meta={signedIn.activeQuest ? (signedIn.activeQuest.completed ? "Complete" : "In progress") : "Pick one from Side Quests"} onPress={() => onSelectTab("sideQuests")} />
         <CompactStatusRow label="Latest" title={signedIn.latestReceipt?.headline ?? "No receipt yet"} meta={signedIn.latestReceipt?.detail ?? "Check proof after a public game"} onPress={() => onSelectTab("sideQuests")} />
         <CompactStatusRow label="Sync" title="Refresh account" meta="Pull latest SQC state" onPress={onAccountUpdated} />
       </View>
