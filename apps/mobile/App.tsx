@@ -85,7 +85,7 @@ const TABS: Array<
 > = [
   { id: "home", label: "Home", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
   { id: "sideQuests", label: "Side Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
-  { id: "coatOfArms", label: "Coat of Arms", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
+  { id: "coatOfArms", label: "Coats", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
   { id: "account", label: "Account", iconKind: "vector", iconName: "account-circle" },
 ];
 
@@ -285,6 +285,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
+        {shell.catalogMode === "offline" ? (
+          <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
+            <Text style={styles.catalogStateTitle}>Offline quest catalog loaded</Text>
+            <Text style={styles.catalogStateCopy}>{shell.catalogNotice ?? "Live Side Quest Chess is temporarily unreachable. You can still browse the cached quest board."}</Text>
+          </View>
+        ) : null}
+
         {shell.bootstrap && selectedChallenge ? (
           <ActiveScreen
             activeTab={shell.activeTab}
@@ -364,7 +371,7 @@ function HomeScreen({
     <View style={styles.screenStack}>
       <View style={styles.homeHeroCard}>
         <WebsiteGradientGlows />
-        <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests — solo or multiplayer.</Text>
+        <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
             ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
@@ -374,9 +381,18 @@ function HomeScreen({
           <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
             <Text style={styles.primaryButtonText}>Go on a <Text style={styles.buttonEmphasis}>Solo</Text> Side Quest</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("multiplayerSideQuests")}>
-            <Text style={styles.primaryButtonText}>Join a <Text style={styles.buttonEmphasis}>Multiplayer</Text> Side Quest</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.secondaryButtonWide} onPress={() => onSelectTab("multiplayerSideQuests")}>
+            <Text style={styles.secondaryButtonText}>Join a <Text style={styles.buttonEmphasis}>Multiplayer</Text> Side Quest</Text>
           </Pressable>
+        </View>
+        <View style={styles.homeRitualStrip} accessibilityLabel="Side Quest Chess workflow">
+          <Text style={styles.homeRitualStep}>Pick</Text>
+          <Text style={styles.homeRitualArrow}>→</Text>
+          <Text style={styles.homeRitualStep}>Play</Text>
+          <Text style={styles.homeRitualArrow}>→</Text>
+          <Text style={styles.homeRitualStep}>Prove</Text>
+          <Text style={styles.homeRitualArrow}>→</Text>
+          <Text style={styles.homeRitualStep}>Collect coat</Text>
         </View>
       </View>
 
@@ -581,9 +597,7 @@ function SideQuestsScreen({
           <Text style={styles.eyebrow}>Solo Side Quests</Text>
           <Text style={styles.sideQuestModeTitle}>One player. One ridiculous rule. One proof receipt.</Text>
           <Text style={styles.sideQuestModeCopy}>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Side Quests" testID="sidequests-browse-solo" style={styles.primaryButton} onPress={() => undefined}>
-            <Text style={styles.primaryButtonText}>Browse Solo Side Quests</Text>
-          </Pressable>
+          <Text style={styles.modeInlineCue}>Solo quest deck starts below.</Text>
         </View>
 
         <View style={[styles.sideQuestModeCard, styles.groupModeCard]}>
@@ -750,13 +764,11 @@ function QuestFilterPanel() {
   return (
     <View style={styles.questFilterPanel} accessibilityLabel="Quest filters and sorting">
       <Text style={styles.questFilterTitle}>Find your next Side Quest.</Text>
+      <Text style={styles.questFilterHint}>Filters are coming soon. For now, the full live quest deck is shown below.</Text>
       <View style={styles.questFilterGrid}>
         <FilterField label="Difficulty" value="All" />
         <FilterField label="Status" value="All" />
         <FilterField label="Sort" value="Recommended" />
-        <Pressable accessibilityRole="button" accessibilityLabel="Reset filters" testID="quest-filter-reset" style={styles.filterResetButton} disabled>
-          <Text style={styles.filterResetText}>Reset filters</Text>
-        </Pressable>
       </View>
     </View>
   );
@@ -766,7 +778,7 @@ function FilterField({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.filterField}>
       <Text style={styles.filterLabel}>{label}</Text>
-      <Text style={styles.filterValue}>{value} ▾</Text>
+      <Text style={styles.filterValue}>{value}</Text>
     </View>
   );
 }
@@ -938,9 +950,7 @@ function SelectedQuestDetailCard({
               <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting…" : "Start this Side Quest"}</Text>
             </Pressable>
           )}
-          <Pressable accessibilityRole="button" accessibilityLabel="Stay in app" style={styles.secondaryButton} onPress={() => showNativeOnlyNotice("This quest detail is already open in the app — no website jump needed.")}>
-            <Text style={styles.secondaryButtonText}>Stay in app</Text>
-          </Pressable>
+
         </View>
         {latestReceipt ? <Text style={styles.successCopy}>{latestReceipt.headline} · {latestReceipt.detail}</Text> : null}
         {actionState.message ? <Text style={styles.successCopy}>{actionState.message}</Text> : null}
@@ -1249,7 +1259,7 @@ function AccountNextActionsCard({ account }: { account: MobileAccountState }) {
       <Text style={styles.eyebrow}>Next best action</Text>
       <Text style={styles.accountChecklistTitle}>{account.activeQuest ? "Keep the active quest moving." : "Pick a fresh quest on the board."}</Text>
       <View style={styles.checkerFlow}>
-        <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess account is connected on the website." : "Connect Lichess or Chess.com on the website before serious proof runs."} />
+        <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess username is connected to your SQC account." : "Add Lichess or Chess.com here before serious proof runs."} />
         <FlowStep done={Boolean(account.activeQuest)} title="Active quest" body={activeLabel} />
         <FlowStep done={Boolean(account.latestReceipt)} title="Latest receipt" body={account.latestReceipt?.headline ?? "Submit a public game to create the first receipt."} />
       </View>
@@ -1342,7 +1352,7 @@ function ChessUsernameEditor({
     <View style={styles.usernameEditorCard}>
       <Text style={styles.eyebrow}>Native account action</Text>
       <Text style={styles.usernameEditorTitle}>Connect chess usernames</Text>
-      <Text style={styles.usernameEditorBody}>First safe mobile mutation: save public Lichess / Chess.com usernames through the website backend. No chess-site passwords, and the web account stays the source of truth.</Text>
+      <Text style={styles.usernameEditorBody}>Save public Lichess / Chess.com usernames to your SQC account. No chess-site passwords — SQC only checks public games.</Text>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>Lichess username</Text>
         <TextInput
@@ -1476,7 +1486,10 @@ const styles = StyleSheet.create({
   homeHeroCard: { overflow: "hidden", gap: 11, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 14, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   homeHeroTitle: { color: colors.paper, fontSize: 30, fontWeight: "900", letterSpacing: -1.1, lineHeight: 32 },
   homeHeroBody: { color: colors.muted, fontSize: 16, lineHeight: 24 },
-  homeHeroActions: { gap: 10 },
+  homeHeroActions: { gap: 9 },
+  homeRitualStrip: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 6, paddingHorizontal: 10, paddingVertical: 9, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(0,0,0,.18)" },
+  homeRitualStep: { color: colors.paper, fontSize: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.5 },
+  homeRitualArrow: { color: colors.gold, fontSize: 12, fontWeight: "900" },
   buttonEmphasis: { fontWeight: "900" },
   whereBeginCard: { gap: 9, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(245,200,106,.12)" },
   heroismChoiceList: { gap: 10 },
@@ -1516,12 +1529,14 @@ const styles = StyleSheet.create({
   groupquestsRulesCard: { gap: 11, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   sideQuestModeTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.6, lineHeight: 22 },
   sideQuestModeCopy: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  modeInlineCue: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.65, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.08)" },
   questFilterPanel: { gap: 9, padding: 11, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   questFilterTitle: { color: colors.paper, fontSize: 24, fontWeight: "900", letterSpacing: -0.9 },
+  questFilterHint: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
   questFilterGrid: { gap: 10 },
   filterField: { gap: 5 },
   filterLabel: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
-  filterValue: { color: colors.paper, fontSize: 15, fontWeight: "900", paddingHorizontal: 12, paddingVertical: 11, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.2)" },
+  filterValue: { color: "rgba(255,247,232,.62)", fontSize: 15, fontWeight: "900", paddingHorizontal: 12, paddingVertical: 11, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.14)" },
   filterResetButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", opacity: 0.62 },
   filterResetText: { color: colors.muted, fontWeight: "900" },
   availableQuestGrid: { gap: 8 },
@@ -1594,6 +1609,9 @@ const styles = StyleSheet.create({
   miniStatLabel: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   miniStatValue: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   loadingCard: { alignItems: "center", gap: 12, padding: 24 },
+  catalogStateBanner: { gap: 5, padding: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.09)" },
+  catalogStateTitle: { color: colors.gold, fontSize: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
+  catalogStateCopy: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
   muted: { color: colors.muted },
   offlineCard: { gap: 12, padding: 16, borderRadius: 22, borderWidth: 1, borderColor: "rgba(96,240,175,.34)", backgroundColor: "rgba(96,240,175,.09)" },
   offlineHeaderRow: { flexDirection: "row", gap: 12, alignItems: "center" },
@@ -1602,10 +1620,10 @@ const styles = StyleSheet.create({
   offlineTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   offlineCopy: { color: colors.muted, lineHeight: 20 },
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
-  primaryButton: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, backgroundColor: colors.gold },
+  primaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonText: { color: "#17120c", fontWeight: "900" },
-  secondaryButton: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 8, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
+  secondaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   secondaryButtonText: { color: colors.paper, fontWeight: "900" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },
@@ -1651,7 +1669,7 @@ const styles = StyleSheet.create({
   bottomNavCoatImage: { width: 28, height: 28 },
   bottomNavLoggedInBadge: { width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 14, borderWidth: 1, borderColor: "rgba(96,240,175,.45)", backgroundColor: "rgba(96,240,175,.1)" },
   bottomNavLoggedInBadgeActive: { borderColor: "rgba(245,200,106,.86)", backgroundColor: colors.gold },
-  bottomNavText: { color: "#e8dcc3", fontSize: 10, fontWeight: "900" },
+  bottomNavText: { color: "#e8dcc3", fontSize: 10, lineHeight: 12, fontWeight: "900", textAlign: "center" },
   bottomNavTextActive: { color: colors.paper },
   tabRail: { gap: 8, paddingRight: 18 },
   tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,247,232,.055)" },
