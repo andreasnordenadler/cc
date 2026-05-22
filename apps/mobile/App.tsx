@@ -2018,11 +2018,25 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
     ],
     officialPublicGroupQuests: [
       {
-        id: "official-preview",
+        id: "official-preview-knights",
         title: "First Blood: Knights Before Coffee",
         status: "Open",
         copy: "Official SQC · 8 players",
-        href: "/groupquests/official-preview",
+        href: "/groupquests/official-preview-knights",
+      },
+      {
+        id: "official-preview-no-castle",
+        title: "No Castle Club Night",
+        status: "Open",
+        copy: "Official SQC · 14 players",
+        href: "/groupquests/official-preview-no-castle",
+      },
+      {
+        id: "official-preview-queenless",
+        title: "Queenless Gremlin Cup",
+        status: "Open",
+        copy: "Official SQC · 5 players",
+        href: "/groupquests/official-preview-queenless",
       },
     ],
     completedQuests: completed.map((challenge) => ({

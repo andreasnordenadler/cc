@@ -225,6 +225,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home header; put display name on the first line and platform username pills on a wrapped second line with capped account widths.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/65-fresh-home-two-line-account-header.png`.
 
+- [x] Show three official Multiplayer Side Quests in SQC mobile preview.
+  - added_at: 2026-05-22 20:55 Europe/Stockholm
+  - completed_at: 2026-05-22 20:59 Europe/Stockholm
+  - source: Andreas asked to add two more Official Multiplayer Side Quests and noted there should always be three active official Multiplayer Side Quests.
+  - scope: mobile app Home dev preview account; expand `officialPublicGroupQuests` from one to three active official rows so the first screen reflects the intended steady-state product model. Production mobile API already returns up to 3 real official public Multiplayer Side Quests when available.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/66-fresh-home-three-official-multiplayer-side-quests.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
