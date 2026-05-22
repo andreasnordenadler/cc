@@ -60,7 +60,7 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
-const COAT_GLOW_ASSET = require("./assets/ui/coat-glow-website-v2.png");
+const COAT_GLOW_ASSET = require("./assets/ui/coat-glow-drop-mask-v3.png");
 
 const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "finish-any-game": require("./assets/badges/v6/proof-loop-test-badge.png"),
@@ -468,7 +468,7 @@ function TodayDashboard({
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentQuestRow} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
           <View style={compactStyles.coatMarker}>
-            <Image source={COAT_GLOW_ASSET} style={compactStyles.coatMarkerGlow} resizeMode="stretch" />
+            <Image source={activeCoatSource} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge?.badgeIdentity.colors.glow ?? colors.gold }]} resizeMode="contain" />
             <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
           </View>
           <View style={compactStyles.currentQuestText}>
@@ -522,6 +522,7 @@ function TodayDashboard({
               meta={`Coat of Arms: ${quest.badgeName}`}
               status={quest.proofHref ? "✓" : undefined}
               imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
+              glowColor={completedChallenge?.badgeIdentity.colors.glow}
               onPress={() => quest.proofHref ? void openExternalAppUrl(quest.proofHref) : onSelectChallenge(quest.id, "coatOfArms")}
             />
           );
@@ -558,13 +559,13 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
-function AppRow({ title, meta, status, imageSource, onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; onPress: () => void }) {
+function AppRow({ title, meta, status, imageSource, glowColor, onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowColor?: string; onPress: () => void }) {
   const visibleStatus = status && !["Open", "Proof", "—"].includes(status) ? status : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
-          <Image source={COAT_GLOW_ASSET} style={compactStyles.rowCoatGlow} resizeMode="stretch" />
+          <Image source={imageSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" />
           <Image source={imageSource} style={compactStyles.rowCoatImage} resizeMode="contain" />
         </View>
       ) : null}
@@ -2024,8 +2025,8 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
   coatMarker: { width: 54, height: 60, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatMarkerGlow: { position: "absolute", width: 96, height: 58, opacity: .95 },
-  coatMarkerImage: { width: 48, height: 56, shadowColor: "#ffffff", shadowOpacity: .36, shadowRadius: 10 },
+  coatMarkerGlowImage: { position: "absolute", width: 54, height: 62, opacity: .34, transform: [{ scale: 1.1 }, { translateY: 4 }] },
+  coatMarkerImage: { width: 48, height: 56 },
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
@@ -2039,8 +2040,8 @@ const compactStyles = StyleSheet.create({
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   appRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  rowCoatGlow: { position: "absolute", width: 52, height: 32, opacity: .9 },
-  rowCoatImage: { width: 30, height: 34, shadowColor: "#ffffff", shadowOpacity: .28, shadowRadius: 7 },
+  rowCoatGlowImage: { position: "absolute", width: 36, height: 40, opacity: .4, transform: [{ scale: 1.14 }, { translateY: 3 }] },
+  rowCoatImage: { width: 30, height: 34 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },

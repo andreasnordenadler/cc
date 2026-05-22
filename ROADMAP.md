@@ -120,6 +120,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; regenerate and version the Coat of Arms glow asset to match the website white radial ellipse treatment, reduce artificial grey-block look, and position it behind current/Trophy cabinet Coat of Arms.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/40-fresh-home-website-v2-coat-glow.png`.
 
+- [x] Replace SQC mobile Coat of Arms halo with challenge-card-style silhouette glow.
+  - added_at: 2026-05-22 19:40 Europe/Stockholm
+  - completed_at: 2026-05-22 19:46 Europe/Stockholm
+  - source: Andreas said the mobile glow felt too hard and pointed to `https://sidequestchess.com/challenges` as the desired reference.
+  - scope: mobile app Home; stop using separate oval/radial halo assets, mimic `/challenges` by rendering a tinted duplicate of the Coat of Arms behind the real image so the glow follows the badge silhouette and uses each Side Quest badge glow color.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/43-fresh-home-silhouette-coat-glow-softened.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
