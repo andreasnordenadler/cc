@@ -85,6 +85,8 @@ const CHALLENGE_COAT_GLOW_ASSETS: Record<string, ImageSourcePropType> = {
   "knightmare-mode": require("./assets/badges/glow/knightmare-mode-glow.png"),
 };
 
+const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png");
+
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
   "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
   "knights-before-coffee": "/badges/v6/knights-before-coffee-badge.png",
@@ -513,14 +515,14 @@ function TodayDashboard({
 
       <AppSection title="My Multiplayer Side Quests">
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} onPress={() => void openExternalAppUrl(quest.href)} />
-        )) : <AppRow title="No active Multiplayer Side Quest" meta="Join an Official Multiplayer Side Quest below." onPress={() => onSelectTab("multiplayerSideQuests")} />}
+          <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => void openExternalAppUrl(quest.href)} />
+        )) : <AppRow title="No active Multiplayer Side Quest" meta="Join an Official Multiplayer Side Quest below." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />}
       </AppSection>
 
       <AppSection title="Official Multiplayer Side Quests">
         {officialPublic.length ? officialPublic.map((quest) => (
-          <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} onPress={() => void openExternalAppUrl(quest.href)} />
-        )) : <AppRow title="No official rows right now" meta="Check back for the next public Multiplayer Side Quest." onPress={() => onSelectTab("multiplayerSideQuests")} />}
+          <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => void openExternalAppUrl(quest.href)} />
+        )) : <AppRow title="No official rows right now" meta="Check back for the next public Multiplayer Side Quest." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />}
       </AppSection>
 
       <AppSection title="Trophy cabinet">
@@ -571,14 +573,14 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
-function AppRow({ title, meta, status, imageSource, glowSource, glowColor, onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowSource?: ImageSourcePropType | null; glowColor?: string; onPress: () => void }) {
+function AppRow({ title, meta, status, imageSource, glowSource, glowColor, variant = "coat", onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowSource?: ImageSourcePropType | null; glowColor?: string; variant?: "coat" | "seal"; onPress: () => void }) {
   const visibleStatus = status && !["Open", "Proof", "—"].includes(status) ? status : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
           {glowSource ? <Image source={glowSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
-          <Image source={imageSource} style={compactStyles.rowCoatImage} resizeMode="contain" />
+          <Image source={imageSource} style={variant === "seal" ? compactStyles.rowSealImage : compactStyles.rowCoatImage} resizeMode="contain" />
         </View>
       ) : null}
       <View style={compactStyles.appRowText}>
@@ -2058,6 +2060,7 @@ const compactStyles = StyleSheet.create({
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
   rowCoatGlowImage: { position: "absolute", width: 44, height: 48, opacity: .62, transform: [{ translateY: 3 }] },
   rowCoatImage: { width: 30, height: 34 },
+  rowSealImage: { width: 31, height: 31, borderRadius: 15.5 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },

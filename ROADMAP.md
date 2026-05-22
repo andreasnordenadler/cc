@@ -134,6 +134,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; generate blurred alpha-mask glow PNGs from the bundled Coat of Arms assets, tint them with each badge glow color, and render them behind clean badge art instead of rendering a tinted duplicate of the Coat of Arms.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/44-fresh-home-alpha-mask-coat-glow.png`.
 
+- [x] Use Black SQC Seal on SQC mobile Multiplayer rows.
+  - added_at: 2026-05-22 19:55 Europe/Stockholm
+  - completed_at: 2026-05-22 19:59 Europe/Stockholm
+  - source: Andreas requested the Black SQC Seal for `My Multiplayer Side Quests` and `Official Multiplayer Side Quests` lines.
+  - scope: mobile app Home; bundle the Black SQC Seal in mobile assets and render it as a compact row marker for active/empty My Multiplayer rows and Official Multiplayer rows.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/45-fresh-home-multiplayer-black-seal-lines.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
