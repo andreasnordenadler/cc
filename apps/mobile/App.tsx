@@ -498,29 +498,33 @@ function TodayDashboard({
         {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
       </View>
 
-      <AppSection title="My Multiplayer Side Quests" action="Open" onAction={() => onSelectTab("multiplayerSideQuests")}>
+      <AppSection title="My Multiplayer Side Quests">
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
           <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} onPress={() => void openExternalAppUrl(quest.href)} />
-        )) : <AppRow title="No active Multiplayer Side Quest" meta="Join an Official Multiplayer Side Quest below." status="—" onPress={() => onSelectTab("multiplayerSideQuests")} />}
+        )) : <AppRow title="No active Multiplayer Side Quest" meta="Join an Official Multiplayer Side Quest below." onPress={() => onSelectTab("multiplayerSideQuests")} />}
       </AppSection>
 
-      <AppSection title="Official Multiplayer Side Quests" action="Browse" onAction={() => onSelectTab("multiplayerSideQuests")}>
+      <AppSection title="Official Multiplayer Side Quests">
         {officialPublic.length ? officialPublic.map((quest) => (
           <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} onPress={() => void openExternalAppUrl(quest.href)} />
-        )) : <AppRow title="No official rows right now" meta="Check back for the next public Multiplayer Side Quest." status="Open" onPress={() => onSelectTab("multiplayerSideQuests")} />}
+        )) : <AppRow title="No official rows right now" meta="Check back for the next public Multiplayer Side Quest." onPress={() => onSelectTab("multiplayerSideQuests")} />}
       </AppSection>
 
-      <AppSection title="Trophy cabinet" action="Open" onAction={() => onSelectTab("coatOfArms")}>
-        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 4).map((quest) => (
-          <AppRow
-            key={quest.id}
-            title={quest.title}
-            meta={`Coat of Arms: ${quest.badgeName}`}
-            status={quest.proofHref ? "Proof" : "Done"}
-            onPress={() => quest.proofHref ? void openExternalAppUrl(quest.proofHref) : onSelectChallenge(quest.id, "coatOfArms")}
-          />
-        )) : (
-          <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." status="—" onPress={() => onSelectTab("sideQuests")} />
+      <AppSection title="Trophy cabinet">
+        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 4).map((quest) => {
+          const completedChallenge = bootstrap.challenges.find((challenge) => challenge.id === quest.id) ?? null;
+          return (
+            <AppRow
+              key={quest.id}
+              title={quest.title}
+              meta={`Coat of Arms: ${quest.badgeName}`}
+              status={quest.proofHref ? "✓" : undefined}
+              imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
+              onPress={() => quest.proofHref ? void openExternalAppUrl(quest.proofHref) : onSelectChallenge(quest.id, "coatOfArms")}
+            />
+          );
+        }) : (
+          <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
         )}
       </AppSection>
     </View>
@@ -552,16 +556,28 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
-function AppRow({ title, meta, status, onPress }: { title: string; meta: string; status: string; onPress: () => void }) {
+function AppRow({ title, meta, status, imageSource, onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; onPress: () => void }) {
+  const visibleStatus = status && !["Open", "Proof", "—"].includes(status) ? status : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
+      {imageSource ? (
+        <View style={compactStyles.rowCoatFrame}>
+          <View style={compactStyles.rowCoatGlow} />
+          <Image source={imageSource} style={compactStyles.rowCoatImage} resizeMode="contain" />
+        </View>
+      ) : null}
       <View style={compactStyles.appRowText}>
         <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
         <Text style={compactStyles.appRowMeta} numberOfLines={1}>{meta}</Text>
       </View>
-      <Text style={compactStyles.appRowStatus} numberOfLines={1}>{status}</Text>
+      {visibleStatus ? <Text style={compactStyles.appRowStatus} numberOfLines={1}>{visibleStatus}</Text> : null}
     </Pressable>
   );
+}
+
+function getRowImageSource(url: string | null): ImageSourcePropType | null {
+  if (!url) return null;
+  return { uri: absoluteAssetUrl(url) };
 }
 
 function FeedSection({ title, children }: { title: string; children: ReactNode }) {
@@ -2006,7 +2022,7 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
   coatMarker: { width: 54, height: 60, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatMarkerGlow: { position: "absolute", width: 50, height: 38, borderRadius: 25, backgroundColor: "rgba(255,255,255,.32)", shadowColor: "#fff7e8", shadowOpacity: .34, shadowRadius: 10, elevation: 4 },
+  coatMarkerGlow: { position: "absolute", width: 58, height: 42, borderRadius: 29, backgroundColor: "rgba(255,255,255,.34)", transform: [{ scaleX: 1.2 }], shadowColor: "#fff7e8", shadowOpacity: .46, shadowRadius: 16, elevation: 5 },
   coatMarkerImage: { width: 48, height: 56 },
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
@@ -2020,6 +2036,9 @@ const compactStyles = StyleSheet.create({
   sectionAction: { color: colors.gold, fontSize: 12, fontWeight: "900" },
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   appRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
+  rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  rowCoatGlow: { position: "absolute", width: 32, height: 22, borderRadius: 16, backgroundColor: "rgba(255,255,255,.28)", transform: [{ scaleX: 1.24 }], shadowColor: "#fff7e8", shadowOpacity: .34, shadowRadius: 9, elevation: 3 },
+  rowCoatImage: { width: 30, height: 34 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },

@@ -4045,3 +4045,23 @@ Changed the value to the supported `"800"`, reran mobile typecheck and lint, and
 - Tags: react-native, typecheck, styles
 
 ---
+
+## [ERR-20260522-003] partial_replace_script_missing_exact_block
+
+**Logged**: 2026-05-22T18:12:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+A quick Python replacement script for removing SQC mobile row action/status noise failed because one exact string did not match the current file.
+
+### Resolution
+Inspected matching lines with `grep`, then used targeted `edit` replacements for the actual blocks.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: edit-script, exact-replacement
+
+---

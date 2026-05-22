@@ -99,6 +99,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; replace recent-proof singleton section with Trophy cabinet list of completed Side Quests, each showing Coat of Arms name and proof/done status.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/32-fresh-home-trophy-cabinet-list.png`.
 
+- [x] Add website-style Coat of Arms glow and remove noisy mobile row action labels.
+  - added_at: 2026-05-22 18:11 Europe/Stockholm
+  - completed_at: 2026-05-22 18:16 Europe/Stockholm
+  - source: Andreas showed the intended website-style Coat of Arms glow and asked to use Seals and Coat of Arms everywhere they belong, small enough not to enlarge the UI; he also questioned redundant Open/Browse/Open labels.
+  - scope: mobile Home; remove section action labels and non-state row labels like Open/Proof, strengthen website-style white halo behind Coat of Arms, and add small Coat of Arms icons with glow to Trophy cabinet rows.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/36-fresh-home-trophy-row-coats.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
