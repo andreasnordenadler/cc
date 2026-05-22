@@ -183,6 +183,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home active/not-completed Current Side Quest state; display latest active-quest check time (or `not yet`), remove secondary help action, and convert the verifier action to a compact refresh icon button.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/58-fresh-home-current-latest-check-refresh-icon.png`.
 
+- [x] Align SQC mobile Current Side Quest section and refresh placement.
+  - added_at: 2026-05-22 20:30 Europe/Stockholm
+  - completed_at: 2026-05-22 20:35 Europe/Stockholm
+  - source: Andreas asked to move the refresh button to the right and place `Current Side Quest` outside the rounded section card like the other section headings.
+  - scope: mobile app Home active/not-completed Current Side Quest state; moved heading outside the rounded card, kept status inside the card top-right, and right-aligned the refresh icon action.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/59-fresh-home-current-section-title-refresh-right.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

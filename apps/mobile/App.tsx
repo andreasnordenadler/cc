@@ -310,7 +310,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         {shell.loading ? (
           <View style={styles.loadingCard}>
             <ActivityIndicator color="#f5c86a" />
-            <Text style={styles.muted}>Loading the live quest board…</Text>
+            <Text style={styles.muted}>Loading the live quest board...</Text>
           </View>
         ) : null}
 
@@ -484,40 +484,43 @@ function TodayDashboard({
         </Pressable>
       ) : null}
 
-      <View style={compactStyles.freshPanel}>
+      <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>Current Side Quest</Text>
-          <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
         </View>
-        <View style={compactStyles.currentQuestRow}>
-          <View style={compactStyles.coatMarker}>
-            {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
-            <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
+        <View style={compactStyles.freshPanel}>
+          <View style={compactStyles.currentStatusRow}>
+            <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
           </View>
-          <View style={compactStyles.currentQuestText}>
-            <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "Pick your next bad idea"}</Text>
-            <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
-            <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : activeQuestNote}</Text>
+          <View style={compactStyles.currentQuestRow}>
+            <View style={compactStyles.coatMarker}>
+              {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+              <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
+            </View>
+            <View style={compactStyles.currentQuestText}>
+              <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "Pick your next bad idea"}</Text>
+              <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
+              <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : activeQuestNote}</Text>
+            </View>
           </View>
+          <View style={compactStyles.actionRowTight}>
+            {canViewCurrentProof ? (
+              <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => void openExternalAppUrl(latestProofHref ?? "/account")}>
+                <Text style={compactStyles.primaryActionText}>View result</Text>
+              </Pressable>
+            ) : signedIn.activeQuest ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={compactStyles.refreshAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+                {actionState.busy ? <ActivityIndicator color="#111" size="small" /> : <MaterialCommunityIcons name="refresh" size={22} color="#111" />}
+              </Pressable>
+            ) : (
+              <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
+                <Text style={compactStyles.primaryActionText}>Pick Side Quest</Text>
+              </Pressable>
+            )}
+          </View>
+          {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+          {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
         </View>
-        <View style={compactStyles.actionRowTight}>
-          {canViewCurrentProof ? (
-            <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => void openExternalAppUrl(latestProofHref ?? "/account")}>
-              <Text style={compactStyles.primaryActionText}>View result</Text>
-            </Pressable>
-          ) : signedIn.activeQuest ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={compactStyles.refreshAction} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
-              {actionState.busy ? <ActivityIndicator color="#111" size="small" /> : <MaterialCommunityIcons name="refresh" size={22} color="#111" />}
-            </Pressable>
-          ) : (
-            <Pressable accessibilityRole="button" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
-              <Text style={compactStyles.primaryActionText}>Pick Side Quest</Text>
-            </Pressable>
-          )}
-
-        </View>
-        {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
-        {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
       </View>
 
       <AppSection title="My Multiplayer Side Quests">
@@ -616,7 +619,7 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
 }
 
 function AppRow({ title, meta, status, imageSource, glowSource, glowColor, variant = "coat", onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowSource?: ImageSourcePropType | null; glowColor?: string; variant?: "coat" | "seal"; onPress: () => void }) {
-  const visibleStatus = status && !["Open", "Proof", "—"].includes(status) ? status : null;
+  const visibleStatus = status && !["Open", "Proof", "-"].includes(status) ? status : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
@@ -790,8 +793,8 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onAccountUp
         <Text style={compactStyles.heroTitle}>{signedIn.profile.displayName}</Text>
         <Text style={compactStyles.heroCopy}>{signedIn.chessAccounts.hasAny ? "Ready for latest-game checks." : "Add a public chess username before serious proof runs."}</Text>
         <View style={compactStyles.metricGrid}>
-          <CompactMetric label="Lichess" value={signedIn.chessAccounts.lichessUsername ? "✓" : "—"} />
-          <CompactMetric label="Chess.com" value={signedIn.chessAccounts.chessComUsername ? "✓" : "—"} />
+          <CompactMetric label="Lichess" value={signedIn.chessAccounts.lichessUsername ? "✓" : "-"} />
+          <CompactMetric label="Chess.com" value={signedIn.chessAccounts.chessComUsername ? "✓" : "-"} />
           <CompactMetric label="Proofs" value={`${signedIn.progress.proofReceiptCount}`} />
         </View>
       </View>
@@ -1128,7 +1131,7 @@ function SideQuestsScreen({
       <QuestSection
         eyebrow="Where to begin"
         title="Pick by how hard you want to go."
-        body="Not sure where to start? Use one of these: easy, trouble, or full chaos. No separate path, no homework ladder — just choose the level of bad idea you want right now."
+        body="Not sure where to start? Use one of these: easy, trouble, or full chaos. No separate path, no homework ladder - just choose the level of bad idea you want right now."
         challenges={recommendedStartChallenges}
         completedIds={completedIds}
         activeQuestId={activeQuestId}
@@ -1222,7 +1225,7 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
             <Text style={styles.sideQuestModeTitle}>{item.title}.</Text>
             <Text style={styles.sideQuestModeCopy}>{item.copy}</Text>
             <View style={styles.disabledActionButton} accessibilityLabel={`${item.action} coming soon`}>
-              <Text style={styles.disabledActionButtonText}>{item.action} — coming soon</Text>
+              <Text style={styles.disabledActionButtonText}>{item.action} - coming soon</Text>
             </View>
           </View>
         ))}
@@ -1451,7 +1454,7 @@ function SelectedQuestDetailCard({
           ) : activeQuest ? (
             <>
               <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
-                <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
+                <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking..." : "Check latest game"}</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Reset quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("reset")}>
                 <Text style={styles.secondaryButtonText}>Reset quest</Text>
@@ -1459,7 +1462,7 @@ function SelectedQuestDetailCard({
             </>
           ) : (
             <Pressable accessibilityRole="button" accessibilityLabel="Start this Side Quest" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("start")}>
-              <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting…" : "Start this Side Quest"}</Text>
+              <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting..." : "Start this Side Quest"}</Text>
             </Pressable>
           )}
 
@@ -1501,7 +1504,7 @@ function getMobileAccountNextStep(account: MobileAccountState) {
   }
 
   return {
-    title: `${account.activeQuest.title} is on the royal docket — play one new eligible game, then check the proof.`,
+    title: `${account.activeQuest.title} is on the royal docket - play one new eligible game, then check the proof.`,
     copy: "SQC will inspect your latest public game after this quest started and decide whether the bad idea counts.",
     href: account.activeQuest.href.replace(getApiBaseUrl(), "") || `/challenges/${account.activeQuest.id}`,
     cta: "Open active quest",
@@ -1574,7 +1577,7 @@ function AccountShell({
 
   function handleNextStepPress() {
     if (!signedInAccount.chessAccounts.hasAny) {
-      showNativeOnlyNotice("Use the chess username fields on this account page — the app will not open the website connect page.");
+      showNativeOnlyNotice("Use the chess username fields on this account page - the app will not open the website connect page.");
       return;
     }
 
@@ -1864,7 +1867,7 @@ function ChessUsernameEditor({
     <View style={styles.usernameEditorCard}>
       <Text style={styles.eyebrow}>Native account action</Text>
       <Text style={styles.usernameEditorTitle}>Connect chess usernames</Text>
-      <Text style={styles.usernameEditorBody}>Save public Lichess / Chess.com usernames to your SQC account. No chess-site passwords — SQC only checks public games.</Text>
+      <Text style={styles.usernameEditorBody}>Save public Lichess / Chess.com usernames to your SQC account. No chess-site passwords - SQC only checks public games.</Text>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>Lichess username</Text>
         <TextInput
@@ -1888,7 +1891,7 @@ function ChessUsernameEditor({
         />
       </View>
       <Pressable accessibilityRole="button" accessibilityLabel="Save chess usernames" testID="mobile-save-chess-usernames" style={styles.primaryButton} disabled={saving || !authBridge.isSignedIn} onPress={() => void saveUsernames()}>
-        <Text style={styles.primaryButtonText}>{saving ? "Saving…" : "Save usernames"}</Text>
+        <Text style={styles.primaryButtonText}>{saving ? "Saving..." : "Save usernames"}</Text>
       </Pressable>
       {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in with Google first to enable native account edits.</Text> : null}
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
@@ -2074,6 +2077,7 @@ const compactStyles = StyleSheet.create({
   blockerCopy: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
@@ -2085,7 +2089,7 @@ const compactStyles = StyleSheet.create({
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   currentQuestMetaStrong: { color: colors.gold, fontWeight: "900" },
   currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
-  actionRowTight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  actionRowTight: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   primaryActionText: { color: "#111", fontSize: 13, fontWeight: "900" },
   refreshAction: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
