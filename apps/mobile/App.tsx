@@ -272,7 +272,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
-        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 188, 204) }]}
+        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 34, 54) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshBoardAndAccount()} />}
         scrollEventThrottle={32}
         onScroll={handleScroll}
@@ -294,23 +294,54 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
 
         {shell.bootstrap && selectedChallenge ? (
-          <ActiveScreen
-            activeTab={shell.activeTab}
-            bootstrap={shell.bootstrap}
-            catalogMode={shell.catalogMode}
-            selectedChallenge={selectedChallenge}
-            account={displayAccount}
-            authBridge={authBridge}
-            onSelectChallenge={selectChallenge}
-            onSelectTab={selectTab}
-            onAccountUpdated={() => void loadAccount()}
-          />
+          <>
+            <TopTrackerNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} account={displayAccount} onSelectTab={selectTab} />
+            <ActiveScreen
+              activeTab={shell.activeTab}
+              bootstrap={shell.bootstrap}
+              catalogMode={shell.catalogMode}
+              selectedChallenge={selectedChallenge}
+              account={displayAccount}
+              authBridge={authBridge}
+              onSelectChallenge={selectChallenge}
+              onSelectTab={selectTab}
+              onAccountUpdated={() => void loadAccount()}
+            />
+          </>
         ) : null}
       </ScrollView>
-      <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} account={displayAccount} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
+}
+
+
+function TopTrackerNav({ activeTab, account, onSelectTab }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void }) {
+  const authenticated = isAuthenticatedAccount(account);
+
+  return (
+    <View style={compactStyles.topNavPanel} accessibilityLabel="SQC tracker sections">
+      <View style={compactStyles.topNavHeader}>
+        <Text style={compactStyles.kicker}>Tracker</Text>
+        <Text style={compactStyles.topNavMeta}>{authenticated ? "Live board" : "Sign-in preview"}</Text>
+      </View>
+      <View style={compactStyles.topNavRail}>
+        {TABS.map((tab) => (
+          <Pressable
+            key={tab.id}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: activeTab === tab.id }}
+            accessibilityLabel={`Open ${tab.label}`}
+            testID={`mobile-top-nav-${tab.id}`}
+            style={[compactStyles.topNavChip, activeTab === tab.id && compactStyles.topNavChipActive]}
+            onPress={() => onSelectTab(tab.id)}
+          >
+            <Text style={[compactStyles.topNavChipText, activeTab === tab.id && compactStyles.topNavChipTextActive]}>{tab.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
 }
 
 function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScrollUp: boolean; canScrollDown: boolean; bottomInset: number }) {
@@ -1775,6 +1806,14 @@ const colors = {
 
 const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
+  topNavPanel: { gap: 8, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.22)" },
+  topNavHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  topNavMeta: { color: "rgba(255,247,232,.58)", fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },
+  topNavRail: { flexDirection: "row", gap: 5 },
+  topNavChip: { flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.07)", backgroundColor: "rgba(255,247,232,.045)" },
+  topNavChipActive: { backgroundColor: colors.paper, borderColor: colors.paper },
+  topNavChipText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
+  topNavChipTextActive: { color: "#171119" },
   heroPanel: { gap: 10, padding: 13, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.075)" },
   headerPanel: { gap: 5, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.2)" },
   topLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },

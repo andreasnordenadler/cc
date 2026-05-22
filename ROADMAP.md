@@ -13,7 +13,14 @@ Status: SQC-mobile-focus / website-feature-freeze
   - completed_at: 2026-05-22 16:09 Europe/Stockholm
   - source: Andreas explicitly asked to stop making the app a copy of the website and instead make it a tight logged-in existing-user tracker for Side Quest Chess side quests, inspired by Apple Sports.
   - scope: mobile app only; Today/Quests/Coats/Account tracker framing; signed-out state stays minimal; website feature freeze unaffected.
-  - proof: pending checks/build/emulator screenshot in current run.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/07-logged-in-tracker-tight-nav.png`.
+
+- [x] Remove SQC Mobile bottom bar in favor of Apple Sports-style top tracker switcher.
+  - added_at: 2026-05-22 16:17 Europe/Stockholm
+  - completed_at: 2026-05-22 16:18 Europe/Stockholm
+  - source: Andreas liked the tracker approach and asked if the bottom bar is needed, citing Apple Sports as inspiration.
+  - scope: mobile app only; remove persistent bottom dock; add compact top segmented tracker navigation; reduce bottom padding.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/08-no-bottom-bar-top-tracker-nav.png`.
 
 ## Active SQC operating priorities — 2026-05-15
 
