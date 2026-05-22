@@ -3885,3 +3885,143 @@ For SQC mobile account screens, define `const signedInAccount = account` immedia
 - Tags: react-native, typescript, narrowing
 
 ---
+
+## [ERR-20260521-001] sqc-production-deploy-guard
+
+**Logged**: 2026-05-21T07:51:00+02:00
+**Priority**: medium
+**Status**: pending
+**Area**: infra
+
+### Summary
+SQC production deploy guard blocked because local `cc` HEAD did not match `origin/main`.
+
+### Details
+`pnpm deploy:prod:guard` reported local HEAD `d7bfcb4` while `origin/main` was `5d854c7`, so production deploy was correctly stopped before shipping the mobile auth fix.
+
+### Suggested Action
+Before production deploys from `cc`, fetch/sync to `origin/main`, reapply/commit the intended patch, then re-run lint/build and `pnpm deploy:prod:guard`.
+
+### Metadata
+- Source: command_failure
+- Related Files: scripts/deploy-production-guard.mjs
+- Tags: sqc, deploy, guard
+
+---
+
+## 2026-05-21 — Vercel Blob upload unavailable without Blob token/store
+Command: `vercel blob put ...`
+Result: failed because no Vercel Blob read/write token or linked Blob store was available. For ad-hoc SQC APK delivery, use a Vercel preview deployment with `public/downloads/*.apk` unless a Blob store is explicitly configured.
+
+## [ERR-20260521-001] vercel_logs_filter_follow_default
+
+**Logged**: 2026-05-21T07:05:00Z
+**Priority**: low
+**Status**: pending
+**Area**: infra
+
+### Summary
+`pnpm exec vercel logs cc --since 24h` failed because passing a deployment/project positional argument enables follow mode, and Vercel CLI does not support `--since` while following.
+
+### Details
+For historical filtered SQC production logs, omit the positional target and use `--environment production --since <window> --no-follow --no-branch` plus filters such as `--status-code 500`, `--level error`, or `--json`.
+
+### Suggested Action
+Use: `pnpm exec vercel logs --environment production --status-code 500 --since 24h --no-follow --no-branch --json`.
+
+### Metadata
+- Source: error
+- Related Files: docs/SQC_DAILY_THREE_LANE_REPORT_2026-05-21.md
+- Tags: vercel, logs, sqc
+
+## [ERR-20260522-001] expo_start_host_flag
+
+**Logged**: 2026-05-22T15:31:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+Expo web start rejected `--host 127.0.0.1` because Expo expects host mode values like `localhost`.
+
+### Details
+While preparing local SQC mobile UI review, `pnpm --dir apps/mobile web -- --port 8088 --host 127.0.0.1` failed with an assertion for `/^(lan|tunnel|localhost)$/`. Retried successfully with `pnpm --dir apps/mobile exec expo start --web --port 8088 --localhost`.
+
+### Suggested Action
+For Expo local UI review, use `--localhost` rather than `--host 127.0.0.1`.
+
+---
+
+## [ERR-20260522-002] eas_build_project_not_configured
+
+**Logged**: 2026-05-22T15:34:00+02:00
+**Priority**: medium
+**Status**: investigating
+**Area**: mobile
+
+### Summary
+SQC mobile EAS Android build failed in non-interactive mode with `EAS project not configured` despite `extra.eas.projectId` being present in `apps/mobile/app.json`.
+
+### Details
+Command: `pnpm --dir apps/mobile dlx eas-cli build --platform android --profile android-alpha --non-interactive`. EAS auth is present (`whoami` returns the expected account), but build refused to run and suggested `eas init`.
+
+### Suggested Action
+Run EAS diagnostics from the actual mobile app directory and verify whether EAS is reading `apps/mobile/app.json`; if needed, repair project linkage with `eas init --id <projectId>` or equivalent safe config path.
+
+---
+
+## [ERR-20260522-003] eas_android_free_plan_limit
+
+**Logged**: 2026-05-22T15:36:00+02:00
+**Priority**: medium
+**Status**: blocked
+**Area**: mobile
+
+### Summary
+Fresh SQC Android EAS APK build is blocked by Expo Free plan monthly Android build limit.
+
+### Details
+After running EAS from the correct `apps/mobile` directory, upload succeeded, but EAS rejected the build because the account has used its Android builds for the Free plan this month. Reset is reported as Mon Jun 01 2026.
+
+### Suggested Action
+For immediate native app review, use an existing APK/dev build or Expo Go/tunnel if compatible. For fresh APKs before reset, upgrade Expo plan or build locally after installing Android SDK/device/emulator tooling.
+
+---
+
+## [ERR-20260522-004] expo_run_android_device_serial
+
+**Logged**: 2026-05-22T15:39:00+02:00
+**Priority**: low
+**Status**: pending
+**Area**: mobile
+
+### Summary
+`expo run:android --device emulator-5554` did not resolve the ADB serial as a device name.
+
+### Details
+The emulator was attached via ADB as `emulator-5554`, but Expo reported `Could not find device with name: emulator-5554`. For this workflow, prefer setting `ANDROID_SERIAL=emulator-5554` or using Gradle/ADB install directly from the generated Android project.
+
+### Suggested Action
+Use `ANDROID_SERIAL=emulator-5554 pnpm exec expo run:android` or `./gradlew installDebug` + `adb shell am start ...` for deterministic emulator installs.
+
+---
+
+## [ERR-20260522-001] mobile_typecheck_missing_styles
+
+**Logged**: 2026-05-22T16:36:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+SQC mobile typecheck failed after adding new Apple Sports-style Today components because the new `compactStyles` keys were referenced before being defined.
+
+### Resolution
+Added the missing style definitions, reran `pnpm --filter @sidequestchess/mobile typecheck`, and confirmed it passed. Follow-up lint/build/emulator verification also passed.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: react-native, styles, typecheck
+
+---

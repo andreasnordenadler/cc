@@ -377,10 +377,13 @@ function TodayDashboard({
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const activeChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
-  const suggestedChallenge = activeChallenge ?? bootstrap.challenges[0];
+  const suggestedChallenge = bootstrap.challenges.find((challenge) => challenge.id !== signedIn?.activeQuest?.id && !signedIn?.progress.completedChallengeIds.includes(challenge.id)) ?? bootstrap.challenges[0];
   const completedCount = signedIn?.progress.totalCompletedChallenges ?? 0;
   const proofCount = signedIn?.progress.proofReceiptCount ?? 0;
   const latestReceipt = signedIn?.latestReceipt;
+  const activeStatus = signedIn?.activeQuest?.completed ? "Complete" : signedIn?.activeQuest ? "Waiting" : "Empty";
+  const latestStatus = latestReceipt?.status === "passed" ? "Passed" : latestReceipt?.status === "failed" ? "Failed" : latestReceipt ? "Checked" : "None";
+  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Ready" : signedIn?.activeQuest ? "Pending" : "—";
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
@@ -392,50 +395,85 @@ function TodayDashboard({
       {!signedIn ? (
         <View style={compactStyles.heroPanel}>
           <Text style={compactStyles.kicker}>Side Quest Chess</Text>
-          <Text style={compactStyles.heroTitle}>Sign in to track your side quests.</Text>
-          <Text style={compactStyles.heroCopy}>The app is now for existing players: active quest, latest game status, unlocked Coat of Arms, and proof — no website-style homepage.</Text>
+          <Text style={compactStyles.heroTitle}>Sign in to track your Side Quests.</Text>
+          <Text style={compactStyles.heroCopy}>The app is now for existing players: active Side Quest, latest game status, unlocked Coat of Arms, and proof — no website-style homepage.</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Sign in with Google" style={compactStyles.goldButton} onPress={handleSignIn}>
             <Text style={compactStyles.goldButtonText}>Sign in with Google</Text>
           </Pressable>
         </View>
       ) : (
-        <View style={compactStyles.heroPanel}>
-          <View style={compactStyles.topLine}>
-            <Text style={compactStyles.kicker}>Today</Text>
-            <Text style={compactStyles.livePill}>Live account</Text>
-          </View>
-          <Text style={compactStyles.heroTitle}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
-          <Text style={compactStyles.heroCopy}>{signedIn.activeQuest?.completed ? "Side Quest complete. Your Coat of Arms and proof are ready." : signedIn.activeQuest ? "Play one eligible public game, then check proof." : "Pick one Side Quest to put on the board."}</Text>
-          <View style={compactStyles.metricGrid}>
-            <CompactMetric label="Active" value={signedIn.activeQuest ? "1" : "—"} />
-            <CompactMetric label="Coat of Arms" value={`${completedCount}`} />
-            <CompactMetric label="Proofs" value={`${proofCount}`} />
-          </View>
-          <View style={compactStyles.actionRow}>
-            <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
-              <Text style={compactStyles.goldButtonText}>{signedIn.activeQuest ? "Open Side Quest" : "Pick Side Quest"}</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" style={compactStyles.darkButtonSmall} onPress={onAccountUpdated}>
-              <Text style={compactStyles.darkButtonText}>Refresh</Text>
+        <View style={compactStyles.liveBoardPanel}>
+          <View style={compactStyles.liveBoardHeader}>
+            <View>
+              <Text style={compactStyles.kicker}>Today</Text>
+              <Text style={compactStyles.boardTitle}>Side Quest Board</Text>
+            </View>
+            <Pressable accessibilityRole="button" style={compactStyles.refreshPill} onPress={onAccountUpdated}>
+              <Text style={compactStyles.refreshPillText}>Refresh</Text>
             </Pressable>
           </View>
+
+          <Pressable accessibilityRole="button" accessibilityLabel="Open active Side Quest" style={compactStyles.matchCard} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
+            <View style={compactStyles.matchCardTopline}>
+              <Text style={compactStyles.matchLeague}>Active Side Quest</Text>
+              <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
+            </View>
+            <View style={compactStyles.matchMainRow}>
+              <View style={compactStyles.matchSideBlock}>
+                <Text style={compactStyles.matchSideLabel}>Now</Text>
+                <Text style={compactStyles.matchSideTitle} numberOfLines={1}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
+                <Text style={compactStyles.matchSideMeta} numberOfLines={1}>{signedIn.activeQuest ? "Play a public game, then run the check." : "Pick one Side Quest to put on the board."}</Text>
+              </View>
+              <Text style={compactStyles.matchDivider}>›</Text>
+            </View>
+            <View style={compactStyles.matchFooterRow}>
+              <MiniStat label="Coat of Arms" value={`${completedCount}`} />
+              <MiniStat label="Receipts" value={`${proofCount}`} />
+              <MiniStat label="Check" value={activeCheckStatus} />
+            </View>
+          </Pressable>
         </View>
       )}
 
-      <View style={compactStyles.scorePanel}>
-        <Text style={compactStyles.panelTitle}>Board</Text>
-        <CompactStatusRow label="Now" title={signedIn?.activeQuest?.title ?? "No active Side Quest"} meta={signedIn?.activeQuest ? (signedIn.activeQuest.completed ? "Completed" : "Waiting for latest-game proof") : "Choose one Side Quest"} onPress={() => signedIn?.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")} />
-        <CompactStatusRow label="Next" title={suggestedChallenge?.title ?? "Side Quest deck"} meta={suggestedChallenge ? `+${suggestedChallenge.reward} · ${suggestedChallenge.difficulty}` : "Browse available Side Quests"} onPress={() => suggestedChallenge ? onSelectChallenge(suggestedChallenge.id, "sideQuests") : onSelectTab("sideQuests")} />
-        <CompactStatusRow label="Recent" title={latestReceipt?.headline ?? "No proof receipt yet"} meta={latestReceipt?.detail ?? "Finish a quest to create the first receipt"} onPress={() => onSelectTab("account")} />
+      <View style={compactStyles.tablePanel}>
+        <View style={compactStyles.tableHeaderRow}>
+          <Text style={[compactStyles.tableHeaderCell, compactStyles.tableNameCell]}>Side Quest</Text>
+          <Text style={compactStyles.tableHeaderCell}>State</Text>
+          <Text style={compactStyles.tableHeaderCell}>Check</Text>
+        </View>
+        <TableRow label="Now" title={signedIn?.activeQuest?.title ?? "No active Side Quest"} state={activeStatus} proof={activeCheckStatus} onPress={() => signedIn?.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")} />
+        <TableRow label="Next" title={suggestedChallenge?.title ?? "Side Quest deck"} state={suggestedChallenge?.difficulty ?? "Open"} proof="—" onPress={() => suggestedChallenge ? onSelectChallenge(suggestedChallenge.id, "sideQuests") : onSelectTab("sideQuests")} />
+        <TableRow label="Recent" title={latestReceipt?.headline ?? "No proof receipt yet"} state={latestReceipt ? "Receipt" : "None"} proof={latestStatus} onPress={() => onSelectTab("account")} />
       </View>
 
-      <View style={compactStyles.scorePanel}>
-        <Text style={compactStyles.panelTitle}>Quick paths</Text>
-        <CompactStatusRow label="Side Quest" title="Active / Available / Completed" meta="Dense Side Quest board" onPress={() => onSelectTab("sideQuests")} />
+      <View style={compactStyles.pathPanel}>
+        <CompactStatusRow label="Side Quest" title="Active / Available / Completed" meta="Open the dense Side Quest board" onPress={() => onSelectTab("sideQuests")} />
         <CompactStatusRow label="Coat of Arms" title={`${completedCount} unlocked`} meta="Trophy shelf and next unlock" onPress={() => onSelectTab("coatOfArms")} />
-        <CompactStatusRow label="User" title={signedIn?.profile.displayName ?? "Signed out"} meta={signedIn?.chessAccounts.hasAny ? "Chess usernames connected" : "Chess usernames missing"} onPress={() => onSelectTab("account")} />
+        <CompactStatusRow label="Account" title={signedIn?.profile.displayName ?? "Signed out"} meta={signedIn?.chessAccounts.hasAny ? "Chess usernames connected" : "Chess usernames missing"} onPress={() => onSelectTab("account")} />
       </View>
     </View>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={compactStyles.miniStat}>
+      <Text style={compactStyles.miniStatValue}>{value}</Text>
+      <Text style={compactStyles.miniStatLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function TableRow({ label, title, state, proof, onPress }: { label: string; title: string; state: string; proof: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" style={compactStyles.tableRow} onPress={onPress}>
+      <View style={compactStyles.tableNameCell}>
+        <Text style={compactStyles.tableRowLabel}>{label}</Text>
+        <Text style={compactStyles.tableRowTitle} numberOfLines={1}>{title}</Text>
+      </View>
+      <Text style={compactStyles.tableCell} numberOfLines={1}>{state}</Text>
+      <Text style={compactStyles.tableCell} numberOfLines={1}>{proof}</Text>
+    </Pressable>
   );
 }
 
@@ -484,7 +522,7 @@ function QuestBoardDashboard({
       <View style={compactStyles.scorePanel}>
         {visibleRows.length ? visibleRows.map((challenge) => (
           <CompactQuestRow key={challenge.id} challenge={challenge} active={challenge.id === activeId} completed={completedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
-        )) : <Text style={compactStyles.emptyText}>{segment === "completed" ? "No completed quests yet." : "No rows in this lane."}</Text>}
+        )) : <Text style={compactStyles.emptyText}>{segment === "completed" ? "No completed Side Quests yet." : "No rows in this lane."}</Text>}
       </View>
       <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
     </View>
@@ -499,7 +537,7 @@ function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstr
   return (
     <View style={compactStyles.stack}>
       <View style={compactStyles.heroPanel}>
-        <Text style={compactStyles.kicker}>Coats</Text>
+        <Text style={compactStyles.kicker}>Coat of Arms</Text>
         <Text style={compactStyles.heroTitle}>Coat of Arms: {earnedIds.size}/{bootstrap.challenges.length}</Text>
         <Text style={compactStyles.heroCopy}>{nextLocked ? `Next target: ${nextLocked.title}` : "Everything unlocked. Suspiciously heroic."}</Text>
       </View>
@@ -1811,7 +1849,7 @@ const compactStyles = StyleSheet.create({
   topNavRail: { flexDirection: "row", gap: 5 },
   topNavChip: { flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.07)", backgroundColor: "rgba(255,247,232,.045)" },
   topNavChipActive: { backgroundColor: colors.paper, borderColor: colors.paper },
-  topNavChipText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
+  topNavChipText: { color: colors.muted, fontSize: 9, fontWeight: "900", textAlign: "center" },
   topNavChipTextActive: { color: "#171119" },
   heroPanel: { gap: 10, padding: 13, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.075)" },
   headerPanel: { gap: 5, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.2)" },
@@ -1835,7 +1873,7 @@ const compactStyles = StyleSheet.create({
   panelTitle: { color: colors.paper, fontSize: 18, fontWeight: "900", letterSpacing: -.4 },
   statusRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 8, paddingHorizontal: 8, borderRadius: 15, backgroundColor: "rgba(255,247,232,.055)" },
   questRow: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 7, paddingHorizontal: 8, borderRadius: 15, backgroundColor: "rgba(255,247,232,.055)" },
-  rowLabel: { width: 48, color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  rowLabel: { width: 72, color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   rowCopy: { flex: 1, minWidth: 0 },
   rowTitle: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   rowMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
@@ -1857,6 +1895,35 @@ const compactStyles = StyleSheet.create({
   coatTileTitle: { minHeight: 30, color: colors.paper, fontSize: 11, lineHeight: 14, textAlign: "center", fontWeight: "800" },
   earnedText: { color: colors.green, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   lockedText: { color: colors.gold, fontSize: 10, fontWeight: "900" },
+  liveBoardPanel: { gap: 8, padding: 9, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.2)" },
+  liveBoardHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  boardTitle: { color: colors.paper, fontSize: 22, fontWeight: "900", letterSpacing: -.7 },
+  refreshPill: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(255,247,232,.06)" },
+  refreshPillText: { color: colors.paper, fontSize: 11, fontWeight: "900" },
+  matchCard: { gap: 10, padding: 11, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.07)" },
+  matchCardTopline: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  matchLeague: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
+  statusPill: { overflow: "hidden", color: colors.gold, fontSize: 11, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
+  statusPillGood: { color: colors.green, backgroundColor: "rgba(96,240,175,.12)", borderColor: "rgba(96,240,175,.28)" },
+  matchMainRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  matchSideBlock: { flex: 1, minWidth: 0, gap: 2 },
+  matchSideLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  matchSideTitle: { color: colors.paper, fontSize: 19, lineHeight: 23, fontWeight: "900", letterSpacing: -.5 },
+  matchSideMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
+  matchDivider: { color: "rgba(255,247,232,.48)", fontSize: 30, fontWeight: "300" },
+  matchFooterRow: { flexDirection: "row", gap: 6 },
+  miniStat: { flex: 1, padding: 8, borderRadius: 13, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
+  miniStatValue: { color: colors.paper, fontSize: 13, fontWeight: "900" },
+  miniStatLabel: { color: colors.muted, fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
+  tablePanel: { gap: 1, overflow: "hidden", borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.22)" },
+  tableHeaderRow: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 10, paddingTop: 9, paddingBottom: 6, backgroundColor: "rgba(255,247,232,.04)" },
+  tableHeaderCell: { width: 54, color: "rgba(255,247,232,.48)", fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: .3, textAlign: "right" },
+  tableRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 10, paddingVertical: 8, borderTopWidth: 1, borderTopColor: "rgba(255,247,232,.07)" },
+  tableNameCell: { flex: 1.5, minWidth: 0 },
+  tableRowLabel: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
+  tableRowTitle: { color: colors.paper, fontSize: 13, fontWeight: "900" },
+  tableCell: { width: 54, color: colors.muted, fontSize: 11, fontWeight: "800", textAlign: "right" },
+  pathPanel: { gap: 4, padding: 7, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
 });
 
 const styles = StyleSheet.create({
