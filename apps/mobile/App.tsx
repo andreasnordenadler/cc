@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/alt-text */
+/* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -83,8 +83,8 @@ const TABS: Array<
   | { id: AppTab; label: string; iconKind: "image"; imagePath: string }
   | { id: AppTab; label: string; iconKind: "vector"; iconName: keyof typeof MaterialCommunityIcons.glyphMap }
 > = [
-  { id: "home", label: "Home", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
-  { id: "sideQuests", label: "Side Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
+  { id: "home", label: "Today", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
+  { id: "sideQuests", label: "Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
   { id: "coatOfArms", label: "Coats", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
   { id: "account", label: "Account", iconKind: "vector", iconName: "account-circle" },
 ];
@@ -258,6 +258,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setScrollState((current) => ({ ...current, contentHeight }));
   }
 
+  const displayAccount = useMemo(() => (shell.bootstrap ? getDevTrackerPreviewAccount(shell.account, shell.bootstrap) : shell.account), [shell.account, shell.bootstrap]);
   const canScrollUp = scrollState.y > 18;
   const canScrollDown = scrollState.contentHeight > 0 && scrollState.viewportHeight > 0 && scrollState.y + scrollState.viewportHeight < scrollState.contentHeight - 18;
 
@@ -285,7 +286,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
-        {shell.catalogMode === "offline" ? (
+        {shell.catalogMode === "offline" && !__DEV__ ? (
           <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
             <Text style={styles.catalogStateTitle}>Offline quest catalog loaded</Text>
             <Text style={styles.catalogStateCopy}>{shell.catalogNotice ?? "Live Side Quest Chess is temporarily unreachable. You can still browse the cached quest board."}</Text>
@@ -298,7 +299,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
             bootstrap={shell.bootstrap}
             catalogMode={shell.catalogMode}
             selectedChallenge={selectedChallenge}
-            account={shell.account}
+            account={displayAccount}
             authBridge={authBridge}
             onSelectChallenge={selectChallenge}
             onSelectTab={selectTab}
@@ -306,8 +307,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           />
         ) : null}
       </ScrollView>
-      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
-      <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} account={shell.account} bottomInset={insets.bottom} onSelectTab={selectTab} />
+      <BottomNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} account={displayAccount} bottomInset={insets.bottom} onSelectTab={selectTab} />
     </SafeAreaView>
   );
 
@@ -328,6 +328,242 @@ function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScr
   );
 }
 
+
+function TodayDashboard({
+  bootstrap,
+  account,
+  authBridge,
+  onSelectTab,
+  onSelectChallenge,
+  onAccountUpdated,
+}: {
+  bootstrap: MobileBootstrap;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectTab: (tab: AppTab) => void;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+  onAccountUpdated: () => void;
+}) {
+  const signedIn = isAuthenticatedAccount(account) ? account : null;
+  const activeChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
+  const suggestedChallenge = activeChallenge ?? bootstrap.challenges[0];
+  const completedCount = signedIn?.progress.totalCompletedChallenges ?? 0;
+  const proofCount = signedIn?.progress.proofReceiptCount ?? 0;
+  const points = signedIn?.progress.totalRewardPoints ?? 0;
+  const latestReceipt = signedIn?.latestReceipt;
+
+  function handleSignIn() {
+    if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
+    showNativeOnlyNotice("Native Google sign-in is not configured in this build.");
+  }
+
+  return (
+    <View style={compactStyles.stack}>
+      {!signedIn ? (
+        <View style={compactStyles.heroPanel}>
+          <Text style={compactStyles.kicker}>Side Quest Chess</Text>
+          <Text style={compactStyles.heroTitle}>Sign in to track your side quests.</Text>
+          <Text style={compactStyles.heroCopy}>The app is now for existing players: active quest, latest game status, unlocked coats, and proof — no website-style homepage.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Sign in with Google" style={compactStyles.goldButton} onPress={handleSignIn}>
+            <Text style={compactStyles.goldButtonText}>Sign in with Google</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <View style={compactStyles.heroPanel}>
+          <View style={compactStyles.topLine}>
+            <Text style={compactStyles.kicker}>Today</Text>
+            <Text style={compactStyles.livePill}>Live account</Text>
+          </View>
+          <Text style={compactStyles.heroTitle}>{signedIn.activeQuest?.title ?? "No active side quest"}</Text>
+          <Text style={compactStyles.heroCopy}>{signedIn.activeQuest?.completed ? "Quest complete. Your coat and proof are ready." : signedIn.activeQuest ? "Play one eligible public game, then check proof." : "Pick one side quest to put on the board."}</Text>
+          <View style={compactStyles.metricGrid}>
+            <CompactMetric label="Pts" value={`${points}`} />
+            <CompactMetric label="Coats" value={`${completedCount}`} />
+            <CompactMetric label="Proofs" value={`${proofCount}`} />
+          </View>
+          <View style={compactStyles.actionRow}>
+            <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
+              <Text style={compactStyles.goldButtonText}>{signedIn.activeQuest ? "Open quest" : "Pick quest"}</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" style={compactStyles.darkButtonSmall} onPress={onAccountUpdated}>
+              <Text style={compactStyles.darkButtonText}>Refresh</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+
+      <View style={compactStyles.scorePanel}>
+        <Text style={compactStyles.panelTitle}>Board</Text>
+        <CompactStatusRow label="Now" title={signedIn?.activeQuest?.title ?? "No active quest"} meta={signedIn?.activeQuest ? (signedIn.activeQuest.completed ? "Completed" : "Waiting for latest-game proof") : "Choose one quest"} onPress={() => signedIn?.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Next" title={suggestedChallenge?.title ?? "Quest deck"} meta={suggestedChallenge ? `+${suggestedChallenge.reward} · ${suggestedChallenge.difficulty}` : "Browse available quests"} onPress={() => suggestedChallenge ? onSelectChallenge(suggestedChallenge.id, "sideQuests") : onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Recent" title={latestReceipt?.headline ?? "No proof receipt yet"} meta={latestReceipt?.detail ?? "Finish a quest to create the first receipt"} onPress={() => onSelectTab("account")} />
+      </View>
+
+      <View style={compactStyles.scorePanel}>
+        <Text style={compactStyles.panelTitle}>Quick paths</Text>
+        <CompactStatusRow label="Quest" title="Active / Available / Completed" meta="Dense side quest board" onPress={() => onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Coats" title={`${completedCount} unlocked`} meta="Trophy shelf and next unlock" onPress={() => onSelectTab("coatOfArms")} />
+        <CompactStatusRow label="User" title={signedIn?.profile.displayName ?? "Signed out"} meta={signedIn?.chessAccounts.hasAny ? "Chess usernames connected" : "Chess usernames missing"} onPress={() => onSelectTab("account")} />
+      </View>
+    </View>
+  );
+}
+
+function QuestBoardDashboard({
+  bootstrap,
+  selectedChallenge,
+  account,
+  authBridge,
+  onSelectChallenge,
+  onSelectTab,
+  onAccountUpdated,
+}: {
+  bootstrap: MobileBootstrap;
+  selectedChallenge: MobileChallenge;
+  account: MobileAccountResponse | null;
+  authBridge: MobileAuthBridge;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+  onSelectTab: (tab: AppTab) => void;
+  onAccountUpdated: () => void;
+}) {
+  const [segment, setSegment] = useState<"active" | "available" | "completed">("active");
+  const signedIn = isAuthenticatedAccount(account) ? account : null;
+  const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
+  const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
+  const rows = segment === "active"
+    ? bootstrap.challenges.filter((challenge) => challenge.id === activeId)
+    : segment === "completed"
+      ? bootstrap.challenges.filter((challenge) => completedIds.has(challenge.id))
+      : bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id));
+  const visibleRows = rows.length ? rows : segment === "active" ? [selectedChallenge] : [];
+
+  return (
+    <View style={compactStyles.stack}>
+      <View style={compactStyles.headerPanel}>
+        <Text style={compactStyles.kicker}>Quests</Text>
+        <Text style={compactStyles.panelTitle}>Track, check, continue.</Text>
+        <Text style={compactStyles.micro}>Built for logged-in players. Dense rows, fast state changes, no website explainer copy.</Text>
+      </View>
+      <View style={compactStyles.segmentBar}>
+        {(["active", "available", "completed"] as const).map((item) => (
+          <Pressable key={item} accessibilityRole="button" style={[compactStyles.segmentButton, segment === item && compactStyles.segmentButtonActive]} onPress={() => setSegment(item)}>
+            <Text style={[compactStyles.segmentText, segment === item && compactStyles.segmentTextActive]}>{item}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <View style={compactStyles.scorePanel}>
+        {visibleRows.length ? visibleRows.map((challenge) => (
+          <CompactQuestRow key={challenge.id} challenge={challenge} active={challenge.id === activeId} completed={completedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
+        )) : <Text style={compactStyles.emptyText}>{segment === "completed" ? "No completed quests yet." : "No rows in this lane."}</Text>}
+      </View>
+      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
+    </View>
+  );
+}
+
+function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void }) {
+  const signedIn = isAuthenticatedAccount(account) ? account : null;
+  const earnedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
+  const nextLocked = bootstrap.challenges.find((challenge) => !earnedIds.has(challenge.id));
+
+  return (
+    <View style={compactStyles.stack}>
+      <View style={compactStyles.heroPanel}>
+        <Text style={compactStyles.kicker}>Coats</Text>
+        <Text style={compactStyles.heroTitle}>{earnedIds.size}/{bootstrap.challenges.length} unlocked</Text>
+        <Text style={compactStyles.heroCopy}>{nextLocked ? `Next target: ${nextLocked.title}` : "Everything unlocked. Suspiciously heroic."}</Text>
+      </View>
+      <View style={compactStyles.coatGrid}>
+        {bootstrap.challenges.map((challenge) => (
+          <Pressable key={challenge.id} accessibilityRole="button" style={compactStyles.coatTile} onPress={() => onSelectChallenge(challenge.id, "sideQuests")}>
+            <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={[compactStyles.coatTileImage, !earnedIds.has(challenge.id) && compactStyles.coatTileLocked]} resizeMode="contain" />
+            <Text style={compactStyles.coatTileTitle} numberOfLines={2}>{challenge.title}</Text>
+            <Text style={earnedIds.has(challenge.id) ? compactStyles.earnedText : compactStyles.lockedText}>{earnedIds.has(challenge.id) ? "Unlocked" : `+${challenge.reward}`}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function AccountTrackerDashboard({ account, authBridge, onSelectTab, onAccountUpdated }: { account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onAccountUpdated: () => void }) {
+  const signedIn = isAuthenticatedAccount(account) ? account : null;
+  if (!signedIn) {
+    return (
+      <View style={compactStyles.stack}>
+        <View style={compactStyles.heroPanel}>
+          <Text style={compactStyles.kicker}>Account</Text>
+          <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
+          <Text style={compactStyles.heroCopy}>The mobile app is intentionally useful after sign-in: quest state, latest proof, coats, and connected usernames.</Text>
+          <Pressable accessibilityRole="button" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Native Google sign-in is not configured in this build.")}>
+            <Text style={compactStyles.goldButtonText}>Sign in with Google</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={compactStyles.stack}>
+      <View style={compactStyles.heroPanel}>
+        <View style={compactStyles.topLine}>
+          <Text style={compactStyles.kicker}>Account</Text>
+          <Text style={compactStyles.livePill}>Synced</Text>
+        </View>
+        <Text style={compactStyles.heroTitle}>{signedIn.profile.displayName}</Text>
+        <Text style={compactStyles.heroCopy}>{signedIn.chessAccounts.hasAny ? "Ready for latest-game checks." : "Add a public chess username before serious proof runs."}</Text>
+        <View style={compactStyles.metricGrid}>
+          <CompactMetric label="Lichess" value={signedIn.chessAccounts.lichessUsername ? "✓" : "—"} />
+          <CompactMetric label="Chess.com" value={signedIn.chessAccounts.chessComUsername ? "✓" : "—"} />
+          <CompactMetric label="Proofs" value={`${signedIn.progress.proofReceiptCount}`} />
+        </View>
+      </View>
+      <View style={compactStyles.scorePanel}>
+        <CompactStatusRow label="Active" title={signedIn.activeQuest?.title ?? "No active quest"} meta={signedIn.activeQuest ? (signedIn.activeQuest.completed ? "Complete" : "In progress") : "Pick one from Quests"} onPress={() => onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Latest" title={signedIn.latestReceipt?.headline ?? "No receipt yet"} meta={signedIn.latestReceipt?.detail ?? "Check proof after a public game"} onPress={() => onSelectTab("sideQuests")} />
+        <CompactStatusRow label="Sync" title="Refresh account" meta="Pull latest SQC state" onPress={onAccountUpdated} />
+      </View>
+      <ChessUsernameEditor account={signedIn} authBridge={authBridge} onSaved={onAccountUpdated} />
+    </View>
+  );
+}
+
+function CompactMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={compactStyles.metricBox}>
+      <Text style={compactStyles.metricValue}>{value}</Text>
+      <Text style={compactStyles.metricLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function CompactStatusRow({ label, title, meta, onPress }: { label: string; title: string; meta: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" style={compactStyles.statusRow} onPress={onPress}>
+      <Text style={compactStyles.rowLabel}>{label}</Text>
+      <View style={compactStyles.rowCopy}>
+        <Text style={compactStyles.rowTitle} numberOfLines={1}>{title}</Text>
+        <Text style={compactStyles.rowMeta} numberOfLines={1}>{meta}</Text>
+      </View>
+      <Text style={compactStyles.chevron}>›</Text>
+    </Pressable>
+  );
+}
+
+function CompactQuestRow({ challenge, active, completed, onPress }: { challenge: MobileChallenge; active: boolean; completed: boolean; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" style={compactStyles.questRow} onPress={onPress}>
+      <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={[compactStyles.questIcon, !completed && !active && compactStyles.questIconDim]} resizeMode="contain" />
+      <View style={compactStyles.rowCopy}>
+        <Text style={compactStyles.rowTitle} numberOfLines={1}>{challenge.title}</Text>
+        <Text style={compactStyles.rowMeta} numberOfLines={1}>{challenge.objective}</Text>
+      </View>
+      <View style={compactStyles.questPill}>
+        <Text style={compactStyles.questPillText}>{completed ? "Done" : active ? "Now" : `+${challenge.reward}`}</Text>
+      </View>
+    </Pressable>
+  );
+}
 function HomeScreen({
   bootstrap,
   account,
@@ -546,15 +782,14 @@ function ActiveScreen({
 }) {
   switch (activeTab) {
     case "home":
-      return <HomeScreen bootstrap={bootstrap} account={account} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />;
+      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
-      return <SideQuestsScreen bootstrap={bootstrap} catalogMode={catalogMode} selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "multiplayerSideQuests":
-      return <MultiplayerSideQuestsScreen account={account} onSelectTab={onSelectTab} />;
+      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
-      return <CoatOfArmsScreen bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} />;
+      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} />;
     case "account":
-      return <AccountShell bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
+      return <AccountTrackerDashboard account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
   }
 }
 
@@ -1424,6 +1659,85 @@ function FlowStep({ title, body, done = false }: { title: string; body: string; 
   );
 }
 
+
+function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, bootstrap: MobileBootstrap): MobileAccountResponse | null {
+  if (!__DEV__ || isAuthenticatedAccount(account)) return account;
+
+  const active = bootstrap.challenges.find((challenge) => challenge.id === "queen-never-heard-of-her") ?? bootstrap.challenges[0] ?? null;
+  const completed = bootstrap.challenges.filter((challenge) => challenge.id !== active?.id).slice(0, 2);
+
+  return {
+    apiVersion: 1,
+    authenticated: true,
+    generatedAt: new Date().toISOString(),
+    profile: {
+      displayName: "Andreas",
+      bio: "SQC app review account",
+      imageUrl: null,
+    },
+    chessAccounts: {
+      lichessUsername: "and72nor",
+      chessComUsername: "and72nor",
+      hasAny: true,
+    },
+    progress: {
+      completedChallengeIds: completed.map((challenge) => challenge.id),
+      totalCompletedChallenges: completed.length,
+      totalRewardPoints: completed.reduce((sum, challenge) => sum + challenge.reward, 0),
+      proofReceiptCount: completed.length,
+    },
+    activeQuest: active
+      ? {
+          id: active.id,
+          title: active.title,
+          status: "active",
+          startedAt: new Date().toISOString(),
+          verifiedAt: null,
+          completed: false,
+          banner: "Waiting for latest-game proof",
+          href: `/challenges/${active.id}`,
+          proofHref: null,
+          badgeImageUrl: active.badgeIdentity.imageUrl,
+        }
+      : null,
+    activeGroupQuests: [
+      {
+        id: "review-room",
+        title: "Friday Night Bad Ideas",
+        status: "live",
+        copy: "3 players · proof window open",
+        href: "/groupquests/review-room",
+      },
+    ],
+    completedQuests: completed.map((challenge) => ({
+      id: challenge.id,
+      title: challenge.title,
+      reward: challenge.reward,
+      badgeName: challenge.badgeIdentity.name,
+      completedAt: new Date().toISOString(),
+      href: `/challenges/${challenge.id}`,
+      proofHref: `/result/${challenge.id}`,
+      badgeImageUrl: challenge.badgeIdentity.imageUrl,
+    })),
+    latestReceipt: completed[0]
+      ? {
+          id: "preview-receipt",
+          challengeId: completed[0].id,
+          provider: "lichess",
+          status: "passed",
+          gameId: "preview",
+          checkedAt: new Date().toISOString(),
+          completedGameAt: new Date().toISOString(),
+          headline: "Latest proof passed",
+          detail: `${completed[0].title} counted from the latest public game.`,
+          meta: "Preview account",
+          proofHref: `/result/${completed[0].id}`,
+          proofImageUrl: null,
+        }
+      : null,
+  };
+}
+
 function isAuthenticatedAccount(account: MobileAccountResponse | null): account is MobileAccountState {
   return Boolean(account?.authenticated);
 }
@@ -1458,6 +1772,54 @@ const colors = {
   panelStrong: "rgba(255,247,232,.12)",
   stroke: "rgba(255,247,232,.14)",
 };
+
+const compactStyles = StyleSheet.create({
+  stack: { gap: 8 },
+  heroPanel: { gap: 10, padding: 13, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.075)" },
+  headerPanel: { gap: 5, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.2)" },
+  topLine: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  kicker: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.1 },
+  heroTitle: { color: colors.paper, fontSize: 27, lineHeight: 29, fontWeight: "900", letterSpacing: -1 },
+  heroCopy: { color: colors.muted, fontSize: 14, lineHeight: 19 },
+  micro: { color: "rgba(255,247,232,.64)", fontSize: 12, lineHeight: 16 },
+  livePill: { overflow: "hidden", color: colors.green, fontSize: 11, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(96,240,175,.12)", borderWidth: 1, borderColor: "rgba(96,240,175,.28)" },
+  metricGrid: { flexDirection: "row", gap: 7 },
+  metricBox: { flex: 1, padding: 9, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  metricValue: { color: colors.paper, fontSize: 20, fontWeight: "900" },
+  metricLabel: { color: colors.muted, fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },
+  actionRow: { flexDirection: "row", gap: 8 },
+  goldButton: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colors.gold },
+  goldButtonSmall: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11, paddingHorizontal: 12, borderRadius: 16, backgroundColor: colors.gold },
+  goldButtonText: { color: "#171119", fontWeight: "900", fontSize: 13 },
+  darkButtonSmall: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(0,0,0,.22)" },
+  darkButtonText: { color: colors.paper, fontWeight: "900", fontSize: 13 },
+  scorePanel: { gap: 4, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.2)" },
+  panelTitle: { color: colors.paper, fontSize: 18, fontWeight: "900", letterSpacing: -.4 },
+  statusRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 8, paddingHorizontal: 8, borderRadius: 15, backgroundColor: "rgba(255,247,232,.055)" },
+  questRow: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 7, paddingHorizontal: 8, borderRadius: 15, backgroundColor: "rgba(255,247,232,.055)" },
+  rowLabel: { width: 48, color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
+  rowCopy: { flex: 1, minWidth: 0 },
+  rowTitle: { color: colors.paper, fontSize: 14, fontWeight: "900" },
+  rowMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
+  chevron: { color: "rgba(255,247,232,.46)", fontSize: 28, fontWeight: "300" },
+  segmentBar: { flexDirection: "row", gap: 6, padding: 4, borderRadius: 18, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  segmentButton: { flex: 1, alignItems: "center", paddingVertical: 9, borderRadius: 14 },
+  segmentButtonActive: { backgroundColor: colors.paper },
+  segmentText: { color: colors.muted, fontSize: 12, fontWeight: "900", textTransform: "capitalize" },
+  segmentTextActive: { color: "#171119" },
+  emptyText: { color: colors.muted, fontSize: 13, padding: 12 },
+  questIcon: { width: 42, height: 48 },
+  questIconDim: { opacity: .52 },
+  questPill: { paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.14)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
+  questPillText: { color: colors.gold, fontSize: 11, fontWeight: "900" },
+  coatGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  coatTile: { width: "31.8%", gap: 5, alignItems: "center", padding: 8, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.055)" },
+  coatTileImage: { width: 62, height: 72 },
+  coatTileLocked: { opacity: .35 },
+  coatTileTitle: { minHeight: 30, color: colors.paper, fontSize: 11, lineHeight: 14, textAlign: "center", fontWeight: "800" },
+  earnedText: { color: colors.green, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
+  lockedText: { color: colors.gold, fontSize: 10, fontWeight: "900" },
+});
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#171119" },
@@ -1663,18 +2025,18 @@ const styles = StyleSheet.create({
   firstRunCard: { gap: 12, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(245,200,106,.14)" },
   firstRunTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8 },
   firstRunSteps: { gap: 9 },
-  bottomNavBar: { flexDirection: "row", gap: 6, paddingHorizontal: 8, paddingTop: 8, paddingBottom: 8, borderTopWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.12)" },
-  bottomNavItem: { position: "relative", overflow: "hidden", flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 3, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.06)", backgroundColor: "rgba(255,247,232,.045)" },
-  bottomNavItemActive: { borderColor: "rgba(245,200,106,.86)", backgroundColor: "rgba(245,200,106,.26)", shadowColor: colors.gold, shadowOpacity: 0.28, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 8 },
-  bottomNavActiveDot: { width: 18, height: 3, borderRadius: 999, backgroundColor: colors.gold, marginTop: 2 },
-  bottomNavIconFrame: { width: 28, height: 26, alignItems: "center", justifyContent: "center", transform: [{ translateY: 0 }] },
-  bottomNavIconFrameActive: { transform: [{ translateY: -1 }] },
+  bottomNavBar: { flexDirection: "row", gap: 5, paddingHorizontal: 8, paddingTop: 6, paddingBottom: 6, borderTopWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(16,13,11,.94)" },
+  bottomNavItem: { position: "relative", overflow: "hidden", flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", gap: 2, paddingVertical: 5, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.045)", backgroundColor: "rgba(255,247,232,.035)" },
+  bottomNavItemActive: { borderColor: "rgba(245,200,106,.58)", backgroundColor: "rgba(245,200,106,.14)" },
+  bottomNavActiveDot: { width: 14, height: 2, borderRadius: 999, backgroundColor: colors.gold, marginTop: 1 },
+  bottomNavIconFrame: { width: 24, height: 22, alignItems: "center", justifyContent: "center", transform: [{ translateY: 0 }] },
+  bottomNavIconFrameActive: { transform: [{ translateY: 0 }] },
   bottomNavLogoImage: { width: 34, height: 34, borderRadius: 9 },
   bottomNavSideQuestImage: { width: 31, height: 31 },
   bottomNavCoatImage: { width: 28, height: 28 },
   bottomNavLoggedInBadge: { width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 14, borderWidth: 1, borderColor: "rgba(96,240,175,.45)", backgroundColor: "rgba(96,240,175,.1)" },
   bottomNavLoggedInBadgeActive: { borderColor: "rgba(245,200,106,.86)", backgroundColor: colors.gold },
-  bottomNavText: { color: "#e8dcc3", fontSize: 10, lineHeight: 12, fontWeight: "900", textAlign: "center" },
+  bottomNavText: { color: "#e8dcc3", fontSize: 9, lineHeight: 11, fontWeight: "900", textAlign: "center" },
   bottomNavTextActive: { color: colors.paper },
   tabRail: { gap: 8, paddingRight: 18 },
   tabPill: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.stroke, backgroundColor: "rgba(255,247,232,.055)" },

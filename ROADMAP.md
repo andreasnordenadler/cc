@@ -5,6 +5,16 @@ Owner: Sam
 Status: SQC-mobile-focus / website-feature-freeze
 
 
+
+## Active queue update — 2026-05-22
+
+- [x] Rework SQC mobile from website-parity shell into logged-in Apple Sports-style tracker app.
+  - added_at: 2026-05-22 16:09 Europe/Stockholm
+  - completed_at: 2026-05-22 16:09 Europe/Stockholm
+  - source: Andreas explicitly asked to stop making the app a copy of the website and instead make it a tight logged-in existing-user tracker for Side Quest Chess side quests, inspired by Apple Sports.
+  - scope: mobile app only; Today/Quests/Coats/Account tracker framing; signed-out state stays minimal; website feature freeze unaffected.
+  - proof: pending checks/build/emulator screenshot in current run.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:
