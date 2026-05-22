@@ -141,6 +141,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Home; bundle the Black SQC Seal in mobile assets and render it as a compact row marker for active/empty My Multiplayer rows and Official Multiplayer rows.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/45-fresh-home-multiplayer-black-seal-lines.png`.
 
+- [x] Collapse SQC mobile chess account cards into compact identity line.
+  - added_at: 2026-05-22 19:59 Europe/Stockholm
+  - completed_at: 2026-05-22 20:05 Europe/Stockholm
+  - source: Andreas asked to show usernames near the display name instead of large Lichess/Chess.com cards.
+  - scope: mobile app Home; replace top readiness cards with a compact identity line under `Side Quest Chess` showing display name, Lichess username, and Chess.com username with small chess platform marks.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/46-fresh-home-compact-account-usernames.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

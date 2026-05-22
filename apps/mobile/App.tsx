@@ -453,18 +453,17 @@ function TodayDashboard({
   return (
     <View style={compactStyles.freshShell}>
       <View style={compactStyles.freshHeader}>
-        <View>
+        <View style={compactStyles.identityBlock}>
           <Text style={compactStyles.freshTitle}>Side Quest Chess</Text>
-          <Text style={compactStyles.freshSubtle}>{signedIn.profile.displayName}</Text>
+          <AccountIdentityLine
+            name={signedIn.profile.displayName}
+            lichessUsername={signedIn.chessAccounts.lichessUsername}
+            chessComUsername={signedIn.chessAccounts.chessComUsername}
+          />
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Open account settings" style={compactStyles.accountDot} onPress={() => onSelectTab("account")}>
           <Text style={compactStyles.accountDotText}>{signedIn.profile.displayName.slice(0, 1).toUpperCase()}</Text>
         </Pressable>
-      </View>
-
-      <View style={compactStyles.readinessRow}>
-        <ReadinessChip label="Lichess" value={signedIn.chessAccounts.lichessUsername} onPress={() => onSelectTab("account")} />
-        <ReadinessChip label="Chess.com" value={signedIn.chessAccounts.chessComUsername} onPress={() => onSelectTab("account")} />
       </View>
 
       {!hasChessAccount ? (
@@ -544,6 +543,26 @@ function TodayDashboard({
           <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
         )}
       </AppSection>
+    </View>
+  );
+}
+
+function AccountIdentityLine({ name, lichessUsername, chessComUsername }: { name: string; lichessUsername: string | null; chessComUsername: string | null }) {
+  return (
+    <View style={compactStyles.identityLine} accessibilityLabel={`Signed in as ${name}`}>
+      <Text style={compactStyles.identityName} numberOfLines={1}>{name}</Text>
+      {lichessUsername ? (
+        <View style={compactStyles.identityAccount}>
+          <MaterialCommunityIcons name="chess-knight" size={12} color={colors.green} />
+          <Text style={compactStyles.identityUsername} numberOfLines={1}>{lichessUsername}</Text>
+        </View>
+      ) : null}
+      {chessComUsername ? (
+        <View style={compactStyles.identityAccount}>
+          <MaterialCommunityIcons name="chess-pawn" size={12} color="#76a9ff" />
+          <Text style={compactStyles.identityUsername} numberOfLines={1}>{chessComUsername}</Text>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -2025,8 +2044,13 @@ const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
   freshShell: { gap: 12 },
   freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 2, paddingTop: 2 },
+  identityBlock: { flex: 1, minWidth: 0, gap: 4 },
   freshTitle: { color: colors.paper, fontSize: 24, lineHeight: 28, fontWeight: "900", letterSpacing: -.65 },
   freshSubtle: { color: colors.muted, fontSize: 12, fontWeight: "800", marginTop: 2 },
+  identityLine: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", columnGap: 8, rowGap: 3 },
+  identityName: { color: colors.muted, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  identityAccount: { flexDirection: "row", alignItems: "center", gap: 3 },
+  identityUsername: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   accountDot: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   readinessRow: { flexDirection: "row", gap: 8 },

@@ -4105,3 +4105,23 @@ Reran `expo run:android` without `--clear`; asset cache busting was handled by u
 - Tags: expo, android, cli
 
 ---
+
+## [ERR-20260522-006] compact_colors_missing_blue
+
+**Logged**: 2026-05-22T20:03:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: mobile-dev
+
+### Summary
+SQC mobile typecheck failed after adding compact account identity line because the compact `colors` object did not define `blue`.
+
+### Resolution
+Used the canonical SQC blue literal `#76a9ff` for the Chess.com account mark.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: typescript, mobile-ui, sqc-palette
+
+---
