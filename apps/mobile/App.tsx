@@ -682,35 +682,32 @@ function CurrentSideQuestDetailModal({
             <Text style={compactStyles.detailEyebrow}>Current Active Side Quest</Text>
             <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
-            <Text style={compactStyles.detailHint}>Tap Coat of Arms to enlarge · Pull down to refresh</Text>
+            <Text style={compactStyles.detailHint}>Tap Coat of Arms</Text>
           </View>
 
           <View style={compactStyles.detailPanel}>
-            <DetailRow label="State" value={completed ? "Completed" : "Active"} tone={completed ? "good" : "default"} />
-            <DetailRow label="Difficulty" value={challenge?.difficulty ?? "Standard"} />
             <DetailRow label="Started" value={formatLatestCheckTime(activeQuest.startedAt)} />
-            <DetailRow label="Latest check" value={formatLatestCheckTime(activeQuest.verifiedAt)} />
-            <DetailRow label="Check platform" value={accountLabel} />
-            <DetailRow label="Result needed" value={`${challenge?.requirement.side ?? "Any side"} · ${challenge?.requirement.result ?? "Any result"}`} />
-            <DetailRow label="Reward" value={challenge?.badgeIdentity.name ? `Coat of Arms · ${challenge.badgeIdentity.name}` : "Coat of Arms"} />
+            <DetailRow label="Last checked" value={activeQuest.verifiedAt ? formatLatestCheckTime(activeQuest.verifiedAt) : "Never"} />
+            <DetailRow label="Difficulty" value={challenge?.difficulty ?? "Standard"} />
+            <DetailRow label="Reward" value={challenge?.badgeIdentity.name ? challenge.badgeIdentity.name : "Coat of Arms"} />
           </View>
 
-          <View style={compactStyles.detailPanelStrong}>
-            <Text style={compactStyles.detailPanelTitle}>{completed ? "Proof ready" : "Check by refreshing"}</Text>
-            <Text style={compactStyles.detailPanelCopy}>{completed ? "Your latest eligible game completed this Side Quest." : activeQuestNote}</Text>
-            {canViewCurrentProof ? (
+          {canViewCurrentProof ? (
+            <View style={compactStyles.detailPanelStrong}>
+              <Text style={compactStyles.detailPanelTitle}>Proof ready</Text>
+              <Text style={compactStyles.detailPanelCopy}>Your latest eligible game completed this Side Quest.</Text>
               <Pressable accessibilityRole="button" style={compactStyles.detailPrimaryButton} onPress={onViewProof}>
                 <Text style={compactStyles.detailPrimaryButtonText}>View victory proof</Text>
               </Pressable>
-            ) : (
-              <View style={compactStyles.detailRefreshHintBox}>
-                <MaterialCommunityIcons name="arrow-down" size={15} color={colors.gold} />
-                <Text style={compactStyles.detailRefreshHintText}>{actionState.busy ? "Checking latest game…" : "Pull down to check latest game"}</Text>
-              </View>
-            )}
-            {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
-            {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
-          </View>
+            </View>
+          ) : (
+            <View style={compactStyles.detailInlineRefresh}>
+              <MaterialCommunityIcons name="arrow-down" size={13} color="rgba(245,200,106,.8)" />
+              <Text style={compactStyles.detailInlineRefreshText}>{actionState.busy ? "Checking latest game…" : "Pull down to check latest game"}</Text>
+            </View>
+          )}
+          {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+          {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
 
           <Pressable accessibilityRole="button" style={compactStyles.detailSecondaryButton} onPress={onSwitchQuest}>
             <Text style={compactStyles.detailSecondaryButtonText}>Switch Side Quest</Text>
@@ -2341,32 +2338,32 @@ const compactStyles = StyleSheet.create({
   appRowStatus: { maxWidth: 88, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
   appRowStatusJoined: { color: colors.green },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
-  detailTopBar: { height: 58, paddingHorizontal: 14, paddingTop: 10, justifyContent: "center" },
-  detailCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.12)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
-  detailContent: { paddingHorizontal: 18, paddingBottom: 28, gap: 14 },
-  detailHero: { alignItems: "center", gap: 7, paddingTop: 4, paddingBottom: 4 },
-  detailCoatFrame: { width: 124, height: 134, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  detailCoatGlowImage: { position: "absolute", width: 160, height: 174, opacity: .72, transform: [{ translateY: 8 }] },
-  detailCoatImage: { width: 112, height: 124 },
-  detailEyebrow: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
-  detailTitle: { color: colors.paper, fontSize: 29, lineHeight: 32, fontWeight: "900", textAlign: "center", letterSpacing: -1.2 },
-  detailGoal: { maxWidth: 310, color: colors.muted, fontSize: 14, lineHeight: 19, fontWeight: "700", textAlign: "center" },
-  detailHint: { color: "rgba(199,189,169,.72)", fontSize: 11, lineHeight: 14, fontWeight: "800", textAlign: "center" },
-  detailPanel: { overflow: "hidden", borderRadius: 20, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
-  detailPanelStrong: { gap: 9, padding: 14, borderRadius: 22, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
-  detailPanelTitle: { color: colors.paper, fontSize: 17, fontWeight: "900", letterSpacing: -.25 },
-  detailPanelCopy: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
-  detailRow: { minHeight: 48, gap: 4, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.075)" },
-  detailRowLabel: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
-  detailRowValue: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
+  detailTopBar: { height: 48, paddingHorizontal: 12, paddingTop: 6, justifyContent: "center" },
+  detailCloseButton: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.12)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  detailContent: { paddingHorizontal: 16, paddingBottom: 24, gap: 10 },
+  detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 2 },
+  detailCoatFrame: { width: 104, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  detailCoatGlowImage: { position: "absolute", width: 136, height: 148, opacity: .7, transform: [{ translateY: 7 }] },
+  detailCoatImage: { width: 94, height: 104 },
+  detailEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
+  detailTitle: { color: colors.paper, fontSize: 25, lineHeight: 28, fontWeight: "900", textAlign: "center", letterSpacing: -1.05 },
+  detailGoal: { maxWidth: 318, color: colors.muted, fontSize: 13, lineHeight: 17, fontWeight: "700", textAlign: "center" },
+  detailHint: { color: "rgba(199,189,169,.72)", fontSize: 10, lineHeight: 13, fontWeight: "800", textAlign: "center" },
+  detailPanel: { overflow: "hidden", borderRadius: 16, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
+  detailPanelStrong: { gap: 6, padding: 10, borderRadius: 17, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  detailPanelTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.2 },
+  detailPanelCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
+  detailRow: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.07)" },
+  detailRowLabel: { color: colors.muted, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
+  detailRowValue: { flex: 1, color: colors.paper, fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "right" },
   detailRowValueGood: { color: colors.green },
   detailPrimaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.gold },
   detailPrimaryButtonDisabled: { opacity: .62 },
   detailPrimaryButtonText: { color: "#111", fontSize: 14, fontWeight: "900" },
-  detailRefreshHintBox: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(0,0,0,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
-  detailRefreshHintText: { color: colors.gold, fontSize: 13, fontWeight: "900" },
-  detailSecondaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 16, borderRadius: 999, backgroundColor: "rgba(255,247,232,.09)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
-  detailSecondaryButtonText: { color: colors.paper, fontSize: 14, fontWeight: "900" },
+  detailInlineRefresh: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingVertical: 1, opacity: .78 },
+  detailInlineRefreshText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
+  detailSecondaryButton: { alignItems: "center", justifyContent: "center", paddingVertical: 10, paddingHorizontal: 14, borderRadius: 999, backgroundColor: "rgba(255,247,232,.09)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  detailSecondaryButtonText: { color: colors.paper, fontSize: 13, fontWeight: "900" },
   detailQuietButton: { alignItems: "center", paddingVertical: 4 },
   detailQuietButtonText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
   coatLightbox: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: "rgba(6,5,7,.82)" },

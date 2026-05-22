@@ -281,6 +281,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app Current Active Side Quest detail; removed explicit check button in favor of pull-to-refresh, added started time, latest check time, check platform, difficulty, result needed, reward details, helper copy, and tap-to-enlarge Coat of Arms lightbox with dimmed backdrop.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; screenshots captured at `artifacts/mobile-live-review-2026-05-22/74-current-active-side-quest-detail-polished-data.png` and `artifacts/mobile-live-review-2026-05-22/75-current-active-side-quest-coat-lightbox.png`.
 
+- [x] Tighten SQC mobile active detail to Apple Sports-style essentials.
+  - added_at: 2026-05-22 23:21 Europe/Stockholm
+  - completed_at: 2026-05-22 23:36 Europe/Stockholm
+  - source: Andreas corrected that `State`, `Check platform`, and `Result needed` were redundant/confusing and asked for a tighter Apple Sports-like detail screen.
+  - scope: mobile Current Active Side Quest detail; removed redundant rows, tightened hero/stat/action spacing, kept only Started, Last checked, Difficulty, and Reward, changed `not yet` detail wording to `Never`, and reduced refresh instruction to a subtle inline pull-down helper.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/79-current-active-side-quest-detail-tight-v4.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

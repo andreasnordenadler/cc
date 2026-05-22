@@ -644,3 +644,9 @@ When reviewing SQC mobile `Current Side Quest`, Andreas explicitly wanted the ac
 For mobile Home UI review, keep the emulator preview account aligned with the state being designed. Only let latest receipt/proof affect the Current Side Quest card when `latestReceipt.challengeId === activeQuest.id`; otherwise show active in-progress state.
 
 ---
+
+## [LRN-20260522-002] correction: SQC mobile detail rows must avoid obvious/redundant metadata
+- **Date**: 2026-05-22
+- **Category**: correction
+- **Context**: Andreas corrected the Current Active Side Quest detail screen: `State` is redundant because the screen is active by context; `Check platform` is already known from the account header; `Result needed` was unclear; layout still was not Apple Sports-tight enough.
+- **Do differently**: For SQC mobile detail/status screens, prefer dense, immediately useful rows only. Avoid explanatory product/database labels unless the user cannot infer them from context. Optimize for scoreboard-like scan speed.
