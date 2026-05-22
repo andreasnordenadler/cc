@@ -308,7 +308,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
         {shell.bootstrap && selectedChallenge ? (
           <>
-            <TopTrackerNav activeTab={shell.activeTab === "multiplayerSideQuests" ? "sideQuests" : shell.activeTab} account={displayAccount} onSelectTab={selectTab} />
             <ActiveScreen
               activeTab={shell.activeTab}
               bootstrap={shell.bootstrap}
@@ -389,7 +388,7 @@ function TodayDashboard({
     ? getChallengeCoatImageSource(activeChallenge)
     : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
   const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "None";
-  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Proof" : signedIn?.activeQuest ? "Check progress" : "Pick Solo Side Quest";
+  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Proof" : signedIn?.activeQuest ? "Check" : "Pick Solo Side Quest";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
@@ -431,12 +430,17 @@ function TodayDashboard({
         </View>
       ) : (
         <View style={compactStyles.todayFeed}>
+          <View style={compactStyles.sportsHeader}>
+            <Text style={compactStyles.sportsBrand}>Side Quest Chess</Text>
+            <Text style={compactStyles.sportsContextPill}>Live board</Text>
+          </View>
           <FeedSection title="Current Side Quest">
             <View style={compactStyles.matchCard}>
               {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
               <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentSideQuestPressable} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
                 <View style={compactStyles.currentCoatFrame}>
-                  <View style={compactStyles.currentCoatGlow} />
+                  <View style={compactStyles.currentCoatHaloLarge} />
+                  <View style={compactStyles.currentCoatHaloSmall} />
                   <Image source={activeCoatSource} style={compactStyles.currentCoatImage} resizeMode="contain" />
                 </View>
                 <View style={compactStyles.currentSideQuestCopy}>
@@ -795,9 +799,8 @@ function HomeScreen({
 function GradientBackdrop() {
   return (
     <View pointerEvents="none" style={styles.appGradientFrame}>
-      <LinearGradient colors={["rgba(245,200,106,.38)", "rgba(245,200,106,.12)", "rgba(245,200,106,0)"]} locations={[0, 0.42, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.72 }} style={styles.appGradientLayer} />
-      <LinearGradient colors={["rgba(255,95,159,.32)", "rgba(255,95,159,.12)", "rgba(255,95,159,0)"]} locations={[0, 0.48, 1]} start={{ x: 1, y: 0.05 }} end={{ x: 0.08, y: 0.65 }} style={styles.appGradientLayer} />
-      <LinearGradient colors={["rgba(118,169,255,0)", "rgba(118,169,255,.16)", "rgba(118,169,255,.06)"]} locations={[0, 0.58, 1]} start={{ x: 0.1, y: 0.12 }} end={{ x: 0.8, y: 1 }} style={styles.appGradientLayer} />
+      <LinearGradient colors={["rgba(38,71,190,.56)", "rgba(10,27,92,.18)", "rgba(2,10,34,0)"]} locations={[0, 0.5, 1]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.65 }} style={styles.appGradientLayer} />
+      <LinearGradient colors={["rgba(4,18,58,.0)", "rgba(5,20,66,.34)", "rgba(1,7,25,.72)"]} locations={[0, 0.48, 1]} start={{ x: 1, y: 0 }} end={{ x: 0.15, y: 1 }} style={styles.appGradientLayer} />
     </View>
   );
 }
@@ -1892,9 +1895,9 @@ async function openExternalAppUrl(url: string) {
 }
 
 const colors = {
-  bg: "#100d0b",
-  paper: "#fff7e8",
-  muted: "#d5c8ad",
+  bg: "#06133b",
+  paper: "#f6f8ff",
+  muted: "#9eabd7",
   gold: "#f5c86a",
   green: "#60f0af",
   red: "#ff7a66",
@@ -1927,8 +1930,8 @@ const compactStyles = StyleSheet.create({
   metricLabel: { color: colors.muted, fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },
   actionRow: { flexDirection: "row", gap: 8 },
   goldButton: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colors.gold },
-  goldButtonSmall: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11, paddingHorizontal: 12, borderRadius: 16, backgroundColor: colors.gold },
-  goldButtonText: { color: "#171119", fontWeight: "900", fontSize: 13 },
+  goldButtonSmall: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(255,255,255,.14)" },
+  goldButtonText: { color: colors.paper, fontWeight: "800", fontSize: 12 },
   darkButtonSmall: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(0,0,0,.22)" },
   darkButtonText: { color: colors.paper, fontWeight: "900", fontSize: 13 },
   scorePanel: { gap: 4, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.2)" },
@@ -1957,35 +1960,42 @@ const compactStyles = StyleSheet.create({
   coatTileTitle: { minHeight: 30, color: colors.paper, fontSize: 11, lineHeight: 14, textAlign: "center", fontWeight: "800" },
   earnedText: { color: colors.green, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   lockedText: { color: colors.gold, fontSize: 10, fontWeight: "900" },
-  todayFeed: { gap: 8 },
-  feedSection: { gap: 5 },
-  feedSectionTitle: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .8, paddingHorizontal: 3 },
-  feedRows: { gap: 3, overflow: "hidden", borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.2)" },
-  feedRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, paddingLeft: 11, paddingRight: 14, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.06)" },
+  todayFeed: { gap: 10 },
+  sportsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 4, paddingTop: 2, paddingBottom: 2 },
+  sportsBrand: { color: colors.paper, fontSize: 22, lineHeight: 26, fontWeight: "900", letterSpacing: -.6 },
+  sportsContextPill: { overflow: "hidden", color: colors.paper, fontSize: 11, fontWeight: "800", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: "rgba(255,255,255,.13)" },
+  sportsTabs: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 12, paddingVertical: 9, borderRadius: 18, backgroundColor: "rgba(0,20,74,.5)" },
+  sportsTab: { color: "rgba(255,247,232,.48)", fontSize: 12, fontWeight: "900" },
+  sportsTabActive: { color: colors.paper },
+  feedSection: { gap: 4 },
+  feedSectionTitle: { color: colors.paper, fontSize: 13, fontWeight: "800", paddingHorizontal: 3 },
+  feedRows: { gap: 1, overflow: "hidden", borderRadius: 14, backgroundColor: "rgba(0,22,78,.58)" },
+  feedRow: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 10, paddingLeft: 10, paddingRight: 12, paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.06)" },
   feedRowCopy: { flex: 1, minWidth: 0 },
   feedRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   feedRowMeta: { color: colors.muted, fontSize: 12, marginTop: 2 },
-  feedRowStatus: { maxWidth: 90, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
+  feedRowStatus: { maxWidth: 90, color: colors.paper, fontSize: 11, fontWeight: "800", textAlign: "right", textTransform: "uppercase", opacity: .86 },
   liveBoardPanel: { gap: 8, padding: 9, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.2)" },
   liveBoardHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   boardTitle: { color: colors.paper, fontSize: 22, fontWeight: "900", letterSpacing: -.7 },
   refreshPill: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(255,247,232,.06)" },
   refreshPillText: { color: colors.paper, fontSize: 11, fontWeight: "900" },
-  matchCard: { position: "relative", overflow: "hidden", gap: 10, padding: 11, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.07)" },
-  currentSideQuestPressable: { flexDirection: "row", alignItems: "center", gap: 10 },
-  currentCoatFrame: { width: 76, height: 84, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  currentCoatGlow: { position: "absolute", width: 64, height: 64, borderRadius: 32, backgroundColor: "rgba(245,200,106,.22)", shadowColor: colors.gold, shadowOpacity: .72, shadowRadius: 24, elevation: 8 },
-  currentCoatImage: { width: 66, height: 76, shadowColor: colors.gold, shadowOpacity: .42, shadowRadius: 18 },
+  matchCard: { position: "relative", overflow: "hidden", gap: 7, padding: 9, borderRadius: 14, backgroundColor: "rgba(0,22,78,.58)" },
+  currentSideQuestPressable: { flexDirection: "row", alignItems: "center", gap: 9 },
+  currentCoatFrame: { width: 46, height: 52, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  currentCoatHaloLarge: { position: "absolute", width: 46, height: 34, borderRadius: 23, backgroundColor: "rgba(255,255,255,.1)", transform: [{ scaleX: 1.08 }], shadowColor: "#ffffff", shadowOpacity: .28, shadowRadius: 10, elevation: 3 },
+  currentCoatHaloSmall: { position: "absolute", width: 34, height: 26, borderRadius: 17, backgroundColor: "rgba(255,255,255,.08)", shadowColor: "#ffffff", shadowOpacity: .2, shadowRadius: 8, elevation: 4 },
+  currentCoatImage: { width: 42, height: 48 },
   currentCoatFallback: { color: colors.gold, fontSize: 13, fontWeight: "900" },
   currentSideQuestCopy: { flex: 1, minWidth: 0, gap: 5 },
   matchCardTopline: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
-  matchLeague: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
-  statusPill: { overflow: "hidden", color: colors.gold, fontSize: 11, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
-  statusPillGood: { color: colors.green, backgroundColor: "rgba(96,240,175,.12)", borderColor: "rgba(96,240,175,.28)" },
+  matchLeague: { color: colors.muted, fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: .55 },
+  statusPill: { overflow: "hidden", color: colors.paper, fontSize: 10, fontWeight: "800", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,.12)" },
+  statusPillGood: { color: colors.paper, backgroundColor: "rgba(96,240,175,.18)" },
   matchMainRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   matchSideBlock: { flex: 1, minWidth: 0, gap: 2 },
   matchSideLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase" },
-  matchSideTitle: { color: colors.paper, fontSize: 19, lineHeight: 23, fontWeight: "900", letterSpacing: -.5 },
+  matchSideTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "800", letterSpacing: -.15 },
   matchSideMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   matchDivider: { color: "rgba(255,247,232,.48)", fontSize: 30, fontWeight: "300" },
   matchFooterRow: { flexDirection: "row", gap: 6 },
@@ -2008,11 +2018,11 @@ const compactStyles = StyleSheet.create({
 });
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#171119" },
+  safeArea: { flex: 1, backgroundColor: colors.bg },
   screen: { flex: 1, backgroundColor: "transparent" },
   appGradientFrame: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   appGradientLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  appWatermarkFrame: { position: "absolute", left: -118, top: 104, width: 620, height: 620, opacity: 0.055 },
+  appWatermarkFrame: { position: "absolute", left: -118, top: 104, width: 620, height: 620, opacity: 0.025 },
   appWatermarkImage: { width: "100%", height: "100%" },
   content: { gap: 7, padding: 10, paddingTop: 10, paddingBottom: 86 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },

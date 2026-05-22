@@ -64,6 +64,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app; remove framed square/background/border behind current Coat of Arms and render the crest over a soft gold glow/shadow.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/23-current-side-quest-coat-glow-no-square.png`.
 
+- [x] Revisit SQC Mobile against Apple Sports and strip top menu/fantasy chrome.
+  - added_at: 2026-05-22 17:35 Europe/Stockholm
+  - completed_at: 2026-05-22 17:46 Europe/Stockholm
+  - source: Andreas said the glow still was not website-like, disliked the top menu, and said the overall direction was not right; he asked to revisit the Apple Sports app reference.
+  - scope: mobile app; remove the top tracker menu, add Apple Sports-like brand/context header, switch to flatter navy surfaces, reduce borders/gold/fantasy styling, shrink the Current Side Quest card/Coat of Arms, and remove nonfunctional fake tabs.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/28-apple-sports-feed-no-fake-tabs.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

@@ -4025,3 +4025,23 @@ Added the missing style definitions, reran `pnpm --filter @sidequestchess/mobile
 - Tags: react-native, styles, typecheck
 
 ---
+
+## [ERR-20260522-002] mobile_typecheck_invalid_font_weight
+
+**Logged**: 2026-05-22T17:45:00+02:00
+**Priority**: low
+**Status**: resolved
+**Area**: frontend
+
+### Summary
+SQC mobile typecheck failed during Apple Sports utility pass because React Native `fontWeight` does not accept `"850"`.
+
+### Resolution
+Changed the value to the supported `"800"`, reran mobile typecheck and lint, and both passed.
+
+### Metadata
+- Source: error
+- Related Files: apps/mobile/App.tsx
+- Tags: react-native, typecheck, styles
+
+---
