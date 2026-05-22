@@ -626,3 +626,8 @@ Do not iterate from the previous native UI as a baseline. Treat it as disposable
 - Tags: sqc-mobile, reset, logged-in-first, product-definition
 
 ---
+
+## 2026-05-22 — SQC mobile Coat of Arms glow should be alpha-mask glow, not duplicate art
+
+Andreas showed the mobile screen and pointed back to `https://sidequestchess.com/challenges` because the glow still looked hard/dirty. The important distinction: the website challenge-card treatment reads like a soft colored glow attached to the badge art, not a duplicated tinted badge and not a separate oval halo. For React Native Android, generate blurred glow PNGs from the Coat of Arms alpha masks and tint those behind the clean badge image.
+

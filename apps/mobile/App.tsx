@@ -60,7 +60,6 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
 
 WebBrowser.maybeCompleteAuthSession();
 
-const COAT_GLOW_ASSET = require("./assets/ui/coat-glow-drop-mask-v3.png");
 
 const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "finish-any-game": require("./assets/badges/v6/proof-loop-test-badge.png"),
@@ -72,6 +71,18 @@ const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "no-castle-club": require("./assets/badges/v4/no-castle-club-badge.png"),
   "the-blunder-gambit": require("./assets/badges/v4/the-blunder-gambit-badge.png"),
   "knightmare-mode": require("./assets/badges/v4/knightmare-mode-badge.png"),
+};
+
+const CHALLENGE_COAT_GLOW_ASSETS: Record<string, ImageSourcePropType> = {
+  "finish-any-game": require("./assets/badges/glow/finish-any-game-glow.png"),
+  "knights-before-coffee": require("./assets/badges/glow/knights-before-coffee-glow.png"),
+  "bishop-field-trip": require("./assets/badges/glow/bishop-field-trip-glow.png"),
+  "early-king-walk": require("./assets/badges/glow/early-king-walk-glow.png"),
+  "pawn-only-picnic": require("./assets/badges/glow/pawn-only-picnic-glow.png"),
+  "queen-never-heard-of-her": require("./assets/badges/glow/queen-never-heard-of-her-glow.png"),
+  "no-castle-club": require("./assets/badges/glow/no-castle-club-glow.png"),
+  "the-blunder-gambit": require("./assets/badges/glow/the-blunder-gambit-glow.png"),
+  "knightmare-mode": require("./assets/badges/glow/knightmare-mode-glow.png"),
 };
 
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
@@ -468,7 +479,7 @@ function TodayDashboard({
         </View>
         <Pressable accessibilityRole="button" accessibilityLabel="Open current Side Quest" style={compactStyles.currentQuestRow} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
           <View style={compactStyles.coatMarker}>
-            <Image source={activeCoatSource} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge?.badgeIdentity.colors.glow ?? colors.gold }]} resizeMode="contain" />
+            {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
             <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
           </View>
           <View style={compactStyles.currentQuestText}>
@@ -522,6 +533,7 @@ function TodayDashboard({
               meta={`Coat of Arms: ${quest.badgeName}`}
               status={quest.proofHref ? "✓" : undefined}
               imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
+              glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
               glowColor={completedChallenge?.badgeIdentity.colors.glow}
               onPress={() => quest.proofHref ? void openExternalAppUrl(quest.proofHref) : onSelectChallenge(quest.id, "coatOfArms")}
             />
@@ -559,13 +571,13 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
-function AppRow({ title, meta, status, imageSource, glowColor, onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowColor?: string; onPress: () => void }) {
+function AppRow({ title, meta, status, imageSource, glowSource, glowColor, onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowSource?: ImageSourcePropType | null; glowColor?: string; onPress: () => void }) {
   const visibleStatus = status && !["Open", "Proof", "—"].includes(status) ? status : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
-          <Image source={imageSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" />
+          {glowSource ? <Image source={glowSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
           <Image source={imageSource} style={compactStyles.rowCoatImage} resizeMode="contain" />
         </View>
       ) : null}
@@ -576,6 +588,10 @@ function AppRow({ title, meta, status, imageSource, glowColor, onPress }: { titl
       {visibleStatus ? <Text style={compactStyles.appRowStatus} numberOfLines={1}>{visibleStatus}</Text> : null}
     </Pressable>
   );
+}
+
+function getChallengeCoatGlowSource(challengeId: string): ImageSourcePropType {
+  return CHALLENGE_COAT_GLOW_ASSETS[challengeId] ?? CHALLENGE_COAT_GLOW_ASSETS["finish-any-game"];
 }
 
 function getRowImageSource(url: string | null): ImageSourcePropType | null {
@@ -2025,7 +2041,7 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
   coatMarker: { width: 54, height: 60, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatMarkerGlowImage: { position: "absolute", width: 54, height: 62, opacity: .34, transform: [{ scale: 1.1 }, { translateY: 4 }] },
+  coatMarkerGlowImage: { position: "absolute", width: 68, height: 76, opacity: .72, transform: [{ translateY: 4 }] },
   coatMarkerImage: { width: 48, height: 56 },
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
@@ -2040,7 +2056,7 @@ const compactStyles = StyleSheet.create({
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   appRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  rowCoatGlowImage: { position: "absolute", width: 36, height: 40, opacity: .4, transform: [{ scale: 1.14 }, { translateY: 3 }] },
+  rowCoatGlowImage: { position: "absolute", width: 44, height: 48, opacity: .62, transform: [{ translateY: 3 }] },
   rowCoatImage: { width: 30, height: 34 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
