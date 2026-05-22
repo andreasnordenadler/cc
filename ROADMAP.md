@@ -36,6 +36,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app only; convert Today from stacked explainer cards to a compact live Side Quest Board with active match-style card, status/check pills, table rows, and quick paths.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; final emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/13-apple-sports-scoreboard-account-label-fixed.png`.
 
+- [x] Simplify SQC Mobile Today to current Solo Side Quest status only.
+  - added_at: 2026-05-22 16:40 Europe/Stockholm
+  - completed_at: 2026-05-22 16:45 Europe/Stockholm
+  - source: Andreas questioned the Coat of Arms / Receipts / Check metric strip and clarified Today should focus on the user’s current Solo Side Quest status plus refresh, with completed state showing seal/proof.
+  - scope: mobile app only; remove Today metric strip, table, quick-path clutter, and duplicate refresh; keep one current Solo Side Quest card with status, one refresh/check action, and completed proof/seal treatment.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; final emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/16-current-solo-side-quest-single-refresh.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

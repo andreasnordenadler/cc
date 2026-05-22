@@ -376,18 +376,33 @@ function TodayDashboard({
   onAccountUpdated: () => void;
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
-  const activeChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
-  const suggestedChallenge = bootstrap.challenges.find((challenge) => challenge.id !== signedIn?.activeQuest?.id && !signedIn?.progress.completedChallengeIds.includes(challenge.id)) ?? bootstrap.challenges[0];
-  const completedCount = signedIn?.progress.totalCompletedChallenges ?? 0;
-  const proofCount = signedIn?.progress.proofReceiptCount ?? 0;
   const latestReceipt = signedIn?.latestReceipt;
-  const activeStatus = signedIn?.activeQuest?.completed ? "Complete" : signedIn?.activeQuest ? "Waiting" : "Empty";
-  const latestStatus = latestReceipt?.status === "passed" ? "Passed" : latestReceipt?.status === "failed" ? "Failed" : latestReceipt ? "Checked" : "None";
-  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Ready" : signedIn?.activeQuest ? "Pending" : "—";
+  const activeStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
+  const activeCheckStatus = signedIn?.activeQuest?.completed ? "Completed" : signedIn?.activeQuest ? "Refresh check" : "Pick one";
+  const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
     showNativeOnlyNotice("Native Google sign-in is not configured in this build.");
+  }
+
+  async function runActiveCheck() {
+    if (!signedIn?.activeQuest?.id || signedIn.activeQuest.completed) return;
+    if (!authBridge.isSignedIn) {
+      onAccountUpdated();
+      setActionState({ busy: false, message: "Refreshed local account state.", error: null });
+      return;
+    }
+
+    setActionState({ busy: true, message: null, error: null });
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      const result = await runMobileQuestAction({ sessionToken, action: "check", challengeId: signedIn.activeQuest.id });
+      setActionState({ busy: false, message: result.message, error: null });
+      onAccountUpdated();
+    } catch (caught) {
+      setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not refresh this Side Quest." });
+    }
   }
 
   return (
@@ -408,49 +423,45 @@ function TodayDashboard({
               <Text style={compactStyles.kicker}>Today</Text>
               <Text style={compactStyles.boardTitle}>Side Quest Board</Text>
             </View>
-            <Pressable accessibilityRole="button" style={compactStyles.refreshPill} onPress={onAccountUpdated}>
-              <Text style={compactStyles.refreshPillText}>Refresh</Text>
-            </Pressable>
           </View>
 
-          <Pressable accessibilityRole="button" accessibilityLabel="Open active Side Quest" style={compactStyles.matchCard} onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
-            <View style={compactStyles.matchCardTopline}>
-              <Text style={compactStyles.matchLeague}>Active Side Quest</Text>
-              <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
-            </View>
-            <View style={compactStyles.matchMainRow}>
-              <View style={compactStyles.matchSideBlock}>
-                <Text style={compactStyles.matchSideLabel}>Now</Text>
-                <Text style={compactStyles.matchSideTitle} numberOfLines={1}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
-                <Text style={compactStyles.matchSideMeta} numberOfLines={1}>{signedIn.activeQuest ? "Play a public game, then run the check." : "Pick one Side Quest to put on the board."}</Text>
+          <View style={compactStyles.matchCard}>
+            {signedIn.activeQuest?.completed ? <Image source={{ uri: absoluteAssetUrl("/stamps/quest-complete-premium-red-wax-sqc-v13.png") }} style={compactStyles.completedSealImage} resizeMode="contain" /> : null}
+            <Pressable accessibilityRole="button" accessibilityLabel="Open active Side Quest" onPress={() => signedIn.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}>
+              <View style={compactStyles.matchCardTopline}>
+                <Text style={compactStyles.matchLeague}>Current Solo Side Quest</Text>
+                <Text style={[compactStyles.statusPill, signedIn.activeQuest?.completed && compactStyles.statusPillGood]}>{activeStatus}</Text>
               </View>
-              <Text style={compactStyles.matchDivider}>›</Text>
+              <View style={compactStyles.matchMainRow}>
+                <View style={compactStyles.matchSideBlock}>
+                  <Text style={compactStyles.matchSideLabel}>Status</Text>
+                  <Text style={compactStyles.matchSideTitle} numberOfLines={2}>{signedIn.activeQuest?.title ?? "No active Side Quest"}</Text>
+                  <Text style={compactStyles.matchSideMeta} numberOfLines={2}>{signedIn.activeQuest?.completed ? "Completed. Your red seal and proof receipt are ready." : signedIn.activeQuest ? "In progress. Play a public game, then refresh the check." : "Pick one Solo Side Quest to put on the board."}</Text>
+                </View>
+                <Text style={compactStyles.matchDivider}>›</Text>
+              </View>
+            </Pressable>
+            <View style={compactStyles.currentQuestActionRow}>
+              {signedIn.activeQuest?.completed ? (
+                <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => void openExternalAppUrl(signedIn.activeQuest?.proofHref ?? latestReceipt?.proofHref ?? "/account")}>
+                  <Text style={compactStyles.goldButtonText}>View completed proof</Text>
+                </Pressable>
+              ) : signedIn.activeQuest ? (
+                <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+                  <Text style={compactStyles.goldButtonText}>{actionState.busy ? "Checking…" : activeCheckStatus}</Text>
+                </Pressable>
+              ) : (
+                <Pressable accessibilityRole="button" style={compactStyles.goldButtonSmall} onPress={() => onSelectTab("sideQuests")}>
+                  <Text style={compactStyles.goldButtonText}>Pick Solo Side Quest</Text>
+                </Pressable>
+              )}
             </View>
-            <View style={compactStyles.matchFooterRow}>
-              <MiniStat label="Coat of Arms" value={`${completedCount}`} />
-              <MiniStat label="Receipts" value={`${proofCount}`} />
-              <MiniStat label="Check" value={activeCheckStatus} />
-            </View>
-          </Pressable>
+            {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+            {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
+          </View>
         </View>
       )}
 
-      <View style={compactStyles.tablePanel}>
-        <View style={compactStyles.tableHeaderRow}>
-          <Text style={[compactStyles.tableHeaderCell, compactStyles.tableNameCell]}>Side Quest</Text>
-          <Text style={compactStyles.tableHeaderCell}>State</Text>
-          <Text style={compactStyles.tableHeaderCell}>Check</Text>
-        </View>
-        <TableRow label="Now" title={signedIn?.activeQuest?.title ?? "No active Side Quest"} state={activeStatus} proof={activeCheckStatus} onPress={() => signedIn?.activeQuest?.id ? onSelectChallenge(signedIn.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")} />
-        <TableRow label="Next" title={suggestedChallenge?.title ?? "Side Quest deck"} state={suggestedChallenge?.difficulty ?? "Open"} proof="—" onPress={() => suggestedChallenge ? onSelectChallenge(suggestedChallenge.id, "sideQuests") : onSelectTab("sideQuests")} />
-        <TableRow label="Recent" title={latestReceipt?.headline ?? "No proof receipt yet"} state={latestReceipt ? "Receipt" : "None"} proof={latestStatus} onPress={() => onSelectTab("account")} />
-      </View>
-
-      <View style={compactStyles.pathPanel}>
-        <CompactStatusRow label="Side Quest" title="Active / Available / Completed" meta="Open the dense Side Quest board" onPress={() => onSelectTab("sideQuests")} />
-        <CompactStatusRow label="Coat of Arms" title={`${completedCount} unlocked`} meta="Trophy shelf and next unlock" onPress={() => onSelectTab("coatOfArms")} />
-        <CompactStatusRow label="Account" title={signedIn?.profile.displayName ?? "Signed out"} meta={signedIn?.chessAccounts.hasAny ? "Chess usernames connected" : "Chess usernames missing"} onPress={() => onSelectTab("account")} />
-      </View>
     </View>
   );
 }
@@ -1900,7 +1911,7 @@ const compactStyles = StyleSheet.create({
   boardTitle: { color: colors.paper, fontSize: 22, fontWeight: "900", letterSpacing: -.7 },
   refreshPill: { paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(255,247,232,.06)" },
   refreshPillText: { color: colors.paper, fontSize: 11, fontWeight: "900" },
-  matchCard: { gap: 10, padding: 11, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.07)" },
+  matchCard: { position: "relative", overflow: "hidden", gap: 10, padding: 11, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(255,247,232,.07)" },
   matchCardTopline: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   matchLeague: { color: colors.muted, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
   statusPill: { overflow: "hidden", color: colors.gold, fontSize: 11, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
@@ -1912,6 +1923,10 @@ const compactStyles = StyleSheet.create({
   matchSideMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   matchDivider: { color: "rgba(255,247,232,.48)", fontSize: 30, fontWeight: "300" },
   matchFooterRow: { flexDirection: "row", gap: 6 },
+  currentQuestActionRow: { flexDirection: "row", gap: 8 },
+  completedSealImage: { position: "absolute", right: 10, bottom: 8, width: 74, height: 74, opacity: .92, transform: [{ rotate: "-8deg" }] },
+  inlineSuccess: { color: colors.green, fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  inlineError: { color: "#ffb4b4", fontSize: 12, lineHeight: 16, fontWeight: "800" },
   miniStat: { flex: 1, padding: 8, borderRadius: 13, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
   miniStatValue: { color: colors.paper, fontSize: 13, fontWeight: "900" },
   miniStatLabel: { color: colors.muted, fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
