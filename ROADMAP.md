@@ -71,6 +71,13 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: mobile app; remove the top tracker menu, add Apple Sports-like brand/context header, switch to flatter navy surfaces, reduce borders/gold/fantasy styling, shrink the Current Side Quest card/Coat of Arms, and remove nonfunctional fake tabs.
   - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/28-apple-sports-feed-no-fake-tabs.png`.
 
+- [x] Research SQC mobile app function model and remove vague Live Board/product drift.
+  - added_at: 2026-05-22 17:45 Europe/Stockholm
+  - completed_at: 2026-05-22 17:53 Europe/Stockholm
+  - source: Andreas asked what `Live Board` means, required SQC website colors always, and said to deeply research what functions the app should actually offer because the app was drifting away from its purpose.
+  - scope: mobile app product model; document Apple Sports functional mapping, SQC website color constraint, launch-critical app functions, anti-goals, and API gaps; remove `Live Board` visible copy and restore website color tokens in mobile.
+  - proof: research doc `docs/SQC_MOBILE_APP_FUNCTION_RESEARCH_2026-05-22.md`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 pre-existing non-mobile warnings; Android debug build/install succeeded on `sqc_pixel_35`; emulator screenshot captured at `artifacts/mobile-live-review-2026-05-22/29-website-colors-my-side-quests.png`.
+
 ## Active SQC operating priorities — 2026-05-15
 
 Andreas set three active focus lanes on 2026-05-15:

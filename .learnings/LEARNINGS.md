@@ -586,3 +586,23 @@ For SQC mobile first-screen work, bias toward Apple Sports patterns: compact bra
 - Tags: sqc-mobile, apple-sports, design-direction
 
 ---
+
+## [LRN-20260522-004] SQC mobile must be function-led and use website colors
+
+**Logged**: 2026-05-22T17:53:00+02:00
+**Priority**: high
+**Status**: active
+**Area**: mobile-design
+
+### Summary
+Andreas corrected the SQC mobile direction again: `Live Board` is vague/non-product language, the app must always use the SQC website color scheme, and the team needs to understand what functions the app should offer before continuing UI variants.
+
+### What to do differently
+Before changing SQC mobile UI, anchor it in launch-critical functions: current Side Quest status/check/proof, My Multiplayer Side Quests, Official Multiplayer Side Quests, chess account readiness, and proof/Coat of Arms access. Use website color tokens (`#060507`, `#fff7e8`, `#c7bda9`, `#f5c86a`, `#ff5f9f`, `#60f0af`, `#76a9ff`, `#e87922`, `#ff7a66`) and avoid vague labels such as `Live Board`.
+
+### Metadata
+- Source: user correction
+- Related Files: apps/mobile/App.tsx, docs/SQC_MOBILE_APP_FUNCTION_RESEARCH_2026-05-22.md
+- Tags: sqc-mobile, product-scope, design-system, apple-sports
+
+---
