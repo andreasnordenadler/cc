@@ -939,6 +939,7 @@ function QuestBoardDashboard({
   const visibleRows = rows;
   const availableCount = bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id)).length;
   const completedCount = completedIds.size;
+  const focusedChallenge = rows.find((challenge) => challenge.id === selectedChallenge.id) ?? visibleRows[0] ?? selectedChallenge;
 
   return (
     <View style={compactStyles.stack}>
@@ -948,7 +949,7 @@ function QuestBoardDashboard({
           <View style={styles.soloBrowseHeroCopy}>
             <Text style={styles.eyebrow}>Solo Side Quests</Text>
             <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
-            <Text style={styles.soloBrowseHeroText}>Tap a Coat of Arms, review the rule, then start the Side Quest you want SQC to judge next.</Text>
+            <Text style={styles.soloBrowseHeroText}>Tap a Side Quest, review the rule, then start the one you want SQC to judge next.</Text>
           </View>
           <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
         </View>
@@ -970,7 +971,7 @@ function QuestBoardDashboard({
           <CompactQuestRow key={challenge.id} challenge={challenge} active={challenge.id === activeId} completed={completedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
         )) : <Text style={compactStyles.emptyText}>{segment === "active" ? "No active Solo Side Quest yet. Pick one from Available." : segment === "completed" ? "No completed Side Quests yet." : "No available Side Quests right now."}</Text>}
       </View>
-      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
+      <SelectedQuestDetailCard challenge={focusedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
     </View>
   );
 }
@@ -1067,7 +1068,7 @@ function CompactStatusRow({ label, title, meta, onPress }: { label: string; titl
 function CompactQuestRow({ challenge, active, completed, onPress }: { challenge: MobileChallenge; active: boolean; completed: boolean; onPress: () => void }) {
   return (
     <Pressable accessibilityRole="button" style={compactStyles.questRow} onPress={onPress}>
-      <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={[compactStyles.questIcon, !completed && !active && compactStyles.questIconDim]} resizeMode="contain" />
+      <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={compactStyles.questIcon} resizeMode="contain" />
       <View style={compactStyles.rowCopy}>
         <Text style={compactStyles.rowTitle} numberOfLines={1}>{challenge.title}</Text>
         <Text style={compactStyles.rowMeta} numberOfLines={1}>{challenge.objective}</Text>
