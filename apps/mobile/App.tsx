@@ -927,51 +927,64 @@ function QuestBoardDashboard({
   onSelectTab: (tab: AppTab) => void;
   onAccountUpdated: () => void;
 }) {
-  const [segment, setSegment] = useState<"active" | "available" | "completed">("available");
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
-  const rows = segment === "active"
-    ? bootstrap.challenges.filter((challenge) => challenge.id === activeId)
-    : segment === "completed"
-      ? bootstrap.challenges.filter((challenge) => completedIds.has(challenge.id))
-      : bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id));
-  const visibleRows = rows;
   const availableCount = bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id)).length;
   const completedCount = completedIds.size;
-  const focusedChallenge = rows.find((challenge) => challenge.id === selectedChallenge.id) ?? visibleRows[0] ?? selectedChallenge;
+  const sortedQuests = [...bootstrap.challenges].sort((a, b) => {
+    const rank = (challenge: MobileChallenge) => challenge.id === activeId ? 0 : completedIds.has(challenge.id) ? 2 : 1;
+    const rankDelta = rank(a) - rank(b);
+    if (rankDelta !== 0) return rankDelta;
+    return a.title.localeCompare(b.title);
+  });
 
   return (
     <View style={compactStyles.stack}>
+      <View style={compactStyles.browseTopBar}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Close Browse Solo Side Quests" style={compactStyles.detailCloseButton} onPress={() => onSelectTab("home")}>
+          <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+        </Pressable>
+        <Text style={compactStyles.browseTopBarLabel}>Browse Solo Side Quests</Text>
+      </View>
+
       <View style={styles.soloBrowseHero}>
         <WebsiteGradientGlows />
         <View style={styles.soloBrowseHeroRow}>
           <View style={styles.soloBrowseHeroCopy}>
             <Text style={styles.eyebrow}>Solo Side Quests</Text>
             <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
-            <Text style={styles.soloBrowseHeroText}>Tap a Side Quest, review the rule, then start the one you want SQC to judge next.</Text>
+            <Text style={styles.soloBrowseHeroText}>Compact list first. Tap any Side Quest to review the rule and start it.</Text>
           </View>
           <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
         </View>
         <View style={styles.soloBrowseStatsRow}>
+          <Text style={styles.soloBrowseStat}>{bootstrap.challenges.length} total</Text>
           <Text style={styles.soloBrowseStat}>{availableCount} available</Text>
           <Text style={styles.soloBrowseStat}>{completedCount} completed</Text>
-          <Text style={styles.soloBrowseStat}>{activeId ? "1 active" : "none active"}</Text>
         </View>
       </View>
-      <View style={compactStyles.segmentBar}>
-        {(["active", "available", "completed"] as const).map((item) => (
-          <Pressable key={item} accessibilityRole="button" style={[compactStyles.segmentButton, segment === item && compactStyles.segmentButtonActive]} onPress={() => setSegment(item)}>
-            <Text style={[compactStyles.segmentText, segment === item && compactStyles.segmentTextActive]}>{item}</Text>
-          </Pressable>
-        ))}
-      </View>
-      <View style={compactStyles.scorePanel}>
-        {visibleRows.length ? visibleRows.map((challenge) => (
-          <CompactQuestRow key={challenge.id} challenge={challenge} active={challenge.id === activeId} completed={completedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
-        )) : <Text style={compactStyles.emptyText}>{segment === "active" ? "No active Solo Side Quest yet. Pick one from Available." : segment === "completed" ? "No completed Side Quests yet." : "No available Side Quests right now."}</Text>}
-      </View>
-      <SelectedQuestDetailCard challenge={focusedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
+
+      <AppSection title="All Solo Side Quests">
+        {sortedQuests.map((challenge) => {
+          const active = challenge.id === activeId;
+          const completed = completedIds.has(challenge.id);
+          return (
+            <AppRow
+              key={challenge.id}
+              title={challenge.title}
+              meta={challenge.objective}
+              status={active ? "Active" : completed ? "Done" : `+${challenge.reward}`}
+              imageSource={getChallengeCoatImageSource(challenge)}
+              glowSource={getChallengeCoatGlowSource(challenge.id)}
+              glowColor={challenge.badgeIdentity.colors.glow}
+              onPress={() => onSelectChallenge(challenge.id, "sideQuests")}
+            />
+          );
+        })}
+      </AppSection>
+
+      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
     </View>
   );
 }
@@ -2439,6 +2452,8 @@ const compactStyles = StyleSheet.create({
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 2, paddingBottom: 4, opacity: .72 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
+  browseTopBar: { minHeight: 42, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 2 },
+  browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2 },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
   topNavHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   topNavMeta: { color: "rgba(255,247,232,.58)", fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },
