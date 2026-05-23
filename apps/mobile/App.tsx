@@ -1628,12 +1628,10 @@ function SelectedQuestDetailCard({
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
   const badgeSource = getChallengeCoatImageSource(challenge);
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
-  const actionTitle = completed ? "Side Quest completed. Coat of arms unlocked." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
-  const actionBody = completed
-    ? "Your proof is ready. Open the victory proof, proof log, or pick the next bad idea."
-    : activeQuest
-      ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
-      : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
+  const actionTitle = activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
+  const actionBody = activeQuest
+    ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
+    : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
 
   async function runAction(action: "start" | "check" | "deactivate" | "reset") {
     if (!authenticated || !authBridge.isSignedIn) {
@@ -1684,39 +1682,32 @@ function SelectedQuestDetailCard({
         </View>
       </View>
 
-      <View style={styles.proofActionCard}>
-        <Text style={styles.proofActionTitle}>{actionTitle}</Text>
-        <Text style={styles.proofActionBody}>{actionBody}</Text>
-        <View style={styles.buttonRow}>
-          {completed && (activeQuest?.proofHref || latestReceipt?.proofHref) ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="View proof receipt" style={styles.primaryButton} onPress={() => void openExternalAppUrl(activeQuest?.proofHref ?? latestReceipt?.proofHref ?? "/account")}>
-              <Text style={styles.primaryButtonText}>View proof receipt</Text>
-            </Pressable>
-          ) : null}
-          {completed ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Open account proof log" style={styles.secondaryButton} onPress={() => onSelectTab("account")}>
-              <Text style={styles.secondaryButtonText}>Account proof log</Text>
-            </Pressable>
-          ) : activeQuest ? (
-            <>
-              <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
-                <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking..." : "Check latest game"}</Text>
+      {completed ? null : (
+        <View style={styles.proofActionCard}>
+          <Text style={styles.proofActionTitle}>{actionTitle}</Text>
+          <Text style={styles.proofActionBody}>{actionBody}</Text>
+          <View style={styles.buttonRow}>
+            {activeQuest ? (
+              <>
+                <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
+                  <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking..." : "Check latest game"}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel="Reset quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("reset")}>
+                  <Text style={styles.secondaryButtonText}>Reset quest</Text>
+                </Pressable>
+              </>
+            ) : (
+              <Pressable accessibilityRole="button" accessibilityLabel="Start this Side Quest" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("start")}>
+                <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting..." : "Start this Side Quest"}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Reset quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("reset")}>
-                <Text style={styles.secondaryButtonText}>Reset quest</Text>
-              </Pressable>
-            </>
-          ) : (
-            <Pressable accessibilityRole="button" accessibilityLabel="Start this Side Quest" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("start")}>
-              <Text style={styles.primaryButtonText}>{actionState.busy ? "Starting..." : "Start this Side Quest"}</Text>
-            </Pressable>
-          )}
+            )}
 
+          </View>
+          {latestReceipt ? <Text style={styles.successCopy}>{latestReceipt.headline} · {latestReceipt.detail}</Text> : null}
+          {actionState.message ? <Text style={styles.successCopy}>{actionState.message}</Text> : null}
+          {actionState.error ? <Text style={styles.errorCopy}>{actionState.error}</Text> : null}
         </View>
-        {latestReceipt ? <Text style={styles.successCopy}>{latestReceipt.headline} · {latestReceipt.detail}</Text> : null}
-        {actionState.message ? <Text style={styles.successCopy}>{actionState.message}</Text> : null}
-        {actionState.error ? <Text style={styles.errorCopy}>{actionState.error}</Text> : null}
-      </View>
+      )}
     </View>
   );
 }
