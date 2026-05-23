@@ -1263,7 +1263,7 @@ function WebsiteGradientGlows() {
 }
 
 function HeroismChoiceCard({ label, copy, cta, challenge, onPress }: { label: string; copy: string; cta: string; challenge: MobileChallenge; onPress: () => void }) {
-  const badgeUrl = getChallengeCoatImageUrl(challenge);
+  const badgeSource = getChallengeCoatImageSource(challenge);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={cta} testID={`home-heroism-${challenge.id}`} style={styles.heroismChoiceCard} onPress={onPress}>
@@ -1602,7 +1602,7 @@ function QuestSection({ eyebrow, title, body, challenges, completedIds, activeQu
 }
 
 function ChallengeCardMobile({ challenge, featured = false, completed = false, active = false, onPress }: { challenge: MobileChallenge; featured?: boolean; completed?: boolean; active?: boolean; onPress: () => void }) {
-  const badgeUrl = getChallengeCoatImageUrl(challenge);
+  const badgeSource = getChallengeCoatImageSource(challenge);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} Side Quest`} accessibilityState={{ selected: active }} style={[styles.challengeCardMobile, featured && styles.challengeCardMobileFeatured, active && styles.challengeCardMobileActive, completed && styles.challengeCardMobileCompleted]} onPress={onPress}>
@@ -1643,7 +1643,7 @@ function SelectedQuestDetailCard({
   const authenticated = isAuthenticatedAccount(account);
   const completed = authenticated ? account.progress.completedChallengeIds.includes(challenge.id) : false;
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
-  const badgeUrl = getChallengeCoatImageUrl(challenge);
+  const badgeSource = getChallengeCoatImageSource(challenge);
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
   const actionTitle = completed ? "Side Quest completed. Coat of arms unlocked." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
   const actionBody = completed
@@ -1677,7 +1677,7 @@ function SelectedQuestDetailCard({
           <Text style={styles.questTitle}>{challenge.title}</Text>
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
-        <View style={styles.badgeImageFrame}>{badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.badgeImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>{challenge.badgeIdentity.motif}</Text>}</View>
+        <View style={styles.badgeImageFrame}><Image source={badgeSource} style={styles.badgeImage} resizeMode="contain" /></View>
       </View>
 
       <View style={styles.questFlavorCard}>
@@ -1986,7 +1986,7 @@ function CoatOfArmsScreen({
 }
 
 function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileChallenge; earned: boolean; onPress: () => void }) {
-  const badgeUrl = getChallengeCoatImageUrl(challenge);
+  const badgeSource = getChallengeCoatImageSource(challenge);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.liveCoatRosterItem} onPress={onPress}>
@@ -2000,7 +2000,7 @@ function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileC
 }
 
 function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileChallenge; earned: boolean; onPress: () => void }) {
-  const badgeUrl = getChallengeCoatImageUrl(challenge);
+  const badgeSource = getChallengeCoatImageSource(challenge);
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.badgeMeaningCard} onPress={onPress}>
