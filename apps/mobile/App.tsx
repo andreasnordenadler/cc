@@ -1268,7 +1268,7 @@ function HeroismChoiceCard({ label, copy, cta, challenge, onPress }: { label: st
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={cta} testID={`home-heroism-${challenge.id}`} style={styles.heroismChoiceCard} onPress={onPress}>
       <View style={styles.heroismBadgeFrame}>
-        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.heroismBadgeImage} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+        <Image source={badgeSource} style={styles.heroismBadgeImage} resizeMode="contain" />
       </View>
       <View style={styles.heroismChoiceCopy}>
         <Text style={styles.heroismChoiceLabel}>{label}</Text>
@@ -1614,7 +1614,7 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
       </View>
       <View style={styles.challengeCardTitleRowMobile}>
         <View style={styles.challengeCardBadgeMobile}>
-          {badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.challengeCardBadgeImageMobile} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+          <Image source={badgeSource} style={styles.challengeCardBadgeImageMobile} resizeMode="contain" />
         </View>
         <View style={styles.challengeCardCopyMobile}>
           <Text style={styles.challengeCardTitleMobile}>{challenge.title}</Text>
@@ -1991,7 +1991,7 @@ function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileC
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.liveCoatRosterItem} onPress={onPress}>
       <View style={[styles.liveCoatBadgeFrame, !earned && styles.liveCoatBadgeFrameLocked]}>
-        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.liveCoatBadgeImage, !earned && styles.liveCoatBadgeImageLocked]} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+        <Image source={badgeSource} style={[styles.liveCoatBadgeImage, !earned && styles.liveCoatBadgeImageLocked]} resizeMode="contain" />
         {!earned ? <Text style={styles.liveCoatLockedLabel}>Locked</Text> : null}
       </View>
       <Text style={styles.liveCoatRosterTitle} numberOfLines={2}>{challenge.title}</Text>
@@ -2005,7 +2005,7 @@ function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileCha
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.badgeMeaningCard} onPress={onPress}>
       <View style={[styles.badgeMeaningArtLink, !earned && styles.badgeMeaningArtLocked]}>
-        {badgeUrl ? <Image source={{ uri: badgeUrl }} style={[styles.badgeMeaningImage, !earned && styles.badgeMeaningImageLocked]} resizeMode="contain" /> : <Text style={styles.questListGlyph}>{challenge.badgeIdentity.motif}</Text>}
+        <Image source={badgeSource} style={[styles.badgeMeaningImage, !earned && styles.badgeMeaningImageLocked]} resizeMode="contain" />
       </View>
       <View style={styles.badgeMeaningCopy}>
         <Text style={styles.badgeMeaningTitle}>{challenge.badgeIdentity.name}</Text>

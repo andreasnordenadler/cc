@@ -4139,3 +4139,59 @@ Used the canonical SQC blue literal `#76a9ff` for the Chess.com account mark.
 - **Symptom**: `pnpm lint` failed with `React Hook "useState" is called conditionally`.
 - **Fix**: Move `useState` before any early return in the component.
 - **Prevention**: When adding state to an existing component with guard returns, place hooks immediately after props destructuring and before all conditionals.
+
+## [ERR-20260523-002] mobile_preview_gradle_wrong_cwd
+- **Date**: 2026-05-23
+- **Context**: While building a variant SQC mobile preview APK from repo root, I called `./gradlew assembleRelease` even though Gradle wrapper lives in `apps/mobile/android`.
+- **Symptom**: `zsh: no such file or directory: ./gradlew`; subsequent copy reused the previous APK hash.
+- **Fix**: Run `(cd apps/mobile/android && ./gradlew assembleRelease)` or set workdir to `apps/mobile/android` before copying the artifact.
+- **Prevention**: For SQC mobile builds, always verify the APK timestamp/hash changes after Gradle completes successfully.
+
+
+## [ERR-20260523-003] empty_solo_preview_temp_typecheck_failed
+- **Date**: 2026-05-23
+- **Context**: While making a preview-only APK for the no-active-Solo-Quest state, I temporarily set `const active = null`, which made TypeScript narrow `active` to `never` in the fake preview account object.
+- **Symptom**: `pnpm --dir apps/mobile typecheck` failed on `active.id`, `active.title`, and `active.badgeIdentity` references in the temporary preview patch.
+- **Fix**: This was only in the temporary preview override; the committed source was restored and typecheck passed. Future preview overrides should use a typed nullable variable or construct the preview account without `active` branches.
+- **Prevention**: For temporary APK preview patches, type the fake preview variables explicitly and verify source is restored before final reply.
+
+
+## [ERR-20260523-004] project_memory_wrong_root
+- **Date**: 2026-05-23
+- **Context**: While documenting SQC mobile empty-state work from inside the `cc` repo, I attempted to append to `memory/2026-05-23.md` relative to the repo root.
+- **Symptom**: Shell returned `zsh: no such file or directory: memory/2026-05-23.md` because durable memory lives at `/Users/sam/.openclaw/workspace/memory`, not inside the repo.
+- **Fix**: Write memory entries with the absolute workspace memory path.
+- **Prevention**: From project subdirectories, use `/Users/sam/.openclaw/workspace/memory/YYYY-MM-DD.md` for durable memory.
+
+
+## [ERR-20260523-005] pillow_unavailable_for_asset_montage
+- **Date**: 2026-05-23
+- **Context**: While trying to compare SQC brand/coat assets, I attempted to use Python PIL to create a montage.
+- **Symptom**: `ModuleNotFoundError: No module named 'PIL'`.
+- **Fix**: Use the `image` tool directly on candidate image files instead of assuming Pillow is installed.
+- **Prevention**: For visual asset comparison in this repo, prefer `image` analysis or installed macOS tools, not PIL.
+
+
+## [ERR-20260523-006] mobile_styles_missing_after_browse_redesign
+- **Date**: 2026-05-23
+- **Context**: While redesigning the SQC mobile Solo Side Quest browse screen, I added new JSX style keys before defining the corresponding StyleSheet entries.
+- **Symptom**: `pnpm --dir apps/mobile typecheck` failed with TS2339 missing `soloBrowseHero*` and `soloDeckHeader` style properties.
+- **Fix**: Add StyleSheet entries before re-running typecheck.
+- **Prevention**: For React Native UI changes, add JSX and StyleSheet keys in the same edit before typechecking.
+
+
+## [ERR-20260523-007] gradle_clean_breaks_react_native_codegen_cache
+- **Date**: 2026-05-23
+- **Context**: I tried to force a fresh SQC Android release bundle with `./gradlew clean assembleRelease` after mobile JS changes.
+- **Symptom**: Gradle failed during `:app:externalNativeBuildCleanDebug` because React Native autolinking referenced a generated Solana Mobile Wallet Adapter codegen JNI directory that did not exist yet.
+- **Fix/Retry**: Avoid `clean` for this app unless codegen/native generated directories are known healthy; use normal `assembleRelease` or delete stale app `.cxx` cache and rerun codegen/build.
+- **Prevention**: For SQC mobile preview builds, prefer the previously working `./gradlew assembleRelease` path; do not use Gradle clean as a cache-busting shortcut.
+
+
+## [ERR-20260523-008] committed_after_failed_typecheck_due_unconditional_shell_chain
+- **Date**: 2026-05-23
+- **Context**: While fixing SQC mobile detail coat images, I used a multi-line shell where `pnpm --dir apps/mobile typecheck` failed but subsequent `git add/commit/push` still ran.
+- **Symptom**: Commit `8293903` was pushed with unresolved `badgeUrl` references and failing TypeScript.
+- **Fix**: Immediately replace the affected image render branches with `badgeSource` and rerun typecheck before the follow-up commit.
+- **Prevention**: Use `set -e` or chain verification and commit with `&&` for code-change commands; never let commit/push proceed after a failed gate.
+
