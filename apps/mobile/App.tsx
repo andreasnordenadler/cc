@@ -346,7 +346,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         {shell.catalogMode === "offline" && !__DEV__ ? (
           <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
             <Text style={styles.catalogStateTitle}>Offline quest catalog loaded</Text>
-            <Text style={styles.catalogStateCopy}>{shell.catalogNotice ?? "Live Side Quest Chess is temporarily unreachable. You can still browse the cached quest board."}</Text>
+            <Text style={styles.catalogStateCopy}>{shell.catalogNotice ?? "Live Side Quest Chess is temporarily unreachable. You can still browse the cached Side Quest board."}</Text>
           </View>
         ) : null}
 
@@ -445,8 +445,6 @@ function TodayDashboard({
       : "Pick a Side Quest before your next game.";
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const officialPublic = signedIn?.officialPublicGroupQuests ?? [];
-  const completedSoloIds = new Set(signedIn?.completedQuests.map((quest) => quest.id) ?? []);
-  const suggestedSoloQuests = bootstrap.challenges.filter((challenge) => !completedSoloIds.has(challenge.id) && challenge.id !== signedIn?.activeQuest?.id).slice(0, 3);
   const hasChessAccount = Boolean(signedIn?.chessAccounts.hasAny);
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [currentDetailOpen, setCurrentDetailOpen] = useState(false);
@@ -517,7 +515,7 @@ function TodayDashboard({
 
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>Solo Quest Slot</Text>
+          <Text style={compactStyles.freshSectionTitle}>Solo Side Quest Slot</Text>
         </View>
         {signedIn.activeQuest ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
@@ -561,24 +559,6 @@ function TodayDashboard({
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
               <Text style={compactStyles.primaryActionText}>Browse Solo Quests</Text>
             </Pressable>
-            {suggestedSoloQuests.length ? (
-              <View style={compactStyles.suggestedQuestStack}>
-                <Text style={compactStyles.suggestedQuestEyebrow}>Good first picks</Text>
-                {suggestedSoloQuests.map((challenge) => (
-                  <Pressable key={challenge.id} accessibilityRole="button" accessibilityLabel={`Preview ${challenge.title}`} style={compactStyles.suggestedQuestRow} onPress={() => onSelectChallenge(challenge.id, "sideQuests")}>
-                    <View style={compactStyles.suggestedQuestCoatFrame}>
-                      <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.suggestedQuestGlowImage, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" />
-                      <Image source={getChallengeCoatImageSource(challenge)} style={compactStyles.suggestedQuestCoatImage} resizeMode="contain" />
-                    </View>
-                    <View style={compactStyles.rowCopy}>
-                      <Text style={compactStyles.rowTitle} numberOfLines={1}>{challenge.title}</Text>
-                      <Text style={compactStyles.rowMeta} numberOfLines={1}>{challenge.objective}</Text>
-                    </View>
-                    <Text style={compactStyles.questPillText}>+{challenge.reward}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            ) : null}
           </View>
         )}
       </View>
@@ -614,7 +594,7 @@ function TodayDashboard({
               </View>
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle}>No Multiplayer Side Quest joined</Text>
-                <Text style={compactStyles.currentQuestMeta}>Join a public room when you want the same bad idea scored against other players. Your solo quest can keep running separately.</Text>
+                <Text style={compactStyles.currentQuestMeta}>Join a public room when you want the same bad idea scored against other players. Your Solo Side Quest can keep running separately.</Text>
               </View>
             </View>
             <View style={compactStyles.emptyMultiplayerActions}>
@@ -1137,8 +1117,8 @@ function HomeScreen({
         <Text style={styles.homeHeroTitle}>Chess, but with stupidly hard side quests.</Text>
         <Text style={styles.homeHeroBody}>
           {isSignedIn
-            ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
-            : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
+            ? "Pick a Solo Side Quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
+            : "Sign in, connect your public chess usernames, choose one ridiculous Solo Side Quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
         </Text>
         <View style={styles.homeHeroActions}>
           <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
@@ -1189,8 +1169,8 @@ function HomeScreen({
       {isSignedIn ? (
         <View style={styles.homeStatusCard}>
           <Text style={styles.eyebrow}>Active Solo Side Quest</Text>
-          <Text style={styles.sectionTitle}>{signedInAccount?.activeQuest ? signedInAccount.activeQuest.title : "No active solo quest yet."}</Text>
-          <Text style={styles.sectionBody}>{signedInAccount?.activeQuest ? "Open the active quest page for rules, badge details, and the next weird chess side quest." : "Choose one solo quest first so My Side Quests knows which weird rule to judge after your next public game."}</Text>
+          <Text style={styles.sectionTitle}>{signedInAccount?.activeQuest ? signedInAccount.activeQuest.title : "No active Solo Side Quest yet."}</Text>
+          <Text style={styles.sectionBody}>{signedInAccount?.activeQuest ? "Open the active Side Quest page for rules, badge details, and the next weird chess Side Quest." : "Choose one Solo Side Quest first so My Side Quests knows which weird rule to judge after your next public game."}</Text>
           <View style={styles.scoreboardRow}>
             <BigScore label="Points" value={`${signedInAccount?.progress.totalRewardPoints ?? 0}`} />
             <BigScore label="Coats" value={`${signedInAccount?.progress.totalCompletedChallenges ?? 0}`} />
@@ -1268,7 +1248,7 @@ function WebsiteRitualCard({ compact = false }: { compact?: boolean }) {
       <Text style={styles.sectionTitle}>A tiny ritual, not another chess dashboard.</Text>
       {!compact ? <Text style={styles.sectionBody}>The app follows the same Side Quest Chess workflow as the website.</Text> : null}
       <View style={styles.websiteRitualSteps}>
-        <FlowStep done title="Choose solo or multiplayer" body="Start one quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses." />
+        <FlowStep done title="Choose solo or multiplayer" body="Start one Side Quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses." />
         <FlowStep title="Play where you already play" body="Use a normal public Lichess or Chess.com game. Side Quest Chess never asks for chess-site passwords." />
         <FlowStep title="Get the receipt" body="The latest-game checker returns passed, failed, or pending with a shareable proof card, solo progress, and multiplayer leaderboard proof when relevant." />
       </View>
@@ -1381,7 +1361,7 @@ function SideQuestsScreen({
           <Text style={styles.eyebrow}>Solo Side Quests</Text>
           <Text style={styles.sideQuestModeTitle}>One player. One ridiculous rule. One proof receipt.</Text>
           <Text style={styles.sideQuestModeCopy}>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</Text>
-          <Text style={styles.modeInlineCue}>Solo quest deck starts below.</Text>
+          <Text style={styles.modeInlineCue}>Solo Side Quest deck starts below.</Text>
         </View>
 
         <View style={[styles.sideQuestModeCard, styles.groupModeCard]}>
@@ -1426,7 +1406,7 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
   const overviewSteps = [
     {
       title: "Create",
-      copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
+      copy: "Pick one or more Side Quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
       href: "/groupquests/create",
     },
     {
@@ -1478,8 +1458,8 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
             </View>
           ))}
           <View style={styles.buttonRow}>
-            <View style={styles.disabledActionButton} accessibilityLabel="Native Multiplayer Quest detail coming soon">
-              <Text style={styles.disabledActionButtonText}>Quest detail coming soon</Text>
+            <View style={styles.disabledActionButton} accessibilityLabel="Native Multiplayer Side Quest detail coming soon">
+              <Text style={styles.disabledActionButtonText}>Side Quest detail coming soon</Text>
             </View>
             <View style={styles.disabledSecondaryButton} accessibilityLabel="Native multiplayer proof coming soon">
               <Text style={styles.disabledSecondaryButtonText}>Proof coming soon</Text>
@@ -1528,7 +1508,7 @@ function MultiplayerSideQuestsScreen({ account, onSelectTab }: { account: Mobile
       <View style={styles.groupquestsRulesCard} accessibilityLabel="Multiplayer Side Quest completion rules">
         <Text style={styles.eyebrow}>Proof rule</Text>
         <Text style={styles.sectionTitle}>Personal proof and multiplayer proof are different ledgers.</Text>
-        <Text style={styles.sectionBody}>Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.</Text>
+        <Text style={styles.sectionBody}>Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.</Text>
       </View>
 
       <Pressable accessibilityRole="button" accessibilityLabel="Back to Side Quests" style={styles.secondaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
@@ -1546,9 +1526,9 @@ function getChallengesByIds(bootstrap: MobileBootstrap, ids: string[]) {
 
 function QuestFilterPanel() {
   return (
-    <View style={styles.questFilterPanel} accessibilityLabel="Quest filters and sorting">
+    <View style={styles.questFilterPanel} accessibilityLabel="Side Quest filters and sorting">
       <Text style={styles.questFilterTitle}>Find your next Side Quest.</Text>
-      <Text style={styles.questFilterHint}>Filters are coming soon. For now, the full live quest deck is shown below.</Text>
+      <Text style={styles.questFilterHint}>Filters are coming soon. For now, the full live Side Quest deck is shown below.</Text>
       <View style={styles.questFilterGrid}>
         <FilterField label="Difficulty" value="All" />
         <FilterField label="Status" value="All" />
@@ -1611,9 +1591,9 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
   const badgeUrl = getChallengeCoatImageUrl(challenge);
 
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} accessibilityState={{ selected: active }} style={[styles.challengeCardMobile, featured && styles.challengeCardMobileFeatured, active && styles.challengeCardMobileActive, completed && styles.challengeCardMobileCompleted]} onPress={onPress}>
-      {active && !completed ? <Text style={styles.activeQuestStampText}>Active quest</Text> : null}
-      {completed ? <Text style={styles.completedQuestStampText}>Quest completed</Text> : null}
+    <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} Side Quest`} accessibilityState={{ selected: active }} style={[styles.challengeCardMobile, featured && styles.challengeCardMobileFeatured, active && styles.challengeCardMobileActive, completed && styles.challengeCardMobileCompleted]} onPress={onPress}>
+      {active && !completed ? <Text style={styles.activeQuestStampText}>Active Side Quest</Text> : null}
+      {completed ? <Text style={styles.completedQuestStampText}>Side Quest completed</Text> : null}
       <View style={styles.questCardMetaMobile}>
         <Text style={styles.questPointsMobile}>+{challenge.reward} pts</Text>
         <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
@@ -1651,7 +1631,7 @@ function SelectedQuestDetailCard({
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
   const badgeUrl = getChallengeCoatImageUrl(challenge);
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
-  const actionTitle = completed ? "Quest completed. Coat of arms unlocked." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
+  const actionTitle = completed ? "Side Quest completed. Coat of arms unlocked." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
   const actionBody = completed
     ? "Your proof is ready. Open the victory proof, proof log, or pick the next bad idea."
     : activeQuest
@@ -1776,7 +1756,7 @@ function getMobileAccountNextStep(account: MobileAccountState) {
     title: `${account.activeQuest.title} is on the royal docket - play one new eligible game, then check the proof.`,
     copy: "SQC will inspect your latest public game after this quest started and decide whether the bad idea counts.",
     href: account.activeQuest.href.replace(getApiBaseUrl(), "") || `/challenges/${account.activeQuest.id}`,
-    cta: "Open active quest",
+    cta: "Open active Side Quest",
   };
 }
 
@@ -1815,7 +1795,7 @@ function AccountShell({
         <View style={styles.accountAuthCopyCard}>
           <WebsiteGradientGlows />
           <Text style={styles.accountAuthTitle}>Sign in, then go make terrible chess decisions.</Text>
-          <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active side quest, badges, and proof cards.</Text>
+          <Text style={styles.accountAuthHeroCopy}>Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, and proof cards.</Text>
           <View style={styles.authLightweightCopy} accessibilityLabel="Lightweight sign-in notes">
             <Text style={styles.authNote}><Text style={styles.authNoteStrong}>Lightweight by design.</Text> We do not need or ask for any Lichess or Chess.com passwords.</Text>
             <Text style={styles.authNote}>Use a public chess username only. SQC checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</Text>
@@ -2025,7 +2005,7 @@ function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileCha
             <Text style={styles.badgeMeaningDefinition}>{challenge.badgeIdentity.heraldry.meaning}</Text>
           </View>
           <View style={styles.badgeMeaningRow}>
-            <Text style={styles.badgeMeaningTerm}>Quest</Text>
+            <Text style={styles.badgeMeaningTerm}>Side Quest</Text>
             <Text style={styles.badgeMeaningDefinition}>{challenge.title}</Text>
           </View>
         </View>
@@ -2036,12 +2016,12 @@ function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileCha
 
 function AccountNextActionsCard({ account }: { account: MobileAccountState }) {
   const hasChessAccount = account.chessAccounts.hasAny;
-  const activeLabel = account.activeQuest ? account.activeQuest.title : "No active quest";
+  const activeLabel = account.activeQuest ? account.activeQuest.title : "No active Side Quest";
 
   return (
     <View style={styles.accountChecklistCard}>
       <Text style={styles.eyebrow}>Next best action</Text>
-      <Text style={styles.accountChecklistTitle}>{account.activeQuest ? "Keep the active quest moving." : "Pick a fresh quest on the board."}</Text>
+      <Text style={styles.accountChecklistTitle}>{account.activeQuest ? "Keep the active Side Quest moving." : "Pick a fresh Side Quest on the board."}</Text>
       <View style={styles.checkerFlow}>
         <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess username is connected to your SQC account." : "Add Lichess or Chess.com here before serious proof runs."} />
         <FlowStep done={Boolean(account.activeQuest)} title="Active quest" body={activeLabel} />
@@ -2058,7 +2038,7 @@ function QuestProgressStrip({ completed, total }: { completed: number; total: nu
   return (
     <View style={styles.progressCard}>
       <View style={styles.progressHeader}>
-        <Text style={styles.progressTitle}>Quest log progress</Text>
+        <Text style={styles.progressTitle}>Side Quest log progress</Text>
         <Text style={styles.progressPercent}>{percent}%</Text>
       </View>
       <View style={styles.progressTrack}>
@@ -2179,7 +2159,7 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
       <Text style={styles.stateBoardTitle}>No mystery loading rooms.</Text>
       <Text style={styles.stateBoardBody}>This build names exactly which layer is active, so Android testers can tell public browsing, local Clerk, and SQC account sync apart.</Text>
       <View style={styles.stateTimeline}>
-        <FlowStep done title="Public catalog" body="Quest board, rules, rewards, and coat previews load without native auth." />
+        <FlowStep done title="Public catalog" body="Side Quest board, rules, rewards, and coat previews load without native auth." />
         <FlowStep done={authBridge.configured} title="Native Clerk bridge" body={authBridge.configured ? "Google SSO button is available for smoke testing." : "Waiting for the mobile publishable key from Clerk."} />
         <FlowStep done={authenticated} title="Backend account mirror" body={backendAccepted} />
       </View>
@@ -2408,12 +2388,6 @@ const compactStyles = StyleSheet.create({
   emptyMultiplayerSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   emptyMultiplayerSeal: { width: 40, height: 40, borderRadius: 20 },
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
-  suggestedQuestStack: { gap: 7, paddingTop: 2 },
-  suggestedQuestEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
-  suggestedQuestRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 17, backgroundColor: "rgba(0,0,0,.20)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },
-  suggestedQuestCoatFrame: { width: 36, height: 42, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  suggestedQuestGlowImage: { position: "absolute", width: 50, height: 56, opacity: .64, transform: [{ translateY: 3 }] },
-  suggestedQuestCoatImage: { width: 32, height: 38 },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
