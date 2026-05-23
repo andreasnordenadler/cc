@@ -315,10 +315,9 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const canScrollUp = scrollState.y > 18;
   const canScrollDown = scrollState.contentHeight > 0 && scrollState.viewportHeight > 0 && scrollState.y + scrollState.viewportHeight < scrollState.contentHeight - 18;
   const activeBackdropChallenge = useMemo(() => {
-    if (!shell.bootstrap) return selectedChallenge;
-    const activeQuestId = isAuthenticatedAccount(displayAccount) ? displayAccount.activeQuest?.id : null;
-    return shell.bootstrap.challenges.find((challenge) => challenge.id === activeQuestId) ?? selectedChallenge;
-  }, [displayAccount, selectedChallenge, shell.bootstrap]);
+    if (!shell.bootstrap || !isAuthenticatedAccount(displayAccount) || !displayAccount.activeQuest?.id) return null;
+    return shell.bootstrap.challenges.find((challenge) => challenge.id === displayAccount.activeQuest?.id) ?? null;
+  }, [displayAccount, shell.bootstrap]);
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -607,7 +606,27 @@ function TodayDashboard({
       <AppSection title="My Multiplayer Side Quests">
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
           <AppRow key={quest.id} title={quest.title} meta={quest.copy} status={quest.status} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => void openExternalAppUrl(quest.href)} />
-        )) : <AppRow title="No active Multiplayer Side Quest" meta="Join an Official Multiplayer Side Quest below." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />}
+        )) : (
+          <View style={compactStyles.emptyMultiplayerPanel}>
+            <View style={compactStyles.emptyQuestHeroRow}>
+              <View style={compactStyles.emptyMultiplayerSigil}>
+                <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
+              </View>
+              <View style={compactStyles.currentQuestText}>
+                <Text style={compactStyles.currentQuestTitle}>No Multiplayer Side Quest joined</Text>
+                <Text style={compactStyles.currentQuestMeta}>Join a public room when you want the same bad idea scored against other players. Your solo quest can keep running separately.</Text>
+              </View>
+            </View>
+            <View style={compactStyles.emptyMultiplayerActions}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Browse Multiplayer Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
+                <Text style={compactStyles.primaryActionText}>Browse Multiplayer</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="See official rooms" style={compactStyles.secondaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
+                <Text style={compactStyles.secondaryActionText}>Official rooms</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
       </AppSection>
 
       <AppSection title="Official Multiplayer Side Quests">
@@ -2385,6 +2404,10 @@ const compactStyles = StyleSheet.create({
   emptyQuestPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   emptyQuestHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   emptyQuestSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.14)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
+  emptyMultiplayerPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.072)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  emptyMultiplayerSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  emptyMultiplayerSeal: { width: 40, height: 40, borderRadius: 20 },
+  emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
   suggestedQuestStack: { gap: 7, paddingTop: 2 },
   suggestedQuestEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
   suggestedQuestRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 17, backgroundColor: "rgba(0,0,0,.20)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },
