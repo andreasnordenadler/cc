@@ -31,6 +31,11 @@ import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, Mobile
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
+type BrowseQuest = MobileChallenge & {
+  browseKind: "live" | "coming-soon";
+  releaseDate?: string;
+};
+
 type MobileShellState = {
   bootstrap: MobileBootstrap | null;
   account: MobileAccountResponse | null;
@@ -85,6 +90,153 @@ const CHALLENGE_COAT_GLOW_ASSETS: Record<string, ImageSourcePropType> = {
   "the-blunder-gambit": require("./assets/badges/glow/the-blunder-gambit-glow.png"),
   "knightmare-mode": require("./assets/badges/glow/knightmare-mode-glow.png"),
 };
+
+const DIFFICULTY_RANK: Record<string, number> = {
+  Easy: 1,
+  Medium: 2,
+  Hard: 3,
+  Brutal: 4,
+  Absurd: 5,
+};
+
+const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
+  {
+    id: "back-rank-goblin",
+    title: "Back Rank Goblin",
+    objective: "Deliver a back-rank mate with maximum goblin energy.",
+    instruction: "Coming soon: trap the king behind its own furniture and finish the game with a back-rank mate.",
+    openingHint: "The escape square was a myth.",
+    reward: 120,
+    category: "Style Kill",
+    difficulty: "Easy",
+    completionRate: "Coming soon",
+    flavor: "Classic chess punishment, but wearing a tiny goblin hat.",
+    badge: "No Exit Permit",
+    proofCallout: "Back-rank mate · won the game",
+    rules: [],
+    requirement: { side: "either", result: "win" },
+    badgeIdentity: {
+      name: "Rank Goblin",
+      motif: "♜",
+      rarity: "Coming soon token",
+      unlockCopy: "Win by making the back rank feel like a locked broom closet.",
+      imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/back-rank-goblin-badge.png"),
+      colors: { primary: "#76a9ff", secondary: "#60f0af", glow: "rgba(118,169,255,.38)" },
+      heraldry: {
+        shield: "Midnight blue field with a rook sealing three tiny escape doors.",
+        charge: "Locked back rank",
+        crest: "Goblin key",
+        motto: "No Door, No Mercy",
+        meaning: "The locked rank records a king trapped by its own pieces; the key belongs to the attacker.",
+        weirdness: "A home-security badge for deeply unsafe kings.",
+      },
+    },
+    browseKind: "coming-soon",
+    releaseDate: "2026-05-28",
+  },
+  {
+    id: "late-castle-lifestyle",
+    title: "Late Castle Lifestyle",
+    objective: "Castle after move 15, then win like the delay was strategic.",
+    instruction: "Coming soon: wait far too long to castle, finally do it, then claim the king was fashionably late.",
+    openingHint: "Safety arrived after the afterparty started.",
+    reward: 180,
+    category: "Restriction",
+    difficulty: "Medium",
+    completionRate: "Coming soon",
+    flavor: "Not refusing safety. Just ghosting it for fifteen moves.",
+    badge: "Fashionably Fortified",
+    proofCallout: "Castled after move 15 · won the game",
+    rules: [],
+    requirement: { side: "either", result: "win" },
+    badgeIdentity: {
+      name: "Late Castle",
+      motif: "♔",
+      rarity: "Coming soon badge",
+      unlockCopy: "Delay castling until it feels socially awkward, then win.",
+      imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/late-castle-lifestyle-badge.png"),
+      colors: { primary: "#a78bfa", secondary: "#f5c86a", glow: "rgba(167,139,250,.4)" },
+      heraldry: {
+        shield: "Purple dusk field with a crown arriving at a tower under a tiny moon.",
+        charge: "Delayed castle gate",
+        crest: "Pocket clock",
+        motto: "Eventually Secure",
+        meaning: "The clock marks the delayed castle; the tower proves the king finally accepted help.",
+        weirdness: "Royal time management with tactical consequences.",
+      },
+    },
+    browseKind: "coming-soon",
+    releaseDate: "2026-06-04",
+  },
+  {
+    id: "rook-lift-internship",
+    title: "Rook Lift Internship",
+    objective: "Lift a rook before move 18 and make the internship pay off.",
+    instruction: "Coming soon: send a rook up the board early, pretend it has a badge, and win.",
+    openingHint: "The rook asked for field experience.",
+    reward: 220,
+    category: "Style Quest",
+    difficulty: "Medium",
+    completionRate: "Coming soon",
+    flavor: "A career-development program for castles with ambition.",
+    badge: "Junior Tower Energy",
+    proofCallout: "Early rook lift · won the game",
+    rules: [],
+    requirement: { side: "either", result: "win" },
+    badgeIdentity: {
+      name: "Rook Intern",
+      motif: "♜",
+      rarity: "Coming soon badge",
+      unlockCopy: "Lift a rook early and convert the suspicious career move into a win.",
+      imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/rook-lift-internship-badge.png"),
+      colors: { primary: "#e87922", secondary: "#f5c86a", glow: "rgba(232,121,34,.38)" },
+      heraldry: {
+        shield: "Orange-gold field with a rook climbing a ladder over three files.",
+        charge: "Rook on ladder",
+        crest: "Intern badge",
+        motto: "Promoted Too Soon",
+        meaning: "The climbing rook marks the early lift; the badge means it was definitely not qualified.",
+        weirdness: "Corporate mobility for a medieval tower.",
+      },
+    },
+    browseKind: "coming-soon",
+    releaseDate: "2026-06-11",
+  },
+  {
+    id: "queen-side-quest",
+    title: "Queen Side Quest",
+    objective: "Win while your queen never leaves the first rank.",
+    instruction: "Coming soon: a streamer-hard restriction quest where the queen stays in headquarters for the whole public-game win.",
+    openingHint: "The queen is managing from headquarters and refusing media questions.",
+    reward: 900,
+    category: "Streamer Hard",
+    difficulty: "Brutal",
+    completionRate: "Coming soon · streamer-hard",
+    flavor: "Maximum power, minimum commute, maximum chat disbelief.",
+    badge: "Remote Royalty",
+    proofCallout: "Queen stayed on first rank · won the game",
+    rules: [],
+    requirement: { side: "either", result: "win" },
+    badgeIdentity: {
+      name: "Desk Queen",
+      motif: "♛",
+      rarity: "Coming soon brutal relic",
+      unlockCopy: "Win while the queen refuses to leave the executive floor.",
+      imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/queen-side-quest-badge.png"),
+      colors: { primary: "#ff5f9f", secondary: "#a78bfa", glow: "rgba(255,95,159,.44)" },
+      heraldry: {
+        shield: "Deep pink field with a queen behind a gold desk and unopened battle map.",
+        charge: "Stationary queen",
+        crest: "Office crown",
+        motto: "Lead From Home",
+        meaning: "The desk queen marks royal restraint; the unopened map shows all ambition stayed local.",
+        weirdness: "Remote work policy for the most powerful piece.",
+      },
+    },
+    browseKind: "coming-soon",
+    releaseDate: "2026-06-18",
+  },
+];
 
 const SQC_COAT_OF_ARMS_ASSET = require("./assets/sqc-coat-of-arms.png") as ImageSourcePropType;
 const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
@@ -931,10 +1083,30 @@ function QuestBoardDashboard({
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
-  const sortedQuests = [...bootstrap.challenges].sort((a, b) => {
-    const rank = (challenge: MobileChallenge) => challenge.id === activeId ? 0 : completedIds.has(challenge.id) ? 2 : 1;
+  const browseQuests: BrowseQuest[] = [
+    ...bootstrap.challenges.map((challenge) => ({ ...challenge, browseKind: "live" as const })),
+    ...MOBILE_COMING_SOON_QUESTS,
+  ];
+  const sortedQuests = [...browseQuests].sort((a, b) => {
+    const difficultyDelta = (DIFFICULTY_RANK[a.difficulty] ?? 99) - (DIFFICULTY_RANK[b.difficulty] ?? 99);
+    if (difficultyDelta !== 0) return difficultyDelta;
+
+    const rank = (challenge: BrowseQuest) => {
+      if (challenge.browseKind === "coming-soon") return 3;
+      if (challenge.id === activeId) return 0;
+      if (completedIds.has(challenge.id)) return 2;
+      return 1;
+    };
     const rankDelta = rank(a) - rank(b);
     if (rankDelta !== 0) return rankDelta;
+
+    if (a.browseKind === "coming-soon" && b.browseKind === "coming-soon") {
+      const dateDelta = (a.releaseDate ?? "9999-99-99").localeCompare(b.releaseDate ?? "9999-99-99");
+      if (dateDelta !== 0) return dateDelta;
+    }
+
+    if (a.browseKind !== b.browseKind) return a.browseKind === "live" ? -1 : 1;
+    if (a.reward !== b.reward) return a.reward - b.reward;
     return a.title.localeCompare(b.title);
   });
   const detailChallenge = detailChallengeId ? bootstrap.challenges.find((challenge) => challenge.id === detailChallengeId) ?? null : null;
@@ -951,18 +1123,24 @@ function QuestBoardDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.appRows}>
           {sortedQuests.map((challenge) => {
+          const comingSoon = challenge.browseKind === "coming-soon";
           const active = challenge.id === activeId;
           const completed = completedIds.has(challenge.id);
+          const comingSoonDate = challenge.releaseDate ? formatComingSoonDate(challenge.releaseDate) : null;
           return (
             <AppRow
               key={challenge.id}
               title={challenge.title}
-              meta={challenge.objective}
-              status={active ? "Active" : completed ? "Done" : `+${challenge.reward}`}
+              meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
+              status={comingSoon ? "Coming soon" : active ? "Active" : completed ? "Done" : `+${challenge.reward}`}
               imageSource={getChallengeCoatImageSource(challenge)}
               glowSource={getChallengeCoatGlowSource(challenge.id)}
               glowColor={challenge.badgeIdentity.colors.glow}
               onPress={() => {
+                if (comingSoon) {
+                  Alert.alert(challenge.title, `Coming ${comingSoonDate ?? "soon"}.`);
+                  return;
+                }
                 onSelectChallenge(challenge.id, "sideQuests");
                 setDetailChallengeId(challenge.id);
               }}
@@ -2302,6 +2480,12 @@ function getChallengeCoatImageUrl(challenge: MobileChallenge) {
 function absoluteAssetUrl(url: string) {
   if (url.startsWith("http")) return url;
   return `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
+}
+
+function formatComingSoonDate(value: string) {
+  const date = new Date(`${value}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(date);
 }
 
 function showNativeOnlyNotice(message: string) {
