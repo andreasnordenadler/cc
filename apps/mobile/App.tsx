@@ -86,6 +86,7 @@ const CHALLENGE_COAT_GLOW_ASSETS: Record<string, ImageSourcePropType> = {
   "knightmare-mode": require("./assets/badges/glow/knightmare-mode-glow.png"),
 };
 
+const SQC_COAT_OF_ARMS_ASSET = require("./assets/sqc-coat-of-arms.png") as ImageSourcePropType;
 const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
 const SQC_GOLD_SEAL_ASSET = require("./assets/stamps/sqc-gold-seal.png") as ImageSourcePropType;
 const SQC_SILVER_SEAL_ASSET = require("./assets/stamps/sqc-silver-seal.png") as ImageSourcePropType;
@@ -549,11 +550,11 @@ function TodayDashboard({
           <View style={compactStyles.emptyQuestPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
               <View style={compactStyles.emptyQuestSigil}>
-                <Image source={SQC_GOLD_SEAL_ASSET} style={compactStyles.emptyQuestSeal} resizeMode="contain" />
+                <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
               </View>
               <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>One player. One ridiculous rule. One proof receipt.</Text>
-                <Text style={compactStyles.currentQuestMeta}>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</Text>
+                <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
+                <Text style={compactStyles.currentQuestMeta}>Pick one chess challenge before you play. Win, lose, or draw — if your game proves the rule, SQC awards the Coat of Arms.</Text>
               </View>
             </View>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
@@ -593,8 +594,8 @@ function TodayDashboard({
                 <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
               </View>
               <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>No active Multiplayer Side Quests yet.</Text>
-                <Text style={compactStyles.currentQuestMeta}>Your active Multiplayer Side Quests, public Multiplayer Side Quests you can join, and closed results — all in one simple list.</Text>
+                <Text style={compactStyles.currentQuestTitle}>No Multiplayer Side Quests joined</Text>
+                <Text style={compactStyles.currentQuestMeta}>Join a shared challenge when you want the same strange chess rule scored against other players. Solo Side Quests stay separate.</Text>
               </View>
             </View>
             <View style={compactStyles.emptyMultiplayerActions}>
@@ -2380,8 +2381,8 @@ const compactStyles = StyleSheet.create({
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
   emptyQuestPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   emptyQuestHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  emptyQuestSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.14)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
-  emptyQuestSeal: { width: 44, height: 44 },
+  emptyQuestSigil: { width: 72, height: 72, borderRadius: 24, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.10)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)", overflow: "hidden" },
+  emptyQuestCoat: { width: 70, height: 70 },
   emptyMultiplayerPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.072)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   emptyMultiplayerSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   emptyMultiplayerSeal: { width: 40, height: 40, borderRadius: 20 },
