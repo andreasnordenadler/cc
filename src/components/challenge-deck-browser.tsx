@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import ChallengeBadge from "@/components/challenge-badge";
+import { challengeAccentStyle } from "@/lib/challenge-accent-style";
 import type { Challenge } from "@/lib/challenges";
 
 type ScheduledChallenge = Challenge & { releaseDate?: string };
@@ -442,7 +443,8 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
   return (
     <Link
       href={`/challenges/${challenge.id}`}
-      className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""} ${completed ? "completed-quest-card" : ""}`}
+      className={`challenge-card clickable-quest-card quest-accent-surface ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""} ${completed ? "completed-quest-card" : ""}`}
+      style={challengeAccentStyle(challenge)}
       aria-current={active ? "true" : undefined}
     >
       {active && !completed ? <span className="active-quest-stamp" aria-label="Active quest" /> : null}
@@ -473,7 +475,7 @@ function ComingSoonChallengeCard({ challenge }: { challenge: ScheduledChallenge 
   const difficultyTone = getDifficultyTone(challenge.difficulty);
 
   return (
-    <article className="challenge-card coming-soon-quest-card" aria-label={`${challenge.title} coming soon`}>
+    <article className="challenge-card coming-soon-quest-card quest-accent-surface" style={challengeAccentStyle(challenge)} aria-label={`${challenge.title} coming soon`}>
       <span className="coming-soon-stamp" aria-hidden="true">
         <span>Coming</span>
         <strong>{formatReleaseDate(challenge.releaseDate ?? "")}</strong>
