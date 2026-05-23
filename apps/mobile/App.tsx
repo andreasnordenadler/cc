@@ -344,10 +344,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
-        {shell.catalogMode === "offline" && !__DEV__ ? (
+        {shell.catalogMode === "offline" && !shell.bootstrap && !__DEV__ ? (
           <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
-            <Text style={styles.catalogStateTitle}>Offline quest catalog loaded</Text>
-            <Text style={styles.catalogStateCopy}>{shell.catalogNotice ?? "Live Side Quest Chess is temporarily unreachable. You can still browse the cached Side Quest board."}</Text>
+            <Text style={styles.catalogStateTitle}>Side Quest board unavailable</Text>
+            <Text style={styles.catalogStateCopy}>SQC could not refresh the Side Quest board. Pull to try again.</Text>
           </View>
         ) : null}
 
