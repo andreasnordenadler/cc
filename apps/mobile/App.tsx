@@ -554,7 +554,7 @@ function TodayDashboard({
               </View>
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
-                <Text style={compactStyles.currentQuestMeta}>Pick one chess challenge before you play. Win, lose, or draw — if your game proves the rule, SQC awards the Coat of Arms.</Text>
+                <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
               </View>
             </View>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
