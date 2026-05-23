@@ -516,7 +516,7 @@ function TodayDashboard({
 
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>Solo Side Quest</Text>
+          <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
         </View>
         {signedIn.activeQuest ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
