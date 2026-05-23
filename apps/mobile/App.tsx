@@ -927,6 +927,7 @@ function QuestBoardDashboard({
   onSelectTab: (tab: AppTab) => void;
   onAccountUpdated: () => void;
 }) {
+  const [detailChallengeId, setDetailChallengeId] = useState<string | null>(null);
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
@@ -938,6 +939,7 @@ function QuestBoardDashboard({
     if (rankDelta !== 0) return rankDelta;
     return a.title.localeCompare(b.title);
   });
+  const detailChallenge = detailChallengeId ? bootstrap.challenges.find((challenge) => challenge.id === detailChallengeId) ?? null : null;
 
   return (
     <View style={compactStyles.stack}>
@@ -978,13 +980,28 @@ function QuestBoardDashboard({
               imageSource={getChallengeCoatImageSource(challenge)}
               glowSource={getChallengeCoatGlowSource(challenge.id)}
               glowColor={challenge.badgeIdentity.colors.glow}
-              onPress={() => onSelectChallenge(challenge.id, "sideQuests")}
+              onPress={() => {
+                onSelectChallenge(challenge.id, "sideQuests");
+                setDetailChallengeId(challenge.id);
+              }}
             />
           );
         })}
       </AppSection>
 
-      <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
+      <Modal visible={Boolean(detailChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setDetailChallengeId(null)}>
+        <SafeAreaView style={compactStyles.detailScreen}>
+          <GradientBackdrop challenge={detailChallenge} />
+          <View style={compactStyles.detailTopBar}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close Side Quest details" style={compactStyles.detailCloseButton} onPress={() => setDetailChallengeId(null)}>
+              <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+            </Pressable>
+          </View>
+          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+            {detailChallenge ? <SelectedQuestDetailCard challenge={detailChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} /> : null}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </View>
   );
 }
