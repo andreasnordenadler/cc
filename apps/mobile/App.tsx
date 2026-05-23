@@ -73,6 +73,10 @@ const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "bishop-field-trip": require("./assets/badges/v6/bishop-field-trip-badge.png"),
   "early-king-walk": require("./assets/badges/v6/early-king-walk-badge.png"),
   "pawn-only-picnic": require("./assets/badges/v7/coming-soon-clean/pawn-only-picnic-badge.png"),
+  "back-rank-goblin": require("./assets/badges/v7/coming-soon-clean/back-rank-goblin-badge.png"),
+  "late-castle-lifestyle": require("./assets/badges/v7/coming-soon-clean/late-castle-lifestyle-badge.png"),
+  "rook-lift-internship": require("./assets/badges/v7/coming-soon-clean/rook-lift-internship-badge.png"),
+  "queen-side-quest": require("./assets/badges/v7/coming-soon-clean/queen-side-quest-badge.png"),
   "queen-never-heard-of-her": require("./assets/badges/v4/queen-never-heard-of-her.png"),
   "no-castle-club": require("./assets/badges/v4/no-castle-club-badge.png"),
   "the-blunder-gambit": require("./assets/badges/v4/the-blunder-gambit-badge.png"),
@@ -243,6 +247,7 @@ const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as Im
 const SQC_GOLD_SEAL_ASSET = require("./assets/stamps/sqc-gold-seal.png") as ImageSourcePropType;
 const SQC_SILVER_SEAL_ASSET = require("./assets/stamps/sqc-silver-seal.png") as ImageSourcePropType;
 const SQC_BRONZE_SEAL_ASSET = require("./assets/stamps/sqc-bronze-seal.png") as ImageSourcePropType;
+const SQC_COMPLETED_RED_SEAL_ASSET = require("./assets/stamps/quest-complete-red-wax-sqc-v15.png") as ImageSourcePropType;
 
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
   "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
@@ -985,14 +990,47 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
-function AppRow({ title, meta, status, imageSource, glowSource, glowColor, variant = "coat", onPress }: { title: string; meta: string; status?: string; imageSource?: ImageSourcePropType | null; glowSource?: ImageSourcePropType | null; glowColor?: string; variant?: "coat" | "seal"; onPress: () => void }) {
+function AppRow({
+  title,
+  meta,
+  status,
+  imageSource,
+  glowSource,
+  glowColor,
+  variant = "coat",
+  blurImage = false,
+  dimImage = false,
+  overlaySeal = false,
+  onPress,
+}: {
+  title: string;
+  meta: string;
+  status?: string;
+  imageSource?: ImageSourcePropType | null;
+  glowSource?: ImageSourcePropType | null;
+  glowColor?: string;
+  variant?: "coat" | "seal";
+  blurImage?: boolean;
+  dimImage?: boolean;
+  overlaySeal?: boolean;
+  onPress: () => void;
+}) {
   const visibleStatus = status && !["Open", "Proof", "-"].includes(status) ? status : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
           {glowSource ? <Image source={glowSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
-          <Image source={imageSource} style={variant === "seal" ? compactStyles.rowSealImage : compactStyles.rowCoatImage} resizeMode="contain" />
+          <Image
+            source={imageSource}
+            style={[
+              variant === "seal" ? compactStyles.rowSealImage : compactStyles.rowCoatImage,
+              dimImage && compactStyles.rowCoatImageDim,
+            ]}
+            resizeMode="contain"
+            blurRadius={blurImage ? 5 : 0}
+          />
+          {overlaySeal ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.rowCompletedSeal} resizeMode="contain" /> : null}
         </View>
       ) : null}
       <View style={compactStyles.appRowText}>
@@ -1080,6 +1118,7 @@ function QuestBoardDashboard({
   onAccountUpdated: () => void;
 }) {
   const [detailChallengeId, setDetailChallengeId] = useState<string | null>(null);
+  const [completedDetailId, setCompletedDetailId] = useState<string | null>(null);
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
@@ -1088,6 +1127,8 @@ function QuestBoardDashboard({
     ...MOBILE_COMING_SOON_QUESTS,
   ];
   const sortedQuests = [...browseQuests].sort((a, b) => {
+    if (a.browseKind !== b.browseKind) return a.browseKind === "live" ? -1 : 1;
+
     const difficultyDelta = (DIFFICULTY_RANK[a.difficulty] ?? 99) - (DIFFICULTY_RANK[b.difficulty] ?? 99);
     if (difficultyDelta !== 0) return difficultyDelta;
 
@@ -1104,12 +1145,12 @@ function QuestBoardDashboard({
       const dateDelta = (a.releaseDate ?? "9999-99-99").localeCompare(b.releaseDate ?? "9999-99-99");
       if (dateDelta !== 0) return dateDelta;
     }
-
-    if (a.browseKind !== b.browseKind) return a.browseKind === "live" ? -1 : 1;
     if (a.reward !== b.reward) return a.reward - b.reward;
     return a.title.localeCompare(b.title);
   });
   const detailChallenge = detailChallengeId ? bootstrap.challenges.find((challenge) => challenge.id === detailChallengeId) ?? null : null;
+  const completedQuestRecord = completedDetailId && signedIn ? signedIn.completedQuests.find((quest) => quest.id === completedDetailId) ?? null : null;
+  const completedDetailChallenge = completedDetailId ? bootstrap.challenges.find((challenge) => challenge.id === completedDetailId) ?? null : null;
 
   return (
     <View style={compactStyles.stack}>
@@ -1125,20 +1166,27 @@ function QuestBoardDashboard({
           {sortedQuests.map((challenge) => {
           const comingSoon = challenge.browseKind === "coming-soon";
           const active = challenge.id === activeId;
-          const completed = completedIds.has(challenge.id);
+          const completed = !comingSoon && completedIds.has(challenge.id);
           const comingSoonDate = challenge.releaseDate ? formatComingSoonDate(challenge.releaseDate) : null;
           return (
             <AppRow
               key={challenge.id}
               title={challenge.title}
               meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
-              status={comingSoon ? "Coming soon" : active ? "Active" : completed ? "Done" : `+${challenge.reward}`}
+              status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : completed ? "Completed" : challenge.difficulty}
               imageSource={getChallengeCoatImageSource(challenge)}
               glowSource={getChallengeCoatGlowSource(challenge.id)}
               glowColor={challenge.badgeIdentity.colors.glow}
+              blurImage={comingSoon}
+              dimImage={comingSoon}
+              overlaySeal={completed}
               onPress={() => {
                 if (comingSoon) {
                   Alert.alert(challenge.title, `Coming ${comingSoonDate ?? "soon"}.`);
+                  return;
+                }
+                if (completed) {
+                  setCompletedDetailId(challenge.id);
                   return;
                 }
                 onSelectChallenge(challenge.id, "sideQuests");
@@ -1160,6 +1208,27 @@ function QuestBoardDashboard({
           </View>
           <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             {detailChallenge ? <SelectedQuestDetailCard challenge={detailChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} /> : null}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      <Modal visible={Boolean(completedQuestRecord && completedDetailChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCompletedDetailId(null)}>
+        <SafeAreaView style={compactStyles.detailScreen}>
+          <GradientBackdrop challenge={completedDetailChallenge} />
+          <View style={compactStyles.detailTopBar}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close completed Side Quest proof" style={compactStyles.detailCloseButton} onPress={() => setCompletedDetailId(null)}>
+              <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+            </Pressable>
+          </View>
+          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+            {completedQuestRecord && completedDetailChallenge ? (
+              <CompletedQuestProofCard
+                challenge={completedDetailChallenge}
+                completedQuest={completedQuestRecord}
+                onOpenProof={() => void openExternalAppUrl(completedQuestRecord.proofHref ?? completedQuestRecord.href)}
+                onOpenAccount={() => onSelectTab("account")}
+              />
+            ) : null}
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -1890,6 +1959,64 @@ function SelectedQuestDetailCard({
   );
 }
 
+function CompletedQuestProofCard({
+  challenge,
+  completedQuest,
+  onOpenProof,
+  onOpenAccount,
+}: {
+  challenge: MobileChallenge;
+  completedQuest: MobileAccountState["completedQuests"][number];
+  onOpenProof: () => void;
+  onOpenAccount: () => void;
+}) {
+  const badgeSource = getChallengeCoatImageSource(challenge);
+
+  return (
+    <View style={styles.questCard} accessibilityLabel={`${challenge.title} completed proof`}>
+      <View style={styles.questCardHeader}>
+        <View style={styles.questCardCopy}>
+          <Text style={styles.eyebrow}>Completed Side Quest</Text>
+          <Text style={styles.questTitle}>{challenge.title}</Text>
+          <Text style={styles.questObjective}>{challenge.objective}</Text>
+        </View>
+        <View style={styles.badgeImageFrame}>
+          <Image source={badgeSource} style={styles.badgeImage} resizeMode="contain" />
+          <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={styles.completedSealLarge} resizeMode="contain" />
+        </View>
+      </View>
+
+      <View style={styles.questFlavorCard}>
+        <Text style={styles.questFlavor}>Proof complete. Coat of arms unlocked.</Text>
+      </View>
+
+      <View style={styles.requirementPairRow}>
+        <View style={styles.requirementPill}>
+          <Text style={styles.requirementLabel}>Difficulty</Text>
+          <Text style={styles.requirementValue}>{challenge.difficulty}</Text>
+        </View>
+        <View style={styles.requirementPill}>
+          <Text style={styles.requirementLabel}>Completed</Text>
+          <Text style={styles.requirementValue}>{formatLatestCheckTime(completedQuest.completedAt)}</Text>
+        </View>
+      </View>
+
+      <View style={styles.proofActionCard}>
+        <Text style={styles.proofActionTitle}>Victory proof ready</Text>
+        <Text style={styles.proofActionBody}>Open the proof for this Side Quest, or jump to your account proof log.</Text>
+        <View style={styles.buttonRow}>
+          <Pressable accessibilityRole="button" accessibilityLabel="View victory proof" style={styles.primaryButton} onPress={onOpenProof}>
+            <Text style={styles.primaryButtonText}>View victory proof</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open account proof log" style={styles.secondaryButton} onPress={onOpenAccount}>
+            <Text style={styles.secondaryButtonText}>Account proof log</Text>
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 function getMobileAccountNextStep(account: MobileAccountState) {
   if (!account.chessAccounts.hasAny) {
     return {
@@ -2585,11 +2712,13 @@ const compactStyles = StyleSheet.create({
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
   rowCoatGlowImage: { position: "absolute", width: 44, height: 48, opacity: .62, transform: [{ translateY: 3 }] },
   rowCoatImage: { width: 30, height: 34 },
+  rowCoatImageDim: { opacity: .52 },
   rowSealImage: { width: 31, height: 31, borderRadius: 15.5 },
+  rowCompletedSeal: { position: "absolute", width: 18, height: 18, right: -4, bottom: -3 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },
-  appRowStatus: { maxWidth: 88, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
+  appRowStatus: { maxWidth: 96, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
   appRowStatusJoined: { color: colors.green },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { height: 48, paddingHorizontal: 12, paddingTop: 6, justifyContent: "center" },
@@ -2995,6 +3124,7 @@ const styles = StyleSheet.create({
   questObjective: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   badgeImageFrame: { width: 112, height: 128, alignItems: "center", justifyContent: "center" },
   badgeImage: { width: 112, height: 128 },
+  completedSealLarge: { position: "absolute", width: 44, height: 44, right: 0, bottom: 2 },
   badgeFallbackText: { color: colors.gold, fontSize: 34, fontWeight: "900" },
   questFlavorCard: { padding: 14, borderRadius: 20, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
   questFlavor: { color: colors.paper, fontSize: 15, fontWeight: "700", lineHeight: 22 },
