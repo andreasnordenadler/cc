@@ -2617,7 +2617,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       badgeName: challenge.badgeIdentity.name,
       completedAt: new Date().toISOString(),
       href: `/challenges/${challenge.id}`,
-      proofHref: `/result/${challenge.id}`,
+      proofHref: `/proof/preview-${challenge.id}`,
       badgeImageUrl: challenge.badgeIdentity.imageUrl,
     })),
     multiplayerTrophies: [

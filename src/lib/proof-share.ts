@@ -49,6 +49,9 @@ export async function buildPublicProofPath({
 }
 
 export async function decodePublicProof(token: string): Promise<DecodedPublicProof | null> {
+  const preview = decodePreviewProof(token);
+  if (preview) return preview;
+
   const parts = token.split(".");
   if (parts.length !== 2) return null;
 
@@ -69,6 +72,32 @@ export async function decodePublicProof(token: string): Promise<DecodedPublicPro
   } catch {
     return null;
   }
+}
+
+function decodePreviewProof(token: string): DecodedPublicProof | null {
+  if (!token.startsWith("preview-")) return null;
+
+  const challengeId = token.slice("preview-".length);
+  const challenge = getChallengeById(challengeId);
+  if (!challenge) return null;
+
+  return {
+    challenge,
+    payload: {
+      v: 1,
+      challengeId: challenge.id,
+      challengeTitle: challenge.title,
+      badgeName: challenge.badgeIdentity.name,
+      badgeMotif: challenge.badgeIdentity.motif,
+      reward: challenge.reward,
+      summary: `Preview proof accepted for ${challenge.title}.`,
+      checkedAt: "2026-05-24T10:30:00.000Z",
+      completedGameAt: "2026-05-24T10:24:00.000Z",
+      gameId: "preview-proof-game",
+      provider: "lichess",
+      runnerName: "Andreas",
+    },
+  };
 }
 
 export function publicProofImagePath(token: string) {
