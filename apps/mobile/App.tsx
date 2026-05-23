@@ -515,7 +515,7 @@ function TodayDashboard({
 
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>Solo Side Quest Slot</Text>
+          <Text style={compactStyles.freshSectionTitle}>Solo Side Quest</Text>
         </View>
         {signedIn.activeQuest ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
@@ -549,11 +549,11 @@ function TodayDashboard({
           <View style={compactStyles.emptyQuestPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
               <View style={compactStyles.emptyQuestSigil}>
-                <MaterialCommunityIcons name="flag-variant-outline" size={30} color={colors.gold} />
+                <Image source={SQC_GOLD_SEAL_ASSET} style={compactStyles.emptyQuestSeal} resizeMode="contain" />
               </View>
               <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>Choose your next Side Quest</Text>
-                <Text style={compactStyles.currentQuestMeta}>Pick one weird rule before your next real game. SQC will watch the result and unlock the Coat of Arms if you pull it off.</Text>
+                <Text style={compactStyles.currentQuestTitle}>One player. One ridiculous rule. One proof receipt.</Text>
+                <Text style={compactStyles.currentQuestMeta}>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</Text>
               </View>
             </View>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
@@ -593,16 +593,13 @@ function TodayDashboard({
                 <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
               </View>
               <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>No Multiplayer Side Quest joined</Text>
-                <Text style={compactStyles.currentQuestMeta}>Join a public room when you want the same bad idea scored against other players. Your Solo Side Quest can keep running separately.</Text>
+                <Text style={compactStyles.currentQuestTitle}>No active Multiplayer Side Quests yet.</Text>
+                <Text style={compactStyles.currentQuestMeta}>Your active Multiplayer Side Quests, public Multiplayer Side Quests you can join, and closed results — all in one simple list.</Text>
               </View>
             </View>
             <View style={compactStyles.emptyMultiplayerActions}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Browse Multiplayer Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
-                <Text style={compactStyles.primaryActionText}>Browse Multiplayer</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="See official rooms" style={compactStyles.secondaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
-                <Text style={compactStyles.secondaryActionText}>Official rooms</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
+                <Text style={compactStyles.primaryActionText}>Open Multiplayer Side Quests</Text>
               </Pressable>
             </View>
           </View>
@@ -2384,6 +2381,7 @@ const compactStyles = StyleSheet.create({
   emptyQuestPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   emptyQuestHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   emptyQuestSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.14)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
+  emptyQuestSeal: { width: 44, height: 44 },
   emptyMultiplayerPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.072)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   emptyMultiplayerSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   emptyMultiplayerSeal: { width: 40, height: 40, borderRadius: 20 },
