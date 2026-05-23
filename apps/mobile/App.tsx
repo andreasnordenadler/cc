@@ -22,6 +22,7 @@ import {
   type NativeScrollEvent,
   type ImageSourcePropType,
   type NativeSyntheticEvent,
+  type ViewStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
@@ -513,7 +514,7 @@ function TodayDashboard({
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>Current Active Side Quest</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => signedIn.activeQuest ? setCurrentDetailOpen(true) : onSelectTab("sideQuests")}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={[compactStyles.freshPanel, activeChallenge && getQuestAccentPanelStyle(activeChallenge)]} onPress={() => signedIn.activeQuest ? setCurrentDetailOpen(true) : onSelectTab("sideQuests")}>
           {activeStatus === "Completed" ? (
             <View style={compactStyles.currentStatusRow}>
               <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
@@ -674,7 +675,7 @@ function CurrentSideQuestDetailModal({
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={actionState.busy} tintColor={colors.gold} onRefresh={() => void onRunCheck()} />}
         >
-          <View style={compactStyles.detailHero}>
+          <View style={[compactStyles.detailHero, challenge && getQuestAccentHeroStyle(challenge)]}>
             <Pressable accessibilityRole="imagebutton" accessibilityLabel="Enlarge Coat of Arms" style={compactStyles.detailCoatFrame} onPress={() => setCoatExpanded(true)}>
               {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
@@ -1023,13 +1024,13 @@ function CompactStatusRow({ label, title, meta, onPress }: { label: string; titl
 
 function CompactQuestRow({ challenge, active, completed, onPress }: { challenge: MobileChallenge; active: boolean; completed: boolean; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="button" style={compactStyles.questRow} onPress={onPress}>
+    <Pressable accessibilityRole="button" style={[compactStyles.questRow, getQuestAccentRowStyle(challenge, { active, completed })]} onPress={onPress}>
       <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={[compactStyles.questIcon, !completed && !active && compactStyles.questIconDim]} resizeMode="contain" />
       <View style={compactStyles.rowCopy}>
         <Text style={compactStyles.rowTitle} numberOfLines={1}>{challenge.title}</Text>
         <Text style={compactStyles.rowMeta} numberOfLines={1}>{challenge.objective}</Text>
       </View>
-      <View style={compactStyles.questPill}>
+      <View style={[compactStyles.questPill, getQuestAccentPillStyle(challenge, { active, completed })]}>
         <Text style={compactStyles.questPillText}>{completed ? "Done" : active ? "Now" : `+${challenge.reward}`}</Text>
       </View>
     </Pressable>
@@ -1533,7 +1534,7 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
   const badgeUrl = getChallengeCoatImageUrl(challenge);
 
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} accessibilityState={{ selected: active }} style={[styles.challengeCardMobile, featured && styles.challengeCardMobileFeatured, active && styles.challengeCardMobileActive, completed && styles.challengeCardMobileCompleted]} onPress={onPress}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} accessibilityState={{ selected: active }} style={[styles.challengeCardMobile, featured && styles.challengeCardMobileFeatured, active && styles.challengeCardMobileActive, completed && styles.challengeCardMobileCompleted, getQuestAccentCardStyle(challenge, { featured, active, completed })]} onPress={onPress}>
       {active && !completed ? <Text style={styles.activeQuestStampText}>Active quest</Text> : null}
       {completed ? <Text style={styles.completedQuestStampText}>Quest completed</Text> : null}
       <View style={styles.questCardMetaMobile}>
@@ -1598,17 +1599,17 @@ function SelectedQuestDetailCard({
   }
 
   return (
-    <View style={styles.questCard} accessibilityLabel={`${challenge.title} details`}>
+    <View style={[styles.questCard, getQuestAccentPanelStyle(challenge)]} accessibilityLabel={`${challenge.title} details`}>
       <View style={styles.questCardHeader}>
         <View style={styles.questCardCopy}>
           <Text style={styles.eyebrow}>Selected Side Quest</Text>
           <Text style={styles.questTitle}>{challenge.title}</Text>
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
-        <View style={styles.badgeImageFrame}>{badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.badgeImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>{challenge.badgeIdentity.motif}</Text>}</View>
+        <View style={[styles.badgeImageFrame, getQuestAccentBadgeFrameStyle(challenge)]}>{badgeUrl ? <Image source={{ uri: badgeUrl }} style={styles.badgeImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>{challenge.badgeIdentity.motif}</Text>}</View>
       </View>
 
-      <View style={styles.questFlavorCard}>
+      <View style={[styles.questFlavorCard, getQuestAccentFlavorStyle(challenge)]}>
         <Text style={styles.questFlavor}>{challenge.flavor}</Text>
       </View>
 
@@ -2278,6 +2279,79 @@ const colors = {
   panelStrong: "rgba(255,247,232,.12)",
   stroke: "rgba(255,247,232,.14)",
 };
+
+function colorWithAlpha(value: string | undefined, alpha: number): string {
+  if (!value) return `rgba(245,200,106,${alpha})`;
+
+  const hex = value.trim().match(/^#?([0-9a-f]{6})$/i);
+  if (hex) {
+    const numeric = Number.parseInt(hex[1], 16);
+    const red = (numeric >> 16) & 255;
+    const green = (numeric >> 8) & 255;
+    const blue = numeric & 255;
+    return `rgba(${red},${green},${blue},${alpha})`;
+  }
+
+  const rgba = value.trim().match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (rgba) return `rgba(${rgba[1]},${rgba[2]},${rgba[3]},${alpha})`;
+
+  return value;
+}
+
+function getQuestAccentCardStyle(challenge: MobileChallenge, state: { featured?: boolean; active?: boolean; completed?: boolean } = {}): ViewStyle {
+  const accent = state.active ? challenge.badgeIdentity.colors.primary : challenge.badgeIdentity.colors.secondary;
+  const fill = state.completed ? challenge.badgeIdentity.colors.secondary : state.featured ? challenge.badgeIdentity.colors.secondary : challenge.badgeIdentity.colors.primary;
+
+  return {
+    borderColor: colorWithAlpha(accent, state.active ? 0.54 : state.completed ? 0.42 : 0.24),
+    backgroundColor: colorWithAlpha(fill, state.active ? 0.12 : state.completed ? 0.10 : 0.07),
+  };
+}
+
+function getQuestAccentPanelStyle(challenge: MobileChallenge): ViewStyle {
+  return {
+    borderColor: colorWithAlpha(challenge.badgeIdentity.colors.secondary, 0.28),
+    backgroundColor: colorWithAlpha(challenge.badgeIdentity.colors.primary, 0.075),
+  };
+}
+
+function getQuestAccentHeroStyle(challenge: MobileChallenge): ViewStyle {
+  return {
+    borderColor: colorWithAlpha(challenge.badgeIdentity.colors.secondary, 0.24),
+    backgroundColor: colorWithAlpha(challenge.badgeIdentity.colors.primary, 0.055),
+  };
+}
+
+function getQuestAccentBadgeFrameStyle(challenge: MobileChallenge): ViewStyle {
+  return {
+    borderColor: colorWithAlpha(challenge.badgeIdentity.colors.secondary, 0.24),
+    backgroundColor: colorWithAlpha(challenge.badgeIdentity.colors.primary, 0.08),
+  };
+}
+
+function getQuestAccentFlavorStyle(challenge: MobileChallenge): ViewStyle {
+  return {
+    borderColor: colorWithAlpha(challenge.badgeIdentity.colors.secondary, 0.18),
+    backgroundColor: colorWithAlpha(challenge.badgeIdentity.colors.secondary, 0.08),
+  };
+}
+
+function getQuestAccentRowStyle(challenge: MobileChallenge, state: { active?: boolean; completed?: boolean } = {}): ViewStyle {
+  const accent = state.completed ? challenge.badgeIdentity.colors.secondary : challenge.badgeIdentity.colors.primary;
+  return {
+    borderWidth: 1,
+    borderColor: colorWithAlpha(accent, state.active || state.completed ? 0.24 : 0.10),
+    backgroundColor: colorWithAlpha(accent, state.active ? 0.095 : state.completed ? 0.075 : 0.045),
+  };
+}
+
+function getQuestAccentPillStyle(challenge: MobileChallenge, state: { active?: boolean; completed?: boolean } = {}): ViewStyle {
+  const accent = state.completed ? challenge.badgeIdentity.colors.secondary : state.active ? challenge.badgeIdentity.colors.primary : colors.gold;
+  return {
+    borderColor: colorWithAlpha(accent, 0.25),
+    backgroundColor: colorWithAlpha(accent, state.active || state.completed ? 0.16 : 0.09),
+  };
+}
 
 const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
