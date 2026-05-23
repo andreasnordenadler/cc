@@ -927,7 +927,7 @@ function QuestBoardDashboard({
   onSelectTab: (tab: AppTab) => void;
   onAccountUpdated: () => void;
 }) {
-  const [segment, setSegment] = useState<"active" | "available" | "completed">("active");
+  const [segment, setSegment] = useState<"active" | "available" | "completed">("available");
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
@@ -936,14 +936,27 @@ function QuestBoardDashboard({
     : segment === "completed"
       ? bootstrap.challenges.filter((challenge) => completedIds.has(challenge.id))
       : bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id));
-  const visibleRows = rows.length ? rows : segment === "active" ? [selectedChallenge] : [];
+  const visibleRows = rows;
+  const availableCount = bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id)).length;
+  const completedCount = completedIds.size;
 
   return (
     <View style={compactStyles.stack}>
-      <View style={compactStyles.headerPanel}>
-        <Text style={compactStyles.kicker}>Side Quests</Text>
-        <Text style={compactStyles.panelTitle}>Track, check, continue.</Text>
-        <Text style={compactStyles.micro}>Built for logged-in players. Dense rows, fast state changes, no website explainer copy.</Text>
+      <View style={styles.soloBrowseHero}>
+        <WebsiteGradientGlows />
+        <View style={styles.soloBrowseHeroRow}>
+          <View style={styles.soloBrowseHeroCopy}>
+            <Text style={styles.eyebrow}>Solo Side Quests</Text>
+            <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
+            <Text style={styles.soloBrowseHeroText}>Tap a Coat of Arms, review the rule, then start the Side Quest you want SQC to judge next.</Text>
+          </View>
+          <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
+        </View>
+        <View style={styles.soloBrowseStatsRow}>
+          <Text style={styles.soloBrowseStat}>{availableCount} available</Text>
+          <Text style={styles.soloBrowseStat}>{completedCount} completed</Text>
+          <Text style={styles.soloBrowseStat}>{activeId ? "1 active" : "none active"}</Text>
+        </View>
       </View>
       <View style={compactStyles.segmentBar}>
         {(["active", "available", "completed"] as const).map((item) => (
@@ -955,7 +968,7 @@ function QuestBoardDashboard({
       <View style={compactStyles.scorePanel}>
         {visibleRows.length ? visibleRows.map((challenge) => (
           <CompactQuestRow key={challenge.id} challenge={challenge} active={challenge.id === activeId} completed={completedIds.has(challenge.id)} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
-        )) : <Text style={compactStyles.emptyText}>{segment === "completed" ? "No completed Side Quests yet." : "No rows in this lane."}</Text>}
+        )) : <Text style={compactStyles.emptyText}>{segment === "active" ? "No active Solo Side Quest yet. Pick one from Available." : segment === "completed" ? "No completed Side Quests yet." : "No available Side Quests right now."}</Text>}
       </View>
       <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
     </View>
