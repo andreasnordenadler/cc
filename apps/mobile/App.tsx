@@ -1016,11 +1016,13 @@ function AppRow({
   onPress: () => void;
 }) {
   const visibleStatus = status && !["Open", "Proof", "-"].includes(status) ? status : null;
+  const statusTone = visibleStatus ? getBrowseStatusTone(visibleStatus) : null;
   return (
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
           {glowSource ? <Image source={glowSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
+          {overlaySeal ? <View style={compactStyles.rowCompletedSealBackdrop} /> : null}
           <Image
             source={imageSource}
             style={[
@@ -1037,7 +1039,15 @@ function AppRow({
         <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
         <Text style={compactStyles.appRowMeta} numberOfLines={1}>{meta}</Text>
       </View>
-      {visibleStatus ? <Text style={[compactStyles.appRowStatus, visibleStatus.toLowerCase() === "joined" && compactStyles.appRowStatusJoined]} numberOfLines={1}>{visibleStatus}</Text> : null}
+      {visibleStatus ? <Text style={[
+        compactStyles.appRowStatus,
+        visibleStatus.toLowerCase() === "joined" && compactStyles.appRowStatusJoined,
+        statusTone === "green" && compactStyles.appRowStatusGreen,
+        statusTone === "gold" && compactStyles.appRowStatusGold,
+        statusTone === "orange" && compactStyles.appRowStatusOrange,
+        statusTone === "danger" && compactStyles.appRowStatusDanger,
+        statusTone === "absurd" && compactStyles.appRowStatusAbsurd,
+      ]} numberOfLines={1}>{visibleStatus}</Text> : null}
     </Pressable>
   );
 }
@@ -1050,6 +1060,15 @@ function getMultiplayerTrophySealSource(placement: "Gold" | "Silver" | "Bronze")
 
 function getChallengeCoatGlowSource(challengeId: string): ImageSourcePropType {
   return CHALLENGE_COAT_GLOW_ASSETS[challengeId] ?? CHALLENGE_COAT_GLOW_ASSETS["finish-any-game"];
+}
+
+function getBrowseStatusTone(status: string): "green" | "gold" | "orange" | "danger" | "absurd" | null {
+  if (status === "Easy") return "green";
+  if (status === "Medium") return "gold";
+  if (status === "Hard") return "orange";
+  if (status === "Brutal") return "danger";
+  if (status === "Absurd") return "absurd";
+  return null;
 }
 
 function getRowImageSource(url: string | null): ImageSourcePropType | null {
@@ -2743,8 +2762,13 @@ const compactStyles = StyleSheet.create({
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },
-  appRowStatus: { maxWidth: 96, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase" },
+  appRowStatus: { maxWidth: 112, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase", overflow: "hidden", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,247,232,.08)" },
   appRowStatusJoined: { color: colors.green },
+  appRowStatusGreen: { backgroundColor: "#60f0af", color: "#111" },
+  appRowStatusGold: { backgroundColor: "#f5c86a", color: "#111" },
+  appRowStatusOrange: { backgroundColor: "#e87922", color: "#111" },
+  appRowStatusDanger: { backgroundColor: "#ff7a66", color: "#111" },
+  appRowStatusAbsurd: { backgroundColor: "#08070a", color: "#ff7a66", borderWidth: 1, borderColor: "rgba(255,122,102,.55)" },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { height: 48, paddingHorizontal: 12, paddingTop: 6, justifyContent: "center" },
   detailCloseButton: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.12)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
