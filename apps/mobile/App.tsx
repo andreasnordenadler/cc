@@ -931,8 +931,6 @@ function QuestBoardDashboard({
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
-  const availableCount = bootstrap.challenges.filter((challenge) => challenge.id !== activeId && !completedIds.has(challenge.id)).length;
-  const completedCount = completedIds.size;
   const sortedQuests = [...bootstrap.challenges].sort((a, b) => {
     const rank = (challenge: MobileChallenge) => challenge.id === activeId ? 0 : completedIds.has(challenge.id) ? 2 : 1;
     const rankDelta = rank(a) - rank(b);
@@ -950,25 +948,9 @@ function QuestBoardDashboard({
         <Text style={compactStyles.browseTopBarLabel}>Browse Solo Side Quests</Text>
       </View>
 
-      <View style={styles.soloBrowseHero}>
-        <WebsiteGradientGlows />
-        <View style={styles.soloBrowseHeroRow}>
-          <View style={styles.soloBrowseHeroCopy}>
-            <Text style={styles.eyebrow}>Solo Side Quests</Text>
-            <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
-            <Text style={styles.soloBrowseHeroText}>Compact list first. Tap any Side Quest to review the rule and start it.</Text>
-          </View>
-          <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
-        </View>
-        <View style={styles.soloBrowseStatsRow}>
-          <Text style={styles.soloBrowseStat}>{bootstrap.challenges.length} total</Text>
-          <Text style={styles.soloBrowseStat}>{availableCount} available</Text>
-          <Text style={styles.soloBrowseStat}>{completedCount} completed</Text>
-        </View>
-      </View>
-
-      <AppSection title="All Solo Side Quests">
-        {sortedQuests.map((challenge) => {
+      <View style={compactStyles.appSection}>
+        <View style={compactStyles.appRows}>
+          {sortedQuests.map((challenge) => {
           const active = challenge.id === activeId;
           const completed = completedIds.has(challenge.id);
           return (
@@ -986,8 +968,9 @@ function QuestBoardDashboard({
               }}
             />
           );
-        })}
-      </AppSection>
+          })}
+        </View>
+      </View>
 
       <Modal visible={Boolean(detailChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setDetailChallengeId(null)}>
         <SafeAreaView style={compactStyles.detailScreen}>
