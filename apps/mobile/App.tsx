@@ -2003,7 +2003,7 @@ function CompletedQuestProofCard({
 
       <View style={styles.proofActionCard}>
         <Text style={styles.proofActionTitle}>Victory proof ready</Text>
-        <Text style={styles.proofActionBody}>Open the proof for this Side Quest, or jump to your account proof log.</Text>
+        <Text style={styles.proofActionBody}>Open the proof for this Side Quest, or reset it and run the whole strange idea again.</Text>
         <View style={styles.buttonRow}>
           <Pressable accessibilityRole="button" accessibilityLabel="View victory proof" style={styles.primaryButton} onPress={onOpenProof}>
             <Text style={styles.primaryButtonText}>View victory proof</Text>
