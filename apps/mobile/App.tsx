@@ -590,7 +590,7 @@ function TodayDashboard({
             <View style={compactStyles.emptyQuestHeroRow}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
               <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>No Multiplayer Side Quests joined</Text>
+                <Text style={compactStyles.currentQuestTitle}>Join a Multiplayer Side Quest</Text>
                 <Text style={compactStyles.currentQuestMeta}>Join a shared challenge when you want the same strange chess Side Quests scored against other players.</Text>
               </View>
             </View>
