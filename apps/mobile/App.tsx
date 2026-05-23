@@ -1226,7 +1226,8 @@ function QuestBoardDashboard({
                 challenge={completedDetailChallenge}
                 completedQuest={completedQuestRecord}
                 onOpenProof={() => void openExternalAppUrl(completedQuestRecord.proofHref ?? completedQuestRecord.href)}
-                onOpenAccount={() => onSelectTab("account")}
+                authBridge={authBridge}
+                onAccountUpdated={onAccountUpdated}
               />
             ) : null}
           </ScrollView>
@@ -1963,14 +1964,34 @@ function CompletedQuestProofCard({
   challenge,
   completedQuest,
   onOpenProof,
-  onOpenAccount,
+  authBridge,
+  onAccountUpdated,
 }: {
   challenge: MobileChallenge;
   completedQuest: MobileAccountState["completedQuests"][number];
   onOpenProof: () => void;
-  onOpenAccount: () => void;
+  authBridge: MobileAuthBridge;
+  onAccountUpdated: () => void;
 }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
+  const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+
+  async function runReset() {
+    if (!authBridge.isSignedIn) {
+      setActionState({ busy: false, message: null, error: "Sign in with Google first to reset this Side Quest." });
+      return;
+    }
+
+    setActionState({ busy: true, message: null, error: null });
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      const result = await runMobileQuestAction({ sessionToken, action: "reset", challengeId: challenge.id });
+      setActionState({ busy: false, message: result.message, error: null });
+      onAccountUpdated();
+    } catch (caught) {
+      setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not reset this Side Quest." });
+    }
+  }
 
   return (
     <View style={styles.questCard} accessibilityLabel={`${challenge.title} completed proof`}>
@@ -1981,6 +2002,7 @@ function CompletedQuestProofCard({
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
         <View style={styles.badgeImageFrame}>
+          <View style={styles.completedSealLargeBackdrop} />
           <Image source={badgeSource} style={styles.badgeImage} resizeMode="contain" />
           <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={styles.completedSealLarge} resizeMode="contain" />
         </View>
@@ -2008,10 +2030,12 @@ function CompletedQuestProofCard({
           <Pressable accessibilityRole="button" accessibilityLabel="View victory proof" style={styles.primaryButton} onPress={onOpenProof}>
             <Text style={styles.primaryButtonText}>View victory proof</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Open account proof log" style={styles.secondaryButton} onPress={onOpenAccount}>
-            <Text style={styles.secondaryButtonText}>Account proof log</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Reset Side Quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runReset()}>
+            <Text style={styles.secondaryButtonText}>{actionState.busy ? "Resetting..." : "Reset"}</Text>
           </Pressable>
         </View>
+        {actionState.message ? <Text style={styles.successCopy}>{actionState.message}</Text> : null}
+        {actionState.error ? <Text style={styles.errorCopy}>{actionState.error}</Text> : null}
       </View>
     </View>
   );
@@ -3124,6 +3148,7 @@ const styles = StyleSheet.create({
   questObjective: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   badgeImageFrame: { width: 112, height: 128, alignItems: "center", justifyContent: "center" },
   badgeImage: { width: 112, height: 128 },
+  completedSealLargeBackdrop: { position: "absolute", width: 44, height: 44, right: 0, bottom: 2, borderRadius: 999, backgroundColor: "#a81717" },
   completedSealLarge: { position: "absolute", width: 44, height: 44, right: 0, bottom: 2 },
   badgeFallbackText: { color: colors.gold, fontSize: 34, fontWeight: "900" },
   questFlavorCard: { padding: 14, borderRadius: 20, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
