@@ -6,7 +6,6 @@ import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
-import { challengeAccentStyle } from "@/lib/challenge-accent-style";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
@@ -98,10 +97,7 @@ export default async function ResultPage({
 
       <div className="content-wrap">
         <section className="hero-grid">
-          <article
-            className={isPassed ? "result-poster completion-poster quest-accent-surface" : "result-poster quest-accent-surface"}
-            style={challengeAccentStyle(challenge)}
-          >
+          <article className={isPassed ? "result-poster completion-poster" : "result-poster"}>
             <div className="eyebrow" style={{ color: "#140d0d", background: "rgba(20,13,13,.12)" }}>
               {isPassed ? "Side Quest Chess victory proof" : "Side Quest Chess proof"}
             </div>

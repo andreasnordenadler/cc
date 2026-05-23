@@ -13,7 +13,6 @@ import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
-import { challengeAccentStyle } from "@/lib/challenge-accent-style";
 import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
@@ -127,10 +126,7 @@ export default async function ChallengeDetailPage({
       <div className="content-wrap quest-detail-wrap">
         <Link href="/challenges" className="button secondary back-to-hub">← Back to Side Quest Hub</Link>
 
-        <section
-          className={`hero-card detail-hero quest-detail-hero quest-accent-surface ${isActive ? "active-quest-card" : ""} ${isCompleted ? "completed-quest-card" : ""}`}
-          style={challengeAccentStyle(challenge)}
-        >
+        <section className={`hero-card detail-hero quest-detail-hero ${isActive ? "active-quest-card" : ""} ${isCompleted ? "completed-quest-card" : ""}`}>
           {isActive ? <span className="active-quest-stamp detail-state-stamp" aria-label="Active quest" /> : null}
           {isCompleted ? (
             <div className="completed-quest-award" aria-label={`Quest completed. ${completedDateLabel}.`}>
