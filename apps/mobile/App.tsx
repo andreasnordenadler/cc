@@ -1337,59 +1337,35 @@ function SideQuestsScreen({
   const signedInAccount = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedInAccount ? signedInAccount.completedQuests.map((quest) => quest.id) : []);
   const activeQuestId = signedInAccount?.activeQuest && !signedInAccount.activeQuest.completed ? signedInAccount.activeQuest.id : null;
-  const recommendedStartChallenges = getChallengesByIds(bootstrap, RECOMMENDED_START_CHALLENGE_IDS);
-  const liveStreamerHardQuests = getChallengesByIds(bootstrap, LIVE_STREAMER_HARD_QUEST_IDS);
+  const availableCount = bootstrap.challenges.length;
+  const completedCount = completedIds.size;
 
   return (
     <View style={styles.screenStack}>
-      <View style={styles.sideQuestHubHero}>
+      <View style={styles.soloBrowseHero}>
         <WebsiteGradientGlows />
-        <Text style={styles.sideQuestHubTitle}>Pick your next bad idea.</Text>
-        <Text style={styles.sideQuestHubCopy}>Side Quests is the hub: pick a Solo Side Quest for yourself, or start a Multiplayer Side Quest when the bad idea deserves witnesses.</Text>
+        <View style={styles.soloBrowseHeroRow}>
+          <View style={styles.soloBrowseHeroCopy}>
+            <Text style={styles.eyebrow}>Solo Side Quests</Text>
+            <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
+            <Text style={styles.soloBrowseHeroText}>Pick one Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
+          </View>
+          <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
+        </View>
+        <View style={styles.soloBrowseStatsRow}>
+          <Text style={styles.soloBrowseStat}>{availableCount} available</Text>
+          <Text style={styles.soloBrowseStat}>{completedCount} completed</Text>
+          <Text style={styles.soloBrowseStat}>{activeQuestId ? "1 active" : "none active"}</Text>
+        </View>
       </View>
 
       <SelectedQuestDetailCard challenge={selectedChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />
 
-      <View style={styles.sideQuestModeGrid} accessibilityLabel="Side Quest modes">
-        <View style={styles.sideQuestModeCard}>
-          <Text style={styles.eyebrow}>Solo Side Quests</Text>
-          <Text style={styles.sideQuestModeTitle}>One player. One ridiculous rule. One proof receipt.</Text>
-          <Text style={styles.sideQuestModeCopy}>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</Text>
-          <Text style={styles.modeInlineCue}>Solo Side Quest deck starts below.</Text>
-        </View>
-
-        <View style={[styles.sideQuestModeCard, styles.groupModeCard]}>
-          <Text style={styles.eyebrow}>Multiplayer Side Quests</Text>
-          <Text style={styles.sideQuestModeTitle}>Multiplayer. Same nonsense, now with witnesses.</Text>
-          <Text style={styles.sideQuestModeCopy}>Create or join a Multiplayer Side Quest with shared rules, a proof window, a leaderboard, and multiplayer-valid proof separate from solo progress.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" testID="sidequests-open-multiplayer" style={styles.primaryButton} onPress={() => onSelectTab("multiplayerSideQuests")}>
-            <Text style={styles.primaryButtonText}>Open Multiplayer Side Quests</Text>
-          </Pressable>
-        </View>
+      <View style={styles.soloDeckHeader}>
+        <Text style={styles.sectionTitle}>Solo Side Quest deck</Text>
+        <Text style={styles.sectionBody}>Tap a Coat of Arms to review the rule, then start the Side Quest you want SQC to judge next.</Text>
       </View>
-
-      <QuestFilterPanel />
       <AvailableQuestGrid challenges={bootstrap.challenges} completedIds={completedIds} activeQuestId={activeQuestId} onSelectChallenge={onSelectChallenge} />
-
-      <QuestSection
-        eyebrow="Where to begin"
-        title="Pick by how hard you want to go."
-        body="Not sure where to start? Use one of these: easy, trouble, or full chaos. No separate path, no homework ladder - just choose the level of bad idea you want right now."
-        challenges={recommendedStartChallenges}
-        completedIds={completedIds}
-        activeQuestId={activeQuestId}
-        onSelectChallenge={onSelectChallenge}
-      />
-
-      <QuestSection
-        eyebrow="Streamer-hard lane"
-        title="Brutal is clip-worthy. Absurd is rated-only."
-        body="Brutal quests are deliberately viral but still runnable in casual or rated public games. Absurd quests are the no-excuses ceiling: rated public games only, higher points, and proof that should feel ridiculous enough to screenshot."
-        challenges={liveStreamerHardQuests}
-        completedIds={completedIds}
-        activeQuestId={activeQuestId}
-        onSelectChallenge={onSelectChallenge}
-      />
     </View>
   );
 }
@@ -2605,6 +2581,15 @@ const styles = StyleSheet.create({
   sideQuestHubHero: { overflow: "hidden", gap: 8, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 14, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   sideQuestHubTitle: { color: colors.paper, fontSize: 29, fontWeight: "900", letterSpacing: -0.4, lineHeight: 31 },
   sideQuestHubCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  soloBrowseHero: { overflow: "hidden", gap: 12, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 15, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.065)" },
+  soloBrowseHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  soloBrowseHeroCopy: { flex: 1, gap: 7 },
+  soloBrowseHeroTitle: { color: colors.paper, fontSize: 30, fontWeight: "900", letterSpacing: -1.0, lineHeight: 32 },
+  soloBrowseHeroText: { color: colors.muted, fontSize: 15, lineHeight: 22, fontWeight: "700" },
+  soloBrowseHeroCoat: { width: 86, height: 86 },
+  soloBrowseStatsRow: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
+  soloBrowseStat: { overflow: "hidden", color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.65, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.08)" },
+  soloDeckHeader: { gap: 6, paddingHorizontal: 2 },
   sideQuestModeGrid: { gap: 8 },
   sideQuestModeCard: { gap: 8, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupModeCard: { borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
