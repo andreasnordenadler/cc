@@ -61,7 +61,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Back-rank mate · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-21",
+    releaseDate: "2026-05-28",
   },
   {
     id: "late-castle-lifestyle",
@@ -94,7 +94,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Castled after move 15 · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-28",
+    releaseDate: "2026-06-04",
   },
   {
     id: "rook-lift-internship",
@@ -127,7 +127,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Early rook lift · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-04",
+    releaseDate: "2026-06-11",
   },
   {
     id: "double-check-drama",
