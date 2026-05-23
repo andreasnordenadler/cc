@@ -549,9 +549,7 @@ function TodayDashboard({
         ) : (
           <View style={compactStyles.emptyQuestPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
-              <View style={compactStyles.emptyQuestSigil}>
-                <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
-              </View>
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
                 <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
@@ -590,9 +588,7 @@ function TodayDashboard({
         )) : (
           <View style={compactStyles.emptyMultiplayerPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
-              <View style={compactStyles.emptyMultiplayerSigil}>
-                <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
-              </View>
+              <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle}>No Multiplayer Side Quests joined</Text>
                 <Text style={compactStyles.currentQuestMeta}>Join a shared challenge when you want the same strange chess rule scored against other players. Solo Side Quests stay separate.</Text>
@@ -2381,11 +2377,9 @@ const compactStyles = StyleSheet.create({
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
   emptyQuestPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   emptyQuestHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  emptyQuestSigil: { width: 72, height: 72, borderRadius: 24, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.10)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)", overflow: "hidden" },
-  emptyQuestCoat: { width: 70, height: 70 },
+  emptyQuestCoat: { width: 82, height: 82 },
   emptyMultiplayerPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.072)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
-  emptyMultiplayerSigil: { width: 58, height: 58, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
-  emptyMultiplayerSeal: { width: 40, height: 40, borderRadius: 20 },
+  emptyMultiplayerSeal: { width: 52, height: 52, borderRadius: 26 },
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
