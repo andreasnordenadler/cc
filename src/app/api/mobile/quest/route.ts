@@ -110,6 +110,19 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   } catch (caught) {
+    if (action === "start" && isNextRedirectError(caught)) {
+      const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
+
+      return NextResponse.json({
+        apiVersion: 1,
+        authenticated: true,
+        ok: true,
+        action,
+        challengeId,
+        message: "Quest started. Account state is ready to refresh.",
+      });
+    }
+
     const message = caught instanceof Error ? caught.message : "Mobile quest action failed.";
     const status = message.toLowerCase().includes("signed in") ? 401 : 400;
 
@@ -124,4 +137,9 @@ export async function POST(request: Request) {
       { status },
     );
   }
+}
+
+function isNextRedirectError(caught: unknown) {
+  if (!(caught instanceof Error)) return false;
+  return caught.message === "NEXT_REDIRECT" || "digest" in caught && String((caught as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT");
 }
