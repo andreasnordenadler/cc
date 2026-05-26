@@ -110,17 +110,24 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   } catch (caught) {
-    if (action === "start" && isNextRedirectError(caught)) {
+    if (isNextRedirectError(caught)) {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
+      const messages: Record<string, string> = {
+        start: "Quest started. Account state is ready to refresh.",
+        submit: "Game proof submitted. Account state is ready to refresh.",
+        reset: "Completed quest reset. You can run it again.",
+      };
 
-      return NextResponse.json({
-        apiVersion: 1,
-        authenticated: true,
-        ok: true,
-        action,
-        challengeId,
-        message: "Quest started. Account state is ready to refresh.",
-      });
+      if (action in messages) {
+        return NextResponse.json({
+          apiVersion: 1,
+          authenticated: true,
+          ok: true,
+          action,
+          challengeId,
+          message: messages[action],
+        });
+      }
     }
 
     const message = caught instanceof Error ? caught.message : "Mobile quest action failed.";
@@ -140,6 +147,10 @@ export async function POST(request: Request) {
 }
 
 function isNextRedirectError(caught: unknown) {
-  if (!(caught instanceof Error)) return false;
-  return caught.message === "NEXT_REDIRECT" || "digest" in caught && String((caught as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT");
+  if (caught instanceof Error && caught.message === "NEXT_REDIRECT") return true;
+  if (caught && typeof caught === "object" && "digest" in caught) {
+    return String((caught as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT");
+  }
+
+  return false;
 }
