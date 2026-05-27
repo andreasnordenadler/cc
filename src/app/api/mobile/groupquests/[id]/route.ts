@@ -292,7 +292,8 @@ function patchMobileGroupQuest(current: ServerGroupQuest, payload: Record<string
       : current.questIds,
     providerMode,
     providerLabel: providerLabelFor(providerMode),
-    endAt: typeof payload.durationDays === "number" ? defaultEndAt(payload.durationDays) : normalizeDateTimeValue(payload.endAt) ?? current.endAt,
+    startAt: normalizeDateTimeValue(payload.startAt) ?? current.startAt,
+    endAt: normalizeDateTimeValue(payload.endAt) ?? (typeof payload.durationDays === "number" ? defaultEndAt(payload.durationDays) : current.endAt),
     rules: normalizeRules(payload.rules, current.rules),
   };
 }

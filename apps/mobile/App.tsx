@@ -1128,7 +1128,8 @@ function JoinedMultiplayerQuestModal({
   const [adminInviteCopy, setAdminInviteCopy] = useState(quest?.inviteCopy ?? MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [adminInviteMode, setAdminInviteMode] = useState<"public" | "private-key">(quest?.inviteMode === "private-key" ? "private-key" : "public");
   const [adminProviderMode, setAdminProviderMode] = useState<"both" | "lichess" | "chesscom">(quest?.providerMode ?? "both");
-  const [adminDurationDays, setAdminDurationDays] = useState(7);
+  const [adminStartAt, setAdminStartAt] = useState(formatGroupQuestDateInput(quest?.startAt));
+  const [adminEndAt, setAdminEndAt] = useState(formatGroupQuestDateInput(quest?.endAt));
   const [adminRules, setAdminRules] = useState<Record<string, string>>(quest?.rules ?? { timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [adminQuestIds, setAdminQuestIds] = useState<string[]>(quest?.questIds ?? []);
 
@@ -1177,7 +1178,8 @@ function JoinedMultiplayerQuestModal({
       inviteMode: adminInviteMode,
       questIds: adminQuestIds.length ? adminQuestIds : (quest?.questIds ?? []),
       providerMode: adminProviderMode,
-      durationDays: adminDurationDays,
+      startAt: adminStartAt,
+      endAt: adminEndAt,
       rules: adminRules,
     });
   }
@@ -1350,12 +1352,8 @@ function JoinedMultiplayerQuestModal({
               <Text style={compactStyles.multiplayerCardEyebrow}>Owner settings</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Simple room controls.</Text>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Starts</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{formatGroupQuestDate(quest.startAt)}</Text>
-              </View>
-              <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Ends</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{formatGroupQuestDate(quest.endAt)}</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Current window</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{formatGroupQuestDate(quest.startAt)} → {formatGroupQuestDate(quest.endAt)}</Text>
               </View>
               {adminInviteMode === "private-key" ? (
                 <View style={compactStyles.multiplayerRuleRow}>
@@ -1386,14 +1384,11 @@ function JoinedMultiplayerQuestModal({
                   </Pressable>
                 ))}
               </View>
+              <Text style={styles.inputLabel}>Start date</Text>
+              <TextInput value={adminStartAt} placeholder="2026-05-27 18:00" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminStartAt} />
               <Text style={styles.inputLabel}>End date</Text>
-              <View style={styles.buttonRow}>
-                {[3, 7, 14, 30].map((days) => (
-                  <Pressable key={days} accessibilityRole="button" style={adminDurationDays === days ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminDurationDays(days)}>
-                    <Text style={adminDurationDays === days ? styles.primaryButtonText : styles.secondaryButtonText}>{days}d from now</Text>
-                  </Pressable>
-                ))}
-              </View>
+              <TextInput value={adminEndAt} placeholder="2026-06-03 18:00" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminEndAt} />
+              <Text style={styles.microcopy}>Use local time, for example 2026-06-03 18:00.</Text>
               <Text style={styles.inputLabel}>Included Side Quests</Text>
               <View style={compactStyles.appRows}>
                 {challenges.slice(0, 8).map((challenge) => (
@@ -1958,6 +1953,14 @@ function formatGroupQuestDate(value?: string | null) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
+}
+
+function formatGroupQuestDateInput(value?: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const pad = (input: number) => String(input).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function getLeaderboardProgressPercent(verified: string) {
