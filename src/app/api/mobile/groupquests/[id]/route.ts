@@ -121,7 +121,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const updatedQuest = patchMobileGroupQuest(found.groupQuest, payload ?? {});
-    await saveHostQuest(client, found.userId, updatedQuest);
+    const saveError = await saveHostQuestSafely(client, found.userId, updatedQuest);
+    if (saveError) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: saveError },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       apiVersion: 1,
@@ -152,7 +158,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const updatedQuest = removeParticipantFromGroupQuest(found.groupQuest, participantUserId);
-    await saveHostQuest(client, found.userId, updatedQuest);
+    const saveError = await saveHostQuestSafely(client, found.userId, updatedQuest);
+    if (saveError) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: saveError },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       apiVersion: 1,
@@ -182,7 +194,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const joined = joinGroupQuest(found.groupQuest, participant);
-    await saveHostQuest(client, found.userId, joined);
+    const saveError = await saveHostQuestSafely(client, found.userId, joined);
+    if (saveError) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: saveError },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       apiVersion: 1,
@@ -205,7 +223,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const updatedQuest = removeParticipantFromGroupQuest(found.groupQuest, userId);
-    await saveHostQuest(client, found.userId, updatedQuest);
+    const saveError = await saveHostQuestSafely(client, found.userId, updatedQuest);
+    if (saveError) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: saveError },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       apiVersion: 1,
@@ -254,7 +278,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     lastProofAt: new Date().toISOString(),
   });
 
-  await saveHostQuest(client, found.userId, refreshedQuest);
+  const saveError = await saveHostQuestSafely(client, found.userId, refreshedQuest);
+  if (saveError) {
+    return NextResponse.json(
+      { apiVersion: 1, authenticated: true, ok: false, message: saveError },
+      { status: 500 },
+    );
+  }
   if (completedQuestIds.length) {
     await mergeMobileMultiplayerCompletions(client, userId, metadata, participant, checks);
   }
@@ -404,6 +434,20 @@ async function saveHostQuest(
       sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, groupQuest),
     },
   });
+}
+
+async function saveHostQuestSafely(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  hostUserId: string,
+  groupQuest: ServerGroupQuest,
+) {
+  try {
+    await saveHostQuest(client, hostUserId, groupQuest);
+    return null;
+  } catch (error) {
+    console.error("mobile_groupquest_save_failed", error);
+    return "Could not save Multiplayer Side Quest settings. I compacted the room data; try again once more.";
+  }
 }
 
 function defaultEndAt(value: unknown) {

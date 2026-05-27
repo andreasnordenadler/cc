@@ -43,9 +43,10 @@ export type GroupQuestHostRecord = {
   groupQuest: ServerGroupQuest;
 };
 
-const MAX_HOST_QUESTS = 8;
+const MAX_HOST_QUESTS = 4;
 const MAX_PARTICIPANTS = 80;
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
+const defaultRules = { timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
 
 export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
   if (!metadata || typeof metadata !== "object") return [];
@@ -234,32 +235,35 @@ export function buildParticipant(input: {
 
 
 function compactGroupQuestForStorage(groupQuest: ServerGroupQuest) {
+  const providerMode = groupQuest.providerMode === "lichess" || groupQuest.providerMode === "chesscom" ? groupQuest.providerMode : "both";
+  const rules = normalizeRules(groupQuest.rules);
+  const hasCustomRules = rules.timeControl !== defaultRules.timeControl || rules.rated !== defaultRules.rated || rules.color !== defaultRules.color;
   return {
     id: groupQuest.id,
     hostUserId: groupQuest.hostUserId,
     hostName: groupQuest.hostName,
     name: groupQuest.name,
-    inviteCopy: groupQuest.inviteCopy,
+    ...(groupQuest.inviteCopy && groupQuest.inviteCopy !== defaultInviteCopy ? { inviteCopy: groupQuest.inviteCopy } : {}),
     inviteMode: groupQuest.inviteMode,
     ...(groupQuest.inviteMode === "private-key" && groupQuest.inviteKey ? { inviteKey: groupQuest.inviteKey } : {}),
     questIds: groupQuest.questIds.slice(0, 8),
-    providerMode: groupQuest.providerMode,
-    providerLabel: groupQuest.providerLabel,
-    rules: groupQuest.rules,
+    providerMode,
+    ...(providerMode !== "both" ? { providerLabel: providerLabelFor(providerMode) } : {}),
+    ...(hasCustomRules ? { rules } : {}),
     ...(groupQuest.official ? { official: true, officialLabel: groupQuest.officialLabel } : {}),
     startAt: groupQuest.startAt,
     endAt: groupQuest.endAt,
     createdAt: groupQuest.createdAt,
-    participants: groupQuest.participants.map((participant) => ({
+    participants: groupQuest.participants.slice(0, MAX_PARTICIPANTS).map((participant) => ({
       userId: participant.userId,
       provider: participant.provider,
       username: participant.username,
       leaderboardName: participant.leaderboardName,
       joinedAt: participant.joinedAt,
       ...(participant.score ? { score: participant.score } : {}),
-      ...(participant.completedQuestIds?.length ? { completedQuestIds: participant.completedQuestIds } : {}),
+      ...(participant.completedQuestIds?.length ? { completedQuestIds: participant.completedQuestIds.slice(0, 8) } : {}),
       ...(participant.questFinishedAt && Object.keys(participant.questFinishedAt).length ? { questFinishedAt: participant.questFinishedAt } : {}),
-      ...(participant.lastProofSummary ? { lastProofSummary: participant.lastProofSummary.slice(0, 180) } : {}),
+      ...(participant.lastProofSummary ? { lastProofSummary: participant.lastProofSummary.slice(0, 120) } : {}),
       ...(participant.lastProofAt ? { lastProofAt: participant.lastProofAt } : {}),
     })),
   };
@@ -349,13 +353,12 @@ function providerLabelFor(value: unknown) {
 }
 
 function normalizeRules(value: unknown): Record<string, string> {
-  const fallback = { timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
-  if (!value || typeof value !== "object") return fallback;
+  if (!value || typeof value !== "object") return defaultRules;
   const record = value as Record<string, unknown>;
   return {
-    timeControl: cleanText(record.timeControl, 60) ?? fallback.timeControl,
-    rated: cleanText(record.rated, 60) ?? fallback.rated,
-    color: cleanText(record.color, 60) ?? fallback.color,
+    timeControl: cleanText(record.timeControl, 60) ?? defaultRules.timeControl,
+    rated: cleanText(record.rated, 60) ?? defaultRules.rated,
+    color: cleanText(record.color, 60) ?? defaultRules.color,
   };
 }
 
