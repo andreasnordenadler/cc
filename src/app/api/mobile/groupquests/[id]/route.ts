@@ -40,7 +40,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const payload = await request.json().catch(() => null) as Record<string, unknown> | null;
   const action = payload?.action;
 
-  if (action !== "join" && action !== "leave" && action !== "refresh" && action !== "create") {
+  if (action !== "join" && action !== "leave" && action !== "refresh" && action !== "create" && action !== "update" && action !== "remove-participant") {
     return NextResponse.json(
       { apiVersion: 1, authenticated: true, ok: false, message: "Choose a valid Multiplayer Side Quest action." },
       { status: 400 },
@@ -110,6 +110,59 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       { apiVersion: 1, authenticated: true, ok: false, message: "Multiplayer Side Quest not found. Check the invite key or try another quest." },
       { status: 404 },
     );
+  }
+
+  if (action === "update") {
+    if (found.groupQuest.hostUserId !== userId) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: "Only the owner can change Multiplayer Side Quest settings." },
+        { status: 403 },
+      );
+    }
+
+    const updatedQuest = patchMobileGroupQuest(found.groupQuest, payload ?? {});
+    await saveHostQuest(client, found.userId, updatedQuest);
+
+    return NextResponse.json({
+      apiVersion: 1,
+      authenticated: true,
+      ok: true,
+      action,
+      groupQuestId: found.groupQuest.id,
+      href: `/groupquests/${found.groupQuest.id}`,
+      inviteKey: updatedQuest.inviteMode === "private-key" ? updatedQuest.inviteKey ?? null : null,
+      message: "Multiplayer Side Quest settings saved.",
+    });
+  }
+
+  if (action === "remove-participant") {
+    if (found.groupQuest.hostUserId !== userId) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: "Only the owner can remove players from this Multiplayer Side Quest." },
+        { status: 403 },
+      );
+    }
+
+    const participantUserId = typeof payload?.participantUserId === "string" ? payload.participantUserId : "";
+    if (!participantUserId || participantUserId === userId) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: "Choose another player to remove." },
+        { status: 400 },
+      );
+    }
+
+    const updatedQuest = removeParticipantFromGroupQuest(found.groupQuest, participantUserId);
+    await saveHostQuest(client, found.userId, updatedQuest);
+
+    return NextResponse.json({
+      apiVersion: 1,
+      authenticated: true,
+      ok: true,
+      action,
+      groupQuestId: found.groupQuest.id,
+      href: `/groupquests/${found.groupQuest.id}`,
+      message: "Player removed from Multiplayer Side Quest.",
+    });
   }
 
   if (action === "join") {
@@ -222,6 +275,55 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     })),
     message: `${completedQuestIds.length} of ${found.groupQuest.questIds.length} Multiplayer Side Quest checks verified.`,
   });
+}
+
+
+function patchMobileGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>): ServerGroupQuest {
+  const providerMode = normalizeProviderMode(payload.providerMode);
+  const inviteMode = payload.inviteMode === "private-key" ? "private-key" : payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public";
+  return {
+    ...current,
+    name: cleanText(payload.name, 64) ?? current.name,
+    inviteCopy: cleanText(payload.inviteCopy, 280) ?? current.inviteCopy,
+    inviteMode,
+    inviteKey: inviteMode === "private-key" ? cleanInviteKey(payload.inviteKey) ?? current.inviteKey : current.inviteKey,
+    questIds: Array.isArray(payload.questIds)
+      ? payload.questIds.filter((questId): questId is string => typeof questId === "string" && questId.length > 0).slice(0, 8)
+      : current.questIds,
+    providerMode,
+    providerLabel: providerLabelFor(providerMode),
+    endAt: typeof payload.durationDays === "number" ? defaultEndAt(payload.durationDays) : normalizeDateTimeValue(payload.endAt) ?? current.endAt,
+    rules: normalizeRules(payload.rules, current.rules),
+  };
+}
+
+function normalizeProviderMode(value: unknown): ServerGroupQuest["providerMode"] {
+  if (value === "lichess" || value === "chesscom") return value;
+  return "both";
+}
+
+function normalizeDateTimeValue(value: unknown) {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const parsed = new Date(trimmed);
+  return Number.isNaN(parsed.getTime()) ? trimmed.slice(0, 40) : parsed.toISOString();
+}
+
+function normalizeRules(value: unknown, fallback: Record<string, string>) {
+  if (!value || typeof value !== "object") return fallback;
+  const record = value as Record<string, unknown>;
+  return {
+    timeControl: cleanText(record.timeControl, 60) ?? fallback.timeControl ?? "Any time control",
+    rated: cleanText(record.rated, 60) ?? fallback.rated ?? "Any rated state",
+    color: cleanText(record.color, 60) ?? fallback.color ?? "Any color",
+  };
+}
+
+function cleanText(value: unknown, maxLength: number) {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim().slice(0, maxLength);
+  return trimmed || undefined;
 }
 
 async function mergeMobileMultiplayerCompletions(

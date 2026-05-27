@@ -54,6 +54,49 @@ export type MobileBootstrap = {
   challenges: MobileChallenge[];
 };
 
+
+export type MobileGroupQuestParticipantRow = {
+  userId?: string;
+  rank: string;
+  name: string;
+  provider: string;
+  points: string;
+  verified: string;
+  note: string;
+  removable?: boolean;
+};
+
+export type MobileGroupQuestSummary = {
+  id: string;
+  title: string;
+  status: string;
+  copy: string;
+  href: string;
+  playersLabel?: string;
+  timeLeftLabel?: string;
+  positionLabel?: string;
+  pointsLabel?: string;
+  verifiedLabel?: string;
+  official?: boolean;
+  private?: boolean;
+  isOwner?: boolean;
+  joinState?: "Join" | "Joined";
+  hostName?: string;
+  inviteMode?: "public" | "unlisted-link" | "private-key";
+  inviteKey?: string | null;
+  inviteCopy?: string;
+  providerMode?: "both" | "lichess" | "chesscom";
+  providerLabel?: string;
+  startAt?: string;
+  endAt?: string;
+  rules?: Record<string, string>;
+  questIds?: string[];
+  questTitles?: string[];
+  completedQuestTitles?: string[];
+  ruleRows?: Array<{ label: string; value: string }>;
+  leaderboardRows?: MobileGroupQuestParticipantRow[];
+};
+
 export type MobileAccountState = {
   apiVersion: number;
   authenticated: true;
@@ -88,84 +131,9 @@ export type MobileAccountState = {
     proofHref: string | null;
     badgeImageUrl: string | null;
   } | null;
-  activeGroupQuests: Array<{
-    id: string;
-    title: string;
-    status: string;
-    copy: string;
-    href: string;
-    playersLabel?: string;
-    timeLeftLabel?: string;
-    positionLabel?: string;
-    pointsLabel?: string;
-    verifiedLabel?: string;
-    official?: boolean;
-    questIds?: string[];
-    questTitles?: string[];
-    completedQuestTitles?: string[];
-    ruleRows?: Array<{ label: string; value: string }>;
-    leaderboardRows?: Array<{
-      rank: string;
-      name: string;
-      provider: string;
-      points: string;
-      verified: string;
-      note: string;
-    }>;
-  }>;
-  publicUserGroupQuests?: Array<{
-    id: string;
-    title: string;
-    status: string;
-    copy: string;
-    href: string;
-    playersLabel?: string;
-    timeLeftLabel?: string;
-    positionLabel?: string;
-    joinState?: "Join" | "Joined";
-    pointsLabel?: string;
-    verifiedLabel?: string;
-    official?: boolean;
-    private?: boolean;
-    questIds?: string[];
-    questTitles?: string[];
-    completedQuestTitles?: string[];
-    ruleRows?: Array<{ label: string; value: string }>;
-    leaderboardRows?: Array<{
-      rank: string;
-      name: string;
-      provider: string;
-      points: string;
-      verified: string;
-      note: string;
-    }>;
-  }>;
-  officialPublicGroupQuests?: Array<{
-    id: string;
-    title: string;
-    status: string;
-    copy: string;
-    href: string;
-    playersLabel?: string;
-    timeLeftLabel?: string;
-    positionLabel?: string;
-    joinState?: "Join" | "Joined";
-    pointsLabel?: string;
-    verifiedLabel?: string;
-    official?: boolean;
-    questIds?: string[];
-    questTitles?: string[];
-    completedQuestTitles?: string[];
-    ruleRows?: Array<{ label: string; value: string }>;
-    leaderboardRows?: Array<{
-      rank: string;
-      name: string;
-      provider: string;
-      points: string;
-      verified: string;
-      note: string;
-    }>;
-  }>;
+  activeGroupQuests: MobileGroupQuestSummary[];
+  publicUserGroupQuests?: MobileGroupQuestSummary[];
+  officialPublicGroupQuests?: MobileGroupQuestSummary[];
   completedQuests: Array<{
     id: string;
     title: string;
@@ -236,7 +204,7 @@ export type MobileGroupQuestActionResponse = {
   apiVersion: number;
   authenticated: boolean;
   ok?: boolean;
-  action?: "join" | "leave" | "refresh" | "create";
+  action?: "join" | "leave" | "refresh" | "create" | "update" | "remove-participant";
   groupQuestId?: string;
   message: string;
   href?: string;

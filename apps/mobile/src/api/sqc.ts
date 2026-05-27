@@ -119,7 +119,7 @@ export async function runMobileGroupQuestAction({
 }: {
   sessionToken?: string | null;
   groupQuestId: string;
-  action: "join" | "leave" | "refresh" | "create";
+  action: "join" | "leave" | "refresh" | "create" | "update" | "remove-participant";
   payload?: Record<string, unknown>;
 }): Promise<MobileGroupQuestActionResponse> {
   const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/groupquests/${groupQuestId}`, {
