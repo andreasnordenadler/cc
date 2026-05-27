@@ -1,4 +1,4 @@
-export type GroupQuestInviteMode = "public" | "unlisted-link";
+export type GroupQuestInviteMode = "public" | "unlisted-link" | "private-key";
 export type GroupQuestProviderMode = "both" | "lichess" | "chesscom";
 export type GroupQuestJoinProvider = "lichess" | "chesscom";
 
@@ -25,6 +25,7 @@ export type ServerGroupQuest = {
   name: string;
   inviteCopy: string;
   inviteMode: GroupQuestInviteMode;
+  inviteKey?: string;
   questIds: string[];
   providerMode: GroupQuestProviderMode;
   providerLabel: string;
@@ -69,6 +70,7 @@ export function buildGroupQuest(input: {
   name?: unknown;
   inviteCopy?: unknown;
   inviteMode?: unknown;
+  inviteKey?: unknown;
   questIds?: unknown;
   providerMode?: unknown;
   providerLabel?: unknown;
@@ -89,6 +91,7 @@ export function buildGroupQuest(input: {
     name,
     inviteCopy: cleanText(input.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(input.inviteMode),
+    inviteKey: cleanInviteKey(input.inviteKey) ?? makeInviteKey(name),
     questIds: questIds.length ? questIds : ["knights-before-coffee"],
     providerMode: normalizeProviderMode(input.providerMode),
     providerLabel: cleanText(input.providerLabel, 80) ?? providerLabelFor(input.providerMode),
@@ -111,6 +114,26 @@ export async function findGroupQuestById(
     for (const user of users.data) {
       const quests = getStoredGroupQuests(user.privateMetadata);
       const groupQuest = quests.find((quest) => quest.id === id);
+      if (groupQuest) return { userId: user.id, groupQuest };
+    }
+    if (users.data.length < 100) return null;
+    offset += users.data.length;
+  }
+}
+
+export async function findGroupQuestByInviteKey(
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  inviteKey: string,
+): Promise<GroupQuestHostRecord | null> {
+  const normalizedKey = cleanInviteKey(inviteKey);
+  if (!normalizedKey) return null;
+
+  let offset = 0;
+  while (true) {
+    const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
+    for (const user of users.data) {
+      const quests = getStoredGroupQuests(user.privateMetadata);
+      const groupQuest = quests.find((quest) => cleanInviteKey(quest.inviteKey) === normalizedKey);
       if (groupQuest) return { userId: user.id, groupQuest };
     }
     if (users.data.length < 100) return null;
@@ -223,6 +246,7 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
     name,
     inviteCopy: cleanText(record.inviteCopy, 280) ?? defaultInviteCopy,
     inviteMode: normalizeInviteMode(record.inviteMode),
+    inviteKey: cleanInviteKey(record.inviteKey),
     questIds: Array.isArray(record.questIds) ? record.questIds.filter((entry): entry is string => typeof entry === "string") : ["knights-before-coffee"],
     providerMode: normalizeProviderMode(record.providerMode),
     providerLabel: cleanText(record.providerLabel, 80) ?? providerLabelFor(record.providerMode),
@@ -266,8 +290,18 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
 }
 
 function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
+  if (value === "private-key") return value;
   if (value === "unlisted-link") return value;
   return "public";
+}
+
+function makeInviteKey(name: string) {
+  const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "sqc";
+  return `${safe}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function cleanInviteKey(value: unknown) {
+  return cleanText(value, 40)?.toLowerCase().replace(/[^a-z0-9-]/g, "") || undefined;
 }
 
 function normalizeProviderMode(value: unknown): GroupQuestProviderMode {

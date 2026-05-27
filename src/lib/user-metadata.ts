@@ -148,15 +148,22 @@ export function getLatestChallengeAttempt(
   return getChallengeAttempts(metadata, challengeId).at(-1) ?? null;
 }
 
+export function buildChallengeProgressRecord(completedChallengeIds: string[]): ChallengeProgress {
+  return {
+    completedChallengeIds,
+    totalCompletedChallenges: completedChallengeIds.length,
+    totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
+      const challenge = CHALLENGES.find((item) => item.id === id);
+      return sum + (challenge?.reward ?? 0);
+    }, 0),
+  };
+}
+
 export function getChallengeProgress(metadata: UserMetadataRecord): ChallengeProgress {
   const raw = metadata.challengeProgress;
 
   if (!raw || typeof raw !== "object") {
-    return {
-      completedChallengeIds: [],
-      totalCompletedChallenges: 0,
-      totalRewardPoints: 0,
-    };
+    return buildChallengeProgressRecord([]);
   }
 
   const record = raw as Record<string, unknown>;
@@ -178,6 +185,33 @@ export function getChallengeProgress(metadata: UserMetadataRecord): ChallengePro
             return sum + (challenge?.reward ?? 0);
           }, 0),
   };
+}
+
+export function compactChallengeAttempts(attempts: ChallengeAttempt[], maxRecentAttempts = 8): ChallengeAttempt[] {
+  const compacted = attempts.map((attempt) => ({
+    ...attempt,
+    summary: attempt.summary ? attempt.summary.slice(0, 220) : attempt.summary,
+  }));
+  const latestPassedByChallenge = new Map<string, ChallengeAttempt>();
+
+  for (const attempt of compacted) {
+    const challengeId = attempt.challengeId ?? attempt.id?.split(":")[0];
+
+    if (attempt.status === "passed" && challengeId) {
+      latestPassedByChallenge.set(challengeId, attempt);
+    }
+  }
+
+  const keepKeys = new Set(
+    [
+      ...compacted.slice(-maxRecentAttempts),
+      ...latestPassedByChallenge.values(),
+    ].map((attempt) => attempt.id ?? `${attempt.challengeId}:${attempt.provider}:${attempt.checkedAt}:${attempt.gameId}`),
+  );
+
+  return compacted.filter((attempt) =>
+    keepKeys.has(attempt.id ?? `${attempt.challengeId}:${attempt.provider}:${attempt.checkedAt}:${attempt.gameId}`),
+  );
 }
 
 export function challengeBanner(challenge: ActiveChallenge | null): string {

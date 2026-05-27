@@ -37,7 +37,8 @@ function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unkn
     ...current,
     name: cleanText(payload.name, 64) ?? current.name,
     inviteCopy: cleanText(payload.inviteCopy, 280) ?? current.inviteCopy,
-    inviteMode: payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public",
+    inviteMode: payload.inviteMode === "private-key" ? "private-key" : payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public",
+    inviteKey: cleanText(payload.inviteKey, 40) ?? current.inviteKey,
     questIds: Array.isArray(payload.questIds)
       ? payload.questIds.filter((id): id is string => typeof id === "string" && id.length > 0).slice(0, 8)
       : current.questIds,

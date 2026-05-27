@@ -1,4 +1,10 @@
-import type { MobileAccountResponse, MobileBootstrap, MobileProfileUpdateResponse, MobileQuestActionResponse } from "../types/sqc";
+import type {
+  MobileAccountResponse,
+  MobileBootstrap,
+  MobileGroupQuestActionResponse,
+  MobileProfileUpdateResponse,
+  MobileQuestActionResponse,
+} from "../types/sqc";
 
 const DEFAULT_API_BASE_URL = "https://sidequestchess.com";
 const DEFAULT_REQUEST_TIMEOUT_MS = 12000;
@@ -38,7 +44,7 @@ export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
     throw new Error(`SQC mobile bootstrap failed: ${response.status}`);
   }
 
-  return response.json() as Promise<MobileBootstrap>;
+  return readMobileJson<MobileBootstrap>(response, "bootstrap");
 }
 
 export async function fetchMobileAccountState(sessionToken?: string | null): Promise<MobileAccountResponse> {
@@ -47,14 +53,14 @@ export async function fetchMobileAccountState(sessionToken?: string | null): Pro
   });
 
   if (response.status === 401) {
-    return response.json() as Promise<MobileAccountResponse>;
+    return readMobileJson<MobileAccountResponse>(response, "account");
   }
 
   if (!response.ok) {
     throw new Error(`SQC mobile account failed: ${response.status}`);
   }
 
-  return response.json() as Promise<MobileAccountResponse>;
+  return readMobileJson<MobileAccountResponse>(response, "account");
 }
 
 export async function updateMobileChessUsernames({
@@ -71,7 +77,7 @@ export async function updateMobileChessUsernames({
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ lichessUsername, chessComUsername }),
   });
-  const payload = await response.json() as MobileProfileUpdateResponse;
+  const payload = await readMobileJson<MobileProfileUpdateResponse>(response, "profile update");
 
   if (!response.ok) {
     throw new Error(payload.message || `SQC mobile profile update failed: ${response.status}`);
@@ -96,13 +102,50 @@ export async function runMobileQuestAction({
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ action, challengeId, gameId }),
   }, 20000);
-  const payload = await response.json() as MobileQuestActionResponse;
+  const payload = await readMobileJson<MobileQuestActionResponse>(response, "quest action");
 
   if (!response.ok) {
     throw new Error(payload.message || `SQC mobile quest action failed: ${response.status}`);
   }
 
   return payload;
+}
+
+export async function runMobileGroupQuestAction({
+  sessionToken,
+  groupQuestId,
+  action,
+  payload,
+}: {
+  sessionToken?: string | null;
+  groupQuestId: string;
+  action: "join" | "leave" | "refresh" | "create";
+  payload?: Record<string, unknown>;
+}): Promise<MobileGroupQuestActionResponse> {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/groupquests/${groupQuestId}`, {
+    method: "POST",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ action, ...(payload ?? {}) }),
+  }, 20000);
+  const result = await readMobileJson<MobileGroupQuestActionResponse>(response, "multiplayer action");
+
+  if (!response.ok) {
+    throw new Error(result.message || `SQC mobile multiplayer action failed: ${response.status}`);
+  }
+
+  return result;
+}
+
+async function readMobileJson<T>(response: Response, label: string): Promise<T> {
+  const contentType = response.headers.get("content-type") ?? "";
+
+  if (!contentType.includes("application/json")) {
+    const text = await response.text().catch(() => "");
+    const htmlTitle = text.match(/<title>(.*?)<\/title>/i)?.[1]?.trim();
+    throw new Error(htmlTitle ? `${label} returned ${response.status}: ${htmlTitle}` : `${label} returned ${response.status} instead of JSON.`);
+  }
+
+  return response.json() as Promise<T>;
 }
 
 function buildMobileAuthHeaders(sessionToken?: string | null): Record<string, string> {

@@ -8,6 +8,58 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [ ] Implement native SQC Mobile multiplayer creation/join/leave/status end-to-end.
+  - added_at: 2026-05-27 08:47 Europe/Stockholm
+  - source: Andreas requested native app multiplayer functionality matching SQC website behavior, without sending users outside the app.
+  - scope: official SQC Multiplayer Side Quests (max three running weekly), user-created public/private Multiplayer Side Quests, native create/join/leave/status/proof flows, invite/key flow for private quests, backend/mobile API support where web APIs are insufficient, and UI matching the current mobile design language.
+  - acceptance: signed-in mobile users can browse official/public multiplayer quests, create public/private multiplayer quests, join via list or key/invite, leave when allowed, see joined/status/progress/proof state, refresh/check progress in-app, and never need the website for the multiplayer lifecycle.
+  - implementation_status: source implementation complete locally; production deploy/APK build still pending.
+  - proof: preserved dirty baseline in `state/backups/sqc-mobile-multiplayer-baseline-20260527-084808.{txt,patch}`; added native mobile create/join/leave/refresh endpoint `src/app/api/mobile/groupquests/[id]/route.ts`; added app UI for official rooms, public community rooms, private invite-key join, and native create flow; added private-key support in `src/lib/groupquests.ts`; `pnpm lint -- 'src/lib/groupquests.ts' 'src/app/api/groupquests/[id]/route.ts' 'src/app/api/mobile/account/route.ts' 'src/app/api/mobile/groupquests/[id]/route.ts' 'apps/mobile/App.tsx' 'apps/mobile/src/api/sqc.ts' 'apps/mobile/src/types/sqc.ts'` passed; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm build` passed; local unauth API smokes returned expected JSON; doc: `docs/SQC_MOBILE_NATIVE_MULTIPLAYER_IMPLEMENTATION_2026-05-27.md`. Android release assembly passed after exporting the known Mac mini `JAVA_HOME`/`ANDROID_HOME` paths.
+
+- [x] Fix SQC mobile Google sign-in returning to sign-in page.
+  - added_at: 2026-05-26 08:29 Europe/Stockholm
+  - completed_at: 2026-05-26 08:42 Europe/Stockholm
+  - source: Andreas reported the Android app reaches Google sign-in but returns only to the sign-in page instead of activating the mobile session.
+  - scope: restore Clerk Expo OAuth redirect handling, rebuild APK, publish download link, and verify the APK is live.
+  - acceptance: Google sign-in returns into the app with a Clerk session active, APK builds locally, and public download URL returns 200.
+  - proof: restored Clerk Expo `AuthSession.makeRedirectUri({ scheme: "sidequestchess", path: "sso-callback" })`; updated Android manifest callback host to `sso-callback`; built local release APK version `0.1.35`/versionCode `36`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with only 3 existing warnings; Gradle `assembleRelease` passed; APK signature and manifest callback verified; emulator deep-link smoke `sidequestchess://sso-callback?smoke=1` launched `com.sidequestchess.app/.MainActivity`.
+
+- [x] Design a proper SQC completion celebration system for detected Side Quest wins.
+  - added_at: 2026-05-25 23:33 Europe/Stockholm
+  - completed_at: 2026-05-25 23:35 Europe/Stockholm
+  - source: Andreas requested a plan for stronger completion celebrations, potentially with animation, sound, vibration, and quest-specific celebration variants.
+  - scope: define mobile-first celebration architecture for detected completions, including core celebration layers, quest-family variation rules, accessibility controls, trigger timing, and proof/share integration.
+  - proof: spec written in `cc/docs/SQC_MOBILE_COMPLETION_CELEBRATION_SPEC_2026-05-25.md` covering universal celebration flow, 5 celebration families, solo/multiplayer trigger rules, sound/haptic/reduced-motion controls, and phased rollout.
+
+- [x] Implement SQC mobile Phase 1 completion celebration overlay.
+  - added_at: 2026-05-25 23:35 Europe/Stockholm
+  - completed_at: 2026-05-26 07:54 Europe/Stockholm
+  - source: Approved follow-up to the completion celebration spec.
+  - scope: mobile app only; add new-completion detection, universal celebration overlay, coat reveal, seal hit, particle burst, proof/share/action row, and basic sound/haptic/reduced-motion support for solo + multiplayer completions.
+  - acceptance: newly completed quest triggers celebration exactly once per unlock event, reopening completed quests does not replay it, multiplayer messaging mentions solo completion recording too, and Android build/typecheck pass.
+  - proof: implementation added in `apps/mobile/App.tsx`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with 3 pre-existing warnings; local Android release build passed via Gradle using the known local JDK/SDK env; APK copied to `public/downloads/sqc-mobile-android-completion-celebration-v17-2026-05-26.apk`.
+
+- [x] Replace the mobile signed-out intro copy with clearer product language.
+  - added_at: 2026-05-25 23:30 Europe/Stockholm
+  - completed_at: 2026-05-25 23:31 Europe/Stockholm
+  - source: Andreas provided exact replacement copy for the signed-out mobile intro message.
+  - scope: mobile app only; replace the `Save your...` intro text with clearer solo/multiplayer + proof explanation.
+  - proof: `apps/mobile/App.tsx` updated with Andreas's exact copy; `pnpm --filter @sidequestchess/mobile typecheck` passed.
+
+- [x] Return to the start screen after starting a solo Side Quest from the browse/detail flow.
+  - added_at: 2026-05-25 23:26 Europe/Stockholm
+  - completed_at: 2026-05-25 23:28 Europe/Stockholm
+  - source: Andreas corrected the intended Android flow: after tapping `Start this Side Quest`, the user should return to the start/home screen, not open the started quest detail.
+  - scope: mobile app only; `SelectedQuestDetailCard` now routes successful `start` actions back to the home/start screen after refreshing account state.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; Android release build passed; production APK `https://sidequestchess.com/downloads/sqc-mobile-android-start-screen-return-fix-v16-2026-05-25.apk` returns HTTP 200.
+
+- [x] Count multiplayer Side Quest completions as solo completions too.
+  - added_at: 2026-05-25 23:24 Europe/Stockholm
+  - completed_at: 2026-05-25 23:31 Europe/Stockholm
+  - source: Andreas clarified that if a Side Quest is completed inside a Multiplayer Side Quest, that should also count as solo completion.
+  - scope: website + mobile backend proof refresh logic; when multiplayer proof refresh marks a quest passed, also merge that quest into the user’s solo completion progress and store a matching latest-game receipt so solo surfaces show it as completed.
+  - proof: updated `src/app/api/groupquests/[id]/refresh/route.ts`, `src/app/api/mobile/groupquests/[id]/route.ts`, and `src/lib/user-metadata.ts`; `pnpm build` passed; `pnpm --filter @sidequestchess/mobile typecheck` passed; production deploy `https://cc-il11iidic-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+
 - [x] Rework SQC mobile from website-parity shell into logged-in Apple Sports-style tracker app.
   - added_at: 2026-05-22 16:09 Europe/Stockholm
   - completed_at: 2026-05-22 16:09 Europe/Stockholm
@@ -1643,6 +1695,18 @@ Screenshot review workflow - 2026-05-14:
   - added_at: 2026-05-14 08:38 Europe/Stockholm
   - source: mobile feature parity matrix.
   - Acceptance: define and start native mobile support for public multiplayer list, create/join, room state, leaderboard, and proof states without changing frozen website features.
+
+- [ ] SQC mobile launch blocker: make Multiplayer Side Quest join/leave/refresh real.
+  - added_at: 2026-05-24 20:12 Europe/Stockholm
+  - source: Andreas asked for a full launch-readiness review, then told Sam to start executing the findings.
+  - scope: replace placeholder native Multiplayer modal actions with real mobile-backed join, leave, and proof-refresh behavior; refresh account state after each action; preserve website freeze.
+  - acceptance: native public room `Join quest`, joined room `Leave quest`, and pull-to-refresh all hit real mobile API routes, update persisted multiplayer membership/progress, and re-render the room/account state in the app.
+
+- [ ] SQC mobile launch blocker: replace preview/demo multiplayer room content with live room payloads.
+  - added_at: 2026-05-24 20:12 Europe/Stockholm
+  - source: launch-readiness findings from emulator review.
+  - scope: mobile account payload should deliver truthful included quests, verified counts, points, rules, and leaderboard rows for joined/public official rooms instead of fallback/demo-only room shaping.
+  - acceptance: joined/public official Multiplayer room modals render from backend room data and stay coherent after join/leave/refresh.
 
 ## Approved UI polish — Quest Hub order — 2026-05-09
 

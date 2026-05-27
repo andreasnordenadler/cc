@@ -88,11 +88,15 @@ export async function GET(request: Request) {
   }));
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, userId);
   const publicGroupQuests = await listPublicGroupQuests(client);
+  const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
+  const officialGroupQuestIds = new Set(publicGroupQuests.filter(isOfficialGroupQuest).map((quest) => quest.id));
   const activeGroupQuests = relatedGroupQuests
-    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
+    .filter((quest) => !officialGroupQuestIds.has(quest.id) && !isOfficialGroupQuest(quest))
+    .filter((quest) => quest.participants.some((participant) => participant.userId === userId))
     .map((quest) => {
       const isHost = quest.hostUserId === userId;
       const status = deriveGroupQuestStatus(quest.startAt, quest.endAt);
+      const participant = quest.participants.find((entry) => entry.userId === userId);
       return {
         id: quest.id,
         title: quest.name,
@@ -102,28 +106,73 @@ export async function GET(request: Request) {
         playersLabel: formatPlayersLabel(quest.participants.length),
         timeLeftLabel: formatTimeLeftLabel(quest.endAt),
         positionLabel: getParticipantPositionLabel(quest, userId),
+        pointsLabel: formatPointsLabel(participant?.score ?? 0),
+        verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
+        official: false,
+        questIds: quest.questIds,
+        questTitles: quest.questIds.map((questId) => getChallengeTitle(questId)),
+        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getChallengeTitle(questId)),
+        ruleRows: buildRuleRows(quest),
+        leaderboardRows: buildLeaderboardRows(quest, userId),
       };
     })
     .filter((quest) => quest.status !== "Finished");
   const officialPublicGroupQuests = publicGroupQuests
-    .filter((quest) => quest.hostUserId !== userId && quest.official)
+    .filter(isOfficialGroupQuest)
     .map((quest) => {
       const joined = quest.participants.some((participant) => participant.userId === userId);
+      const participant = quest.participants.find((entry) => entry.userId === userId);
       const positionLabel = joined ? getParticipantPositionLabel(quest, userId) : null;
       return {
         id: quest.id,
         title: quest.name,
-        status: joined ? "Joined" : "Join",
+        status: "Official",
         copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
         href: new URL(`/groupquests/${quest.id}${joined ? "?accepted=1" : ""}`, baseUrl).toString(),
         playersLabel: formatPlayersLabel(quest.participants.length),
         timeLeftLabel: formatTimeLeftLabel(quest.endAt),
         positionLabel: positionLabel ?? undefined,
         joinState: joined ? "Joined" as const : "Join" as const,
+        pointsLabel: formatPointsLabel(participant?.score ?? 0),
+        verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
+        official: true,
+        questIds: quest.questIds,
+        questTitles: quest.questIds.map((questId) => getChallengeTitle(questId)),
+        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getChallengeTitle(questId)),
+        ruleRows: buildRuleRows(quest),
+        leaderboardRows: buildLeaderboardRows(quest, userId),
       };
     })
     .filter((quest) => deriveGroupQuestStatus(publicGroupQuests.find((source) => source.id === quest.id)?.startAt ?? "", publicGroupQuests.find((source) => source.id === quest.id)?.endAt ?? "") !== "Finished")
     .slice(0, 3);
+  const publicUserGroupQuests = publicGroupQuests
+    .filter((quest) => !isOfficialGroupQuest(quest))
+    .map((quest) => {
+      const joined = quest.participants.some((participant) => participant.userId === userId);
+      const participant = quest.participants.find((entry) => entry.userId === userId);
+      const positionLabel = joined ? getParticipantPositionLabel(quest, userId) : null;
+      return {
+        id: quest.id,
+        title: quest.name,
+        status: deriveGroupQuestStatus(quest.startAt, quest.endAt),
+        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
+        href: new URL(`/groupquests/${quest.id}${joined ? "?accepted=1" : ""}`, baseUrl).toString(),
+        playersLabel: formatPlayersLabel(quest.participants.length),
+        timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        positionLabel: positionLabel ?? undefined,
+        joinState: joined ? "Joined" as const : "Join" as const,
+        pointsLabel: formatPointsLabel(participant?.score ?? 0),
+        verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
+        official: false,
+        private: quest.inviteMode === "private-key",
+        questIds: quest.questIds,
+        questTitles: quest.questIds.map((questId) => getChallengeTitle(questId)),
+        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getChallengeTitle(questId)),
+        ruleRows: buildRuleRows(quest),
+        leaderboardRows: buildLeaderboardRows(quest, userId),
+      };
+    })
+    .filter((quest) => quest.status !== "Finished");
 
   return NextResponse.json({
     apiVersion: 1,
@@ -133,6 +182,8 @@ export async function GET(request: Request) {
       displayName: runnerName || "SQC player",
       bio: getRunnerBio(metadata),
       imageUrl: user.imageUrl || null,
+      email: user.primaryEmailAddress?.emailAddress ?? null,
+      lastSignInAt: user.lastSignInAt ? new Date(user.lastSignInAt).toISOString() : null,
     },
     chessAccounts: {
       lichessUsername: getLichessUsername(metadata) || null,
@@ -162,6 +213,7 @@ export async function GET(request: Request) {
         }
       : null,
     activeGroupQuests,
+    publicUserGroupQuests,
     officialPublicGroupQuests,
     completedQuests: completedQuestPayloads,
     latestReceipt: latestAttempt
@@ -186,6 +238,14 @@ export async function GET(request: Request) {
 
 function formatPlayersLabel(count: number) {
   return `${count} player${count === 1 ? "" : "s"}`;
+}
+
+function formatPointsLabel(score: number) {
+  return `${score.toLocaleString("en-US")} pts`;
+}
+
+function formatVerifiedLabel(completedCount: number, totalCount: number) {
+  return `${completedCount} / ${Math.max(totalCount, 1)}`;
 }
 
 function formatTimeLeftLabel(endAt: string) {
@@ -213,6 +273,36 @@ function deriveGroupQuestStatus(startAt: string, endAt: string) {
   if (Number.isFinite(start) && start > now) return "Soon";
   if (Number.isFinite(end) && end < now) return "Finished";
   return "Live";
+}
+
+function getChallengeTitle(challengeId: string) {
+  return CHALLENGES.find((challenge) => challenge.id === challengeId)?.title ?? challengeId;
+}
+
+function buildRuleRows(quest: { providerLabel: string; rules: Record<string, string> }) {
+  return [
+    { label: "Games allowed", value: quest.providerLabel },
+    { label: "Time control", value: quest.rules.timeControl ?? "Any time control" },
+    { label: "Rated", value: quest.rules.rated ?? "Any rated state" },
+    { label: "Color", value: quest.rules.color ?? "Any color" },
+  ];
+}
+
+function buildLeaderboardRows(
+  quest: { participants: Array<{ userId: string; username: string; provider: string; score?: number; completedQuestIds?: string[]; leaderboardName: string }> ; questIds: string[] },
+  userId: string,
+) {
+  const totalCount = Math.max(quest.questIds.length, 1);
+  return [...quest.participants]
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+    .map((participant, index) => ({
+      rank: `#${index + 1}`,
+      name: participant.leaderboardName,
+      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
+      points: formatPointsLabel(participant.score ?? 0),
+      verified: `${participant.completedQuestIds?.length ?? 0}/${totalCount} verified`,
+      note: participant.userId === userId ? "You" : "",
+    }));
 }
 
 function getLatestAttemptForChallenge(metadata: UserMetadataRecord, challengeId?: string) {

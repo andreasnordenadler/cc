@@ -62,6 +62,8 @@ export type MobileAccountState = {
     displayName: string;
     bio: string;
     imageUrl: string | null;
+    email: string | null;
+    lastSignInAt: string | null;
   };
   chessAccounts: {
     lichessUsername: string | null;
@@ -95,6 +97,48 @@ export type MobileAccountState = {
     playersLabel?: string;
     timeLeftLabel?: string;
     positionLabel?: string;
+    pointsLabel?: string;
+    verifiedLabel?: string;
+    official?: boolean;
+    questIds?: string[];
+    questTitles?: string[];
+    completedQuestTitles?: string[];
+    ruleRows?: Array<{ label: string; value: string }>;
+    leaderboardRows?: Array<{
+      rank: string;
+      name: string;
+      provider: string;
+      points: string;
+      verified: string;
+      note: string;
+    }>;
+  }>;
+  publicUserGroupQuests?: Array<{
+    id: string;
+    title: string;
+    status: string;
+    copy: string;
+    href: string;
+    playersLabel?: string;
+    timeLeftLabel?: string;
+    positionLabel?: string;
+    joinState?: "Join" | "Joined";
+    pointsLabel?: string;
+    verifiedLabel?: string;
+    official?: boolean;
+    private?: boolean;
+    questIds?: string[];
+    questTitles?: string[];
+    completedQuestTitles?: string[];
+    ruleRows?: Array<{ label: string; value: string }>;
+    leaderboardRows?: Array<{
+      rank: string;
+      name: string;
+      provider: string;
+      points: string;
+      verified: string;
+      note: string;
+    }>;
   }>;
   officialPublicGroupQuests?: Array<{
     id: string;
@@ -106,6 +150,21 @@ export type MobileAccountState = {
     timeLeftLabel?: string;
     positionLabel?: string;
     joinState?: "Join" | "Joined";
+    pointsLabel?: string;
+    verifiedLabel?: string;
+    official?: boolean;
+    questIds?: string[];
+    questTitles?: string[];
+    completedQuestTitles?: string[];
+    ruleRows?: Array<{ label: string; value: string }>;
+    leaderboardRows?: Array<{
+      rank: string;
+      name: string;
+      provider: string;
+      points: string;
+      verified: string;
+      note: string;
+    }>;
   }>;
   completedQuests: Array<{
     id: string;
@@ -171,4 +230,23 @@ export type MobileQuestActionResponse = {
   action?: string;
   challengeId?: string;
   message: string;
+};
+
+export type MobileGroupQuestActionResponse = {
+  apiVersion: number;
+  authenticated: boolean;
+  ok?: boolean;
+  action?: "join" | "leave" | "refresh" | "create";
+  groupQuestId?: string;
+  message: string;
+  href?: string;
+  inviteKey?: string | null;
+  completedQuestIds?: string[];
+  score?: number;
+  checks?: Array<{
+    questId: string;
+    status: string;
+    summary: string;
+    gameId: string | null;
+  }>;
 };
