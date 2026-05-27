@@ -69,8 +69,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       questIds: payload?.questIds,
       providerMode: payload?.providerMode,
       providerLabel: providerLabelFor(payload?.providerMode),
-      startAt: new Date().toISOString(),
-      endAt: defaultEndAt(payload?.durationDays),
+      startAt: normalizeDateTimeValue(payload?.startAt) ?? new Date().toISOString(),
+      endAt: normalizeDateTimeValue(payload?.endAt) ?? defaultEndAt(payload?.durationDays),
       rules: payload?.rules,
     });
 
