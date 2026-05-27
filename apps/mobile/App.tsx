@@ -4,6 +4,7 @@ import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
+import * as Clipboard from "expo-clipboard";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
@@ -991,6 +992,8 @@ function TodayDashboard({
         onRefresh={() => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "refresh") : undefined}
         onLeave={() => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "leave") : undefined}
         onJoin={undefined}
+        onUpdate={(payload) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "update", payload) : undefined}
+        onRemoveParticipant={(participantUserId) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
       <JoinedMultiplayerQuestModal
@@ -1123,7 +1126,7 @@ function JoinedMultiplayerQuestModal({
   const [selectedRuleQuestTitle, setSelectedRuleQuestTitle] = useState<string | null>(null);
   const [adminName, setAdminName] = useState(quest?.title ?? "");
   const [adminInviteCopy, setAdminInviteCopy] = useState(quest?.inviteCopy ?? MULTIPLAYER_DEFAULT_INVITE_COPY);
-  const [adminInviteMode, setAdminInviteMode] = useState<"public" | "unlisted-link" | "private-key">(quest?.inviteMode ?? "public");
+  const [adminInviteMode, setAdminInviteMode] = useState<"public" | "private-key">(quest?.inviteMode === "private-key" ? "private-key" : "public");
   const [adminProviderMode, setAdminProviderMode] = useState<"both" | "lichess" | "chesscom">(quest?.providerMode ?? "both");
   const [adminDurationDays, setAdminDurationDays] = useState(7);
   const [adminRules, setAdminRules] = useState<Record<string, string>>(quest?.rules ?? { timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
@@ -1146,11 +1149,15 @@ function JoinedMultiplayerQuestModal({
   const verified = quest.verifiedLabel ?? "0 / 4";
   const questInputs = (quest.questIds?.length ? quest.questIds.map((questId, index) => ({ questId, title: quest.questTitles?.[index] ?? questId })) : (quest.questTitles ?? []).map((title) => ({ title })));
   const completedQuestTitles = new Set((quest.completedQuestTitles ?? []).map((title) => title.toLowerCase()));
-  const ruleRows = quest.ruleRows ?? [
-    { label: "Games allowed", value: "Lichess or Chess.com" },
-    { label: "Variant", value: "Standard chess only" },
-    { label: "Proof", value: "Fresh public games inside this window" },
-    { label: "Winner", value: "First to complete all quests wins; otherwise highest points at the deadline wins." },
+  const ruleRows = [
+    { label: "Starts", value: formatGroupQuestDate(quest.startAt) },
+    { label: "Ends", value: formatGroupQuestDate(quest.endAt) },
+    ...(quest.ruleRows ?? [
+      { label: "Games allowed", value: "Lichess or Chess.com" },
+      { label: "Variant", value: "Standard chess only" },
+      { label: "Proof", value: "Fresh public games inside this window" },
+      { label: "Winner", value: "First to complete all quests wins; otherwise highest points at the deadline wins." },
+    ]),
   ];
   const leaderboardRows = quest.leaderboardRows ?? [
     { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "0 pts", verified: "0/4 verified", note: "Joined this Multiplayer Side Quest" },
@@ -1173,6 +1180,16 @@ function JoinedMultiplayerQuestModal({
       durationDays: adminDurationDays,
       rules: adminRules,
     });
+  }
+
+  async function copyInviteKey() {
+    const key = quest?.inviteKey?.trim();
+    if (!key) {
+      Alert.alert("Invite key not ready", "Refresh this Multiplayer Side Quest and try again.");
+      return;
+    }
+    await Clipboard.setStringAsync(key);
+    Alert.alert("Invite key copied", key);
   }
 
   function removeParticipant(row: (typeof leaderboardRows)[number]) {
@@ -1330,27 +1347,38 @@ function JoinedMultiplayerQuestModal({
 
           {quest.isOwner ? (
             <View style={compactStyles.multiplayerNativeCard}>
-              <Text style={compactStyles.multiplayerCardEyebrow}>Owner controls</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Settings and admin tools.</Text>
-              {quest.inviteMode === "private-key" ? (
+              <Text style={compactStyles.multiplayerCardEyebrow}>Owner settings</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Simple room controls.</Text>
+              <View style={compactStyles.multiplayerRuleRow}>
+                <Text style={compactStyles.multiplayerRuleLabel}>Starts</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{formatGroupQuestDate(quest.startAt)}</Text>
+              </View>
+              <View style={compactStyles.multiplayerRuleRow}>
+                <Text style={compactStyles.multiplayerRuleLabel}>Ends</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{formatGroupQuestDate(quest.endAt)}</Text>
+              </View>
+              {adminInviteMode === "private-key" ? (
                 <View style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Private invite key</Text>
-                  <Text selectable style={compactStyles.multiplayerRuleValue}>{quest.inviteKey ?? "Key pending - pull to refresh"}</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Invite key</Text>
+                  <View style={compactStyles.multiplayerInlineAction}>
+                    <Text selectable style={compactStyles.multiplayerRuleValue}>{quest.inviteKey ?? "Key pending"}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Copy private invite key" style={compactStyles.detailQuietButton} onPress={copyInviteKey}>
+                      <Text style={compactStyles.detailQuietButtonText}>Copy</Text>
+                    </Pressable>
+                  </View>
                 </View>
               ) : null}
-              <Text style={styles.inputLabel}>Name</Text>
+              <Text style={styles.inputLabel}>Room name</Text>
               <TextInput value={adminName} placeholder="No Castle Night" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
-              <Text style={styles.inputLabel}>Invite message</Text>
-              <TextInput value={adminInviteCopy} multiline placeholder="Invite players into your chaos..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setAdminInviteCopy} />
               <Text style={styles.inputLabel}>Visibility</Text>
               <View style={styles.buttonRow}>
-                {(["public", "unlisted-link", "private-key"] as const).map((modeOption) => (
+                {(["public", "private-key"] as const).map((modeOption) => (
                   <Pressable key={modeOption} accessibilityRole="button" style={adminInviteMode === modeOption ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminInviteMode(modeOption)}>
-                    <Text style={adminInviteMode === modeOption ? styles.primaryButtonText : styles.secondaryButtonText}>{modeOption === "public" ? "Public" : modeOption === "unlisted-link" ? "Unlisted" : "Private key"}</Text>
+                    <Text style={adminInviteMode === modeOption ? styles.primaryButtonText : styles.secondaryButtonText}>{modeOption === "public" ? "Public" : "Private key"}</Text>
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.inputLabel}>Games allowed</Text>
+              <Text style={styles.inputLabel}>Games</Text>
               <View style={styles.buttonRow}>
                 {MULTIPLAYER_PROVIDER_MODES.map((modeOption) => (
                   <Pressable key={modeOption.id} accessibilityRole="button" style={adminProviderMode === modeOption.id ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminProviderMode(modeOption.id)}>
@@ -1358,27 +1386,14 @@ function JoinedMultiplayerQuestModal({
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.inputLabel}>Extend/reset window</Text>
+              <Text style={styles.inputLabel}>End date</Text>
               <View style={styles.buttonRow}>
                 {[3, 7, 14, 30].map((days) => (
                   <Pressable key={days} accessibilityRole="button" style={adminDurationDays === days ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminDurationDays(days)}>
-                    <Text style={adminDurationDays === days ? styles.primaryButtonText : styles.secondaryButtonText}>{days}d</Text>
+                    <Text style={adminDurationDays === days ? styles.primaryButtonText : styles.secondaryButtonText}>{days}d from now</Text>
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.inputLabel}>Game settings</Text>
-              {Object.entries(MULTIPLAYER_RULE_OPTIONS).map(([ruleId, options]) => (
-                <View key={ruleId} style={compactStyles.multiplayerListStack}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>{ruleId === "timeControl" ? "Time control" : ruleId === "rated" ? "Rated setting" : "Player color"}</Text>
-                  <View style={styles.buttonRow}>
-                    {options.map((option) => (
-                      <Pressable key={option} accessibilityRole="button" style={adminRules[ruleId] === option ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminRules((current) => ({ ...current, [ruleId]: option }))}>
-                        <Text style={adminRules[ruleId] === option ? styles.primaryButtonText : styles.secondaryButtonText}>{option}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              ))}
               <Text style={styles.inputLabel}>Included Side Quests</Text>
               <View style={compactStyles.appRows}>
                 {challenges.slice(0, 8).map((challenge) => (
@@ -1931,6 +1946,18 @@ function getOfficialMultiplayerListMeta(
 ) {
   const joined = quest.joinState === "Joined";
   return ["Official public", joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
+}
+
+function formatGroupQuestDate(value?: string | null) {
+  if (!value) return "Not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function getLeaderboardProgressPercent(verified: string) {
@@ -2807,6 +2834,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onRefresh={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "refresh") : undefined}
         onLeave={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "leave") : undefined}
         onJoin={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
+        onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
+        onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
       <JoinedMultiplayerQuestModal
@@ -4130,6 +4159,7 @@ const compactStyles = StyleSheet.create({
   multiplayerRuleRow: { gap: 3, paddingVertical: 8, paddingHorizontal: 9, borderRadius: 13, backgroundColor: "rgba(0,0,0,.14)" },
   multiplayerRuleLabel: { color: "rgba(255,247,232,.76)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
   multiplayerRuleValue: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  multiplayerInlineAction: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   multiplayerLeaderboardAppRow: { alignItems: "flex-start", paddingVertical: 10 },
   multiplayerRankBadge: { width: 42, minHeight: 42, alignItems: "center", justifyContent: "center" },
   multiplayerRankBadgeText: { color: colors.gold, fontSize: 22, lineHeight: 26, fontWeight: "900", letterSpacing: -.5 },

@@ -58,7 +58,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       username: user.username,
       emailAddress: user.primaryEmailAddress?.emailAddress,
     }) || "SQC host";
-    const inviteMode = payload?.inviteMode === "private-key" ? "private-key" : payload?.inviteMode === "unlisted-link" ? "unlisted-link" : "public";
+    const inviteMode = payload?.inviteMode === "private-key" ? "private-key" : "public";
     const groupQuest = buildGroupQuest({
       hostUserId: userId,
       hostName,
@@ -280,7 +280,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
 function patchMobileGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>): ServerGroupQuest {
   const providerMode = normalizeProviderMode(payload.providerMode);
-  const inviteMode = payload.inviteMode === "private-key" ? "private-key" : payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public";
+  const inviteMode = payload.inviteMode === "private-key" ? "private-key" : "public";
   return {
     ...current,
     name: cleanText(payload.name, 64) ?? current.name,
