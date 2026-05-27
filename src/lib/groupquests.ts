@@ -43,7 +43,7 @@ export type GroupQuestHostRecord = {
   groupQuest: ServerGroupQuest;
 };
 
-const MAX_HOST_QUESTS = 24;
+const MAX_HOST_QUESTS = 8;
 const MAX_PARTICIPANTS = 80;
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 
@@ -171,7 +171,7 @@ export async function listPublicGroupQuests(
 
 export function upsertHostGroupQuest(metadata: unknown, groupQuest: ServerGroupQuest) {
   const existing = getStoredGroupQuests(metadata).filter((quest) => quest.id !== groupQuest.id);
-  return [groupQuest, ...existing].slice(0, MAX_HOST_QUESTS);
+  return [groupQuest, ...existing].slice(0, MAX_HOST_QUESTS).map(compactGroupQuestForStorage);
 }
 
 export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQuestParticipant): ServerGroupQuest {
@@ -229,6 +229,36 @@ export function buildParticipant(input: {
     score: 0,
     completedQuestIds: [],
     questFinishedAt: {},
+  };
+}
+
+
+function compactGroupQuestForStorage(groupQuest: ServerGroupQuest) {
+  return {
+    id: groupQuest.id,
+    hostUserId: groupQuest.hostUserId,
+    hostName: groupQuest.hostName,
+    name: groupQuest.name,
+    inviteMode: groupQuest.inviteMode,
+    ...(groupQuest.inviteMode === "private-key" && groupQuest.inviteKey ? { inviteKey: groupQuest.inviteKey } : {}),
+    questIds: groupQuest.questIds.slice(0, 8),
+    providerMode: groupQuest.providerMode,
+    ...(groupQuest.official ? { official: true, officialLabel: groupQuest.officialLabel } : {}),
+    startAt: groupQuest.startAt,
+    endAt: groupQuest.endAt,
+    createdAt: groupQuest.createdAt,
+    participants: groupQuest.participants.map((participant) => ({
+      userId: participant.userId,
+      provider: participant.provider,
+      username: participant.username,
+      leaderboardName: participant.leaderboardName,
+      joinedAt: participant.joinedAt,
+      ...(participant.score ? { score: participant.score } : {}),
+      ...(participant.completedQuestIds?.length ? { completedQuestIds: participant.completedQuestIds } : {}),
+      ...(participant.questFinishedAt && Object.keys(participant.questFinishedAt).length ? { questFinishedAt: participant.questFinishedAt } : {}),
+      ...(participant.lastProofSummary ? { lastProofSummary: participant.lastProofSummary.slice(0, 180) } : {}),
+      ...(participant.lastProofAt ? { lastProofAt: participant.lastProofAt } : {}),
+    })),
   };
 }
 
