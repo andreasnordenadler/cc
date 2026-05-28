@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make Multiplayer date/time wheels actually scroll and remove +/- time buttons.
+  - source: Andreas corrected that the wheel-style time controls should be scrolling and asked to remove all +/- buttons.
+  - scope: replaced faux three-row Pressable wheels with real vertical ScrollView hour/minute wheels using snap-to-interval, removed `-1h/-15m/+15m/+1h` adjustment buttons from Start/End, kept quick duration chips between Start and End.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v77 built and production smoke recorded in chat.
+
 - [x] Test wheel-style date/time controls for Multiplayer Side Quest create/edit.
   - source: Andreas said create/edit date-time picker was not good and asked to test a scroll-wheel style like his reference images, with quick duration options between start and end date choices.
   - scope: start/end controls now show a wheel-style hour/minute selector with dim previous/next values and highlighted selected value; quick duration chips are placed between Start and End in both create and admin edit flows.
