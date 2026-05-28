@@ -1437,13 +1437,22 @@ function JoinedMultiplayerQuestModal({
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.inputLabel}>Games</Text>
-              <View style={styles.buttonRow}>
-                {MULTIPLAYER_PROVIDER_MODES.map((modeOption) => (
-                  <Pressable key={modeOption.id} accessibilityRole="button" style={adminProviderMode === modeOption.id ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminProviderMode(modeOption.id)}>
-                    <Text style={adminProviderMode === modeOption.id ? styles.primaryButtonText : styles.secondaryButtonText}>{modeOption.label}</Text>
-                  </Pressable>
-                ))}
+              <Text style={styles.inputLabel}>Games allowed</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {MULTIPLAYER_PROVIDER_MODES.map((modeOption) => {
+                  const selected = adminProviderMode === modeOption.id;
+                  const title = modeOption.id === "both" ? "Both" : modeOption.id === "lichess" ? "Lichess" : "Chess.com";
+                  const helper = modeOption.id === "both" ? "Players can use either site" : modeOption.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
+                  return (
+                    <Pressable key={modeOption.id} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminProviderMode(modeOption.id)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{helper}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
               <GroupQuestDateTimeControl label="Start" value={adminStartAt} onChange={setAdminStartAt} />
               <GroupQuestDateTimeControl label="End" value={adminEndAt} onChange={setAdminEndAt} />
@@ -3230,12 +3239,21 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                 ))}
               </View>
               <Text style={styles.inputLabel}>Games allowed</Text>
-              <View style={styles.buttonRow}>
-                {MULTIPLAYER_PROVIDER_MODES.map((mode) => (
-                  <Pressable key={mode.id} accessibilityRole="button" style={createProviderMode === mode.id ? styles.primaryButton : styles.secondaryButton} onPress={() => setCreateProviderMode(mode.id)}>
-                    <Text style={createProviderMode === mode.id ? styles.primaryButtonText : styles.secondaryButtonText}>{mode.label}</Text>
-                  </Pressable>
-                ))}
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {MULTIPLAYER_PROVIDER_MODES.map((mode) => {
+                  const selected = createProviderMode === mode.id;
+                  const title = mode.id === "both" ? "Both" : mode.id === "lichess" ? "Lichess" : "Chess.com";
+                  const helper = mode.id === "both" ? "Players can use either site" : mode.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
+                  return (
+                    <Pressable key={mode.id} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateProviderMode(mode.id)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{helper}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
               <GroupQuestDateTimeControl label="Start" value={createStartAt} onChange={setCreateStartAt} />
               <GroupQuestDateTimeControl label="End" value={createEndAt} onChange={setCreateEndAt} />
@@ -4562,6 +4580,15 @@ const compactStyles = StyleSheet.create({
   multiplayerScoreLabel: { color: colors.muted, fontSize: 10, lineHeight: 13, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .45 },
   multiplayerScoreValue: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   multiplayerNativeCard: { gap: 8, padding: 11, borderRadius: 19, backgroundColor: "rgba(255,247,232,.085)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  multiplayerOptionGrid: { gap: 7 },
+  multiplayerOptionCard: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.16)" },
+  multiplayerOptionCardSelected: { borderColor: "rgba(245,200,106,.48)", backgroundColor: "rgba(245,200,106,.13)" },
+  multiplayerOptionDot: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: "rgba(255,247,232,.32)", backgroundColor: "rgba(0,0,0,.24)" },
+  multiplayerOptionDotSelected: { borderColor: colors.gold, backgroundColor: colors.gold },
+  multiplayerOptionCopy: { flex: 1, gap: 1 },
+  multiplayerOptionTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
+  multiplayerOptionTitleSelected: { color: colors.gold, fontSize: 14, lineHeight: 18, fontWeight: "900" },
+  multiplayerOptionHelper: { color: "rgba(255,247,232,.62)", fontSize: 11, lineHeight: 15, fontWeight: "800" },
   multiplayerCardEyebrow: { color: colors.green, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .9, textAlign: "center" },
   multiplayerCardTitle: { color: colors.paper, fontSize: 18, lineHeight: 22, fontWeight: "900", textAlign: "center", letterSpacing: -.4 },
   multiplayerListStack: { gap: 7 },

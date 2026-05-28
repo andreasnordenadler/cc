@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Polish mobile Games allowed selection controls.
+  - source: Andreas screenshot feedback said the Games allowed buttons did not look good after the native date/time picker improvement.
+  - scope: Create and admin edit Games allowed controls now use compact selectable option cards with short titles, helper copy, and selected dot state instead of chunky wrapped pill buttons.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v81 built and production smoke recorded in chat.
+
 - [x] Replace mobile custom date/time wheels with native picker controls.
   - source: Andreas agreed to native pickers after rejecting the custom scrolling wheel interaction.
   - scope: Multiplayer Start/End controls now show date/time summary buttons and open native date/time pickers; duration chips remain between Start and End.
