@@ -128,20 +128,21 @@ export async function GET(request: Request) {
       };
     })
     .filter((quest) => quest.status !== "Finished");
-  const officialPublicGroupQuests = publicGroupQuests
+  const officialGroupQuestPayloads = publicGroupQuests
     .filter(isOfficialGroupQuest)
     .map((quest) => {
       const joined = quest.participants.some((participant) => participant.userId === userId);
       const participant = quest.participants.find((entry) => entry.userId === userId);
       const positionLabel = joined ? getParticipantPositionLabel(quest, userId) : null;
+      const status = deriveGroupQuestStatus(quest.startAt, quest.endAt);
       return {
         id: quest.id,
         title: quest.name,
-        status: "Official",
-        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
+        status,
+        copy: [formatPlayersLabel(quest.participants.length), status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
         href: new URL(`/groupquests/${quest.id}${joined ? "?accepted=1" : ""}`, baseUrl).toString(),
         playersLabel: formatPlayersLabel(quest.participants.length),
-        timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        timeLeftLabel: status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt),
         positionLabel: positionLabel ?? undefined,
         joinState: joined ? "Joined" as const : "Join" as const,
         pointsLabel: formatPointsLabel(participant?.score ?? 0),
@@ -162,9 +163,14 @@ export async function GET(request: Request) {
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
       };
-    })
-    .filter((quest) => deriveGroupQuestStatus(publicGroupQuests.find((source) => source.id === quest.id)?.startAt ?? "", publicGroupQuests.find((source) => source.id === quest.id)?.endAt ?? "") !== "Finished")
+    });
+  const officialPublicGroupQuests = officialGroupQuestPayloads
+    .filter((quest) => quest.status !== "Finished")
     .slice(0, 3);
+  const previousOfficialGroupQuests = officialGroupQuestPayloads
+    .filter((quest) => quest.status === "Finished")
+    .slice(0, 3);
+  const officialGroupQuestWeeks = buildOfficialGroupQuestWeeks(officialGroupQuestPayloads);
   const publicUserGroupQuests = publicGroupQuests
     .filter((quest) => !isOfficialGroupQuest(quest))
     .map((quest) => {
@@ -245,6 +251,8 @@ export async function GET(request: Request) {
     activeGroupQuests,
     publicUserGroupQuests,
     officialPublicGroupQuests,
+    previousOfficialGroupQuests,
+    officialGroupQuestWeeks,
     completedQuests: completedQuestPayloads,
     latestReceipt: latestAttempt
       ? {
@@ -264,6 +272,29 @@ export async function GET(request: Request) {
         }
       : null,
   });
+}
+
+function buildOfficialGroupQuestWeeks<T extends { id: string; startAt?: string; endAt?: string }>(quests: T[]) {
+  const finished = quests.filter((quest) => deriveGroupQuestStatus(quest.startAt ?? "", quest.endAt ?? "") === "Finished");
+  const weekMap = new Map<string, { id: string; label: string; rangeLabel: string; quests: T[] }>();
+
+  finished.forEach((quest) => {
+    const date = new Date(quest.endAt ?? quest.startAt ?? Date.now());
+    const weekStart = new Date(date);
+    const day = weekStart.getUTCDay() || 7;
+    weekStart.setUTCDate(weekStart.getUTCDate() - day + 1);
+    weekStart.setUTCHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+    const id = weekStart.toISOString().slice(0, 10);
+    const label = `Week of ${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    const rangeLabel = `${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}–${weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    const existing = weekMap.get(id) ?? { id, label, rangeLabel, quests: [] };
+    existing.quests.push(quest);
+    weekMap.set(id, existing);
+  });
+
+  return Array.from(weekMap.values()).sort((a, b) => b.id.localeCompare(a.id));
 }
 
 function formatPlayersLabel(count: number) {

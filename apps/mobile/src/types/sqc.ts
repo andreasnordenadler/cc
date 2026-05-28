@@ -134,6 +134,13 @@ export type MobileAccountState = {
   activeGroupQuests: MobileGroupQuestSummary[];
   publicUserGroupQuests?: MobileGroupQuestSummary[];
   officialPublicGroupQuests?: MobileGroupQuestSummary[];
+  previousOfficialGroupQuests?: MobileGroupQuestSummary[];
+  officialGroupQuestWeeks?: Array<{
+    id: string;
+    label: string;
+    rangeLabel: string;
+    quests: MobileGroupQuestSummary[];
+  }>;
   completedQuests: Array<{
     id: string;
     title: string;
