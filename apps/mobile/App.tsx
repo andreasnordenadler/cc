@@ -2698,7 +2698,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const publicMultiplayerQuest = publicMultiplayerId ? publicUserGroupQuests.find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
-  const [browseQuery, setBrowseQuery] = useState("");
+  const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted" | "finished">("joinable");
   const [createName, setCreateName] = useState("No Castle Night");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
@@ -2827,10 +2827,18 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     setCreateQuestIds((current) => current.includes(questId) ? current.filter((id) => id !== questId) : [...current, questId].slice(0, 4));
   }
 
-  const normalizedBrowseQuery = browseQuery.trim().toLowerCase();
-  const filteredPublicUserGroupQuests = normalizedBrowseQuery
-    ? publicUserGroupQuests.filter((quest) => [quest.title, quest.hostName, quest.copy, quest.providerLabel].filter(Boolean).join(" ").toLowerCase().includes(normalizedBrowseQuery))
-    : publicUserGroupQuests;
+  const browseFilterOptions: Array<{ id: typeof browseFilter; label: string; count: number }> = [
+    { id: "joinable", label: "Joinable", count: publicUserGroupQuests.filter((quest) => quest.joinState !== "Joined" && quest.status !== "Finished").length },
+    { id: "joined", label: "Joined", count: activeGroupQuests.length + publicUserGroupQuests.filter((quest) => quest.joinState === "Joined" && !quest.isOwner).length },
+    { id: "hosted", label: "Hosted", count: activeGroupQuests.filter((quest) => quest.isOwner).length + publicUserGroupQuests.filter((quest) => quest.isOwner).length },
+    { id: "finished", label: "Finished", count: publicUserGroupQuests.filter((quest) => quest.status === "Finished").length },
+  ];
+  const filteredPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => {
+    if (browseFilter === "joinable") return quest.joinState !== "Joined" && quest.status !== "Finished";
+    if (browseFilter === "joined") return quest.joinState === "Joined" && !quest.isOwner;
+    if (browseFilter === "hosted") return Boolean(quest.isOwner);
+    return quest.status === "Finished";
+  });
 
   return (
     <View style={styles.screenStack}>
@@ -2915,18 +2923,18 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Public user-created Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Public quests</Text>
-        <Text style={styles.sectionTitle}>Join what other players created.</Text>
-        <View style={styles.inputStack}>
-          <Text style={styles.inputLabel}>Search public rooms</Text>
-          <TextInput
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={browseQuery}
-            placeholder="Search by room, host, or rules"
-            placeholderTextColor="rgba(255,247,232,.42)"
-            style={styles.textInput}
-            onChangeText={setBrowseQuery}
-          />
+        <Text style={styles.sectionTitle}>Browse by status.</Text>
+        <Text style={styles.sectionBody}>Filters scale better than search once active and finished Multiplayer Side Quests start piling up.</Text>
+        <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest status filters">
+          {browseFilterOptions.map((option) => {
+            const selected = browseFilter === option.id;
+            return (
+              <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => setBrowseFilter(option.id)}>
+                <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
+                <Text style={[styles.browseFilterChipCount, selected ? styles.browseFilterChipTextActive : null]}>{option.count}</Text>
+              </Pressable>
+            );
+          })}
         </View>
         {filteredPublicUserGroupQuests.length ? filteredPublicUserGroupQuests.map((quest) => (
             <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open public Multiplayer Side Quest ${quest.title}`} style={styles.groupquestsActiveRow} onPress={() => setPublicMultiplayerId(quest.id)}>
@@ -2937,7 +2945,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               </View>
             </Pressable>
         )) : (
-          <Text style={styles.sectionBody}>{publicUserGroupQuests.length ? "No public rooms match that search." : "No public player-created rooms are open right now. Create one, or join a private room by key."}</Text>
+          <Text style={styles.sectionBody}>{publicUserGroupQuests.length ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} player-created rooms right now.` : "No public player-created rooms are open right now. Create one, or join a private room by key."}</Text>
         )}
       </View>
 
@@ -4618,6 +4626,12 @@ const styles = StyleSheet.create({
   filterValue: { color: "rgba(255,247,232,.62)", fontSize: 15, fontWeight: "900", paddingHorizontal: 12, paddingVertical: 11, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.14)" },
   filterResetButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", opacity: 0.62 },
   filterResetText: { color: colors.muted, fontWeight: "900" },
+  browseFilterGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  browseFilterChip: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.18)" },
+  browseFilterChipActive: { borderColor: "rgba(96,240,175,.72)", backgroundColor: "rgba(96,240,175,.16)" },
+  browseFilterChipText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
+  browseFilterChipTextActive: { color: colors.paper },
+  browseFilterChipCount: { color: "rgba(255,247,232,.56)", fontSize: 12, fontWeight: "900" },
   availableQuestGrid: { gap: 8 },
   sideQuestSection: { gap: 8, padding: 11, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   sectionHeadMobile: { gap: 6 },
