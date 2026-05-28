@@ -627,7 +627,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </>
         ) : null}
       </ScrollView>
-      {["multiplayerSideQuests", "officialLeaderboards"].includes(shell.activeTab) ? (
+      {["sideQuests", "multiplayerSideQuests", "officialLeaderboards", "account"].includes(shell.activeTab) ? (
         <Pressable accessibilityRole="button" accessibilityLabel="Close current screen" style={styles.floatingScreenCloseButton} onPress={() => selectTab("home")}>
           <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
         </Pressable>
@@ -2145,13 +2145,6 @@ function QuestBoardDashboard({
 
   return (
     <View style={compactStyles.stack}>
-      <View style={compactStyles.browseTopBar}>
-        <Text style={compactStyles.browseTopBarLabel}>Browse Solo Side Quests</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close Browse Solo Side Quests" style={compactStyles.detailCloseButton} onPress={() => onSelectTab("home")}>
-          <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
-        </Pressable>
-      </View>
-
       <View style={compactStyles.appSection}>
         <View style={compactStyles.appRows}>
           {sortedQuests.map((challenge) => {
@@ -2260,9 +2253,6 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onSelectCha
         <View style={compactStyles.heroPanel}>
           <View style={compactStyles.topLine}>
             <Text style={compactStyles.kicker}>Account</Text>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close account" style={compactStyles.accountCloseButton} onPress={() => onSelectTab("home")}>
-              <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
-            </Pressable>
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>The mobile app is intentionally useful after sign-in: Side Quest state, latest proof, Coat of Arms, and connected usernames.</Text>
@@ -2293,9 +2283,6 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onSelectCha
           <Text style={compactStyles.kicker}>Account</Text>
           <View style={compactStyles.accountHeaderActions}>
             <Text style={compactStyles.livePill}>Synced</Text>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close account" style={compactStyles.accountCloseButton} onPress={() => onSelectTab("home")}>
-              <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
-            </Pressable>
           </View>
         </View>
         <View style={compactStyles.accountIdentityCard}>
@@ -4337,9 +4324,9 @@ const compactStyles = StyleSheet.create({
   appRowStatusDanger: { backgroundColor: "#ff7a66", color: "#111" },
   appRowStatusAbsurd: { backgroundColor: "#08070a", color: "#ff7a66", borderWidth: 1, borderColor: "rgba(255,122,102,.55)" },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
-  detailTopBar: { minHeight: 56, paddingHorizontal: 12, paddingTop: 10, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", zIndex: 5 },
+  detailTopBar: { position: "absolute", top: 28, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  detailContent: { paddingHorizontal: 16, paddingBottom: 48, gap: 8 },
+  detailContent: { paddingTop: 66, paddingHorizontal: 16, paddingBottom: 48, gap: 8 },
   detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 2 },
   completedProofScreen: { gap: 10 },
   completedProofCoatFrame: { width: 124, height: 136, alignItems: "center", justifyContent: "center", overflow: "visible" },
@@ -4604,7 +4591,7 @@ const styles = StyleSheet.create({
   groupquestsHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
   groupquestsHeroTitleWithClose: { flex: 1 },
   screenCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(0,0,0,.26)" },
-  floatingScreenCloseButton: { position: "absolute", top: 14, right: 16, zIndex: 50, width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(10,8,10,.74)", shadowColor: "#000", shadowOpacity: 0.26, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
+  floatingScreenCloseButton: { position: "absolute", top: 28, right: 16, zIndex: 50, width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(10,8,10,.74)", shadowColor: "#000", shadowOpacity: 0.26, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   groupquestsStoryCard: { gap: 16, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupquestsStoryCopy: { gap: 10 },
