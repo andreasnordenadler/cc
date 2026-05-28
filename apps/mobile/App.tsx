@@ -1490,7 +1490,7 @@ function JoinedMultiplayerQuestModal({
               <Text style={styles.microcopy}>Dates save as your local time. No typing needed.</Text>
               <Text style={styles.inputLabel}>Included Side Quests</Text>
               <View style={compactStyles.appRows}>
-                {challenges.slice(0, 8).map((challenge) => (
+                {challenges.map((challenge) => (
                   <AppRow
                     key={challenge.id}
                     title={challenge.title}
@@ -3323,7 +3323,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>
               <View style={compactStyles.appRows}>
-                {bootstrap.challenges.slice(0, 8).map((challenge) => (
+                {bootstrap.challenges.map((challenge) => (
                   <AppRow
                     key={challenge.id}
                     title={challenge.title}
