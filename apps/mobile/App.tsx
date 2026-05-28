@@ -2100,17 +2100,25 @@ function GroupQuestDateTimeControl({
 
 
 const DATE_TIME_WHEEL_ITEM_HEIGHT = 42;
+const DATE_TIME_WHEEL_REPEATS = 9;
+const DATE_TIME_WHEEL_CENTER_REPEAT = Math.floor(DATE_TIME_WHEEL_REPEATS / 2);
 
 function DateTimeWheelColumn({ label, values, selectedIndex, onSelect }: { label: string; values: string[]; selectedIndex: number; onSelect: (index: number) => void }) {
   const wheelRef = useRef<ScrollView | null>(null);
+  const wheelValues = useMemo(() => Array.from({ length: DATE_TIME_WHEEL_REPEATS }).flatMap(() => values), [values]);
+  const centeredIndex = DATE_TIME_WHEEL_CENTER_REPEAT * values.length + selectedIndex;
 
   useEffect(() => {
-    wheelRef.current?.scrollTo({ y: selectedIndex * DATE_TIME_WHEEL_ITEM_HEIGHT, animated: false });
-  }, [selectedIndex]);
+    wheelRef.current?.scrollTo({ y: centeredIndex * DATE_TIME_WHEEL_ITEM_HEIGHT, animated: false });
+  }, [centeredIndex]);
 
   const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const nextIndex = Math.max(0, Math.min(values.length - 1, Math.round(event.nativeEvent.contentOffset.y / DATE_TIME_WHEEL_ITEM_HEIGHT)));
+    const rawIndex = Math.round(event.nativeEvent.contentOffset.y / DATE_TIME_WHEEL_ITEM_HEIGHT);
+    const nextIndex = ((rawIndex % values.length) + values.length) % values.length;
     if (nextIndex !== selectedIndex) onSelect(nextIndex);
+    requestAnimationFrame(() => {
+      wheelRef.current?.scrollTo({ y: (DATE_TIME_WHEEL_CENTER_REPEAT * values.length + nextIndex) * DATE_TIME_WHEEL_ITEM_HEIGHT, animated: false });
+    });
   };
 
   return (
@@ -2127,11 +2135,14 @@ function DateTimeWheelColumn({ label, values, selectedIndex, onSelect }: { label
         onMomentumScrollEnd={handleScrollEnd}
         onScrollEndDrag={handleScrollEnd}
       >
-        {values.map((entry, index) => (
-          <View key={entry} style={styles.dateTimeWheelItem}>
-            <Text style={index === selectedIndex ? styles.dateTimeWheelValue : styles.dateTimeWheelGhost}>{entry}</Text>
-          </View>
-        ))}
+        {wheelValues.map((entry, index) => {
+          const normalizedIndex = index % values.length;
+          return (
+            <View key={`${entry}-${index}`} style={styles.dateTimeWheelItem}>
+              <Text style={normalizedIndex === selectedIndex ? styles.dateTimeWheelValue : styles.dateTimeWheelGhost}>{entry}</Text>
+            </View>
+          );
+        })}
       </ScrollView>
     </View>
   );

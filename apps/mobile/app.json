@@ -3,7 +3,7 @@
     "name": "Side Quest Chess",
     "slug": "side-quest-chess",
     "scheme": "sidequestchess",
-    "version": "0.1.77",
+    "version": "0.1.78",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "assetBundlePatterns": [
@@ -18,12 +18,12 @@
     },
     "android": {
       "package": "com.sidequestchess.app",
-      "versionCode": 78,
+      "versionCode": 79,
       "permissions": [],
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/app-icon-foreground.png",
-        "backgroundColor": "#303336"
+        "backgroundColor": "#9ED8FF"
       }
     },
     "extra": {
@@ -42,6 +42,6 @@
       "backgroundColor": "#060507",
       "barStyle": "light-content"
     },
-    "icon": "./assets/app-icon-graphite.png"
+    "icon": "./assets/app-icon-light-blue.png"
   }
 }

@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make mobile time wheels continuous and test light-blue app icon.
+  - source: Andreas requested looped wheels where minutes/hours continue across boundaries (`00` after `59`, etc.) and asked to try a light-blue icon background.
+  - scope: hour/minute wheels now render repeated circular value bands and recenter after scroll end; app icon uses light-blue background variant.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v79 built and production smoke recorded in chat.
+
 - [x] Force English date labels in Multiplayer date/time controls.
   - source: Andreas noted weekday names were displayed in Swedish and corrected that the UI should stay English.
   - scope: date/time formatting now uses explicit `en-US` locale instead of inheriting device locale for Multiplayer date controls.
