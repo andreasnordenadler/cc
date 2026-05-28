@@ -2835,7 +2835,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   return (
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Browse Multiplayer Side Quests.</Text>
+        <View style={styles.groupquestsHeroHeaderRow}>
+          <Text style={[styles.groupquestsHeroTitle, styles.groupquestsHeroTitleWithClose]}>Browse Multiplayer Side Quests.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close Multiplayer Side Quests browser" style={styles.screenCloseButton} onPress={() => onSelectTab("home")}>
+            <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
+          </Pressable>
+        </View>
         <Text style={styles.groupquestsHeroCopy}>Find public player-created rooms, manage the ones you joined or host, create a new room, or join a private one by key.</Text>
       </View>
 
