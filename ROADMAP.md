@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Add Home public Multiplayer Side Quest preview and align Browse/Create rows with Home card styling.
+  - source: Andreas liked the Home Multiplayer Side Quest list style and asked to use that style everywhere, then confirmed adding a separate public preview on Home.
+  - scope: keep `My Multiplayer Side Quests` as joined/hosted, add `Public Multiplayer Side Quests` preview for joinable public rooms, and render Browse/Create public + recent-results rows with the same `AppRow` treatment used on Home.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v72 built and final production deploy/smoke recorded in chat.
+
 - [x] Refresh SQC Mobile app icon with larger Coat of Arms and graphite background.
   - source: Andreas liked the icon but asked to maximize the Coat of Arms size and change the white background, suggesting graphite grey.
   - scope: mobile app icon assets/config plus Android launcher resources; use graphite background and a larger cropped Coat of Arms foreground.
