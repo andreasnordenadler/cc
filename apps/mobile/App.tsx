@@ -974,7 +974,7 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="My Multiplayer Side Quests" action="Browse" onAction={() => onSelectTab("multiplayerSideQuests")}>
+      <AppSection title="My Multiplayer Side Quests" action="Browse/Create" onAction={() => onSelectTab("multiplayerSideQuests")}>
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
           <AppRow key={quest.id} title={quest.title} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
         )) : (
@@ -1032,7 +1032,7 @@ function TodayDashboard({
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <AppSection title="Official Multiplayer Side Quests" action="Leaderboard" onAction={() => onSelectTab("officialLeaderboards")}>
+      <AppSection title="Official Multiplayer Side Quests" action="Leaderboards" onAction={() => onSelectTab("officialLeaderboards")}>
         {officialPublic.length ? officialPublic.map((quest) => (
           <AppRow key={quest.id} title={quest.title} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
         )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
@@ -2858,7 +2858,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   return (
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Browse Multiplayer Side Quests.</Text>
+        <Text style={styles.groupquestsHeroTitle}>Browse/Create Multiplayer Side Quests.</Text>
         <Text style={styles.groupquestsHeroCopy}>Find public player-created Multiplayer Side Quests, manage the ones you joined or host, create a new Multiplayer Side Quest, or join a private one by key.</Text>
       </View>
 
@@ -3148,7 +3148,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
     return (
       <View style={styles.screenStack}>
         <View style={styles.groupquestsHero}>
-          <Text style={styles.groupquestsHeroTitle}>Official Leaderboard.</Text>
+          <Text style={styles.groupquestsHeroTitle}>Official Leaderboards.</Text>
           <Text style={styles.groupquestsHeroCopy}>Sign in to see active official weekly leaderboards, final results, and the official archive.</Text>
         </View>
       </View>
@@ -3158,7 +3158,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
   return (
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Official Leaderboard.</Text>
+        <Text style={styles.groupquestsHeroTitle}>Official Leaderboards.</Text>
         <Text style={styles.groupquestsHeroCopy}>Three official Multiplayer Side Quests run every week — easy, medium, and hard. Track the live race, then review final weekly results.</Text>
       </View>
 
