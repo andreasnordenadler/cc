@@ -2829,7 +2829,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
   const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted" | "closed">("joinable");
-  const [browseOpenLimit, setBrowseOpenLimit] = useState(8);
+  const [browseSort, setBrowseSort] = useState<"newest" | "ending" | "players">("newest");
+  const [browseSearch, setBrowseSearch] = useState("");
+  const [browseControlsOpen, setBrowseControlsOpen] = useState(false);
+  const [browseOpenLimit, setBrowseOpenLimit] = useState(5);
   const [createName, setCreateName] = useState("No Castle Night");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
@@ -2972,10 +2975,25 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     { id: "hosted", label: "Hosted", count: hostedBrowseGroupQuests.length },
     { id: "closed", label: "Closed", count: closedUserGroupQuests.length },
   ];
-  const filteredBrowseGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedBrowseGroupQuests : browseFilter === "hosted" ? hostedBrowseGroupQuests : closedUserGroupQuests;
-  const visibleBrowseGroupQuests = browseFilter === "joinable" ? filteredBrowseGroupQuests.slice(0, browseOpenLimit) : filteredBrowseGroupQuests;
+  const browseSortOptions: Array<{ id: typeof browseSort; label: string }> = [
+    { id: "newest", label: "Newest" },
+    { id: "ending", label: "Ending soon" },
+    { id: "players", label: "Most players" },
+  ];
+  const baseBrowseGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedBrowseGroupQuests : browseFilter === "hosted" ? hostedBrowseGroupQuests : closedUserGroupQuests;
+  const browseSearchTerm = browseSearch.trim().toLowerCase();
+  const searchedBrowseGroupQuests = browseSearchTerm
+    ? baseBrowseGroupQuests.filter((quest) => `${quest.title} ${quest.copy ?? ""} ${quest.playersLabel ?? ""} ${quest.hostName ?? ""}`.toLowerCase().includes(browseSearchTerm))
+    : baseBrowseGroupQuests;
+  const filteredBrowseGroupQuests = [...searchedBrowseGroupQuests].sort((a, b) => {
+    if (browseSort === "ending") return Date.parse(a.endAt ?? "") - Date.parse(b.endAt ?? "");
+    if (browseSort === "players") return Number.parseInt(b.playersLabel ?? "0", 10) - Number.parseInt(a.playersLabel ?? "0", 10);
+    return Date.parse(b.startAt ?? b.endAt ?? "") - Date.parse(a.startAt ?? a.endAt ?? "");
+  });
+  const visibleBrowseGroupQuests = filteredBrowseGroupQuests.slice(0, browseOpenLimit);
   const hiddenOpenCount = Math.max(0, filteredBrowseGroupQuests.length - visibleBrowseGroupQuests.length);
   const recentFinishedPublicUserGroupQuests = finishedPublicUserGroupQuests.slice(0, 3);
+  const hasBrowseRefinements = browseFilter !== "joinable" || browseSort !== "newest" || Boolean(browseSearchTerm);
 
   function openBrowseGroupQuest(groupQuestId: string) {
     if ([...activeGroupQuests, ...closedUserGroupQuests].some((quest) => quest.id === groupQuestId)) {
@@ -3045,20 +3063,59 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Public user-created Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Public Side Quests</Text>
-        <Text style={styles.sectionTitle}>Find a Multiplayer Side Quest to join.</Text>
-        <Text style={styles.sectionBody}>Open Multiplayer Side Quests are shown first. Use filters only when you want to narrow the list.</Text>
-        <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest list filters">
-          {browseFilterOptions.map((option) => {
-            const selected = browseFilter === option.id;
-            return (
-              <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseFilter(option.id); setBrowseOpenLimit(8); }}>
-                <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
-                <Text style={[styles.browseFilterChipCount, selected ? styles.browseFilterChipTextActive : null]}>{option.count}</Text>
-              </Pressable>
-            );
-          })}
+        <Text style={styles.sectionTitle}>Latest Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Start with the newest open public Multiplayer Side Quests. Filter, sort, or search only when you need to dig deeper.</Text>
+        <View style={styles.browseSummaryRow}>
+          <Text style={styles.microcopy}>{hasBrowseRefinements ? `${filteredBrowseGroupQuests.length} matching Multiplayer Side Quest${filteredBrowseGroupQuests.length === 1 ? "" : "s"}` : `Showing latest ${Math.min(5, filteredBrowseGroupQuests.length)} open Multiplayer Side Quest${Math.min(5, filteredBrowseGroupQuests.length) === 1 ? "" : "s"}`}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quest filters and sorting" style={styles.browseRefineButton} onPress={() => setBrowseControlsOpen((open) => !open)}>
+            <MaterialCommunityIcons name="tune-variant" size={16} color={colors.paper} />
+            <Text style={styles.browseRefineButtonText}>{browseControlsOpen ? "Hide" : hasBrowseRefinements ? "Refine on" : "Filter / Sort"}</Text>
+          </Pressable>
         </View>
-        <Text style={styles.microcopy}>{browseFilter === "joinable" ? "Newest open Multiplayer Side Quests first. Finished Multiplayer Side Quests move to results below." : browseFilter === "joined" ? "Active Multiplayer Side Quests you already joined." : browseFilter === "hosted" ? "Active Multiplayer Side Quests you host." : "Closed Multiplayer Side Quests you joined or hosted. Open one to review final results."}</Text>
+        {browseControlsOpen ? (
+          <View style={styles.browseControlsPanel} accessibilityLabel="Multiplayer Side Quest filters, sorting, and search">
+            <View style={styles.inputStack}>
+              <Text style={styles.inputLabel}>Search public Multiplayer Side Quests</Text>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                placeholder="Name, host, players…"
+                placeholderTextColor="rgba(255,247,232,.42)"
+                style={styles.textInput}
+                value={browseSearch}
+                onChangeText={(value) => { setBrowseSearch(value); setBrowseOpenLimit(5); }}
+              />
+            </View>
+            <Text style={styles.inputLabel}>Show</Text>
+            <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest list filters">
+              {browseFilterOptions.map((option) => {
+                const selected = browseFilter === option.id;
+                return (
+                  <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseFilter(option.id); setBrowseOpenLimit(5); }}>
+                    <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
+                    <Text style={[styles.browseFilterChipCount, selected ? styles.browseFilterChipTextActive : null]}>{option.count}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            <Text style={styles.inputLabel}>Sort</Text>
+            <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest sorting">
+              {browseSortOptions.map((option) => {
+                const selected = browseSort === option.id;
+                return (
+                  <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`Sort Multiplayer Side Quests by ${option.label}`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseSort(option.id); setBrowseOpenLimit(5); }}>
+                    <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+            {hasBrowseRefinements ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Clear Multiplayer Side Quest filters" style={styles.secondaryButtonWide} onPress={() => { setBrowseFilter("joinable"); setBrowseSort("newest"); setBrowseSearch(""); setBrowseOpenLimit(5); }}>
+                <Text style={styles.secondaryButtonText}>Clear filters</Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
         {visibleBrowseGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleBrowseGroupQuests.map((quest) => (
@@ -3068,9 +3125,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : (
           <Text style={styles.sectionBody}>{(publicUserGroupQuests.length || activeGroupQuests.length) ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} Multiplayer Side Quests right now.` : "No public player-created Multiplayer Side Quests are open right now. Create one, or join a private Multiplayer Side Quest by key."}</Text>
         )}
-        {browseFilter === "joinable" && hiddenOpenCount ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setBrowseOpenLimit((current) => current + 8)}>
-            <Text style={styles.secondaryButtonText}>Show {Math.min(8, hiddenOpenCount)} more open Side Quests</Text>
+        {hiddenOpenCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setBrowseOpenLimit((current) => current + 5)}>
+            <Text style={styles.secondaryButtonText}>Show {Math.min(5, hiddenOpenCount)} more Side Quests</Text>
           </Pressable>
         ) : null}
       </View>
@@ -4754,6 +4811,10 @@ const styles = StyleSheet.create({
   filterValue: { color: "rgba(255,247,232,.62)", fontSize: 15, fontWeight: "900", paddingHorizontal: 12, paddingVertical: 11, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.14)" },
   filterResetButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", opacity: 0.62 },
   filterResetText: { color: colors.muted, fontWeight: "900" },
+  browseSummaryRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  browseRefineButton: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(0,0,0,.2)" },
+  browseRefineButtonText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
+  browseControlsPanel: { gap: 10, padding: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
   browseFilterGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   browseFilterChip: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.18)" },
   browseFilterChipActive: { borderColor: "rgba(96,240,175,.72)", backgroundColor: "rgba(96,240,175,.16)" },

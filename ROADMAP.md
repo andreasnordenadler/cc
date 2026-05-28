@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Rework Browse/Create public Side Quest discovery into latest-first plus refinement.
+  - source: Andreas said public Side Quest filter/search was still not good and suggested showing the latest 5, then filter/sorting plus expand.
+  - scope: default Browse/Create public section now shows the latest 5 open public Multiplayer Side Quests first; filter/search/sort lives behind a quieter `Filter / Sort` control; supports search by name/host/player text, sort by Newest/Ending soon/Most players, filter by Open/Joined/Hosted/Closed, clear filters, and `Show 5 more` expansion.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v74 built and production smoke recorded in chat.
+
 - [x] Remove Home public preview and normalize current official Multiplayer Side Quests to exactly three.
   - source: Andreas rejected the separate Home public preview and clarified he wants the Home emphasis to be exactly 3 Official Multiplayer Side Quests.
   - scope: remove the `Public Multiplayer Side Quests` Home section from mobile; seed/normalize production official active rows to Easy/Medium/Hard official public rooms.
