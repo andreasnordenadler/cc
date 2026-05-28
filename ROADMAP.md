@@ -1,3 +1,4 @@
+
 # CC Roadmap
 
 Last updated: 2026-05-15 09:23 Europe/Stockholm
@@ -7,6 +8,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 
 ## Active queue update — 2026-05-22
+
+- [x] Standardize SQC Mobile scroll indicators across scrollable screens and modals.
+  - source: Andreas showed the mobile scroll indicator and asked that it appear everywhere relevant, always anchored down in the right corner and lower than the screenshot.
+  - scope: mobile app; reuse one scroll-hint overlay across full-screen/detail modal ScrollViews, keep it passive/non-interactive, and move the indicator lower-right.
+  - proof: implemented reusable scroll-hint tracking for full-screen/detail modal ScrollViews, moved the indicator to the lower-right corner, and built APK v69; final production deploy/smoke recorded in chat.
 
 - [x] Design and start implementing the next native SQC Mobile multiplayer hub around discovery, joining, and official leaderboard browsing.
   - added_at: 2026-05-27 23:22 Europe/Stockholm

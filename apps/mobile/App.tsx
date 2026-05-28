@@ -27,6 +27,7 @@ import {
   type NativeScrollEvent,
   type ImageSourcePropType,
   type NativeSyntheticEvent,
+  type ScrollViewProps,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
@@ -664,7 +665,7 @@ function TopTrackerNav({ activeTab, account: _account, onSelectTab }: { activeTa
 function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScrollUp: boolean; canScrollDown: boolean; bottomInset: number }) {
   if (!canScrollUp && !canScrollDown) return null;
 
-  const bottomHintOffset = Math.max(126, bottomInset + 118);
+  const bottomHintOffset = Math.max(56, bottomInset + 48);
 
   return (
     <View pointerEvents="none" style={styles.scrollHintLayer}>
@@ -676,6 +677,44 @@ function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScr
   );
 }
 
+function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeChange, scrollEventThrottle, ...props }: ScrollViewProps) {
+  const insets = useSafeAreaInsets();
+  const [hintState, setHintState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
+  const canScrollUp = hintState.y > 18;
+  const canScrollDown = hintState.contentHeight > 0 && hintState.viewportHeight > 0 && hintState.y + hintState.viewportHeight < hintState.contentHeight - 18;
+
+  function handleHintScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+    setHintState({ y: contentOffset.y, viewportHeight: layoutMeasurement.height, contentHeight: contentSize.height });
+    onScroll?.(event);
+  }
+
+  function handleHintLayout(event: LayoutChangeEvent) {
+    const viewportHeight = event.nativeEvent.layout.height;
+    setHintState((current) => ({ ...current, viewportHeight }));
+    onLayout?.(event);
+  }
+
+  function handleHintContentSizeChange(width: number, contentHeight: number) {
+    setHintState((current) => ({ ...current, contentHeight }));
+    onContentSizeChange?.(width, contentHeight);
+  }
+
+  return (
+    <View style={styles.scrollHintFrame}>
+      <ScrollView
+        {...props}
+        scrollEventThrottle={scrollEventThrottle ?? 32}
+        onScroll={handleHintScroll}
+        onLayout={handleHintLayout}
+        onContentSizeChange={handleHintContentSizeChange}
+      >
+        {children}
+      </ScrollView>
+      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
+    </View>
+  );
+}
 
 function TodayDashboard({
   bootstrap,
@@ -1085,7 +1124,7 @@ function TodayDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             {completedProofRecord && completedProofChallenge ? (
               <CompletedQuestProofCard
                 challenge={completedProofChallenge}
@@ -1094,7 +1133,7 @@ function TodayDashboard({
                 onAccountUpdated={onAccountUpdated}
               />
             ) : null}
-          </ScrollView>
+          </ScrollHintedScrollView>
         </SafeAreaView>
       </Modal>
 
@@ -1230,7 +1269,7 @@ function JoinedMultiplayerQuestModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
-        <ScrollView
+        <ScrollHintedScrollView
           contentContainerStyle={compactStyles.detailContent}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={busy} tintColor={colors.gold} onRefresh={() => {
@@ -1459,7 +1498,7 @@ function JoinedMultiplayerQuestModal({
               </Pressable>
             )}
           </View>
-        </ScrollView>
+        </ScrollHintedScrollView>
         <Modal visible={Boolean(selectedRuleQuest)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setSelectedRuleQuestTitle(null)}>
           <SafeAreaView style={compactStyles.detailScreen}>
             <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
@@ -1468,7 +1507,7 @@ function JoinedMultiplayerQuestModal({
                 <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
               </Pressable>
             </View>
-            <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+            <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
               {selectedRuleQuest ? (
                 <View style={compactStyles.completedProofScreen}>
                   <View style={compactStyles.multiplayerDetailHero}>
@@ -1506,7 +1545,7 @@ function JoinedMultiplayerQuestModal({
                   </View>
                 </View>
               ) : null}
-            </ScrollView>
+            </ScrollHintedScrollView>
           </SafeAreaView>
         </Modal>
       </SafeAreaView>
@@ -1599,7 +1638,7 @@ function CurrentSideQuestDetailModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
-        <ScrollView
+        <ScrollHintedScrollView
           contentContainerStyle={compactStyles.detailContent}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={actionState.busy} tintColor={colors.gold} onRefresh={() => void onRunCheck()} />}
@@ -1640,7 +1679,7 @@ function CurrentSideQuestDetailModal({
             <Text style={compactStyles.detailQuietButtonText}>Switch Side Quest</Text>
           </Pressable>
 
-        </ScrollView>
+        </ScrollHintedScrollView>
         <Modal visible={coatExpanded} transparent animationType="fade" onRequestClose={() => setCoatExpanded(false)}>
           <Pressable accessibilityRole="button" accessibilityLabel="Close enlarged Coat of Arms" style={compactStyles.coatLightbox} onPress={() => setCoatExpanded(false)}>
             <View style={compactStyles.coatLightboxCard}>
@@ -2284,9 +2323,9 @@ function QuestBoardDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             {detailChallenge ? <SelectedQuestDetailCard challenge={detailChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} /> : null}
-          </ScrollView>
+          </ScrollHintedScrollView>
         </SafeAreaView>
       </Modal>
 
@@ -2298,7 +2337,7 @@ function QuestBoardDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             {completedQuestRecord && completedDetailChallenge ? (
               <CompletedQuestProofCard
                 challenge={completedDetailChallenge}
@@ -2307,7 +2346,7 @@ function QuestBoardDashboard({
                 onAccountUpdated={onAccountUpdated}
               />
             ) : null}
-          </ScrollView>
+          </ScrollHintedScrollView>
         </SafeAreaView>
       </Modal>
     </View>
@@ -3090,7 +3129,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create native multiplayer</Text>
@@ -3157,7 +3196,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest now" style={[compactStyles.detailPrimaryButton, groupQuestActionState.busy && groupQuestActionState.questId === "new" ? compactStyles.disabledAction : null]} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "new"} onPress={() => void createGroupQuest()}>
               <Text style={compactStyles.detailPrimaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "new" ? "Creating..." : "Create and join"}</Text>
             </Pressable>
-          </ScrollView>
+          </ScrollHintedScrollView>
         </SafeAreaView>
       </Modal>
 
@@ -3314,7 +3353,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Official weekly archive</Text>
@@ -3326,7 +3365,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
                 <AppRow key={quest.id} title={quest.title} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setSelectedQuestId(quest.id)} />
               ))}
             </View>
-          </ScrollView>
+          </ScrollHintedScrollView>
         </SafeAreaView>
       </Modal>
     </View>
@@ -4629,8 +4668,9 @@ const styles = StyleSheet.create({
   appWatermarkFrame: { position: "absolute", left: -118, top: 104, width: 620, height: 620, opacity: 0.025 },
   appWatermarkImage: { width: "100%", height: "100%" },
   content: { gap: 7, padding: 10, paddingTop: 10, paddingBottom: 86 },
+  scrollHintFrame: { flex: 1 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
-  scrollHintPill: { position: "absolute", right: 8, minWidth: 28, minHeight: 28, alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 4, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.055)", opacity: 0.52 },
+  scrollHintPill: { position: "absolute", right: 10, minWidth: 28, minHeight: 28, alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 4, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.055)", opacity: 0.56 },
   screenStack: { gap: 7 },
   heroCard: {
     overflow: "hidden",
