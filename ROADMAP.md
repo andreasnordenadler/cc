@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Polish Browse/Create public filter/sort button spacing.
+  - source: Andreas said the latest-first public Browse approach was much better, but the buttons looked weird / not arranged or spaced well.
+  - scope: refine panel now uses tighter spacing, a fixed-width Filter/Sort toggle, two-column filter chips, balanced sort chips, centered chip content, and smaller panel padding.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v75 built and production smoke recorded in chat.
+
 - [x] Rework Browse/Create public Side Quest discovery into latest-first plus refinement.
   - source: Andreas said public Side Quest filter/search was still not good and suggested showing the latest 5, then filter/sorting plus expand.
   - scope: default Browse/Create public section now shows the latest 5 open public Multiplayer Side Quests first; filter/search/sort lives behind a quieter `Filter / Sort` control; supports search by name/host/player text, sort by Newest/Ending soon/Most players, filter by Open/Joined/Hosted/Closed, clear filters, and `Show 5 more` expansion.

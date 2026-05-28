@@ -3091,7 +3091,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               {browseFilterOptions.map((option) => {
                 const selected = browseFilter === option.id;
                 return (
-                  <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseFilter(option.id); setBrowseOpenLimit(5); }}>
+                  <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, styles.browseFilterChipWide, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseFilter(option.id); setBrowseOpenLimit(5); }}>
                     <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
                     <Text style={[styles.browseFilterChipCount, selected ? styles.browseFilterChipTextActive : null]}>{option.count}</Text>
                   </Pressable>
@@ -3103,7 +3103,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               {browseSortOptions.map((option) => {
                 const selected = browseSort === option.id;
                 return (
-                  <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`Sort Multiplayer Side Quests by ${option.label}`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseSort(option.id); setBrowseOpenLimit(5); }}>
+                  <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`Sort Multiplayer Side Quests by ${option.label}`} style={[styles.browseFilterChip, styles.browseSortChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseSort(option.id); setBrowseOpenLimit(5); }}>
                     <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
                   </Pressable>
                 );
@@ -4811,12 +4811,14 @@ const styles = StyleSheet.create({
   filterValue: { color: "rgba(255,247,232,.62)", fontSize: 15, fontWeight: "900", paddingHorizontal: 12, paddingVertical: 11, borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.14)" },
   filterResetButton: { alignSelf: "flex-start", paddingHorizontal: 14, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", opacity: 0.62 },
   filterResetText: { color: colors.muted, fontWeight: "900" },
-  browseSummaryRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  browseRefineButton: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(0,0,0,.2)" },
+  browseSummaryRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  browseRefineButton: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, minWidth: 86, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(0,0,0,.2)" },
   browseRefineButtonText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
-  browseControlsPanel: { gap: 10, padding: 12, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
-  browseFilterGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  browseFilterChip: { flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.18)" },
+  browseControlsPanel: { gap: 9, padding: 10, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
+  browseFilterGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
+  browseFilterChip: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, minHeight: 38, paddingHorizontal: 11, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.18)" },
+  browseFilterChipWide: { flexBasis: "48%", flexGrow: 1 },
+  browseSortChip: { flexBasis: "31%", flexGrow: 1 },
   browseFilterChipActive: { borderColor: "rgba(96,240,175,.72)", backgroundColor: "rgba(96,240,175,.16)" },
   browseFilterChipText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
   browseFilterChipTextActive: { color: colors.paper },
