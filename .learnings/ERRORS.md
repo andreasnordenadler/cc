@@ -4195,3 +4195,10 @@ Used the canonical SQC blue literal `#76a9ff` for the Chess.com account mark.
 - **Fix**: Immediately replace the affected image render branches with `badgeSource` and rerun typecheck before the follow-up commit.
 - **Prevention**: Use `set -e` or chain verification and commit with `&&` for code-change commands; never let commit/push proceed after a failed gate.
 
+
+## [ERR-20260528-005] sqc_mobile_invite_share_patch_overreplaced_helper
+
+**Logged**: 2026-05-28T23:40:00+02:00
+**Priority**: low
+
+While adding SQC mobile invite sharing, a broad text replacement changed the top-level helper `getMultiplayerInviteMessage` to reference component-local `activeQuest`, causing TypeScript failure. Fixed by restoring the helper to use its `quest` parameter and keeping `activeQuest` only inside the modal component. Also avoided assuming the deploy clone has the Android Gradle file; Android build/version sync is canonical-repo based.

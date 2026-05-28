@@ -51,6 +51,18 @@ const MULTIPLAYER_RULE_OPTIONS = {
 } as const;
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
+const SQC_WEB_BASE_URL = getApiBaseUrl();
+
+function getMultiplayerInviteUrl(quest: Pick<MobileGroupQuestSummary, "id" | "inviteMode" | "inviteKey">) {
+  const baseUrl = `${SQC_WEB_BASE_URL}/groupquests/${encodeURIComponent(quest.id)}`;
+  const key = quest.inviteMode === "private-key" ? quest.inviteKey?.trim() : "";
+  return key ? `${baseUrl}?invite=${encodeURIComponent(key)}` : baseUrl;
+}
+
+function getMultiplayerInviteMessage(quest: Pick<MobileGroupQuestSummary, "id" | "title" | "inviteMode" | "inviteKey" | "inviteCopy">) {
+  const intro = quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY;
+  return `Join my Multiplayer Side Quest on Side Quest Chess: ${quest.title}\n${intro}\n${getMultiplayerInviteUrl(quest)}`;
+}
 
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
   return mode === "public"
@@ -1218,6 +1230,8 @@ function JoinedMultiplayerQuestModal({
 
   if (!quest) return null;
 
+  const activeQuest = quest;
+
   function closeModal() {
     setProofMode(false);
     setSelectedRuleQuestTitle(null);
@@ -1276,6 +1290,23 @@ function JoinedMultiplayerQuestModal({
     Alert.alert("Invite key copied", key);
   }
 
+  async function copyInviteLink() {
+    await Clipboard.setStringAsync(getMultiplayerInviteUrl(activeQuest));
+    Alert.alert("Invite link copied", "Paste it into Telegram, WhatsApp, Discord, SMS, or anywhere else your players already are.");
+  }
+
+  async function shareInviteLink() {
+    try {
+      await Share.share({
+        title: `Side Quest Chess: ${activeQuest.title}`,
+        message: getMultiplayerInviteMessage(activeQuest),
+        url: getMultiplayerInviteUrl(activeQuest),
+      });
+    } catch {
+      Alert.alert("Could not open sharing", "Copy the invite link instead and send it from your chat app.");
+    }
+  }
+
   function removeParticipant(row: (typeof leaderboardRows)[number]) {
     if (!row.userId || !row.removable) return;
     Alert.alert("Remove player?", `Remove ${row.name} from this Multiplayer Side Quest?`, [
@@ -1325,6 +1356,20 @@ function JoinedMultiplayerQuestModal({
               <Text style={compactStyles.multiplayerScoreLabel}>Your place</Text>
               <Text style={compactStyles.multiplayerScoreValue}>{position}</Text>
             </View>
+          </View>
+
+          <View style={compactStyles.multiplayerNativeCard}>
+            <Text style={compactStyles.multiplayerCardEyebrow}>{quest.isOwner ? "Invite players" : "Share"}</Text>
+            <Text style={compactStyles.multiplayerCardTitle}>{quest.isOwner ? "Send this Multiplayer Side Quest from any chat app." : "Send this Multiplayer Side Quest to another player."}</Text>
+            <View style={compactStyles.multiplayerFooterActions}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Share Multiplayer Side Quest invite" style={compactStyles.detailPrimaryButton} onPress={() => void shareInviteLink()}>
+                <Text style={compactStyles.detailPrimaryButtonText}>{quest.isOwner ? "Share invite" : "Share Side Quest"}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Copy Multiplayer Side Quest invite link" style={compactStyles.detailQuietButton} onPress={() => void copyInviteLink()}>
+                <Text style={compactStyles.detailQuietButtonText}>Copy invite link</Text>
+              </Pressable>
+            </View>
+            {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the key. Only share it with players you want in.</Text> : null}
           </View>
 
           {mode === "joined" && proofMode ? (
