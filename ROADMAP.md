@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Apply option-card style to remaining mobile Multiplayer settings.
+  - source: Andreas approved the Games allowed card treatment and asked to use the same for other settings on that screen.
+  - scope: Access/Visibility and Game settings now use the same compact selectable card treatment with selected dots and helper copy.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v82 built and production smoke recorded in chat.
+
 - [x] Polish mobile Games allowed selection controls.
   - source: Andreas screenshot feedback said the Games allowed buttons did not look good after the native date/time picker improvement.
   - scope: Create and admin edit Games allowed controls now use compact selectable option cards with short titles, helper copy, and selected dot state instead of chunky wrapped pill buttons.

@@ -52,6 +52,27 @@ const MULTIPLAYER_RULE_OPTIONS = {
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 
+function getInviteModeOptionCopy(mode: "public" | "private-key") {
+  return mode === "public"
+    ? { title: "Public", helper: "Visible in Browse/Create" }
+    : { title: "Private key", helper: "Only players with the key can join" };
+}
+
+function getMultiplayerRuleOptionCopy(ruleId: string, option: string) {
+  if (ruleId === "timeControl") {
+    if (option === "Any time control") return { title: "Any", helper: "Bullet, blitz, rapid, or classical" };
+    return { title: option, helper: `${option} games only` };
+  }
+  if (ruleId === "rated") {
+    if (option === "Any rated state") return { title: "Any", helper: "Rated or casual games count" };
+    if (option === "Rated only") return { title: "Rated", helper: "Only rated games count" };
+    return { title: "Casual", helper: "Only casual games count" };
+  }
+  if (option === "Any color") return { title: "Any", helper: "White or Black games count" };
+  if (option === "White only") return { title: "White", helper: "Only games as White count" };
+  return { title: "Black", helper: "Only games as Black count" };
+}
+
 type BrowseQuest = MobileChallenge & {
   browseKind: "live" | "coming-soon";
   releaseDate?: string;
@@ -1430,12 +1451,20 @@ function JoinedMultiplayerQuestModal({
               <Text style={styles.inputLabel}>Room name</Text>
               <TextInput value={adminName} placeholder="No Castle Night" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
               <Text style={styles.inputLabel}>Visibility</Text>
-              <View style={styles.buttonRow}>
-                {(["public", "private-key"] as const).map((modeOption) => (
-                  <Pressable key={modeOption} accessibilityRole="button" style={adminInviteMode === modeOption ? styles.primaryButton : styles.secondaryButton} onPress={() => setAdminInviteMode(modeOption)}>
-                    <Text style={adminInviteMode === modeOption ? styles.primaryButtonText : styles.secondaryButtonText}>{modeOption === "public" ? "Public" : "Private key"}</Text>
-                  </Pressable>
-                ))}
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {(["public", "private-key"] as const).map((modeOption) => {
+                  const selected = adminInviteMode === modeOption;
+                  const copy = getInviteModeOptionCopy(modeOption);
+                  return (
+                    <Pressable key={modeOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminInviteMode(modeOption)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
               <Text style={styles.inputLabel}>Games allowed</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
@@ -3231,12 +3260,20 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={styles.inputLabel}>Invite message</Text>
               <TextInput value={createInviteCopy} multiline placeholder="Invite players into your chaos..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
               <Text style={styles.inputLabel}>Access</Text>
-              <View style={styles.buttonRow}>
-                {(["public", "private-key"] as const).map((mode) => (
-                  <Pressable key={mode} accessibilityRole="button" style={createInviteMode === mode ? styles.primaryButton : styles.secondaryButton} onPress={() => setCreateInviteMode(mode)}>
-                    <Text style={createInviteMode === mode ? styles.primaryButtonText : styles.secondaryButtonText}>{mode === "public" ? "Public" : "Private key"}</Text>
-                  </Pressable>
-                ))}
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {(["public", "private-key"] as const).map((mode) => {
+                  const selected = createInviteMode === mode;
+                  const copy = getInviteModeOptionCopy(mode);
+                  return (
+                    <Pressable key={mode} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateInviteMode(mode)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
               </View>
               <Text style={styles.inputLabel}>Games allowed</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
@@ -3264,12 +3301,20 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               {Object.entries(MULTIPLAYER_RULE_OPTIONS).map(([ruleId, options]) => (
                 <View key={ruleId} style={compactStyles.multiplayerListStack}>
                   <Text style={compactStyles.multiplayerRuleLabel}>{ruleId === "timeControl" ? "Time control" : ruleId === "rated" ? "Rated setting" : "Player color"}</Text>
-                  <View style={styles.buttonRow}>
-                    {options.map((option) => (
-                      <Pressable key={option} accessibilityRole="button" style={createRules[ruleId] === option ? styles.primaryButton : styles.secondaryButton} onPress={() => setCreateRules((current) => ({ ...current, [ruleId]: option }))}>
-                        <Text style={createRules[ruleId] === option ? styles.primaryButtonText : styles.secondaryButtonText}>{option}</Text>
-                      </Pressable>
-                    ))}
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {options.map((option) => {
+                      const selected = createRules[ruleId] === option;
+                      const copy = getMultiplayerRuleOptionCopy(ruleId, option);
+                      return (
+                        <Pressable key={option} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateRules((current) => ({ ...current, [ruleId]: option }))}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <View style={compactStyles.multiplayerOptionCopy}>
+                            <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
+                            <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
                   </View>
                 </View>
               ))}
