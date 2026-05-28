@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Force English date labels in Multiplayer date/time controls.
+  - source: Andreas noted weekday names were displayed in Swedish and corrected that the UI should stay English.
+  - scope: date/time formatting now uses explicit `en-US` locale instead of inheriting device locale for Multiplayer date controls.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v78 built and production smoke recorded in chat.
+
 - [x] Make Multiplayer date/time wheels actually scroll and remove +/- time buttons.
   - source: Andreas corrected that the wheel-style time controls should be scrolling and asked to remove all +/- buttons.
   - scope: replaced faux three-row Pressable wheels with real vertical ScrollView hour/minute wheels using snap-to-interval, removed `-1h/-15m/+15m/+1h` adjustment buttons from Start/End, kept quick duration chips between Start and End.

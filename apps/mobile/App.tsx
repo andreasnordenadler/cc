@@ -2040,7 +2040,7 @@ function setGroupQuestDuration(startAt: Date, days: number) {
 }
 
 function formatGroupQuestControlDate(value: Date) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -2048,7 +2048,7 @@ function formatGroupQuestControlDate(value: Date) {
 }
 
 function formatGroupQuestControlTime(value: Date) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   }).format(value);
