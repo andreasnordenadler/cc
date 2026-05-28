@@ -3207,3 +3207,8 @@ Andreas clarified that the previously listed items are still wanted and should b
 - Design progress is valid when the artifact exists and `ccdesign` builds.
 - Implementation progress is valid when `cc` checks pass and changed routes are inspectable.
 - If the work starts feeling like chess analysis, stop and re-center on side quests.
+
+## 2026-05-28 — Mobile Multiplayer Browse IA follow-up
+- [x] Remove bottom `Back to Side Quests` from Browse Multiplayer Side Quests; X close remains the escape hatch.
+- [x] Replace the filter-first `Browse by status` concept with a discovery-first Browse screen: open/joinable Multiplayer Side Quests are visible immediately, filters narrow the list secondarily, long open lists page via `Show more`, and finished player-created Multiplayer Side Quests move into a Recent results section.
+- Proof: mobile typecheck/lint/Android build/deploy verification recorded with APK v61 after implementation.

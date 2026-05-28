@@ -89,3 +89,8 @@ Official Multiplayer Side Quests should have a dedicated Home entry labeled `Lea
 4. On the Leaderboard screen, show current 3 active official leaderboards and latest previous 3 final results.
 5. Add weekly archive browsing for older official sets.
 6. Add richer filters/sort only after the structure is solid.
+
+## 2026-05-28 follow-up — Browse should be discovery-first
+- Andreas rejected the filter-first `Browse by status` treatment. The Browse screen is primarily where users discover new Multiplayer Side Quests to join.
+- Updated IA direction: show open/joinable Multiplayer Side Quests immediately; keep filters as secondary list narrowing; paginate long open lists with a small `Show more` affordance; move ended/finished player-created Multiplayer Side Quests into a results-style section instead of mixing them into the main Browse discovery list.
+- The bottom `Back to Side Quests` button is removed; the top-right X remains the close affordance.

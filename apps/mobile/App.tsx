@@ -2698,7 +2698,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const publicMultiplayerQuest = publicMultiplayerId ? publicUserGroupQuests.find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
-  const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted" | "finished">("joinable");
+  const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted">("joinable");
+  const [browseOpenLimit, setBrowseOpenLimit] = useState(8);
   const [createName, setCreateName] = useState("No Castle Night");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
@@ -2827,18 +2828,19 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     setCreateQuestIds((current) => current.includes(questId) ? current.filter((id) => id !== questId) : [...current, questId].slice(0, 4));
   }
 
+  const joinablePublicUserGroupQuests = publicUserGroupQuests.filter((quest) => quest.joinState !== "Joined" && quest.status !== "Finished");
+  const joinedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => quest.joinState === "Joined" && !quest.isOwner && quest.status !== "Finished");
+  const hostedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => Boolean(quest.isOwner) && quest.status !== "Finished");
+  const finishedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => quest.status === "Finished");
   const browseFilterOptions: Array<{ id: typeof browseFilter; label: string; count: number }> = [
-    { id: "joinable", label: "Joinable", count: publicUserGroupQuests.filter((quest) => quest.joinState !== "Joined" && quest.status !== "Finished").length },
-    { id: "joined", label: "Joined", count: activeGroupQuests.length + publicUserGroupQuests.filter((quest) => quest.joinState === "Joined" && !quest.isOwner).length },
-    { id: "hosted", label: "Hosted", count: activeGroupQuests.filter((quest) => quest.isOwner).length + publicUserGroupQuests.filter((quest) => quest.isOwner).length },
-    { id: "finished", label: "Finished", count: publicUserGroupQuests.filter((quest) => quest.status === "Finished").length },
+    { id: "joinable", label: "Open to join", count: joinablePublicUserGroupQuests.length },
+    { id: "joined", label: "Joined", count: activeGroupQuests.length + joinedPublicUserGroupQuests.length },
+    { id: "hosted", label: "Hosted", count: activeGroupQuests.filter((quest) => quest.isOwner).length + hostedPublicUserGroupQuests.length },
   ];
-  const filteredPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => {
-    if (browseFilter === "joinable") return quest.joinState !== "Joined" && quest.status !== "Finished";
-    if (browseFilter === "joined") return quest.joinState === "Joined" && !quest.isOwner;
-    if (browseFilter === "hosted") return Boolean(quest.isOwner);
-    return quest.status === "Finished";
-  });
+  const filteredPublicUserGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedPublicUserGroupQuests : hostedPublicUserGroupQuests;
+  const visiblePublicUserGroupQuests = browseFilter === "joinable" ? filteredPublicUserGroupQuests.slice(0, browseOpenLimit) : filteredPublicUserGroupQuests;
+  const hiddenOpenCount = Math.max(0, filteredPublicUserGroupQuests.length - visiblePublicUserGroupQuests.length);
+  const recentFinishedPublicUserGroupQuests = finishedPublicUserGroupQuests.slice(0, 3);
 
   return (
     <View style={styles.screenStack}>
@@ -2920,20 +2922,21 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Public user-created Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Public Side Quests</Text>
-        <Text style={styles.sectionTitle}>Browse by status.</Text>
-        <Text style={styles.sectionBody}>Filters scale better than search once active and finished Multiplayer Side Quests start piling up.</Text>
-        <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest status filters">
+        <Text style={styles.sectionTitle}>Find a Multiplayer Side Quest to join.</Text>
+        <Text style={styles.sectionBody}>Open Multiplayer Side Quests are shown first. Use filters only when you want to narrow the list.</Text>
+        <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest list filters">
           {browseFilterOptions.map((option) => {
             const selected = browseFilter === option.id;
             return (
-              <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => setBrowseFilter(option.id)}>
+              <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseFilter(option.id); setBrowseOpenLimit(8); }}>
                 <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
                 <Text style={[styles.browseFilterChipCount, selected ? styles.browseFilterChipTextActive : null]}>{option.count}</Text>
               </Pressable>
             );
           })}
         </View>
-        {filteredPublicUserGroupQuests.length ? filteredPublicUserGroupQuests.map((quest) => (
+        <Text style={styles.microcopy}>{browseFilter === "joinable" ? "Newest open Multiplayer Side Quests first. Finished Multiplayer Side Quests move to results below." : browseFilter === "joined" ? "Multiplayer Side Quests you already joined." : "Multiplayer Side Quests you host."}</Text>
+        {visiblePublicUserGroupQuests.length ? visiblePublicUserGroupQuests.map((quest) => (
             <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open public Multiplayer Side Quest ${quest.title}`} style={styles.groupquestsActiveRow} onPress={() => setPublicMultiplayerId(quest.id)}>
               <Image source={{ uri: absoluteAssetUrl("/stamps/SQCBLACK%20SEAL.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
               <View style={styles.activeMultiplayerCopy}>
@@ -2944,7 +2947,29 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         )) : (
           <Text style={styles.sectionBody}>{publicUserGroupQuests.length ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} player-created Multiplayer Side Quests right now.` : "No public player-created Multiplayer Side Quests are open right now. Create one, or join a private Multiplayer Side Quest by key."}</Text>
         )}
+        {browseFilter === "joinable" && hiddenOpenCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setBrowseOpenLimit((current) => current + 8)}>
+            <Text style={styles.secondaryButtonText}>Show {Math.min(8, hiddenOpenCount)} more open Side Quests</Text>
+          </Pressable>
+        ) : null}
       </View>
+
+      {recentFinishedPublicUserGroupQuests.length ? (
+        <View style={styles.groupquestsActiveCard} accessibilityLabel="Recent finished Multiplayer Side Quest results">
+          <Text style={styles.eyebrow}>Recent results</Text>
+          <Text style={styles.sectionTitle}>Finished Multiplayer Side Quests.</Text>
+          <Text style={styles.sectionBody}>Ended player-created Multiplayer Side Quests stay out of Browse so new joinable ones are easier to find.</Text>
+          {recentFinishedPublicUserGroupQuests.map((quest) => (
+            <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open finished Multiplayer Side Quest result ${quest.title}`} style={styles.groupquestsActiveRow} onPress={() => setPublicMultiplayerId(quest.id)}>
+              <Image source={{ uri: absoluteAssetUrl("/stamps/SQCBLACK%20SEAL.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+              <View style={styles.activeMultiplayerCopy}>
+                <Text style={styles.activeMultiplayerTitle}>{quest.title}</Text>
+                <Text style={styles.activeMultiplayerMeta}>{getOfficialMultiplayerListStatus(quest)} · {getOfficialMultiplayerListMeta(quest)}</Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
 
       <View style={styles.groupquestsLoggedOutActions} accessibilityLabel="Join or create Multiplayer Side Quests">
         <View style={styles.groupquestsActionCard}>
@@ -3089,9 +3114,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Text style={styles.sectionBody}>Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.</Text>
       </View>
 
-      <Pressable accessibilityRole="button" accessibilityLabel="Back to Side Quests" style={styles.secondaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
-        <Text style={styles.secondaryButtonText}>Back to Side Quests</Text>
-      </Pressable>
     </View>
   );
 }
