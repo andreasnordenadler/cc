@@ -3123,12 +3123,14 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
     return (
       <View style={styles.screenStack}>
         <View style={styles.groupquestsHero}>
-          <Text style={styles.groupquestsHeroTitle}>Official Leaderboard.</Text>
+          <View style={styles.groupquestsHeroHeaderRow}>
+            <Text style={[styles.groupquestsHeroTitle, styles.groupquestsHeroTitleWithClose]}>Official Leaderboard.</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close official leaderboard" style={styles.screenCloseButton} onPress={() => onSelectTab("home")}>
+              <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
+            </Pressable>
+          </View>
           <Text style={styles.groupquestsHeroCopy}>Sign in to see active official weekly leaderboards, final results, and the official archive.</Text>
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Back to Home" style={styles.secondaryButtonWide} onPress={() => onSelectTab("home")}>
-          <Text style={styles.secondaryButtonText}>Back to Home</Text>
-        </Pressable>
       </View>
     );
   }
@@ -3136,7 +3138,12 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
   return (
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Official Leaderboard.</Text>
+        <View style={styles.groupquestsHeroHeaderRow}>
+          <Text style={[styles.groupquestsHeroTitle, styles.groupquestsHeroTitleWithClose]}>Official Leaderboard.</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close official leaderboard" style={styles.screenCloseButton} onPress={() => onSelectTab("home")}>
+            <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
+          </Pressable>
+        </View>
         <Text style={styles.groupquestsHeroCopy}>Three official Multiplayer Side Quests run every week — easy, medium, and hard. Track the live race, then review final weekly results.</Text>
       </View>
 
@@ -3181,10 +3188,6 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
           </Pressable>
         )) : <Text style={styles.sectionBody}>Older weekly official sets will be listed here once they exist.</Text>}
       </View>
-
-      <Pressable accessibilityRole="button" accessibilityLabel="Back to Home" style={styles.secondaryButtonWide} onPress={() => onSelectTab("home")}>
-        <Text style={styles.secondaryButtonText}>Back to Home</Text>
-      </Pressable>
 
       <JoinedMultiplayerQuestModal
         key={selectedQuest?.id ?? "official-leaderboard"}
@@ -4578,7 +4581,10 @@ const styles = StyleSheet.create({
   sideQuestModeCard: { gap: 8, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupModeCard: { borderColor: "rgba(245,200,106,.24)", backgroundColor: "rgba(245,200,106,.08)" },
   groupquestsHero: { gap: 8, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 14, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
+  groupquestsHeroHeaderRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12 },
   groupquestsHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.7, lineHeight: 37 },
+  groupquestsHeroTitleWithClose: { flex: 1 },
+  screenCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(0,0,0,.26)" },
   groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
   groupquestsStoryCard: { gap: 16, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
   groupquestsStoryCopy: { gap: 10 },
