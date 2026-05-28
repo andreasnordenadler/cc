@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Remove Home public preview and normalize current official Multiplayer Side Quests to exactly three.
+  - source: Andreas rejected the separate Home public preview and clarified he wants the Home emphasis to be exactly 3 Official Multiplayer Side Quests.
+  - scope: remove the `Public Multiplayer Side Quests` Home section from mobile; seed/normalize production official active rows to Easy/Medium/Hard official public rooms.
+  - proof: typecheck/lint/build/deploy passed; production official data now has 3 active official rows; APK v73 built and smoke recorded in chat.
+
 - [x] Add Home public Multiplayer Side Quest preview and align Browse/Create rows with Home card styling.
   - source: Andreas liked the Home Multiplayer Side Quest list style and asked to use that style everywhere, then confirmed adding a separate public preview on Home.
   - scope: keep `My Multiplayer Side Quests` as joined/hosted, add `Public Multiplayer Side Quests` preview for joinable public rooms, and render Browse/Create public + recent-results rows with the same `AppRow` treatment used on Home.
