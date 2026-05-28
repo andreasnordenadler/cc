@@ -1240,7 +1240,7 @@ function JoinedMultiplayerQuestModal({
             <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{quest.title}</Text>
-            <Text style={compactStyles.detailGoal}>{mode === "joined" ? "A shared chess dare where every player proves the same bad idea with fresh public games." : "Inspect the shared dare, included quests, and rules before you join this public Multiplayer Side Quest."}</Text>
+            <Text style={compactStyles.detailGoal}>{mode === "joined" ? "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games." : "Inspect the shared Multiplayer Side Quest, included Side Quests, and rules before you join this public Multiplayer Side Quest."}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
@@ -1445,12 +1445,12 @@ function JoinedMultiplayerQuestModal({
                   <Text style={compactStyles.pullRefreshHintText}>Pull down to refresh</Text>
                 </View>
                 <Pressable accessibilityRole="button" accessibilityLabel="Leave Multiplayer Side Quest" style={[compactStyles.detailQuietButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onLeave?.()}>
-                  <Text style={compactStyles.detailQuietButtonText}>Leave quest</Text>
+                  <Text style={compactStyles.detailQuietButtonText}>Leave Side Quest</Text>
                 </Pressable>
               </>
             ) : (
               <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quest" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onJoin?.()}>
-                <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Joining..." : "Join quest"}</Text>
+                <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Joining..." : "Join Side Quest"}</Text>
               </Pressable>
             )}
           </View>
@@ -2725,7 +2725,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     },
     {
       title: "Invite",
-      copy: "Share the invite link so players can inspect the side quests, proof window, and join conditions before committing.",
+      copy: "Share the invite link so players can inspect the Side Quests, proof window, and join conditions before committing.",
     },
     {
       title: "Play",
@@ -2849,7 +2849,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
           </Pressable>
         </View>
-        <Text style={styles.groupquestsHeroCopy}>Find public player-created rooms, manage the ones you joined or host, create a new room, or join a private one by key.</Text>
+        <Text style={styles.groupquestsHeroCopy}>Find public player-created Multiplayer Side Quests, manage the ones you joined or host, create a new Multiplayer Side Quest, or join a private one by key.</Text>
       </View>
 
       {activeGroupQuests.length ? (
@@ -2865,9 +2865,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               </View>
             </Pressable>
           ))}
-          <Pressable accessibilityRole="button" accessibilityLabel="Open joined Multiplayer Side Quest detail" style={styles.primaryButton} onPress={() => setJoinedMultiplayerId(activeGroupQuests[0]?.id ?? null)}>
-            <Text style={styles.primaryButtonText}>Open joined Side Quest</Text>
-          </Pressable>
         </View>
       ) : null}
 
@@ -2922,7 +2919,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       />
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Public user-created Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Public quests</Text>
+        <Text style={styles.eyebrow}>Public Side Quests</Text>
         <Text style={styles.sectionTitle}>Browse by status.</Text>
         <Text style={styles.sectionBody}>Filters scale better than search once active and finished Multiplayer Side Quests start piling up.</Text>
         <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest status filters">
@@ -2945,20 +2942,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               </View>
             </Pressable>
         )) : (
-          <Text style={styles.sectionBody}>{publicUserGroupQuests.length ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} player-created rooms right now.` : "No public player-created rooms are open right now. Create one, or join a private room by key."}</Text>
+          <Text style={styles.sectionBody}>{publicUserGroupQuests.length ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} player-created Multiplayer Side Quests right now.` : "No public player-created Multiplayer Side Quests are open right now. Create one, or join a private Multiplayer Side Quest by key."}</Text>
         )}
       </View>
 
-      <View style={styles.groupquestsLoggedOutActions} accessibilityLabel="Start or join Multiplayer Side Quests">
-        <View style={styles.groupquestsActionCard}>
-          <Text style={styles.sideQuestModeTitle}>Create a New Multiplayer Side Quest.</Text>
-          <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, choose public or private-key access, and SQC joins you as host automatically.</Text>
-          <Pressable accessibilityRole="button" style={styles.primaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
-            <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
-          </Pressable>
-          {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join native Multiplayer Side Quests.</Text> : null}
-        </View>
-
+      <View style={styles.groupquestsLoggedOutActions} accessibilityLabel="Join or create Multiplayer Side Quests">
         <View style={styles.groupquestsActionCard}>
           <Text style={styles.sideQuestModeTitle}>Join private by key.</Text>
           <Text style={styles.sideQuestModeCopy}>Private Multiplayer Side Quests stay off the public list. Paste the invite key from the host and join inside the app.</Text>
@@ -2980,6 +2968,15 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
           {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
         </View>
+
+        <View style={styles.groupquestsActionCard}>
+          <Text style={styles.sideQuestModeTitle}>Create a New Multiplayer Side Quest.</Text>
+          <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, choose public or private-key access, and SQC joins you as host automatically.</Text>
+          <Pressable accessibilityRole="button" style={styles.primaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+            <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
+          </Pressable>
+          {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join native Multiplayer Side Quests.</Text> : null}
+        </View>
       </View>
 
       <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCreateOpen(false)}>
@@ -2994,8 +2991,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create native multiplayer</Text>
-              <Text style={compactStyles.detailTitle}>Start a shared chess dare.</Text>
-              <Text style={compactStyles.detailGoal}>The app creates the quest, joins you as host, and returns a private key when you choose private access.</Text>
+              <Text style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
+              <Text style={compactStyles.detailGoal}>The app creates the Multiplayer Side Quest, joins you as host, and returns a private key when you choose private access.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Quest name</Text>
@@ -3064,7 +3061,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsStoryCard} accessibilityLabel="What Multiplayer Side Quests are">
         <View style={styles.groupquestsStoryCopy}>
           <Text style={styles.sectionTitle}>A tiny chess tournament for bad ideas.</Text>
-          <Text style={styles.sectionBody}>One player creates the dare, everyone agrees on rules, then SQC checks fresh multiplayer-valid proof from normal public games.</Text>
+          <Text style={styles.sectionBody}>One player creates the Multiplayer Side Quest, everyone agrees on rules, then SQC checks fresh multiplayer-valid proof from normal public games.</Text>
         </View>
         <View style={styles.groupquestsProcessGraphic}>
           <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.groupquestsKnightArt} resizeMode="contain" />
