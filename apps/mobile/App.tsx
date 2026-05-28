@@ -50,7 +50,7 @@ const MULTIPLAYER_RULE_OPTIONS = {
   color: ["Any color", "White only", "Black only"],
 } as const;
 
-const MULTIPLAYER_DEFAULT_INVITE_COPY = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
+const MULTIPLAYER_DEFAULT_INVITE_COPY = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
 
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
   return mode === "public"
@@ -1308,7 +1308,7 @@ function JoinedMultiplayerQuestModal({
             <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{quest.title}</Text>
-            <Text style={compactStyles.detailGoal}>{mode === "joined" ? "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games." : "Inspect the shared Multiplayer Side Quest, included Side Quests, and rules before you join this public Multiplayer Side Quest."}</Text>
+            <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
@@ -1448,8 +1448,11 @@ function JoinedMultiplayerQuestModal({
                   </View>
                 </View>
               ) : null}
-              <Text style={styles.inputLabel}>Room name</Text>
-              <TextInput value={adminName} placeholder="No Castle Night" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
+              <Text style={styles.inputLabel}>Quest name</Text>
+              <TextInput value={adminName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
+              <Text style={styles.inputLabel}>Intro text</Text>
+              <TextInput value={adminInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setAdminInviteCopy} />
+              <Text style={styles.microcopy}>Shown on the Multiplayer Side Quest front page.</Text>
               <Text style={styles.inputLabel}>Visibility</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {(["public", "private-key"] as const).map((modeOption) => {
@@ -2892,7 +2895,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [browseSearch, setBrowseSearch] = useState("");
   const [browseControlsOpen, setBrowseControlsOpen] = useState(false);
   const [browseOpenLimit, setBrowseOpenLimit] = useState(5);
-  const [createName, setCreateName] = useState("No Castle Night");
+  const [createName, setCreateName] = useState("");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
   const [createProviderMode, setCreateProviderMode] = useState<"both" | "lichess" | "chesscom">("both");
@@ -2973,6 +2976,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       return;
     }
 
+    const trimmedName = createName.trim();
+    if (!trimmedName) {
+      setGroupQuestActionState({ busy: false, questId: "new", message: null, error: "Add a Multiplayer Side Quest name before creating." });
+      return;
+    }
+
     setGroupQuestActionState({ busy: true, questId: "new", message: null, error: null });
     try {
       const sessionToken = await authBridge.getSessionToken();
@@ -2981,7 +2990,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         groupQuestId: "new",
         action: "create",
         payload: {
-          name: createName,
+          name: trimmedName,
           inviteCopy: createInviteCopy,
           inviteMode: createInviteMode,
           questIds: createQuestIds.length ? createQuestIds : [bootstrap.challenges[0]?.id].filter(Boolean),
@@ -3254,9 +3263,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Quest name</Text>
-              <TextInput value={createName} placeholder="No Castle Night" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateName} />
-              <Text style={styles.inputLabel}>Invite message</Text>
-              <TextInput value={createInviteCopy} multiline placeholder="Invite players into your chaos..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
+              <TextInput value={createName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateName} />
+              <Text style={styles.microcopy}>Required. Use your own name or something weird like No Castle Night.</Text>
+              <Text style={styles.inputLabel}>Intro text</Text>
+              <TextInput value={createInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
+              <Text style={styles.microcopy}>Shown on the Multiplayer Side Quest front page.</Text>
               <Text style={styles.inputLabel}>Access</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {(["public", "private-key"] as const).map((mode) => {

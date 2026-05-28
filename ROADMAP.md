@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make Multiplayer name required and repurpose invite copy as intro text.
+  - source: Andreas requested Quest name to be blank/random and mandatory, and asked to remake Invite Message into intro/explanation/front text shown on Multiplayer Side Quest pages.
+  - scope: create name starts blank and is required before submit; mobile API rejects blank names; Invite Message is relabeled Intro text, defaulted to the prior generic shared Multiplayer copy, and Multiplayer detail hero now displays the quest's intro text instead of hard-coded generic copy.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v85 built and production smoke recorded in chat.
+
 - [x] Make Quick duration preserve the selected start time-of-day.
   - source: Andreas clarified Quick duration should match the start time of day.
   - scope: removed end-of-day forcing from `setGroupQuestDuration`; duration chips now set End to Start + N days at the same hour/minute.

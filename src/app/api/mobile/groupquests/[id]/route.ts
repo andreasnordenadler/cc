@@ -52,6 +52,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const metadata = (user.publicMetadata as UserMetadataRecord) ?? {};
 
   if (action === "create") {
+    if (!cleanText(payload?.name, 64)) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: "Add a Multiplayer Side Quest name before creating." },
+        { status: 400 },
+      );
+    }
+
     const hostName = getPreferredRunnerName(metadata, {
       firstName: user.firstName,
       lastName: user.lastName,

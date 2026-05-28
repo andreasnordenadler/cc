@@ -45,7 +45,7 @@ export type GroupQuestHostRecord = {
 
 const MAX_HOST_QUESTS = 4;
 const MAX_PARTICIPANTS = 80;
-const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
+const defaultInviteCopy = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
 const defaultRules = { timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
 
 export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
