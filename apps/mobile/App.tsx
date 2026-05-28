@@ -1147,8 +1147,8 @@ function JoinedMultiplayerQuestModal({
   const [adminInviteCopy, setAdminInviteCopy] = useState(quest?.inviteCopy ?? MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [adminInviteMode, setAdminInviteMode] = useState<"public" | "private-key">(quest?.inviteMode === "private-key" ? "private-key" : "public");
   const [adminProviderMode, setAdminProviderMode] = useState<"both" | "lichess" | "chesscom">(quest?.providerMode ?? "both");
-  const [adminStartAt, setAdminStartAt] = useState(formatGroupQuestDateInput(quest?.startAt));
-  const [adminEndAt, setAdminEndAt] = useState(formatGroupQuestDateInput(quest?.endAt));
+  const [adminStartAt, setAdminStartAt] = useState(() => dateFromGroupQuestValue(quest?.startAt));
+  const [adminEndAt, setAdminEndAt] = useState(() => dateFromGroupQuestValue(quest?.endAt, setGroupQuestDuration(dateFromGroupQuestValue(quest?.startAt), 7)));
   const [adminRules, setAdminRules] = useState<Record<string, string>>(quest?.rules ?? { timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [adminQuestIds, setAdminQuestIds] = useState<string[]>(quest?.questIds ?? []);
 
@@ -1197,8 +1197,8 @@ function JoinedMultiplayerQuestModal({
       inviteMode: adminInviteMode,
       questIds: adminQuestIds.length ? adminQuestIds : (quest?.questIds ?? []),
       providerMode: adminProviderMode,
-      startAt: parseGroupQuestDateInputToIso(adminStartAt),
-      endAt: parseGroupQuestDateInputToIso(adminEndAt),
+      startAt: adminStartAt.toISOString(),
+      endAt: adminEndAt.toISOString(),
       rules: adminRules,
     });
   }
@@ -1403,11 +1403,11 @@ function JoinedMultiplayerQuestModal({
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.inputLabel}>Start date</Text>
-              <TextInput value={adminStartAt} placeholder="2026-05-27 18:00" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminStartAt} />
-              <Text style={styles.inputLabel}>End date</Text>
-              <TextInput value={adminEndAt} placeholder="2026-06-03 18:00" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminEndAt} />
-              <Text style={styles.microcopy}>Use local time, for example 2026-06-03 18:00.</Text>
+              <GroupQuestDateTimeControl label="Start" value={adminStartAt} onChange={setAdminStartAt} />
+              <GroupQuestDateTimeControl label="End" value={adminEndAt} onChange={setAdminEndAt} />
+              <Text style={styles.inputLabel}>Quick duration</Text>
+              <GroupQuestDurationChips startAt={adminStartAt} onChangeEndAt={setAdminEndAt} />
+              <Text style={styles.microcopy}>Dates save as your local time. No typing needed.</Text>
               <Text style={styles.inputLabel}>Included Side Quests</Text>
               <View style={compactStyles.appRows}>
                 {challenges.slice(0, 8).map((challenge) => (
@@ -1976,21 +1976,106 @@ function formatGroupQuestDate(value?: string | null) {
   }).format(date);
 }
 
-function formatGroupQuestDateInput(value?: string | null) {
-  if (!value) return "";
+function dateFromGroupQuestValue(value?: string | null, fallback: Date = new Date()) {
+  if (!value) return new Date(fallback.getTime());
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  const pad = (input: number) => String(input).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  return Number.isNaN(date.getTime()) ? new Date(fallback.getTime()) : date;
 }
 
-function parseGroupQuestDateInputToIso(value: string) {
-  const trimmed = value.trim();
-  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
-  if (!match) return trimmed;
-  const [, year, month, day, hour, minute] = match;
-  const localDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), 0, 0);
-  return Number.isNaN(localDate.getTime()) ? trimmed : localDate.toISOString();
+function addGroupQuestDays(value: Date, days: number) {
+  const next = new Date(value.getTime());
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+function addGroupQuestMinutes(value: Date, minutes: number) {
+  return new Date(value.getTime() + minutes * 60 * 1000);
+}
+
+function setGroupQuestDuration(startAt: Date, days: number) {
+  const next = addGroupQuestDays(startAt, days);
+  next.setHours(23, 59, 0, 0);
+  return next;
+}
+
+function formatGroupQuestControlDate(value: Date) {
+  return new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(value);
+}
+
+function formatGroupQuestControlTime(value: Date) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(value);
+}
+
+function GroupQuestDateTimeControl({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: Date;
+  onChange: (next: Date) => void;
+}) {
+  return (
+    <View style={styles.dateTimeControl}>
+      <Text style={styles.inputLabel}>{label}</Text>
+      <View style={styles.dateTimePanel}>
+        <View style={styles.dateTimeMainRow}>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Move ${label} one day earlier`} style={styles.dateTimeStepButton} onPress={() => onChange(addGroupQuestDays(value, -1))}>
+            <MaterialCommunityIcons name="chevron-left" size={19} color={colors.paper} />
+          </Pressable>
+          <View style={styles.dateTimeValueBox}>
+            <Text style={styles.dateTimeValueDate}>{formatGroupQuestControlDate(value)}</Text>
+            <Text style={styles.dateTimeValueTime}>{formatGroupQuestControlTime(value)}</Text>
+          </View>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Move ${label} one day later`} style={styles.dateTimeStepButton} onPress={() => onChange(addGroupQuestDays(value, 1))}>
+            <MaterialCommunityIcons name="chevron-right" size={19} color={colors.paper} />
+          </Pressable>
+        </View>
+        <View style={styles.dateTimeChipRow}>
+          {[
+            { label: "−1h", minutes: -60 },
+            { label: "−15m", minutes: -15 },
+            { label: "+15m", minutes: 15 },
+            { label: "+1h", minutes: 60 },
+          ].map((option) => (
+            <Pressable key={option.label} accessibilityRole="button" accessibilityLabel={`${option.label} ${label}`} style={styles.dateTimeChip} onPress={() => onChange(addGroupQuestMinutes(value, option.minutes))}>
+              <Text style={styles.dateTimeChipText}>{option.label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function GroupQuestDurationChips({
+  startAt,
+  onChangeEndAt,
+}: {
+  startAt: Date;
+  onChangeEndAt: (next: Date) => void;
+}) {
+  return (
+    <View style={styles.durationChipRow} accessibilityLabel="Quick Multiplayer Side Quest duration choices">
+      {[
+        { label: "24h", days: 1 },
+        { label: "3 days", days: 3 },
+        { label: "1 week", days: 7 },
+        { label: "2 weeks", days: 14 },
+      ].map((option) => (
+        <Pressable key={option.label} accessibilityRole="button" accessibilityLabel={`Set duration to ${option.label}`} style={styles.dateTimeChip} onPress={() => onChangeEndAt(setGroupQuestDuration(startAt, option.days))}>
+          <Text style={styles.dateTimeChipText}>{option.label}</Text>
+        </Pressable>
+      ))}
+    </View>
+  );
 }
 
 function defaultGroupQuestEndAtIso(durationDays: number) {
@@ -2705,8 +2790,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
   const [createProviderMode, setCreateProviderMode] = useState<"both" | "lichess" | "chesscom">("both");
-  const [createStartAt, setCreateStartAt] = useState(formatGroupQuestDateInput(new Date().toISOString()));
-  const [createEndAt, setCreateEndAt] = useState(formatGroupQuestDateInput(defaultGroupQuestEndAtIso(7)));
+  const [createStartAt, setCreateStartAt] = useState(() => new Date());
+  const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
   const [createRules, setCreateRules] = useState<Record<string, string>>({ timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
 
@@ -2795,8 +2880,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           inviteMode: createInviteMode,
           questIds: createQuestIds.length ? createQuestIds : [bootstrap.challenges[0]?.id].filter(Boolean),
           providerMode: createProviderMode,
-          startAt: parseGroupQuestDateInputToIso(createStartAt),
-          endAt: parseGroupQuestDateInputToIso(createEndAt),
+          startAt: createStartAt.toISOString(),
+          endAt: createEndAt.toISOString(),
           rules: createRules,
         },
       });
@@ -3033,11 +3118,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   </Pressable>
                 ))}
               </View>
-              <Text style={styles.inputLabel}>Start date</Text>
-              <TextInput value={createStartAt} placeholder="2026-05-27 18:00" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateStartAt} />
-              <Text style={styles.inputLabel}>End date</Text>
-              <TextInput value={createEndAt} placeholder="2026-06-03 18:00" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateEndAt} />
-              <Text style={styles.microcopy}>Use local time, for example 2026-06-03 18:00.</Text>
+              <GroupQuestDateTimeControl label="Start" value={createStartAt} onChange={setCreateStartAt} />
+              <GroupQuestDateTimeControl label="End" value={createEndAt} onChange={setCreateEndAt} />
+              <Text style={styles.inputLabel}>Quick duration</Text>
+              <GroupQuestDurationChips startAt={createStartAt} onChangeEndAt={setCreateEndAt} />
+              <Text style={styles.microcopy}>Dates save as your local time. No typing needed.</Text>
               <Text style={styles.inputLabel}>Game settings</Text>
               {Object.entries(MULTIPLAYER_RULE_OPTIONS).map(([ruleId, options]) => (
                 <View key={ruleId} style={compactStyles.multiplayerListStack}>
@@ -4896,6 +4981,17 @@ const styles = StyleSheet.create({
   inputLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
   textInput: { color: colors.paper, paddingHorizontal: 13, paddingVertical: 11, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.22)", fontSize: 15, fontWeight: "800" },
   textAreaInput: { minHeight: 92, textAlignVertical: "top" },
+  dateTimeControl: { gap: 7 },
+  dateTimePanel: { gap: 9, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(0,0,0,.2)" },
+  dateTimeMainRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  dateTimeStepButton: { width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: 19, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
+  dateTimeValueBox: { flex: 1, alignItems: "center", gap: 2 },
+  dateTimeValueDate: { color: colors.paper, fontSize: 16, fontWeight: "900" },
+  dateTimeValueTime: { color: colors.gold, fontSize: 23, fontWeight: "900", letterSpacing: -0.7 },
+  dateTimeChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, justifyContent: "center" },
+  durationChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  dateTimeChip: { alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
+  dateTimeChipText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
   successCopy: { color: colors.green, fontSize: 13, lineHeight: 18, fontWeight: "800" },
   momentumCard: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 20, backgroundColor: "rgba(245,200,106,.08)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   momentumIcon: { width: 38, height: 38, textAlign: "center", textAlignVertical: "center", borderRadius: 19, overflow: "hidden", fontSize: 22, backgroundColor: "rgba(0,0,0,.2)" },
