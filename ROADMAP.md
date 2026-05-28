@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Refresh SQC Mobile app icon with larger Coat of Arms and graphite background.
+  - source: Andreas liked the icon but asked to maximize the Coat of Arms size and change the white background, suggesting graphite grey.
+  - scope: mobile app icon assets/config plus Android launcher resources; use graphite background and a larger cropped Coat of Arms foreground.
+  - proof: generated new 1024px graphite app icon assets, maximized the cropped Coat of Arms foreground, updated Android adaptive icon config to graphite `#303336`, built APK v71, and published the APK after release verification.
+
 - [x] Add closed Multiplayer Side Quest results discovery on mobile.
   - source: Andreas asked how a user can see recently closed hosted/joined Multiplayer Side Quests or generally find a closed Multiplayer Side Quest to check final results.
   - scope: mobile account API/types + Browse/Create UI; expose closed joined/hosted rooms and closed public rooms, add a `Closed` filter for user-related final results, and keep recent public results visible separately.
