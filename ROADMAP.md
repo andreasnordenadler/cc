@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Test wheel-style date/time controls for Multiplayer Side Quest create/edit.
+  - source: Andreas said create/edit date-time picker was not good and asked to test a scroll-wheel style like his reference images, with quick duration options between start and end date choices.
+  - scope: start/end controls now show a wheel-style hour/minute selector with dim previous/next values and highlighted selected value; quick duration chips are placed between Start and End in both create and admin edit flows.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v76 built and production smoke recorded in chat.
+
 - [x] Polish Browse/Create public filter/sort button spacing.
   - source: Andreas said the latest-first public Browse approach was much better, but the buttons looked weird / not arranged or spaced well.
   - scope: refine panel now uses tighter spacing, a fixed-width Filter/Sort toggle, two-column filter chips, balanced sort chips, centered chip content, and smaller panel padding.

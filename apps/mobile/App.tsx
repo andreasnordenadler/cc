@@ -2033,6 +2033,18 @@ function addGroupQuestMinutes(value: Date, minutes: number) {
   return new Date(value.getTime() + minutes * 60 * 1000);
 }
 
+function setGroupQuestHour(value: Date, hour: number) {
+  const next = new Date(value.getTime());
+  next.setHours((hour + 24) % 24);
+  return next;
+}
+
+function setGroupQuestMinute(value: Date, minute: number) {
+  const next = new Date(value.getTime());
+  next.setMinutes((minute + 60) % 60);
+  return next;
+}
+
 function setGroupQuestDuration(startAt: Date, days: number) {
   const next = addGroupQuestDays(startAt, days);
   next.setHours(23, 59, 0, 0);
@@ -2073,11 +2085,25 @@ function GroupQuestDateTimeControl({
           </Pressable>
           <View style={styles.dateTimeValueBox}>
             <Text style={styles.dateTimeValueDate}>{formatGroupQuestControlDate(value)}</Text>
-            <Text style={styles.dateTimeValueTime}>{formatGroupQuestControlTime(value)}</Text>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel={`Move ${label} one day later`} style={styles.dateTimeStepButton} onPress={() => onChange(addGroupQuestDays(value, 1))}>
             <MaterialCommunityIcons name="chevron-right" size={19} color={colors.paper} />
           </Pressable>
+        </View>
+        <View style={styles.dateTimeWheelPanel} accessibilityLabel={`${label} time picker`}>
+          <DateTimeWheelColumn
+            label="Hour"
+            values={[((value.getHours() + 23) % 24).toString().padStart(2, "0"), value.getHours().toString().padStart(2, "0"), ((value.getHours() + 1) % 24).toString().padStart(2, "0")]}
+            onPrevious={() => onChange(addGroupQuestMinutes(value, -60))}
+            onNext={() => onChange(addGroupQuestMinutes(value, 60))}
+          />
+          <Text style={styles.dateTimeWheelColon}>:</Text>
+          <DateTimeWheelColumn
+            label="Minute"
+            values={[((value.getMinutes() + 45) % 60).toString().padStart(2, "0"), value.getMinutes().toString().padStart(2, "0"), ((value.getMinutes() + 15) % 60).toString().padStart(2, "0")]}
+            onPrevious={() => onChange(addGroupQuestMinutes(value, -15))}
+            onNext={() => onChange(addGroupQuestMinutes(value, 15))}
+          />
         </View>
         <View style={styles.dateTimeChipRow}>
           {[
@@ -2092,6 +2118,23 @@ function GroupQuestDateTimeControl({
           ))}
         </View>
       </View>
+    </View>
+  );
+}
+
+
+function DateTimeWheelColumn({ label, values, onPrevious, onNext }: { label: string; values: [string, string, string]; onPrevious: () => void; onNext: () => void }) {
+  return (
+    <View style={styles.dateTimeWheelColumn}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Previous ${label.toLowerCase()}`} style={styles.dateTimeWheelRow} onPress={onPrevious}>
+        <Text style={styles.dateTimeWheelGhost}>{values[0]}</Text>
+      </Pressable>
+      <View style={styles.dateTimeWheelSelected}>
+        <Text style={styles.dateTimeWheelValue}>{values[1]}</Text>
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Next ${label.toLowerCase()}`} style={styles.dateTimeWheelRow} onPress={onNext}>
+        <Text style={styles.dateTimeWheelGhost}>{values[2]}</Text>
+      </Pressable>
     </View>
   );
 }
@@ -5091,8 +5134,15 @@ const styles = StyleSheet.create({
   dateTimeValueBox: { flex: 1, alignItems: "center", gap: 2 },
   dateTimeValueDate: { color: colors.paper, fontSize: 16, fontWeight: "900" },
   dateTimeValueTime: { color: colors.gold, fontSize: 23, fontWeight: "900", letterSpacing: -0.7 },
+  dateTimeWheelPanel: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 4 },
+  dateTimeWheelColumn: { width: 82, alignItems: "center", justifyContent: "center" },
+  dateTimeWheelRow: { height: 30, alignItems: "center", justifyContent: "center" },
+  dateTimeWheelSelected: { minWidth: 70, height: 42, alignItems: "center", justifyContent: "center", borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(245,200,106,.1)" },
+  dateTimeWheelGhost: { color: "rgba(255,247,232,.32)", fontSize: 19, fontWeight: "900" },
+  dateTimeWheelValue: { color: colors.paper, fontSize: 29, fontWeight: "900", letterSpacing: -0.8 },
+  dateTimeWheelColon: { color: colors.gold, fontSize: 28, fontWeight: "900", marginTop: -1 },
   dateTimeChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, justifyContent: "center" },
-  durationChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  durationChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, padding: 9, borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.075)" },
   dateTimeChip: { alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
   dateTimeChipText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
   successCopy: { color: colors.green, fontSize: 13, lineHeight: 18, fontWeight: "800" },
