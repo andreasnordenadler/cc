@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Replace mobile custom date/time wheels with native picker controls.
+  - source: Andreas agreed to native pickers after rejecting the custom scrolling wheel interaction.
+  - scope: Multiplayer Start/End controls now show date/time summary buttons and open native date/time pickers; duration chips remain between Start and End.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v80 built and production smoke recorded in chat.
+
 - [x] Make mobile time wheels continuous and test light-blue app icon.
   - source: Andreas requested looped wheels where minutes/hours continue across boundaries (`00` after `59`, etc.) and asked to try a light-blue icon background.
   - scope: hour/minute wheels now render repeated circular value bands and recenter after scroll end; app icon uses light-blue background variant.

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import * as Clipboard from "expo-clipboard";
@@ -2063,89 +2064,59 @@ function GroupQuestDateTimeControl({
   value: Date;
   onChange: (next: Date) => void;
 }) {
+  const [pickerTarget, setPickerTarget] = useState<NativeDateTimePickerTarget>(null);
+
+  const handleNativePickerChange = (event: DateTimePickerEvent, selected?: Date) => {
+    if (Platform.OS === "android") setPickerTarget(null);
+    if (event.type === "dismissed" || !selected || !pickerTarget) return;
+    onChange(applyNativeDateTimeSelection(value, selected, pickerTarget.mode));
+    if (Platform.OS !== "android") setPickerTarget(null);
+  };
+
   return (
     <View style={styles.dateTimeControl}>
       <Text style={styles.inputLabel}>{label}</Text>
       <View style={styles.dateTimePanel}>
-        <View style={styles.dateTimeMainRow}>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Move ${label} one day earlier`} style={styles.dateTimeStepButton} onPress={() => onChange(addGroupQuestDays(value, -1))}>
-            <MaterialCommunityIcons name="chevron-left" size={19} color={colors.paper} />
+        <View style={styles.dateTimeNativeGrid}>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Choose ${label} date`} style={styles.dateTimeNativeButton} onPress={() => setPickerTarget({ label, mode: "date" })}>
+            <Text style={styles.dateTimeNativeKicker}>Date</Text>
+            <Text style={styles.dateTimeNativeValue}>{formatGroupQuestControlDate(value)}</Text>
           </Pressable>
-          <View style={styles.dateTimeValueBox}>
-            <Text style={styles.dateTimeValueDate}>{formatGroupQuestControlDate(value)}</Text>
-          </View>
-          <Pressable accessibilityRole="button" accessibilityLabel={`Move ${label} one day later`} style={styles.dateTimeStepButton} onPress={() => onChange(addGroupQuestDays(value, 1))}>
-            <MaterialCommunityIcons name="chevron-right" size={19} color={colors.paper} />
+          <Pressable accessibilityRole="button" accessibilityLabel={`Choose ${label} time`} style={styles.dateTimeNativeButton} onPress={() => setPickerTarget({ label, mode: "time" })}>
+            <Text style={styles.dateTimeNativeKicker}>Time</Text>
+            <Text style={styles.dateTimeNativeValue}>{formatGroupQuestControlTime(value)}</Text>
           </Pressable>
         </View>
-        <View style={styles.dateTimeWheelPanel} accessibilityLabel={`${label} time picker`}>
-          <DateTimeWheelColumn
-            label="Hour"
-            values={Array.from({ length: 24 }, (_, index) => index.toString().padStart(2, "0"))}
-            selectedIndex={value.getHours()}
-            onSelect={(hour) => { const next = new Date(value.getTime()); next.setHours(hour); onChange(next); }}
-          />
-          <Text style={styles.dateTimeWheelColon}>:</Text>
-          <DateTimeWheelColumn
-            label="Minute"
-            values={Array.from({ length: 60 }, (_, index) => index.toString().padStart(2, "0"))}
-            selectedIndex={value.getMinutes()}
-            onSelect={(minute) => { const next = new Date(value.getTime()); next.setMinutes(minute); onChange(next); }}
-          />
-        </View>
+        <Text style={styles.dateTimeNativeHint}>Tap date or time to use the native picker.</Text>
       </View>
+      {pickerTarget ? (
+        <DateTimePicker
+          value={value}
+          mode={pickerTarget.mode}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          locale="en-US"
+          is24Hour={false}
+          onChange={handleNativePickerChange}
+        />
+      ) : null}
     </View>
   );
 }
 
 
-const DATE_TIME_WHEEL_ITEM_HEIGHT = 42;
-const DATE_TIME_WHEEL_REPEATS = 9;
-const DATE_TIME_WHEEL_CENTER_REPEAT = Math.floor(DATE_TIME_WHEEL_REPEATS / 2);
+type NativeDateTimePickerTarget = {
+  label: string;
+  mode: "date" | "time";
+} | null;
 
-function DateTimeWheelColumn({ label, values, selectedIndex, onSelect }: { label: string; values: string[]; selectedIndex: number; onSelect: (index: number) => void }) {
-  const wheelRef = useRef<ScrollView | null>(null);
-  const wheelValues = useMemo(() => Array.from({ length: DATE_TIME_WHEEL_REPEATS }).flatMap(() => values), [values]);
-  const centeredIndex = DATE_TIME_WHEEL_CENTER_REPEAT * values.length + selectedIndex;
-
-  useEffect(() => {
-    wheelRef.current?.scrollTo({ y: centeredIndex * DATE_TIME_WHEEL_ITEM_HEIGHT, animated: false });
-  }, [centeredIndex]);
-
-  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const rawIndex = Math.round(event.nativeEvent.contentOffset.y / DATE_TIME_WHEEL_ITEM_HEIGHT);
-    const nextIndex = ((rawIndex % values.length) + values.length) % values.length;
-    if (nextIndex !== selectedIndex) onSelect(nextIndex);
-    requestAnimationFrame(() => {
-      wheelRef.current?.scrollTo({ y: (DATE_TIME_WHEEL_CENTER_REPEAT * values.length + nextIndex) * DATE_TIME_WHEEL_ITEM_HEIGHT, animated: false });
-    });
-  };
-
-  return (
-    <View style={styles.dateTimeWheelColumn}>
-      <View pointerEvents="none" style={styles.dateTimeWheelSelected} />
-      <ScrollView
-        ref={wheelRef}
-        accessibilityLabel={`${label} scroll wheel`}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={DATE_TIME_WHEEL_ITEM_HEIGHT}
-        decelerationRate="fast"
-        nestedScrollEnabled
-        contentContainerStyle={styles.dateTimeWheelContent}
-        onMomentumScrollEnd={handleScrollEnd}
-        onScrollEndDrag={handleScrollEnd}
-      >
-        {wheelValues.map((entry, index) => {
-          const normalizedIndex = index % values.length;
-          return (
-            <View key={`${entry}-${index}`} style={styles.dateTimeWheelItem}>
-              <Text style={normalizedIndex === selectedIndex ? styles.dateTimeWheelValue : styles.dateTimeWheelGhost}>{entry}</Text>
-            </View>
-          );
-        })}
-      </ScrollView>
-    </View>
-  );
+function applyNativeDateTimeSelection(current: Date, selected: Date, mode: "date" | "time") {
+  const next = new Date(current.getTime());
+  if (mode === "date") {
+    next.setFullYear(selected.getFullYear(), selected.getMonth(), selected.getDate());
+  } else {
+    next.setHours(selected.getHours(), selected.getMinutes(), 0, 0);
+  }
+  return next;
 }
 
 function GroupQuestDurationChips({
@@ -5138,19 +5109,11 @@ const styles = StyleSheet.create({
   textAreaInput: { minHeight: 92, textAlignVertical: "top" },
   dateTimeControl: { gap: 7 },
   dateTimePanel: { gap: 9, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(0,0,0,.2)" },
-  dateTimeMainRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  dateTimeStepButton: { width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: 19, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
-  dateTimeValueBox: { flex: 1, alignItems: "center", gap: 2 },
-  dateTimeValueDate: { color: colors.paper, fontSize: 16, fontWeight: "900" },
-  dateTimeValueTime: { color: colors.gold, fontSize: 23, fontWeight: "900", letterSpacing: -0.7 },
-  dateTimeWheelPanel: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10, paddingVertical: 4 },
-  dateTimeWheelColumn: { width: 82, height: 126, alignItems: "center", justifyContent: "center", overflow: "hidden" },
-  dateTimeWheelContent: { paddingVertical: 42 },
-  dateTimeWheelItem: { height: 42, alignItems: "center", justifyContent: "center" },
-  dateTimeWheelSelected: { position: "absolute", left: 5, right: 5, top: 42, height: 42, borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(245,200,106,.1)" },
-  dateTimeWheelGhost: { color: "rgba(255,247,232,.32)", fontSize: 19, fontWeight: "900" },
-  dateTimeWheelValue: { color: colors.paper, fontSize: 29, fontWeight: "900", letterSpacing: -0.8 },
-  dateTimeWheelColon: { color: colors.gold, fontSize: 28, fontWeight: "900", marginTop: -1 },
+  dateTimeNativeGrid: { flexDirection: "row", gap: 8 },
+  dateTimeNativeButton: { flex: 1, gap: 5, minHeight: 64, paddingHorizontal: 12, paddingVertical: 11, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
+  dateTimeNativeKicker: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
+  dateTimeNativeValue: { color: colors.paper, fontSize: 16, fontWeight: "900", letterSpacing: -0.2 },
+  dateTimeNativeHint: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
   durationChipRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, padding: 9, borderRadius: 16, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.075)" },
   dateTimeChip: { alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(255,247,232,.08)" },
   dateTimeChipText: { color: colors.paper, fontSize: 12, fontWeight: "900" },
