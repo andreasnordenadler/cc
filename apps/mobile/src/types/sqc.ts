@@ -132,7 +132,9 @@ export type MobileAccountState = {
     badgeImageUrl: string | null;
   } | null;
   activeGroupQuests: MobileGroupQuestSummary[];
+  closedGroupQuests?: MobileGroupQuestSummary[];
   publicUserGroupQuests?: MobileGroupQuestSummary[];
+  closedPublicUserGroupQuests?: MobileGroupQuestSummary[];
   officialPublicGroupQuests?: MobileGroupQuestSummary[];
   previousOfficialGroupQuests?: MobileGroupQuestSummary[];
   officialGroupQuestWeeks?: Array<{

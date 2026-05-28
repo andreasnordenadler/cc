@@ -90,7 +90,7 @@ export async function GET(request: Request) {
   const publicGroupQuests = await listPublicGroupQuests(client);
   const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
   const officialGroupQuestIds = new Set(publicGroupQuests.filter(isOfficialGroupQuest).map((quest) => quest.id));
-  const activeGroupQuests = relatedGroupQuests
+  const relatedUserGroupQuestPayloads = relatedGroupQuests
     .filter((quest) => !officialGroupQuestIds.has(quest.id) && !isOfficialGroupQuest(quest))
     .filter((quest) => quest.participants.some((participant) => participant.userId === userId))
     .map((quest) => {
@@ -101,11 +101,12 @@ export async function GET(request: Request) {
         id: quest.id,
         title: quest.name,
         status,
-        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), getParticipantPositionLabel(quest, userId)].filter(Boolean).join(" · "),
+        copy: [formatPlayersLabel(quest.participants.length), status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt), getParticipantPositionLabel(quest, userId)].filter(Boolean).join(" · "),
         href: new URL(`/groupquests/${quest.id}${isHost ? "" : "?accepted=1"}`, baseUrl).toString(),
         playersLabel: formatPlayersLabel(quest.participants.length),
-        timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        timeLeftLabel: status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt),
         positionLabel: getParticipantPositionLabel(quest, userId),
+        joinState: "Joined" as const,
         pointsLabel: formatPointsLabel(participant?.score ?? 0),
         verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         official: false,
@@ -126,8 +127,9 @@ export async function GET(request: Request) {
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
       };
-    })
-    .filter((quest) => quest.status !== "Finished");
+    });
+  const activeGroupQuests = relatedUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
+  const closedGroupQuests = relatedUserGroupQuestPayloads.filter((quest) => quest.status === "Finished").slice(0, 12);
   const officialGroupQuestPayloads = publicGroupQuests
     .filter(isOfficialGroupQuest)
     .map((quest) => {
@@ -171,7 +173,7 @@ export async function GET(request: Request) {
     .filter((quest) => quest.status === "Finished")
     .slice(0, 3);
   const officialGroupQuestWeeks = buildOfficialGroupQuestWeeks(officialGroupQuestPayloads);
-  const publicUserGroupQuests = publicGroupQuests
+  const publicUserGroupQuestPayloads = publicGroupQuests
     .filter((quest) => !isOfficialGroupQuest(quest))
     .map((quest) => {
       const joined = quest.participants.some((participant) => participant.userId === userId);
@@ -181,10 +183,10 @@ export async function GET(request: Request) {
         id: quest.id,
         title: quest.name,
         status: deriveGroupQuestStatus(quest.startAt, quest.endAt),
-        copy: [formatPlayersLabel(quest.participants.length), formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
+        copy: [formatPlayersLabel(quest.participants.length), deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt), positionLabel].filter(Boolean).join(" · "),
         href: new URL(`/groupquests/${quest.id}${joined ? "?accepted=1" : ""}`, baseUrl).toString(),
         playersLabel: formatPlayersLabel(quest.participants.length),
-        timeLeftLabel: formatTimeLeftLabel(quest.endAt),
+        timeLeftLabel: deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt),
         positionLabel: positionLabel ?? undefined,
         joinState: joined ? "Joined" as const : "Join" as const,
         pointsLabel: formatPointsLabel(participant?.score ?? 0),
@@ -207,8 +209,9 @@ export async function GET(request: Request) {
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
       };
-    })
-    .filter((quest) => quest.status !== "Finished");
+    });
+  const publicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
+  const closedPublicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status === "Finished").slice(0, 12);
 
   return NextResponse.json({
     apiVersion: 1,
@@ -249,7 +252,9 @@ export async function GET(request: Request) {
         }
       : null,
     activeGroupQuests,
+    closedGroupQuests,
     publicUserGroupQuests,
+    closedPublicUserGroupQuests,
     officialPublicGroupQuests,
     previousOfficialGroupQuests,
     officialGroupQuestWeeks,

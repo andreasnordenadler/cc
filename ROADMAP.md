@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Add closed Multiplayer Side Quest results discovery on mobile.
+  - source: Andreas asked how a user can see recently closed hosted/joined Multiplayer Side Quests or generally find a closed Multiplayer Side Quest to check final results.
+  - scope: mobile account API/types + Browse/Create UI; expose closed joined/hosted rooms and closed public rooms, add a `Closed` filter for user-related final results, and keep recent public results visible separately.
+  - proof: mobile account API now returns `closedGroupQuests` and `closedPublicUserGroupQuests`; Browse/Create has a `Closed` filter for joined/hosted final results and recent public results remain visible; APK v70 built and final production deploy/smoke recorded in chat.
+
 - [x] Standardize SQC Mobile scroll indicators across scrollable screens and modals.
   - source: Andreas showed the mobile scroll indicator and asked that it appear everywhere relevant, always anchored down in the right corner and lower than the screenshot.
   - scope: mobile app; reuse one scroll-hint overlay across full-screen/detail modal ScrollViews, keep it passive/non-interactive, and move the indicator lower-right.

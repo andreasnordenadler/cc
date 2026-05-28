@@ -33,7 +33,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
-import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge } from "./src/types/sqc";
+import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileGroupQuestSummary } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 
@@ -1167,7 +1167,7 @@ function JoinedMultiplayerQuestModal({
   onRemoveParticipant,
 }: {
   visible: boolean;
-  quest: (MobileAccountState["activeGroupQuests"][number] | NonNullable<MobileAccountState["officialPublicGroupQuests"]>[number]) | null;
+  quest: MobileGroupQuestSummary | null;
   challenges?: MobileChallenge[];
   mode?: "joined" | "public";
   busy?: boolean;
@@ -2816,14 +2816,17 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const publicUserGroupQuests = (signedInAccount?.publicUserGroupQuests ?? []).filter((quest) => !quest.official && !quest.id.startsWith("official-"));
   const [groupQuestActionState, setGroupQuestActionState] = useState<{ busy: boolean; questId: string | null; message: string | null; error: string | null }>({ busy: false, questId: null, message: null, error: null });
   const [joinedMultiplayerId, setJoinedMultiplayerId] = useState<string | null>(null);
-  const joinedMultiplayerQuest = joinedMultiplayerId ? activeGroupQuests.find((quest) => quest.id === joinedMultiplayerId) ?? null : null;
+  const closedGroupQuests = (signedInAccount?.closedGroupQuests ?? []).filter((quest) => !officialPublicGroupQuestIds.has(quest.id) && !quest.id.startsWith("official-"));
+  const closedPublicUserGroupQuests = (signedInAccount?.closedPublicUserGroupQuests ?? []).filter((quest) => !quest.official && !quest.id.startsWith("official-"));
+  const closedUserGroupQuests = [...closedGroupQuests, ...closedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
+  const joinedMultiplayerQuest = joinedMultiplayerId ? [...activeGroupQuests, ...closedUserGroupQuests].find((quest) => quest.id === joinedMultiplayerId) ?? null : null;
   const [officialMultiplayerId, setOfficialMultiplayerId] = useState<string | null>(null);
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublicGroupQuests.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
-  const publicMultiplayerQuest = publicMultiplayerId ? publicUserGroupQuests.find((quest) => quest.id === publicMultiplayerId) ?? null : null;
+  const publicMultiplayerQuest = publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
-  const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted">("joinable");
+  const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted" | "closed">("joinable");
   const [browseOpenLimit, setBrowseOpenLimit] = useState(8);
   const [createName, setCreateName] = useState("No Castle Night");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
@@ -2958,21 +2961,22 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const hostedActiveGroupQuests = activeGroupQuests.filter((quest) => Boolean(quest.isOwner) && quest.status !== "Finished");
   const joinedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => quest.joinState === "Joined" && !quest.isOwner && quest.status !== "Finished" && !activeGroupQuests.some((activeQuest) => activeQuest.id === quest.id));
   const hostedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => Boolean(quest.isOwner) && quest.status !== "Finished" && !activeGroupQuests.some((activeQuest) => activeQuest.id === quest.id));
-  const finishedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => quest.status === "Finished");
+  const finishedPublicUserGroupQuests = closedPublicUserGroupQuests;
   const joinedBrowseGroupQuests = [...joinedActiveGroupQuests, ...joinedPublicUserGroupQuests];
   const hostedBrowseGroupQuests = [...hostedActiveGroupQuests, ...hostedPublicUserGroupQuests];
   const browseFilterOptions: Array<{ id: typeof browseFilter; label: string; count: number }> = [
     { id: "joinable", label: "Open to join", count: joinablePublicUserGroupQuests.length },
     { id: "joined", label: "Joined", count: joinedBrowseGroupQuests.length },
     { id: "hosted", label: "Hosted", count: hostedBrowseGroupQuests.length },
+    { id: "closed", label: "Closed", count: closedUserGroupQuests.length },
   ];
-  const filteredBrowseGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedBrowseGroupQuests : hostedBrowseGroupQuests;
+  const filteredBrowseGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedBrowseGroupQuests : browseFilter === "hosted" ? hostedBrowseGroupQuests : closedUserGroupQuests;
   const visibleBrowseGroupQuests = browseFilter === "joinable" ? filteredBrowseGroupQuests.slice(0, browseOpenLimit) : filteredBrowseGroupQuests;
   const hiddenOpenCount = Math.max(0, filteredBrowseGroupQuests.length - visibleBrowseGroupQuests.length);
   const recentFinishedPublicUserGroupQuests = finishedPublicUserGroupQuests.slice(0, 3);
 
   function openBrowseGroupQuest(groupQuestId: string) {
-    if (activeGroupQuests.some((quest) => quest.id === groupQuestId)) {
+    if ([...activeGroupQuests, ...closedUserGroupQuests].some((quest) => quest.id === groupQuestId)) {
       setJoinedMultiplayerId(groupQuestId);
       return;
     }
@@ -3052,7 +3056,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             );
           })}
         </View>
-        <Text style={styles.microcopy}>{browseFilter === "joinable" ? "Newest open Multiplayer Side Quests first. Finished Multiplayer Side Quests move to results below." : browseFilter === "joined" ? "Multiplayer Side Quests you already joined." : "Multiplayer Side Quests you host."}</Text>
+        <Text style={styles.microcopy}>{browseFilter === "joinable" ? "Newest open Multiplayer Side Quests first. Finished Multiplayer Side Quests move to results below." : browseFilter === "joined" ? "Active Multiplayer Side Quests you already joined." : browseFilter === "hosted" ? "Active Multiplayer Side Quests you host." : "Closed Multiplayer Side Quests you joined or hosted. Open one to review final results."}</Text>
         {visibleBrowseGroupQuests.length ? visibleBrowseGroupQuests.map((quest) => (
             <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open ${browseFilter === "joinable" ? "open" : browseFilter} Multiplayer Side Quest ${quest.title}`} style={styles.groupquestsActiveRow} onPress={() => openBrowseGroupQuest(quest.id)}>
               <Image source={{ uri: absoluteAssetUrl("/stamps/SQCBLACK%20SEAL.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
