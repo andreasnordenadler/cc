@@ -754,9 +754,6 @@ function TodayDashboard({
   const officialPublic = (signedIn?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const officialPublicIds = new Set(officialPublic.map((quest) => quest.id));
   const activeMultiplayer = (signedIn?.activeGroupQuests ?? []).filter((quest) => !officialPublicIds.has(quest.id) && !quest.id.startsWith("official-"));
-  const publicMultiplayerPreview = (signedIn?.publicUserGroupQuests ?? [])
-    .filter((quest) => !quest.official && !quest.id.startsWith("official-") && quest.status !== "Finished" && quest.joinState !== "Joined" && !quest.isOwner)
-    .slice(0, 3);
   const hasChessAccount = Boolean(signedIn?.chessAccounts.hasAny);
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [groupQuestActionState, setGroupQuestActionState] = useState<{ busy: boolean; questId: string | null; message: string | null; error: string | null }>({
@@ -770,8 +767,6 @@ function TodayDashboard({
   const joinedMultiplayerQuest = joinedMultiplayerId ? activeMultiplayer.find((quest) => quest.id === joinedMultiplayerId) ?? null : null;
   const [officialMultiplayerId, setOfficialMultiplayerId] = useState<string | null>(null);
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublic.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
-  const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
-  const publicMultiplayerQuest = publicMultiplayerId ? publicMultiplayerPreview.find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
   const celebratedCompletionIds = useRef<Set<string>>(new Set());
@@ -1042,13 +1037,6 @@ function TodayDashboard({
         )}
       </AppSection>
 
-      <AppSection title="Public Multiplayer Side Quests" action="Browse/Create" onAction={() => onSelectTab("multiplayerSideQuests")}>
-        {publicMultiplayerPreview.length ? publicMultiplayerPreview.map((quest) => (
-          <AppRow key={quest.id} title={quest.title} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setPublicMultiplayerId(quest.id)} />
-        )) : (
-          <AppRow title="No public rooms open right now" meta="Open Browse/Create to create one or join by private key." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />
-        )}
-      </AppSection>
 
       <JoinedMultiplayerQuestModal
         key={joinedMultiplayerQuest?.id ?? "joined"}
@@ -1084,22 +1072,6 @@ function TodayDashboard({
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <JoinedMultiplayerQuestModal
-        key={publicMultiplayerQuest?.id ?? "public-preview"}
-        visible={Boolean(publicMultiplayerQuest)}
-        quest={publicMultiplayerQuest ?? null}
-        challenges={bootstrap.challenges}
-        mode={publicMultiplayerQuest?.joinState === "Joined" ? "joined" : "public"}
-        busy={groupQuestActionState.busy && groupQuestActionState.questId === publicMultiplayerQuest?.id}
-        message={groupQuestActionState.questId === publicMultiplayerQuest?.id ? groupQuestActionState.message : null}
-        error={groupQuestActionState.questId === publicMultiplayerQuest?.id ? groupQuestActionState.error : null}
-        onClose={() => setPublicMultiplayerId(null)}
-        onRefresh={() => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "refresh") : undefined}
-        onLeave={() => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "leave") : undefined}
-        onJoin={() => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "join") : undefined}
-        onUpdate={(payload) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "update", payload) : undefined}
-        onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
-      />
 
       <AppSection title="Official Multiplayer Side Quests" action="Leaderboards" onAction={() => onSelectTab("officialLeaderboards")}>
         {officialPublic.length ? officialPublic.map((quest) => (
