@@ -1197,8 +1197,8 @@ function JoinedMultiplayerQuestModal({
       inviteMode: adminInviteMode,
       questIds: adminQuestIds.length ? adminQuestIds : (quest?.questIds ?? []),
       providerMode: adminProviderMode,
-      startAt: adminStartAt,
-      endAt: adminEndAt,
+      startAt: parseGroupQuestDateInputToIso(adminStartAt),
+      endAt: parseGroupQuestDateInputToIso(adminEndAt),
       rules: adminRules,
     });
   }
@@ -1982,6 +1982,15 @@ function formatGroupQuestDateInput(value?: string | null) {
   if (Number.isNaN(date.getTime())) return value;
   const pad = (input: number) => String(input).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function parseGroupQuestDateInputToIso(value: string) {
+  const trimmed = value.trim();
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
+  if (!match) return trimmed;
+  const [, year, month, day, hour, minute] = match;
+  const localDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), 0, 0);
+  return Number.isNaN(localDate.getTime()) ? trimmed : localDate.toISOString();
 }
 
 function defaultGroupQuestEndAtIso(durationDays: number) {
@@ -2786,8 +2795,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           inviteMode: createInviteMode,
           questIds: createQuestIds.length ? createQuestIds : [bootstrap.challenges[0]?.id].filter(Boolean),
           providerMode: createProviderMode,
-          startAt: createStartAt,
-          endAt: createEndAt,
+          startAt: parseGroupQuestDateInputToIso(createStartAt),
+          endAt: parseGroupQuestDateInputToIso(createEndAt),
           rules: createRules,
         },
       });
