@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make Quick duration preserve the selected start time-of-day.
+  - source: Andreas clarified Quick duration should match the start time of day.
+  - scope: removed end-of-day forcing from `setGroupQuestDuration`; duration chips now set End to Start + N days at the same hour/minute.
+  - proof: mobile typecheck passed, targeted lint passed, Android release build passed; APK v84 built and production smoke recorded in chat.
+
 - [x] Show all available Side Quests in Multiplayer included-list selector.
   - source: Andreas noticed not all Side Quests were visible in the included Side Quests list.
   - scope: removed the `slice(0, 8)` cap from create and admin/edit included Side Quest selectors so the full challenge catalog can be chosen.

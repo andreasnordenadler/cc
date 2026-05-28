@@ -2073,9 +2073,7 @@ function addGroupQuestMinutes(value: Date, minutes: number) {
 }
 
 function setGroupQuestDuration(startAt: Date, days: number) {
-  const next = addGroupQuestDays(startAt, days);
-  next.setHours(23, 59, 0, 0);
-  return next;
+  return addGroupQuestDays(startAt, days);
 }
 
 function formatGroupQuestControlDate(value: Date) {
