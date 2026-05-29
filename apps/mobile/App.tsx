@@ -38,6 +38,33 @@ import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, Mobile
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 
+type HelpTopic = "solo" | "proof" | "coat" | "multiplayer" | "accounts";
+
+const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
+  solo: {
+    title: "Solo Side Quests",
+    body: "Pick one Side Quest, then play a fresh public game on Lichess or Chess.com. Come back and tap check proof when the game is finished.",
+  },
+  proof: {
+    title: "Proof checks",
+    body: "SQC checks your latest public games after you picked the Side Quest. If a game does not verify, make sure it is public, finished, on the connected username, and matches the Side Quest rule.",
+  },
+  coat: {
+    title: "Coat of Arms",
+    body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and can be opened from the Trophy Cabinet.",
+  },
+  multiplayer: {
+    title: "Multiplayer Side Quests",
+    body: "Join or create a shared Side Quest room. Each player proves fresh public games during the room window, and the leaderboard updates when proof is refreshed.",
+  },
+  accounts: {
+    title: "Chess accounts",
+    body: "Add your public Lichess or Chess.com username so SQC knows which games to check. SQC only reads public game records.",
+  },
+};
+
+const SUPPORT_EMAIL = "support@sidequestchess.com";
+
 const MULTIPLAYER_PROVIDER_MODES = [
   { id: "both", label: "Lichess or Chess.com" },
   { id: "lichess", label: "Lichess only" },
@@ -945,6 +972,7 @@ function TodayDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
+          <HelpIconButton topic="solo" label="Help with Solo Side Quests" />
         </View>
         {signedIn.activeQuest ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
@@ -1322,6 +1350,7 @@ function JoinedMultiplayerQuestModal({
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
+            <HelpIconButton topic="multiplayer" label="Help with Multiplayer Side Quests" />
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
@@ -1966,6 +1995,97 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
+function HelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.helpIconButton} onPress={() => showHelpTopic(topic)}>
+      <Text style={compactStyles.helpIconText}>?</Text>
+    </Pressable>
+  );
+}
+
+function showHelpTopic(topic: HelpTopic) {
+  const item = HELP_TOPICS[topic];
+  Alert.alert(item.title, item.body);
+}
+
+function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
+  return (
+    <AppSection title="Help & Support" action="Open" onAction={onOpenHelp}>
+      <AppRow title="How SQC works" meta="Side Quests, proof checks, Coat of Arms, and Multiplayer help." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
+      <AppRow title="Report a problem" meta="Tell us what happened and we’ll take a look." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={onOpenHelp} />
+    </AppSection>
+  );
+}
+
+function HelpSupportModal({ visible, onClose, signedIn }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null }) {
+  async function copySupportDetails() {
+    const details = [
+      "Side Quest Chess support",
+      `Account: ${signedIn?.profile.email ?? signedIn?.profile.displayName ?? "not signed in"}`,
+      `Lichess: ${signedIn?.chessAccounts.lichessUsername ?? "not connected"}`,
+      `Chess.com: ${signedIn?.chessAccounts.chessComUsername ?? "not connected"}`,
+      `Active quest: ${signedIn?.activeQuest?.title ?? "none"}`,
+      `Time: ${new Date().toISOString()}`,
+    ].join("\n");
+    await Clipboard.setStringAsync(details);
+    Alert.alert("Support details copied", `Paste this into a message to ${SUPPORT_EMAIL} and add what went wrong.`);
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
+      <SafeAreaView style={compactStyles.detailScreen}>
+        <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
+        <View style={compactStyles.detailTopBar}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close Help and Support" style={compactStyles.detailCloseButton} onPress={onClose}>
+            <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+          </Pressable>
+        </View>
+        <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <View style={compactStyles.multiplayerDetailHero}>
+            <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
+            <Text style={compactStyles.multiplayerDetailKicker}>Help & Support</Text>
+            <Text style={compactStyles.detailTitle}>How can we help?</Text>
+            <Text style={compactStyles.detailGoal}>Quick answers for Side Quests, proof, connected accounts, and Multiplayer.</Text>
+          </View>
+
+          <View style={compactStyles.detailPanelStrong}>
+            <Text style={compactStyles.detailPanelTitle}>Quick answers</Text>
+            <Text style={compactStyles.detailPanelCopy}>SQC checks public chess games after you pick or join a Side Quest. If something looks wrong, refresh proof after the game has fully finished.</Text>
+          </View>
+
+          <View style={compactStyles.appRows}>
+            <HelpSupportRow title="How Side Quests work" body={HELP_TOPICS.solo.body} />
+            <HelpSupportRow title="Why proof may not verify" body={HELP_TOPICS.proof.body} />
+            <HelpSupportRow title="Connecting chess accounts" body={HELP_TOPICS.accounts.body} />
+            <HelpSupportRow title="Multiplayer Side Quests" body={HELP_TOPICS.multiplayer.body} />
+            <HelpSupportRow title="Coat of Arms" body={HELP_TOPICS.coat.body} />
+          </View>
+
+          <View style={compactStyles.multiplayerNativeCard}>
+            <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
+            <Text style={compactStyles.detailPanelCopy}>Something not working? Copy your support details, then send what happened to {SUPPORT_EMAIL}.</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Copy support email" style={compactStyles.detailQuietButton} onPress={() => void Clipboard.setStringAsync(SUPPORT_EMAIL).then(() => Alert.alert("Support email copied", SUPPORT_EMAIL))}>
+              <Text style={compactStyles.detailQuietButtonText}>Copy support email</Text>
+            </Pressable>
+          </View>
+        </ScrollHintedScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+}
+
+function HelpSupportRow({ title, body }: { title: string; body: string }) {
+  return (
+    <View style={compactStyles.helpSupportRow}>
+      <Text style={compactStyles.appRowTitle}>{title}</Text>
+      <Text style={compactStyles.helpSupportBody}>{body}</Text>
+    </View>
+  );
+}
+
 function AppRow({
   title,
   meta,
@@ -2499,6 +2619,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
 
 function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
+  const [helpOpen, setHelpOpen] = useState(false);
   if (!signedIn) {
     return (
       <View style={compactStyles.stack}>
@@ -2512,6 +2633,8 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Text style={compactStyles.goldButtonText}>Sign in</Text>
           </Pressable>
         </View>
+        <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
+        <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} />
       </View>
     );
   }
@@ -2560,6 +2683,8 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
+      <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
+      <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} />
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
         <Text style={compactStyles.logoutButtonText}>Log out</Text>
       </Pressable>
@@ -2592,10 +2717,11 @@ function AccountSoloSideQuestSection({
   const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a fresh public game that matches this Side Quest rule.";
 
   return (
-    <View style={compactStyles.appSection}>
-      <View style={compactStyles.panelHeaderRow}>
-        <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-      </View>
+      <View style={compactStyles.appSection}>
+        <View style={compactStyles.panelHeaderRow}>
+          <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
+          <HelpIconButton topic="solo" label="Help with Solo Side Quests" />
+        </View>
       {account.activeQuest ? (
         <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest" style={compactStyles.freshPanel} onPress={() => onSelectChallenge(account.activeQuest?.id ?? "", "sideQuests")}>
           {activeStatus === "Completed" ? (
@@ -4738,6 +4864,8 @@ const compactStyles = StyleSheet.create({
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   emptyMultiplayerCreateButton: { alignSelf: "center" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  helpIconButton: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.13)", borderWidth: 1, borderColor: "rgba(245,200,106,.32)" },
+  helpIconText: { color: colors.gold, fontSize: 15, lineHeight: 18, fontWeight: "900" },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
@@ -4784,6 +4912,8 @@ const compactStyles = StyleSheet.create({
   appRowStatusOrange: { backgroundColor: "#e87922", color: "#111" },
   appRowStatusDanger: { backgroundColor: "#ff7a66", color: "#111" },
   appRowStatusAbsurd: { backgroundColor: "#08070a", color: "#ff7a66", borderWidth: 1, borderColor: "rgba(255,122,102,.55)" },
+  helpSupportRow: { gap: 4, paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
+  helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },

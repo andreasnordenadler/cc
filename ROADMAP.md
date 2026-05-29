@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Add end-user Help and Support surfaces to SQC Mobile.
+  - added_at: 2026-05-29 17:48 Europe/Stockholm
+  - completed_at: 2026-05-29 18:05 Europe/Stockholm
+  - source: Andreas liked contextual `?` help plus a dedicated support/help screen, but clarified this must be framed for normal end users, not beta feedback/tester language.
+  - scope: added sparse contextual `?` help for Solo and Multiplayer surfaces; added Account/Profile Help & Support screen with FAQ, proof/how-it-works, connected accounts, multiplayer help, Coat of Arms help, report-a-problem copy, support email copy, and support-details copy; avoided beta/test-user wording.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint -- 'apps/mobile/App.tsx'` passed; `pnpm quest:release-gate` passed; `pnpm build` passed; Android `./gradlew :app:assembleRelease` passed with versionCode 101 / versionName 0.1.100; emulator smoke confirmed Home contextual `?`, Account Help & Support entry, Help & Support modal, and no beta wording; prepared APK `public/downloads/sqc-mobile-android-help-support-v101-2026-05-29.apk` with SHA256 `c65ee288abdcb038cf334e5d4cd2ef54e86ebb91ed248d1da8a4f85b80fcec6a`.
+
 - [x] Sweep mobile launch copy for end-user wording.
   - added_at: 2026-05-29 16:51 Europe/Stockholm
   - completed_at: 2026-05-29 17:00 Europe/Stockholm
