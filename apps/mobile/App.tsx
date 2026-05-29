@@ -2461,7 +2461,7 @@ function QuestBoardDashboard({
   );
 }
 
-function CoatBoardDashboard({ bootstrap, account, onSelectChallenge, onClose }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onClose: () => void }) {
+function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onOpenChallengeDetail: (challengeId: string) => void; onClose: () => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const earnedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
 
@@ -2477,10 +2477,10 @@ function CoatBoardDashboard({ bootstrap, account, onSelectChallenge, onClose }: 
       </View>
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
-          <Pressable key={challenge.id} accessibilityRole="button" style={compactStyles.coatTile} onPress={() => onSelectChallenge(challenge.id, "sideQuests")}>
+          <Pressable key={challenge.id} accessibilityRole="button" style={compactStyles.coatTile} onPress={() => onOpenChallengeDetail(challenge.id)}>
             <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={[compactStyles.coatTileImage, !earnedIds.has(challenge.id) && compactStyles.coatTileLocked]} resizeMode="contain" />
             <Text style={compactStyles.coatTileTitle} numberOfLines={2}>{challenge.title}</Text>
-            <Text style={earnedIds.has(challenge.id) ? compactStyles.earnedText : compactStyles.lockedText}>{earnedIds.has(challenge.id) ? "Unlocked" : `+${challenge.reward}`}</Text>
+            {earnedIds.has(challenge.id) ? <Text style={compactStyles.earnedText}>Unlocked</Text> : null}
           </Pressable>
         ))}
       </View>
@@ -2975,7 +2975,7 @@ function ActiveScreen({
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
-      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} onClose={() => onSelectTab("account")} />;
+      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onClose={() => onSelectTab("account")} />;
     case "account":
       return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
   }
