@@ -2461,12 +2461,17 @@ function QuestBoardDashboard({
   );
 }
 
-function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void }) {
+function CoatBoardDashboard({ bootstrap, account, onSelectChallenge, onClose }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onClose: () => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const earnedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
 
   return (
     <View style={compactStyles.stack}>
+      <View style={compactStyles.coatBoardCloseRow}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Close Browse Coat of Arms" style={compactStyles.coatBoardCloseButton} onPress={onClose}>
+          <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
+        </Pressable>
+      </View>
       <View style={compactStyles.coatBoardHeroEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatBoardHeroEmblem} resizeMode="contain" />
       </View>
@@ -2970,7 +2975,7 @@ function ActiveScreen({
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
-      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} />;
+      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} onClose={() => onSelectTab("account")} />;
     case "account":
       return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
   }
@@ -4924,7 +4929,9 @@ const compactStyles = StyleSheet.create({
   questIconDim: { opacity: .52 },
   questPill: { paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.14)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
   questPillText: { color: colors.gold, fontSize: 11, fontWeight: "900" },
-  coatBoardHeroEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 4, paddingBottom: 8 },
+  coatBoardCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", paddingTop: 2, paddingBottom: 0 },
+  coatBoardCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.64)", borderWidth: 1, borderColor: "rgba(255,247,232,.18)" },
+  coatBoardHeroEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 8 },
   coatBoardHeroEmblem: { width: 164, height: 184 },
   coatGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   coatTile: { width: "31.8%", gap: 5, alignItems: "center", padding: 8, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.055)" },
