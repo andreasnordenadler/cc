@@ -1016,6 +1016,8 @@ function TodayDashboard({
         activeCoatSource={activeCoatSource}
         activeQuestGoal={activeQuestGoal}
         activeQuestNote={activeQuestNote}
+        pickedLabel={activeQuestPickedLabel}
+        proofNeeded={activeQuestProofNeeded}
         latestCheckLabel={activeQuestLatestCheck}
         latestCheckPassed={latestCheckPassed}
         canViewCurrentProof={canViewCurrentProof}
@@ -1665,6 +1667,8 @@ function CurrentSideQuestDetailModal({
   activeCoatSource,
   activeQuestGoal,
   activeQuestNote,
+  pickedLabel,
+  proofNeeded,
   latestCheckLabel,
   latestCheckPassed,
   canViewCurrentProof,
@@ -1680,6 +1684,8 @@ function CurrentSideQuestDetailModal({
   activeCoatSource: ImageSourcePropType;
   activeQuestGoal: string;
   activeQuestNote: string;
+  pickedLabel: string;
+  proofNeeded: string;
   latestCheckLabel: string;
   latestCheckPassed: boolean;
   canViewCurrentProof: boolean;
@@ -1722,6 +1728,12 @@ function CurrentSideQuestDetailModal({
             <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
             <Text style={compactStyles.detailLatestCheck}>Latest Check: {latestCheckLabel}</Text>
+          </View>
+
+          <View style={compactStyles.detailPanel}>
+            <DetailRow label="Picked" value={pickedLabel} />
+            <DetailRow label="Proof needed" value={proofNeeded} />
+            <DetailRow label="Latest check" value={latestCheckLabel} tone={latestCheckPassed ? "good" : "default"} />
           </View>
 
           {canViewCurrentProof ? (
@@ -2557,7 +2569,7 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
   const hasAnyTrophies = trophies.length > 0 || completedQuests.length > 0;
 
   return (
-    <AppSection title="Trophy Cabinet" action="Coats" onAction={() => onSelectTab("coatOfArms")}>
+    <AppSection title="Trophy Cabinet" action="Browse Coat of Arms" onAction={() => onSelectTab("coatOfArms")}>
       {trophies.slice(0, 4).map((trophy) => (
         <AppRow
           key={`multiplayer-${trophy.id}`}
