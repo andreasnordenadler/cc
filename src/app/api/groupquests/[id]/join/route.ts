@@ -32,6 +32,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
 
+  if (isGroupQuestFinished(found.groupQuest)) {
+    return NextResponse.json({ ok: false, error: "groupquest_finished" }, { status: 400 });
+  }
+
   const host = await client.users.getUser(found.userId);
   const joined = joinGroupQuest(found.groupQuest, participant);
   await client.users.updateUserMetadata(found.userId, {
@@ -43,4 +47,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
 
   return NextResponse.json({ ok: true, href: `/groupquests/${id}?accepted=1` });
+}
+
+function isGroupQuestFinished(groupQuest: { endAt: string }) {
+  const end = Date.parse(groupQuest.endAt);
+  return Number.isFinite(end) && end < Date.now();
 }

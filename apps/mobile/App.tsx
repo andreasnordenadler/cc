@@ -1082,7 +1082,7 @@ function TodayDashboard({
         onClose={() => setOfficialMultiplayerId(null)}
         onRefresh={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "refresh") : undefined}
         onLeave={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "leave") : undefined}
-        onJoin={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
+        onJoin={() => officialMultiplayerQuest && officialMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
@@ -1220,6 +1220,7 @@ function JoinedMultiplayerQuestModal({
   }
 
   const metaParts = quest.copy.split(" · ");
+  const joinClosed = quest.status === "Finished" || quest.timeLeftLabel === "Final" || metaParts.includes("Final");
   const players = quest.playersLabel ?? metaParts[0] ?? "Players pending";
   const timeLeft = quest.timeLeftLabel ?? metaParts[1] ?? "Window open";
   const position = quest.positionLabel ?? metaParts[2] ?? (mode === "joined" ? "Rank pending" : "Join to place");
@@ -1562,6 +1563,10 @@ function JoinedMultiplayerQuestModal({
                   <Text style={compactStyles.detailQuietButtonText}>Leave Side Quest</Text>
                 </Pressable>
               </>
+            ) : joinClosed ? (
+              <View style={compactStyles.detailQuietButton} accessibilityLabel="Multiplayer Side Quest ended">
+                <Text style={compactStyles.detailQuietButtonText}>Ended — no longer open to join</Text>
+              </View>
             ) : (
               <Pressable accessibilityRole="button" accessibilityLabel="Join Multiplayer Side Quest" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onJoin?.()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Joining..." : "Join Side Quest"}</Text>
@@ -3276,7 +3281,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onClose={() => setOfficialMultiplayerId(null)}
         onRefresh={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "refresh") : undefined}
         onLeave={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "leave") : undefined}
-        onJoin={() => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
+        onJoin={() => officialMultiplayerQuest && officialMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
@@ -3293,7 +3298,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onClose={() => setPublicMultiplayerId(null)}
         onRefresh={() => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "refresh") : undefined}
         onLeave={() => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "leave") : undefined}
-        onJoin={() => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "join") : undefined}
+        onJoin={() => publicMultiplayerQuest && publicMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(publicMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
@@ -3661,7 +3666,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         onClose={() => setSelectedQuestId(null)}
         onRefresh={() => selectedQuest ? void runGroupQuestAction(selectedQuest.id, "refresh") : undefined}
         onLeave={() => selectedQuest ? void runGroupQuestAction(selectedQuest.id, "leave") : undefined}
-        onJoin={() => selectedQuest ? void runGroupQuestAction(selectedQuest.id, "join") : undefined}
+        onJoin={() => selectedQuest && selectedQuest.status !== "Finished" ? void runGroupQuestAction(selectedQuest.id, "join") : undefined}
         onUpdate={(payload) => selectedQuest ? void runGroupQuestAction(selectedQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => selectedQuest ? void runGroupQuestAction(selectedQuest.id, "remove-participant", { participantUserId }) : undefined}
       />

@@ -185,6 +185,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (action === "join") {
+    if (isGroupQuestFinished(found.groupQuest)) {
+      return NextResponse.json(
+        { apiVersion: 1, authenticated: true, ok: false, message: "This Multiplayer Side Quest has ended, so it is no longer open to join." },
+        { status: 400 },
+      );
+    }
+
     const participant = buildMobileParticipant({ groupQuest: found.groupQuest, userId, metadata, fallbackName: user.firstName ?? user.username ?? "SQC player" });
     if (!participant) {
       return NextResponse.json(
@@ -356,6 +363,11 @@ function normalizeRules(value: unknown, fallback: Record<string, string>) {
     rated: cleanText(record.rated, 60) ?? fallback.rated ?? "Any rated state",
     color: cleanText(record.color, 60) ?? fallback.color ?? "Any color",
   };
+}
+
+function isGroupQuestFinished(groupQuest: Pick<ServerGroupQuest, "endAt">) {
+  const end = Date.parse(groupQuest.endAt);
+  return Number.isFinite(end) && end < Date.now();
 }
 
 function cleanText(value: unknown, maxLength: number) {
