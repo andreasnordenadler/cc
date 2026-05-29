@@ -14,7 +14,7 @@ Status: SQC-mobile-focus / website-feature-freeze
   - completed_at: 2026-05-29 17:00 Europe/Stockholm
   - source: Andreas noticed dev/test-style text in the mobile app, especially the Browse/Create/Join multiplayer screen, and asked for all screens to be reviewed so irrelevant internal copy is removed or replaced.
   - scope: removed/replaced launch-facing internal wording across account, multiplayer, proof/trophy, sign-in, date/time, and quest browsing surfaces; softened private/join copy; hid scheduled unreleased quests from the live mobile deck; prepared v98 APK.
-  - proof: pending v98 verification/build/deploy in this run.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint -- 'apps/mobile/App.tsx'` passed; `pnpm quest:release-gate` passed; `pnpm build` passed; Android `./gradlew :app:assembleRelease` passed with versionCode 98 / versionName 0.1.97; emulator signed-out smoke found no visible dev/test/backend/player-created/coming-soon copy on launch screen; deployed production `https://sidequestchess.com/downloads/sqc-mobile-android-copy-polish-v98-2026-05-29.apk` with SHA256 `b2e853a06e02f3bc12a719eb12228bfbe90e653d9155c6433fb50104de6719b3`; production APK/bootstrap smoke returned HTTP 200 and Vercel error logs were empty.
 
 - [x] Move Account/Profile Synced pill away from close X and add Trophy Cabinet list.
   - added_at: 2026-05-29 10:59 Europe/Stockholm
