@@ -39,7 +39,25 @@ export type LatestChallengeVerdict = {
 
 type LatestChallengeVerifier = (username: string) => Promise<LatestChallengeVerdict>;
 
+async function checkLatestBackRankGoblinActivation(username: string): Promise<LatestChallengeVerdict> {
+  return {
+    status: "pending",
+    gameId: "back-rank-goblin-verifier-pending",
+    summary: username.trim()
+      ? "Back Rank Goblin is active. Full automatic back-rank mate verification is being prepared; play a fresh public win after picking it."
+      : "Add a chess username before Side Quest Chess can inspect Back Rank Goblin attempts.",
+    evidence: [
+      "Quest can be picked and tracked now.",
+      "Automatic back-rank mate detection is intentionally not stamped complete until the dedicated verifier ships.",
+    ],
+  };
+}
+
 const latestChallengeVerifiers: Record<string, Record<SupportedLatestChallengeProvider, LatestChallengeVerifier>> = {
+  "back-rank-goblin": {
+    lichess: checkLatestBackRankGoblinActivation,
+    chesscom: checkLatestBackRankGoblinActivation,
+  },
   "finish-any-game": {
     lichess: checkLatestLichessFinishedGame,
     chesscom: checkLatestChessComFinishedGame,

@@ -42,6 +42,47 @@ export type Challenge = {
 
 export const CHALLENGES: Challenge[] = [
   {
+    id: "back-rank-goblin",
+    title: "Back Rank Goblin",
+    objective: "Deliver a back-rank mate with maximum goblin energy.",
+    instruction:
+      "Trap the enemy king behind its own pieces and finish the game with a back-rank mate.",
+    openingHint: "The escape square was a myth.",
+    reward: 120,
+    category: "Style Kill",
+    difficulty: "Easy",
+    completionRate: "Fresh release",
+    flavor: "Classic chess punishment, but wearing a tiny goblin hat.",
+    badge: "No Exit Permit",
+    badgeIdentity: {
+      name: "Rank Goblin",
+      motif: "♜",
+      rarity: "Style token",
+      unlockCopy: "Win by making the back rank feel like a locked broom closet.",
+      image: "/badges/v7/coming-soon-clean/back-rank-goblin-badge.png",
+      heraldry: {
+        shield: "Midnight blue field with a rook sealing three tiny escape doors.",
+        charge: "Locked back rank",
+        crest: "Goblin key",
+        motto: "No Door, No Mercy",
+        meaning: "The locked rank records a king trapped by its own pieces; the key belongs to the attacker.",
+        weirdness: "A home-security badge for deeply unsafe kings.",
+      },
+      colors: { primary: "#76a9ff", secondary: "#60f0af", glow: "rgba(118,169,255,.38)" },
+    },
+    proofCallout: "Back-rank mate · won the game",
+    rules: [
+      "You must win the game.",
+      "The final position must be a back-rank checkmate pattern.",
+      "The losing king should be trapped on its home rank or equivalent back-rank edge by its own pieces or blocked escape squares.",
+      "Game must be public and played after this Side Quest is picked.",
+    ],
+    requirement: {
+      side: "either",
+      result: "win",
+    },
+  },
+  {
     id: "finish-any-game",
     title: "Any Game Counts",
     objective: "Play any finished game — win, lose, or draw — and complete the quest.",
