@@ -2472,14 +2472,11 @@ function QuestBoardDashboard({
 function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const earnedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
-  const nextLocked = bootstrap.challenges.find((challenge) => !earnedIds.has(challenge.id));
 
   return (
     <View style={compactStyles.stack}>
-      <View style={compactStyles.heroPanel}>
-        <Text style={compactStyles.kicker}>Coat of Arms</Text>
-        <Text style={compactStyles.heroTitle}>Coat of Arms: {earnedIds.size}/{bootstrap.challenges.length}</Text>
-        <Text style={compactStyles.heroCopy}>{nextLocked ? `Next target: ${nextLocked.title}` : "Everything unlocked. Suspiciously heroic."}</Text>
+      <View style={compactStyles.coatBoardHeroEmblemWrap}>
+        <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatBoardHeroEmblem} resizeMode="contain" />
       </View>
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
@@ -4854,6 +4851,8 @@ const compactStyles = StyleSheet.create({
   questIconDim: { opacity: .52 },
   questPill: { paddingHorizontal: 8, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(245,200,106,.14)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
   questPillText: { color: colors.gold, fontSize: 11, fontWeight: "900" },
+  coatBoardHeroEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 4, paddingBottom: 8 },
+  coatBoardHeroEmblem: { width: 164, height: 184 },
   coatGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   coatTile: { width: "31.8%", gap: 5, alignItems: "center", padding: 8, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.055)" },
   coatTileImage: { width: 62, height: 72 },
