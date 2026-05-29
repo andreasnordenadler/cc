@@ -181,40 +181,6 @@ const DIFFICULTY_RANK: Record<string, number> = {
 
 const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
   {
-    id: "back-rank-goblin",
-    title: "Back Rank Goblin",
-    objective: "Deliver a back-rank mate with maximum goblin energy.",
-    instruction: "Coming soon: trap the king behind its own furniture and finish the game with a back-rank mate.",
-    openingHint: "The escape square was a myth.",
-    reward: 120,
-    category: "Style Kill",
-    difficulty: "Easy",
-    completionRate: "Coming soon",
-    flavor: "Classic chess punishment, but wearing a tiny goblin hat.",
-    badge: "No Exit Permit",
-    proofCallout: "Back-rank mate · won the game",
-    rules: [],
-    requirement: { side: "either", result: "win" },
-    badgeIdentity: {
-      name: "Rank Goblin",
-      motif: "♜",
-      rarity: "Coming soon token",
-      unlockCopy: "Win by making the back rank feel like a locked broom closet.",
-      imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/back-rank-goblin-badge.png"),
-      colors: { primary: "#76a9ff", secondary: "#60f0af", glow: "rgba(118,169,255,.38)" },
-      heraldry: {
-        shield: "Midnight blue field with a rook sealing three tiny escape doors.",
-        charge: "Locked back rank",
-        crest: "Goblin key",
-        motto: "No Door, No Mercy",
-        meaning: "The locked rank records a king trapped by its own pieces; the key belongs to the attacker.",
-        weirdness: "A home-security badge for deeply unsafe kings.",
-      },
-    },
-    browseKind: "coming-soon",
-    releaseDate: "2026-05-28",
-  },
-  {
     id: "late-castle-lifestyle",
     title: "Late Castle Lifestyle",
     objective: "Castle after move 15, then win like the delay was strategic.",
@@ -780,6 +746,8 @@ function TodayDashboard({
   const activeStatus = signedIn?.activeQuest?.completed || latestCheckPassed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
   const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn?.activeQuest?.verifiedAt);
+  const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
+  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a fresh public game that matches this Side Quest rule.";
   const activeQuestNote = signedIn?.activeQuest?.completed
     ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
     : signedIn?.activeQuest
@@ -998,6 +966,20 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : activeQuestNote}</Text>
               </View>
             </View>
+            <View style={compactStyles.currentQuestInfoGrid}>
+              <View style={compactStyles.currentQuestInfoRow}>
+                <Text style={compactStyles.currentQuestInfoLabel}>Picked</Text>
+                <Text style={compactStyles.currentQuestInfoValue}>{activeQuestPickedLabel}</Text>
+              </View>
+              <View style={compactStyles.currentQuestInfoRow}>
+                <Text style={compactStyles.currentQuestInfoLabel}>Proof needed</Text>
+                <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
+              </View>
+              <View style={compactStyles.currentQuestInfoRow}>
+                <Text style={compactStyles.currentQuestInfoLabel}>Latest check</Text>
+                <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
+              </View>
+            </View>
             {canViewCurrentProof ? (
               <View style={compactStyles.actionRowTight}>
                 <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
@@ -1063,7 +1045,7 @@ function TodayDashboard({
               <Pressable accessibilityRole="button" accessibilityLabel="Browse Multiplayer Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
                 <Text style={compactStyles.primaryActionText}>Browse Multiplayer Side Quests</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest" style={compactStyles.secondaryAction} onPress={onOpenMultiplayerCreate}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest" style={[compactStyles.secondaryAction, compactStyles.emptyMultiplayerCreateButton]} onPress={onOpenMultiplayerCreate}>
                 <Text style={compactStyles.secondaryActionText}>Create Multiplayer Side Quest</Text>
               </Pressable>
             </View>
@@ -1903,6 +1885,19 @@ function formatAccountDate(value: string | null | undefined): string {
   return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+function formatQuestPickedDate(value: string | null | undefined): string {
+  if (!value) return "not recorded";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "not recorded";
+  const today = new Date();
+  const dateKey = date.toDateString();
+  const todayKey = today.toDateString();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const prefix = dateKey === todayKey ? "Today" : dateKey === yesterday.toDateString() ? "Yesterday" : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return `${prefix} · ${date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}`;
+}
+
 function normalizeCheckHeadline(headline: string): string {
   return headline
     .replace(/^latest\s+/i, "")
@@ -2487,7 +2482,7 @@ function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstr
   );
 }
 
-function AccountTrackerDashboard({ account, authBridge, onSelectTab, onSelectChallenge, onOpenChallengeDetail, onOpenCompletedQuestDetail, onAccountUpdated }: { account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
+function AccountTrackerDashboard({ account, authBridge, onSelectTab, onOpenCompletedQuestDetail, onAccountUpdated }: { account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   if (!signedIn) {
     return (
@@ -2523,9 +2518,6 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onSelectCha
       <View style={compactStyles.heroPanel}>
         <View style={compactStyles.topLine}>
           <Text style={compactStyles.kicker}>Account</Text>
-          <View style={compactStyles.accountHeaderActions}>
-            <Text style={compactStyles.livePill}>Synced</Text>
-          </View>
         </View>
         <View style={compactStyles.accountIdentityCard}>
           <View style={compactStyles.accountIdentityAvatar}>
@@ -2536,7 +2528,10 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onSelectCha
             )}
           </View>
           <View style={compactStyles.accountIdentityCopy}>
-            <Text style={compactStyles.heroTitle}>{accountState.profile.displayName}</Text>
+            <View style={compactStyles.accountNameRow}>
+              <Text style={[compactStyles.heroTitle, compactStyles.accountNameTitle]} numberOfLines={1}>{accountState.profile.displayName}</Text>
+              <Text style={compactStyles.livePill}>Synced</Text>
+            </View>
             {accountState.profile.email ? <Text style={compactStyles.accountInfoText}>{accountState.profile.email}</Text> : null}
             <Text style={compactStyles.accountInfoText}>Last login: {formatAccountDate(accountState.profile.lastSignInAt)}</Text>
           </View>
@@ -2548,10 +2543,48 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onSelectCha
         </View>
       </View>
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
+      <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
         <Text style={compactStyles.logoutButtonText}>Log out</Text>
       </Pressable>
     </View>
+  );
+}
+
+function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }: { account: Extract<MobileAccountResponse, { authenticated: true }>; onSelectTab: (tab: AppTab) => void; onOpenCompletedQuestDetail: (challengeId: string) => void }) {
+  const trophies = account.multiplayerTrophies ?? [];
+  const completedQuests = account.completedQuests ?? [];
+  const hasAnyTrophies = trophies.length > 0 || completedQuests.length > 0;
+
+  return (
+    <AppSection title="Trophy Cabinet" action="Coats" onAction={() => onSelectTab("coatOfArms")}>
+      {trophies.slice(0, 4).map((trophy) => (
+        <AppRow
+          key={`multiplayer-${trophy.id}`}
+          title={trophy.title}
+          meta={`Multiplayer trophy · ${trophy.rankLabel}`}
+          status={undefined}
+          statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
+          imageSource={SQC_BLACK_SEAL_ASSET}
+          variant="seal"
+          onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy stays in the app.`)}
+        />
+      ))}
+      {completedQuests.slice(0, 5).map((quest) => (
+        <AppRow
+          key={`solo-${quest.id}`}
+          title={quest.title}
+          meta={`Coat of Arms: ${quest.badgeName}`}
+          status={undefined}
+          statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
+          imageSource={getRowImageSource(quest.badgeImageUrl)}
+          onPress={() => onOpenCompletedQuestDetail(quest.id)}
+        />
+      ))}
+      {!hasAnyTrophies ? (
+        <AppRow title="No trophies yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
+      ) : null}
+    </AppSection>
   );
 }
 
@@ -4609,7 +4642,8 @@ const compactStyles = StyleSheet.create({
   emptyQuestCoat: { width: 82, height: 82 },
   emptyMultiplayerPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.072)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   emptyMultiplayerSeal: { width: 52, height: 52, borderRadius: 26 },
-  emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 },
+  emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
+  emptyMultiplayerCreateButton: { alignSelf: "center" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
@@ -4624,6 +4658,10 @@ const compactStyles = StyleSheet.create({
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   currentQuestMetaStrong: { color: colors.gold, fontWeight: "900" },
   currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
+  currentQuestInfoGrid: { gap: 6, paddingTop: 2 },
+  currentQuestInfoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 10, paddingVertical: 7, paddingHorizontal: 9, borderRadius: 13, backgroundColor: "rgba(0,0,0,.16)", borderWidth: 1, borderColor: "rgba(255,247,232,.07)" },
+  currentQuestInfoLabel: { width: 86, color: colors.gold, fontSize: 10, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
+  currentQuestInfoValue: { flex: 1, color: colors.paper, opacity: .88, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "right" },
   actionRowTight: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   primaryActionCentered: { alignSelf: "center" },
@@ -4765,6 +4803,8 @@ const compactStyles = StyleSheet.create({
   accountIdentityAvatarImage: { width: "100%", height: "100%", borderRadius: 32 },
   accountIdentityAvatarText: { color: colors.gold, fontSize: 24, fontWeight: "900" },
   accountIdentityCopy: { flex: 1, minWidth: 0, gap: 3 },
+  accountNameRow: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", columnGap: 8, rowGap: 4 },
+  accountNameTitle: { flexShrink: 1, maxWidth: "100%" },
   accountInfoText: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   logoutButton: { alignItems: "center", justifyContent: "center", paddingVertical: 12, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,122,102,.36)", backgroundColor: "rgba(255,122,102,.1)" },
   logoutButtonText: { color: colors.red, fontSize: 13, fontWeight: "900" },
