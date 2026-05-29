@@ -1,7 +1,33 @@
+import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { checkActiveChallenge, deactivateActiveChallenge, resetCompletedChallenge, startChallenge, submitChallengeAttempt } from "@/app/actions";
+import { getChallengeById } from "@/lib/challenges";
+import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
+import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import {
+  buildChallengeProgressRecord,
+  compactChallengeAttempts,
+  getChallengeProgress,
+  getChessComUsername,
+  getLichessUsername,
+  type ChallengeAttempt,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 export async function POST(request: Request) {
+  const userId = await getMobileRequestUserId(request);
+
+  if (!userId) {
+    return NextResponse.json(
+      {
+        apiVersion: 1,
+        authenticated: false,
+        ok: false,
+        message: "Sign in to manage Solo Side Quests.",
+      },
+      { status: 401 },
+    );
+  }
+
   let payload: unknown;
 
   try {
@@ -12,7 +38,7 @@ export async function POST(request: Request) {
         apiVersion: 1,
         authenticated: true,
         ok: false,
-        message: "Send JSON with action=start, check, submit, deactivate, or reset.",
+        message: "Send JSON with action=start, check, deactivate, or reset.",
       },
       { status: 400 },
     );
@@ -20,59 +46,41 @@ export async function POST(request: Request) {
 
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
   const action = typeof record.action === "string" ? record.action : "";
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
 
   try {
     if (action === "start") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      const formData = new FormData();
-      formData.set("challengeId", challengeId);
-      await startChallenge(formData);
+      const result = await startMobileChallenge(userId, metadata, challengeId);
 
       return NextResponse.json({
         apiVersion: 1,
         authenticated: true,
         ok: true,
         action,
-        challengeId,
-        message: "Quest started. Account state is ready to refresh.",
+        challengeId: result.challengeId,
+        message: result.completed ? "Quest completed from latest game." : "Quest started.",
       });
     }
 
     if (action === "check") {
-      await checkActiveChallenge();
+      const result = await checkMobileActiveChallenge(userId, metadata);
 
       return NextResponse.json({
         apiVersion: 1,
         authenticated: true,
         ok: true,
         action,
-        message: "Latest-game check saved. Account state is ready to refresh.",
-      });
-    }
-
-    if (action === "submit") {
-      const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      const gameId = typeof record.gameId === "string" ? record.gameId : typeof record.gameUrl === "string" ? record.gameUrl : "";
-      const formData = new FormData();
-      formData.set("challengeId", challengeId);
-      formData.set("gameId", gameId);
-      await submitChallengeAttempt(formData);
-
-      return NextResponse.json({
-        apiVersion: 1,
-        authenticated: true,
-        ok: true,
-        action,
-        challengeId,
-        message: "Game proof submitted. Account state is ready to refresh.",
+        challengeId: result.challengeId,
+        message: result.completed ? "Quest completed." : "Latest-game check done.",
       });
     }
 
     if (action === "deactivate") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      const formData = new FormData();
-      formData.set("challengeId", challengeId);
-      await deactivateActiveChallenge(formData);
+      await deactivateMobileActiveChallenge(userId, metadata, challengeId);
 
       return NextResponse.json({
         apiVersion: 1,
@@ -86,9 +94,7 @@ export async function POST(request: Request) {
 
     if (action === "reset") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      const formData = new FormData();
-      formData.set("challengeId", challengeId);
-      await resetCompletedChallenge(formData);
+      await resetMobileCompletedChallenge(userId, metadata, challengeId);
 
       return NextResponse.json({
         apiVersion: 1,
@@ -98,6 +104,19 @@ export async function POST(request: Request) {
         challengeId,
         message: "Completed quest reset. You can run it again.",
       });
+    }
+
+    if (action === "submit") {
+      return NextResponse.json(
+        {
+          apiVersion: 1,
+          authenticated: true,
+          ok: false,
+          action,
+          message: "Manual proof submission is web-only for this beta. Use latest-game checks in the mobile app.",
+        },
+        { status: 400 },
+      );
     }
 
     return NextResponse.json(
@@ -110,47 +129,251 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   } catch (caught) {
-    if (isNextRedirectError(caught)) {
-      const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      const messages: Record<string, string> = {
-        start: "Quest started. Account state is ready to refresh.",
-        submit: "Game proof submitted. Account state is ready to refresh.",
-        reset: "Completed quest reset. You can run it again.",
-      };
-
-      if (action in messages) {
-        return NextResponse.json({
-          apiVersion: 1,
-          authenticated: true,
-          ok: true,
-          action,
-          challengeId,
-          message: messages[action],
-        });
-      }
-    }
-
     const message = caught instanceof Error ? caught.message : "Mobile quest action failed.";
-    const status = message.toLowerCase().includes("signed in") ? 401 : 400;
 
     return NextResponse.json(
       {
         apiVersion: 1,
-        authenticated: status !== 401,
+        authenticated: true,
         ok: false,
         action,
         message,
       },
-      { status },
+      { status: 400 },
     );
   }
 }
 
-function isNextRedirectError(caught: unknown) {
-  if (caught instanceof Error && caught.message === "NEXT_REDIRECT") return true;
-  if (caught && typeof caught === "object" && "digest" in caught) {
-    return String((caught as { digest?: unknown }).digest).startsWith("NEXT_REDIRECT");
+type MobileProviderCheck = {
+  provider: "lichess" | "chess.com" | "fixture";
+  status: "passed" | "failed" | "pending";
+  gameId: string;
+  summary: string;
+  startedGameAt?: string;
+  completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+};
+
+async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
+  const challenge = getChallengeById(challengeId);
+
+  if (!challenge) {
+    throw new Error("Unknown quest.");
   }
 
-  return false;
+  const existingAttempts = getExistingAttempts(metadata);
+  const now = new Date().toISOString();
+  const providerChecks = await safeBuildLatestGameChecks(challenge.id, metadata, now);
+  const progress = getChallengeProgress(metadata);
+  const passedCheck = providerChecks.find((check) => check.status === "passed");
+  const latestCheck = providerChecks.at(-1);
+  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(challenge.id)
+    ? [...progress.completedChallengeIds, challenge.id]
+    : progress.completedChallengeIds;
+
+  await updateUserPublicMetadata(userId, metadata, {
+    activeChallenge: {
+      id: challenge.id,
+      status: passedCheck ? "verified" : (latestCheck?.status ?? "accepted"),
+      startedAt: now,
+      verifiedAt: passedCheck ? now : undefined,
+    },
+    challengeAttempts: compactChallengeAttempts([
+      ...existingAttempts,
+      ...providerChecks.map((check, index) => buildAttempt(challenge.id, check, `${challenge.id}:${check.provider}:activation:${now}:${index}`, now)),
+    ]),
+    challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
+  });
+
+  return { challengeId: challenge.id, completed: Boolean(passedCheck) };
+}
+
+async function checkMobileActiveChallenge(userId: string, metadata: UserMetadataRecord) {
+  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+    ? (metadata.activeChallenge as { id?: string; startedAt?: string })
+    : null;
+
+  if (!activeChallenge?.id) {
+    throw new Error("Start a quest before checking latest games.");
+  }
+
+  const challenge = getChallengeById(activeChallenge.id);
+
+  if (!challenge) {
+    throw new Error("Unknown active quest.");
+  }
+
+  const existingAttempts = getExistingAttempts(metadata);
+  const now = new Date().toISOString();
+  const providerChecks = await safeBuildLatestGameChecks(challenge.id, metadata, activeChallenge.startedAt ?? now);
+  const passedCheck = providerChecks.find((check) => check.status === "passed");
+  const orderedProviderChecks = passedCheck ? [...providerChecks.filter((check) => check !== passedCheck), passedCheck] : providerChecks;
+  const latestCheck = orderedProviderChecks.at(-1);
+  const progress = getChallengeProgress(metadata);
+  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(challenge.id)
+    ? [...progress.completedChallengeIds, challenge.id]
+    : progress.completedChallengeIds;
+
+  await updateUserPublicMetadata(userId, metadata, {
+    activeChallenge: {
+      id: challenge.id,
+      status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
+      startedAt: activeChallenge.startedAt ?? now,
+      verifiedAt: passedCheck ? now : undefined,
+    },
+    challengeAttempts: compactChallengeAttempts([
+      ...existingAttempts,
+      ...orderedProviderChecks.map((check, index) => buildAttempt(challenge.id, check, `${challenge.id}:${check.provider}:${now}:${index}`, now)),
+    ]),
+    challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
+  });
+
+  return { challengeId: challenge.id, completed: Boolean(passedCheck) };
+}
+
+async function deactivateMobileActiveChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
+  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+    ? (metadata.activeChallenge as { id?: string })
+    : null;
+
+  if (!activeChallenge?.id || activeChallenge.id !== challengeId) {
+    throw new Error("That quest is not currently active.");
+  }
+
+  await updateUserPublicMetadata(userId, metadata, { activeChallenge: null });
+}
+
+async function resetMobileCompletedChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
+  const challenge = getChallengeById(challengeId);
+
+  if (!challenge) {
+    throw new Error("Unknown quest.");
+  }
+
+  const progress = getChallengeProgress(metadata);
+  const existingAttempts = getExistingAttempts(metadata);
+  const remainingAttempts = existingAttempts.filter((attempt) => getAttemptChallengeId(attempt) !== challenge.id);
+  const completedChallengeIds = progress.completedChallengeIds.filter((id) => id !== challenge.id);
+  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+    ? (metadata.activeChallenge as { id?: string })
+    : null;
+
+  await updateUserPublicMetadata(userId, metadata, {
+    activeChallenge: activeChallenge?.id === challenge.id ? null : metadata.activeChallenge,
+    challengeAttempts: compactChallengeAttempts(remainingAttempts),
+    challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
+  });
+}
+
+async function safeBuildLatestGameChecks(challengeId: string, metadata: UserMetadataRecord, activatedAfter: string): Promise<MobileProviderCheck[]> {
+  const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
+  const checks: MobileProviderCheck[] = [];
+
+  if (lichessUsername) {
+    checks.push({ ...(await buildLatestGameCheck(challengeId, "lichess", lichessUsername, activatedAfter)), provider: "lichess" });
+  }
+
+  if (chessComUsername) {
+    checks.push({ ...(await buildLatestGameCheck(challengeId, "chesscom", chessComUsername, activatedAfter)), provider: "chess.com" });
+  }
+
+  if (checks.length) return checks;
+
+  return [
+    {
+      provider: "fixture",
+      status: "pending",
+      gameId: `${challengeId}-awaiting-username`,
+      summary: "Add a Lichess or Chess.com username, then play a fresh public game after starting this Side Quest.",
+    },
+  ];
+}
+
+async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "chesscom", username: string, activatedAfter: string): Promise<Omit<MobileProviderCheck, "provider">> {
+  try {
+    const verdict = await checkLatestChallengeForProvider({ challengeId, provider, username });
+    return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
+  } catch {
+    return {
+      status: "pending",
+      gameId: `${provider}-latest-unavailable`,
+      summary: "Quest is active, but the immediate latest-game check could not reach this chess provider. Play normally, then refresh after your next public game.",
+    };
+  }
+}
+
+function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeTitle: string, activatedAfter: string): Omit<MobileProviderCheck, "provider"> {
+  const gameTime = verdict.startedGameAt ?? verdict.completedGameAt;
+
+  if (verdict.status === "passed" && !isAfterActivation(gameTime, activatedAfter)) {
+    return {
+      status: "pending",
+      gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-required`,
+      summary: `No new eligible games were found since this ${challengeTitle} run was started. Play a fresh public game after starting the quest, then check again.`,
+      startedGameAt: verdict.startedGameAt,
+      completedGameAt: verdict.completedGameAt,
+    };
+  }
+
+  return {
+    status: verdict.status,
+    gameId: verdict.gameId,
+    summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
+    startedGameAt: verdict.startedGameAt,
+    completedGameAt: verdict.completedGameAt,
+    finalPositionFen: (verdict as { finalPositionFen?: string }).finalPositionFen,
+    lastMoveUci: (verdict as { lastMoveUci?: string }).lastMoveUci,
+    lastMoveSan: (verdict as { lastMoveSan?: string }).lastMoveSan,
+  };
+}
+
+function buildAttempt(challengeId: string, check: MobileProviderCheck, id: string, checkedAt: string): ChallengeAttempt {
+  return {
+    id,
+    challengeId,
+    gameId: check.gameId,
+    provider: check.provider,
+    status: check.status,
+    summary: check.summary,
+    checkedAt,
+    startedGameAt: check.startedGameAt,
+    completedGameAt: check.completedGameAt,
+    finalPositionFen: check.finalPositionFen,
+    lastMoveUci: check.lastMoveUci,
+    lastMoveSan: check.lastMoveSan,
+  };
+}
+
+async function updateUserPublicMetadata(userId: string, metadata: UserMetadataRecord, patch: UserMetadataRecord) {
+  const client = await clerkClient();
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      ...metadata,
+      ...patch,
+    },
+  });
+}
+
+function getExistingAttempts(metadata: UserMetadataRecord): ChallengeAttempt[] {
+  return Array.isArray(metadata.challengeAttempts) ? (metadata.challengeAttempts as ChallengeAttempt[]) : [];
+}
+
+function getAttemptChallengeId(attempt: ChallengeAttempt) {
+  return typeof attempt.challengeId === "string"
+    ? attempt.challengeId
+    : typeof attempt.id === "string"
+      ? attempt.id.split(":")[0]
+      : undefined;
+}
+
+function isAfterActivation(gameTime?: string, activatedAfter?: string) {
+  if (!gameTime || !activatedAfter) return false;
+
+  const gameTimestamp = Date.parse(gameTime);
+  const activatedAt = Date.parse(activatedAfter);
+
+  return Number.isFinite(gameTimestamp) && Number.isFinite(activatedAt) && gameTimestamp > activatedAt;
 }

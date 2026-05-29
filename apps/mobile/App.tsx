@@ -3699,7 +3699,7 @@ function QuestFilterPanel() {
   return (
     <View style={styles.questFilterPanel} accessibilityLabel="Side Quest filters and sorting">
       <Text style={styles.questFilterTitle}>Find your next Side Quest.</Text>
-      <Text style={styles.questFilterHint}>Filters are coming soon. For now, the full live Side Quest deck is shown below.</Text>
+      <Text style={styles.questFilterHint}>Showing the full live Side Quest deck. Pick one to inspect the rule and start when ready.</Text>
       <View style={styles.questFilterGrid}>
         <FilterField label="Difficulty" value="All" />
         <FilterField label="Status" value="All" />
@@ -4172,9 +4172,6 @@ function AccountShell({
       </View>
 
       <ChessUsernameEditor account={signedInAccount} authBridge={authBridge} onSaved={onAccountUpdated} />
-      <View style={styles.disabledWideButton} accessibilityLabel="Profile editing coming soon">
-        <Text style={styles.disabledSecondaryButtonText}>Profile editing coming soon</Text>
-      </View>
       <QuestProgressStrip completed={signedInAccount.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountNextActionsCard account={signedInAccount} />
       <MobileAccountStatesCard authBridge={authBridge} account={account} />
