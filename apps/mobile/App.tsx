@@ -138,7 +138,7 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   apiVersion: 1,
   authenticated: false,
   signInUrl: "",
-  message: "Public quest catalog is available. Native account sync turns on when mobile sign-in is configured.",
+  message: "Browse Side Quests now. Sign in when you want to save progress, proof, and Coat of Arms unlocks.",
 };
 
 WebBrowser.maybeCompleteAuthSession();
@@ -184,12 +184,12 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
     id: "late-castle-lifestyle",
     title: "Late Castle Lifestyle",
     objective: "Castle after move 15, then win like the delay was strategic.",
-    instruction: "Coming soon: wait far too long to castle, finally do it, then claim the king was fashionably late.",
+    instruction: "Scheduled quest: wait far too long to castle, finally do it, then claim the king was fashionably late.",
     openingHint: "Safety arrived after the afterparty started.",
     reward: 180,
     category: "Restriction",
     difficulty: "Medium",
-    completionRate: "Coming soon",
+    completionRate: "Scheduled",
     flavor: "Not refusing safety. Just ghosting it for fifteen moves.",
     badge: "Fashionably Fortified",
     proofCallout: "Castled after move 15 · won the game",
@@ -198,7 +198,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
     badgeIdentity: {
       name: "Late Castle",
       motif: "♔",
-      rarity: "Coming soon badge",
+      rarity: "Scheduled badge",
       unlockCopy: "Delay castling until it feels socially awkward, then win.",
       imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/late-castle-lifestyle-badge.png"),
       colors: { primary: "#a78bfa", secondary: "#f5c86a", glow: "rgba(167,139,250,.4)" },
@@ -218,12 +218,12 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
     id: "rook-lift-internship",
     title: "Rook Lift Internship",
     objective: "Lift a rook before move 18 and make the internship pay off.",
-    instruction: "Coming soon: send a rook up the board early, pretend it has a badge, and win.",
+    instruction: "Scheduled quest: send a rook up the board early, pretend it has a badge, and win.",
     openingHint: "The rook asked for field experience.",
     reward: 220,
     category: "Style Quest",
     difficulty: "Medium",
-    completionRate: "Coming soon",
+    completionRate: "Scheduled",
     flavor: "A career-development program for castles with ambition.",
     badge: "Junior Tower Energy",
     proofCallout: "Early rook lift · won the game",
@@ -232,7 +232,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
     badgeIdentity: {
       name: "Rook Intern",
       motif: "♜",
-      rarity: "Coming soon badge",
+      rarity: "Scheduled badge",
       unlockCopy: "Lift a rook early and convert the suspicious career move into a win.",
       imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/rook-lift-internship-badge.png"),
       colors: { primary: "#e87922", secondary: "#f5c86a", glow: "rgba(232,121,34,.38)" },
@@ -252,12 +252,12 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
     id: "queen-side-quest",
     title: "Queen Side Quest",
     objective: "Win while your queen never leaves the first rank.",
-    instruction: "Coming soon: a streamer-hard restriction quest where the queen stays in headquarters for the whole public-game win.",
+    instruction: "Scheduled quest: keep the queen in headquarters for the whole public-game win.",
     openingHint: "The queen is managing from headquarters and refusing media questions.",
     reward: 900,
     category: "Streamer Hard",
     difficulty: "Brutal",
-    completionRate: "Coming soon · streamer-hard",
+    completionRate: "Scheduled · streamer-hard",
     flavor: "Maximum power, minimum commute, maximum chat disbelief.",
     badge: "Remote Royalty",
     proofCallout: "Queen stayed on first rank · won the game",
@@ -266,7 +266,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
     badgeIdentity: {
       name: "Desk Queen",
       motif: "♛",
-      rarity: "Coming soon brutal relic",
+      rarity: "Scheduled brutal relic",
       unlockCopy: "Win while the queen refuses to leave the executive floor.",
       imageUrl: absoluteAssetUrl("/badges/v7/coming-soon-clean/queen-side-quest-badge.png"),
       colors: { primary: "#ff5f9f", secondary: "#a78bfa", glow: "rgba(255,95,159,.44)" },
@@ -774,7 +774,7 @@ function TodayDashboard({
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
-    showNativeOnlyNotice("Sign-in is not configured in this build.");
+    showNativeOnlyNotice("Sign-in is unavailable right now.");
   }
 
   function openCurrentProof() {
@@ -784,7 +784,7 @@ function TodayDashboard({
       setCompletedProofId(completedId);
       return;
     }
-    showNativeOnlyNotice("This result is recorded in the app. Open it from the completed Side Quest card once account sync has added the native result record.");
+    showNativeOnlyNotice("This result is saved. Open it from the completed Side Quest card once account sync finishes.");
   }
 
   const showNewCompletionCelebration = useCallback((
@@ -1100,7 +1100,7 @@ function TodayDashboard({
             statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
             imageSource={SQC_BLACK_SEAL_ASSET}
             variant="seal"
-            onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy stays in the app. Native trophy detail pages are next.`)}
+            onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy is saved to your account.`)}
           />
         ))}
         {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 3).map((quest) => {
@@ -1120,7 +1120,7 @@ function TodayDashboard({
                   setCompletedProofId(quest.id);
                   return;
                 }
-                Alert.alert("Proof details", "This completed Side Quest is stored in the app. The current live board no longer has the full native detail page for it yet.");
+                Alert.alert("Proof details", "This completed Side Quest is saved to your account.");
               }}
             />
           );
@@ -1474,7 +1474,7 @@ function JoinedMultiplayerQuestModal({
               <TextInput value={adminName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setAdminName} />
               <Text style={styles.inputLabel}>Intro text</Text>
               <TextInput value={adminInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setAdminInviteCopy} />
-              <Text style={styles.microcopy}>Shown on the Multiplayer Side Quest front page.</Text>
+              <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Visibility</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {(["public", "private-key"] as const).map((modeOption) => {
@@ -2170,7 +2170,7 @@ function GroupQuestDateTimeControl({
             <Text style={styles.dateTimeNativeValue}>{formatGroupQuestControlTime(value)}</Text>
           </Pressable>
         </View>
-        <Text style={styles.dateTimeNativeHint}>Tap date or time to use the native picker.</Text>
+        <Text style={styles.dateTimeNativeHint}>Tap date or time to choose a value.</Text>
       </View>
       {pickerTarget ? (
         <DateTimePicker
@@ -2335,7 +2335,7 @@ function QuestBoardDashboard({
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
   const browseQuests: BrowseQuest[] = [
     ...bootstrap.challenges.map((challenge) => ({ ...challenge, browseKind: "live" as const })),
-    ...MOBILE_COMING_SOON_QUESTS,
+    ...MOBILE_COMING_SOON_QUESTS.filter(() => false),
   ];
   const sortedQuests = [...browseQuests].sort((a, b) => {
     if (a.browseKind !== b.browseKind) return a.browseKind === "live" ? -1 : 1;
@@ -2498,8 +2498,8 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Text style={compactStyles.kicker}>Account</Text>
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
-          <Text style={compactStyles.heroCopy}>The mobile app is intentionally useful after sign-in: Side Quest state, latest proof, Coat of Arms, and connected usernames.</Text>
-          <Pressable accessibilityRole="button" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is not configured in this build.")}>
+          <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
+          <Pressable accessibilityRole="button" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
             <Text style={compactStyles.goldButtonText}>Sign in</Text>
           </Pressable>
         </View>
@@ -2511,7 +2511,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
 
   async function handleLogOut() {
     if (!authBridge.signOut) {
-      Alert.alert("Log out", "Log out is not available in this build.");
+      Alert.alert("Log out", "Log out is unavailable right now.");
       return;
     }
 
@@ -2542,7 +2542,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Text style={compactStyles.accountInfoText}>Last login: {formatAccountDate(accountState.profile.lastSignInAt)}</Text>
           </View>
         </View>
-        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Ready for latest-game checks." : "Add a public chess username before serious proof runs."}</Text>
+        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Ready for latest-game checks." : "Add a public chess username before checking quest proof."}</Text>
         <View style={compactStyles.metricGrid}>
           <CompactMetric label="Lichess" value={accountState.chessAccounts.lichessUsername ? "✓" : "-"} />
           <CompactMetric label="Chess.com" value={accountState.chessAccounts.chessComUsername ? "✓" : "-"} />
@@ -2890,7 +2890,7 @@ function AppRitualCard({ compact = false }: { compact?: boolean }) {
       <View style={styles.appRitualSteps}>
         <FlowStep done title="Choose solo or multiplayer" body="Start one Side Quest for yourself, or join a Multiplayer Side Quest when the bad idea deserves witnesses." />
         <FlowStep title="Play where you already play" body="Use a normal public Lichess or Chess.com game. Side Quest Chess never asks for chess-site passwords." />
-        <FlowStep title="Get the receipt" body="The latest-game checker returns passed, failed, or pending with a shareable proof card, solo progress, and multiplayer leaderboard proof when relevant." />
+        <FlowStep title="Get the receipt" body="SQC checks your latest public game and updates your proof, progress, and leaderboard results." />
       </View>
     </View>
   );
@@ -3240,7 +3240,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
         <Text style={styles.groupquestsHeroTitle}>Browse/Create Multiplayer Side Quests.</Text>
-        <Text style={styles.groupquestsHeroCopy}>Find public player-created Multiplayer Side Quests, manage the ones you joined or host, create a new Multiplayer Side Quest, or join a private one by key.</Text>
+        <Text style={styles.groupquestsHeroCopy}>Browse open Multiplayer Side Quests, manage the ones you joined or host, create your own, or join by invite key.</Text>
       </View>
 
 
@@ -3294,10 +3294,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Public user-created Multiplayer Side Quests">
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Public Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Public Side Quests</Text>
         <Text style={styles.sectionTitle}>Latest Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Start with the newest open public Multiplayer Side Quests. Filter, sort, or search only when you need to dig deeper.</Text>
+        <Text style={styles.sectionBody}>Start with the newest open Multiplayer Side Quests. Filter, sort, or search when you want something specific.</Text>
         <View style={styles.browseSummaryRow}>
           <Text style={styles.microcopy}>{hasBrowseRefinements ? `${filteredBrowseGroupQuests.length} matching Multiplayer Side Quest${filteredBrowseGroupQuests.length === 1 ? "" : "s"}` : `Showing latest ${Math.min(5, filteredBrowseGroupQuests.length)} open Multiplayer Side Quest${Math.min(5, filteredBrowseGroupQuests.length) === 1 ? "" : "s"}`}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quest filters and sorting" style={styles.browseRefineButton} onPress={() => setBrowseControlsOpen((open) => !open)}>
@@ -3356,7 +3356,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             ))}
           </View>
         ) : (
-          <Text style={styles.sectionBody}>{(publicUserGroupQuests.length || activeGroupQuests.length) ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} Multiplayer Side Quests right now.` : "No public player-created Multiplayer Side Quests are open right now. Create one, or join a private Multiplayer Side Quest by key."}</Text>
+          <Text style={styles.sectionBody}>{(publicUserGroupQuests.length || activeGroupQuests.length) ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} Multiplayer Side Quests right now.` : "No public Multiplayer Side Quests are open right now. Create one, or join by invite key."}</Text>
         )}
         {hiddenOpenCount ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Show more Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setBrowseOpenLimit((current) => current + 5)}>
@@ -3369,7 +3369,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <View style={styles.groupquestsActiveCard} accessibilityLabel="Recent finished Multiplayer Side Quest results">
           <Text style={styles.eyebrow}>Recent results</Text>
           <Text style={styles.sectionTitle}>Finished Multiplayer Side Quests.</Text>
-          <Text style={styles.sectionBody}>Ended player-created Multiplayer Side Quests stay out of Browse so new joinable ones are easier to find.</Text>
+          <Text style={styles.sectionBody}>Finished Multiplayer Side Quests are shown here so the open list stays easy to browse.</Text>
           <View style={compactStyles.appRows}>
             {recentFinishedPublicUserGroupQuests.map((quest) => (
               <AppRow key={quest.id} title={quest.title} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setPublicMultiplayerId(quest.id)} />
@@ -3380,8 +3380,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsLoggedOutActions} accessibilityLabel="Join or create Multiplayer Side Quests">
         <View style={styles.groupquestsActionCard}>
-          <Text style={styles.sideQuestModeTitle}>Join private by key.</Text>
-          <Text style={styles.sideQuestModeCopy}>Private Multiplayer Side Quests stay off the public list. Paste the invite key from the host and join inside the app.</Text>
+          <Text style={styles.sideQuestModeTitle}>Join by invite key.</Text>
+          <Text style={styles.sideQuestModeCopy}>Paste an invite key from the host to join a Multiplayer Side Quest.</Text>
           <View style={styles.inputStack}>
             <Text style={styles.inputLabel}>Invite key</Text>
             <TextInput
@@ -3403,11 +3403,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
         <View style={styles.groupquestsActionCard}>
           <Text style={styles.sideQuestModeTitle}>Create a New Multiplayer Side Quest.</Text>
-          <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, choose public or private-key access, and SQC joins you as host automatically.</Text>
+          <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, choose who can join, and invite players when you are ready.</Text>
           <Pressable accessibilityRole="button" style={styles.primaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
             <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
           </Pressable>
-          {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join native Multiplayer Side Quests.</Text> : null}
+          {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join Multiplayer Side Quests.</Text> : null}
         </View>
       </View>
 
@@ -3422,17 +3422,17 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
-              <Text style={compactStyles.multiplayerDetailKicker}>Create native multiplayer</Text>
+              <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer</Text>
               <Text style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
-              <Text style={compactStyles.detailGoal}>The app creates the Multiplayer Side Quest, joins you as host, and returns a private key when you choose private access.</Text>
+              <Text style={compactStyles.detailGoal}>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Quest name</Text>
               <TextInput value={createName} placeholder="Name this Multiplayer Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCreateName} />
-              <Text style={styles.microcopy}>Required. Use your own name or something weird like No Castle Night.</Text>
+              <Text style={styles.microcopy}>Required. Make it clear enough that players know what they are joining.</Text>
               <Text style={styles.inputLabel}>Intro text</Text>
               <TextInput value={createInviteCopy} multiline placeholder="Explain what players are joining..." placeholderTextColor="rgba(255,247,232,.42)" style={[styles.textInput, styles.textAreaInput]} onChangeText={setCreateInviteCopy} />
-              <Text style={styles.microcopy}>Shown on the Multiplayer Side Quest front page.</Text>
+              <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Access</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {(["public", "private-key"] as const).map((mode) => {
@@ -4042,7 +4042,7 @@ function AccountShell({
       if (authBridge.startGoogleSignIn) {
         return void authBridge.startGoogleSignIn();
       }
-      return showNativeOnlyNotice("Sign-in is unavailable in this build. No browser fallback is used in the mobile app.");
+      return showNativeOnlyNotice("Sign-in is unavailable right now. Please try again in a moment.");
     };
 
     return (
@@ -4060,8 +4060,8 @@ function AccountShell({
 
         <View style={styles.accountAuthFormCard} accessibilityLabel="Sign in form">
           <Text style={styles.eyebrow}>Account</Text>
-          <Text style={styles.cardTitle}>{signedInButRejected ? "Token is local; backend verification still needs help." : "Continue to your account."}</Text>
-          <Text style={styles.cardBody}>{signedInButRejected ? "Sign-in is local, but the live API did not accept the mobile token yet. The app stays usable while backend verification is finished." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
+          <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Continue to your account."}</Text>
+          <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but SQC needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={handlePrimaryPress}>
             <Text style={styles.primaryButtonText}>{primaryLabel}</Text>
           </Pressable>
@@ -4083,7 +4083,7 @@ function AccountShell({
 
   function handleNextStepPress() {
     if (!signedInAccount.chessAccounts.hasAny) {
-      showNativeOnlyNotice("Use the chess username fields on this account page. The mobile app keeps this flow native.");
+      showNativeOnlyNotice("Add a Lichess or Chess.com username on this account page first.");
       return;
     }
 
@@ -4279,7 +4279,7 @@ function AccountNextActionsCard({ account }: { account: MobileAccountState }) {
       <View style={styles.checkerFlow}>
         <FlowStep done={hasChessAccount} title="Chess username" body={hasChessAccount ? "At least one chess username is connected to your SQC account." : "Add Lichess or Chess.com here before serious proof runs."} />
         <FlowStep done={Boolean(account.activeQuest)} title="Active quest" body={activeLabel} />
-        <FlowStep done={Boolean(account.latestReceipt)} title="Latest receipt" body={account.latestReceipt?.headline ?? "Submit a public game to create the first receipt."} />
+        <FlowStep done={Boolean(account.latestReceipt)} title="Latest receipt" body={account.latestReceipt?.headline ?? "Check a completed public game to create the first proof receipt."} />
       </View>
     </View>
   );
@@ -4405,17 +4405,17 @@ function ChessUsernameEditor({
 
 function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAuthBridge; account: MobileAccountResponse | null }) {
   const authenticated = isAuthenticatedAccount(account);
-  const backendAccepted = authenticated ? "Live account sync accepted" : authBridge.isSignedIn ? "Local sign-in present; backend still pending" : "Native sign-in mode";
+  const backendAccepted = authenticated ? "Progress sync is active" : authBridge.isSignedIn ? "Tap Sync account to refresh your profile" : "Sign in to save progress";
 
   return (
     <View style={styles.stateBoardCard}>
-      <Text style={styles.eyebrow}>Account state clarity</Text>
-      <Text style={styles.stateBoardTitle}>No mystery loading states.</Text>
-      <Text style={styles.stateBoardBody}>This build names exactly which layer is active, so Android testers can tell public browsing, local Clerk, and SQC account sync apart.</Text>
+      <Text style={styles.eyebrow}>Account sync</Text>
+      <Text style={styles.stateBoardTitle}>Your progress stays connected.</Text>
+      <Text style={styles.stateBoardBody}>SQC keeps browsing available and syncs progress after sign-in.</Text>
       <View style={styles.stateTimeline}>
-        <FlowStep done title="Public catalog" body="Side Quest board, rules, rewards, and coat previews load without native auth." />
-        <FlowStep done={authBridge.configured} title="Secure account sign-in" body={authBridge.configured ? "Sign in is ready for account sync." : "Waiting for mobile sign-in configuration."} />
-        <FlowStep done={authenticated} title="Backend account mirror" body={backendAccepted} />
+        <FlowStep done title="Browse quests" body="Quest rules, rewards, and Coat of Arms previews are available before sign-in." />
+        <FlowStep done={authBridge.configured} title="Account sign-in" body={authBridge.configured ? "Sign in to save progress and proof." : "Sign-in is temporarily unavailable."} />
+        <FlowStep done={authenticated} title="Progress sync" body={backendAccepted} />
       </View>
     </View>
   );

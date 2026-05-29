@@ -9,6 +9,20 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Sweep mobile launch copy for end-user wording.
+  - added_at: 2026-05-29 16:51 Europe/Stockholm
+  - completed_at: 2026-05-29 17:00 Europe/Stockholm
+  - source: Andreas noticed dev/test-style text in the mobile app, especially the Browse/Create/Join multiplayer screen, and asked for all screens to be reviewed so irrelevant internal copy is removed or replaced.
+  - scope: removed/replaced launch-facing internal wording across account, multiplayer, proof/trophy, sign-in, date/time, and quest browsing surfaces; softened private/join copy; hid scheduled unreleased quests from the live mobile deck; prepared v98 APK.
+  - proof: pending v98 verification/build/deploy in this run.
+
+- [x] Move Account/Profile Synced pill away from close X and add Trophy Cabinet list.
+  - added_at: 2026-05-29 10:59 Europe/Stockholm
+  - completed_at: 2026-05-29 11:01 Europe/Stockholm
+  - source: Andreas confirmed the invite-share v86 APK is the good baseline and asked to implement the profile-screen feedback next.
+  - scope: kept the known-good mobile behavior; moved the green Synced pill into the account identity row away from the top-right close-button collision zone; added a compact Trophy Cabinet list to the Account/Profile screen with multiplayer trophies, completed solo Coat of Arms entries, and an empty state.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint -- 'apps/mobile/App.tsx'` passed; Android `./gradlew :app:assembleRelease` passed with native Android versionCode 87 / versionName 0.1.86; packaged APK `public/downloads/sqc-mobile-android-profile-trophy-v87-2026-05-29.apk` with SHA256 `8b956412e8c4141fd8ccbadba072b21d317a986bef34db953095130f49f00541`.
+
 - [x] Add native invite sharing for Multiplayer Side Quests.
   - source: Andreas approved link/share-sheet invite model instead of in-app messaging or friends lists.
   - scope: every displayed Multiplayer Side Quest can now generate a canonical `https://sidequestchess.com/groupquests/...` invite link; private hosted links include the invite key; detail screens include Share invite / Copy invite link CTAs using the native OS share sheet and clipboard.
