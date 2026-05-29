@@ -748,11 +748,6 @@ function TodayDashboard({
   const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn?.activeQuest?.verifiedAt);
   const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
   const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a fresh public game that matches this Side Quest rule.";
-  const activeQuestNote = signedIn?.activeQuest?.completed
-    ? `Unlocked: ${activeChallenge?.badgeIdentity.name ?? "Coat of Arms"}`
-    : signedIn?.activeQuest
-      ? `Latest check: ${formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn.activeQuest.verifiedAt)}`
-      : "Pick a Side Quest before your next game.";
   const officialPublic = (signedIn?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const officialPublicIds = new Set(officialPublic.map((quest) => quest.id));
   const activeMultiplayer = (signedIn?.activeGroupQuests ?? []).filter((quest) => !officialPublicIds.has(quest.id) && !quest.id.startsWith("official-"));
@@ -963,7 +958,6 @@ function TodayDashboard({
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
                 <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
-                <Text style={compactStyles.currentQuestSupport} numberOfLines={1}>{latestCheckPassed ? "Verified in your latest game." : activeQuestNote}</Text>
               </View>
             </View>
             <View style={compactStyles.currentQuestInfoGrid}>
@@ -1015,7 +1009,6 @@ function TodayDashboard({
         challenge={activeChallenge}
         activeCoatSource={activeCoatSource}
         activeQuestGoal={activeQuestGoal}
-        activeQuestNote={activeQuestNote}
         pickedLabel={activeQuestPickedLabel}
         proofNeeded={activeQuestProofNeeded}
         latestCheckLabel={activeQuestLatestCheck}
@@ -1666,7 +1659,6 @@ function CurrentSideQuestDetailModal({
   challenge,
   activeCoatSource,
   activeQuestGoal,
-  activeQuestNote,
   pickedLabel,
   proofNeeded,
   latestCheckLabel,
@@ -1683,7 +1675,6 @@ function CurrentSideQuestDetailModal({
   challenge: MobileChallenge | null;
   activeCoatSource: ImageSourcePropType;
   activeQuestGoal: string;
-  activeQuestNote: string;
   pickedLabel: string;
   proofNeeded: string;
   latestCheckLabel: string;
@@ -1727,7 +1718,6 @@ function CurrentSideQuestDetailModal({
             </Pressable>
             <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
-            <Text style={compactStyles.detailLatestCheck}>Latest Check: {latestCheckLabel}</Text>
           </View>
 
           <View style={compactStyles.detailPanel}>
@@ -1883,18 +1873,20 @@ function waitMs(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+const ENGLISH_DATE_LOCALE = "en-US";
+
 function formatLatestCheckTime(value: string | null | undefined): string {
   if (!value) return "not yet";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "not yet";
-  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
 function formatAccountDate(value: string | null | undefined): string {
   if (!value) return "not available";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "not available";
-  return date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
 function formatQuestPickedDate(value: string | null | undefined): string {
@@ -1906,8 +1898,8 @@ function formatQuestPickedDate(value: string | null | undefined): string {
   const todayKey = today.toDateString();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
-  const prefix = dateKey === todayKey ? "Today" : dateKey === yesterday.toDateString() ? "Yesterday" : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  return `${prefix} · ${date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}`;
+  const prefix = dateKey === todayKey ? "Today" : dateKey === yesterday.toDateString() ? "Yesterday" : date.toLocaleDateString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric" });
+  return `${prefix} · ${date.toLocaleTimeString(ENGLISH_DATE_LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false })}`;
 }
 
 function normalizeCheckHeadline(headline: string): string {
@@ -2491,7 +2483,7 @@ function CoatBoardDashboard({ bootstrap, account, onSelectChallenge }: { bootstr
   );
 }
 
-function AccountTrackerDashboard({ account, authBridge, onSelectTab, onOpenCompletedQuestDetail, onAccountUpdated }: { account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
+function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   if (!signedIn) {
     return (
@@ -2551,11 +2543,92 @@ function AccountTrackerDashboard({ account, authBridge, onSelectTab, onOpenCompl
           <CompactMetric label="Chess.com" value={accountState.chessAccounts.chessComUsername ? "✓" : "-"} />
         </View>
       </View>
+      <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
         <Text style={compactStyles.logoutButtonText}>Log out</Text>
       </Pressable>
+    </View>
+  );
+}
+
+function AccountSoloSideQuestSection({
+  account,
+  bootstrap,
+  onSelectTab,
+  onSelectChallenge,
+}: {
+  account: Extract<MobileAccountResponse, { authenticated: true }>;
+  bootstrap: MobileBootstrap;
+  onSelectTab: (tab: AppTab) => void;
+  onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
+}) {
+  const activeChallenge = account.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === account.activeQuest?.id) ?? null : null;
+  const activeCoatSource = activeChallenge
+    ? getChallengeCoatImageSource(activeChallenge)
+    : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
+  const activeQuestReceipt = account.latestReceipt?.challengeId === account.activeQuest?.id ? account.latestReceipt : null;
+  const latestCheckText = activeQuestReceipt?.headline ? normalizeCheckHeadline(activeQuestReceipt.headline) : null;
+  const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
+  const activeStatus = account.activeQuest?.completed || latestCheckPassed ? "Completed" : account.activeQuest ? "In progress" : "No active Side Quest";
+  const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
+  const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? account.activeQuest?.verifiedAt);
+  const activeQuestPickedLabel = formatQuestPickedDate(account.activeQuest?.startedAt);
+  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a fresh public game that matches this Side Quest rule.";
+
+  return (
+    <View style={compactStyles.appSection}>
+      <View style={compactStyles.panelHeaderRow}>
+        <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
+      </View>
+      {account.activeQuest ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest" style={compactStyles.freshPanel} onPress={() => onSelectChallenge(account.activeQuest?.id ?? "", "sideQuests")}>
+          {activeStatus === "Completed" ? (
+            <View style={compactStyles.currentStatusRow}>
+              <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
+            </View>
+          ) : null}
+          <View style={compactStyles.currentQuestRow}>
+            <View style={compactStyles.coatMarker}>
+              {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+              <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
+              {latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
+            </View>
+            <View style={compactStyles.currentQuestText}>
+              <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{account.activeQuest.title}</Text>
+              <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
+            </View>
+          </View>
+          <View style={compactStyles.currentQuestInfoGrid}>
+            <View style={compactStyles.currentQuestInfoRow}>
+              <Text style={compactStyles.currentQuestInfoLabel}>Picked</Text>
+              <Text style={compactStyles.currentQuestInfoValue}>{activeQuestPickedLabel}</Text>
+            </View>
+            <View style={compactStyles.currentQuestInfoRow}>
+              <Text style={compactStyles.currentQuestInfoLabel}>Proof needed</Text>
+              <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
+            </View>
+            <View style={compactStyles.currentQuestInfoRow}>
+              <Text style={compactStyles.currentQuestInfoLabel}>Latest check</Text>
+              <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
+            </View>
+          </View>
+        </Pressable>
+      ) : (
+        <View style={compactStyles.emptyQuestPanel}>
+          <View style={compactStyles.emptyQuestHeroRow}>
+            <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
+            <View style={compactStyles.currentQuestText}>
+              <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
+              <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
+            </View>
+          </View>
+          <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
+            <Text style={compactStyles.primaryActionText}>Browse Solo Quests</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -2899,7 +2972,7 @@ function ActiveScreen({
     case "coatOfArms":
       return <CoatBoardDashboard bootstrap={bootstrap} account={account} onSelectChallenge={onSelectChallenge} />;
     case "account":
-      return <AccountTrackerDashboard account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
+      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
   }
 }
 
