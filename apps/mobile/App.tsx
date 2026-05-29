@@ -59,14 +59,18 @@ function getMultiplayerInviteUrl(quest: Pick<MobileGroupQuestSummary, "id" | "in
   return key ? `${baseUrl}?invite=${encodeURIComponent(key)}` : baseUrl;
 }
 
+function cleanMultiplayerTitle(title: string) {
+  return title.replace(/\s+Demo(?=\s+Results\b|$)/gi, "").replace(/\s{2,}/g, " ").trim();
+}
+
 function getMultiplayerInviteMessage(quest: Pick<MobileGroupQuestSummary, "id" | "title" | "inviteMode" | "inviteKey" | "inviteCopy">) {
   const intro = quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY;
-  return `Join my Multiplayer Side Quest on Side Quest Chess: ${quest.title}\n${intro}\n${getMultiplayerInviteUrl(quest)}`;
+  return `Join my Multiplayer Side Quest on Side Quest Chess: ${cleanMultiplayerTitle(quest.title)}\n${intro}\n${getMultiplayerInviteUrl(quest)}`;
 }
 
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
   return mode === "public"
-    ? { title: "Public", helper: "Visible in Browse/Create" }
+    ? { title: "Public", helper: "Visible in Browse" }
     : { title: "Private key", helper: "Only players with the key can join" };
 }
 
@@ -1026,7 +1030,7 @@ function TodayDashboard({
 
       <AppSection title="My Multiplayer Side Quests" action="Browse/Create/Join" onAction={() => onSelectTab("multiplayerSideQuests")}>
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={quest.title} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
         )) : (
           <View style={compactStyles.emptyMultiplayerPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
@@ -1086,7 +1090,7 @@ function TodayDashboard({
 
       <AppSection title="Official Multiplayer Side Quests" action="Leaderboards" onAction={() => onSelectTab("officialLeaderboards")}>
         {officialPublic.length ? officialPublic.map((quest) => (
-          <AppRow key={quest.id} title={quest.title} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
         )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
       </AppSection>
 
@@ -1108,7 +1112,7 @@ function TodayDashboard({
           return (
             <AppRow
               key={quest.id}
-              title={quest.title}
+              title={cleanMultiplayerTitle(quest.title)}
               meta={`Coat of Arms: ${quest.badgeName}`}
               status={undefined}
               statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
@@ -1315,7 +1319,7 @@ function JoinedMultiplayerQuestModal({
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
-            <Text style={compactStyles.detailTitle}>{quest.title}</Text>
+            <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
@@ -2660,7 +2664,7 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
       {completedQuests.slice(0, 5).map((quest) => (
         <AppRow
           key={`solo-${quest.id}`}
-          title={quest.title}
+          title={cleanMultiplayerTitle(quest.title)}
           meta={`Coat of Arms: ${quest.badgeName}`}
           status={undefined}
           statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
@@ -3094,7 +3098,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     },
     {
       title: "Prove",
-      copy: "Each Multiplayer Side Quest gets its own leaderboard, event feed, and multiplayer-valid proof separate from solo progress.",
+      copy: "Each Multiplayer Side Quest gets its own leaderboard, event feed, and proof that stays separate from solo progress.",
     },
   ];
   async function runGroupQuestAction(groupQuestId: string, action: "join" | "leave" | "refresh" | "update" | "remove-participant", payload?: Record<string, unknown>) {
@@ -3216,7 +3220,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const baseBrowseGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedBrowseGroupQuests : browseFilter === "hosted" ? hostedBrowseGroupQuests : closedUserGroupQuests;
   const browseSearchTerm = browseSearch.trim().toLowerCase();
   const searchedBrowseGroupQuests = browseSearchTerm
-    ? baseBrowseGroupQuests.filter((quest) => `${quest.title} ${quest.copy ?? ""} ${quest.playersLabel ?? ""} ${quest.hostName ?? ""}`.toLowerCase().includes(browseSearchTerm))
+    ? baseBrowseGroupQuests.filter((quest) => `${cleanMultiplayerTitle(quest.title)} ${quest.copy ?? ""} ${quest.playersLabel ?? ""} ${quest.hostName ?? ""}`.toLowerCase().includes(browseSearchTerm))
     : baseBrowseGroupQuests;
   const filteredBrowseGroupQuests = [...searchedBrowseGroupQuests].sort((a, b) => {
     if (browseSort === "ending") return Date.parse(a.endAt ?? "") - Date.parse(b.endAt ?? "");
@@ -3239,7 +3243,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   return (
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Browse/Create Multiplayer Side Quests.</Text>
+        <Text style={styles.groupquestsHeroTitle}>Browse/Create/Join Multiplayer Side Quests.</Text>
         <Text style={styles.groupquestsHeroCopy}>Browse open Multiplayer Side Quests, manage the ones you joined or host, create your own, or join by invite key.</Text>
       </View>
 
@@ -3352,7 +3356,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleBrowseGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleBrowseGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={quest.title} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : (
@@ -3372,7 +3376,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <Text style={styles.sectionBody}>Finished Multiplayer Side Quests are shown here so the open list stays easy to browse.</Text>
           <View style={compactStyles.appRows}>
             {recentFinishedPublicUserGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={quest.title} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setPublicMultiplayerId(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setPublicMultiplayerId(quest.id)} />
             ))}
           </View>
         </View>
@@ -3520,7 +3524,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsStoryCard} accessibilityLabel="What Multiplayer Side Quests are">
         <View style={styles.groupquestsStoryCopy}>
           <Text style={styles.sectionTitle}>A tiny chess tournament for bad ideas.</Text>
-          <Text style={styles.sectionBody}>One player creates the Multiplayer Side Quest, everyone agrees on rules, then SQC checks fresh multiplayer-valid proof from normal public games.</Text>
+          <Text style={styles.sectionBody}>One player creates the Multiplayer Side Quest, everyone agrees on rules, then SQC checks fresh public games for each player.</Text>
         </View>
         <View style={styles.groupquestsProcessGraphic}>
           <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.groupquestsKnightArt} resizeMode="contain" />
@@ -3607,10 +3611,10 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.eyebrow}>Current week</Text>
         <Text style={styles.sectionTitle}>Active official leaderboards.</Text>
         {currentOfficialGroupQuests.length ? currentOfficialGroupQuests.map((quest) => (
-          <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open current official leaderboard ${quest.title}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
+          <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open current official leaderboard ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
             <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
             <View style={styles.activeMultiplayerCopy}>
-              <Text style={styles.activeMultiplayerTitle}>{quest.title}</Text>
+              <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
               <Text style={styles.activeMultiplayerMeta}>{getOfficialMultiplayerListStatus(quest)} · {getOfficialMultiplayerListMeta(quest)}</Text>
             </View>
           </Pressable>
@@ -3621,10 +3625,10 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.eyebrow}>Previous week</Text>
         <Text style={styles.sectionTitle}>Latest final results.</Text>
         {previousOfficialGroupQuests.length ? previousOfficialGroupQuests.map((quest) => (
-          <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open previous official result ${quest.title}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
+          <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open previous official result ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
             <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
             <View style={styles.activeMultiplayerCopy}>
-              <Text style={styles.activeMultiplayerTitle}>{quest.title}</Text>
+              <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
               <Text style={styles.activeMultiplayerMeta}>Final · {quest.playersLabel ?? "Players pending"} · {quest.leaderboardRows?.[0]?.name ? `Winner: ${quest.leaderboardRows[0].name}` : "Podium pending"}</Text>
             </View>
           </Pressable>
@@ -3679,7 +3683,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
             </View>
             <View style={compactStyles.appRows}>
               {selectedWeek?.quests.map((quest) => (
-                <AppRow key={quest.id} title={quest.title} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setSelectedQuestId(quest.id)} />
+                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setSelectedQuestId(quest.id)} />
               ))}
             </View>
           </ScrollHintedScrollView>
@@ -4131,10 +4135,10 @@ function AccountShell({
           <View style={styles.currentMissionMultiplayer} accessibilityLabel="Active Multiplayer Side Quests">
             <Text style={styles.eyebrow}>Active Multiplayer Side Quests</Text>
             {userCreatedActiveGroupQuests.length ? userCreatedActiveGroupQuests.map((quest) => (
-              <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open ${quest.title}`} style={styles.activeMultiplayerRow} onPress={() => onSelectTab("multiplayerSideQuests")}>
+              <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open ${cleanMultiplayerTitle(quest.title)}`} style={styles.activeMultiplayerRow} onPress={() => onSelectTab("multiplayerSideQuests")}>
                 <Image source={{ uri: absoluteAssetUrl("/stamps/SQCBLACK%20SEAL.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
                 <View style={styles.activeMultiplayerCopy}>
-                  <Text style={styles.activeMultiplayerTitle}>{quest.title}</Text>
+                  <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
                   <Text style={styles.activeMultiplayerMeta}>{getJoinedMultiplayerListStatus(quest)} · {getJoinedMultiplayerListMeta(quest)}</Text>
                 </View>
               </Pressable>
@@ -4320,7 +4324,7 @@ function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
         <View key={quest.id} style={styles.trophyRow}>
           <View style={styles.trophyBadge}>{quest.badgeImageUrl ? <Image source={{ uri: absoluteAssetUrl(quest.badgeImageUrl) }} style={styles.trophyImage} resizeMode="contain" /> : <Text style={styles.trophyGlyph}>♛</Text>}</View>
           <View style={styles.trophyCopy}>
-            <Text style={styles.trophyTitle}>{quest.title}</Text>
+            <Text style={styles.trophyTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={styles.trophyMeta}>{quest.badgeName} · +{quest.reward}</Text>
           </View>
         </View>
@@ -4368,7 +4372,7 @@ function ChessUsernameEditor({
 
   return (
     <View style={styles.usernameEditorCard}>
-      <Text style={styles.eyebrow}>Native account action</Text>
+      <Text style={styles.eyebrow}>Chess accounts</Text>
       <Text style={styles.usernameEditorTitle}>Connect chess usernames</Text>
       <Text style={styles.usernameEditorBody}>Save public Lichess / Chess.com usernames to your SQC account. No chess-site passwords - SQC only checks public games.</Text>
       <View style={styles.inputStack}>
