@@ -106,6 +106,10 @@ import {
   evaluateEarlyKingWalk,
 } from "@/lib/early-king-walk";
 import {
+  checkLatestChessComBackRankGoblin,
+  checkLatestLichessBackRankGoblin,
+} from "@/lib/back-rank-goblin";
+import {
   getChallengeProgress,
   getChessComUsername,
   getLichessUsername,
@@ -300,6 +304,26 @@ async function buildLatestGameChecks(challengeId: string, attemptCount: number, 
 }
 
 async function buildLatestGameCheck(challengeId: string, attemptCount: number, lichessUsername: string, chessComUsername: string, activatedAfter?: string) {
+  if (challengeId === "back-rank-goblin") {
+    if (lichessUsername) {
+      const verdict = await checkLatestLichessBackRankGoblin(lichessUsername);
+
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
+    }
+
+    if (chessComUsername) {
+      const verdict = await checkLatestChessComBackRankGoblin(chessComUsername);
+
+      return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
+    }
+
+    return {
+      status: "pending" as const,
+      gameId: "back-rank-goblin-awaiting-username",
+      summary: "Add a Lichess or Chess.com username, then win a fresh public back-rank mate after starting Back Rank Goblin.",
+    };
+  }
+
   if (challengeId === "finish-any-game") {
     if (lichessUsername) {
       const verdict = await checkLatestLichessFinishedGame(lichessUsername);
