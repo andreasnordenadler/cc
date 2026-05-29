@@ -38,12 +38,16 @@ import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, Mobile
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 
-type HelpTopic = "solo" | "proof" | "coat" | "multiplayer" | "accounts";
+type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" | "multiplayer" | "accounts";
 
 const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
+  activeSolo: {
+    title: "This active Side Quest card",
+    body: "Picked shows when this quest became active. Proof needed is the exact rule your next public game must satisfy. Latest check is the most recent time SQC looked at your connected chess accounts for a matching finished game.",
+  },
   solo: {
-    title: "Solo Side Quests",
-    body: "Pick one Side Quest, then play a fresh public game on Lichess or Chess.com. Come back and tap check proof when the game is finished.",
+    title: "Choosing a Solo Side Quest",
+    body: "This screen is for picking your next solo challenge. Only one Solo Side Quest can be active at a time, and games count after you pick it.",
   },
   proof: {
     title: "Proof checks",
@@ -53,9 +57,13 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
     title: "Coat of Arms",
     body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and can be opened from the Trophy Cabinet.",
   },
+  multiplayerDetail: {
+    title: "This Multiplayer Side Quest",
+    body: "This page shows the room window, included Side Quests, players, and leaderboard. Join while it is open, play matching public games during the time window, then refresh proof to update your score.",
+  },
   multiplayer: {
     title: "Multiplayer Side Quests",
-    body: "Join or create a shared Side Quest room. Each player proves fresh public games during the room window, and the leaderboard updates when proof is refreshed.",
+    body: "Browse shared rooms, create your own, or join official rooms. Multiplayer progress is scored separately from your Solo Side Quest.",
   },
   accounts: {
     title: "Chess accounts",
@@ -972,9 +980,10 @@ function TodayDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-          <HelpIconButton topic="solo" label="Help with Solo Side Quests" />
+          
         </View>
         {signedIn.activeQuest ? (
+          <View style={compactStyles.contextHelpHost}>
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
             {activeStatus === "Completed" ? (
               <View style={compactStyles.currentStatusRow}>
@@ -1019,6 +1028,8 @@ function TodayDashboard({
             {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
+          <ContextHelpIconButton topic="activeSolo" label="Help with this active Side Quest card" />
+          </View>
         ) : (
           <View style={compactStyles.emptyQuestPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
@@ -1350,7 +1361,7 @@ function JoinedMultiplayerQuestModal({
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
-            <HelpIconButton topic="multiplayer" label="Help with Multiplayer Side Quests" />
+            <HelpIconButton topic="multiplayerDetail" label="Help with this Multiplayer Side Quest" />
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
@@ -1999,6 +2010,14 @@ function HelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.helpIconButton} onPress={() => showHelpTopic(topic)}>
       <Text style={compactStyles.helpIconText}>?</Text>
+    </Pressable>
+  );
+}
+
+function ContextHelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.contextHelpIconButton} hitSlop={10} onPress={() => showHelpTopic(topic)}>
+      <Text style={compactStyles.contextHelpIconText}>?</Text>
     </Pressable>
   );
 }
@@ -2720,9 +2739,10 @@ function AccountSoloSideQuestSection({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-          <HelpIconButton topic="solo" label="Help with Solo Side Quests" />
+          
         </View>
       {account.activeQuest ? (
+        <View style={compactStyles.contextHelpHost}>
         <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest" style={compactStyles.freshPanel} onPress={() => onSelectChallenge(account.activeQuest?.id ?? "", "sideQuests")}>
           {activeStatus === "Completed" ? (
             <View style={compactStyles.currentStatusRow}>
@@ -2755,6 +2775,8 @@ function AccountSoloSideQuestSection({
             </View>
           </View>
         </Pressable>
+        <ContextHelpIconButton topic="activeSolo" label="Help with this active Side Quest card" />
+        </View>
       ) : (
         <View style={compactStyles.emptyQuestPanel}>
           <View style={compactStyles.emptyQuestHeroRow}>
@@ -4864,8 +4886,11 @@ const compactStyles = StyleSheet.create({
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   emptyMultiplayerCreateButton: { alignSelf: "center" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  helpIconButton: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.13)", borderWidth: 1, borderColor: "rgba(245,200,106,.32)" },
-  helpIconText: { color: colors.gold, fontSize: 15, lineHeight: 18, fontWeight: "900" },
+  helpIconButton: { alignSelf: "center", width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
+  helpIconText: { color: colors.gold, fontSize: 11, lineHeight: 13, fontWeight: "900" },
+  contextHelpHost: { position: "relative", paddingRight: 32 },
+  contextHelpIconButton: { position: "absolute", top: 8, right: 8, zIndex: 5, width: 19, height: 19, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  contextHelpIconText: { color: colors.gold, fontSize: 10, lineHeight: 12, fontWeight: "900" },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },

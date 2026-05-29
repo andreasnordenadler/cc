@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make SQC Mobile contextual help subtle and placement-specific.
+  - added_at: 2026-05-29 18:06 Europe/Stockholm
+  - completed_at: 2026-05-29 18:16 Europe/Stockholm
+  - source: Andreas corrected v101 help pass: the `?` controls were too intrusive and changed layout, and the text was too generic for where it was placed.
+  - scope: moved active-card help into a tiny overlay affordance that does not affect header/layout flow; rewrote active Side Quest card help to explain Picked, Proof needed, and Latest check specifically; kept Help & Support as normal end-user support.
+  - proof: mobile typecheck passed; targeted App lint passed; `pnpm quest:release-gate` passed; `pnpm build` passed; Android release build passed with versionCode 102 / versionName 0.1.101; emulator smoke confirmed the active-card `?` opens specific placement copy and does not open the card detail. APK prepared as `public/downloads/sqc-mobile-android-help-copy-layout-v102-2026-05-29.apk` with SHA256 `950769916301e36fe1e8f0e6fe9c9c4acfbcfcf628e1d96d8ed6e0087d7d45b8`.
+
 - [x] Add end-user Help and Support surfaces to SQC Mobile.
   - added_at: 2026-05-29 17:48 Europe/Stockholm
   - completed_at: 2026-05-29 18:05 Europe/Stockholm
