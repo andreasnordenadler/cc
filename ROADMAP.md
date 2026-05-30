@@ -591,6 +591,14 @@ Rules from this point:
 
 
 
+
+- [x] Split custom builder into quest-level settings and Add Condition editor.
+  - added_at: 2026-05-31 00:16 Europe/Stockholm
+  - completed_at: 2026-05-31 00:24 Europe/Stockholm
+  - source: Andreas clarified that some builder requirements are for the whole Side Quest while individual condition settings should open after `Add Condition`, not display from the start.
+  - scope: keep Side Quest name and condition match mode visible as quest-level settings; show saved equal conditions; replace always-visible condition controls with an `Add Condition` / `Add Another Condition` flow that opens the condition editor; add Save Condition / Cancel controls; require at least one saved condition before saving draft.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Clarify custom builder conditions, matching, and negative rules.
   - added_at: 2026-05-30 23:50 Europe/Stockholm
   - completed_at: 2026-05-30 23:56 Europe/Stockholm
