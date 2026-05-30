@@ -673,3 +673,11 @@ Andreas rejected the first mobile Multiplayer Lobby experiment because the top s
 
 Andreas corrected the SQC mobile Multiplayer copy again: do not use “rooms” for Multiplayer Side Quests. Visible UI copy should say “Multiplayer Side Quest(s)” or “Side Quest(s)” instead.
 
+
+## [LRN-20260530-004] correction
+
+**Logged**: 2026-05-30T13:15:00+02:00
+**Priority**: medium
+
+For the SQC mobile Multiplayer Lobby header, Andreas wants the multiplayer graphic at the top with no surrounding square/card and no descriptive text; keep only a centered “Multiplayer Lobby” title beneath the graphic.
+

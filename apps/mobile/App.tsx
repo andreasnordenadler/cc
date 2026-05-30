@@ -3417,9 +3417,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
   return (
     <View style={styles.screenStack}>
-      <View style={styles.groupquestsHero}>
-        <Text style={styles.groupquestsHeroTitle}>Multiplayer Lobby.</Text>
-        <Text style={styles.groupquestsHeroCopy}>Lists first: your Multiplayer Side Quests, open Side Quests, private invite, hosted Side Quests, and finished history. Longer lists expand with More.</Text>
+      <View style={styles.multiplayerLobbyHero}>
+        <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.multiplayerLobbyHeroGraphic} resizeMode="contain" />
+        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Lobby</Text>
       </View>
 
 
@@ -5225,6 +5225,9 @@ const styles = StyleSheet.create({
   screenCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(0,0,0,.26)" },
   floatingScreenCloseButton: { position: "absolute", top: 54, right: 16, zIndex: 50, width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(10,8,10,.74)", shadowColor: "#000", shadowOpacity: 0.26, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
+  multiplayerLobbyHero: { alignItems: "center", gap: 7, marginHorizontal: -12, paddingHorizontal: 16, paddingTop: 6, paddingBottom: 4 },
+  multiplayerLobbyHeroGraphic: { width: 172, height: 132 },
+  multiplayerLobbyHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.5, lineHeight: 37, textAlign: "center" },
   multiplayerLobbyStatsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   multiplayerLobbyStatCard: { flexBasis: "48%", flexGrow: 1, gap: 3, paddingVertical: 11, paddingHorizontal: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.075)" },
   multiplayerLobbyStatValue: { color: colors.paper, fontSize: 24, lineHeight: 27, fontWeight: "900", textAlign: "center" },
