@@ -4225,3 +4225,25 @@ Keep `.vercelignore` excluding local artifacts, mobile Android build outputs, an
 - Tags: sqc, vercel, deploy, artifacts
 
 ---
+
+## [ERR-20260530-003] vercel_logs_follow_filter
+
+**Logged**: 2026-05-30T09:49:00+02:00
+**Priority**: low
+**Status**: fixed
+**Area**: infra
+
+### Summary
+`vercel logs https://sidequestchess.com --since 10m` failed because deployment URL mode implies follow and cannot combine with `--since`.
+
+### Details
+Vercel CLI reported: `The --follow flag does not support filtering. Remove: --since`.
+
+### Suggested Action
+For filtered historical production logs, use project-scoped logs with `--environment production --since <window> --no-follow` instead of passing the deployment URL.
+
+### Metadata
+- Source: error
+- Tags: vercel, logs, sqc
+
+---
