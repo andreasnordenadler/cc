@@ -585,6 +585,14 @@ Rules from this point:
 
 
 
+
+- [x] Add Browse/Create entry directly to My Solo Side Quest section.
+  - added_at: 2026-05-30 19:13 Europe/Stockholm
+  - completed_at: 2026-05-30 19:16 Europe/Stockholm
+  - source: Andreas expected the Browse/Create link on the `My Solo Side Quest` section in SQC Mobile.
+  - scope: mobile first-screen/account solo sections; make the Side Quest Library entry discoverable exactly where users manage their solo quest.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Move custom Side Quest creation prototype out of Multiplayer into Side Quest Library.
   - added_at: 2026-05-30 18:50 Europe/Stockholm
   - completed_at: 2026-05-30 18:58 Europe/Stockholm

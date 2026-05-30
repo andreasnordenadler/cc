@@ -1018,7 +1018,9 @@ function TodayDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-          
+          <Pressable accessibilityRole="button" accessibilityLabel="Browse or create Solo Side Quests" onPress={() => onSelectTab("sideQuests")}>
+            <Text style={compactStyles.sectionAction}>Browse/Create</Text>
+          </Pressable>
         </View>
         {signedIn.activeQuest ? (
           <View>
@@ -1076,8 +1078,8 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
               </View>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
-              <Text style={compactStyles.primaryActionText}>Browse Solo Quests</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Browse or create Solo Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
+              <Text style={compactStyles.primaryActionText}>Browse / Create Solo Side Quests</Text>
             </Pressable>
           </View>
         )}
