@@ -2567,6 +2567,9 @@ function QuestBoardDashboard({
 
   return (
     <View style={compactStyles.stack}>
+      <View style={compactStyles.sideQuestListEmblemWrap}>
+        <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
+      </View>
       <View style={compactStyles.appSection}>
         <View style={compactStyles.appRows}>
           {sortedQuests.map((challenge) => {
@@ -4970,6 +4973,8 @@ const compactStyles = StyleSheet.create({
   helpSupportAdminBubble: { alignSelf: "flex-start", backgroundColor: "rgba(96,240,175,.1)", borderColor: "rgba(96,240,175,.24)" },
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
+  sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 6 },
+  sideQuestListEmblem: { width: 82, height: 92 },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
