@@ -3544,8 +3544,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <Text style={styles.secondaryButtonText}>More hosted ({hiddenHostedCount})</Text>
           </Pressable>
         ) : null}
-        <Pressable accessibilityRole="button" style={styles.primaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
-          <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
+        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="create a new multiplayer side quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+          <Text style={styles.primaryButtonText}>create a new multiplayer side quest</Text>
         </Pressable>
         {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join Multiplayer Side Quests.</Text> : null}
       </View>
@@ -5360,6 +5360,7 @@ const styles = StyleSheet.create({
   offlineCopy: { color: colors.muted, lineHeight: 20 },
   errorCopy: { color: "#ffd6cf", lineHeight: 20 },
   primaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
+  centeredPrimaryButton: { alignSelf: "center", minHeight: 42, justifyContent: "center", alignItems: "center", paddingHorizontal: 18, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonText: { color: "#17120c", fontWeight: "900" },
   secondaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
