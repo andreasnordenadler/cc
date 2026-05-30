@@ -657,3 +657,11 @@ For mobile Home UI review, keep the emulator preview account aligned with the st
 **Priority**: medium
 
 Andreas rejected the SQC mobile create-side-quest header/coat experiment as totally wrong. Do not make large structural header changes from a single screenshot when the requested fix is likely local spacing/overlap. Prefer the smallest reversible UI fix first, and if trying an alternate visual concept, describe it as a test before deploying widely.
+
+## [LRN-20260530-002] correction
+
+**Logged**: 2026-05-30T11:45:00+02:00
+**Priority**: medium
+
+Andreas rejected the first mobile Multiplayer Lobby experiment because the top stat/tab buttons made the screen feel wrong. For this screen, prefer stacked list sections with compact rows and a simple “More” button when a list is long, rather than prominent navigation/stat buttons.
+

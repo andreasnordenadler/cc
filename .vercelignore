@@ -13,8 +13,8 @@ apps/mobile/dist-android-*
 public/downloads/*.apk
 public/downloads/*.apk.sha256
 
-!public/downloads/sqc-mobile-android-beta-candidate-v108-2026-05-30.apk
-!public/downloads/sqc-mobile-android-beta-candidate-v108-2026-05-30.apk.sha256
+!public/downloads/sqc-mobile-android-beta-candidate-v109-2026-05-30.apk
+!public/downloads/sqc-mobile-android-beta-candidate-v109-2026-05-30.apk.sha256
 *.tsbuildinfo
 .env*
 .DS_Store

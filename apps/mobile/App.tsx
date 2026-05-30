@@ -3247,12 +3247,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const publicMultiplayerQuest = publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
-  const [lobbyTab, setLobbyTab] = useState<"mine" | "join" | "create" | "history">("mine");
-  const [browseFilter, setBrowseFilter] = useState<"joinable" | "joined" | "hosted" | "closed">("joinable");
-  const [browseSort, setBrowseSort] = useState<"newest" | "ending" | "players">("newest");
-  const [browseSearch, setBrowseSearch] = useState("");
-  const [browseControlsOpen, setBrowseControlsOpen] = useState(false);
-  const [browseOpenLimit, setBrowseOpenLimit] = useState(5);
+  const [mineListLimit, setMineListLimit] = useState(4);
+  const [availableListLimit, setAvailableListLimit] = useState(4);
+  const [hostedListLimit, setHostedListLimit] = useState(3);
+  const [historyListLimit, setHistoryListLimit] = useState(3);
   const [createName, setCreateName] = useState("");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
@@ -3395,40 +3393,19 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const finishedPublicUserGroupQuests = closedPublicUserGroupQuests;
   const joinedBrowseGroupQuests = [...joinedActiveGroupQuests, ...hostedActiveGroupQuests, ...joinedPublicUserGroupQuests, ...hostedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
   const hostedBrowseGroupQuests = [...hostedActiveGroupQuests, ...hostedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
-  const activeMineGroupQuests = joinedBrowseGroupQuests;
-  const availableGroupQuests = joinablePublicUserGroupQuests;
-  const historyGroupQuests = closedUserGroupQuests;
-  const lobbyTabOptions: Array<{ id: typeof lobbyTab; label: string; count: number }> = [
-    { id: "mine", label: "My Quests", count: activeMineGroupQuests.length },
-    { id: "join", label: "Join", count: availableGroupQuests.length },
-    { id: "create", label: "Create", count: hostedBrowseGroupQuests.length },
-    { id: "history", label: "History", count: historyGroupQuests.length },
-  ];
-  const browseFilterOptions: Array<{ id: typeof browseFilter; label: string; count: number }> = [
-    { id: "joinable", label: "Open to join", count: joinablePublicUserGroupQuests.length },
-    { id: "joined", label: "Joined", count: joinedBrowseGroupQuests.length },
-    { id: "hosted", label: "Hosted", count: hostedBrowseGroupQuests.length },
-    { id: "closed", label: "Closed", count: closedUserGroupQuests.length },
-  ];
-  const browseSortOptions: Array<{ id: typeof browseSort; label: string }> = [
-    { id: "newest", label: "Newest" },
-    { id: "ending", label: "Ending soon" },
-    { id: "players", label: "Most players" },
-  ];
-  const baseBrowseGroupQuests = browseFilter === "joinable" ? joinablePublicUserGroupQuests : browseFilter === "joined" ? joinedBrowseGroupQuests : browseFilter === "hosted" ? hostedBrowseGroupQuests : closedUserGroupQuests;
-  const browseSearchTerm = browseSearch.trim().toLowerCase();
-  const searchedBrowseGroupQuests = browseSearchTerm
-    ? baseBrowseGroupQuests.filter((quest) => `${cleanMultiplayerTitle(quest.title)} ${quest.copy ?? ""} ${quest.playersLabel ?? ""} ${quest.hostName ?? ""}`.toLowerCase().includes(browseSearchTerm))
-    : baseBrowseGroupQuests;
-  const filteredBrowseGroupQuests = [...searchedBrowseGroupQuests].sort((a, b) => {
-    if (browseSort === "ending") return Date.parse(a.endAt ?? "") - Date.parse(b.endAt ?? "");
-    if (browseSort === "players") return Number.parseInt(b.playersLabel ?? "0", 10) - Number.parseInt(a.playersLabel ?? "0", 10);
-    return Date.parse(b.startAt ?? b.endAt ?? "") - Date.parse(a.startAt ?? a.endAt ?? "");
-  });
-  const visibleBrowseGroupQuests = filteredBrowseGroupQuests.slice(0, browseOpenLimit);
-  const hiddenOpenCount = Math.max(0, filteredBrowseGroupQuests.length - visibleBrowseGroupQuests.length);
-  const recentFinishedPublicUserGroupQuests = finishedPublicUserGroupQuests.slice(0, 3);
-  const hasBrowseRefinements = browseFilter !== "joinable" || browseSort !== "newest" || Boolean(browseSearchTerm);
+  const sortLobbyGroupQuests = <T extends { startAt?: string | null; endAt?: string | null }>(quests: T[]) => [...quests].sort((a, b) => Date.parse(b.startAt ?? b.endAt ?? "") - Date.parse(a.startAt ?? a.endAt ?? ""));
+  const activeMineGroupQuests = sortLobbyGroupQuests(joinedBrowseGroupQuests);
+  const availableGroupQuests = sortLobbyGroupQuests(joinablePublicUserGroupQuests);
+  const hostedLobbyGroupQuests = sortLobbyGroupQuests(hostedBrowseGroupQuests);
+  const historyGroupQuests = sortLobbyGroupQuests(closedUserGroupQuests);
+  const visibleMineGroupQuests = activeMineGroupQuests.slice(0, mineListLimit);
+  const visibleAvailableGroupQuests = availableGroupQuests.slice(0, availableListLimit);
+  const visibleHostedGroupQuests = hostedLobbyGroupQuests.slice(0, hostedListLimit);
+  const visibleHistoryGroupQuests = historyGroupQuests.slice(0, historyListLimit);
+  const hiddenMineCount = Math.max(0, activeMineGroupQuests.length - visibleMineGroupQuests.length);
+  const hiddenAvailableCount = Math.max(0, availableGroupQuests.length - visibleAvailableGroupQuests.length);
+  const hiddenHostedCount = Math.max(0, hostedLobbyGroupQuests.length - visibleHostedGroupQuests.length);
+  const hiddenHistoryCount = Math.max(0, historyGroupQuests.length - visibleHistoryGroupQuests.length);
 
   function openBrowseGroupQuest(groupQuestId: string) {
     if ([...activeGroupQuests, ...closedUserGroupQuests].some((quest) => quest.id === groupQuestId)) {
@@ -3442,7 +3419,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
         <Text style={styles.groupquestsHeroTitle}>Multiplayer Lobby.</Text>
-        <Text style={styles.groupquestsHeroCopy}>See joined rooms, hosted rooms, public rooms to join, and finished results without digging through one long list.</Text>
+        <Text style={styles.groupquestsHeroCopy}>Lists first: your rooms, open rooms, private invite, hosted rooms, and finished history. Longer lists expand with More.</Text>
       </View>
 
 
@@ -3496,171 +3473,99 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <View style={styles.multiplayerLobbyStatsGrid} accessibilityLabel="Multiplayer Side Quest overview">
-        <Pressable accessibilityRole="button" accessibilityLabel="Show my joined Multiplayer Side Quests" style={styles.multiplayerLobbyStatCard} onPress={() => setLobbyTab("mine")}>
-          <Text style={styles.multiplayerLobbyStatValue}>{activeMineGroupQuests.length}</Text>
-          <Text style={styles.multiplayerLobbyStatLabel}>Joined</Text>
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Show hosted Multiplayer Side Quests" style={styles.multiplayerLobbyStatCard} onPress={() => setLobbyTab("create")}>
-          <Text style={styles.multiplayerLobbyStatValue}>{hostedBrowseGroupQuests.length}</Text>
-          <Text style={styles.multiplayerLobbyStatLabel}>Hosting</Text>
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Show public Multiplayer Side Quests available to join" style={styles.multiplayerLobbyStatCard} onPress={() => setLobbyTab("join")}>
-          <Text style={styles.multiplayerLobbyStatValue}>{availableGroupQuests.length}</Text>
-          <Text style={styles.multiplayerLobbyStatLabel}>Available</Text>
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Show finished Multiplayer Side Quests" style={styles.multiplayerLobbyStatCard} onPress={() => setLobbyTab("history")}>
-          <Text style={styles.multiplayerLobbyStatValue}>{historyGroupQuests.length}</Text>
-          <Text style={styles.multiplayerLobbyStatLabel}>Finished</Text>
-        </Pressable>
-      </View>
-
-      <View style={styles.multiplayerLobbyTabs} accessibilityLabel="Multiplayer lobby tabs">
-        {lobbyTabOptions.map((option) => {
-          const selected = lobbyTab === option.id;
-          return (
-            <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} style={[styles.multiplayerLobbyTab, selected ? styles.multiplayerLobbyTabActive : null]} onPress={() => setLobbyTab(option.id)}>
-              <Text style={[styles.multiplayerLobbyTabText, selected ? styles.multiplayerLobbyTabTextActive : null]}>{option.label}</Text>
-              <Text style={[styles.multiplayerLobbyTabCount, selected ? styles.multiplayerLobbyTabTextActive : null]}>{option.count}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      {lobbyTab === "mine" ? (
-        <View style={styles.groupquestsActiveCard} accessibilityLabel="My Multiplayer Side Quests">
-          <Text style={styles.eyebrow}>My Quests</Text>
-          <Text style={styles.sectionTitle}>Joined and hosted rooms.</Text>
-          <Text style={styles.sectionBody}>Hosted rooms are included here too, because creating one also joins you by default.</Text>
-          {activeMineGroupQuests.length ? (
-            <View style={compactStyles.appRows}>
-              {activeMineGroupQuests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
-              ))}
-            </View>
-          ) : (
-            <View style={styles.multiplayerLobbyEmptyCard}>
-              <Text style={styles.sideQuestModeTitle}>No active multiplayer rooms yet.</Text>
-              <Text style={styles.sideQuestModeCopy}>Join an available room, paste an invite key, or create your own Multiplayer Side Quest.</Text>
-              <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={() => setLobbyTab("join")}>
-                <Text style={styles.primaryButtonText}>Find a room</Text>
-              </Pressable>
-            </View>
-          )}
-        </View>
-      ) : null}
-
-      {lobbyTab === "join" ? (
-        <View style={styles.groupquestsActiveCard} accessibilityLabel="Join Multiplayer Side Quests">
-          <Text style={styles.eyebrow}>Join</Text>
-          <Text style={styles.sectionTitle}>Available Multiplayer Side Quests.</Text>
-          <Text style={styles.sectionBody}>Start with open public rooms. Use filters if you want to inspect joined, hosted, or closed rooms from the same list.</Text>
-          <View style={styles.browseSummaryRow}>
-            <Text style={styles.microcopy}>{hasBrowseRefinements ? `${filteredBrowseGroupQuests.length} matching Multiplayer Side Quest${filteredBrowseGroupQuests.length === 1 ? "" : "s"}` : `${availableGroupQuests.length} public room${availableGroupQuests.length === 1 ? "" : "s"} available to join`}</Text>
-            <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quest filters and sorting" style={styles.browseRefineButton} onPress={() => setBrowseControlsOpen((open) => !open)}>
-              <MaterialCommunityIcons name="tune-variant" size={16} color={colors.paper} />
-              <Text style={styles.browseRefineButtonText}>{browseControlsOpen ? "Hide" : hasBrowseRefinements ? "Refine on" : "Filter / Sort"}</Text>
-            </Pressable>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="My Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>My Quests · {activeMineGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Joined and hosted rooms.</Text>
+        <Text style={styles.sectionBody}>Hosted rooms are included here too, because creating one also joins you by default.</Text>
+        {visibleMineGroupQuests.length ? (
+          <View style={compactStyles.appRows}>
+            {visibleMineGroupQuests.map((quest) => (
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+            ))}
           </View>
-          {browseControlsOpen ? (
-            <View style={styles.browseControlsPanel} accessibilityLabel="Multiplayer Side Quest filters, sorting, and search">
-              <View style={styles.inputStack}>
-                <Text style={styles.inputLabel}>Search public Multiplayer Side Quests</Text>
-                <TextInput autoCapitalize="none" autoCorrect={false} placeholder="Name, host, players…" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} value={browseSearch} onChangeText={(value) => { setBrowseSearch(value); setBrowseOpenLimit(5); }} />
-              </View>
-              <Text style={styles.inputLabel}>Show</Text>
-              <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest list filters">
-                {browseFilterOptions.map((option) => {
-                  const selected = browseFilter === option.id;
-                  return (
-                    <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`${option.label} Multiplayer Side Quests`} style={[styles.browseFilterChip, styles.browseFilterChipWide, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseFilter(option.id); setBrowseOpenLimit(5); }}>
-                      <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
-                      <Text style={[styles.browseFilterChipCount, selected ? styles.browseFilterChipTextActive : null]}>{option.count}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              <Text style={styles.inputLabel}>Sort</Text>
-              <View style={styles.browseFilterGrid} accessibilityLabel="Multiplayer Side Quest sorting">
-                {browseSortOptions.map((option) => {
-                  const selected = browseSort === option.id;
-                  return (
-                    <Pressable key={option.id} accessibilityRole="button" accessibilityState={{ selected }} accessibilityLabel={`Sort Multiplayer Side Quests by ${option.label}`} style={[styles.browseFilterChip, styles.browseSortChip, selected ? styles.browseFilterChipActive : null]} onPress={() => { setBrowseSort(option.id); setBrowseOpenLimit(5); }}>
-                      <Text style={[styles.browseFilterChipText, selected ? styles.browseFilterChipTextActive : null]}>{option.label}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-              {hasBrowseRefinements ? (
-                <Pressable accessibilityRole="button" accessibilityLabel="Clear Multiplayer Side Quest filters" style={styles.secondaryButtonWide} onPress={() => { setBrowseFilter("joinable"); setBrowseSort("newest"); setBrowseSearch(""); setBrowseOpenLimit(5); }}>
-                  <Text style={styles.secondaryButtonText}>Clear filters</Text>
-                </Pressable>
-              ) : null}
-            </View>
-          ) : null}
-          {visibleBrowseGroupQuests.length ? (
-            <View style={compactStyles.appRows}>
-              {visibleBrowseGroupQuests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
-              ))}
-            </View>
-          ) : (
-            <Text style={styles.sectionBody}>{(publicUserGroupQuests.length || activeGroupQuests.length) ? `No ${browseFilterOptions.find((option) => option.id === browseFilter)?.label.toLowerCase() ?? "matching"} Multiplayer Side Quests right now.` : "No public Multiplayer Side Quests are open right now. Create one, or join by invite key."}</Text>
-          )}
-          {hiddenOpenCount ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Show more Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setBrowseOpenLimit((current) => current + 5)}>
-              <Text style={styles.secondaryButtonText}>Show {Math.min(5, hiddenOpenCount)} more Side Quests</Text>
-            </Pressable>
-          ) : null}
-          <View style={styles.groupquestsActionCard}>
-            <Text style={styles.sideQuestModeTitle}>Join by invite key.</Text>
-            <Text style={styles.sideQuestModeCopy}>Paste an invite key from the host to join a private Multiplayer Side Quest.</Text>
-            <View style={styles.inputStack}>
-              <Text style={styles.inputLabel}>Invite key</Text>
-              <TextInput autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
-            </View>
-            <Pressable accessibilityRole="button" style={styles.secondaryButtonWide} accessibilityLabel="Join private Multiplayer Side Quest" disabled={groupQuestActionState.busy && groupQuestActionState.questId === "invite"} onPress={() => void joinByInviteKey()}>
-              <Text style={styles.secondaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "invite" ? "Joining..." : "Join with key"}</Text>
-            </Pressable>
-            {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
-            {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
+        ) : (
+          <View style={styles.multiplayerLobbyEmptyCard}>
+            <Text style={styles.sideQuestModeTitle}>No active multiplayer rooms yet.</Text>
+            <Text style={styles.sideQuestModeCopy}>Join an open room, paste an invite key, or create your own Multiplayer Side Quest.</Text>
           </View>
-        </View>
-      ) : null}
-
-      {lobbyTab === "create" ? (
-        <View style={styles.groupquestsActiveCard} accessibilityLabel="Create and host Multiplayer Side Quests">
-          <Text style={styles.eyebrow}>Create</Text>
-          <Text style={styles.sectionTitle}>Host a Multiplayer Side Quest.</Text>
-          <Text style={styles.sectionBody}>Create a public or private room, choose the Side Quests, and invite players. Created rooms appear under My Quests because the host joins by default.</Text>
-          <Pressable accessibilityRole="button" style={styles.primaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
-            <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
+        )}
+        {hiddenMineCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more of my Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setMineListLimit((current) => current + 4)}>
+            <Text style={styles.secondaryButtonText}>More my quests ({hiddenMineCount})</Text>
           </Pressable>
-          {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join Multiplayer Side Quests.</Text> : null}
-          {hostedBrowseGroupQuests.length ? (
-            <View style={compactStyles.appRows}>
-              {hostedBrowseGroupQuests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status="Hosting" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
-              ))}
-            </View>
-          ) : <Text style={styles.sectionBody}>You are not hosting any active Multiplayer Side Quests yet.</Text>}
-        </View>
-      ) : null}
+        ) : null}
+      </View>
 
-      {lobbyTab === "history" ? (
-        <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quest results">
-          <Text style={styles.eyebrow}>History</Text>
-          <Text style={styles.sectionTitle}>Finished Multiplayer Side Quests.</Text>
-          <Text style={styles.sectionBody}>Closed rooms and results live here so the active lobby stays easy to scan.</Text>
-          {historyGroupQuests.length ? (
-            <View style={compactStyles.appRows}>
-              {historyGroupQuests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
-              ))}
-            </View>
-          ) : <Text style={styles.sectionBody}>No finished Multiplayer Side Quests yet.</Text>}
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Open Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Open to Join · {availableGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Public rooms.</Text>
+        <Text style={styles.sectionBody}>Join a public Multiplayer Side Quest directly from the list.</Text>
+        {visibleAvailableGroupQuests.length ? (
+          <View style={compactStyles.appRows}>
+            {visibleAvailableGroupQuests.map((quest) => (
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+            ))}
+          </View>
+        ) : <Text style={styles.sectionBody}>No open public rooms right now.</Text>}
+        {hiddenAvailableCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setAvailableListLimit((current) => current + 4)}>
+            <Text style={styles.secondaryButtonText}>More open rooms ({hiddenAvailableCount})</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
+      <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
+        <Text style={styles.eyebrow}>Invite Key</Text>
+        <Text style={styles.sideQuestModeTitle}>Join private room.</Text>
+        <Text style={styles.sideQuestModeCopy}>Paste an invite key from the host to join a private Multiplayer Side Quest.</Text>
+        <View style={styles.inputStack}>
+          <Text style={styles.inputLabel}>Invite key</Text>
+          <TextInput autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
         </View>
-      ) : null}
+        <Pressable accessibilityRole="button" style={styles.secondaryButtonWide} accessibilityLabel="Join private Multiplayer Side Quest" disabled={groupQuestActionState.busy && groupQuestActionState.questId === "invite"} onPress={() => void joinByInviteKey()}>
+          <Text style={styles.secondaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "invite" ? "Joining..." : "Join with key"}</Text>
+        </Pressable>
+        {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
+        {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
+      </View>
+
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Hosted Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Hosting · {hostedLobbyGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Rooms you host.</Text>
+        {visibleHostedGroupQuests.length ? (
+          <View style={compactStyles.appRows}>
+            {visibleHostedGroupQuests.map((quest) => (
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status="Hosting" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+            ))}
+          </View>
+        ) : <Text style={styles.sectionBody}>You are not hosting any active Multiplayer Side Quests yet.</Text>}
+        {hiddenHostedCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more hosted Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setHostedListLimit((current) => current + 3)}>
+            <Text style={styles.secondaryButtonText}>More hosted ({hiddenHostedCount})</Text>
+          </Pressable>
+        ) : null}
+        <Pressable accessibilityRole="button" style={styles.primaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+          <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
+        </Pressable>
+        {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join Multiplayer Side Quests.</Text> : null}
+      </View>
+
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>History · {historyGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Finished rooms.</Text>
+        {visibleHistoryGroupQuests.length ? (
+          <View style={compactStyles.appRows}>
+            {visibleHistoryGroupQuests.map((quest) => (
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+            ))}
+          </View>
+        ) : <Text style={styles.sectionBody}>No finished Multiplayer Side Quests yet.</Text>}
+        {hiddenHistoryCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more finished Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setHistoryListLimit((current) => current + 3)}>
+            <Text style={styles.secondaryButtonText}>More history ({hiddenHistoryCount})</Text>
+          </Pressable>
+        ) : null}
+      </View>
 
       <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCreateOpen(false)}>
         <SafeAreaView style={compactStyles.detailScreen}>
