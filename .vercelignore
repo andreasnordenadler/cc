@@ -5,6 +5,13 @@ node_modules
 tmp
 .learnings
 docs
+artifacts
+state
+memory
+apps/mobile/android/app/build
+apps/mobile/dist-android-*
+public/downloads/*.apk
+public/downloads/*.apk.sha256
 *.tsbuildinfo
 .env*
 .DS_Store

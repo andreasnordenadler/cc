@@ -4202,3 +4202,26 @@ Used the canonical SQC blue literal `#76a9ff` for the Chess.com account mark.
 **Priority**: low
 
 While adding SQC mobile invite sharing, a broad text replacement changed the top-level helper `getMultiplayerInviteMessage` to reference component-local `activeQuest`, causing TypeScript failure. Fixed by restoring the helper to use its `quest` parameter and keeping `activeQuest` only inside the modal component. Also avoided assuming the deploy clone has the Android Gradle file; Android build/version sync is canonical-repo based.
+
+## [ERR-20260530-002] vercel_deploy_payload_too_large
+
+**Logged**: 2026-05-30T09:47:00+02:00
+**Priority**: high
+**Status**: fixed
+**Area**: infra
+
+### Summary
+Vercel deploy attempted to upload 3.8GB because local mobile APK/build artifacts were not ignored.
+
+### Details
+After support form commit `58f4470`, `pnpm deploy:prod` passed the guard but Vercel began uploading 3.8GB from local artifact clutter. The deploy process was killed before completion.
+
+### Suggested Action
+Keep `.vercelignore` excluding local artifacts, mobile Android build outputs, and APK download artifacts before production deploys.
+
+### Metadata
+- Source: error
+- Related Files: .vercelignore
+- Tags: sqc, vercel, deploy, artifacts
+
+---
