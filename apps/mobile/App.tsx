@@ -3531,7 +3531,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Hosted Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Hosting · {hostedLobbyGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Rooms you host.</Text>
+        <Text style={styles.sectionTitle}>Side Quests you host.</Text>
         {visibleHostedGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleHostedGroupQuests.map((quest) => (

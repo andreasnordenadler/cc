@@ -681,3 +681,11 @@ Andreas corrected the SQC mobile Multiplayer copy again: do not use “rooms” 
 
 For the SQC mobile Multiplayer Lobby header, Andreas wants the multiplayer graphic at the top with no surrounding square/card and no descriptive text; keep only a centered “Multiplayer Lobby” title beneath the graphic.
 
+
+## [LRN-20260530-005] correction
+
+**Logged**: 2026-05-30T14:03:00+02:00
+**Priority**: high
+
+When Andreas says not to use “room/rooms,” run a case-sensitive and case-insensitive sweep for both lower- and upper-case visible copy. I missed capitalized “Rooms you host.” in the SQC mobile Multiplayer Lobby.
+

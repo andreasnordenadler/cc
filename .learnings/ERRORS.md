@@ -4255,3 +4255,8 @@ For filtered historical production logs, use project-scoped logs with `--environ
 **What happened**: `git add apps/mobile/android/app/build.gradle` failed because `apps/mobile/android` is ignored. The native Gradle file also still had an older `versionCode`/`versionName`, so the first rebuilt APK would not have carried the intended install version.
 **Resolution**: Force-added the native build file when intentionally committing it, updated `versionCode 104` / `versionName "0.1.104"`, rebuilt the APK, and regenerated the SHA256.
 **Do differently**: Before publishing Android APKs from the checked-in native project, verify both Expo `app.json` and native `android/app/build.gradle` version fields, and use `git add -f` only for intentionally tracked ignored native files.
+
+## 2026-05-30 — zsh glob blocked staging Next dynamic route
+
+`git add src/app/api/mobile/groupquests/[id]/route.ts` failed because zsh treated `[id]` as a glob. Quote dynamic-route paths when staging: `git add 'src/app/api/mobile/groupquests/[id]/route.ts'`.
+

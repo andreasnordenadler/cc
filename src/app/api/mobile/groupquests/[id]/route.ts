@@ -465,7 +465,7 @@ async function saveHostQuestSafely(
     return null;
   } catch (error) {
     console.error("mobile_groupquest_save_failed", error);
-    return "Could not save Multiplayer Side Quest settings. I compacted the room data; try again once more.";
+    return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
   }
 }
 
