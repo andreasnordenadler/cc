@@ -589,6 +589,14 @@ Rules from this point:
 
 
 
+
+- [x] Polish custom Side Quest requirement builder for specific pieces and square rules.
+  - added_at: 2026-05-30 21:12 Europe/Stockholm
+  - completed_at: 2026-05-30 21:24 Europe/Stockholm
+  - source: Andreas requested several more polish/thinking rounds: clearer requirement management, left/right pieces, and rules like a specific piece being on a certain square at a certain move.
+  - scope: added specific-piece identity selectors (original king/queen, queenside/kingside rook/bishop/knight, a-h pawns), square target input for `on square`, `at move` timing, clearer current-vs-saved requirement copy, removable saved requirements, and better grammar/preview behavior.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Extend custom Side Quest builder for piece counts and multiple requirements.
   - added_at: 2026-05-30 20:55 Europe/Stockholm
   - completed_at: 2026-05-30 21:03 Europe/Stockholm

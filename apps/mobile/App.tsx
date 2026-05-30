@@ -85,10 +85,11 @@ const MULTIPLAYER_RULE_OPTIONS = {
 
 const CUSTOM_RULE_PIECES = ["king", "queen", "rook", "bishop", "knight", "pawn"] as const;
 const CUSTOM_RULE_OWNERS = ["my", "opponent"] as const;
-const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved"] as const;
-const CUSTOM_RULE_TIMINGS = ["by move", "at game end"] as const;
+const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square"] as const;
+const CUSTOM_RULE_TIMINGS = ["by move", "at move", "at game end"] as const;
 const CUSTOM_RULE_QUANTIFIERS = ["any one", "at least", "exactly", "all"] as const;
 const CUSTOM_RULE_LOGICS = ["all", "any"] as const;
+const CUSTOM_RULE_FILES = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
 type CustomRulePiece = typeof CUSTOM_RULE_PIECES[number];
 type CustomRuleOwner = typeof CUSTOM_RULE_OWNERS[number];
@@ -105,6 +106,8 @@ type CustomRuleRequirement = {
   moveNumber: number;
   quantifier: CustomRuleQuantifier;
   count: number;
+  identity: string;
+  targetSquare: string;
   negated: boolean;
 };
 
@@ -152,18 +155,48 @@ function normalizeCustomRuleCount(piece: CustomRulePiece, count: number) {
   return Math.min(Math.max(1, count), getCustomPieceMaxCount(piece));
 }
 
+function getCustomPieceIdentityOptions(piece: CustomRulePiece) {
+  if (piece === "pawn") return ["any", ...CUSTOM_RULE_FILES.map((file) => `${file}-pawn`)];
+  if (piece === "rook" || piece === "bishop" || piece === "knight") return ["any", "queenside", "kingside"];
+  return ["original"];
+}
+
+function normalizeCustomPieceIdentity(piece: CustomRulePiece, identity: string) {
+  const options = getCustomPieceIdentityOptions(piece);
+  return options.includes(identity) ? identity : options[0];
+}
+
+function getCustomPieceIdentityLabel(piece: CustomRulePiece, identity: string) {
+  const normalized = normalizeCustomPieceIdentity(piece, identity);
+  if (normalized === "original") return "original";
+  if (normalized === "any") return piece === "pawn" ? "any pawn" : `any ${piece}`;
+  if (normalized.endsWith("-pawn")) return `${normalized.slice(0, 1)}-pawn`;
+  return `${normalized} ${piece}`;
+}
+
+function normalizeCustomSquare(value: string) {
+  const cleaned = value.trim().toLowerCase();
+  return /^[a-h][1-8]$/.test(cleaned) ? cleaned : "e4";
+}
+
 function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
   const owner = input.owner === "my" ? "your" : "opponent's";
   const count = normalizeCustomRuleCount(input.piece, input.count);
-  const pieceLabel = getCustomPieceLabel(input.piece, input.quantifier === "all" ? getCustomPieceMaxCount(input.piece) : count);
+  const identity = getCustomPieceIdentityLabel(input.piece, input.identity);
+  const pieceLabel = input.identity && normalizeCustomPieceIdentity(input.piece, input.identity) !== "any"
+    ? identity
+    : getCustomPieceLabel(input.piece, input.quantifier === "all" ? getCustomPieceMaxCount(input.piece) : count);
+  const hasSpecificIdentity = input.identity && normalizeCustomPieceIdentity(input.piece, input.identity) !== "any";
   const quantifier = input.quantifier === "all"
     ? `all ${getCustomPieceMaxCount(input.piece)}`
     : input.quantifier === "any one"
       ? "any 1"
       : `${input.quantifier} ${count}`;
-  const timing = input.timing === "by move" ? `by move ${input.moveNumber}` : "at game end";
+  const timing = input.timing === "by move" ? `by move ${input.moveNumber}` : input.timing === "at move" ? `at move ${input.moveNumber}` : "at game end";
+  const condition = input.condition === "on square" ? `on ${normalizeCustomSquare(input.targetSquare)}` : input.condition;
   const negated = input.negated ? "NOT: " : "";
-  return `${negated}${titleCaseRuleValue(owner)} ${quantifier} ${pieceLabel} must be ${input.condition} ${timing}.`;
+  const subject = hasSpecificIdentity ? `${owner} ${pieceLabel}` : `${owner} ${quantifier} ${pieceLabel}`;
+  return `${negated}${titleCaseRuleValue(subject)} must be ${condition} ${timing}.`;
 }
 
 function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
@@ -175,9 +208,11 @@ function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
       quantifier: input.quantifier,
       count: input.quantifier === "all" ? getCustomPieceMaxCount(input.piece) : normalizeCustomRuleCount(input.piece, input.count),
       maxAvailable: getCustomPieceMaxCount(input.piece),
+      identity: normalizeCustomPieceIdentity(input.piece, input.identity),
     },
     condition: input.condition,
-    timing: input.timing === "by move" ? { byMove: input.moveNumber } : { atGameEnd: true },
+    targetSquare: input.condition === "on square" ? normalizeCustomSquare(input.targetSquare) : null,
+    timing: input.timing === "by move" ? { byMove: input.moveNumber } : input.timing === "at move" ? { atMove: input.moveNumber } : { atGameEnd: true },
     negate: input.negated,
   };
 }
@@ -2653,6 +2688,8 @@ function QuestBoardDashboard({
   const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState(15);
   const [customRuleQuantifier, setCustomRuleQuantifier] = useState<CustomRuleQuantifier>("any one");
   const [customRuleCount, setCustomRuleCount] = useState(1);
+  const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
+  const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
@@ -2664,6 +2701,8 @@ function QuestBoardDashboard({
     moveNumber: customRuleMoveNumber,
     quantifier: customRuleQuantifier,
     count: normalizeCustomRuleCount(customRulePiece, customRuleCount),
+    identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
+    targetSquare: normalizeCustomSquare(customRuleTargetSquare),
     negated: customRuleNegated,
   };
   const customRuleRequirements = [...customRequirements.map(({ id: _id, ...requirement }) => requirement), currentCustomRequirement];
@@ -2672,6 +2711,10 @@ function QuestBoardDashboard({
 
   function addCustomRequirement() {
     setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+  }
+
+  function removeCustomRequirement(requirementId: string) {
+    setCustomRequirements((current) => current.filter((requirement) => requirement.id !== requirementId));
   }
 
   function saveCustomDraft() {
@@ -2796,9 +2839,9 @@ function QuestBoardDashboard({
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
-              <Text style={compactStyles.multiplayerCardEyebrow}>Rule block</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Piece state</Text>
-              <Text style={styles.microcopy}>General block: choose piece family, how many pieces, owner, condition, timing, and how this requirement combines with others.</Text>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Requirement builder</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Current requirement</Text>
+              <Text style={styles.microcopy}>Build one requirement, add it to the list, then combine the saved requirements below. The current requirement is included in the preview until saved.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>Requirement logic</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
@@ -2816,38 +2859,56 @@ function QuestBoardDashboard({
                 {CUSTOM_RULE_PIECES.map((piece) => {
                   const selected = customRulePiece === piece;
                   return (
-                    <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); }}>
+                    <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); }}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
                     </Pressable>
                   );
                 })}
               </View>
-              <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>Which one</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
-                {CUSTOM_RULE_QUANTIFIERS.map((quantifier) => {
-                  const selected = customRuleQuantifier === quantifier;
-                  const disabled = getCustomPieceMaxCount(customRulePiece) === 1 && (quantifier === "at least" || quantifier === "exactly" || quantifier === "all");
+                {getCustomPieceIdentityOptions(customRulePiece).map((identity) => {
+                  const selected = normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === identity;
                   return (
-                    <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected, disabled }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null, disabled ? compactStyles.disabledAction : null]} onPress={() => { if (!disabled) setCustomRuleQuantifier(quantifier); }}>
+                    <Pressable key={identity} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleIdentity(identity)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
+                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(getCustomPieceIdentityLabel(customRulePiece, identity))}</Text>
                     </Pressable>
                   );
                 })}
               </View>
-              {customRuleQuantifier === "at least" || customRuleQuantifier === "exactly" ? (
-                <View style={compactStyles.multiplayerFooterActions}>
-                  {getCustomRuleCountOptions(customRulePiece).map((countOption) => {
-                    const selected = customRuleCount === countOption;
-                    return (
-                      <Pressable key={countOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCount(countOption)}>
-                        <Text style={compactStyles.detailSecondaryButtonText}>{countOption}</Text>
-                      </Pressable>
-                    );
-                  })}
+              {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" ? (
+                <View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_QUANTIFIERS.map((quantifier) => {
+                      const selected = customRuleQuantifier === quantifier;
+                      const disabled = getCustomPieceMaxCount(customRulePiece) === 1 && (quantifier === "at least" || quantifier === "exactly" || quantifier === "all");
+                      return (
+                        <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected, disabled }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null, disabled ? compactStyles.disabledAction : null]} onPress={() => { if (!disabled) setCustomRuleQuantifier(quantifier); }}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {customRuleQuantifier === "at least" || customRuleQuantifier === "exactly" ? (
+                    <View style={compactStyles.multiplayerFooterActions}>
+                      {getCustomRuleCountOptions(customRulePiece).map((countOption) => {
+                        const selected = customRuleCount === countOption;
+                        return (
+                          <Pressable key={countOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCount(countOption)}>
+                            <Text style={compactStyles.detailSecondaryButtonText}>{countOption}</Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ) : null}
                 </View>
-              ) : null}
+              ) : (
+                <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
+              )}
               <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_OWNERS.map((owner) => {
@@ -2865,13 +2926,20 @@ function QuestBoardDashboard({
                 {CUSTOM_RULE_CONDITIONS.map((condition) => {
                   const selected = customRuleCondition === condition;
                   return (
-                    <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCondition(condition)}>
+                    <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(condition)}</Text>
                     </Pressable>
                   );
                 })}
               </View>
+              {customRuleCondition === "on square" ? (
+                <View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
+                  <TextInput value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
+                  <Text style={styles.microcopy}>Use algebraic board squares like e4, h8, or a1.</Text>
+                </View>
+              ) : null}
               <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_TIMINGS.map((timing) => {
@@ -2902,17 +2970,24 @@ function QuestBoardDashboard({
                   <Text style={compactStyles.detailSecondaryButtonText}>{customRuleNegated ? "Requirement is negated" : "Normal requirement"}</Text>
                 </Pressable>
               </View>
-              {customRequirements.length ? (
-                <View style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Saved requirements</Text>
-                  <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.map((requirement) => buildCustomPieceRuleSummary(requirement)).join(customRuleLogic === "all" ? " AND " : " OR ")}</Text>
-                </View>
-              ) : null}
-              <Pressable accessibilityRole="button" accessibilityLabel="Add another custom Side Quest requirement" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
-                <Text style={compactStyles.detailSecondaryButtonText}>Add Requirement</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add current requirement to custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
+                <Text style={compactStyles.detailSecondaryButtonText}>Add Current Requirement</Text>
               </Pressable>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Preview</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Saved requirements</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They combine with the current requirement using ${customRuleLogic === "all" ? "AND" : "OR"}.` : "None saved yet. The preview currently uses only the current requirement."}</Text>
+              </View>
+              {customRequirements.map((requirement, index) => (
+                <View key={requirement.id} style={compactStyles.multiplayerRuleRow}>
+                  <Text style={compactStyles.multiplayerRuleLabel}>#{index + 1}</Text>
+                  <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(requirement)}</Text>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Remove saved requirement" style={compactStyles.detailQuietButton} onPress={() => removeCustomRequirement(requirement.id)}>
+                    <Text style={compactStyles.detailQuietButtonText}>Remove</Text>
+                  </Pressable>
+                </View>
+              ))}
+              <View style={compactStyles.multiplayerRuleRow}>
+                <Text style={compactStyles.multiplayerRuleLabel}>Full quest preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
@@ -3524,6 +3599,8 @@ function SideQuestsScreen({
   const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState(15);
   const [customRuleQuantifier, setCustomRuleQuantifier] = useState<CustomRuleQuantifier>("any one");
   const [customRuleCount, setCustomRuleCount] = useState(1);
+  const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
+  const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
@@ -3535,6 +3612,8 @@ function SideQuestsScreen({
     moveNumber: customRuleMoveNumber,
     quantifier: customRuleQuantifier,
     count: normalizeCustomRuleCount(customRulePiece, customRuleCount),
+    identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
+    targetSquare: normalizeCustomSquare(customRuleTargetSquare),
     negated: customRuleNegated,
   };
   const customRuleRequirements = [...customRequirements.map(({ id: _id, ...requirement }) => requirement), currentCustomRequirement];
@@ -3543,6 +3622,10 @@ function SideQuestsScreen({
 
   function addCustomRequirement() {
     setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+  }
+
+  function removeCustomRequirement(requirementId: string) {
+    setCustomRequirements((current) => current.filter((requirement) => requirement.id !== requirementId));
   }
 
   function saveCustomDraft() {
@@ -3616,9 +3699,9 @@ function SideQuestsScreen({
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
-              <Text style={compactStyles.multiplayerCardEyebrow}>Rule block</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Piece state</Text>
-              <Text style={styles.microcopy}>General block: choose piece family, how many pieces, owner, condition, timing, and how this requirement combines with others.</Text>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Requirement builder</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Current requirement</Text>
+              <Text style={styles.microcopy}>Build one requirement, add it to the list, then combine the saved requirements below. The current requirement is included in the preview until saved.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>Requirement logic</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
@@ -3636,38 +3719,56 @@ function SideQuestsScreen({
                 {CUSTOM_RULE_PIECES.map((piece) => {
                   const selected = customRulePiece === piece;
                   return (
-                    <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); }}>
+                    <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); }}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
                     </Pressable>
                   );
                 })}
               </View>
-              <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>Which one</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
-                {CUSTOM_RULE_QUANTIFIERS.map((quantifier) => {
-                  const selected = customRuleQuantifier === quantifier;
-                  const disabled = getCustomPieceMaxCount(customRulePiece) === 1 && (quantifier === "at least" || quantifier === "exactly" || quantifier === "all");
+                {getCustomPieceIdentityOptions(customRulePiece).map((identity) => {
+                  const selected = normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === identity;
                   return (
-                    <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected, disabled }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null, disabled ? compactStyles.disabledAction : null]} onPress={() => { if (!disabled) setCustomRuleQuantifier(quantifier); }}>
+                    <Pressable key={identity} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleIdentity(identity)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
+                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(getCustomPieceIdentityLabel(customRulePiece, identity))}</Text>
                     </Pressable>
                   );
                 })}
               </View>
-              {customRuleQuantifier === "at least" || customRuleQuantifier === "exactly" ? (
-                <View style={compactStyles.multiplayerFooterActions}>
-                  {getCustomRuleCountOptions(customRulePiece).map((countOption) => {
-                    const selected = customRuleCount === countOption;
-                    return (
-                      <Pressable key={countOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCount(countOption)}>
-                        <Text style={compactStyles.detailSecondaryButtonText}>{countOption}</Text>
-                      </Pressable>
-                    );
-                  })}
+              {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" ? (
+                <View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_QUANTIFIERS.map((quantifier) => {
+                      const selected = customRuleQuantifier === quantifier;
+                      const disabled = getCustomPieceMaxCount(customRulePiece) === 1 && (quantifier === "at least" || quantifier === "exactly" || quantifier === "all");
+                      return (
+                        <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected, disabled }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null, disabled ? compactStyles.disabledAction : null]} onPress={() => { if (!disabled) setCustomRuleQuantifier(quantifier); }}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {customRuleQuantifier === "at least" || customRuleQuantifier === "exactly" ? (
+                    <View style={compactStyles.multiplayerFooterActions}>
+                      {getCustomRuleCountOptions(customRulePiece).map((countOption) => {
+                        const selected = customRuleCount === countOption;
+                        return (
+                          <Pressable key={countOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCount(countOption)}>
+                            <Text style={compactStyles.detailSecondaryButtonText}>{countOption}</Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ) : null}
                 </View>
-              ) : null}
+              ) : (
+                <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
+              )}
               <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_OWNERS.map((owner) => {
@@ -3685,13 +3786,20 @@ function SideQuestsScreen({
                 {CUSTOM_RULE_CONDITIONS.map((condition) => {
                   const selected = customRuleCondition === condition;
                   return (
-                    <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCondition(condition)}>
+                    <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(condition)}</Text>
                     </Pressable>
                   );
                 })}
               </View>
+              {customRuleCondition === "on square" ? (
+                <View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
+                  <TextInput value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
+                  <Text style={styles.microcopy}>Use algebraic board squares like e4, h8, or a1.</Text>
+                </View>
+              ) : null}
               <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_TIMINGS.map((timing) => {
@@ -3722,17 +3830,24 @@ function SideQuestsScreen({
                   <Text style={compactStyles.detailSecondaryButtonText}>{customRuleNegated ? "Requirement is negated" : "Normal requirement"}</Text>
                 </Pressable>
               </View>
-              {customRequirements.length ? (
-                <View style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Saved requirements</Text>
-                  <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.map((requirement) => buildCustomPieceRuleSummary(requirement)).join(customRuleLogic === "all" ? " AND " : " OR ")}</Text>
-                </View>
-              ) : null}
-              <Pressable accessibilityRole="button" accessibilityLabel="Add another custom Side Quest requirement" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
-                <Text style={compactStyles.detailSecondaryButtonText}>Add Requirement</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add current requirement to custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
+                <Text style={compactStyles.detailSecondaryButtonText}>Add Current Requirement</Text>
               </Pressable>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Preview</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Saved requirements</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They combine with the current requirement using ${customRuleLogic === "all" ? "AND" : "OR"}.` : "None saved yet. The preview currently uses only the current requirement."}</Text>
+              </View>
+              {customRequirements.map((requirement, index) => (
+                <View key={requirement.id} style={compactStyles.multiplayerRuleRow}>
+                  <Text style={compactStyles.multiplayerRuleLabel}>#{index + 1}</Text>
+                  <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(requirement)}</Text>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Remove saved requirement" style={compactStyles.detailQuietButton} onPress={() => removeCustomRequirement(requirement.id)}>
+                    <Text style={compactStyles.detailQuietButtonText}>Remove</Text>
+                  </Pressable>
+                </View>
+              ))}
+              <View style={compactStyles.multiplayerRuleRow}>
+                <Text style={compactStyles.multiplayerRuleLabel}>Full quest preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
