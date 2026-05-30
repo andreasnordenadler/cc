@@ -584,6 +584,14 @@ Rules from this point:
 
 
 
+
+- [x] Move custom Side Quest creation prototype out of Multiplayer into Side Quest Library.
+  - added_at: 2026-05-30 18:50 Europe/Stockholm
+  - completed_at: 2026-05-30 18:58 Europe/Stockholm
+  - source: Andreas liked the rule-block builder but said custom Side Quests should be separate from Multiplayer; suggested a Browse/Create link from home and a lobby-like Side Quest area showing public/user-created/create/manage surfaces.
+  - scope: SQC Mobile only; add a home Browse/Create entry into Side Quests, add a Side Quest Library card in Solo Side Quests, move the custom piece-state builder into a Custom Side Quest draft modal, and remove the custom builder from Multiplayer creation to keep Multiplayer focused.
+  - proof: mobile typecheck passed locally after moving the prototype; full lint/build/APK/deploy proof follows in the release commit.
+
 - [x] Prototype SQC Mobile custom Side Quest rule-block builder.
   - added_at: 2026-05-30 18:34 Europe/Stockholm
   - source: Andreas asked to try a mobile-first no-AI/no-code custom Side Quest builder using configurable general rule blocks; website later.
