@@ -582,6 +582,14 @@ Rules from this point:
   - scope: internal/dev-facing SDK only; no new website product features; support public smoke checks, mobile bootstrap contract checks, optional authenticated account/quest API checks via caller-supplied cookies, and red-seal regression checks.
   - proof: added `testing-sdk/index.mjs`, `testing-sdk/index.d.ts`, `testing-sdk/smoke.mjs`, `docs/SQC_TESTING_SDK.md`, and `pnpm sdk:smoke`; `pnpm sdk:smoke` passed against production, including bootstrap contract, red seal asset, and public page smoke; `pnpm lint` passed with 0 errors / 3 pre-existing warnings; `pnpm build` passed.
 
+
+- [ ] Add multilingual foundation for SQC.
+  - added_at: 2026-05-30 15:43 Europe/Stockholm
+  - source: Andreas said SQC should become multilingual later, but not right now.
+  - scope: future work only; add shared web/mobile i18n architecture, language detection/override, persisted account preference, and translation-file structure before translating large copy surfaces.
+  - recommended rollout: start with English + Swedish pilot; translate UI chrome first, then quest copy with human review to preserve SQC tone.
+  - constraint: do not start implementation until Andreas explicitly reactivates this task.
+
 - [ ] Add Facebook login to Clerk for SQC.
   - added_at: 2026-05-14 15:05 Europe/Stockholm
   - source: Andreas created a Facebook Developer account and requested Facebook as a Clerk auth provider.
