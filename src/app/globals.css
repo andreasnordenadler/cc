@@ -1278,7 +1278,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-competition-hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(210px, .34fr); gap: 18px; align-items: stretch; background: radial-gradient(circle at 86% 8%, rgba(245,200,106,.22), transparent 34%), radial-gradient(circle at 10% 0%, rgba(96,240,175,.14), transparent 32%), linear-gradient(135deg, rgba(255,255,255,.1), rgba(245,200,106,.08)); }
 .groupquest-hero-copy { display: grid; align-content: center; }
 .groupquest-seal-card { display: grid; place-items: center; align-content: center; gap: 10px; text-align: center; min-height: 190px; padding: 0; background: transparent; }
-.groupquest-seal { width: 124px; height: 124px; object-fit: contain; filter: drop-shadow(0 16px 28px rgba(0,0,0,.42)); }
+.groupquest-seal { width: 217px; height: 217px; object-fit: contain; filter: drop-shadow(0 16px 28px rgba(0,0,0,.42)); }
 .groupquest-seal-card strong { color: var(--gold); line-height: 1.12; }
 .groupquest-seal-card span { color: var(--muted); font-weight: 900; }
 .groupquest-summary-list { display: grid; gap: 7px; width: min(100%, 310px); margin: 0; padding: 2px 0 0; list-style: none; text-align: left; }
@@ -1556,7 +1556,7 @@ p { color: var(--muted); line-height: 1.5; }
 
   .groupquest-hero-copy h1, .groupquest-invite-hero h1, .public-proof-hero h1 { font-size: clamp(2.2rem, 11vw, 3rem); line-height: .9; }
   .groupquest-seal-card { min-height: 0; padding: 12px; }
-  .groupquest-seal { width: 92px; height: 92px; }
+  .groupquest-seal { width: 161px; height: 161px; }
   .groupquest-summary-list { width: 100%; }
   .groupquest-summary-list li { flex-direction: column; gap: 3px; }
   .groupquest-summary-list strong { text-align: left; }

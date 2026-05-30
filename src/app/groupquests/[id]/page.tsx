@@ -76,6 +76,8 @@ export default async function GroupQuestByIdPage({
   const visibilityLabel = savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : "Public listing";
   const providerLabel = savedQuest?.providerLabel ?? "Lichess or Chess.com";
   const officialLabel = savedQuest?.officialLabel ?? "Official SQC Multiplayer Side Quest";
+  const groupQuestSealSrc = savedQuest?.official ? "/stamps/SQCBLACK%20SEAL.png" : "/stamps/sqc-multiplayer-seal.png";
+  const groupQuestSealAlt = savedQuest?.official ? "Official SQC Multiplayer Side Quest seal" : "Multiplayer Side Quest seal";
   const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
   const quests = activeQuestIds
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
@@ -122,7 +124,7 @@ export default async function GroupQuestByIdPage({
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="groupquest-seal" src="/stamps/sqc-multiplayer-seal.png" alt="Multiplayer Side Quest seal" />
+              <img className="groupquest-seal" src={groupQuestSealSrc} alt={groupQuestSealAlt} />
               <ul className="groupquest-summary-list" aria-label="Competition summary">
                 <li><span>Starts</span><strong>{startsAtLabel}</strong></li>
                 <li><span>Ends</span><strong>{endsAtLabel}</strong></li>
@@ -260,7 +262,7 @@ export default async function GroupQuestByIdPage({
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="groupquest-seal" src="/stamps/sqc-multiplayer-seal.png" alt="Multiplayer Side Quest seal" />
+            <img className="groupquest-seal" src={groupQuestSealSrc} alt={groupQuestSealAlt} />
             <strong>{totalReward.toLocaleString()} pts</strong>
           </div>
         </section>
