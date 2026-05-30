@@ -3,6 +3,7 @@ import type {
   MobileBootstrap,
   MobileGroupQuestActionResponse,
   MobileProfileUpdateResponse,
+  MobileSupportMessageResponse,
   MobileQuestActionResponse,
 } from "../types/sqc";
 
@@ -81,6 +82,27 @@ export async function updateMobileChessUsernames({
 
   if (!response.ok) {
     throw new Error(payload.message || `SQC mobile profile update failed: ${response.status}`);
+  }
+
+  return payload;
+}
+
+export async function submitMobileSupportMessage({
+  sessionToken,
+  message,
+}: {
+  sessionToken?: string | null;
+  message: string;
+}): Promise<MobileSupportMessageResponse> {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/support`, {
+    method: "POST",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ message }),
+  });
+  const payload = await readMobileJson<MobileSupportMessageResponse>(response, "support message");
+
+  if (!response.ok) {
+    throw new Error(payload.message || `SQC mobile support message failed: ${response.status}`);
   }
 
   return payload;

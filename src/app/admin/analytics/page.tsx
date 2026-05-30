@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
 import SiteNav from "@/components/site-nav";
-import { getAnalyticsStore, isAdminAnalyticsViewer, type SQCAnalyticsDeviceType, type SQCAnalyticsEvent } from "@/lib/analytics";
+import { getAnalyticsStore, getSupportMessages, isAdminAnalyticsViewer, type SQCSupportMessage, type SQCAnalyticsDeviceType, type SQCAnalyticsEvent } from "@/lib/analytics";
 import { getStoredGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -35,6 +35,7 @@ type AnalyticsUserRow = {
   deviceCounts: Partial<Record<SQCAnalyticsDeviceType, number>>;
   topDeviceType: SQCAnalyticsDeviceType | "none";
   recentEvents: SQCAnalyticsEvent[];
+  supportMessages: SQCSupportMessage[];
 };
 
 type QuestSummary = {
@@ -110,6 +111,7 @@ export default async function AdminAnalyticsPage() {
       deviceCounts: store.deviceCounts ?? {},
       topDeviceType: getTopDeviceType(store.deviceCounts),
       recentEvents: store.recentEvents ?? [],
+      supportMessages: getSupportMessages(user.privateMetadata),
     };
   });
   const activeRows = rows.filter((row) => row.pageViews || row.questStarts || row.profileSaves || row.questCompletions || row.completedChallengeIds.length || row.recentEvents.length);
@@ -135,6 +137,10 @@ export default async function AdminAnalyticsPage() {
   const deviceTotals = mergeDeviceCounts(activeRows.map((row) => row.deviceCounts));
   const recentEvents = activeRows
     .flatMap((row) => row.recentEvents.map((event) => ({ ...event, user: row.name, email: row.email })))
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
+    .slice(0, 30);
+  const supportMessages = rows
+    .flatMap((row) => row.supportMessages.map((message) => ({ ...message, user: row.name, email: row.email })))
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
     .slice(0, 30);
 
@@ -249,6 +255,27 @@ export default async function AdminAnalyticsPage() {
                 </div>
               </article>
             )) : <p>No users found yet.</p>}
+          </div>
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Support inbox</span>
+              <h2>Messages from the mobile profile form.</h2>
+              <p>Notes submitted from Help & Support in the app, attached to the user account that sent them.</p>
+            </div>
+          </div>
+          <div className="public-groupquests-list">
+            {supportMessages.length ? supportMessages.map((message) => (
+              <div className="public-groupquest-row" key={message.id}>
+                <div>
+                  <span>{formatDate(message.at)} · {message.user} · {message.email}</span>
+                  <strong>{message.source ?? "mobile"}</strong>
+                  <p>{message.message}</p>
+                </div>
+              </div>
+            )) : <p>No support messages yet.</p>}
           </div>
         </section>
 

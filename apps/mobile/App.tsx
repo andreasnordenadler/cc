@@ -31,7 +31,7 @@ import {
   type ScrollViewProps,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, updateMobileChessUsernames } from "./src/api/sqc";
+import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileGroupQuestSummary } from "./src/types/sqc";
@@ -70,8 +70,6 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
     body: "Add your public Lichess or Chess.com username so SQC knows which games to check. SQC only reads public game records.",
   },
 };
-
-const SUPPORT_EMAIL = "support@sidequestchess.com";
 
 const MULTIPLAYER_PROVIDER_MODES = [
   { id: "both", label: "Lichess or Chess.com" },
@@ -1330,7 +1328,7 @@ function JoinedMultiplayerQuestModal({
 
   function removeParticipant(row: (typeof leaderboardRows)[number]) {
     if (!row.userId || !row.removable) return;
-    Alert.alert("Remove player?", `Remove ${row.name} from this Multiplayer Side Quest?`, [
+    Alert.alert("Remove player", `Remove ${row.name} from this Multiplayer Side Quest.`, [
       { text: "Cancel", style: "cancel" },
       { text: "Remove", style: "destructive", onPress: () => onRemoveParticipant?.(row.userId as string) },
     ]);
@@ -2009,7 +2007,7 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
 function HelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.helpIconButton} onPress={() => showHelpTopic(topic)}>
-      <Text style={compactStyles.helpIconText}>?</Text>
+      <Text style={compactStyles.helpIconText}>i</Text>
     </Pressable>
   );
 }
@@ -2017,7 +2015,7 @@ function HelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) 
 function ContextHelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) {
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.contextHelpIconButton} hitSlop={10} onPress={() => showHelpTopic(topic)}>
-      <Text style={compactStyles.contextHelpIconText}>?</Text>
+      <Text style={compactStyles.contextHelpIconText}>i</Text>
     </Pressable>
   );
 }
@@ -2036,7 +2034,10 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   );
 }
 
-function HelpSupportModal({ visible, onClose, signedIn }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null }) {
+function HelpSupportModal({ visible, onClose, signedIn, authBridge }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge }) {
+  const [supportMessage, setSupportMessage] = useState("");
+  const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+
   async function copySupportDetails() {
     const details = [
       "Side Quest Chess support",
@@ -2047,7 +2048,31 @@ function HelpSupportModal({ visible, onClose, signedIn }: { visible: boolean; on
       `Time: ${new Date().toISOString()}`,
     ].join("\n");
     await Clipboard.setStringAsync(details);
-    Alert.alert("Support details copied", `Paste this into a message to ${SUPPORT_EMAIL} and add what went wrong.`);
+    Alert.alert("Support details copied", "Paste this into the support form and add what went wrong.");
+  }
+
+  async function submitSupport() {
+    if (!authBridge.isSignedIn || !authBridge.getSessionToken) {
+      setSubmitState({ busy: false, message: null, error: "Sign in first so the support note can attach to your account." });
+      return;
+    }
+
+    const trimmed = supportMessage.trim();
+    if (trimmed.length < 3) {
+      setSubmitState({ busy: false, message: null, error: "Write a little more so the note is useful." });
+      return;
+    }
+
+    setSubmitState({ busy: true, message: null, error: null });
+
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      const result = await submitMobileSupportMessage({ sessionToken, message: trimmed });
+      setSupportMessage("");
+      setSubmitState({ busy: false, message: result.message, error: null });
+    } catch (caught) {
+      setSubmitState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not send the support note." });
+    }
   }
 
   return (
@@ -2063,7 +2088,7 @@ function HelpSupportModal({ visible, onClose, signedIn }: { visible: boolean; on
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>Help & Support</Text>
-            <Text style={compactStyles.detailTitle}>How can we help?</Text>
+            <Text style={compactStyles.detailTitle}>How we can help</Text>
             <Text style={compactStyles.detailGoal}>Quick answers for Side Quests, proof, connected accounts, and Multiplayer.</Text>
           </View>
 
@@ -2082,12 +2107,26 @@ function HelpSupportModal({ visible, onClose, signedIn }: { visible: boolean; on
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
-            <Text style={compactStyles.detailPanelCopy}>Something not working? Copy your support details, then send what happened to {SUPPORT_EMAIL}.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Something not working. Send a short note here and it will show up in the private analytics dashboard.</Text>
+            <View style={styles.inputStack}>
+              <Text style={styles.inputLabel}>Message</Text>
+              <TextInput
+                value={supportMessage}
+                multiline
+                maxLength={1200}
+                placeholder="What happened"
+                placeholderTextColor="rgba(255,247,232,.42)"
+                style={[styles.textInput, styles.textAreaInput]}
+                onChangeText={setSupportMessage}
+              />
+            </View>
+            {submitState.message ? <Text style={compactStyles.inlineSuccess}>{submitState.message}</Text> : null}
+            {submitState.error ? <Text style={compactStyles.inlineError}>{submitState.error}</Text> : null}
+            <Pressable accessibilityRole="button" accessibilityLabel="Send support message" style={[compactStyles.detailPrimaryButton, submitState.busy ? compactStyles.disabledAction : null]} disabled={submitState.busy} onPress={() => void submitSupport()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>{submitState.busy ? "Sending..." : "Send support message"}</Text>
+            </Pressable>
             <Pressable accessibilityRole="button" accessibilityLabel="Copy support details" style={compactStyles.detailPrimaryButton} onPress={() => void copySupportDetails()}>
               <Text style={compactStyles.detailPrimaryButtonText}>Copy support details</Text>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="Copy support email" style={compactStyles.detailQuietButton} onPress={() => void Clipboard.setStringAsync(SUPPORT_EMAIL).then(() => Alert.alert("Support email copied", SUPPORT_EMAIL))}>
-              <Text style={compactStyles.detailQuietButtonText}>Copy support email</Text>
             </Pressable>
           </View>
         </ScrollHintedScrollView>
@@ -2653,7 +2692,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </Pressable>
         </View>
         <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
-        <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} />
+        <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} authBridge={authBridge} />
       </View>
     );
   }
@@ -2703,7 +2742,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
-      <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} />
+      <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
         <Text style={compactStyles.logoutButtonText}>Log out</Text>
       </Pressable>
@@ -2938,7 +2977,7 @@ function HomeScreen({
 
       <View style={styles.whereBeginCard}>
         <Text style={styles.eyebrow}>Where to begin</Text>
-        <Text style={styles.sectionTitle}>How heroic are you feeling today?</Text>
+      <Text style={styles.sectionTitle}>How heroic are you feeling today?</Text>
         <Text style={styles.sectionBody}>Pick a starting quest based on your current tolerance for terrible chess decisions.</Text>
         <View style={styles.heroismChoiceList}>
           {heroismChoices.map(({ label, copy, cta, challenge }) => (
@@ -4305,12 +4344,12 @@ function AccountShell({
           {signedInAccount.activeQuest ? (
             <Pressable accessibilityRole="button" accessibilityLabel={`Open ${signedInAccount.activeQuest.title} quest page`} style={styles.currentMissionCoat} onPress={() => onSelectChallenge(signedInAccount.activeQuest?.id ?? "", "sideQuests")}>
               {signedInAccount.activeQuest.completed ? <Text style={styles.completedQuestStampText}>Completed quest</Text> : <Text style={styles.activeQuestStampText}>Active quest</Text>}
-              {activeBadgeUrl ? <Image source={{ uri: activeBadgeUrl }} style={styles.currentMissionCoatImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>?</Text>}
+            {activeBadgeUrl ? <Image source={{ uri: activeBadgeUrl }} style={styles.currentMissionCoatImage} resizeMode="contain" /> : <Text style={styles.badgeFallbackText}>?</Text>}
               <Text style={styles.currentMissionCoatLabel}>{signedInAccount.activeQuest.title}</Text>
             </Pressable>
           ) : (
             <Pressable accessibilityRole="button" accessibilityLabel="Choose a quest" style={styles.currentMissionEmpty} onPress={() => onSelectTab("sideQuests")}>
-              <Text style={styles.currentMissionEmptyBadge}>?</Text>
+          <Text style={styles.currentMissionEmptyBadge}>?</Text>
               <Text style={styles.currentMissionCoatLabel}>Choose a quest</Text>
             </Pressable>
           )}

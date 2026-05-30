@@ -200,6 +200,14 @@ export type MobileProfileUpdateResponse = {
   };
 };
 
+export type MobileSupportMessageResponse = {
+  apiVersion: number;
+  authenticated: boolean;
+  ok?: boolean;
+  message: string;
+  submittedAt?: string;
+};
+
 export type MobileQuestActionResponse = {
   apiVersion: number;
   authenticated: boolean;

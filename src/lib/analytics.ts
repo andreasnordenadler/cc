@@ -42,6 +42,15 @@ export type SQCAnalyticsStore = {
   }>;
 };
 
+export type SQCSupportMessage = {
+  id: string;
+  at: string;
+  message: string;
+  source?: string;
+  accountEmail?: string | null;
+  displayName?: string | null;
+};
+
 const MAX_RECENT_EVENTS = 40;
 const COMPACT_RECENT_EVENTS = 12;
 const COMPACT_QUEST_STATS = 12;
@@ -51,6 +60,27 @@ export function getAnalyticsStore(metadata: unknown): SQCAnalyticsStore {
   const candidate = (metadata as { sqcAnalytics?: unknown }).sqcAnalytics;
   if (!candidate || typeof candidate !== "object") return {};
   return candidate as SQCAnalyticsStore;
+}
+
+export function getSupportMessages(metadata: unknown): SQCSupportMessage[] {
+  if (!metadata || typeof metadata !== "object") return [];
+  const candidate = (metadata as { sqcSupportMessages?: unknown }).sqcSupportMessages;
+  if (!Array.isArray(candidate)) return [];
+
+  return candidate
+    .filter((entry): entry is SQCSupportMessage => {
+      if (!entry || typeof entry !== "object") return false;
+      const record = entry as Partial<SQCSupportMessage>;
+      return typeof record.id === "string" && typeof record.at === "string" && typeof record.message === "string";
+    })
+    .map((entry) => ({
+      id: entry.id,
+      at: entry.at,
+      message: cleanText(entry.message, 1200) ?? "",
+      source: cleanText(entry.source, 40),
+      accountEmail: cleanText(entry.accountEmail, 120) ?? null,
+      displayName: cleanText(entry.displayName, 120) ?? null,
+    }));
 }
 
 export function normalizeAnalyticsEvent(event: Partial<SQCAnalyticsEvent>): SQCAnalyticsEvent | null {

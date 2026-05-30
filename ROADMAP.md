@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Remove mobile question-mark affordances and add in-app support notes.
+  - added_at: 2026-05-30 08:39 Europe/Stockholm
+  - completed_at: 2026-05-30 08:39 Europe/Stockholm
+  - source: Andreas disliked the help `?` button treatment and clarified only the help affordance should be removed; profile Help & Support should use a small form instead of email, with messages visible on the analytics page.
+  - scope: replaced mobile help `?` controls with `i` affordances only; restored product/question-mark copy such as `Queen? Never Heard of Her` and normal question copy; added a signed-in Help & Support message form, stores support notes in Clerk private metadata, and surfaces them in `/admin/analytics` as a Support inbox.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint -- 'apps/mobile/App.tsx'` passed; `pnpm quest:release-gate` passed after the correction; earlier `pnpm build` passed and included `/api/mobile/support` plus `/admin/analytics`; Android `./gradlew :app:assembleRelease` passed before the copy restore with versionCode 103 / versionName 0.1.102. Production deploy is blocked until local HEAD is reconciled with `origin/main` per the deploy guard.
+
 - [x] Make SQC Mobile contextual help subtle and placement-specific.
   - added_at: 2026-05-29 18:06 Europe/Stockholm
   - completed_at: 2026-05-29 18:16 Europe/Stockholm
