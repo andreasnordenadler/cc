@@ -133,6 +133,10 @@ function titleCaseRuleValue(value: string) {
   return value.slice(0, 1).toUpperCase() + value.slice(1);
 }
 
+function getCustomConditionLabel(index: number) {
+  return `Condition ${String.fromCharCode(65 + Math.min(index, 25))}`;
+}
+
 function getCustomPieceMaxCount(piece: CustomRulePiece) {
   if (piece === "pawn") return 8;
   if (piece === "king" || piece === "queen") return 1;
@@ -194,9 +198,9 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
       : `${input.quantifier} ${count}`;
   const timing = input.timing === "by move" ? `by move ${input.moveNumber}` : input.timing === "at move" ? `at move ${input.moveNumber}` : "at game end";
   const condition = input.condition === "on square" ? `on ${normalizeCustomSquare(input.targetSquare)}` : input.condition;
-  const negated = input.negated ? "NOT: " : "";
   const subject = hasSpecificIdentity ? `${owner} ${pieceLabel}` : `${owner} ${quantifier} ${pieceLabel}`;
-  return `${negated}${titleCaseRuleValue(subject)} must be ${condition} ${timing}.`;
+  const positiveRule = `${titleCaseRuleValue(subject)} must be ${condition} ${timing}.`;
+  return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
 }
 
 function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
@@ -2840,16 +2844,19 @@ function QuestBoardDashboard({
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
               <Text style={compactStyles.multiplayerCardEyebrow}>Requirement builder</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Current requirement</Text>
-              <Text style={styles.microcopy}>Build one requirement, add it to the list, then combine the saved requirements below. The current requirement is included in the preview until saved.</Text>
-              <Text style={compactStyles.multiplayerRuleLabel}>Requirement logic</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Current condition</Text>
+              <Text style={styles.microcopy}>Conditions are not steps and do not run in order. SQC checks them as equal clauses: either all must match, or at least one must match.</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>How should conditions match?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
                   const selected = customRuleLogic === logic;
                   return (
                     <Pressable key={logic} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "All requirements" : "Any requirement"}</Text>
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "All conditions must match" : "At least one condition must match"}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "AND: every saved/current condition must be true." : "OR: one matching condition is enough."}</Text>
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -2964,22 +2971,33 @@ function QuestBoardDashboard({
                   })}
                 </View>
               ) : null}
-              <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Not</Text>
-                <Pressable accessibilityRole="button" accessibilityState={{ selected: customRuleNegated }} style={[compactStyles.detailSecondaryButton, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated((current) => !current)}>
-                  <Text style={compactStyles.detailSecondaryButtonText}>{customRuleNegated ? "Requirement is negated" : "Normal requirement"}</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                <Pressable accessibilityRole="button" accessibilityState={{ selected: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
+                  <View style={[compactStyles.multiplayerOptionDot, !customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
+                  <View style={compactStyles.multiplayerOptionCopy}>
+                    <Text style={!customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>True</Text>
+                    <Text style={compactStyles.multiplayerOptionHelper}>Use for “my rook must be on e4”.</Text>
+                  </View>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityState={{ selected: customRuleNegated }} style={[compactStyles.multiplayerOptionCard, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(true)}>
+                  <View style={[compactStyles.multiplayerOptionDot, customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
+                  <View style={compactStyles.multiplayerOptionCopy}>
+                    <Text style={customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>False / must not happen</Text>
+                    <Text style={compactStyles.multiplayerOptionHelper}>Use for “my rook must not be on e4”.</Text>
+                  </View>
                 </Pressable>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Add current requirement to custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
-                <Text style={compactStyles.detailSecondaryButtonText}>Add Current Requirement</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add current condition to custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
+                <Text style={compactStyles.detailSecondaryButtonText}>Add Current Condition</Text>
               </Pressable>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Saved requirements</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They combine with the current requirement using ${customRuleLogic === "all" ? "AND" : "OR"}.` : "None saved yet. The preview currently uses only the current requirement."}</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Saved conditions</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They are equal clauses, not ordered steps. They combine with the current condition using ${customRuleLogic === "all" ? "AND" : "OR"}.` : "None saved yet. The preview currently uses only the current condition."}</Text>
               </View>
               {customRequirements.map((requirement, index) => (
                 <View key={requirement.id} style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>#{index + 1}</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>{getCustomConditionLabel(index)}</Text>
                   <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(requirement)}</Text>
                   <Pressable accessibilityRole="button" accessibilityLabel="Remove saved requirement" style={compactStyles.detailQuietButton} onPress={() => removeCustomRequirement(requirement.id)}>
                     <Text style={compactStyles.detailQuietButtonText}>Remove</Text>
@@ -2987,7 +3005,7 @@ function QuestBoardDashboard({
                 </View>
               ))}
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Full quest preview</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
@@ -3700,16 +3718,19 @@ function SideQuestsScreen({
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
               <Text style={compactStyles.multiplayerCardEyebrow}>Requirement builder</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Current requirement</Text>
-              <Text style={styles.microcopy}>Build one requirement, add it to the list, then combine the saved requirements below. The current requirement is included in the preview until saved.</Text>
-              <Text style={compactStyles.multiplayerRuleLabel}>Requirement logic</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Current condition</Text>
+              <Text style={styles.microcopy}>Conditions are not steps and do not run in order. SQC checks them as equal clauses: either all must match, or at least one must match.</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>How should conditions match?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
                   const selected = customRuleLogic === logic;
                   return (
                     <Pressable key={logic} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "All requirements" : "Any requirement"}</Text>
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "All conditions must match" : "At least one condition must match"}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "AND: every saved/current condition must be true." : "OR: one matching condition is enough."}</Text>
+                      </View>
                     </Pressable>
                   );
                 })}
@@ -3824,22 +3845,33 @@ function SideQuestsScreen({
                   })}
                 </View>
               ) : null}
-              <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Not</Text>
-                <Pressable accessibilityRole="button" accessibilityState={{ selected: customRuleNegated }} style={[compactStyles.detailSecondaryButton, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated((current) => !current)}>
-                  <Text style={compactStyles.detailSecondaryButtonText}>{customRuleNegated ? "Requirement is negated" : "Normal requirement"}</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                <Pressable accessibilityRole="button" accessibilityState={{ selected: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
+                  <View style={[compactStyles.multiplayerOptionDot, !customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
+                  <View style={compactStyles.multiplayerOptionCopy}>
+                    <Text style={!customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>True</Text>
+                    <Text style={compactStyles.multiplayerOptionHelper}>Use for “my rook must be on e4”.</Text>
+                  </View>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityState={{ selected: customRuleNegated }} style={[compactStyles.multiplayerOptionCard, customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(true)}>
+                  <View style={[compactStyles.multiplayerOptionDot, customRuleNegated ? compactStyles.multiplayerOptionDotSelected : null]} />
+                  <View style={compactStyles.multiplayerOptionCopy}>
+                    <Text style={customRuleNegated ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>False / must not happen</Text>
+                    <Text style={compactStyles.multiplayerOptionHelper}>Use for “my rook must not be on e4”.</Text>
+                  </View>
                 </Pressable>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Add current requirement to custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
-                <Text style={compactStyles.detailSecondaryButtonText}>Add Current Requirement</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Add current condition to custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
+                <Text style={compactStyles.detailSecondaryButtonText}>Add Current Condition</Text>
               </Pressable>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Saved requirements</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They combine with the current requirement using ${customRuleLogic === "all" ? "AND" : "OR"}.` : "None saved yet. The preview currently uses only the current requirement."}</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Saved conditions</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They are equal clauses, not ordered steps. They combine with the current condition using ${customRuleLogic === "all" ? "AND" : "OR"}.` : "None saved yet. The preview currently uses only the current condition."}</Text>
               </View>
               {customRequirements.map((requirement, index) => (
                 <View key={requirement.id} style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>#{index + 1}</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>{getCustomConditionLabel(index)}</Text>
                   <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(requirement)}</Text>
                   <Pressable accessibilityRole="button" accessibilityLabel="Remove saved requirement" style={compactStyles.detailQuietButton} onPress={() => removeCustomRequirement(requirement.id)}>
                     <Text style={compactStyles.detailQuietButtonText}>Remove</Text>
@@ -3847,7 +3879,7 @@ function SideQuestsScreen({
                 </View>
               ))}
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Full quest preview</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>

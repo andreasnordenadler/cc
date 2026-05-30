@@ -590,6 +590,14 @@ Rules from this point:
 
 
 
+
+- [x] Clarify custom builder conditions, matching, and negative rules.
+  - added_at: 2026-05-30 23:50 Europe/Stockholm
+  - completed_at: 2026-05-30 23:56 Europe/Stockholm
+  - source: Andreas said the negative `Not` version was confusing and noted saved requirements are equal clauses, not ordered execution steps.
+  - scope: renamed current requirement to current condition, clarified conditions are equal/non-ordered, changed matching copy to `All conditions must match` / `At least one condition must match`, replaced the `Not` toggle with `Pass when this condition is True` vs `False / must not happen`, renamed saved requirements to saved conditions, replaced numeric labels with Condition A/B/C, and improved negated summary grammar.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Polish custom Side Quest requirement builder for specific pieces and square rules.
   - added_at: 2026-05-30 21:12 Europe/Stockholm
   - completed_at: 2026-05-30 21:24 Europe/Stockholm
