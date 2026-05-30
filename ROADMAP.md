@@ -588,6 +588,14 @@ Rules from this point:
 
 
 
+
+- [x] Extend custom Side Quest builder for piece counts and multiple requirements.
+  - added_at: 2026-05-30 20:55 Europe/Stockholm
+  - completed_at: 2026-05-30 21:03 Europe/Stockholm
+  - source: Andreas noted the builder must handle two rooks/bishops/knights, eight pawns, missing king, and multiple requirements with AND/OR/ANY/NOT-style logic.
+  - scope: add king, piece-count selectors (`any one`, `at least`, `exactly`, `all`), top-level requirement logic (`all requirements` / `any requirement`), negated requirements, and an Add Requirement flow that stores rule config v2 blocks.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Surface custom builder on the actual rendered QuestBoardDashboard screen.
   - added_at: 2026-05-30 20:48 Europe/Stockholm
   - completed_at: 2026-05-30 20:52 Europe/Stockholm
