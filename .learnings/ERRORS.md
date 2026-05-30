@@ -4247,3 +4247,11 @@ For filtered historical production logs, use project-scoped logs with `--environ
 - Tags: vercel, logs, sqc
 
 ---
+
+## [ERR-20260530-001] ignored native Android file during mobile release
+
+**Logged**: 2026-05-30T10:40:00+02:00
+**Context**: SQC Mobile beta candidate v104 release.
+**What happened**: `git add apps/mobile/android/app/build.gradle` failed because `apps/mobile/android` is ignored. The native Gradle file also still had an older `versionCode`/`versionName`, so the first rebuilt APK would not have carried the intended install version.
+**Resolution**: Force-added the native build file when intentionally committing it, updated `versionCode 104` / `versionName "0.1.104"`, rebuilt the APK, and regenerated the SHA256.
+**Do differently**: Before publishing Android APKs from the checked-in native project, verify both Expo `app.json` and native `android/app/build.gradle` version fields, and use `git add -f` only for intentionally tracked ignored native files.
