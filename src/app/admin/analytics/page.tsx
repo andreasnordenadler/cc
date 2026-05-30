@@ -175,10 +175,15 @@ export default async function AdminAnalyticsPage() {
     .flatMap((row) => row.recentEvents.map((event) => ({ ...event, user: row.name, email: row.email })))
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
     .slice(0, 30);
-  const supportMessages = rows
-    .flatMap((row) => row.supportMessages.map((message) => ({ ...message, userId: row.id, user: row.name, email: row.email })))
-    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
-    .slice(0, 30);
+  const supportThreads = rows
+    .filter((row) => row.supportMessages.length)
+    .map((row) => ({
+      userId: row.id,
+      user: row.name,
+      email: row.email,
+      messages: [...row.supportMessages].sort((a, b) => Date.parse(a.at) - Date.parse(b.at)),
+    }))
+    .sort((a, b) => Date.parse(b.messages.at(-1)?.at ?? "") - Date.parse(a.messages.at(-1)?.at ?? ""));
 
   return (
     <main className="site-shell">
@@ -199,6 +204,48 @@ export default async function AdminAnalyticsPage() {
           <Fact label="Completed quests" value={String(totalCompletions)} />
           <Fact label="Failed checks" value={String(totalFailures)} />
           <Fact label="Multiplayer quests" value={String(multiplayerQuestRows.length)} />
+        </section>
+
+        <section className="mission-card">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Support inbox</span>
+              <h2>Mobile Help & Support threads.</h2>
+              <p>Full conversations from the app profile support form, including incoming user notes and SQC support replies.</p>
+            </div>
+          </div>
+          <div className="support-thread-list">
+            {supportThreads.length ? supportThreads.map((thread) => {
+              const latestMessage = thread.messages.at(-1);
+              return (
+                <article className="support-thread-card" key={thread.userId}>
+                  <div className="support-thread-head">
+                    <div>
+                      <span>{thread.user} · {thread.email}</span>
+                      <strong>{thread.messages.length} message{thread.messages.length === 1 ? "" : "s"}</strong>
+                    </div>
+                    <em>Latest {formatDate(latestMessage?.at)}</em>
+                  </div>
+                  <div className="support-thread-messages">
+                    {thread.messages.map((message) => (
+                      <div className={message.source === "admin" ? "support-thread-bubble admin" : "support-thread-bubble user"} key={message.id}>
+                        <span>{message.source === "admin" ? "SQC support" : thread.user} · {formatDate(message.at)}</span>
+                        <p>{message.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <form action={replyToSupportMessage} className="support-reply-form">
+                    <input type="hidden" name="userId" value={thread.userId} />
+                    <label>
+                      Reply visible in this user’s mobile app thread
+                      <textarea name="reply" rows={3} placeholder="Write a short support reply" />
+                    </label>
+                    <button type="submit" className="button secondary">Send reply</button>
+                  </form>
+                </article>
+              );
+            }) : <p>No support messages yet.</p>}
+          </div>
         </section>
 
         <section className="mission-card">
@@ -291,37 +338,6 @@ export default async function AdminAnalyticsPage() {
                 </div>
               </article>
             )) : <p>No users found yet.</p>}
-          </div>
-        </section>
-
-        <section className="mission-card">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Support inbox</span>
-              <h2>Messages from the mobile profile form.</h2>
-              <p>Notes submitted from Help & Support in the app, attached to the user account that sent them.</p>
-            </div>
-          </div>
-          <div className="public-groupquests-list">
-            {supportMessages.length ? supportMessages.map((message) => (
-              <div className="public-groupquest-row" key={message.id}>
-                <div>
-                  <span>{formatDate(message.at)} · {message.user} · {message.email}</span>
-                  <strong>{message.source === "admin" ? "SQC support reply" : "Mobile support message"}</strong>
-                  <p>{message.message}</p>
-                  {message.source !== "admin" ? (
-                    <form action={replyToSupportMessage} className="support-reply-form">
-                      <input type="hidden" name="userId" value={message.userId} />
-                      <label>
-                        Reply visible in the mobile app
-                        <textarea name="reply" rows={3} placeholder="Write a short support reply" />
-                      </label>
-                      <button type="submit" className="button secondary">Send reply</button>
-                    </form>
-                  ) : null}
-                </div>
-              </div>
-            )) : <p>No support messages yet.</p>}
           </div>
         </section>
 
