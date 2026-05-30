@@ -83,6 +83,16 @@ const MULTIPLAYER_RULE_OPTIONS = {
   color: ["Any color", "White only", "Black only"],
 } as const;
 
+const CUSTOM_RULE_PIECES = ["queen", "rook", "bishop", "knight", "pawn"] as const;
+const CUSTOM_RULE_OWNERS = ["my", "opponent"] as const;
+const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved"] as const;
+const CUSTOM_RULE_TIMINGS = ["by move", "at game end"] as const;
+
+type CustomRulePiece = typeof CUSTOM_RULE_PIECES[number];
+type CustomRuleOwner = typeof CUSTOM_RULE_OWNERS[number];
+type CustomRuleCondition = typeof CUSTOM_RULE_CONDITIONS[number];
+type CustomRuleTiming = typeof CUSTOM_RULE_TIMINGS[number];
+
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
 
@@ -99,6 +109,34 @@ function cleanMultiplayerTitle(title: string) {
 function getMultiplayerInviteMessage(quest: Pick<MobileGroupQuestSummary, "id" | "title" | "inviteMode" | "inviteKey" | "inviteCopy">) {
   const intro = quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY;
   return `Join my Multiplayer Side Quest on Side Quest Chess: ${cleanMultiplayerTitle(quest.title)}\n${intro}\n${getMultiplayerInviteUrl(quest)}`;
+}
+
+function titleCaseRuleValue(value: string) {
+  return value.slice(0, 1).toUpperCase() + value.slice(1);
+}
+
+function buildCustomPieceRuleSummary(input: { piece: CustomRulePiece; owner: CustomRuleOwner; condition: CustomRuleCondition; timing: CustomRuleTiming; moveNumber: number }) {
+  const owner = input.owner === "my" ? "your" : "opponent's";
+  const piece = input.piece === "pawn" ? "pawn" : input.piece;
+  const pluralPiece = input.piece === "pawn" ? "pawn" : piece;
+  const timing = input.timing === "by move" ? `by move ${input.moveNumber}` : "at game end";
+  return `${titleCaseRuleValue(owner)} ${pluralPiece} must be ${input.condition} ${timing}.`;
+}
+
+function buildCustomPieceRuleConfig(input: { piece: CustomRulePiece; owner: CustomRuleOwner; condition: CustomRuleCondition; timing: CustomRuleTiming; moveNumber: number }) {
+  return JSON.stringify({
+    version: 1,
+    logic: "all",
+    blocks: [
+      {
+        type: "pieceState",
+        piece: input.piece,
+        owner: input.owner,
+        condition: input.condition,
+        timing: input.timing === "by move" ? { byMove: input.moveNumber } : { atGameEnd: true },
+      },
+    ],
+  });
 }
 
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
@@ -3261,6 +3299,15 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
   const [createRules, setCreateRules] = useState<Record<string, string>>({ timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
+  const [customRuleEnabled, setCustomRuleEnabled] = useState(false);
+  const [customRulePiece, setCustomRulePiece] = useState<CustomRulePiece>("queen");
+  const [customRuleOwner, setCustomRuleOwner] = useState<CustomRuleOwner>("my");
+  const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("gone");
+  const [customRuleTiming, setCustomRuleTiming] = useState<CustomRuleTiming>("by move");
+  const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState(15);
+
+  const customRuleSummary = buildCustomPieceRuleSummary({ piece: customRulePiece, owner: customRuleOwner, condition: customRuleCondition, timing: customRuleTiming, moveNumber: customRuleMoveNumber });
+  const customRuleConfig = buildCustomPieceRuleConfig({ piece: customRulePiece, owner: customRuleOwner, condition: customRuleCondition, timing: customRuleTiming, moveNumber: customRuleMoveNumber });
 
   useEffect(() => {
     if (!pendingCreateOpen) return;
@@ -3355,7 +3402,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           providerMode: createProviderMode,
           startAt: createStartAt.toISOString(),
           endAt: createEndAt.toISOString(),
-          rules: createRules,
+          rules: customRuleEnabled
+            ? { ...createRules, customRuleSummary, customRuleConfig }
+            : createRules,
         },
       });
       const createdGroupQuestId = result.groupQuestId ?? "new";
@@ -3651,6 +3700,87 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                 </View>
               ))}
             </View>
+            <View style={compactStyles.multiplayerNativeCard}>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Custom rule block</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Build a verifier recipe.</Text>
+              <Text style={styles.microcopy}>No AI and no user code: choose safe rule parts. This first mobile slice stores the recipe with the Multiplayer Side Quest; scoring still uses the included Side Quests until the generic verifier engine lands.</Text>
+              <Pressable accessibilityRole="switch" accessibilityState={{ checked: customRuleEnabled }} style={[compactStyles.multiplayerOptionCard, customRuleEnabled ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleEnabled((current) => !current)}>
+                <View style={[compactStyles.multiplayerOptionDot, customRuleEnabled ? compactStyles.multiplayerOptionDotSelected : null]} />
+                <View style={compactStyles.multiplayerOptionCopy}>
+                  <Text style={customRuleEnabled ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>Add custom rule block</Text>
+                  <Text style={compactStyles.multiplayerOptionHelper}>General piece-state block with configurable piece, owner, condition, and timing.</Text>
+                </View>
+              </Pressable>
+              {customRuleEnabled ? (
+                <View style={compactStyles.multiplayerListStack}>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_PIECES.map((piece) => {
+                      const selected = customRulePiece === piece;
+                      return (
+                        <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRulePiece(piece)}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_OWNERS.map((owner) => {
+                      const selected = customRuleOwner === owner;
+                      return (
+                        <Pressable key={owner} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleOwner(owner)}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{owner === "my" ? "Mine" : "Opponent's"}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Condition</Text>
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_CONDITIONS.map((condition) => {
+                      const selected = customRuleCondition === condition;
+                      return (
+                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCondition(condition)}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(condition)}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
+                  <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_TIMINGS.map((timing) => {
+                      const selected = customRuleTiming === timing;
+                      return (
+                        <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {customRuleTiming === "by move" ? (
+                    <View style={compactStyles.multiplayerFooterActions}>
+                      {[10, 15, 20, 30].map((moveNumber) => {
+                        const selected = customRuleMoveNumber === moveNumber;
+                        return (
+                          <Pressable key={moveNumber} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleMoveNumber(moveNumber)}>
+                            <Text style={compactStyles.detailSecondaryButtonText}>Move {moveNumber}</Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  ) : null}
+                  <View style={compactStyles.multiplayerRuleRow}>
+                    <Text style={compactStyles.multiplayerRuleLabel}>Preview</Text>
+                    <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
+                  </View>
+                </View>
+              ) : null}
+            </View>
+
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>

@@ -583,6 +583,15 @@ Rules from this point:
   - proof: added `testing-sdk/index.mjs`, `testing-sdk/index.d.ts`, `testing-sdk/smoke.mjs`, `docs/SQC_TESTING_SDK.md`, and `pnpm sdk:smoke`; `pnpm sdk:smoke` passed against production, including bootstrap contract, red seal asset, and public page smoke; `pnpm lint` passed with 0 errors / 3 pre-existing warnings; `pnpm build` passed.
 
 
+
+- [x] Prototype SQC Mobile custom Side Quest rule-block builder.
+  - added_at: 2026-05-30 18:34 Europe/Stockholm
+  - source: Andreas asked to try a mobile-first no-AI/no-code custom Side Quest builder using configurable general rule blocks; website later.
+  - scope: SQC Mobile create flow first; add structured rule-block UI and persisted readable rule config without changing website UX. Rule blocks must be deterministic, explainable, and built from safe configurable predicates rather than generated code or AI runtime judgment.
+  - first slice: mobile builder surface for a generic piece-state block (piece/owner/condition/timing/count-style wording), preview copy, and payload persistence for multiplayer rule rows; backend execution engine can follow once the mobile creation UX is proven.
+  - constraint: do not allow arbitrary user code or AI-generated runtime verifiers.
+  - proof: mobile create flow now includes a no-AI/no-code custom rule-block recipe panel for a generic piece-state block (piece/owner/condition/timing/move-number), persists `customRuleSummary` + structured `customRuleConfig` with Multiplayer Side Quest rules, and shows the custom rule in mobile rule rows. Verification: mobile typecheck, targeted lint, Next build, and Android release build passed. APK v117 generated.
+
 - [ ] Add multilingual foundation for SQC.
   - added_at: 2026-05-30 15:43 Europe/Stockholm
   - source: Andreas said SQC should become multilingual later, but not right now.

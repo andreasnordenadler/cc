@@ -358,6 +358,7 @@ function buildRuleRows(quest: { providerLabel: string; rules: Record<string, str
     { label: "Time control", value: quest.rules.timeControl ?? "Any time control" },
     { label: "Rated", value: quest.rules.rated ?? "Any rated state" },
     { label: "Color", value: quest.rules.color ?? "Any color" },
+    ...(quest.rules.customRuleSummary ? [{ label: "Custom rule", value: quest.rules.customRuleSummary }] : []),
   ];
 }
 

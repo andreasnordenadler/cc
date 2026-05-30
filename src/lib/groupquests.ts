@@ -359,6 +359,8 @@ function normalizeRules(value: unknown): Record<string, string> {
     timeControl: cleanText(record.timeControl, 60) ?? defaultRules.timeControl,
     rated: cleanText(record.rated, 60) ?? defaultRules.rated,
     color: cleanText(record.color, 60) ?? defaultRules.color,
+    ...(cleanText(record.customRuleSummary, 180) ? { customRuleSummary: cleanText(record.customRuleSummary, 180) as string } : {}),
+    ...(cleanText(record.customRuleConfig, 800) ? { customRuleConfig: cleanText(record.customRuleConfig, 800) as string } : {}),
   };
 }
 
