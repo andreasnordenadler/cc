@@ -587,6 +587,14 @@ Rules from this point:
 
 
 
+
+- [x] Surface custom builder on the actual rendered QuestBoardDashboard screen.
+  - added_at: 2026-05-30 20:48 Europe/Stockholm
+  - completed_at: 2026-05-30 20:52 Europe/Stockholm
+  - source: Andreas still could not see the builder because earlier patches targeted the unused legacy `SideQuestsScreen` instead of the currently rendered `QuestBoardDashboard`.
+  - scope: add a first-class `Custom Side Quests` card and `Create Custom Side Quest` builder modal directly to the active Side Quest list screen.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Make custom Side Quest builder visible at top of Side Quests screen.
   - added_at: 2026-05-30 20:16 Europe/Stockholm
   - completed_at: 2026-05-30 20:19 Europe/Stockholm

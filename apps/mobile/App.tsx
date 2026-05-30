@@ -2585,6 +2585,22 @@ function QuestBoardDashboard({
   const detailChallenge = detailChallengeId ? bootstrap.challenges.find((challenge) => challenge.id === detailChallengeId) ?? null : null;
   const completedQuestRecord = completedDetailId && signedIn ? signedIn.completedQuests.find((quest) => quest.id === completedDetailId) ?? null : null;
   const completedDetailChallenge = completedDetailId ? bootstrap.challenges.find((challenge) => challenge.id === completedDetailId) ?? null : null;
+  const [customCreateOpen, setCustomCreateOpen] = useState(false);
+  const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
+  const [customRulePiece, setCustomRulePiece] = useState<CustomRulePiece>("queen");
+  const [customRuleOwner, setCustomRuleOwner] = useState<CustomRuleOwner>("my");
+  const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("gone");
+  const [customRuleTiming, setCustomRuleTiming] = useState<CustomRuleTiming>("by move");
+  const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState(15);
+  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
+  const customRuleSummary = buildCustomPieceRuleSummary({ piece: customRulePiece, owner: customRuleOwner, condition: customRuleCondition, timing: customRuleTiming, moveNumber: customRuleMoveNumber });
+  const customRuleConfig = buildCustomPieceRuleConfig({ piece: customRulePiece, owner: customRuleOwner, condition: customRuleCondition, timing: customRuleTiming, moveNumber: customRuleMoveNumber });
+
+  function saveCustomDraft() {
+    const name = customQuestName.trim() || "Custom Side Quest";
+    setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+    setCustomCreateOpen(false);
+  }
 
   useEffect(() => {
     if (!pendingCompletedDetailId && !pendingSideQuestDetailId) return;
@@ -2611,6 +2627,40 @@ function QuestBoardDashboard({
     <View style={compactStyles.stack}>
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
+      </View>
+      <View style={compactStyles.appSection}>
+        <View style={compactStyles.panelHeaderRow}>
+          <Text style={compactStyles.freshSectionTitle}>Custom Side Quests</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
+            <Text style={compactStyles.sectionAction}>Create</Text>
+          </Pressable>
+        </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
+          <View style={compactStyles.currentQuestRow}>
+            <View style={compactStyles.coatMarker}>
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
+            </View>
+            <View style={compactStyles.currentQuestText}>
+              <Text style={compactStyles.currentQuestTitle}>Create Custom Side Quest</Text>
+              <Text style={compactStyles.currentQuestMeta}>Build a solo Side Quest from safe rule blocks. No AI, no code, no multiplayer required.</Text>
+            </View>
+          </View>
+          <View style={compactStyles.actionRowTight}>
+            <View style={compactStyles.primaryAction}>
+              <Text style={compactStyles.primaryActionText}>Open Builder</Text>
+            </View>
+            <View style={compactStyles.secondaryAction}>
+              <Text style={compactStyles.secondaryActionText}>{customDrafts.length ? `${customDrafts.length} draft${customDrafts.length === 1 ? "" : "s"}` : "No drafts yet"}</Text>
+            </View>
+          </View>
+        </Pressable>
+        {customDrafts.length ? (
+          <View style={compactStyles.appRows}>
+            {customDrafts.map((draft) => (
+              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Draft" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
+            ))}
+          </View>
+        ) : null}
       </View>
       <View style={compactStyles.appSection}>
         <View style={compactStyles.appRows}>
@@ -2648,6 +2698,100 @@ function QuestBoardDashboard({
           })}
         </View>
       </View>
+
+      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCustomCreateOpen(false)}>
+        <SafeAreaView style={compactStyles.detailScreen}>
+          <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
+          <View style={compactStyles.detailTopBar}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={() => setCustomCreateOpen(false)}>
+              <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+            </Pressable>
+          </View>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+            <View style={compactStyles.multiplayerDetailHero}>
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
+              <Text style={compactStyles.detailTitle}>Build a verifier recipe.</Text>
+              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Website publishing and live scoring come after this mobile-first prototype.</Text>
+            </View>
+            <View style={compactStyles.multiplayerNativeCard}>
+              <Text style={styles.inputLabel}>Side Quest name</Text>
+              <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
+              <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Rule block</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Piece state</Text>
+              <Text style={styles.microcopy}>General block: choose the piece, whose piece, condition, and timing.</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {CUSTOM_RULE_PIECES.map((piece) => {
+                  const selected = customRulePiece === piece;
+                  return (
+                    <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRulePiece(piece)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {CUSTOM_RULE_OWNERS.map((owner) => {
+                  const selected = customRuleOwner === owner;
+                  return (
+                    <Pressable key={owner} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleOwner(owner)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{owner === "my" ? "Mine" : "Opponent's"}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Text style={compactStyles.multiplayerRuleLabel}>Condition</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {CUSTOM_RULE_CONDITIONS.map((condition) => {
+                  const selected = customRuleCondition === condition;
+                  return (
+                    <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCondition(condition)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(condition)}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {CUSTOM_RULE_TIMINGS.map((timing) => {
+                  const selected = customRuleTiming === timing;
+                  return (
+                    <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              {customRuleTiming === "by move" ? (
+                <View style={compactStyles.multiplayerFooterActions}>
+                  {[10, 15, 20, 30].map((moveNumber) => {
+                    const selected = customRuleMoveNumber === moveNumber;
+                    return (
+                      <Pressable key={moveNumber} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleMoveNumber(moveNumber)}>
+                        <Text style={compactStyles.detailSecondaryButtonText}>Move {moveNumber}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              ) : null}
+              <View style={compactStyles.multiplayerRuleRow}>
+                <Text style={compactStyles.multiplayerRuleLabel}>Preview</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Save Draft</Text>
+              </Pressable>
+            </View>
+          </ScrollHintedScrollView>
+        </SafeAreaView>
+      </Modal>
 
       <Modal visible={Boolean(detailChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setDetailChallengeId(null)}>
         <SafeAreaView style={compactStyles.detailScreen}>
