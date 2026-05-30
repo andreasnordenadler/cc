@@ -586,6 +586,14 @@ Rules from this point:
 
 
 
+
+- [x] Make custom Side Quest builder visible at top of Side Quests screen.
+  - added_at: 2026-05-30 20:16 Europe/Stockholm
+  - completed_at: 2026-05-30 20:19 Europe/Stockholm
+  - source: Andreas reported he still could not see the builder after tapping Browse/Create from My Solo Side Quest.
+  - scope: add a first-screen `Create Custom Side Quest` CTA directly inside the Solo Side Quests hero, above the draft/library card and official deck.
+  - proof: mobile typecheck and targeted App lint passed; APK/deploy proof in release commit.
+
 - [x] Add Browse/Create entry directly to My Solo Side Quest section.
   - added_at: 2026-05-30 19:13 Europe/Stockholm
   - completed_at: 2026-05-30 19:16 Europe/Stockholm

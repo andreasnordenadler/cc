@@ -3274,20 +3274,20 @@ function SideQuestsScreen({
           <Text style={styles.soloBrowseStat}>{completedCount} completed</Text>
           <Text style={styles.soloBrowseStat}>{activeQuestId ? "1 active" : "none active"}</Text>
         </View>
+        <View style={styles.homeHeroActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={styles.primaryButtonWide} onPress={() => setCustomCreateOpen(true)}>
+            <Text style={styles.primaryButtonText}>Create Custom Side Quest</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Browse public Solo Side Quests" style={styles.secondaryButtonWide} onPress={() => undefined}>
+            <Text style={styles.secondaryButtonText}>Browse Public Solo Side Quests</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={compactStyles.multiplayerNativeCard}>
         <Text style={compactStyles.multiplayerCardEyebrow}>Side Quest Library</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>Browse, create, and manage Side Quests.</Text>
-        <Text style={styles.sectionBody}>Official public Side Quests live in the deck below. Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
-        <View style={styles.buttonRow}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={styles.primaryButton} onPress={() => setCustomCreateOpen(true)}>
-            <Text style={styles.primaryButtonText}>Create Custom Side Quest</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Browse public Side Quests" style={styles.secondaryButton} onPress={() => undefined}>
-            <Text style={styles.secondaryButtonText}>Browse Public</Text>
-          </Pressable>
-        </View>
+        <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest drafts.</Text>
+        <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
         <View style={compactStyles.appRows}>
           {customDrafts.length ? customDrafts.map((draft) => (
             <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Draft" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
