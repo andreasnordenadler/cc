@@ -190,7 +190,7 @@ export default async function GroupQuestsPage() {
                   <h2>Your multiplayer command center.</h2>
                   <p>Your active Multiplayer Side Quests, public Multiplayer Side Quests you can join, and closed results — all in one simple list.</p>
                 </div>
-                <Image alt="" className="groupquests-command-seal" height={112} src="/stamps/SQCBLACK%20SEAL.png" width={112} />
+                <Image alt="" className="groupquests-command-seal" height={112} src="/stamps/sqc-multiplayer-seal.png" width={112} />
               </div>
 
               <div className="groupquests-timeline-list" aria-label="Your Multiplayer Quests">

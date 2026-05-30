@@ -263,7 +263,7 @@ export default async function Home() {
                   alt=""
                   className="groupquests-command-seal"
                   height={112}
-                  src="/stamps/SQCBLACK%20SEAL.png"
+                  src="/stamps/sqc-multiplayer-seal.png"
                   width={112}
                 />
               </div>

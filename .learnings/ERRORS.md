@@ -4260,3 +4260,8 @@ For filtered historical production logs, use project-scoped logs with `--environ
 
 `git add src/app/api/mobile/groupquests/[id]/route.ts` failed because zsh treated `[id]` as a glob. Quote dynamic-route paths when staging: `git add 'src/app/api/mobile/groupquests/[id]/route.ts'`.
 
+
+## 2026-05-30 — APK exceeded GitHub 100 MB limit after high-res asset
+
+Adding the full-resolution multiplayer seal PNG to the React Native bundle pushed `sqc-mobile-android-beta-candidate-v115` over GitHub's 100 MB file limit (`102.37 MB`). Keep web assets high quality if needed, but downscale/optimize mobile-bundled image assets before rebuilding APKs.
+

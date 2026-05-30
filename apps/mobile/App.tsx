@@ -323,6 +323,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
 
 const SQC_COAT_OF_ARMS_ASSET = require("./assets/sqc-coat-of-arms.png") as ImageSourcePropType;
 const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
+const SQC_MULTIPLAYER_SEAL_ASSET = require("./assets/stamps/sqc-multiplayer-seal.png") as ImageSourcePropType;
 const SQC_GOLD_SEAL_ASSET = require("./assets/stamps/sqc-gold-seal.png") as ImageSourcePropType;
 const SQC_SILVER_SEAL_ASSET = require("./assets/stamps/sqc-silver-seal.png") as ImageSourcePropType;
 const SQC_BRONZE_SEAL_ASSET = require("./assets/stamps/sqc-bronze-seal.png") as ImageSourcePropType;
@@ -1066,11 +1067,11 @@ function TodayDashboard({
 
       <AppSection title="My Multiplayer Side Quests" action="Browse/Create/Join" onAction={() => onSelectTab("multiplayerSideQuests")}>
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
         )) : (
           <View style={compactStyles.emptyMultiplayerPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
-              <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
+              <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle}>Join a Multiplayer Side Quest</Text>
                 <Text style={compactStyles.currentQuestMeta}>Join a shared challenge when you want the same strange chess Side Quests scored against other players.</Text>
@@ -1126,8 +1127,8 @@ function TodayDashboard({
 
       <AppSection title="Official Multiplayer Side Quests" action="Leaderboards" onAction={() => onSelectTab("officialLeaderboards")}>
         {officialPublic.length ? officialPublic.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
-        )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
+        )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
       </AppSection>
 
       <AppSection title="Trophy Cabinet">
@@ -1138,7 +1139,7 @@ function TodayDashboard({
             meta={`Multiplayer win · ${trophy.rankLabel}`}
             status={undefined}
             statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-            imageSource={SQC_BLACK_SEAL_ASSET}
+            imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
             variant="seal"
             onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy is saved to your account.`)}
           />
@@ -1354,7 +1355,7 @@ function JoinedMultiplayerQuestModal({
           }} />}
         >
           <View style={compactStyles.multiplayerDetailHero}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+            <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
@@ -2844,7 +2845,7 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
           meta={`Multiplayer trophy · ${trophy.rankLabel}`}
           status={undefined}
           statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-          imageSource={SQC_BLACK_SEAL_ASSET}
+          imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
           variant="seal"
           onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy stays in the app.`)}
         />
@@ -3480,7 +3481,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : (
@@ -3503,7 +3504,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>No open public Multiplayer Side Quests right now.</Text>}
@@ -3535,7 +3536,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleHostedGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleHostedGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status="Hosting" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status="Hosting" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>You are not hosting any active Multiplayer Side Quests yet.</Text>}
@@ -3556,7 +3557,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleHistoryGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleHistoryGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>No finished Multiplayer Side Quests yet.</Text>}
@@ -3577,7 +3578,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           </View>
           <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
-              <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer</Text>
               <Text style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
               <Text style={compactStyles.detailGoal}>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</Text>
@@ -3764,7 +3765,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.sectionTitle}>Active official leaderboards.</Text>
         {currentOfficialGroupQuests.length ? currentOfficialGroupQuests.map((quest) => (
           <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open current official leaderboard ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
             <View style={styles.activeMultiplayerCopy}>
               <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
               <Text style={styles.activeMultiplayerMeta}>{getOfficialMultiplayerListStatus(quest)} · {getOfficialMultiplayerListMeta(quest)}</Text>
@@ -3778,7 +3779,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.sectionTitle}>Latest final results.</Text>
         {previousOfficialGroupQuests.length ? previousOfficialGroupQuests.map((quest) => (
           <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open previous official result ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
             <View style={styles.activeMultiplayerCopy}>
               <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
               <Text style={styles.activeMultiplayerMeta}>Final · {quest.playersLabel ?? "Players pending"} · {quest.leaderboardRows?.[0]?.name ? `Winner: ${quest.leaderboardRows[0].name}` : "Podium pending"}</Text>
@@ -3792,7 +3793,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.sectionTitle}>Browse older official weeks.</Text>
         {officialWeeks.length ? officialWeeks.map((week) => (
           <Pressable key={week.id} accessibilityRole="button" accessibilityLabel={`Open official results for ${week.label}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedWeekId(week.id)}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
             <View style={styles.activeMultiplayerCopy}>
               <Text style={styles.activeMultiplayerTitle}>{week.label}</Text>
               <Text style={styles.activeMultiplayerMeta}>{week.rangeLabel} · {week.quests.length} official result{week.quests.length === 1 ? "" : "s"}</Text>
@@ -3828,14 +3829,14 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
           </View>
           <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
-              <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Official weekly archive</Text>
               <Text style={compactStyles.detailTitle}>{selectedWeek?.label}</Text>
               <Text style={compactStyles.detailGoal}>{selectedWeek?.rangeLabel}</Text>
             </View>
             <View style={compactStyles.appRows}>
               {selectedWeek?.quests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setSelectedQuestId(quest.id)} />
+                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setSelectedQuestId(quest.id)} />
               ))}
             </View>
           </ScrollHintedScrollView>
@@ -4288,7 +4289,7 @@ function AccountShell({
             <Text style={styles.eyebrow}>Active Multiplayer Side Quests</Text>
             {userCreatedActiveGroupQuests.length ? userCreatedActiveGroupQuests.map((quest) => (
               <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open ${cleanMultiplayerTitle(quest.title)}`} style={styles.activeMultiplayerRow} onPress={() => onSelectTab("multiplayerSideQuests")}>
-                <Image source={{ uri: absoluteAssetUrl("/stamps/SQCBLACK%20SEAL.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+                <Image source={{ uri: absoluteAssetUrl("/stamps/sqc-multiplayer-seal.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
                 <View style={styles.activeMultiplayerCopy}>
                   <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
                   <Text style={styles.activeMultiplayerMeta}>{getJoinedMultiplayerListStatus(quest)} · {getJoinedMultiplayerListMeta(quest)}</Text>
