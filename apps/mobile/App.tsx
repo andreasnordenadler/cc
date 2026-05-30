@@ -3544,8 +3544,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <Text style={styles.secondaryButtonText}>More hosted ({hiddenHostedCount})</Text>
           </Pressable>
         ) : null}
-        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="create a new multiplayer side quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
-          <Text style={styles.primaryButtonText}>create a new multiplayer side quest</Text>
+        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create a New Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+          <Text style={styles.primaryButtonText}>Create a New Multiplayer Side Quest</Text>
         </Pressable>
         {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to create or join Multiplayer Side Quests.</Text> : null}
       </View>
