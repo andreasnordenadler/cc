@@ -3603,12 +3603,19 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCreateOpen(false)}>
         <SafeAreaView style={compactStyles.detailScreen}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
-          <View style={compactStyles.detailTopBar}>
+          <View style={compactStyles.createSheetHeader}>
+            <View style={compactStyles.createSheetHeaderBrand}>
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.createSheetHeaderCoat} resizeMode="contain" />
+              <View style={compactStyles.createSheetHeaderCopy}>
+                <Text style={compactStyles.multiplayerDetailKicker}>Side Quest list</Text>
+                <Text style={compactStyles.createSheetHeaderTitle}>Create Multiplayer</Text>
+              </View>
+            </View>
             <Pressable accessibilityRole="button" accessibilityLabel="Close create Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={() => setCreateOpen(false)}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={compactStyles.createDetailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer</Text>
@@ -4974,6 +4981,12 @@ const compactStyles = StyleSheet.create({
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   detailContent: { paddingTop: 66, paddingHorizontal: 16, paddingBottom: 48, gap: 8 },
+  createSheetHeader: { minHeight: 82, paddingTop: 10, paddingBottom: 10, paddingHorizontal: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(12,8,9,.88)" },
+  createSheetHeaderBrand: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 10 },
+  createSheetHeaderCoat: { width: 48, height: 54 },
+  createSheetHeaderCopy: { flex: 1, minWidth: 0, gap: 1 },
+  createSheetHeaderTitle: { color: colors.paper, fontSize: 18, lineHeight: 21, fontWeight: "900", letterSpacing: -.35 },
+  createDetailContent: { paddingTop: 12, paddingHorizontal: 16, paddingBottom: 48, gap: 8 },
   detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 2 },
   completedProofScreen: { gap: 10 },
   completedProofCoatFrame: { width: 124, height: 136, alignItems: "center", justifyContent: "center", overflow: "visible" },
