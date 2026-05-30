@@ -175,6 +175,14 @@ export type MobileAccountState = {
     proofHref: string | null;
     proofImageUrl: string | null;
   } | null;
+  supportMessages?: MobileSupportMessage[];
+};
+
+export type MobileSupportMessage = {
+  id: string;
+  at: string;
+  message: string;
+  source?: "mobile" | "admin" | string;
 };
 
 export type MobileAccountSignedOut = {
@@ -206,6 +214,7 @@ export type MobileSupportMessageResponse = {
   ok?: boolean;
   message: string;
   submittedAt?: string;
+  supportMessage?: MobileSupportMessage;
 };
 
 export type MobileQuestActionResponse = {

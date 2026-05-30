@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { CHALLENGES } from "@/lib/challenges";
+import { getSupportMessages } from "@/lib/analytics";
 import { buildPublicProofPath } from "@/lib/proof-share";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
@@ -274,8 +275,14 @@ export async function GET(request: Request) {
           meta: latestAttemptSummary.meta,
           proofHref: latestProofPath ? new URL(latestProofPath, baseUrl).toString() : null,
           proofImageUrl: latestProofPath ? new URL(`/api/og${latestProofPath}`, baseUrl).toString() : null,
-        }
+      }
       : null,
+    supportMessages: getSupportMessages(user.privateMetadata).map((message) => ({
+      id: message.id,
+      at: message.at,
+      message: message.message,
+      source: message.source ?? "mobile",
+    })),
   });
 }
 

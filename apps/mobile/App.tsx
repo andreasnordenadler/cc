@@ -34,7 +34,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
-import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileGroupQuestSummary } from "./src/types/sqc";
+import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 
@@ -981,7 +981,7 @@ function TodayDashboard({
           
         </View>
         {signedIn.activeQuest ? (
-          <View style={compactStyles.contextHelpHost}>
+          <View>
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
             {activeStatus === "Completed" ? (
               <View style={compactStyles.currentStatusRow}>
@@ -1026,7 +1026,6 @@ function TodayDashboard({
             {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
-          <ContextHelpIconButton topic="activeSolo" label="Help with this active Side Quest card" />
           </View>
         ) : (
           <View style={compactStyles.emptyQuestPanel}>
@@ -1359,7 +1358,6 @@ function JoinedMultiplayerQuestModal({
             <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
-            <HelpIconButton topic="multiplayerDetail" label="Help with this Multiplayer Side Quest" />
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
@@ -2004,27 +2002,6 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
   );
 }
 
-function HelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.helpIconButton} onPress={() => showHelpTopic(topic)}>
-      <Text style={compactStyles.helpIconText}>i</Text>
-    </Pressable>
-  );
-}
-
-function ContextHelpIconButton({ topic, label }: { topic: HelpTopic; label?: string }) {
-  return (
-    <Pressable accessibilityRole="button" accessibilityLabel={label ?? `Help: ${HELP_TOPICS[topic].title}`} style={compactStyles.contextHelpIconButton} hitSlop={10} onPress={() => showHelpTopic(topic)}>
-      <Text style={compactStyles.contextHelpIconText}>i</Text>
-    </Pressable>
-  );
-}
-
-function showHelpTopic(topic: HelpTopic) {
-  const item = HELP_TOPICS[topic];
-  Alert.alert(item.title, item.body);
-}
-
 function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   return (
     <AppSection title="Help & Support" action="Open" onAction={onOpenHelp}>
@@ -2036,7 +2013,10 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 
 function HelpSupportModal({ visible, onClose, signedIn, authBridge }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge }) {
   const [supportMessage, setSupportMessage] = useState("");
+  const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
+    .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
   async function copySupportDetails() {
     const details = [
@@ -2068,6 +2048,9 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge }: { visible:
     try {
       const sessionToken = await authBridge.getSessionToken();
       const result = await submitMobileSupportMessage({ sessionToken, message: trimmed });
+      if (result.supportMessage) {
+        setLocalSupportMessages((current) => [...current, result.supportMessage as MobileSupportMessage]);
+      }
       setSupportMessage("");
       setSubmitState({ busy: false, message: result.message, error: null });
     } catch (caught) {
@@ -2107,7 +2090,18 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge }: { visible:
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
-            <Text style={compactStyles.detailPanelCopy}>Something not working. Send a short note here and it will show up in the private analytics dashboard.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Something not working. Send a short note here and we can reply in this conversation if we need more details.</Text>
+            <View style={compactStyles.helpSupportThread}>
+              <Text style={compactStyles.appRowTitle}>Conversation</Text>
+              {supportThread.length ? supportThread.map((entry) => (
+                <View key={entry.id} style={[compactStyles.helpSupportMessageBubble, entry.source === "admin" ? compactStyles.helpSupportAdminBubble : null]}>
+                  <Text style={compactStyles.helpSupportMessageMeta}>{entry.source === "admin" ? "SQC support" : "You"} · {formatAccountDate(entry.at)}</Text>
+                  <Text style={compactStyles.helpSupportBody}>{entry.message}</Text>
+                </View>
+              )) : (
+                <Text style={compactStyles.helpSupportBody}>Your messages and replies from SQC support will appear here.</Text>
+              )}
+            </View>
             <View style={styles.inputStack}>
               <Text style={styles.inputLabel}>Message</Text>
               <TextInput
@@ -2781,7 +2775,7 @@ function AccountSoloSideQuestSection({
           
         </View>
       {account.activeQuest ? (
-        <View style={compactStyles.contextHelpHost}>
+        <View>
         <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest" style={compactStyles.freshPanel} onPress={() => onSelectChallenge(account.activeQuest?.id ?? "", "sideQuests")}>
           {activeStatus === "Completed" ? (
             <View style={compactStyles.currentStatusRow}>
@@ -2814,7 +2808,6 @@ function AccountSoloSideQuestSection({
             </View>
           </View>
         </Pressable>
-        <ContextHelpIconButton topic="activeSolo" label="Help with this active Side Quest card" />
         </View>
       ) : (
         <View style={compactStyles.emptyQuestPanel}>
@@ -4925,11 +4918,6 @@ const compactStyles = StyleSheet.create({
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   emptyMultiplayerCreateButton: { alignSelf: "center" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  helpIconButton: { alignSelf: "center", width: 20, height: 20, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
-  helpIconText: { color: colors.gold, fontSize: 11, lineHeight: 13, fontWeight: "900" },
-  contextHelpHost: { position: "relative", paddingRight: 32 },
-  contextHelpIconButton: { position: "absolute", top: 8, right: 8, zIndex: 5, width: 19, height: 19, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
-  contextHelpIconText: { color: colors.gold, fontSize: 10, lineHeight: 12, fontWeight: "900" },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
@@ -4977,6 +4965,10 @@ const compactStyles = StyleSheet.create({
   appRowStatusDanger: { backgroundColor: "#ff7a66", color: "#111" },
   appRowStatusAbsurd: { backgroundColor: "#08070a", color: "#ff7a66", borderWidth: 1, borderColor: "rgba(255,122,102,.55)" },
   helpSupportRow: { gap: 4, paddingHorizontal: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
+  helpSupportThread: { gap: 8, padding: 10, borderRadius: 18, backgroundColor: "rgba(0,0,0,.18)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  helpSupportMessageBubble: { alignSelf: "flex-end", maxWidth: "92%", gap: 4, paddingHorizontal: 11, paddingVertical: 9, borderRadius: 16, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  helpSupportAdminBubble: { alignSelf: "flex-start", backgroundColor: "rgba(96,240,175,.1)", borderColor: "rgba(96,240,175,.24)" },
+  helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },

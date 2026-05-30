@@ -6,7 +6,7 @@ type SupportMessage = {
   id: string;
   at: string;
   message: string;
-  source: "mobile";
+  source: "mobile" | "admin";
   accountEmail?: string | null;
   displayName?: string | null;
 };
@@ -85,7 +85,8 @@ export async function POST(request: Request) {
     authenticated: true,
     ok: true,
     submittedAt,
-    message: "Support message sent. It is now visible in the private analytics dashboard.",
+    supportMessage,
+    message: "Message sent. We’ll reply here in Help & Support if we need more details.",
   });
 }
 

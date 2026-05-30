@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
 import SiteNav from "@/components/site-nav";
 import { getAnalyticsStore, getSupportMessages, isAdminAnalyticsViewer, type SQCSupportMessage, type SQCAnalyticsDeviceType, type SQCAnalyticsEvent } from "@/lib/analytics";
 import { getStoredGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
@@ -10,6 +11,41 @@ export const metadata: Metadata = {
   title: "SQC Analytics · Side Quest Chess",
   robots: { index: false, follow: false },
 };
+
+async function replyToSupportMessage(formData: FormData) {
+  "use server";
+
+  const viewer = await currentUser().catch(() => null);
+  if (!isAdminAnalyticsViewer(viewer)) return;
+
+  const userId = String(formData.get("userId") ?? "").trim();
+  const reply = String(formData.get("reply") ?? "").trim().slice(0, 1200);
+  if (!userId || reply.length < 2) return;
+
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const existing = getSupportMessages(user.privateMetadata);
+  const at = new Date().toISOString();
+
+  await client.users.updateUserMetadata(userId, {
+    privateMetadata: {
+      ...user.privateMetadata,
+      sqcSupportMessages: [
+        ...existing,
+        {
+          id: `admin-support-${at}-${Math.random().toString(36).slice(2, 8)}`,
+          at,
+          message: reply,
+          source: "admin",
+          accountEmail: user.primaryEmailAddress?.emailAddress ?? null,
+          displayName: "SQC support",
+        },
+      ].slice(-30),
+    },
+  });
+
+  revalidatePath("/admin/analytics");
+}
 
 type AnalyticsUserRow = {
   id: string;
@@ -140,7 +176,7 @@ export default async function AdminAnalyticsPage() {
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
     .slice(0, 30);
   const supportMessages = rows
-    .flatMap((row) => row.supportMessages.map((message) => ({ ...message, user: row.name, email: row.email })))
+    .flatMap((row) => row.supportMessages.map((message) => ({ ...message, userId: row.id, user: row.name, email: row.email })))
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
     .slice(0, 30);
 
@@ -271,8 +307,18 @@ export default async function AdminAnalyticsPage() {
               <div className="public-groupquest-row" key={message.id}>
                 <div>
                   <span>{formatDate(message.at)} · {message.user} · {message.email}</span>
-                  <strong>{message.source ?? "mobile"}</strong>
+                  <strong>{message.source === "admin" ? "SQC support reply" : "Mobile support message"}</strong>
                   <p>{message.message}</p>
+                  {message.source !== "admin" ? (
+                    <form action={replyToSupportMessage} className="support-reply-form">
+                      <input type="hidden" name="userId" value={message.userId} />
+                      <label>
+                        Reply visible in the mobile app
+                        <textarea name="reply" rows={3} placeholder="Write a short support reply" />
+                      </label>
+                      <button type="submit" className="button secondary">Send reply</button>
+                    </form>
+                  ) : null}
                 </div>
               </div>
             )) : <p>No support messages yet.</p>}
