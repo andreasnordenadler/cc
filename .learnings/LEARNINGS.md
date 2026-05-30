@@ -665,3 +665,11 @@ Andreas rejected the SQC mobile create-side-quest header/coat experiment as tota
 
 Andreas rejected the first mobile Multiplayer Lobby experiment because the top stat/tab buttons made the screen feel wrong. For this screen, prefer stacked list sections with compact rows and a simple “More” button when a list is long, rather than prominent navigation/stat buttons.
 
+
+## [LRN-20260530-003] correction
+
+**Logged**: 2026-05-30T11:50:00+02:00
+**Priority**: high
+
+Andreas corrected the SQC mobile Multiplayer copy again: do not use “rooms” for Multiplayer Side Quests. Visible UI copy should say “Multiplayer Side Quest(s)” or “Side Quest(s)” instead.
+

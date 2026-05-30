@@ -59,11 +59,11 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   },
   multiplayerDetail: {
     title: "This Multiplayer Side Quest",
-    body: "This page shows the room window, included Side Quests, players, and leaderboard. Join while it is open, play matching public games during the time window, then refresh proof to update your score.",
+    body: "This page shows the Multiplayer Side Quest window, included Side Quests, players, and leaderboard. Join while it is open, play matching public games during the time window, then refresh proof to update your score.",
   },
   multiplayer: {
     title: "Multiplayer Side Quests",
-    body: "Browse shared rooms, create your own, or join official rooms. Multiplayer progress is scored separately from your Solo Side Quest.",
+    body: "Browse shared Multiplayer Side Quests, create your own, or join official Multiplayer Side Quests. Multiplayer progress is scored separately from your Solo Side Quest.",
   },
   accounts: {
     title: "Chess accounts",
@@ -1495,7 +1495,7 @@ function JoinedMultiplayerQuestModal({
           {quest.isOwner ? (
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Owner settings</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Simple room controls.</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Simple Multiplayer controls.</Text>
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Current window</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{formatGroupQuestDate(quest.startAt)} → {formatGroupQuestDate(quest.endAt)}</Text>
@@ -3419,7 +3419,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     <View style={styles.screenStack}>
       <View style={styles.groupquestsHero}>
         <Text style={styles.groupquestsHeroTitle}>Multiplayer Lobby.</Text>
-        <Text style={styles.groupquestsHeroCopy}>Lists first: your rooms, open rooms, private invite, hosted rooms, and finished history. Longer lists expand with More.</Text>
+        <Text style={styles.groupquestsHeroCopy}>Lists first: your Multiplayer Side Quests, open Side Quests, private invite, hosted Side Quests, and finished history. Longer lists expand with More.</Text>
       </View>
 
 
@@ -3475,8 +3475,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="My Multiplayer Side Quests">
         <Text style={styles.eyebrow}>My Quests · {activeMineGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Joined and hosted rooms.</Text>
-        <Text style={styles.sectionBody}>Hosted rooms are included here too, because creating one also joins you by default.</Text>
+        <Text style={styles.sectionTitle}>Joined and hosted Side Quests.</Text>
+        <Text style={styles.sectionBody}>Hosted Side Quests are included here too, because creating one also joins you by default.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
@@ -3485,8 +3485,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           </View>
         ) : (
           <View style={styles.multiplayerLobbyEmptyCard}>
-            <Text style={styles.sideQuestModeTitle}>No active multiplayer rooms yet.</Text>
-            <Text style={styles.sideQuestModeCopy}>Join an open room, paste an invite key, or create your own Multiplayer Side Quest.</Text>
+            <Text style={styles.sideQuestModeTitle}>No active Multiplayer Side Quests yet.</Text>
+            <Text style={styles.sideQuestModeCopy}>Join an open Multiplayer Side Quest, paste an invite key, or create your own.</Text>
           </View>
         )}
         {hiddenMineCount ? (
@@ -3498,7 +3498,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Open Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Open to Join · {availableGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Public rooms.</Text>
+        <Text style={styles.sectionTitle}>Open Multiplayer Side Quests.</Text>
         <Text style={styles.sectionBody}>Join a public Multiplayer Side Quest directly from the list.</Text>
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
@@ -3506,17 +3506,17 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
-        ) : <Text style={styles.sectionBody}>No open public rooms right now.</Text>}
+        ) : <Text style={styles.sectionBody}>No open public Multiplayer Side Quests right now.</Text>}
         {hiddenAvailableCount ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setAvailableListLimit((current) => current + 4)}>
-            <Text style={styles.secondaryButtonText}>More open rooms ({hiddenAvailableCount})</Text>
+            <Text style={styles.secondaryButtonText}>More open Side Quests ({hiddenAvailableCount})</Text>
           </Pressable>
         ) : null}
       </View>
 
       <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
         <Text style={styles.eyebrow}>Invite Key</Text>
-        <Text style={styles.sideQuestModeTitle}>Join private room.</Text>
+        <Text style={styles.sideQuestModeTitle}>Join private Multiplayer Side Quest.</Text>
         <Text style={styles.sideQuestModeCopy}>Paste an invite key from the host to join a private Multiplayer Side Quest.</Text>
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Invite key</Text>
@@ -3552,7 +3552,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
         <Text style={styles.eyebrow}>History · {historyGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Finished rooms.</Text>
+        <Text style={styles.sectionTitle}>Finished Multiplayer Side Quests.</Text>
         {visibleHistoryGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleHistoryGroupQuests.map((quest) => (
