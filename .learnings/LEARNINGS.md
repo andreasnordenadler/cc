@@ -650,3 +650,10 @@ For mobile Home UI review, keep the emulator preview account aligned with the st
 - **Category**: correction
 - **Context**: Andreas corrected the Current Active Side Quest detail screen: `State` is redundant because the screen is active by context; `Check platform` is already known from the account header; `Result needed` was unclear; layout still was not Apple Sports-tight enough.
 - **Do differently**: For SQC mobile detail/status screens, prefer dense, immediately useful rows only. Avoid explanatory product/database labels unless the user cannot infer them from context. Optimize for scoreboard-like scan speed.
+
+## [LRN-20260530-001] correction
+
+**Logged**: 2026-05-30T11:12:00+02:00
+**Priority**: medium
+
+Andreas rejected the SQC mobile create-side-quest header/coat experiment as totally wrong. Do not make large structural header changes from a single screenshot when the requested fix is likely local spacing/overlap. Prefer the smallest reversible UI fix first, and if trying an alternate visual concept, describe it as a test before deploying widely.
