@@ -1,14 +1,10 @@
+import { Chess } from "chess.js";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type KnightsBeforeCoffeeSide = "white" | "black";
 export type KnightsBeforeCoffeeResult = KnightsBeforeCoffeeSide | "draw" | "unknown";
 export type KnightsBeforeCoffeeTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
 
 type PieceType = "pawn" | "knight" | "bishop" | "rook" | "queen" | "king";
-
-type Piece = {
-  color: KnightsBeforeCoffeeSide;
-  type: PieceType;
-};
 
 export type KnightsBeforeCoffeeGame = {
   id: string;
@@ -21,6 +17,17 @@ export type KnightsBeforeCoffeeGame = {
   startedGameAt?: string;
   completedGameAt?: string;
   firstFourPlayerMovePieces: PieceType[];
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+  firstNonKnightMove?: {
+    piece: PieceType;
+    moveNumber: number;
+    ply: number;
+    san?: string;
+    uci?: string;
+    fenAfter?: string;
+  };
 };
 
 type LichessKnightsBeforeCoffeeGame = {
@@ -46,6 +53,19 @@ export type KnightsBeforeCoffeeVerdict = {
   evidence: string[];
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+  failureDiagnostic?: {
+    label?: string;
+    explanation?: string;
+    moveNumber?: number;
+    ply?: number;
+    san?: string;
+    uci?: string;
+    fenAtBreak?: string;
+    playerColor?: "white" | "black";
+  };
 };
 
 const ALLOWED_TIME_CLASSES = new Set<KnightsBeforeCoffeeTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -65,66 +85,47 @@ function normalizeTimeClass(value?: string): KnightsBeforeCoffeeTimeClass {
     : "unknown";
 }
 
-function buildInitialBoard() {
-  const board = new Map<string, Piece>();
-  const backRank: PieceType[] = ["rook", "knight", "bishop", "queen", "king", "bishop", "knight", "rook"];
-  const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
-
-  files.forEach((file, index) => {
-    board.set(`${file}1`, { color: "white", type: backRank[index] });
-    board.set(`${file}2`, { color: "white", type: "pawn" });
-    board.set(`${file}7`, { color: "black", type: "pawn" });
-    board.set(`${file}8`, { color: "black", type: backRank[index] });
-  });
-
-  return board;
+function pieceTypeFromChessJs(piece?: string): PieceType | null {
+  if (piece === "n") return "knight";
+  if (piece === "b") return "bishop";
+  if (piece === "r") return "rook";
+  if (piece === "q") return "queen";
+  if (piece === "k") return "king";
+  if (piece === "p") return "pawn";
+  return null;
 }
 
-function playerPiecesFromUciMoves(moves: string[], playerColor: KnightsBeforeCoffeeSide) {
-  const board = buildInitialBoard();
+function analyzeUciMoves(moves: string[], playerColor: KnightsBeforeCoffeeSide) {
+  const chess = new Chess();
   const playerPieces: PieceType[] = [];
+  let firstNonKnightMove: KnightsBeforeCoffeeGame["firstNonKnightMove"];
+  let lastMoveUci: string | undefined;
+  let lastMoveSan: string | undefined;
 
-  moves.forEach((move, index) => {
-    const from = move.slice(0, 2);
-    const to = move.slice(2, 4);
-    const promotion = move.slice(4, 5);
-    const piece = board.get(from);
+  for (const token of moves) {
+    const move = chess.move({ from: token.slice(0, 2), to: token.slice(2, 4), promotion: token.slice(4, 5) || undefined });
+    lastMoveUci = move.lan;
+    lastMoveSan = move.san;
 
-    if (piece?.color === playerColor) {
-      playerPieces.push(piece.type);
+    if (move.color === (playerColor === "white" ? "w" : "b")) {
+      const piece = pieceTypeFromChessJs(move.piece);
+      if (piece && playerPieces.length < 4) {
+        playerPieces.push(piece);
+        if (!firstNonKnightMove && piece !== "knight") {
+          firstNonKnightMove = {
+            piece,
+            moveNumber: playerPieces.length,
+            ply: chess.history().length,
+            san: move.san,
+            uci: move.lan,
+            fenAfter: chess.fen(),
+          };
+        }
+      }
     }
+  }
 
-    board.delete(from);
-
-    if (piece) {
-      const promotedType: PieceType | null =
-        promotion === "q" ? "queen" : promotion === "r" ? "rook" : promotion === "b" ? "bishop" : promotion === "n" ? "knight" : null;
-      board.set(to, { color: piece.color, type: promotedType ?? piece.type });
-    }
-
-    // Standard UCI castling still needs the rook moved for later piece tracking.
-    if (piece?.type === "king" && from === "e1" && to === "g1") {
-      const rook = board.get("h1");
-      board.delete("h1");
-      if (rook) board.set("f1", rook);
-    } else if (piece?.type === "king" && from === "e1" && to === "c1") {
-      const rook = board.get("a1");
-      board.delete("a1");
-      if (rook) board.set("d1", rook);
-    } else if (piece?.type === "king" && from === "e8" && to === "g8") {
-      const rook = board.get("h8");
-      board.delete("h8");
-      if (rook) board.set("f8", rook);
-    } else if (piece?.type === "king" && from === "e8" && to === "c8") {
-      const rook = board.get("a8");
-      board.delete("a8");
-      if (rook) board.set("d8", rook);
-    }
-
-    if (index > 80 && playerPieces.length >= 4) return;
-  });
-
-  return playerPieces.slice(0, 4);
+  return { firstFourPlayerMovePieces: playerPieces, finalPositionFen: chess.fen(), lastMoveUci, lastMoveSan, firstNonKnightMove };
 }
 
 export function normalizeLichessKnightsBeforeCoffeeGame(
@@ -141,6 +142,7 @@ export function normalizeLichessKnightsBeforeCoffeeGame(
   }
 
   const moves = normalizeLichessMoveTokens(game.moves);
+  const analysis = analyzeUciMoves(moves, playerColor);
 
   return {
     id: game.id,
@@ -152,7 +154,11 @@ export function normalizeLichessKnightsBeforeCoffeeGame(
     rated: game.rated,
     startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
-    firstFourPlayerMovePieces: playerPiecesFromUciMoves(moves, playerColor),
+    firstFourPlayerMovePieces: analysis.firstFourPlayerMovePieces,
+    finalPositionFen: analysis.finalPositionFen,
+    lastMoveUci: analysis.lastMoveUci,
+    lastMoveSan: analysis.lastMoveSan,
+    firstNonKnightMove: analysis.firstNonKnightMove,
   };
 }
 
@@ -221,6 +227,9 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       gameId: game.id,
       summary: "Variants are wonderful chaos, but Knights Before Coffee only counts standard chess games.",
       evidence: [`Variant was ${game.variant}.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
@@ -230,6 +239,9 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       gameId: game.id,
       summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
       evidence: [`Time class was ${game.timeClass}.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
@@ -239,6 +251,9 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       gameId: game.id,
       summary: "Knights Before Coffee only counts if the horse-first player wins.",
       evidence: [`Winner was ${game.winner === "draw" ? "draw" : colorName(game.winner as KnightsBeforeCoffeeSide)}.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
@@ -248,12 +263,16 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       gameId: game.id,
       summary: "The game ended before four player moves could prove the horse-first ritual.",
       evidence: [`Only ${game.firstFourPlayerMovePieces.length} player moves were found.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
   const firstNonKnightIndex = game.firstFourPlayerMovePieces.findIndex((piece) => piece !== "knight");
 
   if (firstNonKnightIndex >= 0) {
+    const breaker = game.firstNonKnightMove;
     return {
       status: "failed",
       gameId: game.id,
@@ -262,6 +281,19 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
         `Player move ${firstNonKnightIndex + 1} was a ${pieceName(game.firstFourPlayerMovePieces[firstNonKnightIndex])}.`,
         `First four player move pieces: ${game.firstFourPlayerMovePieces.map(pieceName).join(", ")}.`,
       ],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
+      failureDiagnostic: {
+        label: "First non-knight move",
+        explanation: `Player move ${firstNonKnightIndex + 1} was a ${pieceName(game.firstFourPlayerMovePieces[firstNonKnightIndex])}, not a knight.`,
+        moveNumber: breaker?.moveNumber ?? firstNonKnightIndex + 1,
+        ply: breaker?.ply,
+        san: breaker?.san,
+        uci: breaker?.uci,
+        fenAtBreak: breaker?.fenAfter ?? game.finalPositionFen,
+        playerColor: game.playerColor,
+      },
     };
   }
 
@@ -273,6 +305,9 @@ export function evaluateKnightsBeforeCoffee(game: KnightsBeforeCoffeeGame): Knig
       `${colorName(game.playerColor)} moved only knights for the first four player moves.`,
       `${colorName(game.playerColor)} won after ${game.moveCount} moves.`,
     ],
+    finalPositionFen: game.finalPositionFen,
+    lastMoveUci: game.lastMoveUci,
+    lastMoveSan: game.lastMoveSan,
   };
 }
 

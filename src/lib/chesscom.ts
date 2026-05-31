@@ -96,6 +96,17 @@ type ChessComKnightsBeforeCoffeeGame = {
   startedGameAt?: string;
   completedGameAt?: string;
   firstFourPlayerMovePieces: Array<"pawn" | "knight" | "bishop" | "rook" | "queen" | "king">;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+  firstNonKnightMove?: {
+    piece: "pawn" | "knight" | "bishop" | "rook" | "queen" | "king";
+    moveNumber: number;
+    ply: number;
+    san?: string;
+    uci?: string;
+    fenAfter?: string;
+  };
 };
 
 type ChessComKnightsBeforeCoffeeVerdict = {
@@ -105,6 +116,19 @@ type ChessComKnightsBeforeCoffeeVerdict = {
   evidence: string[];
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+  failureDiagnostic?: {
+    label?: string;
+    explanation?: string;
+    moveNumber?: number;
+    ply?: number;
+    san?: string;
+    uci?: string;
+    fenAtBreak?: string;
+    playerColor?: "white" | "black";
+  };
 };
 
 type ChessComBishopFieldTripGame = {
@@ -410,11 +434,47 @@ function chessComPieceFromSan(token: string): ChessComKnightsBeforeCoffeeGame["f
   return "pawn";
 }
 
-function chessComPlayerMovePiecesFromSan(
-  sanMoves: string[],
-  playerColor: "white" | "black",
-): ChessComKnightsBeforeCoffeeGame["firstFourPlayerMovePieces"] {
-  return chessComFirstPlayerMovePiecesFromSan(sanMoves, playerColor, 4);
+function chessComPieceTypeFromChessJs(piece?: string): ChessComKnightsBeforeCoffeeGame["firstFourPlayerMovePieces"][number] | null {
+  if (piece === "n") return "knight";
+  if (piece === "b") return "bishop";
+  if (piece === "r") return "rook";
+  if (piece === "q") return "queen";
+  if (piece === "k") return "king";
+  if (piece === "p") return "pawn";
+  return null;
+}
+
+function analyzeChessComKnightsBeforeCoffeeSan(sanMoves: string[], playerColor: "white" | "black") {
+  const chess = new Chess();
+  const firstFourPlayerMovePieces: ChessComKnightsBeforeCoffeeGame["firstFourPlayerMovePieces"] = [];
+  let firstNonKnightMove: ChessComKnightsBeforeCoffeeGame["firstNonKnightMove"];
+  let lastMoveUci: string | undefined;
+  let lastMoveSan: string | undefined;
+
+  for (const token of sanMoves) {
+    const move = chess.move(token);
+    lastMoveUci = move.lan;
+    lastMoveSan = move.san;
+
+    if (move.color === (playerColor === "white" ? "w" : "b")) {
+      const piece = chessComPieceTypeFromChessJs(move.piece);
+      if (piece && firstFourPlayerMovePieces.length < 4) {
+        firstFourPlayerMovePieces.push(piece);
+        if (!firstNonKnightMove && piece !== "knight") {
+          firstNonKnightMove = {
+            piece,
+            moveNumber: firstFourPlayerMovePieces.length,
+            ply: chess.history().length,
+            san: move.san,
+            uci: move.lan,
+            fenAfter: chess.fen(),
+          };
+        }
+      }
+    }
+  }
+
+  return { firstFourPlayerMovePieces, finalPositionFen: chess.fen(), lastMoveUci, lastMoveSan, firstNonKnightMove };
 }
 
 function chessComFirstPlayerMovePiecesFromSan(
@@ -1566,6 +1626,9 @@ function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGa
       gameId: game.id,
       summary: "Variants are fun, but Knights Before Coffee only counts standard chess games.",
       evidence: [`Variant was ${game.variant}.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
@@ -1575,6 +1638,9 @@ function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGa
       gameId: game.id,
       summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
       evidence: [`Time class was ${game.timeClass}.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
@@ -1584,6 +1650,9 @@ function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGa
       gameId: game.id,
       summary: "Knights Before Coffee only counts if the horse-first player wins.",
       evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
@@ -1593,12 +1662,16 @@ function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGa
       gameId: game.id,
       summary: "The latest Chess.com game ended before four player moves could be checked.",
       evidence: [`Only ${game.firstFourPlayerMovePieces.length} player moves were available.`],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
     };
   }
 
   const firstNonKnightIndex = game.firstFourPlayerMovePieces.findIndex((piece) => piece !== "knight");
 
   if (firstNonKnightIndex !== -1) {
+    const breaker = game.firstNonKnightMove;
     return {
       status: "failed",
       gameId: game.id,
@@ -1607,6 +1680,19 @@ function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGa
         `Move ${firstNonKnightIndex + 1} was a ${game.firstFourPlayerMovePieces[firstNonKnightIndex]}.`,
         `First four player moves: ${game.firstFourPlayerMovePieces.join(", ")}.`,
       ],
+      finalPositionFen: game.finalPositionFen,
+      lastMoveUci: game.lastMoveUci,
+      lastMoveSan: game.lastMoveSan,
+      failureDiagnostic: {
+        label: "First non-knight move",
+        explanation: `Player move ${firstNonKnightIndex + 1} was a ${game.firstFourPlayerMovePieces[firstNonKnightIndex]}, not a knight.`,
+        moveNumber: breaker?.moveNumber ?? firstNonKnightIndex + 1,
+        ply: breaker?.ply,
+        san: breaker?.san,
+        uci: breaker?.uci,
+        fenAtBreak: breaker?.fenAfter ?? game.finalPositionFen,
+        playerColor: game.playerColor,
+      },
     };
   }
 
@@ -1618,6 +1704,9 @@ function evaluateChessComKnightsBeforeCoffee(game: ChessComKnightsBeforeCoffeeGa
       `${chessComColorName(game.playerColor)} won the normalized Chess.com game.`,
       "The first four player moves were knight moves.",
     ],
+    finalPositionFen: game.finalPositionFen,
+    lastMoveUci: game.lastMoveUci,
+    lastMoveSan: game.lastMoveSan,
   };
 }
 
@@ -1629,6 +1718,7 @@ export function normalizeChessComKnightsBeforeCoffeeGame(game: ChessComGame, use
   }
 
   const sanMoves = extractSanMoveTokens(game.pgn);
+  const analysis = analyzeChessComKnightsBeforeCoffeeSan(sanMoves, playerColor);
 
   return {
     id: normalizeChessComGameUrl(game.url),
@@ -1639,7 +1729,11 @@ export function normalizeChessComKnightsBeforeCoffeeGame(game: ChessComGame, use
     timeClass: normalizeChessComTimeClass(game.time_class),
     startedGameAt: getChessComStartedGameAt(game),
     completedGameAt: getChessComCompletedGameAt(game),
-    firstFourPlayerMovePieces: chessComPlayerMovePiecesFromSan(sanMoves, playerColor),
+    firstFourPlayerMovePieces: analysis.firstFourPlayerMovePieces,
+    finalPositionFen: analysis.finalPositionFen,
+    lastMoveUci: analysis.lastMoveUci,
+    lastMoveSan: analysis.lastMoveSan,
+    firstNonKnightMove: analysis.firstNonKnightMove,
   };
 }
 
