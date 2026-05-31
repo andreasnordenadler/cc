@@ -165,6 +165,10 @@ function getCustomPieceIdentityOptions(piece: CustomRulePiece) {
   return ["original"];
 }
 
+function customPieceNeedsIdentityChoice(piece: CustomRulePiece) {
+  return piece !== "king" && piece !== "queen";
+}
+
 function normalizeCustomPieceIdentity(piece: CustomRulePiece, identity: string) {
   const options = getCustomPieceIdentityOptions(piece);
   return options.includes(identity) ? identity : options[0];
@@ -172,10 +176,37 @@ function normalizeCustomPieceIdentity(piece: CustomRulePiece, identity: string) 
 
 function getCustomPieceIdentityLabel(piece: CustomRulePiece, identity: string) {
   const normalized = normalizeCustomPieceIdentity(piece, identity);
-  if (normalized === "original") return "original";
+  if (normalized === "original") return piece;
   if (normalized === "any") return piece === "pawn" ? "any pawn" : `any ${piece}`;
   if (normalized.endsWith("-pawn")) return `${normalized.slice(0, 1)}-pawn`;
   return `${normalized} ${piece}`;
+}
+
+function getCustomPieceIdentityChoices(piece: CustomRulePiece) {
+  if (piece === "pawn") {
+    return [
+      { id: "any", label: "Any pawn", identity: "any", helper: "One or more pawns; choose count below if needed." },
+      { id: "all", label: "All pawns", identity: "any", quantifier: "all" as CustomRuleQuantifier, helper: "Every pawn for that side." },
+      ...CUSTOM_RULE_FILES.map((file) => ({ id: `${file}-pawn`, label: `${file}-pawn`, identity: `${file}-pawn`, helper: "A specific starting pawn." })),
+    ];
+  }
+  if (piece === "rook" || piece === "bishop" || piece === "knight") {
+    const plural = `${piece}s`;
+    return [
+      { id: "any", label: `Either ${piece}`, identity: "any", helper: "One of the two is enough." },
+      { id: "both", label: `Both ${plural}`, identity: "any", quantifier: "all" as CustomRuleQuantifier, helper: "Both starting pieces must match." },
+      { id: "queenside", label: `Queenside ${piece}`, identity: "queenside", helper: "The starting piece on the queen side." },
+      { id: "kingside", label: `Kingside ${piece}`, identity: "kingside", helper: "The starting piece on the king side." },
+    ];
+  }
+  return [];
+}
+
+function isCustomPieceIdentityChoiceSelected(piece: CustomRulePiece, currentIdentity: string, currentQuantifier: CustomRuleQuantifier, choice: ReturnType<typeof getCustomPieceIdentityChoices>[number]) {
+  const normalized = normalizeCustomPieceIdentity(piece, currentIdentity);
+  if (choice.id === "all" || choice.id === "both") return normalized === "any" && currentQuantifier === "all";
+  if (choice.id === "any") return normalized === "any" && currentQuantifier !== "all";
+  return normalized === choice.identity;
 }
 
 function normalizeCustomSquare(value: string) {
@@ -190,7 +221,7 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
   const pieceLabel = input.identity && normalizeCustomPieceIdentity(input.piece, input.identity) !== "any"
     ? identity
     : getCustomPieceLabel(input.piece, input.quantifier === "all" ? getCustomPieceMaxCount(input.piece) : count);
-  const hasSpecificIdentity = input.identity && normalizeCustomPieceIdentity(input.piece, input.identity) !== "any";
+  const hasSpecificIdentity = customPieceNeedsIdentityChoice(input.piece) && input.identity && normalizeCustomPieceIdentity(input.piece, input.identity) !== "any";
   const quantifier = input.quantifier === "all"
     ? `all ${getCustomPieceMaxCount(input.piece)}`
     : input.quantifier === "any one"
@@ -2893,35 +2924,47 @@ function QuestBoardDashboard({
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_PIECES.map((piece) => {
                       const selected = customRulePiece === piece;
+                      const identityChoices = getCustomPieceIdentityChoices(piece);
                       return (
-                        <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); }}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
-                        </Pressable>
+                        <View key={piece} style={selected ? compactStyles.customPieceChoiceGroupSelected : compactStyles.customPieceChoiceGroup}>
+                          <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); if (getCustomPieceMaxCount(piece) === 1) setCustomRuleQuantifier("any one"); }}>
+                            <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                            <View style={compactStyles.multiplayerOptionCopy}>
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
+                              {piece === "king" || piece === "queen" ? <Text style={compactStyles.multiplayerOptionHelper}>Only one exists, so there is no “which one” choice.</Text> : null}
+                            </View>
+                          </Pressable>
+                          {selected && identityChoices.length ? (
+                            <View style={compactStyles.customPieceSubchoicePanel}>
+                              <Text style={compactStyles.customPieceSubchoiceLabel}>Which {piece}</Text>
+                              <View style={compactStyles.multiplayerOptionGrid}>
+                                {identityChoices.map((choice) => {
+                                  const choiceSelected = isCustomPieceIdentityChoiceSelected(piece, customRuleIdentity, customRuleQuantifier, choice);
+                                  return (
+                                    <Pressable key={choice.id} accessibilityRole="button" accessibilityState={{ selected: choiceSelected }} style={[compactStyles.multiplayerOptionCard, choiceSelected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleIdentity(choice.identity); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); if (choice.quantifier) setCustomRuleQuantifier(choice.quantifier); else if (choice.id === "any") setCustomRuleQuantifier("any one"); }}>
+                                      <View style={[compactStyles.multiplayerOptionDot, choiceSelected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                                      <View style={compactStyles.multiplayerOptionCopy}>
+                                        <Text style={choiceSelected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{choice.label}</Text>
+                                        <Text style={compactStyles.multiplayerOptionHelper}>{choice.helper}</Text>
+                                      </View>
+                                    </Pressable>
+                                  );
+                                })}
+                              </View>
+                            </View>
+                          ) : null}
+                        </View>
                       );
                     })}
                   </View>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Which one</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {getCustomPieceIdentityOptions(customRulePiece).map((identity) => {
-                      const selected = normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === identity;
-                      return (
-                        <Pressable key={identity} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleIdentity(identity)}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(getCustomPieceIdentityLabel(customRulePiece, identity))}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                  {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" ? (
+                  {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" && customRuleQuantifier !== "all" && getCustomPieceMaxCount(customRulePiece) > 1 ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
                       <View style={compactStyles.multiplayerOptionGrid}>
-                        {CUSTOM_RULE_QUANTIFIERS.map((quantifier) => {
+                        {CUSTOM_RULE_QUANTIFIERS.filter((quantifier) => quantifier !== "all").map((quantifier) => {
                           const selected = customRuleQuantifier === quantifier;
-                          const disabled = getCustomPieceMaxCount(customRulePiece) === 1 && (quantifier === "at least" || quantifier === "exactly" || quantifier === "all");
                           return (
-                            <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected, disabled }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null, disabled ? compactStyles.disabledAction : null]} onPress={() => { if (!disabled) setCustomRuleQuantifier(quantifier); }}>
+                            <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleQuantifier(quantifier)}>
                               <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                               <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
                             </Pressable>
@@ -2941,9 +2984,10 @@ function QuestBoardDashboard({
                         </View>
                       ) : null}
                     </View>
-                  ) : (
+                  ) : null}
+                  {customPieceNeedsIdentityChoice(customRulePiece) && normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) !== "any" ? (
                     <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
-                  )}
+                  ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_OWNERS.map((owner) => {
@@ -3793,35 +3837,47 @@ function SideQuestsScreen({
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_PIECES.map((piece) => {
                       const selected = customRulePiece === piece;
+                      const identityChoices = getCustomPieceIdentityChoices(piece);
                       return (
-                        <Pressable key={piece} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); }}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
-                        </Pressable>
+                        <View key={piece} style={selected ? compactStyles.customPieceChoiceGroupSelected : compactStyles.customPieceChoiceGroup}>
+                          <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRulePiece(piece); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); setCustomRuleIdentity((current) => normalizeCustomPieceIdentity(piece, current)); if (getCustomPieceMaxCount(piece) === 1) setCustomRuleQuantifier("any one"); }}>
+                            <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                            <View style={compactStyles.multiplayerOptionCopy}>
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(piece)}</Text>
+                              {piece === "king" || piece === "queen" ? <Text style={compactStyles.multiplayerOptionHelper}>Only one exists, so there is no “which one” choice.</Text> : null}
+                            </View>
+                          </Pressable>
+                          {selected && identityChoices.length ? (
+                            <View style={compactStyles.customPieceSubchoicePanel}>
+                              <Text style={compactStyles.customPieceSubchoiceLabel}>Which {piece}</Text>
+                              <View style={compactStyles.multiplayerOptionGrid}>
+                                {identityChoices.map((choice) => {
+                                  const choiceSelected = isCustomPieceIdentityChoiceSelected(piece, customRuleIdentity, customRuleQuantifier, choice);
+                                  return (
+                                    <Pressable key={choice.id} accessibilityRole="button" accessibilityState={{ selected: choiceSelected }} style={[compactStyles.multiplayerOptionCard, choiceSelected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleIdentity(choice.identity); setCustomRuleCount((current) => normalizeCustomRuleCount(piece, current)); if (choice.quantifier) setCustomRuleQuantifier(choice.quantifier); else if (choice.id === "any") setCustomRuleQuantifier("any one"); }}>
+                                      <View style={[compactStyles.multiplayerOptionDot, choiceSelected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                                      <View style={compactStyles.multiplayerOptionCopy}>
+                                        <Text style={choiceSelected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{choice.label}</Text>
+                                        <Text style={compactStyles.multiplayerOptionHelper}>{choice.helper}</Text>
+                                      </View>
+                                    </Pressable>
+                                  );
+                                })}
+                              </View>
+                            </View>
+                          ) : null}
+                        </View>
                       );
                     })}
                   </View>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Which one</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {getCustomPieceIdentityOptions(customRulePiece).map((identity) => {
-                      const selected = normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === identity;
-                      return (
-                        <Pressable key={identity} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleIdentity(identity)}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(getCustomPieceIdentityLabel(customRulePiece, identity))}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                  {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" ? (
+                  {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" && customRuleQuantifier !== "all" && getCustomPieceMaxCount(customRulePiece) > 1 ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
                       <View style={compactStyles.multiplayerOptionGrid}>
-                        {CUSTOM_RULE_QUANTIFIERS.map((quantifier) => {
+                        {CUSTOM_RULE_QUANTIFIERS.filter((quantifier) => quantifier !== "all").map((quantifier) => {
                           const selected = customRuleQuantifier === quantifier;
-                          const disabled = getCustomPieceMaxCount(customRulePiece) === 1 && (quantifier === "at least" || quantifier === "exactly" || quantifier === "all");
                           return (
-                            <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected, disabled }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null, disabled ? compactStyles.disabledAction : null]} onPress={() => { if (!disabled) setCustomRuleQuantifier(quantifier); }}>
+                            <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleQuantifier(quantifier)}>
                               <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                               <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
                             </Pressable>
@@ -3841,9 +3897,10 @@ function SideQuestsScreen({
                         </View>
                       ) : null}
                     </View>
-                  ) : (
+                  ) : null}
+                  {customPieceNeedsIdentityChoice(customRulePiece) && normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) !== "any" ? (
                     <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
-                  )}
+                  ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Whose piece</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_OWNERS.map((owner) => {
@@ -5685,6 +5742,10 @@ const compactStyles = StyleSheet.create({
   multiplayerScoreValue: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   multiplayerNativeCard: { gap: 8, padding: 11, borderRadius: 19, backgroundColor: "rgba(255,247,232,.085)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   multiplayerOptionGrid: { gap: 7 },
+  customPieceChoiceGroup: { gap: 7 },
+  customPieceChoiceGroupSelected: { gap: 7, padding: 7, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(245,200,106,.055)" },
+  customPieceSubchoicePanel: { gap: 7, marginLeft: 18, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },
+  customPieceSubchoiceLabel: { color: "rgba(245,200,106,.82)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
   multiplayerOptionCard: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.16)" },
   multiplayerOptionCardSelected: { borderColor: "rgba(245,200,106,.48)", backgroundColor: "rgba(245,200,106,.13)" },
   multiplayerOptionDot: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: "rgba(255,247,232,.32)", backgroundColor: "rgba(0,0,0,.24)" },
