@@ -139,6 +139,16 @@ function getCustomConditionLabel(index: number) {
   return `Condition ${String.fromCharCode(65 + Math.min(index, 25))}`;
 }
 
+function customConditionUsesPiece(condition: CustomRuleCondition) {
+  return condition !== "move sequence" && condition !== "opening sequence";
+}
+
+function getCustomConditionTypeCopy(condition: CustomRuleCondition) {
+  if (condition === "move sequence") return { title: "Move sequence", helper: "A required sequence of algebraic moves, not tied to one piece." };
+  if (condition === "opening sequence") return { title: "Opening sequence", helper: "Paste opening notation like 1.e4 e5 2.f4." };
+  return { title: titleCaseRuleValue(condition), helper: "A piece-based condition." };
+}
+
 function getCustomPieceMaxCount(piece: CustomRulePiece) {
   if (piece === "pawn") return 8;
   if (piece === "king" || piece === "queen") return 1;
@@ -3068,8 +3078,26 @@ function QuestBoardDashboard({
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
                   <Text style={styles.microcopy}>This condition is not saved until you tap Save Condition. Conditions are checked together; they are not steps.</Text>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Condition type</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_CONDITIONS.map((condition) => {
+                      const selected = customRuleCondition === condition;
+                      const copy = getCustomConditionTypeCopy(condition);
+                      return (
+                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <View style={compactStyles.multiplayerOptionCopy}>
+                            <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
+                            <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {customConditionUsesPiece(customRuleCondition) ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
+                      <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_PIECES.map((piece) => {
                       const selected = customRulePiece === piece;
                       const identityChoices = getCustomPieceIdentityChoices(piece);
@@ -3120,18 +3148,10 @@ function QuestBoardDashboard({
                       );
                     })}
                   </View>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Condition</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {CUSTOM_RULE_CONDITIONS.map((condition) => {
-                      const selected = customRuleCondition === condition;
-                      return (
-                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(condition)}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
+                    </View>
+                  ) : (
+                    <Text style={styles.microcopy}>This condition applies to the move list, not to a specific piece.</Text>
+                  )}
                   {customRuleCondition === "on square" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
@@ -4025,8 +4045,26 @@ function SideQuestsScreen({
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
                   <Text style={styles.microcopy}>This condition is not saved until you tap Save Condition. Conditions are checked together; they are not steps.</Text>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Condition type</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
+                    {CUSTOM_RULE_CONDITIONS.map((condition) => {
+                      const selected = customRuleCondition === condition;
+                      const copy = getCustomConditionTypeCopy(condition);
+                      return (
+                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
+                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                          <View style={compactStyles.multiplayerOptionCopy}>
+                            <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
+                            <Text style={compactStyles.multiplayerOptionHelper}>{copy.helper}</Text>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {customConditionUsesPiece(customRuleCondition) ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
+                      <View style={compactStyles.multiplayerOptionGrid}>
                     {CUSTOM_RULE_PIECES.map((piece) => {
                       const selected = customRulePiece === piece;
                       const identityChoices = getCustomPieceIdentityChoices(piece);
@@ -4077,18 +4115,10 @@ function SideQuestsScreen({
                       );
                     })}
                   </View>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Condition</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {CUSTOM_RULE_CONDITIONS.map((condition) => {
-                      const selected = customRuleCondition === condition;
-                      return (
-                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(condition)}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
+                    </View>
+                  ) : (
+                    <Text style={styles.microcopy}>This condition applies to the move list, not to a specific piece.</Text>
+                  )}
                   {customRuleCondition === "on square" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
