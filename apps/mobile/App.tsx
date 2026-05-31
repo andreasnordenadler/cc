@@ -214,6 +214,18 @@ function normalizeCustomSquare(value: string) {
   return /^[a-h][1-8]$/.test(cleaned) ? cleaned : "e4";
 }
 
+function normalizeCustomMoveNumber(value: string | number) {
+  const numeric = typeof value === "number" ? value : Number.parseInt(value.replace(/[^0-9]/g, ""), 10);
+  if (!Number.isFinite(numeric)) return 1;
+  return Math.min(Math.max(1, numeric), 300);
+}
+
+function formatCustomMoveNumberInput(value: string) {
+  const digits = value.replace(/[^0-9]/g, "").slice(0, 3);
+  if (!digits) return "";
+  return String(normalizeCustomMoveNumber(digits));
+}
+
 function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
   const owner = input.owner === "my" ? "your" : "opponent's";
   const count = normalizeCustomRuleCount(input.piece, input.count);
@@ -3032,15 +3044,10 @@ function QuestBoardDashboard({
                     })}
                   </View>
                   {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
-                    <View style={compactStyles.multiplayerFooterActions}>
-                      {[10, 15, 20, 30].map((moveNumber) => {
-                        const selected = customRuleMoveNumber === moveNumber;
-                        return (
-                          <Pressable key={moveNumber} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleMoveNumber(moveNumber)}>
-                            <Text style={compactStyles.detailSecondaryButtonText}>Move {moveNumber}</Text>
-                          </Pressable>
-                        );
-                      })}
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
+                      <TextInput value={String(customRuleMoveNumber)} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(normalizeCustomMoveNumber(formatCustomMoveNumberInput(value)))} />
+                      <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
                     </View>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
@@ -3945,15 +3952,10 @@ function SideQuestsScreen({
                     })}
                   </View>
                   {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
-                    <View style={compactStyles.multiplayerFooterActions}>
-                      {[10, 15, 20, 30].map((moveNumber) => {
-                        const selected = customRuleMoveNumber === moveNumber;
-                        return (
-                          <Pressable key={moveNumber} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleMoveNumber(moveNumber)}>
-                            <Text style={compactStyles.detailSecondaryButtonText}>Move {moveNumber}</Text>
-                          </Pressable>
-                        );
-                      })}
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
+                      <TextInput value={String(customRuleMoveNumber)} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(normalizeCustomMoveNumber(formatCustomMoveNumberInput(value)))} />
+                      <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
                     </View>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
