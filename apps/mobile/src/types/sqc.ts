@@ -185,6 +185,7 @@ export type MobileAccountState = {
       san?: string;
       uci?: string;
       fenAtBreak?: string;
+  playerColor?: "white" | "black";
     } | null;
   } | null;
   supportMessages?: MobileSupportMessage[];

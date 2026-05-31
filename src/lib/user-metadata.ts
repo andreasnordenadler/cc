@@ -23,6 +23,7 @@ export type ChallengeFailureDiagnostic = {
   san?: string;
   uci?: string;
   fenAtBreak?: string;
+  playerColor?: "white" | "black";
 };
 
 export type ChallengeAttempt = {

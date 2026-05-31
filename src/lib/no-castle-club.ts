@@ -62,6 +62,7 @@ export type NoCastleVerdict = {
     san?: string;
     uci?: string;
     fenAtBreak?: string;
+    playerColor?: "white" | "black";
   };
 };
 
@@ -223,6 +224,7 @@ function buildFinalPositionFailureDiagnostic(game: NoCastleGame, label: string, 
       san: game.lastMoveSan,
       uci: game.lastMoveUci,
       fenAtBreak: game.finalPositionFen,
+      playerColor: game.playerColor,
     },
   };
 }
@@ -294,6 +296,7 @@ export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
         san: playerCastling.san,
         uci: playerCastling.uci,
         fenAtBreak: playerCastling.fenAfter,
+        playerColor: game.playerColor,
       },
     };
   }

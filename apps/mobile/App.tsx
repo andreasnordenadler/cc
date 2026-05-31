@@ -122,9 +122,9 @@ const MOBILE_CHESS_PIECES: Record<string, string> = {
   k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟",
 };
 
-type MobileBoardSquare = { square: string; piece?: string; highlight?: boolean };
+type MobileBoardSquare = { square: string; piece?: string; highlight?: boolean; fileLabel?: string; rankLabel?: string };
 
-function parseMobileFenBoard(fen?: string | null, highlightUci?: string | null): MobileBoardSquare[] | null {
+function parseMobileFenBoard(fen?: string | null, highlightUci?: string | null, orientation: "white" | "black" = "white"): MobileBoardSquare[] | null {
   const placement = fen?.trim().split(/\s+/)[0];
   if (!placement) return null;
   const ranks = placement.split("/");
@@ -136,27 +136,42 @@ function parseMobileFenBoard(fen?: string | null, highlightUci?: string | null):
     highlights.add(highlightUci.slice(2, 4).toLowerCase());
   }
 
-  const board: MobileBoardSquare[] = [];
+  const boardBySquare = new Map<string, MobileBoardSquare>();
   for (let rankIndex = 0; rankIndex < ranks.length; rankIndex += 1) {
     let fileIndex = 0;
     for (const token of ranks[rankIndex]) {
       if (/\d/.test(token)) {
         for (let offset = 0; offset < Number(token); offset += 1) {
           const square = `${String.fromCharCode(97 + fileIndex)}${8 - rankIndex}`;
-          board.push({ square, highlight: highlights.has(square) });
+          boardBySquare.set(square, { square, highlight: highlights.has(square) });
           fileIndex += 1;
         }
         continue;
       }
       if (!MOBILE_CHESS_PIECES[token]) return null;
       const square = `${String.fromCharCode(97 + fileIndex)}${8 - rankIndex}`;
-      board.push({ square, piece: token, highlight: highlights.has(square) });
+      boardBySquare.set(square, { square, piece: token, highlight: highlights.has(square) });
       fileIndex += 1;
     }
     if (fileIndex !== 8) return null;
   }
 
-  return board.length === 64 ? board : null;
+  const files = orientation === "black" ? ["h", "g", "f", "e", "d", "c", "b", "a"] : ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const displayRanks = orientation === "black" ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
+  const displayBoard = displayRanks.flatMap((rank, rankDisplayIndex) =>
+    files.map((file, fileDisplayIndex) => {
+      const square = `${file}${rank}`;
+      const item = boardBySquare.get(square);
+      if (!item) return null;
+      return {
+        ...item,
+        rankLabel: fileDisplayIndex === 0 ? String(rank) : undefined,
+        fileLabel: rankDisplayIndex === 7 ? file : undefined,
+      };
+    }),
+  );
+
+  return displayBoard.every(Boolean) ? displayBoard as MobileBoardSquare[] : null;
 }
 
 function isFailedReceipt(receipt?: MobileAccountState["latestReceipt"] | null) {
@@ -191,7 +206,8 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   const diagnostic = receipt?.failureDiagnostic;
   const fen = diagnostic?.fenAtBreak ?? receipt?.finalPositionFen;
   const uci = diagnostic?.uci ?? receipt?.lastMoveUci;
-  const board = parseMobileFenBoard(fen, uci);
+  const orientation = diagnostic?.playerColor === "black" ? "black" : "white";
+  const board = parseMobileFenBoard(fen, uci, orientation);
 
   if (!receipt || !isFailedReceipt(receipt)) return null;
 
@@ -201,16 +217,24 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
-        <Text style={compactStyles.failureBoardKicker}>Proof not accepted</Text>
+        <Text style={compactStyles.failureBoardKicker}>SQC referee board</Text>
         <Text style={compactStyles.failureBoardMove}>{board && moveText ? `${moveLabel} · ${moveText}` : diagnostic?.label ?? "Why it failed"}</Text>
+        <Text style={compactStyles.failureBoardSubhead}>{orientation === "black" ? "Shown from Black’s side" : "Shown from White’s side"}</Text>
       </View>
       {board ? (
-        <View style={compactStyles.failureBoard}>
-          {board.map((square, index) => (
-            <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
-              <Text style={compactStyles.failureBoardPiece}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+        <View style={compactStyles.failureBoardFrame}>
+          <View style={compactStyles.failureBoardInnerFrame}>
+            <View style={compactStyles.failureBoard}>
+              {board.map((square, index) => (
+                <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+                  {square.rankLabel ? <Text style={compactStyles.failureBoardRankLabel}>{square.rankLabel}</Text> : null}
+                  {square.fileLabel ? <Text style={compactStyles.failureBoardFileLabel}>{square.fileLabel}</Text> : null}
+                  {square.highlight ? <View style={compactStyles.failureBoardHighlightRing} /> : null}
+                  <Text style={[compactStyles.failureBoardPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+                </View>
+              ))}
             </View>
-          ))}
+          </View>
         </View>
       ) : null}
       <Text style={compactStyles.failureBoardCopy}>{getReceiptFailureText(receipt)}</Text>
@@ -6132,17 +6156,25 @@ const compactStyles = StyleSheet.create({
   currentFailurePanel: { gap: 4, marginTop: 8, padding: 10, borderRadius: 15, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(255,122,122,.24)" },
   currentFailureTitle: { color: "rgba(255,122,122,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentFailureCopy: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
-  failureBoardPanel: { gap: 10, padding: 12, borderRadius: 18, backgroundColor: "rgba(119,43,43,.18)", borderWidth: 1, borderColor: "rgba(255,122,122,.28)" },
-  failureBoardHeader: { gap: 2 },
-  failureBoardKicker: { color: "rgba(255,122,122,.88)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .8 },
-  failureBoardMove: { color: colors.paper, fontSize: 15, lineHeight: 20, fontWeight: "900" },
-  failureBoard: { width: "100%", aspectRatio: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 14, borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
-  failureBoardSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center" },
-  failureBoardSquareLight: { backgroundColor: "rgba(255,247,232,.72)" },
-  failureBoardSquareDark: { backgroundColor: "rgba(108,82,58,.9)" },
-  failureBoardSquareHighlight: { backgroundColor: "rgba(245,200,106,.92)" },
-  failureBoardPiece: { color: "#171011", fontSize: 26, lineHeight: 30, fontWeight: "900" },
-  failureBoardCopy: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "800" },
+  failureBoardPanel: { gap: 12, padding: 13, borderRadius: 22, backgroundColor: "rgba(53,34,27,.74)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)", shadowColor: "#000", shadowOpacity: .22, shadowRadius: 16, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
+  failureBoardHeader: { gap: 2, paddingHorizontal: 2 },
+  failureBoardKicker: { color: "rgba(245,200,106,.92)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.1 },
+  failureBoardMove: { color: colors.paper, fontSize: 16, lineHeight: 21, fontWeight: "900", letterSpacing: -.25 },
+  failureBoardSubhead: { color: "rgba(224,211,188,.74)", fontSize: 11, lineHeight: 15, fontWeight: "800" },
+  failureBoardFrame: { padding: 8, borderRadius: 20, backgroundColor: "rgba(24,18,16,.88)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)" },
+  failureBoardInnerFrame: { padding: 5, borderRadius: 15, backgroundColor: "rgba(151,98,54,.34)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  failureBoard: { width: "100%", aspectRatio: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.8)" },
+  failureBoardSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
+  failureBoardSquareLight: { backgroundColor: "#e6c993" },
+  failureBoardSquareDark: { backgroundColor: "#7f4f31" },
+  failureBoardSquareHighlight: { backgroundColor: "#d9a43d" },
+  failureBoardHighlightRing: { position: "absolute", left: 4, right: 4, top: 4, bottom: 4, borderRadius: 7, borderWidth: 2, borderColor: "rgba(255,248,211,.95)" },
+  failureBoardRankLabel: { position: "absolute", left: 2, top: 1, color: "rgba(35,24,18,.58)", fontSize: 8, lineHeight: 10, fontWeight: "900" },
+  failureBoardFileLabel: { position: "absolute", right: 2, bottom: 0, color: "rgba(35,24,18,.58)", fontSize: 8, lineHeight: 10, fontWeight: "900", textTransform: "uppercase" },
+  failureBoardPiece: { fontSize: 27, lineHeight: 31, fontWeight: "900", textShadowColor: "rgba(0,0,0,.2)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 1 },
+  failureBoardPieceWhite: { color: "#fff3dc" },
+  failureBoardPieceBlack: { color: "#20140f" },
+  failureBoardCopy: { color: "rgba(224,211,188,.88)", fontSize: 12, lineHeight: 17, fontWeight: "800" },
   detailPanelTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.2 },
   detailPanelCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
   detailRow: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.07)" },

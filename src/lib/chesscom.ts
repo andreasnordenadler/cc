@@ -82,6 +82,7 @@ type ChessComNoCastleVerdict = {
     san?: string;
     uci?: string;
     fenAtBreak?: string;
+    playerColor?: "white" | "black";
   };
 };
 
@@ -1285,6 +1286,7 @@ function buildChessComNoCastleFinalDiagnostic(game: ChessComNoCastleGame, label:
       moveNumber: game.moveCount,
       san: game.lastMoveSan,
       fenAtBreak: game.finalPositionFen,
+      playerColor: game.playerColor,
     },
   };
 }
@@ -1374,6 +1376,7 @@ function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCas
         ply: playerCastling.ply,
         san: playerCastling.san,
         fenAtBreak: playerCastling.fenAfter,
+        playerColor: game.playerColor,
       },
     };
   }

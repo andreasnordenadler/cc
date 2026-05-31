@@ -40,6 +40,7 @@ export type LatestChallengeFailureDiagnostic = {
   san?: string;
   uci?: string;
   fenAtBreak?: string;
+  playerColor?: "white" | "black";
 };
 
 export type LatestChallengeVerdict = {
