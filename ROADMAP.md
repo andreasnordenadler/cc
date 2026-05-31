@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Add empty mini-board state for newly started active Solo quests.
+  - added_at: 2026-05-31 19:04 Europe/Stockholm
+  - completed_at: 2026-05-31 19:15 Europe/Stockholm
+  - source: Andreas liked the compact active Solo board and asked for an empty board plus copy when no public games are available since the quest started.
+  - scope: mobile app only; added an empty compact referee board on the active Solo card when the current quest has no latest receipt/checkable game yet, with concise no-public-games-since-start copy.
+  - proof: targeted ESLint passed; mobile typecheck passed; Next build passed; Android release build passed with Expo 0.1.140 / versionCode 140; `pnpm quest:release-gate` passed; APK prepared at `public/downloads/sqc-mobile-android-beta-candidate-v140-2026-05-31.apk` with SHA256 `57c34c47d17199b18ca9fe8a3a07b0b488b714af9f5dfaf3dc4012d2ecbae6d0`.
+
 - [x] Add compact verifier board to active Solo Side Quest card.
   - added_at: 2026-05-31 18:26 Europe/Stockholm
   - completed_at: 2026-05-31 18:38 Europe/Stockholm

@@ -213,6 +213,32 @@ function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState[
   );
 }
 
+function ActiveQuestEmptyMiniBoard() {
+  return (
+    <View style={compactStyles.currentFailureMiniBoardFrame}>
+      <View style={compactStyles.currentFailureMiniBoard}>
+        {Array.from({ length: 64 }).map((_, index) => (
+          <View key={`empty-${index}`} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
+            {index === 27 ? <MaterialCommunityIcons name="chess-knight" size={16} color="rgba(255,247,232,.3)" /> : null}
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function ActiveQuestNoGameSummary() {
+  return (
+    <View style={compactStyles.currentEmptyBoardPanel}>
+      <ActiveQuestEmptyMiniBoard />
+      <View style={compactStyles.currentFailureCopyBlock}>
+        <Text style={compactStyles.currentEmptyBoardTitle}>Awaiting first game</Text>
+        <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>No public games are available since this Side Quest started. Play a fresh public game, then check again.</Text>
+      </View>
+    </View>
+  );
+}
+
 function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
   const failureText = getReceiptFailureText(receipt);
   if (!failureText) return null;
@@ -1433,7 +1459,7 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
               </View>
             </View>
-            <ActiveQuestFailureSummary receipt={activeQuestReceipt ?? null} />
+            {activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : <ActiveQuestNoGameSummary />}
             {canViewCurrentProof ? (
               <View style={compactStyles.actionRowTight}>
                 <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
@@ -6180,14 +6206,19 @@ const compactStyles = StyleSheet.create({
   detailPanel: { overflow: "hidden", borderRadius: 16, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
   detailPanelStrong: { gap: 6, padding: 10, borderRadius: 17, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(255,247,232,.07)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
   currentFailureMiniBoardFrame: { width: 82, height: 82, flexShrink: 0, padding: 4, borderRadius: 14, backgroundColor: "rgba(24,18,16,.9)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)" },
   currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 9, borderWidth: 1, borderColor: "rgba(28,19,16,.8)" },
   currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
   currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1, borderColor: "rgba(255,248,211,.95)" },
   currentFailureMiniPiece: { fontSize: 10, lineHeight: 12, fontWeight: "900" },
+  emptyBoardSquareLight: { backgroundColor: "rgba(230,201,147,.38)" },
+  emptyBoardSquareDark: { backgroundColor: "rgba(127,79,49,.52)" },
   currentFailureCopyBlock: { flex: 1, gap: 4 },
   currentFailureTitle: { color: "rgba(245,200,106,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentFailureCopy: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  currentEmptyBoardTitle: { color: "rgba(245,200,106,.9)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
+  currentEmptyBoardCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   failureBoardPanel: { gap: 12, padding: 13, borderRadius: 22, backgroundColor: "rgba(53,34,27,.74)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)", shadowColor: "#000", shadowOpacity: .22, shadowRadius: 16, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
   failureBoardHeader: { gap: 2, paddingHorizontal: 2 },
   failureBoardKicker: { color: "rgba(245,200,106,.92)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.1 },
