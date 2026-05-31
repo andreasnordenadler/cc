@@ -198,12 +198,7 @@ function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState[
   const board = parseMobileFenBoard(fen, uci, orientation);
 
   if (!board) {
-    return (
-      <View style={[compactStyles.currentFailureMiniBoardFrame, compactStyles.currentFailureMiniBoardFallback]}>
-        <MaterialCommunityIcons name="chess-knight" size={22} color="rgba(245,200,106,.8)" />
-        <Text style={compactStyles.currentFailureMiniBoardFallbackText}>No board</Text>
-      </View>
-    );
+    return <ActiveQuestUnavailableMiniBoard />;
   }
 
   return (
@@ -213,6 +208,20 @@ function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState[
           <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
             {square.highlight ? <View style={compactStyles.currentFailureMiniHighlightRing} /> : null}
             <Text style={[compactStyles.currentFailureMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function ActiveQuestUnavailableMiniBoard() {
+  return (
+    <View style={compactStyles.currentFailureMiniBoardFrame}>
+      <View style={compactStyles.currentFailureMiniBoard}>
+        {Array.from({ length: 64 }).map((_, index) => (
+          <View key={`unavailable-${index}`} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
+            {index === 27 ? <MaterialCommunityIcons name="checkerboard" size={13} color="rgba(245,200,106,.5)" /> : null}
           </View>
         ))}
       </View>
@@ -6328,8 +6337,6 @@ const compactStyles = StyleSheet.create({
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(255,247,232,.07)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
-  currentFailureMiniBoardFallback: { alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: "rgba(24,18,16,.9)" },
-  currentFailureMiniBoardFallbackText: { color: "rgba(245,200,106,.82)", fontSize: 8, lineHeight: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.9)" },
   currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
   currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1.5, borderColor: "#79e6ff", backgroundColor: "rgba(255,210,78,.28)" },
@@ -6503,7 +6510,7 @@ const compactStyles = StyleSheet.create({
   currentQuestActionRow: { flexDirection: "row", gap: 8 },
   completedSealImage: { position: "absolute", right: 10, bottom: 8, width: 74, height: 74, opacity: .92, transform: [{ rotate: "-8deg" }] },
   inlineSuccess: { color: colors.green, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center", alignSelf: "center" },
-  inlineError: { color: "#ffb4b4", fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  inlineError: { color: "#ffb4b4", fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center", alignSelf: "stretch" },
   miniStat: { flex: 1, padding: 8, borderRadius: 13, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
   miniStatValue: { color: colors.paper, fontSize: 13, fontWeight: "900" },
   miniStatLabel: { color: colors.muted, fontSize: 9, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },

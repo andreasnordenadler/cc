@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Fix active Solo failed-check alignment and no-board fallback.
+  - added_at: 2026-05-31 23:14 Europe/Stockholm
+  - completed_at: 2026-05-31 23:20 Europe/Stockholm
+  - source: Andreas screenshot feedback: red `Latest game checked — Side Quest not completed.` line should be centered and the active failure card should not show a blunt `NO BOARD` placeholder.
+  - scope: mobile active Solo card only; center-align inline red failure messages and replace the mini `No board` fallback with a muted checkerboard-style unavailable state.
+  - proof: `pnpm mobile:release:github` produced signed/verified v148 (`0.1.148`, versionCode `148`) at GitHub Release `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v148`; release gate ran high/critical audit, mobile typecheck, targeted ESLint, `pnpm quest:release-gate`, Next build, Android `lintRelease`, Android `assembleRelease`, APK manifest verification, `debuggable=false`, and non-debug signer verification. SHA256 `a3e2a5c94eb7e717ff23d05e288ce3988241937d80f7f5d61c351c48be8baece`.
+
 - [x] Make SQC Mobile releases one-command and artifact-safe.
   - added_at: 2026-05-31 22:14 Europe/Stockholm
   - completed_at: 2026-05-31 22:30 Europe/Stockholm

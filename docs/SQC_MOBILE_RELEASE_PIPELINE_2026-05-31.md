@@ -63,11 +63,11 @@ APK artifacts now belong outside git:
 
 ## Latest pipeline-produced release
 
-- GitHub Release: `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v147`
-- APK asset: `sqc-mobile-android-v147-2026-05-31.apk`
-- Version: `0.1.147`
-- Version code: `147`
-- SHA256: `e6cb92393fc5d02e76994b516a26b0c4387f144907c56eb6f3d376603a1cdb87`
+- GitHub Release: `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v148`
+- APK asset: `sqc-mobile-android-v148-2026-05-31.apk`
+- Version: `0.1.148`
+- Version code: `148`
+- SHA256: `a3e2a5c94eb7e717ff23d05e288ce3988241937d80f7f5d61c351c48be8baece`
 
 ## Current next operational step
 
