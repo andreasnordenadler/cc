@@ -2733,20 +2733,21 @@ function QuestBoardDashboard({
   const [customRuleOwner, setCustomRuleOwner] = useState<CustomRuleOwner>("my");
   const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("gone");
   const [customRuleTiming, setCustomRuleTiming] = useState<CustomRuleTiming>("by move");
-  const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState(15);
+  const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState("15");
   const [customRuleQuantifier, setCustomRuleQuantifier] = useState<CustomRuleQuantifier>("any one");
   const [customRuleCount, setCustomRuleCount] = useState(1);
   const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
+  const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
     condition: customRuleCondition,
     timing: customRuleTiming,
-    moveNumber: customRuleMoveNumber,
+    moveNumber: normalizeCustomMoveNumber(customRuleMoveNumber),
     quantifier: customRuleQuantifier,
     count: normalizeCustomRuleCount(customRulePiece, customRuleCount),
     identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
@@ -2757,13 +2758,50 @@ function QuestBoardDashboard({
   const customRuleSummary = customRuleRequirements.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: customRuleRequirements }) : "Add at least one condition before this Side Quest can be scored.";
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
 
-  function addCustomRequirement() {
-    setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+  function loadCustomRequirement(requirement: CustomRuleRequirement) {
+    setCustomRulePiece(requirement.piece);
+    setCustomRuleOwner(requirement.owner);
+    setCustomRuleCondition(requirement.condition);
+    setCustomRuleTiming(requirement.timing);
+    setCustomRuleMoveNumber(String(requirement.moveNumber));
+    setCustomRuleQuantifier(requirement.quantifier);
+    setCustomRuleCount(requirement.count);
+    setCustomRuleIdentity(requirement.identity);
+    setCustomRuleTargetSquare(requirement.targetSquare);
+    setCustomRuleNegated(requirement.negated);
+  }
+
+  function openNewCustomRequirement() {
+    setCustomEditingRequirementId(null);
+    setCustomConditionEditorOpen(true);
+  }
+
+  function editCustomRequirement(requirement: CustomRuleRequirement) {
+    loadCustomRequirement(requirement);
+    setCustomEditingRequirementId(requirement.id);
+    setCustomConditionEditorOpen(true);
+  }
+
+  function saveCustomRequirement() {
+    if (customEditingRequirementId) {
+      setCustomRequirements((current) => current.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement));
+    } else {
+      setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+    }
+    setCustomEditingRequirementId(null);
     setCustomConditionEditorOpen(false);
+  }
+
+  function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
+    setCustomRequirements((current) => [{ ...requirement, id: `${Date.now()}` }, ...current].slice(0, 6));
   }
 
   function removeCustomRequirement(requirementId: string) {
     setCustomRequirements((current) => current.filter((requirement) => requirement.id !== requirementId));
+    if (customEditingRequirementId === requirementId) {
+      setCustomEditingRequirementId(null);
+      setCustomConditionEditorOpen(false);
+    }
   }
 
   function saveCustomDraft() {
@@ -2914,23 +2952,42 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleLabel}>Saved conditions</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They are equal clauses, not ordered steps.` : "No conditions yet. Add one to define what SQC should check."}</Text>
               </View>
-              {customRequirements.map((requirement, index) => (
-                <View key={requirement.id} style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>{getCustomConditionLabel(index)}</Text>
-                  <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(requirement)}</Text>
-                  <Pressable accessibilityRole="button" accessibilityLabel="Remove saved condition" style={compactStyles.detailQuietButton} onPress={() => removeCustomRequirement(requirement.id)}>
-                    <Text style={compactStyles.detailQuietButtonText}>Remove</Text>
-                  </Pressable>
+              {customRequirements.length ? (
+                <View style={compactStyles.appRows}>
+                  {customRequirements.map((requirement, index) => (
+                    <View key={requirement.id} style={compactStyles.customConditionListRow}>
+                      <View style={compactStyles.currentQuestRow}>
+                        <View style={compactStyles.coatMarker}>
+                          <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                        </View>
+                        <View style={compactStyles.currentQuestText}>
+                          <Text style={compactStyles.currentQuestTitle}>{getCustomConditionLabel(index)}</Text>
+                          <Text style={compactStyles.currentQuestMeta}>{buildCustomPieceRuleSummary(requirement)}</Text>
+                        </View>
+                      </View>
+                      <View style={compactStyles.actionRowTight}>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.secondaryAction} onPress={() => editCustomRequirement(requirement)}>
+                          <Text style={compactStyles.secondaryActionText}>Edit</Text>
+                        </Pressable>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.secondaryAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                          <Text style={compactStyles.secondaryActionText}>Duplicate</Text>
+                        </Pressable>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.secondaryAction} onPress={() => removeCustomRequirement(requirement.id)}>
+                          <Text style={compactStyles.secondaryActionText}>Delete</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))}
                 </View>
-              ))}
+              ) : null}
               {!customConditionEditorOpen ? (
-                <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={() => setCustomConditionEditorOpen(true)}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={openNewCustomRequirement}>
                   <Text style={compactStyles.detailSecondaryButtonText}>{customRequirements.length ? "Add Another Condition" : "Add Condition"}</Text>
                 </Pressable>
               ) : (
                 <View>
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
-                  <Text style={compactStyles.multiplayerCardTitle}>New condition</Text>
+                  <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
                   <Text style={styles.microcopy}>This condition is not saved until you tap Save Condition. Conditions are checked together; they are not steps.</Text>
                   <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
@@ -2969,34 +3026,6 @@ function QuestBoardDashboard({
                       );
                     })}
                   </View>
-                  {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" && customRuleQuantifier !== "all" && getCustomPieceMaxCount(customRulePiece) > 1 ? (
-                    <View>
-                      <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
-                        {CUSTOM_RULE_QUANTIFIERS.filter((quantifier) => quantifier !== "all").map((quantifier) => {
-                          const selected = customRuleQuantifier === quantifier;
-                          return (
-                            <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleQuantifier(quantifier)}>
-                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                      {customRuleQuantifier === "at least" || customRuleQuantifier === "exactly" ? (
-                        <View style={compactStyles.multiplayerFooterActions}>
-                          {getCustomRuleCountOptions(customRulePiece).map((countOption) => {
-                            const selected = customRuleCount === countOption;
-                            return (
-                              <Pressable key={countOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCount(countOption)}>
-                                <Text style={compactStyles.detailSecondaryButtonText}>{countOption}</Text>
-                              </Pressable>
-                            );
-                          })}
-                        </View>
-                      ) : null}
-                    </View>
-                  ) : null}
                   {customPieceNeedsIdentityChoice(customRulePiece) && normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) !== "any" ? (
                     <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
                   ) : null}
@@ -3046,7 +3075,7 @@ function QuestBoardDashboard({
                   {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
-                      <TextInput value={String(customRuleMoveNumber)} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(normalizeCustomMoveNumber(formatCustomMoveNumberInput(value)))} />
+                      <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
                       <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
                     </View>
                   ) : null}
@@ -3072,10 +3101,10 @@ function QuestBoardDashboard({
                     <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(currentCustomRequirement)}</Text>
                   </View>
                   <View style={compactStyles.multiplayerFooterActions}>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
-                      <Text style={compactStyles.detailSecondaryButtonText}>Save Condition</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
+                      <Text style={compactStyles.detailSecondaryButtonText}>{customEditingRequirementId ? "Update Condition" : "Save Condition"}</Text>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => setCustomConditionEditorOpen(false)}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => { setCustomEditingRequirementId(null); setCustomConditionEditorOpen(false); }}>
                       <Text style={compactStyles.detailQuietButtonText}>Cancel</Text>
                     </Pressable>
                   </View>
@@ -3692,20 +3721,21 @@ function SideQuestsScreen({
   const [customRuleOwner, setCustomRuleOwner] = useState<CustomRuleOwner>("my");
   const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("gone");
   const [customRuleTiming, setCustomRuleTiming] = useState<CustomRuleTiming>("by move");
-  const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState(15);
+  const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState("15");
   const [customRuleQuantifier, setCustomRuleQuantifier] = useState<CustomRuleQuantifier>("any one");
   const [customRuleCount, setCustomRuleCount] = useState(1);
   const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
+  const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
     condition: customRuleCondition,
     timing: customRuleTiming,
-    moveNumber: customRuleMoveNumber,
+    moveNumber: normalizeCustomMoveNumber(customRuleMoveNumber),
     quantifier: customRuleQuantifier,
     count: normalizeCustomRuleCount(customRulePiece, customRuleCount),
     identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
@@ -3716,13 +3746,50 @@ function SideQuestsScreen({
   const customRuleSummary = customRuleRequirements.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: customRuleRequirements }) : "Add at least one condition before this Side Quest can be scored.";
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
 
-  function addCustomRequirement() {
-    setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+  function loadCustomRequirement(requirement: CustomRuleRequirement) {
+    setCustomRulePiece(requirement.piece);
+    setCustomRuleOwner(requirement.owner);
+    setCustomRuleCondition(requirement.condition);
+    setCustomRuleTiming(requirement.timing);
+    setCustomRuleMoveNumber(String(requirement.moveNumber));
+    setCustomRuleQuantifier(requirement.quantifier);
+    setCustomRuleCount(requirement.count);
+    setCustomRuleIdentity(requirement.identity);
+    setCustomRuleTargetSquare(requirement.targetSquare);
+    setCustomRuleNegated(requirement.negated);
+  }
+
+  function openNewCustomRequirement() {
+    setCustomEditingRequirementId(null);
+    setCustomConditionEditorOpen(true);
+  }
+
+  function editCustomRequirement(requirement: CustomRuleRequirement) {
+    loadCustomRequirement(requirement);
+    setCustomEditingRequirementId(requirement.id);
+    setCustomConditionEditorOpen(true);
+  }
+
+  function saveCustomRequirement() {
+    if (customEditingRequirementId) {
+      setCustomRequirements((current) => current.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement));
+    } else {
+      setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+    }
+    setCustomEditingRequirementId(null);
     setCustomConditionEditorOpen(false);
+  }
+
+  function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
+    setCustomRequirements((current) => [{ ...requirement, id: `${Date.now()}` }, ...current].slice(0, 6));
   }
 
   function removeCustomRequirement(requirementId: string) {
     setCustomRequirements((current) => current.filter((requirement) => requirement.id !== requirementId));
+    if (customEditingRequirementId === requirementId) {
+      setCustomEditingRequirementId(null);
+      setCustomConditionEditorOpen(false);
+    }
   }
 
   function saveCustomDraft() {
@@ -3822,23 +3889,42 @@ function SideQuestsScreen({
                 <Text style={compactStyles.multiplayerRuleLabel}>Saved conditions</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They are equal clauses, not ordered steps.` : "No conditions yet. Add one to define what SQC should check."}</Text>
               </View>
-              {customRequirements.map((requirement, index) => (
-                <View key={requirement.id} style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>{getCustomConditionLabel(index)}</Text>
-                  <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(requirement)}</Text>
-                  <Pressable accessibilityRole="button" accessibilityLabel="Remove saved condition" style={compactStyles.detailQuietButton} onPress={() => removeCustomRequirement(requirement.id)}>
-                    <Text style={compactStyles.detailQuietButtonText}>Remove</Text>
-                  </Pressable>
+              {customRequirements.length ? (
+                <View style={compactStyles.appRows}>
+                  {customRequirements.map((requirement, index) => (
+                    <View key={requirement.id} style={compactStyles.customConditionListRow}>
+                      <View style={compactStyles.currentQuestRow}>
+                        <View style={compactStyles.coatMarker}>
+                          <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                        </View>
+                        <View style={compactStyles.currentQuestText}>
+                          <Text style={compactStyles.currentQuestTitle}>{getCustomConditionLabel(index)}</Text>
+                          <Text style={compactStyles.currentQuestMeta}>{buildCustomPieceRuleSummary(requirement)}</Text>
+                        </View>
+                      </View>
+                      <View style={compactStyles.actionRowTight}>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.secondaryAction} onPress={() => editCustomRequirement(requirement)}>
+                          <Text style={compactStyles.secondaryActionText}>Edit</Text>
+                        </Pressable>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.secondaryAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                          <Text style={compactStyles.secondaryActionText}>Duplicate</Text>
+                        </Pressable>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.secondaryAction} onPress={() => removeCustomRequirement(requirement.id)}>
+                          <Text style={compactStyles.secondaryActionText}>Delete</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))}
                 </View>
-              ))}
+              ) : null}
               {!customConditionEditorOpen ? (
-                <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={() => setCustomConditionEditorOpen(true)}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={openNewCustomRequirement}>
                   <Text style={compactStyles.detailSecondaryButtonText}>{customRequirements.length ? "Add Another Condition" : "Add Condition"}</Text>
                 </Pressable>
               ) : (
                 <View>
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
-                  <Text style={compactStyles.multiplayerCardTitle}>New condition</Text>
+                  <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
                   <Text style={styles.microcopy}>This condition is not saved until you tap Save Condition. Conditions are checked together; they are not steps.</Text>
                   <Text style={compactStyles.multiplayerRuleLabel}>Piece</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
@@ -3877,34 +3963,6 @@ function SideQuestsScreen({
                       );
                     })}
                   </View>
-                  {normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) === "any" && customRuleQuantifier !== "all" && getCustomPieceMaxCount(customRulePiece) > 1 ? (
-                    <View>
-                      <Text style={compactStyles.multiplayerRuleLabel}>How many</Text>
-                      <View style={compactStyles.multiplayerOptionGrid}>
-                        {CUSTOM_RULE_QUANTIFIERS.filter((quantifier) => quantifier !== "all").map((quantifier) => {
-                          const selected = customRuleQuantifier === quantifier;
-                          return (
-                            <Pressable key={quantifier} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleQuantifier(quantifier)}>
-                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(quantifier)}</Text>
-                            </Pressable>
-                          );
-                        })}
-                      </View>
-                      {customRuleQuantifier === "at least" || customRuleQuantifier === "exactly" ? (
-                        <View style={compactStyles.multiplayerFooterActions}>
-                          {getCustomRuleCountOptions(customRulePiece).map((countOption) => {
-                            const selected = customRuleCount === countOption;
-                            return (
-                              <Pressable key={countOption} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.detailSecondaryButton, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleCount(countOption)}>
-                                <Text style={compactStyles.detailSecondaryButtonText}>{countOption}</Text>
-                              </Pressable>
-                            );
-                          })}
-                        </View>
-                      ) : null}
-                    </View>
-                  ) : null}
                   {customPieceNeedsIdentityChoice(customRulePiece) && normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity) !== "any" ? (
                     <Text style={styles.microcopy}>A specific starting piece is selected, so quantity is fixed to that one piece.</Text>
                   ) : null}
@@ -3954,7 +4012,7 @@ function SideQuestsScreen({
                   {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
-                      <TextInput value={String(customRuleMoveNumber)} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(normalizeCustomMoveNumber(formatCustomMoveNumberInput(value)))} />
+                      <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
                       <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
                     </View>
                   ) : null}
@@ -3980,10 +4038,10 @@ function SideQuestsScreen({
                     <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(currentCustomRequirement)}</Text>
                   </View>
                   <View style={compactStyles.multiplayerFooterActions}>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={addCustomRequirement}>
-                      <Text style={compactStyles.detailSecondaryButtonText}>Save Condition</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
+                      <Text style={compactStyles.detailSecondaryButtonText}>{customEditingRequirementId ? "Update Condition" : "Save Condition"}</Text>
                     </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => setCustomConditionEditorOpen(false)}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Cancel condition editing" style={compactStyles.detailQuietButton} onPress={() => { setCustomEditingRequirementId(null); setCustomConditionEditorOpen(false); }}>
                       <Text style={compactStyles.detailQuietButtonText}>Cancel</Text>
                     </Pressable>
                   </View>
@@ -5748,6 +5806,8 @@ const compactStyles = StyleSheet.create({
   customPieceChoiceGroupSelected: { gap: 7, padding: 7, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(245,200,106,.055)" },
   customPieceSubchoicePanel: { gap: 7, marginLeft: 18, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },
   customPieceSubchoiceLabel: { color: "rgba(245,200,106,.82)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
+  customConditionListRow: { gap: 9, paddingVertical: 10, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.16)" },
+  customConditionIndex: { color: colors.gold, fontSize: 16, lineHeight: 20, fontWeight: "900", textAlign: "center" },
   multiplayerOptionCard: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.16)" },
   multiplayerOptionCardSelected: { borderColor: "rgba(245,200,106,.48)", backgroundColor: "rgba(245,200,106,.13)" },
   multiplayerOptionDot: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: "rgba(255,247,232,.32)", backgroundColor: "rgba(0,0,0,.24)" },
