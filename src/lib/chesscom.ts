@@ -14,6 +14,7 @@ export type ChessComVerificationVerdict = {
   completedGameAt?: string;
   finalPositionFen?: string;
   lastMoveUci?: string;
+  lastMoveSan?: string;
 };
 
 type QueenChallengeSide = "white" | "black";

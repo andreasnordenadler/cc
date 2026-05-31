@@ -1,28 +1,38 @@
+import { CHALLENGES } from '../src/lib/challenges.ts';
 import { checkLatestChallengeForProvider } from '../src/lib/challenge-latest-verifiers.ts';
 import { checkLatestCustomSideQuestForProvider } from '../src/lib/custom-side-quests.ts';
 
 const username = process.argv[2] || 'and72nor';
-const provider = 'lichess';
-const checks = [
-  { challengeId: 'no-castle-club', provider, username },
-  { challengeId: 'back-rank-goblin', provider, username },
-  { challengeId: 'queen-never-heard-of-her', provider, username },
-];
+const providers = ['lichess', 'chesscom'];
+const rows = [];
 
-for (const input of checks) {
-  const verdict = await checkLatestChallengeForProvider(input);
-  console.log(JSON.stringify({
-    quest: input.challengeId,
-    provider: input.provider,
-    username,
-    status: verdict.status,
-    gameId: verdict.gameId,
-    hasFinalFen: Boolean(verdict.finalPositionFen),
-    hasFailureDiagnostic: Boolean(verdict.failureDiagnostic),
-    hasFenAtBreak: Boolean(verdict.failureDiagnostic?.fenAtBreak),
-    boardRenderable: Boolean(verdict.failureDiagnostic?.fenAtBreak ?? verdict.finalPositionFen),
-    summary: verdict.summary,
-  }));
+for (const challenge of CHALLENGES) {
+  for (const provider of providers) {
+    try {
+      const verdict = await checkLatestChallengeForProvider({ challengeId: challenge.id, provider, username });
+      rows.push({
+        quest: challenge.id,
+        provider,
+        username,
+        status: verdict.status,
+        gameId: verdict.gameId,
+        hasFinalFen: Boolean(verdict.finalPositionFen),
+        hasFailureDiagnostic: Boolean(verdict.failureDiagnostic),
+        hasFenAtBreak: Boolean(verdict.failureDiagnostic?.fenAtBreak),
+        boardRenderable: Boolean(verdict.failureDiagnostic?.fenAtBreak ?? verdict.finalPositionFen),
+        summary: verdict.summary,
+      });
+    } catch (error) {
+      rows.push({
+        quest: challenge.id,
+        provider,
+        username,
+        status: 'error',
+        boardRenderable: false,
+        summary: error?.message ?? String(error),
+      });
+    }
+  }
 }
 
 const customQuest = {
@@ -37,16 +47,40 @@ const customQuest = {
     blocks: [{ type: 'openingSequence', raw: '1. h4 h5 2. Rh3', moves: ['h4', 'h5', 'Rh3'], anchor: 'gameStart' }],
   }),
 };
-const custom = await checkLatestCustomSideQuestForProvider({ quest: customQuest, provider, username });
-console.log(JSON.stringify({
-  quest: customQuest.id,
-  provider,
-  username,
-  status: custom.status,
-  gameId: custom.gameId,
-  hasFinalFen: Boolean(custom.finalPositionFen),
-  hasFailureDiagnostic: Boolean(custom.failureDiagnostic),
-  hasFenAtBreak: Boolean(custom.failureDiagnostic?.fenAtBreak),
-  boardRenderable: Boolean(custom.failureDiagnostic?.fenAtBreak ?? custom.finalPositionFen),
-  summary: custom.summary,
-}));
+
+for (const provider of providers) {
+  try {
+    const custom = await checkLatestCustomSideQuestForProvider({ quest: customQuest, provider, username });
+    rows.push({
+      quest: customQuest.id,
+      provider,
+      username,
+      status: custom.status,
+      gameId: custom.gameId,
+      hasFinalFen: Boolean(custom.finalPositionFen),
+      hasFailureDiagnostic: Boolean(custom.failureDiagnostic),
+      hasFenAtBreak: Boolean(custom.failureDiagnostic?.fenAtBreak),
+      boardRenderable: Boolean(custom.failureDiagnostic?.fenAtBreak ?? custom.finalPositionFen),
+      summary: custom.summary,
+    });
+  } catch (error) {
+    rows.push({
+      quest: customQuest.id,
+      provider,
+      username,
+      status: 'error',
+      boardRenderable: false,
+      summary: error?.message ?? String(error),
+    });
+  }
+}
+
+for (const row of rows) console.log(JSON.stringify(row));
+
+const failedWithoutBoard = rows.filter((row) => row.status === 'failed' && !row.boardRenderable);
+console.error(`FAILED_WITHOUT_BOARD=${failedWithoutBoard.length}`);
+for (const row of failedWithoutBoard) console.error(JSON.stringify(row));
+
+if (failedWithoutBoard.length > 0) {
+  process.exit(1);
+}

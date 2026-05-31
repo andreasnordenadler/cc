@@ -113,6 +113,18 @@ const latestChallengeVerifiers: Record<string, Record<SupportedLatestChallengePr
   },
 };
 
+const latestFinishedBoardCache = new Map<string, Promise<LatestChallengeVerdict>>();
+
+function getLatestFinishedBoardVerdict(provider: SupportedLatestChallengeProvider, username: string) {
+  const cacheKey = `${provider}:${username.trim().toLowerCase()}`;
+  const cached = latestFinishedBoardCache.get(cacheKey);
+  if (cached) return cached;
+
+  const lookup = provider === "lichess" ? checkLatestLichessFinishedGame(username) : checkLatestChessComFinishedGame(username);
+  latestFinishedBoardCache.set(cacheKey, lookup);
+  return lookup;
+}
+
 const missingLatestVerifiers = CHALLENGES.filter((challenge) => {
   const entry = latestChallengeVerifiers[challenge.id];
   return !entry?.lichess || !entry?.chesscom;
@@ -128,6 +140,38 @@ export function hasLatestChallengeVerifier(challengeId: string, provider: Suppor
   return Boolean(latestChallengeVerifiers[challengeId]?.[provider]);
 }
 
+async function enrichFailedVerdictWithLatestBoard(input: {
+  provider: SupportedLatestChallengeProvider;
+  username: string;
+  verdict: LatestChallengeVerdict;
+}): Promise<LatestChallengeVerdict> {
+  const { provider, username, verdict } = input;
+
+  if (verdict.status !== "failed" || verdict.finalPositionFen || verdict.failureDiagnostic?.fenAtBreak) {
+    return verdict;
+  }
+
+  const latestFinished = await getLatestFinishedBoardVerdict(provider, username);
+
+  if (latestFinished.status !== "passed" || latestFinished.gameId !== verdict.gameId || !latestFinished.finalPositionFen) {
+    return verdict;
+  }
+
+  return {
+    ...verdict,
+    startedGameAt: verdict.startedGameAt ?? latestFinished.startedGameAt,
+    completedGameAt: verdict.completedGameAt ?? latestFinished.completedGameAt,
+    finalPositionFen: latestFinished.finalPositionFen,
+    lastMoveUci: verdict.lastMoveUci ?? latestFinished.lastMoveUci,
+    lastMoveSan: verdict.lastMoveSan,
+    failureDiagnostic: verdict.failureDiagnostic ?? {
+      label: "Latest checked position",
+      explanation: "This is the final board from the same latest game that was checked for the Side Quest.",
+      fenAtBreak: latestFinished.finalPositionFen,
+    },
+  };
+}
+
 export async function checkLatestChallengeForProvider(input: {
   challengeId: string;
   provider: SupportedLatestChallengeProvider;
@@ -137,5 +181,6 @@ export async function checkLatestChallengeForProvider(input: {
   if (!verifier) {
     throw new Error(`No latest-game verifier registered for ${input.challengeId} on ${input.provider}.`);
   }
-  return verifier(input.username);
+  const verdict = await verifier(input.username);
+  return enrichFailedVerdictWithLatestBoard({ provider: input.provider, username: input.username, verdict });
 }

@@ -5,6 +5,7 @@ type LichessPlayer = {
 };
 
 import { buildProofPositionFromUciMoves, type ProofPosition } from "@/lib/chess-proof";
+import { normalizeLichessMoveTokens } from "@/lib/lichess-move-normalizer";
 
 type LichessGame = {
   id?: string;
@@ -114,7 +115,7 @@ async function verifyFinishAttempt({
       };
     }
 
-    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+    const proofPosition = buildProofPositionFromUciMoves(game.moves ? normalizeLichessMoveTokens(game.moves).join(" ") : undefined);
 
     if (requiredSide === "either") {
       return {
@@ -238,7 +239,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       };
     }
 
-    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+    const proofPosition = buildProofPositionFromUciMoves(game.moves ? normalizeLichessMoveTokens(game.moves).join(" ") : undefined);
 
     return {
       status: "passed",
@@ -320,7 +321,7 @@ async function verifyDrawAttempt({
       };
     }
 
-    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+    const proofPosition = buildProofPositionFromUciMoves(game.moves ? normalizeLichessMoveTokens(game.moves).join(" ") : undefined);
 
     if (requiredSide === "either") {
       return {
@@ -447,7 +448,7 @@ async function verifyLoseAttempt({
       };
     }
 
-    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+    const proofPosition = buildProofPositionFromUciMoves(game.moves ? normalizeLichessMoveTokens(game.moves).join(" ") : undefined);
 
     if (requiredSide === "either") {
       return {
@@ -565,7 +566,7 @@ async function verifyWinAttempt({
       };
     }
 
-    const proofPosition = buildProofPositionFromUciMoves(game.moves);
+    const proofPosition = buildProofPositionFromUciMoves(game.moves ? normalizeLichessMoveTokens(game.moves).join(" ") : undefined);
 
     return {
       status: "passed",
