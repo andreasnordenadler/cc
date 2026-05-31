@@ -1,0 +1,72 @@
+name: Mobile Release Gate
+
+on:
+  pull_request:
+    paths:
+      - "apps/mobile/**"
+      - "scripts/mobile-release.mjs"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/mobile-release-gate.yml"
+      - "scripts/check-*-ready-quests.mjs"
+  workflow_dispatch:
+    inputs:
+      publish_github_release:
+        description: "Publish GitHub Release asset after a successful signed build"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  mobile-release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run release checks without APK build on PRs
+        if: github.event_name == 'pull_request'
+        run: pnpm mobile:release:check
+
+      - name: Run signed release build
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          SQC_ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/sqc-release-keystore.jks
+          SQC_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.SQC_ANDROID_KEYSTORE_PASSWORD }}
+          SQC_ANDROID_KEY_ALIAS: ${{ secrets.SQC_ANDROID_KEY_ALIAS }}
+          SQC_ANDROID_KEY_PASSWORD: ${{ secrets.SQC_ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "${{ secrets.SQC_ANDROID_KEYSTORE_BASE64 }}" ]; then
+            echo "Missing SQC_ANDROID_KEYSTORE_BASE64 secret" >&2
+            exit 1
+          fi
+          printf '%s' "${{ secrets.SQC_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$SQC_ANDROID_KEYSTORE_PATH"
+          if [ "${{ inputs.publish_github_release }}" = "true" ]; then
+            pnpm mobile:release:github --no-bump
+          else
+            pnpm mobile:release --no-bump
+          fi

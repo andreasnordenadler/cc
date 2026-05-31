@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make SQC Mobile releases one-command and artifact-safe.
+  - added_at: 2026-05-31 22:14 Europe/Stockholm
+  - completed_at: 2026-05-31 22:30 Europe/Stockholm
+  - source: Andreas approved continuing release-pipeline hardening after v146.
+  - scope: add reproducible mobile release script, CI workflow, GitHub Release artifact publishing, docs, and stop adding new APK binaries under `public/downloads`.
+  - proof: `pnpm mobile:release:github` produced signed/verified v147 (`0.1.147`, versionCode `147`) at GitHub Release `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v147`; release gate ran `pnpm audit --prod --audit-level high`, mobile typecheck, targeted ESLint, `pnpm quest:release-gate`, Next build, Android `lintRelease`, Android `assembleRelease`, APK manifest verification, `debuggable=false`, and non-debug signer verification. SHA256 `e6cb92393fc5d02e76994b516a26b0c4387f144907c56eb6f3d376603a1cdb87`.
+
 - [x] Harden SQC Mobile release pipeline after v145 audit.
   - added_at: 2026-05-31 21:56 Europe/Stockholm
   - completed_at: 2026-05-31 22:16 Europe/Stockholm

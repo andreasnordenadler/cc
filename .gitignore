@@ -55,6 +55,9 @@ apps/mobile/credentials/
 apps/mobile/.expo/
 apps/mobile/android/
 
-# local QA artifacts
+# local QA/release artifacts
 /tmp/
 /.worktrees/
+/artifacts/
+public/downloads/*.apk
+public/downloads/*.apk.sha256
