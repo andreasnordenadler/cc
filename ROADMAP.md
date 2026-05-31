@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Center-align mobile red error/status copy.
+  - added_at: 2026-05-31 21:30 Europe/Stockholm
+  - completed_at: 2026-05-31 21:36 Europe/Stockholm
+  - source: Andreas screenshot feedback: the red `Side Quest not completed` status text under the check action should be center aligned.
+  - scope: mobile app only; centered shared red error/status copy and bumped Android to v145.
+  - proof: targeted ESLint passed; mobile typecheck passed; Next build passed; `pnpm quest:release-gate` passed; Android release build passed with Expo 0.1.145 / versionCode 145; APK prepared at `public/downloads/sqc-mobile-android-beta-candidate-v145-2026-05-31.apk` with SHA256 `2ed4a7b2258eb25070ae9d8471e0a663d3272cc77e1c1f611599c2faa8ac3b7b`.
+
 - [x] Launch-polish mobile chessboards for verifier diagnostics.
   - added_at: 2026-05-31 21:12 Europe/Stockholm
   - completed_at: 2026-05-31 21:22 Europe/Stockholm

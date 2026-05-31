@@ -6718,7 +6718,7 @@ const styles = StyleSheet.create({
   offlineHeaderCopy: { flex: 1, gap: 4 },
   offlineTitle: { color: colors.paper, fontSize: 18, fontWeight: "900" },
   offlineCopy: { color: colors.muted, lineHeight: 20 },
-  errorCopy: { color: "#ffd6cf", lineHeight: 20 },
+  errorCopy: { color: "#ffd6cf", lineHeight: 20, textAlign: "center", alignSelf: "stretch" },
   primaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   centeredPrimaryButton: { alignSelf: "center", minHeight: 42, justifyContent: "center", alignItems: "center", paddingHorizontal: 18, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
