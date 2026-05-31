@@ -190,14 +190,40 @@ function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | n
   return "Latest-game check done.";
 }
 
+function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
+  const diagnostic = receipt?.failureDiagnostic;
+  const fen = diagnostic?.fenAtBreak ?? receipt?.finalPositionFen;
+  const uci = diagnostic?.uci ?? receipt?.lastMoveUci;
+  const orientation = diagnostic?.playerColor === "black" ? "black" : "white";
+  const board = parseMobileFenBoard(fen, uci, orientation);
+
+  if (!board) return null;
+
+  return (
+    <View style={compactStyles.currentFailureMiniBoardFrame}>
+      <View style={compactStyles.currentFailureMiniBoard}>
+        {board.map((square, index) => (
+          <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+            {square.highlight ? <View style={compactStyles.currentFailureMiniHighlightRing} /> : null}
+            <Text style={[compactStyles.currentFailureMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
 function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
   const failureText = getReceiptFailureText(receipt);
   if (!failureText) return null;
 
   return (
     <View style={compactStyles.currentFailurePanel}>
-      <Text style={compactStyles.currentFailureTitle}>Proof not accepted</Text>
-      <Text style={compactStyles.currentFailureCopy} numberOfLines={4}>{failureText}</Text>
+      <ActiveQuestMiniFailureBoard receipt={receipt} />
+      <View style={compactStyles.currentFailureCopyBlock}>
+        <Text style={compactStyles.currentFailureTitle}>Proof not accepted</Text>
+        <Text style={compactStyles.currentFailureCopy} numberOfLines={4}>{failureText}</Text>
+      </View>
     </View>
   );
 }
@@ -6153,8 +6179,14 @@ const compactStyles = StyleSheet.create({
   detailLatestCheck: { color: colors.gold, fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   detailPanel: { overflow: "hidden", borderRadius: 16, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
   detailPanelStrong: { gap: 6, padding: 10, borderRadius: 17, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
-  currentFailurePanel: { gap: 4, marginTop: 8, padding: 10, borderRadius: 15, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(255,122,122,.24)" },
-  currentFailureTitle: { color: "rgba(255,122,122,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
+  currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  currentFailureMiniBoardFrame: { width: 82, height: 82, flexShrink: 0, padding: 4, borderRadius: 14, backgroundColor: "rgba(24,18,16,.9)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)" },
+  currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 9, borderWidth: 1, borderColor: "rgba(28,19,16,.8)" },
+  currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
+  currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1, borderColor: "rgba(255,248,211,.95)" },
+  currentFailureMiniPiece: { fontSize: 10, lineHeight: 12, fontWeight: "900" },
+  currentFailureCopyBlock: { flex: 1, gap: 4 },
+  currentFailureTitle: { color: "rgba(245,200,106,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentFailureCopy: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   failureBoardPanel: { gap: 12, padding: 13, borderRadius: 22, backgroundColor: "rgba(53,34,27,.74)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)", shadowColor: "#000", shadowOpacity: .22, shadowRadius: 16, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
   failureBoardHeader: { gap: 2, paddingHorizontal: 2 },

@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Add compact verifier board to active Solo Side Quest card.
+  - added_at: 2026-05-31 18:26 Europe/Stockholm
+  - completed_at: 2026-05-31 18:38 Europe/Stockholm
+  - source: Andreas liked the full verifier diagnostic board and asked for a smaller version directly on the active Solo quest card so the active Solo quest stays more in focus.
+  - scope: mobile app only; added compact read-only board preview to failed-check summary when a diagnostic/final FEN exists, keeping the home card focused with failure copy beside the mini board.
+  - proof: targeted ESLint passed; mobile typecheck passed; Next build passed; Android release build passed with Expo 0.1.139 / versionCode 139; `pnpm quest:release-gate` passed; APK prepared at `public/downloads/sqc-mobile-android-beta-candidate-v139-2026-05-31.apk` with SHA256 `a464af87ba123864e55dfb017e5e27acfdfab9d9a636c3ed9f86f21de3808248`.
+
 - [x] Remove mobile question-mark affordances and add in-app support notes.
   - added_at: 2026-05-30 08:39 Europe/Stockholm
   - completed_at: 2026-05-30 08:39 Europe/Stockholm
