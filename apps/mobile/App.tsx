@@ -3179,21 +3179,26 @@ function QuestBoardDashboard({
                       <View style={compactStyles.multiplayerOptionGrid}>
                         {CUSTOM_RULE_TIMINGS.map((timing) => {
                           const selected = customRuleTiming === timing;
+                          const needsMoveNumber = selected && (timing === "by move" || timing === "at move");
                           return (
-                            <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
-                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
-                            </Pressable>
+                            <View key={timing} style={[compactStyles.multiplayerOptionCard, compactStyles.customTimingChoiceCard, selected ? compactStyles.multiplayerOptionCardSelected : null]}>
+                              <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={compactStyles.customTimingChoiceHeader} onPress={() => setCustomRuleTiming(timing)}>
+                                <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                                <View style={compactStyles.multiplayerOptionCopy}>
+                                  <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
+                                  {needsMoveNumber ? <Text style={compactStyles.multiplayerOptionHelper}>Choose the move number for this timing.</Text> : null}
+                                </View>
+                              </Pressable>
+                              {needsMoveNumber ? (
+                                <View style={compactStyles.customTimingNestedInput}>
+                                  <Text style={compactStyles.customPieceSubchoiceLabel}>Move number</Text>
+                                  <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
+                                </View>
+                              ) : null}
+                            </View>
                           );
                         })}
                       </View>
-                      {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
-                        <View>
-                          <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
-                          <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
-                          <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
-                        </View>
-                      ) : null}
                     </View>
                   ) : (
                     <Text style={styles.microcopy}>Opening sequence is always checked from move 1, so no timing is needed.</Text>
@@ -4152,21 +4157,26 @@ function SideQuestsScreen({
                       <View style={compactStyles.multiplayerOptionGrid}>
                         {CUSTOM_RULE_TIMINGS.map((timing) => {
                           const selected = customRuleTiming === timing;
+                          const needsMoveNumber = selected && (timing === "by move" || timing === "at move");
                           return (
-                            <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
-                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
-                            </Pressable>
+                            <View key={timing} style={[compactStyles.multiplayerOptionCard, compactStyles.customTimingChoiceCard, selected ? compactStyles.multiplayerOptionCardSelected : null]}>
+                              <Pressable accessibilityRole="button" accessibilityState={{ selected }} style={compactStyles.customTimingChoiceHeader} onPress={() => setCustomRuleTiming(timing)}>
+                                <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                                <View style={compactStyles.multiplayerOptionCopy}>
+                                  <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
+                                  {needsMoveNumber ? <Text style={compactStyles.multiplayerOptionHelper}>Choose the move number for this timing.</Text> : null}
+                                </View>
+                              </Pressable>
+                              {needsMoveNumber ? (
+                                <View style={compactStyles.customTimingNestedInput}>
+                                  <Text style={compactStyles.customPieceSubchoiceLabel}>Move number</Text>
+                                  <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
+                                </View>
+                              ) : null}
+                            </View>
                           );
                         })}
                       </View>
-                      {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
-                        <View>
-                          <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
-                          <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
-                          <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
-                        </View>
-                      ) : null}
                     </View>
                   ) : (
                     <Text style={styles.microcopy}>Opening sequence is always checked from move 1, so no timing is needed.</Text>
@@ -5961,6 +5971,9 @@ const compactStyles = StyleSheet.create({
   customPieceChoiceGroupSelected: { gap: 7, padding: 7, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(245,200,106,.055)" },
   customPieceSubchoicePanel: { gap: 7, marginLeft: 18, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },
   customPieceSubchoiceLabel: { color: "rgba(245,200,106,.82)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
+  customTimingChoiceCard: { flexDirection: "column", alignItems: "stretch", gap: 8 },
+  customTimingChoiceHeader: { flexDirection: "row", alignItems: "center", gap: 9 },
+  customTimingNestedInput: { gap: 5, marginLeft: 24, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },
   customConditionListRow: { gap: 9, paddingVertical: 10, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.16)" },
   customConditionIndex: { color: colors.gold, fontSize: 16, lineHeight: 20, fontWeight: "900", textAlign: "center" },
   multiplayerOptionCard: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.16)" },
