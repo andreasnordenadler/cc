@@ -1,3 +1,4 @@
+import { Chess } from "chess.js";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type QueenChallengeSide = "white" | "black";
 export type QueenChallengeResult = "white" | "black" | "draw" | "unknown";
@@ -19,6 +20,9 @@ export type QueenChallengeGame = {
   rated?: boolean;
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
   captures: QueenChallengeCaptureEvent[];
 };
 
@@ -45,6 +49,9 @@ export type QueenChallengeVerdict = {
   evidence: string[];
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
 };
 
 const ALLOWED_TIME_CLASSES = new Set<QueenChallengeTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -126,6 +133,25 @@ function applyUciMove(
   return capture;
 }
 
+function replayUciMovesForProof(moves: string[]) {
+  const chess = new Chess();
+  let lastMove: { san: string; lan: string } | undefined;
+  for (const move of moves) {
+    if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(move)) continue;
+    try {
+      const applied = chess.move({ from: move.slice(0, 2), to: move.slice(2, 4), promotion: move.slice(4, 5) || undefined });
+      if (applied) lastMove = { san: applied.san, lan: applied.lan };
+    } catch {
+      continue;
+    }
+  }
+  return { finalPositionFen: chess.fen(), lastMoveUci: lastMove?.lan, lastMoveSan: lastMove?.san };
+}
+
+function queenProofFields(game: QueenChallengeGame) {
+  return { finalPositionFen: game.finalPositionFen, lastMoveUci: game.lastMoveUci, lastMoveSan: game.lastMoveSan };
+}
+
 export function normalizeLichessQueenChallengeGame(
   game: LichessQueenChallengeGame,
   username: string,
@@ -144,6 +170,7 @@ export function normalizeLichessQueenChallengeGame(
   const captures = moves
     .map((move, index) => applyUciMove(board, move, index + 1))
     .filter((capture): capture is QueenChallengeCaptureEvent => Boolean(capture));
+  const proof = replayUciMovesForProof(moves);
 
   return {
     id: game.id,
@@ -155,6 +182,7 @@ export function normalizeLichessQueenChallengeGame(
     rated: game.rated,
     startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
+    ...proof,
     captures,
   };
 }
@@ -243,6 +271,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
       gameId: game.id,
       summary: "Variants are fun, but this side quest only counts standard chess games.",
       evidence: [`Variant was ${game.variant}.`],
+      ...queenProofFields(game),
     };
   }
 
@@ -252,6 +281,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
       gameId: game.id,
       summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
       evidence: [`Time class was ${game.timeClass}.`],
+      ...queenProofFields(game),
     };
   }
 
@@ -261,6 +291,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
       gameId: game.id,
       summary: "The game ended before the minimum 10-move proof threshold.",
       evidence: [`Game length was ${game.moveCount} moves.`],
+      ...queenProofFields(game),
     };
   }
 
@@ -270,6 +301,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
       gameId: game.id,
       summary: "The queenless arc only counts if the player still wins afterwards.",
       evidence: [`Winner was ${game.winner === "draw" ? "draw" : colorName(game.winner as QueenChallengeSide)}.`],
+      ...queenProofFields(game),
     };
   }
 
@@ -279,6 +311,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
       gameId: game.id,
       summary: "No player queen loss was detected, which is annoyingly responsible chess.",
       evidence: [`${colorName(playerColor)} queen stayed on the board in the normalized capture feed.`],
+      ...queenProofFields(game),
     };
   }
 
@@ -291,6 +324,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
       gameId: game.id,
       summary: "The queen went missing, but too late for this particular bad idea.",
       evidence: [...evidence, "Queen must be lost before move 15."],
+      ...queenProofFields(game),
     };
   }
 
@@ -303,6 +337,7 @@ export function evaluateQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCha
         ...evidence,
         `${colorName(opponentColor)} queen was also gone by move ${moveNumberFromPly(opponentQueenLossBeforePlayerLoss.ply)}.`,
       ],
+      ...queenProofFields(game),
     };
   }
 

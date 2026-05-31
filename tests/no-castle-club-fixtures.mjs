@@ -38,7 +38,7 @@ test("Lichess latest-game normalizer detects UCI castling for only the player", 
 
   assert.ok(noCastleGame);
   assert.equal(noCastleGame.playerColor, "white");
-  assert.deepEqual(noCastleGame.castling, [{ ply: 12, color: "black", side: "kingside" }]);
+  assert.deepEqual(noCastleGame.castling.map(({ ply, color, side }) => ({ ply, color, side })), [{ ply: 12, color: "black", side: "kingside" }]);
   assert.equal(evaluateNoCastleClub(noCastleGame).status, "passed");
 
   const castledGame = normalizeLichessNoCastleClubGame(

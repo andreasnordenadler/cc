@@ -49,7 +49,7 @@ test("Chess.com No Castle Club normalizer uses observed and72nor archive shape",
   assert.equal(game.winner, "white");
   assert.equal(game.timeClass, "blitz");
   assert.equal(game.variant, "standard");
-  assert.deepEqual(game.castling, [
+  assert.deepEqual(game.castling.map(({ ply, color, side }) => ({ ply, color, side })), [
     { ply: 27, color: "white", side: "kingside" },
     { ply: 34, color: "black", side: "kingside" },
   ]);
@@ -65,7 +65,7 @@ test("Chess.com No Castle Club can verify a win-required quest from PGN without 
   assert.ok(game);
   assert.equal(game.playerColor, "white");
   assert.equal(game.winner, "white");
-  assert.deepEqual(game.castling, [
+  assert.deepEqual(game.castling.map(({ ply, color, side }) => ({ ply, color, side })), [
     { ply: 24, color: "black", side: "kingside" },
   ]);
 

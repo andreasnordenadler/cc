@@ -195,6 +195,7 @@ export type ChessComGame = {
   pgn?: string;
   rules?: string;
   time_class?: string;
+  rated?: boolean;
   white?: ChessComPlayer;
   black?: ChessComPlayer;
 };
@@ -1986,6 +1987,7 @@ export function normalizeChessComRooklessRampageGame(game: ChessComGame, usernam
     moveCount: Math.ceil(sanMoves.length / 2),
     variant: game.rules === "chess" || !game.rules ? "standard" : game.rules,
     timeClass: normalizeChessComTimeClass(game.time_class),
+    rated: game.rated,
     startedGameAt: getChessComStartedGameAt(game),
     completedGameAt: getChessComCompletedGameAt(game),
     rookLosses: chessComRooklessLossesFromSan(sanMoves),

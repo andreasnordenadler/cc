@@ -7,6 +7,7 @@ const syntheticRooklessWin = {
   url: "https://www.chess.com/game/live/synthetic-rookless-rampage-win",
   end_time: 1706476100,
   time_class: "blitz",
+  rated: true,
   rules: "chess",
   white: { result: "win", username: "and72nor" },
   black: { result: "checkmated", username: "exampleOpponent" },

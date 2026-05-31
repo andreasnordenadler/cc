@@ -127,7 +127,9 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   const black = game.players?.black?.user?.name?.toLowerCase();
   const playerColor = white === normalized ? "white" : black === normalized ? "black" : null;
   if (!playerColor) return null;
-  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), uciMoves: (game.moves ?? "").split(/\s+/).filter(Boolean), playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+  const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
+  const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
+  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
 async function fetchLatestChessComGame(username: string): Promise<LatestGame | null> {
@@ -168,7 +170,14 @@ function replayGame(game: LatestGame) {
   const moves = game.uciMoves?.length ? game.uciMoves : game.pgnMoves;
   for (const token of moves) {
     const before = clonePieces(pieces);
-    const move = game.uciMoves?.length ? chess.move({ from: token.slice(0, 2), to: token.slice(2, 4), promotion: token[4] }) : chess.move(token, { strict: false });
+    let move = null;
+    try {
+      move = game.uciMoves?.length && /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)
+        ? chess.move({ from: token.slice(0, 2), to: token.slice(2, 4), promotion: token[4] })
+        : chess.move(token, { strict: false });
+    } catch {
+      continue;
+    }
     if (!move) continue;
     pieces = applyMovePieces(pieces, move);
     snapshots.push({ ply: snapshots.length + 1, moveNumber: Math.ceil((snapshots.length + 1) / 2), fen: chess.fen(), san: move.san, uci: `${move.from}${move.to}${move.promotion ?? ""}`, before, after: clonePieces(pieces) });
