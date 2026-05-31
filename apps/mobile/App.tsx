@@ -291,7 +291,7 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
   }
   if (input.condition === "opening sequence") {
     const sequence = getCustomOpeningMoves(input.openingSequence).join(" ") || "e4 e5 f4";
-    const positiveRule = `Opening line must match “${sequence}” ${timing}.`;
+    const positiveRule = `Opening line from move 1 must match “${sequence}”.`;
     return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
   }
   const owner = input.owner === "my" ? "your" : "opponent's";
@@ -326,7 +326,7 @@ function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
       type: "openingSequence",
       raw: input.openingSequence,
       moves: getCustomOpeningMoves(input.openingSequence),
-      timing: input.timing === "by move" ? { byMove: input.moveNumber } : input.timing === "at move" ? { atMove: input.moveNumber } : { atGameEnd: true },
+      anchor: "gameStart",
       negate: input.negated,
     };
   }
@@ -3173,25 +3173,31 @@ function QuestBoardDashboard({
                       <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
-                  <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {CUSTOM_RULE_TIMINGS.map((timing) => {
-                      const selected = customRuleTiming === timing;
-                      return (
-                        <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                  {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
+                  {customRuleCondition !== "opening sequence" ? (
                     <View>
-                      <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
-                      <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
-                      <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
+                      <View style={compactStyles.multiplayerOptionGrid}>
+                        {CUSTOM_RULE_TIMINGS.map((timing) => {
+                          const selected = customRuleTiming === timing;
+                          return (
+                            <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
+                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                      {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
+                        <View>
+                          <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
+                          <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
+                          <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
+                        </View>
+                      ) : null}
                     </View>
-                  ) : null}
+                  ) : (
+                    <Text style={styles.microcopy}>Opening sequence is always checked from move 1, so no timing is needed.</Text>
+                  )}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     <Pressable accessibilityRole="button" accessibilityState={{ selected: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
@@ -4140,25 +4146,31 @@ function SideQuestsScreen({
                       <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
-                  <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
-                  <View style={compactStyles.multiplayerOptionGrid}>
-                    {CUSTOM_RULE_TIMINGS.map((timing) => {
-                      const selected = customRuleTiming === timing;
-                      return (
-                        <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
-                          <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
-                          <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
-                        </Pressable>
-                      );
-                    })}
-                  </View>
-                  {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
+                  {customRuleCondition !== "opening sequence" ? (
                     <View>
-                      <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
-                      <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
-                      <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
+                      <View style={compactStyles.multiplayerOptionGrid}>
+                        {CUSTOM_RULE_TIMINGS.map((timing) => {
+                          const selected = customRuleTiming === timing;
+                          return (
+                            <Pressable key={timing} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleTiming(timing)}>
+                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(timing)}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                      {customRuleTiming === "by move" || customRuleTiming === "at move" ? (
+                        <View>
+                          <Text style={compactStyles.multiplayerRuleLabel}>Move number</Text>
+                          <TextInput value={customRuleMoveNumber} placeholder="15" placeholderTextColor="rgba(255,247,232,.42)" keyboardType="number-pad" inputMode="numeric" maxLength={3} style={styles.textInput} onChangeText={(value) => setCustomRuleMoveNumber(formatCustomMoveNumberInput(value))} onEndEditing={() => setCustomRuleMoveNumber((current) => current || "1")} />
+                          <Text style={styles.microcopy}>Enter any move number. This applies to {customRuleTiming}.</Text>
+                        </View>
+                      ) : null}
                     </View>
-                  ) : null}
+                  ) : (
+                    <Text style={styles.microcopy}>Opening sequence is always checked from move 1, so no timing is needed.</Text>
+                  )}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     <Pressable accessibilityRole="button" accessibilityState={{ selected: !customRuleNegated }} style={[compactStyles.multiplayerOptionCard, !customRuleNegated ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleNegated(false)}>
