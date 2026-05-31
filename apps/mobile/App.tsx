@@ -180,13 +180,13 @@ function isFailedReceipt(receipt?: MobileAccountState["latestReceipt"] | null) {
 
 function getReceiptFailureText(receipt?: MobileAccountState["latestReceipt"] | null) {
   if (!receipt || !isFailedReceipt(receipt)) return null;
-  return receipt.failureDiagnostic?.explanation ?? receipt.detail ?? "Latest game checked — proof not accepted.";
+  return receipt.failureDiagnostic?.explanation ?? receipt.detail ?? "Latest game checked — Side Quest not completed.";
 }
 
 function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | null) {
   if (!receipt) return "Latest-game check done.";
   if (receipt.status === "passed" || receipt.headline?.toLowerCase().includes("passed")) return "Quest completed.";
-  if (isFailedReceipt(receipt)) return "Latest game checked — proof not accepted.";
+  if (isFailedReceipt(receipt)) return "Latest game checked — Side Quest not completed.";
   return "Latest-game check done.";
 }
 
@@ -247,7 +247,7 @@ function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["l
     <View style={compactStyles.currentFailurePanel}>
       <ActiveQuestMiniFailureBoard receipt={receipt} />
       <View style={compactStyles.currentFailureCopyBlock}>
-        <Text style={compactStyles.currentFailureTitle}>Proof not accepted</Text>
+        <Text style={compactStyles.currentFailureTitle}>Side Quest not completed</Text>
         <Text style={compactStyles.currentFailureCopy} numberOfLines={4}>{failureText}</Text>
       </View>
     </View>

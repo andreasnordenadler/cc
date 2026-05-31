@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Change failed Solo copy to “Side Quest not completed.”
+  - added_at: 2026-05-31 20:02 Europe/Stockholm
+  - completed_at: 2026-05-31 20:13 Europe/Stockholm
+  - source: Andreas suggested the active Solo failed-check state should say “Side Quest not completed.” instead of “Proof not accepted”.
+  - scope: mobile app copy only; replaced accusatory failed-proof wording on active/detail failed-check surfaces while preserving the diagnostic WHY text.
+  - proof: targeted ESLint passed; mobile typecheck passed; Next build passed; Android release build passed with Expo 0.1.141 / versionCode 141; `pnpm quest:release-gate` passed; APK prepared at `public/downloads/sqc-mobile-android-beta-candidate-v141-2026-05-31.apk` with SHA256 `786b6810af5999de166b69f7ecc7bc846a7b5821e977361bd73b04e1da52cf0c`.
+
 - [x] Add empty mini-board state for newly started active Solo quests.
   - added_at: 2026-05-31 19:04 Europe/Stockholm
   - completed_at: 2026-05-31 19:15 Europe/Stockholm
