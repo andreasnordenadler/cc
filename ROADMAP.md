@@ -9,11 +9,12 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
-- [ ] Finalize mobile Side Quest incomplete-state copy and custom builder.
+- [x] Finalize mobile Side Quest incomplete-state copy and custom builder.
   - added_at: 2026-05-31 20:06 Europe/Stockholm
+  - completed_at: 2026-05-31 20:18 Europe/Stockholm
   - source: Andreas approved the new `Side Quest not completed` wording and asked to implement it for all Side Quests/screens, plus finalize everything around the Side Quest builder.
-  - scope: mobile app; make incomplete/failure wording consistent across active card, detail, challenge detail, and action messages; harden the custom builder’s final UX, validation, saved-condition preview, and draft save readiness.
-  - proof: pending.
+  - scope: mobile app; made incomplete/failure wording consistent across active card, detail, challenge detail, and action messages; hardened the custom builder’s final UX, validation, saved-condition preview, and save readiness.
+  - proof: commit `86d5eeb` (`Finalize mobile Side Quest builder polish`) pushed to `main`; targeted ESLint passed; mobile typecheck passed; Next build passed; Android release build passed with Expo 0.1.142 / versionCode 142; `pnpm quest:release-gate` passed; production deploy `https://cc-1xpp11dfp-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke checks returned 200 for `/`, `/api/mobile/bootstrap`, v142 APK, and SHA file; production error-log scan found no logs/errors. APK SHA256 `2e13b35de5a9172d0ea3022fb1fc4df4fa362a851d9bf3a916020f7319466056`.
 
 - [x] Change failed Solo copy to “Side Quest not completed.”
   - added_at: 2026-05-31 20:02 Europe/Stockholm
