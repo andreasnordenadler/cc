@@ -454,6 +454,19 @@ function getCustomOpeningPreview(value: string) {
   return moves.join(" → ");
 }
 
+function getCustomRequirementValidation(input: Omit<CustomRuleRequirement, "id">) {
+  if (input.condition === "on square" && !/^[a-h][1-8]$/.test(normalizeCustomSquare(input.targetSquare))) {
+    return "Use a real board square like e4, h8, or a1.";
+  }
+  if (input.condition === "move sequence" && !normalizeCustomMoveSequence(input.moveSequence)) {
+    return "Add at least one algebraic move to the move sequence.";
+  }
+  if (input.condition === "opening sequence" && !getCustomOpeningMoves(input.openingSequence).length) {
+    return "Add an opening line from move 1, for example 1.e4 e5 2.f4.";
+  }
+  return null;
+}
+
 function getCustomTimingSummary(timing: CustomRuleTiming, moveNumber: number) {
   if (timing === "by move") return `by move ${moveNumber}`;
   if (timing === "at move") return `at move ${moveNumber}`;
@@ -3060,6 +3073,12 @@ function QuestBoardDashboard({
   }
 
   function saveCustomRequirement() {
+    const validationError = getCustomRequirementValidation(currentCustomRequirement);
+    if (validationError) {
+      Alert.alert("Condition needs one fix", validationError);
+      return;
+    }
+
     if (customEditingRequirementId) {
       setCustomRequirements((current) => current.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement));
     } else {
@@ -3082,12 +3101,17 @@ function QuestBoardDashboard({
   }
 
   function saveCustomDraft() {
+    if (customConditionEditorOpen) {
+      Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
+      return;
+    }
     if (!customRequirements.length) {
-      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be drafted.");
+      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be saved.");
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
     setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+    Alert.alert("Custom Side Quest saved", `${name} is ready in your mobile Side Quest Library.`);
     setCustomCreateOpen(false);
   }
 
@@ -3146,7 +3170,7 @@ function QuestBoardDashboard({
         {customDrafts.length ? (
           <View style={compactStyles.appRows}>
             {customDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Draft" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
+              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
             ))}
           </View>
         ) : null}
@@ -3201,12 +3225,12 @@ function QuestBoardDashboard({
               <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
               <Text style={compactStyles.detailTitle}>Build a verifier recipe.</Text>
-              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Website publishing and live scoring come after this mobile-first prototype.</Text>
+              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Save a custom Side Quest recipe to your mobile library. Live scoring/publishing can use this rule recipe next.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
+              <Text style={styles.microcopy}>Saved custom Side Quests stay in your mobile Side Quest Library while live scoring/publishing is finalized.</Text>
               <Text style={compactStyles.multiplayerCardEyebrow}>Quest rules</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Side Quest conditions</Text>
               <Text style={styles.microcopy}>Quest settings live here. Individual piece/square settings only appear after you tap Add Condition.</Text>
@@ -3426,8 +3450,8 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Save Draft</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Save Custom Side Quest</Text>
               </Pressable>
             </View>
           </ScrollHintedScrollView>
@@ -3637,6 +3661,7 @@ function AccountSoloSideQuestSection({
               <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
             </View>
           </View>
+          {activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : <ActiveQuestNoGameSummary />}
         </Pressable>
         </View>
       ) : (
@@ -4089,6 +4114,12 @@ function SideQuestsScreen({
   }
 
   function saveCustomRequirement() {
+    const validationError = getCustomRequirementValidation(currentCustomRequirement);
+    if (validationError) {
+      Alert.alert("Condition needs one fix", validationError);
+      return;
+    }
+
     if (customEditingRequirementId) {
       setCustomRequirements((current) => current.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement));
     } else {
@@ -4111,12 +4142,17 @@ function SideQuestsScreen({
   }
 
   function saveCustomDraft() {
+    if (customConditionEditorOpen) {
+      Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
+      return;
+    }
     if (!customRequirements.length) {
-      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be drafted.");
+      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be saved.");
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
     setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+    Alert.alert("Custom Side Quest saved", `${name} is ready in your mobile Side Quest Library.`);
     setCustomCreateOpen(false);
   }
 
@@ -4149,12 +4185,12 @@ function SideQuestsScreen({
 
       <View style={compactStyles.multiplayerNativeCard}>
         <Text style={compactStyles.multiplayerCardEyebrow}>Side Quest Library</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest drafts.</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest library.</Text>
         <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
         <View style={compactStyles.appRows}>
           {customDrafts.length ? customDrafts.map((draft) => (
-            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Draft" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
-          )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
+            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
+          )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Create" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>
 
@@ -4179,12 +4215,12 @@ function SideQuestsScreen({
               <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
               <Text style={compactStyles.detailTitle}>Build a verifier recipe.</Text>
-              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Website publishing and live scoring come after this mobile-first prototype.</Text>
+              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Save a custom Side Quest recipe to your mobile library. Live scoring/publishing can use this rule recipe next.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>This is a draft in the mobile Side Quest Library for now.</Text>
+              <Text style={styles.microcopy}>Saved custom Side Quests stay in your mobile Side Quest Library while live scoring/publishing is finalized.</Text>
               <Text style={compactStyles.multiplayerCardEyebrow}>Quest rules</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Side Quest conditions</Text>
               <Text style={styles.microcopy}>Quest settings live here. Individual piece/square settings only appear after you tap Add Condition.</Text>
@@ -4404,8 +4440,8 @@ function SideQuestsScreen({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Save Draft</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Save Custom Side Quest</Text>
               </Pressable>
             </View>
           </ScrollHintedScrollView>
@@ -5159,8 +5195,10 @@ function SelectedQuestDetailCard({
     try {
       const sessionToken = await authBridge.getSessionToken();
       const result = await runMobileQuestAction({ sessionToken, action, challengeId: challenge.id });
-      setActionState({ busy: false, message: result.message, error: null });
-      await Promise.resolve(onAccountUpdated());
+      const nextAccount = await Promise.resolve(onAccountUpdated());
+      const coercedAccount = coerceAccountResponse(nextAccount);
+      const refreshedReceipt = isAuthenticatedAccount(coercedAccount) && coercedAccount.latestReceipt?.challengeId === challenge.id ? coercedAccount.latestReceipt : null;
+      setActionState({ busy: false, message: action === "check" ? getCheckActionMessage(refreshedReceipt) : result.message, error: null });
       if (action === "start") {
         onSelectTab("home");
       }
@@ -5210,8 +5248,9 @@ function SelectedQuestDetailCard({
             )}
 
           </View>
-          {latestReceipt ? <Text style={styles.successCopy}>{latestReceipt.headline} · {latestReceipt.detail}</Text> : null}
-          {actionState.message ? <Text style={styles.successCopy}>{actionState.message}</Text> : null}
+          {latestReceipt ? <Text style={isFailedReceipt(latestReceipt) ? styles.errorCopy : styles.successCopy}>{normalizeCheckHeadline(latestReceipt.headline)} · {getReceiptFailureText(latestReceipt) ?? latestReceipt.detail}</Text> : null}
+          <FailureDiagnosticBoard receipt={latestReceipt} />
+          {actionState.message ? <Text style={actionState.message.toLowerCase().includes("not completed") ? styles.errorCopy : styles.successCopy}>{actionState.message}</Text> : null}
           {actionState.error ? <Text style={styles.errorCopy}>{actionState.error}</Text> : null}
         </View>
       )}

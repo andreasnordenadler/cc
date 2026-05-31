@@ -9,6 +9,12 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [ ] Finalize mobile Side Quest incomplete-state copy and custom builder.
+  - added_at: 2026-05-31 20:06 Europe/Stockholm
+  - source: Andreas approved the new `Side Quest not completed` wording and asked to implement it for all Side Quests/screens, plus finalize everything around the Side Quest builder.
+  - scope: mobile app; make incomplete/failure wording consistent across active card, detail, challenge detail, and action messages; harden the custom builder’s final UX, validation, saved-condition preview, and draft save readiness.
+  - proof: pending.
+
 - [x] Change failed Solo copy to “Side Quest not completed.”
   - added_at: 2026-05-31 20:02 Europe/Stockholm
   - completed_at: 2026-05-31 20:13 Europe/Stockholm
