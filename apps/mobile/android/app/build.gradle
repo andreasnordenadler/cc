@@ -2,7 +2,19 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+import groovy.json.JsonSlurper
+
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
+def expoConfig = new JsonSlurper().parse(file("../../app.json"))
+def expoAndroidConfig = expoConfig.expo.android ?: [:]
+def sqcReleaseCredentialsFile = file("../../credentials.json")
+def sqcReleaseCredentials = sqcReleaseCredentialsFile.exists() ? new JsonSlurper().parse(sqcReleaseCredentialsFile).android?.keystore : null
+
+def sqcReleaseStorePath = System.getenv("SQC_ANDROID_KEYSTORE_PATH") ?: sqcReleaseCredentials?.keystorePath
+def sqcReleaseStoreFile = sqcReleaseStorePath ? (new File(sqcReleaseStorePath).isAbsolute() ? file(sqcReleaseStorePath) : file("../../${sqcReleaseStorePath}")) : null
+def sqcReleaseStorePassword = System.getenv("SQC_ANDROID_KEYSTORE_PASSWORD") ?: sqcReleaseCredentials?.keystorePassword
+def sqcReleaseKeyAlias = System.getenv("SQC_ANDROID_KEY_ALIAS") ?: sqcReleaseCredentials?.keyAlias
+def sqcReleaseKeyPassword = System.getenv("SQC_ANDROID_KEY_PASSWORD") ?: sqcReleaseCredentials?.keyPassword
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -92,8 +104,8 @@ android {
         applicationId 'com.sidequestchess.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 125
-        versionName "0.1.125"
+        versionCode (expoAndroidConfig.versionCode as Integer)
+        versionName expoConfig.expo.version
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -104,15 +116,22 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (!sqcReleaseStoreFile || !sqcReleaseStoreFile.exists() || !sqcReleaseStorePassword || !sqcReleaseKeyAlias || !sqcReleaseKeyPassword) {
+                throw new GradleException("Release signing requires SQC_ANDROID_KEYSTORE_* env vars or apps/mobile/credentials.json. Refusing to build a debug-signed release APK.")
+            }
+            storeFile sqcReleaseStoreFile
+            storePassword sqcReleaseStorePassword
+            keyAlias sqcReleaseKeyAlias
+            keyPassword sqcReleaseKeyPassword
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

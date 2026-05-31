@@ -45,6 +45,12 @@ CC_GIT_TEST=1
 
 apps/mobile/node_modules
 
+# Mobile signing credentials must never be committed
+apps/mobile/credentials.json
+apps/mobile/credentials/
+*.jks
+*.keystore
+
 # Expo/mobile local generated artifacts
 apps/mobile/.expo/
 apps/mobile/android/

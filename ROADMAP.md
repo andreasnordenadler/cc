@@ -9,6 +9,11 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [ ] Harden SQC Mobile release pipeline after v145 audit.
+  - added_at: 2026-05-31 21:56 Europe/Stockholm
+  - source: Andreas approved the first four audit fixes: Gradle version source of truth, real release signing/credential hygiene, credential ignores, and Clerk/Next security upgrades.
+  - scope: mobile Android release config plus web/mobile dependency security updates; produce a verified v146 APK and deploy if gates pass.
+
 - [x] Center-align mobile red error/status copy.
   - added_at: 2026-05-31 21:30 Europe/Stockholm
   - completed_at: 2026-05-31 21:36 Europe/Stockholm
