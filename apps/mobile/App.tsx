@@ -197,7 +197,14 @@ function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState[
   const orientation = diagnostic?.playerColor === "black" ? "black" : "white";
   const board = parseMobileFenBoard(fen, uci, orientation);
 
-  if (!board) return null;
+  if (!board) {
+    return (
+      <View style={[compactStyles.currentFailureMiniBoardFrame, compactStyles.currentFailureMiniBoardFallback]}>
+        <MaterialCommunityIcons name="chess-knight" size={22} color="rgba(245,200,106,.8)" />
+        <Text style={compactStyles.currentFailureMiniBoardFallbackText}>No board</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={compactStyles.currentFailureMiniBoardFrame}>
@@ -265,13 +272,17 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
 
   const moveLabel = diagnostic?.moveNumber ? `Move ${diagnostic.moveNumber}` : diagnostic?.ply ? `Ply ${diagnostic.ply}` : "Breaker position";
   const moveText = diagnostic?.san ?? diagnostic?.uci ?? receipt.lastMoveSan ?? receipt.lastMoveUci ?? null;
+  const boardTitle = board && moveText ? `${moveLabel} · ${moveText}` : diagnostic?.label ?? "Side Quest not completed";
+  const boardContext = board
+    ? `${orientation === "black" ? "Shown from Black’s side" : "Shown from White’s side"} · highlighted squares show the breaker move`
+    : "Board position unavailable · reason shown below";
 
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
         <Text style={compactStyles.failureBoardKicker}>SQC referee board</Text>
-        <Text style={compactStyles.failureBoardMove}>{board && moveText ? `${moveLabel} · ${moveText}` : diagnostic?.label ?? "Why it failed"}</Text>
-        <Text style={compactStyles.failureBoardSubhead}>{orientation === "black" ? "Shown from Black’s side" : "Shown from White’s side"}</Text>
+        <Text style={compactStyles.failureBoardMove}>{boardTitle}</Text>
+        <Text style={compactStyles.failureBoardSubhead}>{boardContext}</Text>
       </View>
       {board ? (
         <View style={compactStyles.failureBoardFrame}>
@@ -287,8 +298,20 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
               ))}
             </View>
           </View>
+          <View style={compactStyles.failureBoardLegendRow}>
+            <View style={compactStyles.failureBoardLegendSwatch} />
+            <Text style={compactStyles.failureBoardLegendText}>Breaker move squares</Text>
+          </View>
         </View>
-      ) : null}
+      ) : (
+        <View style={compactStyles.failureBoardUnavailable}>
+          <MaterialCommunityIcons name="checkerboard" size={30} color="rgba(245,200,106,.88)" />
+          <View style={compactStyles.failureBoardUnavailableCopyBlock}>
+            <Text style={compactStyles.failureBoardUnavailableTitle}>Board position unavailable</Text>
+            <Text style={compactStyles.failureBoardUnavailableCopy}>SQC still checked the latest game and kept the reason below. Try refreshing after the provider finishes publishing the full game record.</Text>
+          </View>
+        </View>
+      )}
       <Text style={compactStyles.failureBoardCopy}>{getReceiptFailureText(receipt)}</Text>
     </View>
   );
@@ -6304,10 +6327,12 @@ const compactStyles = StyleSheet.create({
   detailPanelStrong: { gap: 6, padding: 10, borderRadius: 17, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(255,247,232,.07)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
-  currentFailureMiniBoardFrame: { width: 82, height: 82, flexShrink: 0, padding: 4, borderRadius: 14, backgroundColor: "rgba(24,18,16,.9)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)" },
-  currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 9, borderWidth: 1, borderColor: "rgba(28,19,16,.8)" },
+  currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
+  currentFailureMiniBoardFallback: { alignItems: "center", justifyContent: "center", gap: 3, backgroundColor: "rgba(24,18,16,.9)" },
+  currentFailureMiniBoardFallbackText: { color: "rgba(245,200,106,.82)", fontSize: 8, lineHeight: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
+  currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.9)" },
   currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
-  currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1, borderColor: "rgba(255,248,211,.95)" },
+  currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1.5, borderColor: "#79e6ff", backgroundColor: "rgba(255,210,78,.28)" },
   currentFailureMiniPiece: { fontSize: 10, lineHeight: 12, fontWeight: "900" },
   emptyBoardSquareLight: { backgroundColor: "rgba(230,201,147,.38)" },
   emptyBoardSquareDark: { backgroundColor: "rgba(127,79,49,.52)" },
@@ -6316,25 +6341,32 @@ const compactStyles = StyleSheet.create({
   currentFailureCopy: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   currentEmptyBoardTitle: { color: "rgba(245,200,106,.9)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentEmptyBoardCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
-  failureBoardPanel: { gap: 12, padding: 13, borderRadius: 22, backgroundColor: "rgba(53,34,27,.74)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)", shadowColor: "#000", shadowOpacity: .22, shadowRadius: 16, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
-  failureBoardHeader: { gap: 2, paddingHorizontal: 2 },
-  failureBoardKicker: { color: "rgba(245,200,106,.92)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.1 },
-  failureBoardMove: { color: colors.paper, fontSize: 16, lineHeight: 21, fontWeight: "900", letterSpacing: -.25 },
-  failureBoardSubhead: { color: "rgba(224,211,188,.74)", fontSize: 11, lineHeight: 15, fontWeight: "800" },
-  failureBoardFrame: { padding: 8, borderRadius: 20, backgroundColor: "rgba(24,18,16,.88)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)" },
-  failureBoardInnerFrame: { padding: 5, borderRadius: 15, backgroundColor: "rgba(151,98,54,.34)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
-  failureBoard: { width: "100%", aspectRatio: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.8)" },
+  failureBoardPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(46,31,26,.82)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)", shadowColor: "#000", shadowOpacity: .24, shadowRadius: 18, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
+  failureBoardHeader: { gap: 3, paddingHorizontal: 2 },
+  failureBoardKicker: { color: "rgba(245,200,106,.94)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.15 },
+  failureBoardMove: { color: colors.paper, fontSize: 17, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
+  failureBoardSubhead: { color: "rgba(224,211,188,.78)", fontSize: 11, lineHeight: 15, fontWeight: "800" },
+  failureBoardFrame: { gap: 8, padding: 8, borderRadius: 21, backgroundColor: "rgba(18,14,13,.92)", borderWidth: 1, borderColor: "rgba(245,200,106,.38)" },
+  failureBoardInnerFrame: { padding: 5, borderRadius: 16, backgroundColor: "rgba(151,98,54,.35)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  failureBoard: { width: "100%", aspectRatio: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 11, borderWidth: 1, borderColor: "rgba(28,19,16,.86)" },
   failureBoardSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
-  failureBoardSquareLight: { backgroundColor: "#e6c993" },
-  failureBoardSquareDark: { backgroundColor: "#7f4f31" },
-  failureBoardSquareHighlight: { backgroundColor: "#d9a43d" },
-  failureBoardHighlightRing: { position: "absolute", left: 4, right: 4, top: 4, bottom: 4, borderRadius: 7, borderWidth: 2, borderColor: "rgba(255,248,211,.95)" },
+  failureBoardSquareLight: { backgroundColor: "#f0d29b" },
+  failureBoardSquareDark: { backgroundColor: "#815034" },
+  failureBoardSquareHighlight: { backgroundColor: "#d6a23a" },
+  failureBoardHighlightRing: { position: "absolute", left: 4, right: 4, top: 4, bottom: 4, borderRadius: 7, borderWidth: 2.5, borderColor: "#79e6ff", backgroundColor: "rgba(255,235,105,.2)" },
   failureBoardRankLabel: { position: "absolute", left: 2, top: 1, color: "rgba(35,24,18,.58)", fontSize: 8, lineHeight: 10, fontWeight: "900" },
   failureBoardFileLabel: { position: "absolute", right: 2, bottom: 0, color: "rgba(35,24,18,.58)", fontSize: 8, lineHeight: 10, fontWeight: "900", textTransform: "uppercase" },
-  failureBoardPiece: { fontSize: 27, lineHeight: 31, fontWeight: "900", textShadowColor: "rgba(0,0,0,.2)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 1 },
-  failureBoardPieceWhite: { color: "#fff3dc" },
-  failureBoardPieceBlack: { color: "#20140f" },
-  failureBoardCopy: { color: "rgba(224,211,188,.88)", fontSize: 12, lineHeight: 17, fontWeight: "800" },
+  failureBoardPiece: { fontSize: 28, lineHeight: 32, fontWeight: "900", textShadowColor: "rgba(0,0,0,.26)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 1.5 },
+  failureBoardPieceWhite: { color: "#fff5df" },
+  failureBoardPieceBlack: { color: "#1c120e" },
+  failureBoardLegendRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, paddingBottom: 1 },
+  failureBoardLegendSwatch: { width: 18, height: 10, borderRadius: 4, borderWidth: 2, borderColor: "#79e6ff", backgroundColor: "rgba(255,210,78,.48)" },
+  failureBoardLegendText: { color: "rgba(224,211,188,.78)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
+  failureBoardUnavailable: { flexDirection: "row", alignItems: "center", gap: 12, padding: 12, borderRadius: 18, backgroundColor: "rgba(24,18,16,.7)", borderWidth: 1, borderColor: "rgba(245,200,106,.2)" },
+  failureBoardUnavailableCopyBlock: { flex: 1, gap: 3 },
+  failureBoardUnavailableTitle: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900" },
+  failureBoardUnavailableCopy: { color: colors.muted, fontSize: 11, lineHeight: 15, fontWeight: "800" },
+  failureBoardCopy: { color: "rgba(224,211,188,.9)", fontSize: 12, lineHeight: 17, fontWeight: "800" },
   detailPanelTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.2 },
   detailPanelCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
   detailRow: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.07)" },

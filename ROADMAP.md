@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Launch-polish mobile chessboards for verifier diagnostics.
+  - added_at: 2026-05-31 21:12 Europe/Stockholm
+  - completed_at: 2026-05-31 21:22 Europe/Stockholm
+  - source: Andreas agreed to a focused v144 launch-readiness pass for mobile chessboards before public launch polish.
+  - scope: improved board visuals/readability, added board-unavailable fallback states for invalid/missing FEN, tightened diagnostic context copy, added colorblind-safe cyan+gold breaker highlights and legend, strengthened mini-board frame/fallback, and bumped Android to v144.
+  - proof: targeted ESLint passed; mobile typecheck passed after replacing invalid icon name; Next build passed; `pnpm quest:release-gate` passed; Android release build passed with Expo 0.1.144 / versionCode 144; APK prepared at `public/downloads/sqc-mobile-android-beta-candidate-v144-2026-05-31.apk` with SHA256 `ce10e622e51aba8cdb6188d3a9bdcfe3b0bc262218b24950bd6dffd21cf81d6a`; production deploy/smoke pending.
+
 - [x] Make custom Solo Side Quests launch-ready end-to-end.
   - added_at: 2026-05-31 20:30 Europe/Stockholm
   - completed_at: 2026-05-31 20:47 Europe/Stockholm

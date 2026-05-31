@@ -4265,3 +4265,11 @@ For filtered historical production logs, use project-scoped logs with `--environ
 
 Adding the full-resolution multiplayer seal PNG to the React Native bundle pushed `sqc-mobile-android-beta-candidate-v115` over GitHub's 100 MB file limit (`102.37 MB`). Keep web assets high quality if needed, but downscale/optimize mobile-bundled image assets before rebuilding APKs.
 
+
+## 2026-05-31 — macOS shell has no `timeout` command by default
+- What happened: During SQC v143 deploy verification I tried `timeout 20s vercel logs ...`; macOS/zsh returned `command not found: timeout`.
+- Do differently: Use the exec tool's `timeout` parameter or a background process/poll kill pattern instead of assuming GNU coreutils `timeout` exists on this Mac.
+
+## 2026-05-31 — MaterialCommunityIcons TypeScript rejects guessed icon names
+- What happened: During SQC v144 board polish, typecheck failed because `chess-board` is not a valid typed MaterialCommunityIcons name.
+- Do differently: Reuse known-valid icon names from the project or verify against the icon type/package before choosing a new one; `checkerboard` passed.
