@@ -159,13 +159,41 @@ function parseMobileFenBoard(fen?: string | null, highlightUci?: string | null):
   return board.length === 64 ? board : null;
 }
 
+function isFailedReceipt(receipt?: MobileAccountState["latestReceipt"] | null) {
+  return receipt?.status === "failed" || receipt?.headline?.toLowerCase().includes("failed") === true;
+}
+
+function getReceiptFailureText(receipt?: MobileAccountState["latestReceipt"] | null) {
+  if (!receipt || !isFailedReceipt(receipt)) return null;
+  return receipt.failureDiagnostic?.explanation ?? receipt.detail ?? "Latest game checked — proof not accepted.";
+}
+
+function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | null) {
+  if (!receipt) return "Latest-game check done.";
+  if (receipt.status === "passed" || receipt.headline?.toLowerCase().includes("passed")) return "Quest completed.";
+  if (isFailedReceipt(receipt)) return "Latest game checked — proof not accepted.";
+  return "Latest-game check done.";
+}
+
+function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
+  const failureText = getReceiptFailureText(receipt);
+  if (!failureText) return null;
+
+  return (
+    <View style={compactStyles.currentFailurePanel}>
+      <Text style={compactStyles.currentFailureTitle}>Proof not accepted</Text>
+      <Text style={compactStyles.currentFailureCopy} numberOfLines={4}>{failureText}</Text>
+    </View>
+  );
+}
+
 function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
   const diagnostic = receipt?.failureDiagnostic;
   const fen = diagnostic?.fenAtBreak ?? receipt?.finalPositionFen;
   const uci = diagnostic?.uci ?? receipt?.lastMoveUci;
   const board = parseMobileFenBoard(fen, uci);
 
-  if (!receipt || receipt.status !== "failed" || !board) return null;
+  if (!receipt || !isFailedReceipt(receipt)) return null;
 
   const moveLabel = diagnostic?.moveNumber ? `Move ${diagnostic.moveNumber}` : diagnostic?.ply ? `Ply ${diagnostic.ply}` : "Breaker position";
   const moveText = diagnostic?.san ?? diagnostic?.uci ?? receipt.lastMoveSan ?? receipt.lastMoveUci ?? null;
@@ -173,17 +201,19 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   return (
     <View style={compactStyles.failureBoardPanel}>
       <View style={compactStyles.failureBoardHeader}>
-        <Text style={compactStyles.failureBoardKicker}>Why it failed</Text>
-        <Text style={compactStyles.failureBoardMove}>{moveText ? `${moveLabel} · ${moveText}` : moveLabel}</Text>
+        <Text style={compactStyles.failureBoardKicker}>Proof not accepted</Text>
+        <Text style={compactStyles.failureBoardMove}>{board && moveText ? `${moveLabel} · ${moveText}` : diagnostic?.label ?? "Why it failed"}</Text>
       </View>
-      <View style={compactStyles.failureBoard}>
-        {board.map((square, index) => (
-          <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
-            <Text style={compactStyles.failureBoardPiece}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
-          </View>
-        ))}
-      </View>
-      <Text style={compactStyles.failureBoardCopy}>{diagnostic?.explanation ?? receipt.detail}</Text>
+      {board ? (
+        <View style={compactStyles.failureBoard}>
+          {board.map((square, index) => (
+            <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+              <Text style={compactStyles.failureBoardPiece}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      <Text style={compactStyles.failureBoardCopy}>{getReceiptFailureText(receipt)}</Text>
     </View>
   );
 }
@@ -1114,6 +1144,7 @@ function TodayDashboard({
   const activeQuestReceipt = latestReceipt?.challengeId === signedIn?.activeQuest?.id ? latestReceipt : null;
   const latestCheckText = activeQuestReceipt?.headline ? normalizeCheckHeadline(activeQuestReceipt.headline) : null;
   const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
+  const latestCheckFailed = isFailedReceipt(activeQuestReceipt);
   const canViewCurrentProof = Boolean(signedIn?.activeQuest?.completed || latestCheckPassed);
   const activeStatus = signedIn?.activeQuest?.completed || latestCheckPassed ? "Completed" : signedIn?.activeQuest ? "In progress" : "No active Side Quest";
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
@@ -1216,9 +1247,11 @@ function TodayDashboard({
     try {
       const sessionToken = await authBridge.getSessionToken();
       const result = await runMobileQuestAction({ sessionToken, action: "check", challengeId: signedIn.activeQuest.id });
-      setActionState({ busy: false, message: result.message, error: null });
       const nextAccount = await Promise.resolve(onAccountUpdated());
-      showNewCompletionCelebration(previousCompletedIds, coerceAccountResponse(nextAccount), "solo");
+      const coercedAccount = coerceAccountResponse(nextAccount);
+      const refreshedReceipt = isAuthenticatedAccount(coercedAccount) ? coercedAccount.latestReceipt : null;
+      setActionState({ busy: false, message: getCheckActionMessage(refreshedReceipt) || result.message, error: null });
+      showNewCompletionCelebration(previousCompletedIds, coercedAccount, "solo");
     } catch (caught) {
       setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not check this Side Quest." });
     }
@@ -1350,6 +1383,7 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
               </View>
             </View>
+            <ActiveQuestFailureSummary receipt={activeQuestReceipt ?? null} />
             {canViewCurrentProof ? (
               <View style={compactStyles.actionRowTight}>
                 <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
@@ -1360,7 +1394,7 @@ function TodayDashboard({
                 </Pressable>
               </View>
             ) : null}
-            {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+            {actionState.message ? <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
           </View>
@@ -2076,6 +2110,7 @@ function CurrentSideQuestDetailModal({
   if (!activeQuest) return null;
 
   const completed = activeQuest.completed || latestCheckPassed;
+  const latestCheckFailed = isFailedReceipt(latestReceipt);
   const accountLabel = signedIn.chessAccounts.lichessUsername
     ? `lichess · ${signedIn.chessAccounts.lichessUsername}`
     : signedIn.chessAccounts.chessComUsername
@@ -2132,7 +2167,7 @@ function CurrentSideQuestDetailModal({
               </View>
             </View>
           )}
-          {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
+          {actionState.message ? <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
           {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
 
           <Pressable accessibilityRole="button" style={compactStyles.detailQuietButton} onPress={onSwitchQuest}>
@@ -6094,6 +6129,9 @@ const compactStyles = StyleSheet.create({
   detailLatestCheck: { color: colors.gold, fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   detailPanel: { overflow: "hidden", borderRadius: 16, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
   detailPanelStrong: { gap: 6, padding: 10, borderRadius: 17, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  currentFailurePanel: { gap: 4, marginTop: 8, padding: 10, borderRadius: 15, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(255,122,122,.24)" },
+  currentFailureTitle: { color: "rgba(255,122,122,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
+  currentFailureCopy: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   failureBoardPanel: { gap: 10, padding: 12, borderRadius: 18, backgroundColor: "rgba(119,43,43,.18)", borderWidth: 1, borderColor: "rgba(255,122,122,.28)" },
   failureBoardHeader: { gap: 2 },
   failureBoardKicker: { color: "rgba(255,122,122,.88)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .8 },

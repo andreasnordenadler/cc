@@ -33,6 +33,8 @@ public/downloads/*.apk.sha256
 !public/downloads/sqc-mobile-android-beta-candidate-v133-2026-05-31.apk.sha256
 !public/downloads/sqc-mobile-android-beta-candidate-v134-2026-05-31.apk
 !public/downloads/sqc-mobile-android-beta-candidate-v134-2026-05-31.apk.sha256
+!public/downloads/sqc-mobile-android-beta-candidate-v135-2026-05-31.apk
+!public/downloads/sqc-mobile-android-beta-candidate-v135-2026-05-31.apk.sha256
 *.tsbuildinfo
 .env*
 .DS_Store
