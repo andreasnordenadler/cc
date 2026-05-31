@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import { checkLatestCustomSideQuestForProvider, getCustomSideQuestById } from "@/lib/custom-side-quests";
 import {
   buildChallengeProgressRecord,
   compactChallengeAttempts,
@@ -181,36 +182,38 @@ function getPassedProviderCheck(checks: MobileProviderCheck[]): MobileProviderCh
 
 async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
   const challenge = getChallengeById(challengeId);
+  const customQuest = challenge ? null : getCustomSideQuestById(metadata, challengeId);
 
-  if (!challenge) {
+  if (!challenge && !customQuest) {
     throw new Error("Unknown quest.");
   }
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(challenge.id, metadata, now));
+  const questId = challenge?.id ?? customQuest!.id;
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, metadata, now));
   const progress = getChallengeProgress(metadata);
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
-  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(challenge.id)
-    ? [...progress.completedChallengeIds, challenge.id]
+  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(questId)
+    ? [...progress.completedChallengeIds, questId]
     : progress.completedChallengeIds;
 
   await updateUserPublicMetadata(userId, metadata, {
     activeChallenge: {
-      id: challenge.id,
+      id: questId,
       status: passedCheck ? "verified" : (latestCheck?.status ?? "accepted"),
       startedAt: now,
       verifiedAt: passedCheck ? now : undefined,
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,
-      ...providerChecks.map((check, index) => buildAttempt(challenge.id, check, `${challenge.id}:${check.provider}:activation:${now}:${index}`, now)),
+      ...providerChecks.map((check, index) => buildAttempt(questId, check, `${questId}:${check.provider}:activation:${now}:${index}`, now)),
     ]),
     challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
   });
 
-  return { challengeId: challenge.id, completed: Boolean(passedCheck) };
+  return { challengeId: questId, completed: Boolean(passedCheck) };
 }
 
 async function checkMobileActiveChallenge(userId: string, metadata: UserMetadataRecord) {
@@ -223,36 +226,38 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
   }
 
   const challenge = getChallengeById(activeChallenge.id);
+  const customQuest = challenge ? null : getCustomSideQuestById(metadata, activeChallenge.id);
 
-  if (!challenge) {
+  if (!challenge && !customQuest) {
     throw new Error("Unknown active quest.");
   }
+  const questId = challenge?.id ?? customQuest!.id;
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(challenge.id, metadata, activeChallenge.startedAt ?? now));
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, metadata, activeChallenge.startedAt ?? now));
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
   const progress = getChallengeProgress(metadata);
-  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(challenge.id)
-    ? [...progress.completedChallengeIds, challenge.id]
+  const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(questId)
+    ? [...progress.completedChallengeIds, questId]
     : progress.completedChallengeIds;
 
   await updateUserPublicMetadata(userId, metadata, {
     activeChallenge: {
-      id: challenge.id,
+      id: questId,
       status: passedCheck ? "verified" : (latestCheck?.status ?? "pending"),
       startedAt: activeChallenge.startedAt ?? now,
       verifiedAt: passedCheck ? now : undefined,
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,
-      ...providerChecks.map((check, index) => buildAttempt(challenge.id, check, `${challenge.id}:${check.provider}:${now}:${index}`, now)),
+      ...providerChecks.map((check, index) => buildAttempt(questId, check, `${questId}:${check.provider}:${now}:${index}`, now)),
     ]),
     challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
   });
 
-  return { challengeId: challenge.id, completed: Boolean(passedCheck) };
+  return { challengeId: questId, completed: Boolean(passedCheck) };
 }
 
 async function deactivateMobileActiveChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
@@ -269,21 +274,23 @@ async function deactivateMobileActiveChallenge(userId: string, metadata: UserMet
 
 async function resetMobileCompletedChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
   const challenge = getChallengeById(challengeId);
+  const customQuest = challenge ? null : getCustomSideQuestById(metadata, challengeId);
 
-  if (!challenge) {
+  if (!challenge && !customQuest) {
     throw new Error("Unknown quest.");
   }
 
+  const questId = challenge?.id ?? customQuest!.id;
   const progress = getChallengeProgress(metadata);
   const existingAttempts = getExistingAttempts(metadata);
-  const remainingAttempts = existingAttempts.filter((attempt) => getAttemptChallengeId(attempt) !== challenge.id);
-  const completedChallengeIds = progress.completedChallengeIds.filter((id) => id !== challenge.id);
+  const remainingAttempts = existingAttempts.filter((attempt) => getAttemptChallengeId(attempt) !== questId);
+  const completedChallengeIds = progress.completedChallengeIds.filter((id) => id !== questId);
   const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
     ? (metadata.activeChallenge as { id?: string })
     : null;
 
   await updateUserPublicMetadata(userId, metadata, {
-    activeChallenge: activeChallenge?.id === challenge.id ? null : metadata.activeChallenge,
+    activeChallenge: activeChallenge?.id === questId ? null : metadata.activeChallenge,
     challengeAttempts: compactChallengeAttempts(remainingAttempts),
     challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
   });
@@ -295,11 +302,11 @@ async function safeBuildLatestGameChecks(challengeId: string, metadata: UserMeta
   const checks: MobileProviderCheck[] = [];
 
   if (lichessUsername) {
-    checks.push({ ...(await buildLatestGameCheck(challengeId, "lichess", lichessUsername, activatedAfter)), provider: "lichess" });
+    checks.push({ ...(await buildLatestGameCheck(challengeId, "lichess", lichessUsername, activatedAfter, metadata)), provider: "lichess" });
   }
 
   if (chessComUsername) {
-    checks.push({ ...(await buildLatestGameCheck(challengeId, "chesscom", chessComUsername, activatedAfter)), provider: "chess.com" });
+    checks.push({ ...(await buildLatestGameCheck(challengeId, "chesscom", chessComUsername, activatedAfter, metadata)), provider: "chess.com" });
   }
 
   if (checks.length) return checks;
@@ -314,9 +321,12 @@ async function safeBuildLatestGameChecks(challengeId: string, metadata: UserMeta
   ];
 }
 
-async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "chesscom", username: string, activatedAfter: string): Promise<Omit<MobileProviderCheck, "provider">> {
+async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "chesscom", username: string, activatedAfter: string, metadata?: UserMetadataRecord): Promise<Omit<MobileProviderCheck, "provider">> {
   try {
-    const verdict = await checkLatestChallengeForProvider({ challengeId, provider, username });
+    const customQuest = metadata ? getCustomSideQuestById(metadata, challengeId) : null;
+    const verdict = customQuest
+      ? await checkLatestCustomSideQuestForProvider({ quest: customQuest, provider, username })
+      : await checkLatestChallengeForProvider({ challengeId, provider, username });
     return buildLatestGameCheckPayload(verdict, getChallengeById(challengeId)?.title ?? challengeId, activatedAfter);
   } catch {
     return {

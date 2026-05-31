@@ -166,7 +166,7 @@ export function buildChallengeProgressRecord(completedChallengeIds: string[]): C
     totalCompletedChallenges: completedChallengeIds.length,
     totalRewardPoints: completedChallengeIds.reduce((sum, id) => {
       const challenge = CHALLENGES.find((item) => item.id === id);
-      return sum + (challenge?.reward ?? 0);
+      return sum + (challenge?.reward ?? (id.startsWith("custom-") ? 100 : 0));
     }, 0),
   };
 }
@@ -194,7 +194,7 @@ export function getChallengeProgress(metadata: UserMetadataRecord): ChallengePro
         ? record.totalRewardPoints
         : completedChallengeIds.reduce((sum, id) => {
             const challenge = CHALLENGES.find((item) => item.id === id);
-            return sum + (challenge?.reward ?? 0);
+            return sum + (challenge?.reward ?? (id.startsWith("custom-") ? 100 : 0));
           }, 0),
   };
 }

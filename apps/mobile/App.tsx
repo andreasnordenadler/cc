@@ -31,7 +31,7 @@ import {
   type ScrollViewProps,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
@@ -3028,6 +3028,8 @@ function QuestBoardDashboard({
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
+  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config })) : [];
+  const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
@@ -3100,7 +3102,7 @@ function QuestBoardDashboard({
     }
   }
 
-  function saveCustomDraft() {
+  async function saveCustomDraft() {
     if (customConditionEditorOpen) {
       Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
       return;
@@ -3110,9 +3112,36 @@ function QuestBoardDashboard({
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
-    setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
-    Alert.alert("Custom Side Quest saved", `${name} is ready in your mobile Side Quest Library.`);
-    setCustomCreateOpen(false);
+    if (!authBridge.isSignedIn) {
+      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+      Alert.alert("Sign in to launch this Side Quest", `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
+      setCustomCreateOpen(false);
+      return;
+    }
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig });
+      await Promise.resolve(onAccountUpdated());
+      Alert.alert("Custom Side Quest saved", `${name} is ready to pick and verify in your Side Quest Library.`);
+      setCustomCreateOpen(false);
+    } catch (caught) {
+      Alert.alert("Could not save custom Side Quest", caught instanceof Error ? caught.message : "Try again in a moment.");
+    }
+  }
+
+  async function startCustomSideQuest(questId: string) {
+    if (!authBridge.isSignedIn) {
+      Alert.alert("Sign in to start custom Side Quests", "Saved custom Side Quests can be picked and verified after sign-in.");
+      return;
+    }
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await runMobileQuestAction({ sessionToken, action: "start", challengeId: questId });
+      await Promise.resolve(onAccountUpdated());
+      onSelectTab("home");
+    } catch (caught) {
+      Alert.alert("Could not start custom Side Quest", caught instanceof Error ? caught.message : "Try again in a moment.");
+    }
   }
 
   useEffect(() => {
@@ -3163,14 +3192,14 @@ function QuestBoardDashboard({
               <Text style={compactStyles.primaryActionText}>Open Builder</Text>
             </View>
             <View style={compactStyles.secondaryAction}>
-              <Text style={compactStyles.secondaryActionText}>{customDrafts.length ? `${customDrafts.length} draft${customDrafts.length === 1 ? "" : "s"}` : "No drafts yet"}</Text>
+              <Text style={compactStyles.secondaryActionText}>{visibleCustomDrafts.length ? `${visibleCustomDrafts.length} custom` : "No custom yet"}</Text>
             </View>
           </View>
         </Pressable>
-        {customDrafts.length ? (
+        {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
-            {customDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
+            {visibleCustomDrafts.map((draft) => (
+              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => void startCustomSideQuest(draft.id)} />
             ))}
           </View>
         ) : null}
@@ -4069,6 +4098,8 @@ function SideQuestsScreen({
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
+  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config })) : [];
+  const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
@@ -4141,7 +4172,7 @@ function SideQuestsScreen({
     }
   }
 
-  function saveCustomDraft() {
+  async function saveCustomDraft() {
     if (customConditionEditorOpen) {
       Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
       return;
@@ -4151,9 +4182,36 @@ function SideQuestsScreen({
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
-    setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
-    Alert.alert("Custom Side Quest saved", `${name} is ready in your mobile Side Quest Library.`);
-    setCustomCreateOpen(false);
+    if (!authBridge.isSignedIn) {
+      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+      Alert.alert("Sign in to launch this Side Quest", `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
+      setCustomCreateOpen(false);
+      return;
+    }
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig });
+      await Promise.resolve(onAccountUpdated());
+      Alert.alert("Custom Side Quest saved", `${name} is ready to pick and verify in your Side Quest Library.`);
+      setCustomCreateOpen(false);
+    } catch (caught) {
+      Alert.alert("Could not save custom Side Quest", caught instanceof Error ? caught.message : "Try again in a moment.");
+    }
+  }
+
+  async function startCustomSideQuest(questId: string) {
+    if (!authBridge.isSignedIn) {
+      Alert.alert("Sign in to start custom Side Quests", "Saved custom Side Quests can be picked and verified after sign-in.");
+      return;
+    }
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await runMobileQuestAction({ sessionToken, action: "start", challengeId: questId });
+      await Promise.resolve(onAccountUpdated());
+      onSelectTab("home");
+    } catch (caught) {
+      Alert.alert("Could not start custom Side Quest", caught instanceof Error ? caught.message : "Try again in a moment.");
+    }
   }
 
   return (
@@ -4188,8 +4246,8 @@ function SideQuestsScreen({
         <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest library.</Text>
         <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
         <View style={compactStyles.appRows}>
-          {customDrafts.length ? customDrafts.map((draft) => (
-            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />
+          {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
+            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => void startCustomSideQuest(draft.id)} />
           )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Create" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>

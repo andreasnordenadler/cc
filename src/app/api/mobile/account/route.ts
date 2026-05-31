@@ -5,6 +5,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
 import { buildPublicProofPath } from "@/lib/proof-share";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
+import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -38,12 +39,17 @@ export async function GET(request: Request) {
   const baseUrl = new URL(request.url).origin;
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const progress = getChallengeProgress(metadata);
+  const customSideQuests = getCustomSideQuests(metadata);
+  const customQuestMap = new Map(customSideQuests.map((quest) => [quest.id, quest]));
   const activeChallenge = getActiveChallenge(metadata);
-  const activeChallengeRecord = activeChallenge?.id
+  const activeOfficialChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
+  const activeCustomQuestRecord = activeChallenge?.id ? customQuestMap.get(activeChallenge.id) ?? null : null;
+  const activeChallengeRecord = activeOfficialChallengeRecord ?? activeCustomQuestRecord;
   const completedSet = new Set(progress.completedChallengeIds);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
+  const completedCustomQuests = customSideQuests.filter((quest) => completedSet.has(quest.id));
   const attempts = getChallengeAttempts(metadata);
   const rawLatestAttempt = getLatestAttemptForChallenge(metadata, activeChallenge?.id) ?? attempts.at(-1) ?? null;
   const latestPassedAttempt = activeChallenge?.id ? getLatestPassedAttempt(metadata, activeChallenge.id) : null;
@@ -87,6 +93,16 @@ export async function GET(request: Request) {
       badgeImageUrl: challenge.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, baseUrl).toString() : null,
     };
   }));
+  completedQuestPayloads.push(...completedCustomQuests.map((quest) => ({
+    id: quest.id,
+    title: quest.title,
+    reward: 100,
+    badgeName: "Custom Side Quest",
+    completedAt: getLatestPassedAttempt(metadata, quest.id)?.completedGameAt ?? getLatestPassedAttempt(metadata, quest.id)?.checkedAt ?? null,
+    href: new URL(`/challenges`, baseUrl).toString(),
+    proofHref: null,
+    badgeImageUrl: null,
+  })));
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, userId);
   const publicGroupQuests = await listPublicGroupQuests(client);
   const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
@@ -236,6 +252,7 @@ export async function GET(request: Request) {
       totalRewardPoints: progress.totalRewardPoints,
       proofReceiptCount: attempts.length,
     },
+    customSideQuests,
     activeQuest: activeChallenge && activeChallengeRecord
       ? {
           id: activeChallengeRecord.id,
@@ -245,9 +262,9 @@ export async function GET(request: Request) {
           verifiedAt: activeChallenge.verifiedAt ?? null,
           completed: completedSet.has(activeChallengeRecord.id),
           banner: challengeBanner(activeChallenge),
-          href: new URL(`/challenges/${activeChallengeRecord.id}`, baseUrl).toString(),
+          href: activeChallengeRecord.id.startsWith("custom-") ? new URL(`/challenges`, baseUrl).toString() : new URL(`/challenges/${activeChallengeRecord.id}`, baseUrl).toString(),
           proofHref: latestProofPath && latestAttempt?.challengeId === activeChallengeRecord.id ? new URL(latestProofPath, baseUrl).toString() : null,
-          badgeImageUrl: activeChallengeRecord.badgeIdentity.image
+          badgeImageUrl: "badgeIdentity" in activeChallengeRecord && activeChallengeRecord.badgeIdentity.image
             ? new URL(activeChallengeRecord.badgeIdentity.image, baseUrl).toString()
             : null,
         }

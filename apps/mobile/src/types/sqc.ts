@@ -97,6 +97,16 @@ export type MobileGroupQuestSummary = {
   leaderboardRows?: MobileGroupQuestParticipantRow[];
 };
 
+
+export type MobileCustomSideQuest = {
+  id: string;
+  title: string;
+  summary: string;
+  config: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type MobileAccountState = {
   apiVersion: number;
   authenticated: true;
@@ -119,6 +129,7 @@ export type MobileAccountState = {
     totalRewardPoints: number;
     proofReceiptCount: number;
   };
+  customSideQuests?: MobileCustomSideQuest[];
   activeQuest: {
     id: string;
     title: string;
@@ -228,6 +239,16 @@ export type MobileSupportMessageResponse = {
   message: string;
   submittedAt?: string;
   supportMessage?: MobileSupportMessage;
+};
+
+export type MobileCustomQuestSaveResponse = {
+  apiVersion: number;
+  authenticated: boolean;
+  ok?: boolean;
+  action?: "save" | "delete";
+  message: string;
+  customQuest?: MobileCustomSideQuest;
+  customSideQuests?: MobileCustomSideQuest[];
 };
 
 export type MobileQuestActionResponse = {

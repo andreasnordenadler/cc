@@ -2,6 +2,7 @@ import type {
   MobileAccountResponse,
   MobileBootstrap,
   MobileGroupQuestActionResponse,
+  MobileCustomQuestSaveResponse,
   MobileProfileUpdateResponse,
   MobileSupportMessageResponse,
   MobileQuestActionResponse,
@@ -103,6 +104,34 @@ export async function submitMobileSupportMessage({
 
   if (!response.ok) {
     throw new Error(payload.message || `SQC mobile support message failed: ${response.status}`);
+  }
+
+  return payload;
+}
+
+
+export async function saveMobileCustomSideQuest({
+  sessionToken,
+  title,
+  summary,
+  config,
+  id,
+}: {
+  sessionToken?: string | null;
+  title: string;
+  summary: string;
+  config: string;
+  id?: string;
+}): Promise<MobileCustomQuestSaveResponse> {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/custom-quests`, {
+    method: "POST",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ id, title, summary, config }),
+  }, 20000);
+  const payload = await readMobileJson<MobileCustomQuestSaveResponse>(response, "custom Side Quest save");
+
+  if (!response.ok) {
+    throw new Error(payload.message || `SQC mobile custom Side Quest save failed: ${response.status}`);
   }
 
   return payload;
