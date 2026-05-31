@@ -154,6 +154,7 @@ type MobileProviderCheck = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  failureDiagnostic?: LatestChallengeVerdict["failureDiagnostic"];
 };
 
 async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
@@ -324,9 +325,10 @@ function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeT
     summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
     startedGameAt: verdict.startedGameAt,
     completedGameAt: verdict.completedGameAt,
-    finalPositionFen: (verdict as { finalPositionFen?: string }).finalPositionFen,
-    lastMoveUci: (verdict as { lastMoveUci?: string }).lastMoveUci,
-    lastMoveSan: (verdict as { lastMoveSan?: string }).lastMoveSan,
+    finalPositionFen: verdict.finalPositionFen,
+    lastMoveUci: verdict.lastMoveUci,
+    lastMoveSan: verdict.lastMoveSan,
+    failureDiagnostic: verdict.failureDiagnostic,
   };
 }
 
@@ -344,6 +346,7 @@ function buildAttempt(challengeId: string, check: MobileProviderCheck, id: strin
     finalPositionFen: check.finalPositionFen,
     lastMoveUci: check.lastMoveUci,
     lastMoveSan: check.lastMoveSan,
+    failureDiagnostic: check.failureDiagnostic,
   };
 }
 

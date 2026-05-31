@@ -174,6 +174,18 @@ export type MobileAccountState = {
     meta: string;
     proofHref: string | null;
     proofImageUrl: string | null;
+    finalPositionFen?: string | null;
+    lastMoveUci?: string | null;
+    lastMoveSan?: string | null;
+    failureDiagnostic?: {
+      label?: string;
+      explanation?: string;
+      moveNumber?: number;
+      ply?: number;
+      san?: string;
+      uci?: string;
+      fenAtBreak?: string;
+    } | null;
   } | null;
   supportMessages?: MobileSupportMessage[];
 };

@@ -1,3 +1,4 @@
+import { Chess } from "chess.js";
 import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
 export type NoCastleSide = "white" | "black";
 export type NoCastleResult = "white" | "black" | "draw" | "unknown";
@@ -17,7 +18,11 @@ export type NoCastleGame = {
     ply: number;
     color: NoCastleSide;
     side: "kingside" | "queenside";
+    uci?: string;
+    san?: string;
+    fenAfter?: string;
   }>;
+  normalizedMoves?: string[];
 };
 
 type LichessNoCastleGame = {
@@ -43,6 +48,18 @@ export type NoCastleVerdict = {
   evidence: string[];
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+  failureDiagnostic?: {
+    label?: string;
+    explanation?: string;
+    moveNumber?: number;
+    ply?: number;
+    san?: string;
+    uci?: string;
+    fenAtBreak?: string;
+  };
 };
 
 const ALLOWED_TIME_CLASSES = new Set<NoCastleTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
@@ -66,6 +83,33 @@ function castlingFromUci(move: string, ply: number) {
   return null;
 }
 
+function applyUciMove(chess: Chess, uci: string) {
+  const match = uci.match(/^([a-h][1-8])([a-h][1-8])([qrbn])?$/i);
+  if (!match) return null;
+  try {
+    return chess.move({ from: match[1], to: match[2], promotion: match[3]?.toLowerCase() });
+  } catch {
+    return null;
+  }
+}
+
+function enrichCastlingEvents(moves: string[]) {
+  const chess = new Chess();
+  const events: Array<{ ply: number; color: NoCastleSide; side: "kingside" | "queenside"; uci?: string; san?: string; fenAfter?: string }> = [];
+
+  moves.forEach((move, index) => {
+    const ply = index + 1;
+    const castling = castlingFromUci(move, ply);
+    const applied = applyUciMove(chess, move);
+
+    if (castling) {
+      events.push({ ...castling, uci: move, san: applied?.san, fenAfter: chess.fen() });
+    }
+  });
+
+  return { events, finalPositionFen: chess.fen(), lastMoveUci: moves.at(-1), lastMoveSan: chess.history().at(-1) };
+}
+
 export function normalizeLichessNoCastleClubGame(
   game: LichessNoCastleGame,
   username: string,
@@ -80,9 +124,8 @@ export function normalizeLichessNoCastleClubGame(
   }
 
   const moves = normalizeLichessMoveTokens(game.moves);
-  const castling = moves
-    .map((move, index) => castlingFromUci(move, index + 1))
-    .filter((event): event is NonNullable<ReturnType<typeof castlingFromUci>> => Boolean(event));
+  const proofPositions = enrichCastlingEvents(moves);
+  const castling = proofPositions.events;
 
   return {
     id: game.id,
@@ -95,6 +138,7 @@ export function normalizeLichessNoCastleClubGame(
     startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
     castling,
+    normalizedMoves: moves,
   };
 }
 
@@ -202,11 +246,24 @@ export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
   }
 
   if (playerCastling) {
+    const moveNumber = moveNumberFromPly(playerCastling.ply);
     return {
       status: "failed",
       gameId: game.id,
       summary: `The king took the sensible ${playerCastling.side} castle. Club membership denied.`,
-      evidence: [`${colorName(game.playerColor)} castled ${playerCastling.side} on move ${moveNumberFromPly(playerCastling.ply)}.`],
+      evidence: [`${colorName(game.playerColor)} castled ${playerCastling.side} on move ${moveNumber}.`],
+      finalPositionFen: playerCastling.fenAfter,
+      lastMoveUci: playerCastling.uci,
+      lastMoveSan: playerCastling.san,
+      failureDiagnostic: {
+        label: "Castling broke the condition",
+        explanation: `${colorName(game.playerColor)} castled ${playerCastling.side} on move ${moveNumber}.`,
+        moveNumber,
+        ply: playerCastling.ply,
+        san: playerCastling.san,
+        uci: playerCastling.uci,
+        fenAtBreak: playerCastling.fenAfter,
+      },
     };
   }
 

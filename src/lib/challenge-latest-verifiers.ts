@@ -32,6 +32,16 @@ import { checkLatestLichessBlunderGambit } from "@/lib/the-blunder-gambit";
 
 export type SupportedLatestChallengeProvider = "lichess" | "chesscom";
 
+export type LatestChallengeFailureDiagnostic = {
+  label?: string;
+  explanation?: string;
+  moveNumber?: number;
+  ply?: number;
+  san?: string;
+  uci?: string;
+  fenAtBreak?: string;
+};
+
 export type LatestChallengeVerdict = {
   status: "passed" | "failed" | "pending";
   gameId: string;
@@ -39,6 +49,10 @@ export type LatestChallengeVerdict = {
   evidence?: string[];
   completedGameAt?: string;
   startedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
+  failureDiagnostic?: LatestChallengeFailureDiagnostic;
 };
 
 type LatestChallengeVerifier = (username: string) => Promise<LatestChallengeVerdict>;

@@ -15,6 +15,16 @@ export type ActiveChallenge = {
   verifiedAt?: string;
 };
 
+export type ChallengeFailureDiagnostic = {
+  label?: string;
+  explanation?: string;
+  moveNumber?: number;
+  ply?: number;
+  san?: string;
+  uci?: string;
+  fenAtBreak?: string;
+};
+
 export type ChallengeAttempt = {
   id?: string;
   challengeId?: string;
@@ -28,6 +38,7 @@ export type ChallengeAttempt = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  failureDiagnostic?: ChallengeFailureDiagnostic;
 };
 
 export function getLichessUsername(metadata: UserMetadataRecord): string {

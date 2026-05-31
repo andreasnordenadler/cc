@@ -1881,6 +1881,11 @@ Screenshot review workflow - 2026-05-14:
   - Proof: added `POST /api/mobile/quest` for `start` and `check`, using existing website server-action semantics; added mobile `Website parity action` cards on quest/status surfaces. Latest build label: `Android preview 0.2.17 / quest actions`; proof doc: `docs/SQC_MOBILE_QUEST_ACTIONS_SLICE_2026-05-14.md`.
   - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; Android `expo export --platform android --output-dir dist-android-quest-actions`; local production anonymous `POST /api/mobile/quest` returned expected 401 JSON.
 
+- [ ] SQC verifier diagnostics: report why/when a Side Quest condition broke.
+  - added_at: 2026-05-31 15:54 Europe/Stockholm
+  - source: Andreas asked whether failed checks can report what move broke a condition, shifting focus from binary pass/fail to WHY and WHEN users fail.
+  - Acceptance: latest-game verifier payloads can include structured failure diagnostics such as failing condition id/label, move/ply number, SAN/UCI when available, FEN/position-at-break when reconstructable, provider game URL/deep link when available, and user-facing explanation; mobile/web check UI can show the first actionable break point and ideally render a small board for that position without changing completed-proof semantics.
+
 - [ ] SQC Mobile parity queue: complete explicit game/link proof submission.
   - added_at: 2026-05-14 08:52 Europe/Stockholm
   - source: mobile feature parity matrix; next solo quest-loop gap after native start/check.

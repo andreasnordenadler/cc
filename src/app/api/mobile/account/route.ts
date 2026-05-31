@@ -275,6 +275,10 @@ export async function GET(request: Request) {
           meta: latestAttemptSummary.meta,
           proofHref: latestProofPath ? new URL(latestProofPath, baseUrl).toString() : null,
           proofImageUrl: latestProofPath ? new URL(`/api/og${latestProofPath}`, baseUrl).toString() : null,
+          finalPositionFen: latestAttempt.finalPositionFen ?? null,
+          lastMoveUci: latestAttempt.lastMoveUci ?? null,
+          lastMoveSan: latestAttempt.lastMoveSan ?? null,
+          failureDiagnostic: latestAttempt.failureDiagnostic ?? null,
       }
       : null,
     supportMessages: getSupportMessages(user.privateMetadata).map((message) => ({
