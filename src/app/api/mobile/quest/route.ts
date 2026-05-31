@@ -157,6 +157,28 @@ type MobileProviderCheck = {
   failureDiagnostic?: LatestChallengeVerdict["failureDiagnostic"];
 };
 
+function getProviderCheckTimeMs(check: Pick<MobileProviderCheck, "startedGameAt" | "completedGameAt">): number {
+  const raw = check.completedGameAt ?? check.startedGameAt;
+  if (!raw) return 0;
+  const parsed = Date.parse(raw);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function orderProviderChecksForReceipt(checks: MobileProviderCheck[]): MobileProviderCheck[] {
+  return [...checks].sort((a, b) => {
+    const statusRank = (check: MobileProviderCheck) => check.status === "passed" ? 2 : check.status === "failed" ? 1 : 0;
+    const rankDelta = statusRank(a) - statusRank(b);
+    if (rankDelta !== 0) return rankDelta;
+    return getProviderCheckTimeMs(a) - getProviderCheckTimeMs(b);
+  });
+}
+
+function getPassedProviderCheck(checks: MobileProviderCheck[]): MobileProviderCheck | undefined {
+  return checks
+    .filter((check) => check.status === "passed")
+    .sort((a, b) => getProviderCheckTimeMs(b) - getProviderCheckTimeMs(a))[0];
+}
+
 async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
   const challenge = getChallengeById(challengeId);
 
@@ -166,9 +188,9 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = await safeBuildLatestGameChecks(challenge.id, metadata, now);
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(challenge.id, metadata, now));
   const progress = getChallengeProgress(metadata);
-  const passedCheck = providerChecks.find((check) => check.status === "passed");
+  const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
   const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(challenge.id)
     ? [...progress.completedChallengeIds, challenge.id]
@@ -208,10 +230,9 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = await safeBuildLatestGameChecks(challenge.id, metadata, activeChallenge.startedAt ?? now);
-  const passedCheck = providerChecks.find((check) => check.status === "passed");
-  const orderedProviderChecks = passedCheck ? [...providerChecks.filter((check) => check !== passedCheck), passedCheck] : providerChecks;
-  const latestCheck = orderedProviderChecks.at(-1);
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(challenge.id, metadata, activeChallenge.startedAt ?? now));
+  const passedCheck = getPassedProviderCheck(providerChecks);
+  const latestCheck = providerChecks.at(-1);
   const progress = getChallengeProgress(metadata);
   const completedChallengeIds = passedCheck && !progress.completedChallengeIds.includes(challenge.id)
     ? [...progress.completedChallengeIds, challenge.id]
@@ -226,7 +247,7 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
     },
     challengeAttempts: compactChallengeAttempts([
       ...existingAttempts,
-      ...orderedProviderChecks.map((check, index) => buildAttempt(challenge.id, check, `${challenge.id}:${check.provider}:${now}:${index}`, now)),
+      ...providerChecks.map((check, index) => buildAttempt(challenge.id, check, `${challenge.id}:${check.provider}:${now}:${index}`, now)),
     ]),
     challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
   });
