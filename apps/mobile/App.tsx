@@ -85,7 +85,7 @@ const MULTIPLAYER_RULE_OPTIONS = {
 
 const CUSTOM_RULE_PIECES = ["king", "queen", "rook", "bishop", "knight", "pawn"] as const;
 const CUSTOM_RULE_OWNERS = ["my", "opponent"] as const;
-const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square", "move sequence"] as const;
+const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square", "move sequence", "opening sequence"] as const;
 const CUSTOM_RULE_TIMINGS = ["by move", "at move", "at game end"] as const;
 const CUSTOM_RULE_QUANTIFIERS = ["any one", "at least", "exactly", "all"] as const;
 const CUSTOM_RULE_LOGICS = ["all", "any"] as const;
@@ -109,6 +109,7 @@ type CustomRuleRequirement = {
   identity: string;
   targetSquare: string;
   moveSequence: string;
+  openingSequence: string;
   negated: boolean;
 };
 
@@ -236,6 +237,35 @@ function normalizeCustomMoveSequence(value: string) {
   return cleaned.slice(0, 180);
 }
 
+function normalizeCustomOpeningSequence(value: string) {
+  return value
+    .replace(/\{[^}]*\}/g, " ")
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/\$\d+/g, " ")
+    .replace(/(?:1-0|0-1|1\/2-1\/2|\*)/g, " ")
+    .replace(/\d+\.{1,3}/g, " ")
+    .replace(/[!?]+/g, "")
+    .replace(/[^a-zA-Z0-9+#=xXO\-–—.\s]/g, " ")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 240);
+}
+
+function getCustomOpeningMoves(value: string) {
+  return normalizeCustomOpeningSequence(value)
+    .split(/\s+/)
+    .map((move) => move.trim())
+    .filter(Boolean)
+    .slice(0, 40);
+}
+
+function getCustomOpeningPreview(value: string) {
+  const moves = getCustomOpeningMoves(value);
+  if (!moves.length) return "No moves parsed yet.";
+  return moves.join(" → ");
+}
+
 function getCustomTimingSummary(timing: CustomRuleTiming, moveNumber: number) {
   if (timing === "by move") return `by move ${moveNumber}`;
   if (timing === "at move") return `at move ${moveNumber}`;
@@ -247,6 +277,11 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
   if (input.condition === "move sequence") {
     const sequence = normalizeCustomMoveSequence(input.moveSequence) || "e4 e5";
     const positiveRule = `Game must include the move sequence “${sequence}” ${timing}.`;
+    return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
+  }
+  if (input.condition === "opening sequence") {
+    const sequence = getCustomOpeningMoves(input.openingSequence).join(" ") || "e4 e5 f4";
+    const positiveRule = `Opening line must match “${sequence}” ${timing}.`;
     return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
   }
   const owner = input.owner === "my" ? "your" : "opponent's";
@@ -272,6 +307,15 @@ function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
     return {
       type: "moveSequence",
       sequence: normalizeCustomMoveSequence(input.moveSequence),
+      timing: input.timing === "by move" ? { byMove: input.moveNumber } : input.timing === "at move" ? { atMove: input.moveNumber } : { atGameEnd: true },
+      negate: input.negated,
+    };
+  }
+  if (input.condition === "opening sequence") {
+    return {
+      type: "openingSequence",
+      raw: input.openingSequence,
+      moves: getCustomOpeningMoves(input.openingSequence),
       timing: input.timing === "by move" ? { byMove: input.moveNumber } : input.timing === "at move" ? { atMove: input.moveNumber } : { atGameEnd: true },
       negate: input.negated,
     };
@@ -2768,6 +2812,7 @@ function QuestBoardDashboard({
   const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleMoveSequence, setCustomRuleMoveSequence] = useState("e4 e5 Nf3");
+  const [customRuleOpeningSequence, setCustomRuleOpeningSequence] = useState("1.e4 e5 2.f4");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
@@ -2783,6 +2828,7 @@ function QuestBoardDashboard({
     identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
     targetSquare: normalizeCustomSquare(customRuleTargetSquare),
     moveSequence: normalizeCustomMoveSequence(customRuleMoveSequence),
+    openingSequence: normalizeCustomOpeningSequence(customRuleOpeningSequence),
     negated: customRuleNegated,
   };
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
@@ -2800,6 +2846,7 @@ function QuestBoardDashboard({
     setCustomRuleIdentity(requirement.identity);
     setCustomRuleTargetSquare(requirement.targetSquare);
     setCustomRuleMoveSequence(requirement.moveSequence || "e4 e5 Nf3");
+    setCustomRuleOpeningSequence(requirement.openingSequence || "1.e4 e5 2.f4");
     setCustomRuleNegated(requirement.negated);
   }
 
@@ -3097,6 +3144,13 @@ function QuestBoardDashboard({
                       <Text style={compactStyles.multiplayerRuleLabel}>Move sequence</Text>
                       <TextInput value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
                       <Text style={styles.microcopy}>Enter algebraic moves in order, for example e4 e5 Nf3 Nc6. Timing decides when the sequence must be complete or appear.</Text>
+                    </View>
+                  ) : null}
+                  {customRuleCondition === "opening sequence" ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Opening sequence</Text>
+                      <TextInput value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
+                      <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
@@ -3766,6 +3820,7 @@ function SideQuestsScreen({
   const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleMoveSequence, setCustomRuleMoveSequence] = useState("e4 e5 Nf3");
+  const [customRuleOpeningSequence, setCustomRuleOpeningSequence] = useState("1.e4 e5 2.f4");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
@@ -3781,6 +3836,7 @@ function SideQuestsScreen({
     identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
     targetSquare: normalizeCustomSquare(customRuleTargetSquare),
     moveSequence: normalizeCustomMoveSequence(customRuleMoveSequence),
+    openingSequence: normalizeCustomOpeningSequence(customRuleOpeningSequence),
     negated: customRuleNegated,
   };
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
@@ -3798,6 +3854,7 @@ function SideQuestsScreen({
     setCustomRuleIdentity(requirement.identity);
     setCustomRuleTargetSquare(requirement.targetSquare);
     setCustomRuleMoveSequence(requirement.moveSequence || "e4 e5 Nf3");
+    setCustomRuleOpeningSequence(requirement.openingSequence || "1.e4 e5 2.f4");
     setCustomRuleNegated(requirement.negated);
   }
 
@@ -4044,6 +4101,13 @@ function SideQuestsScreen({
                       <Text style={compactStyles.multiplayerRuleLabel}>Move sequence</Text>
                       <TextInput value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
                       <Text style={styles.microcopy}>Enter algebraic moves in order, for example e4 e5 Nf3 Nc6. Timing decides when the sequence must be complete or appear.</Text>
+                    </View>
+                  ) : null}
+                  {customRuleCondition === "opening sequence" ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Opening sequence</Text>
+                      <TextInput value={customRuleOpeningSequence} placeholder="1.e4 e5 2.f4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleOpeningSequence(value.slice(0, 260))} onEndEditing={() => setCustomRuleOpeningSequence((current) => normalizeCustomOpeningSequence(current) || "1.e4 e5 2.f4")} />
+                      <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
