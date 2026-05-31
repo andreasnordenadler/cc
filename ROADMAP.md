@@ -9,6 +9,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
+- [x] Make custom Solo Side Quests launch-ready end-to-end.
+  - added_at: 2026-05-31 20:30 Europe/Stockholm
+  - completed_at: 2026-05-31 20:47 Europe/Stockholm
+  - source: Andreas asked to implement persistent saved custom quests, generic verification/scoring with diagnostics, mobile/API wiring, tests/release gates, then build/deploy/smoke test v143.
+  - scope: added Clerk-metadata-backed custom Solo Side Quest storage; mobile save/delete API; account API custom quest listing and active custom quest display; mobile builder persistence and custom quest start flow; generic latest-game verifier for builder configs covering piece state, square, move sequence, and opening sequence blocks; structured failure diagnostics/FEN output; custom completion reward handling; release gate coverage; v143 Android APK packaging.
+  - proof: commit `ab7381b` (`Launch custom Solo Side Quests`) pushed to `main`; `pnpm quest:release-gate` passed including the new custom launch gate; targeted ESLint passed; mobile typecheck passed; `pnpm build` passed locally and on Vercel; Android release build passed with Expo 0.1.143 / versionCode 143; production deploy `dpl_5EixCg3zZz6Q3iRWdD5BmGE3rDVC` aliased to `https://sidequestchess.com`; smoke checks returned 200 for `/`, `/api/mobile/bootstrap`, v143 APK, and SHA file; `/api/mobile/custom-quests` returned safe 405 for unauthenticated GET; Vercel log scan found 0 suspicious error/500 lines. APK SHA256 `8decbf44ad9a4470203470e0359a3a3569f51faa5878d1baf6c9fabfa620f35e`.
+
 - [x] Finalize mobile Side Quest incomplete-state copy and custom builder.
   - added_at: 2026-05-31 20:06 Europe/Stockholm
   - completed_at: 2026-05-31 20:18 Europe/Stockholm
