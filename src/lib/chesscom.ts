@@ -1,3 +1,4 @@
+import { Chess } from "chess.js";
 import type { BlunderGambitCaptureEvent, BlunderGambitGame, BlunderGambitPiece, BlunderGambitVerdict } from "./the-blunder-gambit";
 import type { KnightmareFinalMove, KnightmareGame, KnightmareVerdict } from "./knightmare-mode";
 import type { OneBishopGame, OneBishopVerdict } from "./one-bishop-to-rule-them-all";
@@ -53,10 +54,14 @@ type ChessComNoCastleGame = {
   timeClass?: "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveSan?: string;
   castling: Array<{
     ply: number;
     color: "white" | "black";
     side: "kingside" | "queenside";
+    san?: string;
+    fenAfter?: string;
   }>;
 };
 
@@ -67,6 +72,17 @@ type ChessComNoCastleVerdict = {
   evidence: string[];
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveSan?: string;
+  failureDiagnostic?: {
+    label?: string;
+    explanation?: string;
+    moveNumber?: number;
+    ply?: number;
+    san?: string;
+    uci?: string;
+    fenAtBreak?: string;
+  };
 };
 
 type ChessComKnightsBeforeCoffeeGame = {
@@ -1259,6 +1275,42 @@ function evaluateChessComQueenNeverHeardOfHer(game: QueenChallengeGame): QueenCh
   return { status: "passed", gameId: game.id, summary: "Queen lost before move 15, opponent queen still alive, player still won. Certified queenless nonsense.", evidence };
 }
 
+function buildChessComNoCastleFinalDiagnostic(game: ChessComNoCastleGame, label: string, explanation: string): Pick<ChessComNoCastleVerdict, "finalPositionFen" | "lastMoveSan" | "failureDiagnostic"> {
+  return {
+    finalPositionFen: game.finalPositionFen,
+    lastMoveSan: game.lastMoveSan,
+    failureDiagnostic: {
+      label,
+      explanation,
+      moveNumber: game.moveCount,
+      san: game.lastMoveSan,
+      fenAtBreak: game.finalPositionFen,
+    },
+  };
+}
+
+function enrichChessComNoCastlePositions(sanMoves: string[]) {
+  const chess = new Chess();
+  const castling: ChessComNoCastleGame["castling"] = [];
+
+  sanMoves.forEach((token, index) => {
+    const event = chessComCastlingFromSan(token, index + 1);
+    let fenAfter: string | undefined;
+    try {
+      chess.move(token);
+      fenAfter = chess.fen();
+    } catch {
+      fenAfter = undefined;
+    }
+
+    if (event) {
+      castling.push({ ...event, san: token, fenAfter });
+    }
+  });
+
+  return { castling, finalPositionFen: chess.fen(), lastMoveSan: sanMoves.at(-1) };
+}
+
 function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCastleVerdict {
   const playerCastling = game.castling.find((event) => event.color === game.playerColor);
   const opponentCastling = game.castling.find((event) => event.color !== game.playerColor);
@@ -1269,6 +1321,7 @@ function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCas
       gameId: game.id,
       summary: "Variants are fun, but No Castle Club only counts standard chess games.",
       evidence: [`Variant was ${game.variant}.`],
+      ...buildChessComNoCastleFinalDiagnostic(game, "Wrong game type", `Variant was ${game.variant}.`),
     };
   }
 
@@ -1278,6 +1331,7 @@ function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCas
       gameId: game.id,
       summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
       evidence: [`Time class was ${game.timeClass}.`],
+      ...buildChessComNoCastleFinalDiagnostic(game, "Wrong time control", `Time class was ${game.timeClass}.`),
     };
   }
 
@@ -1287,6 +1341,7 @@ function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCas
       gameId: game.id,
       summary: "The game ended before the minimum 10-move proof threshold.",
       evidence: [`Game length was ${game.moveCount} moves.`],
+      ...buildChessComNoCastleFinalDiagnostic(game, "Game too short", `Game length was ${game.moveCount} moves.`),
     };
   }
 
@@ -1296,6 +1351,11 @@ function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCas
       gameId: game.id,
       summary: "No Castle Club only counts if the uncastled player still wins.",
       evidence: [`Winner was ${game.winner === "draw" ? "draw" : chessComColorName(game.winner as "white" | "black")}.`],
+      ...buildChessComNoCastleFinalDiagnostic(
+        game,
+        "Win condition failed",
+        `${chessComColorName(game.playerColor)} did not castle, but ${game.winner === "draw" ? "the game was drawn" : `${chessComColorName(game.winner as "white" | "black")} won`}. This quest requires the uncastled player to win.`,
+      ),
     };
   }
 
@@ -1305,6 +1365,16 @@ function evaluateChessComNoCastleClub(game: ChessComNoCastleGame): ChessComNoCas
       gameId: game.id,
       summary: `The king took the sensible ${playerCastling.side} castle. Club membership denied.`,
       evidence: [`${chessComColorName(game.playerColor)} castled ${playerCastling.side} on move ${Math.ceil(playerCastling.ply / 2)}.`],
+      finalPositionFen: playerCastling.fenAfter,
+      lastMoveSan: playerCastling.san,
+      failureDiagnostic: {
+        label: "Castling broke the condition",
+        explanation: `${chessComColorName(game.playerColor)} castled ${playerCastling.side} on move ${Math.ceil(playerCastling.ply / 2)}.`,
+        moveNumber: Math.ceil(playerCastling.ply / 2),
+        ply: playerCastling.ply,
+        san: playerCastling.san,
+        fenAtBreak: playerCastling.fenAfter,
+      },
     };
   }
 
@@ -1330,9 +1400,7 @@ export function normalizeChessComNoCastleClubGame(game: ChessComGame, username: 
   }
 
   const sanMoves = extractSanMoveTokens(game.pgn);
-  const castling = sanMoves
-    .map((token, index) => chessComCastlingFromSan(token, index + 1))
-    .filter((event): event is NonNullable<ReturnType<typeof chessComCastlingFromSan>> => Boolean(event));
+  const proofPositions = enrichChessComNoCastlePositions(sanMoves);
 
   return {
     id: normalizeChessComGameUrl(game.url),
@@ -1343,7 +1411,9 @@ export function normalizeChessComNoCastleClubGame(game: ChessComGame, username: 
     timeClass: normalizeChessComTimeClass(game.time_class),
     startedGameAt: getChessComStartedGameAt(game),
     completedGameAt: getChessComCompletedGameAt(game),
-    castling,
+    finalPositionFen: proofPositions.finalPositionFen,
+    lastMoveSan: proofPositions.lastMoveSan,
+    castling: proofPositions.castling,
   };
 }
 

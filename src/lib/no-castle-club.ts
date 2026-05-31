@@ -14,6 +14,9 @@ export type NoCastleGame = {
   rated?: boolean;
   startedGameAt?: string;
   completedGameAt?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
   castling: Array<{
     ply: number;
     color: NoCastleSide;
@@ -137,6 +140,9 @@ export function normalizeLichessNoCastleClubGame(
     rated: game.rated,
     startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
+    finalPositionFen: proofPositions.finalPositionFen,
+    lastMoveUci: proofPositions.lastMoveUci,
+    lastMoveSan: proofPositions.lastMoveSan,
     castling,
     normalizedMoves: moves,
   };
@@ -204,6 +210,23 @@ export function moveNumberFromPly(ply: number): number {
   return Math.ceil(ply / 2);
 }
 
+function buildFinalPositionFailureDiagnostic(game: NoCastleGame, label: string, explanation: string): Pick<NoCastleVerdict, "finalPositionFen" | "lastMoveUci" | "lastMoveSan" | "failureDiagnostic"> {
+  return {
+    finalPositionFen: game.finalPositionFen,
+    lastMoveUci: game.lastMoveUci,
+    lastMoveSan: game.lastMoveSan,
+    failureDiagnostic: {
+      label,
+      explanation,
+      moveNumber: game.moveCount,
+      ply: game.normalizedMoves?.length,
+      san: game.lastMoveSan,
+      uci: game.lastMoveUci,
+      fenAtBreak: game.finalPositionFen,
+    },
+  };
+}
+
 export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
   const playerCastling = game.castling.find((event) => event.color === game.playerColor);
   const opponentCastling = game.castling.find((event) => event.color !== game.playerColor);
@@ -215,6 +238,7 @@ export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
       gameId: game.id,
       summary: "Variants are fun, but No Castle Club only counts standard chess games.",
       evidence: [`Variant was ${game.variant}.`],
+      ...buildFinalPositionFailureDiagnostic(game, "Wrong game type", `Variant was ${game.variant}.`),
     };
   }
 
@@ -224,6 +248,7 @@ export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
       gameId: game.id,
       summary: "This game was outside the v1 bullet/blitz/rapid eligibility window.",
       evidence: [`Time class was ${game.timeClass}.`],
+      ...buildFinalPositionFailureDiagnostic(game, "Wrong time control", `Time class was ${game.timeClass}.`),
     };
   }
 
@@ -233,6 +258,7 @@ export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
       gameId: game.id,
       summary: "The game ended before the minimum 10-move proof threshold.",
       evidence: [`Game length was ${game.moveCount} moves.`],
+      ...buildFinalPositionFailureDiagnostic(game, "Game too short", `Game length was ${game.moveCount} moves.`),
     };
   }
 
@@ -242,6 +268,11 @@ export function evaluateNoCastleClub(game: NoCastleGame): NoCastleVerdict {
       gameId: game.id,
       summary: "No Castle Club only counts if the uncastled player still wins.",
       evidence: [`Winner was ${game.winner === "draw" ? "draw" : colorName(game.winner as NoCastleSide)}.`],
+      ...buildFinalPositionFailureDiagnostic(
+        game,
+        "Win condition failed",
+        `${colorName(game.playerColor)} did not castle, but ${game.winner === "draw" ? "the game was drawn" : `${colorName(game.winner as NoCastleSide)} won`}. This quest requires the uncastled player to win.`,
+      ),
     };
   }
 
