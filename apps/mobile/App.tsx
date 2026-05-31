@@ -85,7 +85,7 @@ const MULTIPLAYER_RULE_OPTIONS = {
 
 const CUSTOM_RULE_PIECES = ["king", "queen", "rook", "bishop", "knight", "pawn"] as const;
 const CUSTOM_RULE_OWNERS = ["my", "opponent"] as const;
-const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square"] as const;
+const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square", "move sequence"] as const;
 const CUSTOM_RULE_TIMINGS = ["by move", "at move", "at game end"] as const;
 const CUSTOM_RULE_QUANTIFIERS = ["any one", "at least", "exactly", "all"] as const;
 const CUSTOM_RULE_LOGICS = ["all", "any"] as const;
@@ -108,6 +108,7 @@ type CustomRuleRequirement = {
   count: number;
   identity: string;
   targetSquare: string;
+  moveSequence: string;
   negated: boolean;
 };
 
@@ -226,7 +227,28 @@ function formatCustomMoveNumberInput(value: string) {
   return String(normalizeCustomMoveNumber(digits));
 }
 
+function normalizeCustomMoveSequence(value: string) {
+  const cleaned = value
+    .replace(/[^a-zA-Z0-9+#=xXO\-–—.\s]/g, " ")
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned.slice(0, 180);
+}
+
+function getCustomTimingSummary(timing: CustomRuleTiming, moveNumber: number) {
+  if (timing === "by move") return `by move ${moveNumber}`;
+  if (timing === "at move") return `at move ${moveNumber}`;
+  return "at game end";
+}
+
 function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
+  const timing = getCustomTimingSummary(input.timing, input.moveNumber);
+  if (input.condition === "move sequence") {
+    const sequence = normalizeCustomMoveSequence(input.moveSequence) || "e4 e5";
+    const positiveRule = `Game must include the move sequence “${sequence}” ${timing}.`;
+    return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
+  }
   const owner = input.owner === "my" ? "your" : "opponent's";
   const count = normalizeCustomRuleCount(input.piece, input.count);
   const identity = getCustomPieceIdentityLabel(input.piece, input.identity);
@@ -239,7 +261,6 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
     : input.quantifier === "any one"
       ? "any 1"
       : `${input.quantifier} ${count}`;
-  const timing = input.timing === "by move" ? `by move ${input.moveNumber}` : input.timing === "at move" ? `at move ${input.moveNumber}` : "at game end";
   const condition = input.condition === "on square" ? `on ${normalizeCustomSquare(input.targetSquare)}` : input.condition;
   const subject = hasSpecificIdentity ? `${owner} ${pieceLabel}` : `${owner} ${quantifier} ${pieceLabel}`;
   const positiveRule = `${titleCaseRuleValue(subject)} must be ${condition} ${timing}.`;
@@ -247,6 +268,14 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
 }
 
 function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
+  if (input.condition === "move sequence") {
+    return {
+      type: "moveSequence",
+      sequence: normalizeCustomMoveSequence(input.moveSequence),
+      timing: input.timing === "by move" ? { byMove: input.moveNumber } : input.timing === "at move" ? { atMove: input.moveNumber } : { atGameEnd: true },
+      negate: input.negated,
+    };
+  }
   return {
     type: "pieceState",
     piece: input.piece,
@@ -2738,6 +2767,7 @@ function QuestBoardDashboard({
   const [customRuleCount, setCustomRuleCount] = useState(1);
   const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
+  const [customRuleMoveSequence, setCustomRuleMoveSequence] = useState("e4 e5 Nf3");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
@@ -2752,6 +2782,7 @@ function QuestBoardDashboard({
     count: normalizeCustomRuleCount(customRulePiece, customRuleCount),
     identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
     targetSquare: normalizeCustomSquare(customRuleTargetSquare),
+    moveSequence: normalizeCustomMoveSequence(customRuleMoveSequence),
     negated: customRuleNegated,
   };
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
@@ -2768,6 +2799,7 @@ function QuestBoardDashboard({
     setCustomRuleCount(requirement.count);
     setCustomRuleIdentity(requirement.identity);
     setCustomRuleTargetSquare(requirement.targetSquare);
+    setCustomRuleMoveSequence(requirement.moveSequence || "e4 e5 Nf3");
     setCustomRuleNegated(requirement.negated);
   }
 
@@ -3058,6 +3090,13 @@ function QuestBoardDashboard({
                       <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
                       <TextInput value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
                       <Text style={styles.microcopy}>Use algebraic board squares like e4, h8, or a1.</Text>
+                    </View>
+                  ) : null}
+                  {customRuleCondition === "move sequence" ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Move sequence</Text>
+                      <TextInput value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
+                      <Text style={styles.microcopy}>Enter algebraic moves in order, for example e4 e5 Nf3 Nc6. Timing decides when the sequence must be complete or appear.</Text>
                     </View>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
@@ -3726,6 +3765,7 @@ function SideQuestsScreen({
   const [customRuleCount, setCustomRuleCount] = useState(1);
   const [customRuleIdentity, setCustomRuleIdentity] = useState("original");
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
+  const [customRuleMoveSequence, setCustomRuleMoveSequence] = useState("e4 e5 Nf3");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
@@ -3740,6 +3780,7 @@ function SideQuestsScreen({
     count: normalizeCustomRuleCount(customRulePiece, customRuleCount),
     identity: normalizeCustomPieceIdentity(customRulePiece, customRuleIdentity),
     targetSquare: normalizeCustomSquare(customRuleTargetSquare),
+    moveSequence: normalizeCustomMoveSequence(customRuleMoveSequence),
     negated: customRuleNegated,
   };
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
@@ -3756,6 +3797,7 @@ function SideQuestsScreen({
     setCustomRuleCount(requirement.count);
     setCustomRuleIdentity(requirement.identity);
     setCustomRuleTargetSquare(requirement.targetSquare);
+    setCustomRuleMoveSequence(requirement.moveSequence || "e4 e5 Nf3");
     setCustomRuleNegated(requirement.negated);
   }
 
@@ -3995,6 +4037,13 @@ function SideQuestsScreen({
                       <Text style={compactStyles.multiplayerRuleLabel}>Square</Text>
                       <TextInput value={customRuleTargetSquare} placeholder="e4" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" maxLength={2} style={styles.textInput} onChangeText={setCustomRuleTargetSquare} />
                       <Text style={styles.microcopy}>Use algebraic board squares like e4, h8, or a1.</Text>
+                    </View>
+                  ) : null}
+                  {customRuleCondition === "move sequence" ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Move sequence</Text>
+                      <TextInput value={customRuleMoveSequence} placeholder="e4 e5 Nf3 Nc6" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" multiline style={[styles.textInput, styles.textAreaInput]} onChangeText={(value) => setCustomRuleMoveSequence(normalizeCustomMoveSequence(value))} />
+                      <Text style={styles.microcopy}>Enter algebraic moves in order, for example e4 e5 Nf3 Nc6. Timing decides when the sequence must be complete or appear.</Text>
                     </View>
                   ) : null}
                   <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
