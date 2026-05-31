@@ -9,10 +9,12 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-05-22
 
-- [ ] Harden SQC Mobile release pipeline after v145 audit.
+- [x] Harden SQC Mobile release pipeline after v145 audit.
   - added_at: 2026-05-31 21:56 Europe/Stockholm
+  - completed_at: 2026-05-31 22:16 Europe/Stockholm
   - source: Andreas approved the first four audit fixes: Gradle version source of truth, real release signing/credential hygiene, credential ignores, and Clerk/Next security upgrades.
-  - scope: mobile Android release config plus web/mobile dependency security updates; produce a verified v146 APK and deploy if gates pass.
+  - scope: mobile Android release config plus web/mobile dependency security updates; produced verified v146 APK and deployed after gates passed.
+  - proof: commit `dc1d593` (`Harden mobile release pipeline`) pushed to `main`; Gradle now reads `apps/mobile/app.json` for APK version and refuses release builds without non-debug signing credentials; `.gitignore` now protects `apps/mobile/credentials.json`, `apps/mobile/credentials/`, `*.jks`, and `*.keystore`; upgraded Next to `16.2.6`, `@clerk/nextjs` to `7.4.2`, and `@clerk/clerk-expo` to `2.19.38`; `pnpm audit --prod --audit-level high`, mobile typecheck, targeted ESLint, `pnpm quest:release-gate`, Next build, Android `lintRelease`, and Android `assembleRelease` passed. v146 APK manifest verified as `versionName 0.1.146`, `versionCode 146`, `debuggable=false`; `apksigner verify` passed with non-Android-debug signer. Production deploy `https://cc-ii0ysw2n6-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke returned 200 for `/`, `/api/mobile/bootstrap`, v146 APK, and SHA; Vercel error log scan found no logs. APK SHA256 `3951814c1c008a3ef9bcbb6f5a2363e9080c5af7e3047eee39b7ef88c1a240b0`.
 
 - [x] Center-align mobile red error/status copy.
   - added_at: 2026-05-31 21:30 Europe/Stockholm
