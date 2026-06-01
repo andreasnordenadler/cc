@@ -140,14 +140,14 @@ export function hasLatestChallengeVerifier(challengeId: string, provider: Suppor
   return Boolean(latestChallengeVerifiers[challengeId]?.[provider]);
 }
 
-async function enrichFailedVerdictWithLatestBoard(input: {
+async function enrichVerdictWithLatestBoard(input: {
   provider: SupportedLatestChallengeProvider;
   username: string;
   verdict: LatestChallengeVerdict;
 }): Promise<LatestChallengeVerdict> {
   const { provider, username, verdict } = input;
 
-  if (verdict.status !== "failed" || verdict.finalPositionFen || verdict.failureDiagnostic?.fenAtBreak) {
+  if (verdict.status === "pending" || (verdict.finalPositionFen && (verdict.status === "passed" || verdict.failureDiagnostic?.fenAtBreak))) {
     return verdict;
   }
 
@@ -157,18 +157,30 @@ async function enrichFailedVerdictWithLatestBoard(input: {
     return verdict;
   }
 
-  return {
-    ...verdict,
+  const latestFinishedLastMoveSan = "lastMoveSan" in latestFinished ? latestFinished.lastMoveSan : undefined;
+  const sharedBoardFields = {
     startedGameAt: verdict.startedGameAt ?? latestFinished.startedGameAt,
     completedGameAt: verdict.completedGameAt ?? latestFinished.completedGameAt,
-    finalPositionFen: latestFinished.finalPositionFen,
+    finalPositionFen: verdict.finalPositionFen ?? latestFinished.finalPositionFen,
     lastMoveUci: verdict.lastMoveUci ?? latestFinished.lastMoveUci,
-    lastMoveSan: verdict.lastMoveSan,
-    failureDiagnostic: verdict.failureDiagnostic ?? {
-      label: "Latest checked position",
-      explanation: "This is the final board from the same latest game that was checked for the Side Quest.",
-      fenAtBreak: latestFinished.finalPositionFen,
-    },
+    lastMoveSan: verdict.lastMoveSan ?? latestFinishedLastMoveSan,
+  };
+
+  if (verdict.status === "failed") {
+    return {
+      ...verdict,
+      ...sharedBoardFields,
+      failureDiagnostic: verdict.failureDiagnostic ?? {
+        label: "Latest checked position",
+        explanation: "This is the final board from the same latest game that was checked for the Side Quest.",
+        fenAtBreak: latestFinished.finalPositionFen,
+      },
+    };
+  }
+
+  return {
+    ...verdict,
+    ...sharedBoardFields,
   };
 }
 
@@ -182,5 +194,5 @@ export async function checkLatestChallengeForProvider(input: {
     throw new Error(`No latest-game verifier registered for ${input.challengeId} on ${input.provider}.`);
   }
   const verdict = await verifier(input.username);
-  return enrichFailedVerdictWithLatestBoard({ provider: input.provider, username: input.username, verdict });
+  return enrichVerdictWithLatestBoard({ provider: input.provider, username: input.username, verdict });
 }

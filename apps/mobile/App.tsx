@@ -1562,7 +1562,7 @@ function TodayDashboard({
               <View style={compactStyles.coatMarker}>
                 {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
                 <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
-                {latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
+                {signedIn.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
               </View>
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
@@ -2356,8 +2356,15 @@ function CurrentSideQuestDetailModal({
 
           {canViewCurrentProof ? (
             <View style={compactStyles.detailPanelStrong}>
-              <Text style={compactStyles.detailPanelTitle}>Proof ready</Text>
-              <Text style={compactStyles.detailPanelCopy}>Your latest eligible game completed this Side Quest.</Text>
+              <View style={compactStyles.proofReadyHeaderRow}>
+                <View style={compactStyles.proofReadySealFrame}>
+                  <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.proofReadySealImage} resizeMode="contain" />
+                </View>
+                <View style={compactStyles.proofReadyCopyBlock}>
+                  <Text style={compactStyles.detailPanelTitle}>Proof ready</Text>
+                  <Text style={compactStyles.detailPanelCopy}>Your latest eligible game completed this Side Quest.</Text>
+                </View>
+              </View>
               <Pressable accessibilityRole="button" style={compactStyles.detailPrimaryButton} onPress={onViewProof}>
                 <Text style={compactStyles.detailPrimaryButtonText}>View victory proof</Text>
               </Pressable>
@@ -3786,7 +3793,7 @@ function AccountSoloSideQuestSection({
             <View style={compactStyles.coatMarker}>
               {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
-              {latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
+              {account.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
             </View>
             <View style={compactStyles.currentQuestText}>
               <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{account.activeQuest.title}</Text>
@@ -3808,8 +3815,8 @@ function AccountSoloSideQuestSection({
             </View>
           </View>
           {activeStatus === "Completed" && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
-          {activeStatus !== "Completed" && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
-          {activeStatus !== "Completed" && !activeQuestReceipt ? <ActiveQuestNoGameSummary /> : null}
+          {activeStatus !== "Completed" && activeQuestReceipt && isFailedReceipt(activeQuestReceipt) ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
+          {activeStatus !== "Completed" && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
         </Pressable>
         </View>
       ) : (
@@ -6428,6 +6435,10 @@ const compactStyles = StyleSheet.create({
   detailLatestCheck: { color: colors.gold, fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   detailPanel: { overflow: "hidden", borderRadius: 16, backgroundColor: "rgba(255,247,232,.075)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
   detailPanelStrong: { gap: 6, padding: 10, borderRadius: 17, backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  proofReadyHeaderRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  proofReadySealFrame: { width: 48, height: 48, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.18)" },
+  proofReadySealImage: { width: 46, height: 46 },
+  proofReadyCopyBlock: { flex: 1, minWidth: 0, gap: 3 },
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(255,247,232,.07)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
