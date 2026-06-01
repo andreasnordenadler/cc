@@ -34,7 +34,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
-import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
+import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 
@@ -1373,7 +1373,9 @@ function TodayDashboard({
   const previousCompletedIdsRef = useRef<Set<string> | null>(null);
   const signedInCompletedChallengeKey = signedIn?.progress.completedChallengeIds.join("|") ?? "";
   const completedProofRecord = completedProofId ? signedIn?.completedQuests.find((quest) => quest.id === completedProofId) ?? null : null;
-  const completedProofChallenge = completedProofId ? bootstrap.challenges.find((challenge) => challenge.id === completedProofId) ?? null : null;
+  const completedProofOfficialChallenge = completedProofId ? bootstrap.challenges.find((challenge) => challenge.id === completedProofId) ?? null : null;
+  const completedProofCustomQuest = completedProofId ? signedIn?.customSideQuests?.find((quest) => quest.id === completedProofId) ?? null : null;
+  const completedProofChallenge = completedProofOfficialChallenge ?? (completedProofRecord ? buildCustomProofChallenge(completedProofRecord, completedProofCustomQuest) : null);
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
@@ -1729,13 +1731,7 @@ function TodayDashboard({
                 imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
                 glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
                 glowColor={completedChallenge?.badgeIdentity.colors.glow}
-                onPress={() => {
-                  if (completedChallenge) {
-                    setCompletedProofId(quest.id);
-                    return;
-                  }
-                  Alert.alert("Proof details", "This completed Side Quest is saved to your account.");
-                }}
+                onPress={() => setCompletedProofId(quest.id)}
               />
               <VictoryProofBoard proof={quest} />
             </View>
@@ -3132,7 +3128,9 @@ function QuestBoardDashboard({
   });
   const detailChallenge = detailChallengeId ? bootstrap.challenges.find((challenge) => challenge.id === detailChallengeId) ?? null : null;
   const completedQuestRecord = completedDetailId && signedIn ? signedIn.completedQuests.find((quest) => quest.id === completedDetailId) ?? null : null;
-  const completedDetailChallenge = completedDetailId ? bootstrap.challenges.find((challenge) => challenge.id === completedDetailId) ?? null : null;
+  const completedDetailOfficialChallenge = completedDetailId ? bootstrap.challenges.find((challenge) => challenge.id === completedDetailId) ?? null : null;
+  const completedDetailCustomQuest = completedDetailId ? signedIn?.customSideQuests?.find((quest) => quest.id === completedDetailId) ?? null : null;
+  const completedDetailChallenge = completedDetailOfficialChallenge ?? (completedQuestRecord ? buildCustomProofChallenge(completedQuestRecord, completedDetailCustomQuest) : null);
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
@@ -5528,6 +5526,45 @@ function CompletedQuestProofCard({
       {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
     </View>
   );
+}
+
+function buildCustomProofChallenge(
+  completedQuest: MobileAccountState["completedQuests"][number],
+  customQuest: MobileCustomSideQuest | null,
+): MobileChallenge {
+  const summary = customQuest?.summary?.trim() || "Complete your custom Side Quest rule in a verified public game.";
+  return {
+    id: completedQuest.id,
+    title: completedQuest.title,
+    objective: summary,
+    instruction: summary,
+    openingHint: "Custom Side Quest",
+    reward: completedQuest.reward,
+    category: "Custom",
+    difficulty: "Custom",
+    completionRate: "Custom",
+    flavor: "A personally invented chess errand, now accepted by the SQC paperwork office.",
+    badge: completedQuest.badgeName,
+    proofCallout: summary,
+    rules: [summary],
+    requirement: { side: "any", result: "custom" },
+    badgeIdentity: {
+      name: completedQuest.badgeName,
+      motif: "Custom Side Quest",
+      rarity: "Custom",
+      unlockCopy: `${completedQuest.title} completed.`,
+      imageUrl: completedQuest.badgeImageUrl,
+      colors: { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
+      heraldry: {
+        shield: "Custom",
+        charge: "Player-made rule",
+        crest: "Side Quest Chess",
+        motto: "Verified by mischief",
+        meaning: "This coat marks a completed custom Side Quest.",
+        weirdness: "Player-authored nonsense, formally stamped.",
+      },
+    },
+  };
 }
 
 function buildMobileVictoryScrollCopy(challenge: MobileChallenge) {
