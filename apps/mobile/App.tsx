@@ -865,7 +865,7 @@ const getMultiplayerSealSource = (quest?: { official?: boolean | null; id?: stri
 const SQC_GOLD_SEAL_ASSET = require("./assets/stamps/sqc-gold-seal.png") as ImageSourcePropType;
 const SQC_SILVER_SEAL_ASSET = require("./assets/stamps/sqc-silver-seal.png") as ImageSourcePropType;
 const SQC_BRONZE_SEAL_ASSET = require("./assets/stamps/sqc-bronze-seal.png") as ImageSourcePropType;
-const SQC_COMPLETED_RED_SEAL_ASSET = require("./assets/stamps/quest-complete-red-wax-sqc-v15.png") as ImageSourcePropType;
+const SQC_COMPLETED_RED_SEAL_ASSET = require("./assets/stamps/quest-complete-red-wax-sqc-v3.png") as ImageSourcePropType;
 
 const CHALLENGE_COAT_IMAGE_PATHS: Record<string, string> = {
   "finish-any-game": "/badges/v6/proof-loop-test-badge.png",
@@ -1693,23 +1693,25 @@ function TodayDashboard({
         {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 3).map((quest) => {
           const completedChallenge = bootstrap.challenges.find((challenge) => challenge.id === quest.id) ?? null;
           return (
-            <AppRow
-              key={quest.id}
-              title={cleanMultiplayerTitle(quest.title)}
-              meta={`Coat of Arms: ${quest.badgeName}`}
-              status={undefined}
-              statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
-              imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
-              glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
-              glowColor={completedChallenge?.badgeIdentity.colors.glow}
-              onPress={() => {
-                if (completedChallenge) {
-                  setCompletedProofId(quest.id);
-                  return;
-                }
-                Alert.alert("Proof details", "This completed Side Quest is saved to your account.");
-              }}
-            />
+            <View key={quest.id} style={compactStyles.trophyProofStack}>
+              <AppRow
+                title={cleanMultiplayerTitle(quest.title)}
+                meta={`Coat of Arms: ${quest.badgeName}`}
+                status={undefined}
+                statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
+                imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
+                glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
+                glowColor={completedChallenge?.badgeIdentity.colors.glow}
+                onPress={() => {
+                  if (completedChallenge) {
+                    setCompletedProofId(quest.id);
+                    return;
+                  }
+                  Alert.alert("Proof details", "This completed Side Quest is saved to your account.");
+                }}
+              />
+              <VictoryProofBoard proof={quest} />
+            </View>
           );
         }) : !signedIn.multiplayerTrophies?.length ? (
           <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
@@ -3819,15 +3821,17 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
         />
       ))}
       {completedQuests.slice(0, 5).map((quest) => (
-        <AppRow
-          key={`solo-${quest.id}`}
-          title={cleanMultiplayerTitle(quest.title)}
-          meta={`Coat of Arms: ${quest.badgeName}`}
-          status={undefined}
-          statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
-          imageSource={getRowImageSource(quest.badgeImageUrl)}
-          onPress={() => onOpenCompletedQuestDetail(quest.id)}
-        />
+        <View key={`solo-${quest.id}`} style={compactStyles.trophyProofStack}>
+          <AppRow
+            title={cleanMultiplayerTitle(quest.title)}
+            meta={`Coat of Arms: ${quest.badgeName}`}
+            status={undefined}
+            statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
+            imageSource={getRowImageSource(quest.badgeImageUrl)}
+            onPress={() => onOpenCompletedQuestDetail(quest.id)}
+          />
+          <VictoryProofBoard proof={quest} />
+        </View>
       ))}
       {!hasAnyTrophies ? (
         <AppRow title="No trophies yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
@@ -6320,9 +6324,10 @@ const compactStyles = StyleSheet.create({
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  detailContent: { paddingTop: 66, paddingHorizontal: 16, paddingBottom: 48, gap: 8 },
+  detailContent: { paddingTop: 66, paddingHorizontal: 16, paddingBottom: 96, gap: 8 },
   detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 2 },
   completedProofScreen: { gap: 10 },
+  trophyProofStack: { gap: 8 },
   completedProofCoatFrame: { width: 124, height: 136, alignItems: "center", justifyContent: "center", overflow: "visible" },
   completedProofSeal: { position: "absolute", right: 6, bottom: 4, width: 44, height: 44 },
   completedProofKicker: { color: colors.green, fontSize: 11, lineHeight: 14, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .8 },
