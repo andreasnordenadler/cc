@@ -696,3 +696,10 @@ When Andreas says not to use “room/rooms,” run a case-sensitive and case-ins
 **Context**: SQC Mobile custom Side Quest verifier.
 **Correction**: Andreas clarified that `by move 20` means the condition must have happened at any time before move 21, not that the piece must still satisfy the condition in the exact move-20 position.
 **Change**: Piece-state custom verifier checks should scan snapshots up to the deadline for `byMove` and pass on the first matching snapshot; `atMove` remains exact-position semantics.
+
+## [CORRECTION-20260601-006] Custom `by move` proof boards should show the matching proof moment
+
+**Category**: correction
+**Context**: SQC Mobile custom Side Quest proof display.
+**Correction**: Andreas pointed out that after fixing `by move` pass/fail semantics, the proof board still showed the deadline/final board instead of the earlier board where the condition was actually completed.
+**Change**: For passed custom verifications, use the passing condition snapshot as the proof board/FEN/last move; keep final-game fallback only when no specific proof snapshot exists.

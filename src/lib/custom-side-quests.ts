@@ -99,8 +99,10 @@ export async function checkLatestCustomSideQuestForProvider(input: { quest: Cust
   const replay = replayGame(game);
   const results = config.blocks.map((block) => evaluateBlock(block, game, replay));
   const passed = config.logic === "any" ? results.some((r) => r.passed) : results.every((r) => r.passed);
+  const firstPassed = results.find((r) => r.passed) ?? null;
   const firstFailed = results.find((r) => !r.passed) ?? results[0];
   const final = replay.snapshots.at(-1);
+  const proofSnapshot = passed ? firstPassed : null;
   return {
     status: passed ? "passed" : "failed",
     gameId: game.gameId,
@@ -108,9 +110,9 @@ export async function checkLatestCustomSideQuestForProvider(input: { quest: Cust
     evidence: results.map((r, index) => `Condition ${index + 1}: ${r.passed ? "passed" : "not completed"}. ${r.explanation}`),
     startedGameAt: game.startedGameAt,
     completedGameAt: game.completedGameAt,
-    finalPositionFen: final?.fen,
-    lastMoveUci: final?.uci,
-    lastMoveSan: final?.san,
+    finalPositionFen: proofSnapshot?.fenAtBreak ?? final?.fen,
+    lastMoveUci: proofSnapshot?.uci ?? final?.uci,
+    lastMoveSan: proofSnapshot?.san ?? final?.san,
     failureDiagnostic: passed ? undefined : { label: firstFailed?.label ?? "Custom rule", explanation: firstFailed?.explanation, moveNumber: firstFailed?.moveNumber ?? final?.moveNumber, ply: firstFailed?.ply ?? final?.ply, san: firstFailed?.san ?? final?.san, uci: firstFailed?.uci ?? final?.uci, fenAtBreak: firstFailed?.fenAtBreak ?? final?.fen, playerColor: game.playerColor },
   };
 }

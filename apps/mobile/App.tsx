@@ -5512,6 +5512,10 @@ function CompletedQuestProofCard({
         <Text style={compactStyles.detailGoal}>{challenge.objective}</Text>
         <Text style={compactStyles.detailLatestCheck}>Completed: {formatLatestCheckTime(completedQuest.completedAt)}</Text>
         <Text style={compactStyles.completedProofBadgeName}>Coat of Arms: {completedQuest.badgeName}</Text>
+        <View style={compactStyles.completedProofSealBadge}>
+          <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.completedProofSealBadgeImage} resizeMode="contain" />
+          <Text style={compactStyles.completedProofSealBadgeText}>Verified</Text>
+        </View>
       </View>
 
       <View style={compactStyles.proofScrollCard}>
@@ -6455,6 +6459,9 @@ const compactStyles = StyleSheet.create({
   trophyProofStack: { gap: 8 },
   completedProofCoatFrame: { width: 124, height: 136, alignItems: "center", justifyContent: "center", overflow: "visible" },
   completedProofSeal: { position: "absolute", right: 6, bottom: 4, width: 44, height: 44 },
+  completedProofSealBadge: { marginTop: 10, alignItems: "center", justifyContent: "center", gap: 4 },
+  completedProofSealBadgeImage: { width: 72, height: 72 },
+  completedProofSealBadgeText: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.1 },
   completedProofKicker: { color: colors.green, fontSize: 11, lineHeight: 14, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .8 },
   completedProofBadgeName: { color: colors.paper, opacity: .88, fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   proofScrollCard: { gap: 6, paddingVertical: 14, paddingHorizontal: 14, borderRadius: 18, backgroundColor: "rgba(255,247,232,.92)", shadowColor: "#000", shadowOpacity: .26, shadowRadius: 18, shadowOffset: { width: 0, height: 10 } },
