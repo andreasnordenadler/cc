@@ -3158,6 +3158,7 @@ function QuestBoardDashboard({
   const completedDetailCustomQuest = completedDetailId ? signedIn?.customSideQuests?.find((quest) => quest.id === completedDetailId) ?? null : null;
   const completedDetailChallenge = completedDetailOfficialChallenge ?? (completedQuestRecord ? buildCustomProofChallenge(completedQuestRecord, completedDetailCustomQuest) : null);
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
+  const [customDetailId, setCustomDetailId] = useState<string | null>(null);
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -3179,6 +3180,9 @@ function QuestBoardDashboard({
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }>>([]);
   const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
+  const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
+  const customDetailCompletedQuest = customDetailDraft && signedIn ? signedIn.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
+  const customDetailActive = Boolean(customDetailDraft && activeId === customDetailDraft.id);
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
@@ -3351,7 +3355,7 @@ function QuestBoardDashboard({
         {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
             {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => void startCustomSideQuest(draft.id)} />
+              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status={draft.id === activeId ? "Active" : signedIn?.completedQuests.some((quest) => quest.id === draft.id) ? "Completed" : "Ready"} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
             ))}
           </View>
         ) : null}
@@ -3392,6 +3396,23 @@ function QuestBoardDashboard({
           })}
         </View>
       </View>
+
+      <CustomSideQuestDetailModal
+        quest={customDetailDraft}
+        visible={Boolean(customDetailDraft)}
+        active={customDetailActive}
+        completed={Boolean(customDetailCompletedQuest)}
+        completedAt={customDetailCompletedQuest?.completedAt ?? null}
+        onClose={() => setCustomDetailId(null)}
+        onStart={async (questId) => {
+          await startCustomSideQuest(questId);
+          setCustomDetailId(null);
+        }}
+        onViewResult={customDetailCompletedQuest ? () => {
+          setCompletedDetailId(customDetailCompletedQuest.id);
+          setCustomDetailId(null);
+        } : undefined}
+      />
 
       <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCustomCreateOpen(false)}>
         <SafeAreaView style={compactStyles.detailScreen}>
@@ -4262,6 +4283,7 @@ function SideQuestsScreen({
   const availableCount = bootstrap.challenges.length;
   const completedCount = completedIds.size;
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
+  const [customDetailId, setCustomDetailId] = useState<string | null>(null);
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -4283,6 +4305,9 @@ function SideQuestsScreen({
   const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }>>([]);
   const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
+  const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
+  const customDetailCompletedQuest = customDetailDraft && signedInAccount ? signedInAccount.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
+  const customDetailActive = Boolean(customDetailDraft && activeQuestId === customDetailDraft.id);
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
@@ -4433,7 +4458,7 @@ function SideQuestsScreen({
         <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
-            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => void startCustomSideQuest(draft.id)} />
+            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status={draft.id === activeQuestId ? "Active" : signedInAccount?.completedQuests.some((quest) => quest.id === draft.id) ? "Completed" : "Ready"} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
           )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Create" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>
@@ -4445,6 +4470,19 @@ function SideQuestsScreen({
         <Text style={styles.sectionBody}>Tap a Coat of Arms to review the rule, then start the Side Quest you want SQC to judge next.</Text>
       </View>
       <AvailableQuestGrid challenges={bootstrap.challenges} completedIds={completedIds} activeQuestId={activeQuestId} onSelectChallenge={onSelectChallenge} />
+
+      <CustomSideQuestDetailModal
+        quest={customDetailDraft}
+        visible={Boolean(customDetailDraft)}
+        active={customDetailActive}
+        completed={Boolean(customDetailCompletedQuest)}
+        completedAt={customDetailCompletedQuest?.completedAt ?? null}
+        onClose={() => setCustomDetailId(null)}
+        onStart={async (questId) => {
+          await startCustomSideQuest(questId);
+          setCustomDetailId(null);
+        }}
+      />
 
       <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCustomCreateOpen(false)}>
         <SafeAreaView style={compactStyles.detailScreen}>
@@ -5525,6 +5563,87 @@ function SelectedQuestDetailCard({
         </View>
       )}
     </View>
+  );
+}
+
+function CustomSideQuestDetailModal({
+  quest,
+  visible,
+  active,
+  completed,
+  completedAt,
+  onClose,
+  onStart,
+  onViewResult,
+}: {
+  quest: { id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null } | null;
+  visible: boolean;
+  active: boolean;
+  completed: boolean;
+  completedAt: string | null;
+  onClose: () => void;
+  onStart: (questId: string) => Promise<void> | void;
+  onViewResult?: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  if (!quest) return null;
+  const badgeSource = getRowImageSource(quest.badgeImageUrl ?? null) ?? SQC_COAT_OF_ARMS_ASSET;
+  const statusLabel = completed ? "Completed" : active ? "Active" : "Ready to pick";
+
+  async function handleStart() {
+    if (!quest || busy || active || completed) return;
+    setBusy(true);
+    try {
+      await onStart(quest.id);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
+      <SafeAreaView style={compactStyles.detailScreen}>
+        <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
+        <View style={compactStyles.detailTopBar}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailCloseButton} onPress={onClose}>
+            <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+          </Pressable>
+        </View>
+        <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <View style={compactStyles.detailHero}>
+            <View style={compactStyles.completedProofCoatFrame}>
+              <Image source={badgeSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
+              {completed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.completedProofSeal} resizeMode="contain" /> : null}
+            </View>
+            <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
+            <Text style={compactStyles.detailTitle}>{quest.name}</Text>
+            <Text style={compactStyles.detailGoal}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
+            <Text style={compactStyles.detailLatestCheck}>{statusLabel}{completedAt ? ` · ${formatLatestCheckTime(completedAt)}` : ""}</Text>
+          </View>
+
+          <View style={compactStyles.proofScrollCard}>
+            <Text style={compactStyles.proofScrollEyebrow}>Rule scroll</Text>
+            <Text style={compactStyles.proofScrollTitle}>Proof needed</Text>
+            <Text style={compactStyles.proofScrollCopy}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
+            <View style={compactStyles.proofScrollRule} />
+            <Text style={compactStyles.proofScrollMeta}>Custom verifier · Fresh games count after activation</Text>
+          </View>
+
+          {completed && onViewResult ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="View custom Side Quest result" style={compactStyles.detailPrimaryButton} onPress={onViewResult}>
+              <Text style={compactStyles.detailPrimaryButtonText}>View Result</Text>
+            </Pressable>
+          ) : (
+            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (active || busy) ? compactStyles.disabledAction : null]} disabled={active || busy} onPress={() => void handleStart()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : active ? "Already Active" : "Pick This Side Quest"}</Text>
+            </Pressable>
+          )}
+          <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>
+            <Text style={compactStyles.detailQuietButtonText}>Back to list</Text>
+          </Pressable>
+        </ScrollHintedScrollView>
+      </SafeAreaView>
+    </Modal>
   );
 }
 

@@ -44,3 +44,5 @@ public/downloads/*.apk.sha256
 *.tsbuildinfo
 .env*
 .DS_Store
+!public/downloads/sqc-mobile-android-v163-2026-06-01.apk
+!public/downloads/sqc-mobile-android-v163-2026-06-01.apk.sha256

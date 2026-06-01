@@ -4305,3 +4305,11 @@ Adding the full-resolution multiplayer seal PNG to the React Native bundle pushe
 **What happened**: A 4-image `image_generate` request timed out.
 **Resolution**: Retry in smaller batches or continue with first generated set if enough for the limited v1 pool.
 **Prevention**: Prefer 2-image batches for high-quality referenced image generation when latency matters.
+
+## [ERR-20260601-011] custom quest row tap activated instead of opening detail
+
+**Logged**: 2026-06-01T23:31:00+02:00
+**Context**: SQC Mobile Solo Side Quest Browse/Create list.
+**What happened**: Custom Side Quest rows called `startCustomSideQuest(...)` directly on tap, while official Side Quest rows opened a detail screen first. Andreas reported tapping a custom quest from the home Browse/Create flow wrongly activated it immediately.
+**Resolution**: Added a `CustomSideQuestDetailModal` and changed custom row taps to open detail; activation now only happens from the modal CTA.
+**Prevention**: Row tap semantics should match official quest behavior: list row opens detail; primary CTA inside detail starts/joins/activates.
