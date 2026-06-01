@@ -3163,7 +3163,7 @@ function QuestBoardDashboard({
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
   const [customRulePiece, setCustomRulePiece] = useState<CustomRulePiece>("queen");
   const [customRuleOwner, setCustomRuleOwner] = useState<CustomRuleOwner>("my");
-  const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("gone");
+  const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("game result");
   const [customRuleTiming, setCustomRuleTiming] = useState<CustomRuleTiming>("by move");
   const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState("15");
   const [customRuleQuantifier, setCustomRuleQuantifier] = useState<CustomRuleQuantifier>("any one");
@@ -3476,7 +3476,7 @@ function QuestBoardDashboard({
                       const selected = customRuleCondition === condition;
                       const copy = getCustomConditionTypeCopy(condition);
                       return (
-                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
+                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); if (condition === "game result") setCustomRuleResult("win"); }}>
                           <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                           <View style={compactStyles.multiplayerOptionCopy}>
                             <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
@@ -4259,7 +4259,7 @@ function SideQuestsScreen({
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
   const [customRulePiece, setCustomRulePiece] = useState<CustomRulePiece>("queen");
   const [customRuleOwner, setCustomRuleOwner] = useState<CustomRuleOwner>("my");
-  const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("gone");
+  const [customRuleCondition, setCustomRuleCondition] = useState<CustomRuleCondition>("game result");
   const [customRuleTiming, setCustomRuleTiming] = useState<CustomRuleTiming>("by move");
   const [customRuleMoveNumber, setCustomRuleMoveNumber] = useState("15");
   const [customRuleQuantifier, setCustomRuleQuantifier] = useState<CustomRuleQuantifier>("any one");
@@ -4521,7 +4521,7 @@ function SideQuestsScreen({
                       const selected = customRuleCondition === condition;
                       const copy = getCustomConditionTypeCopy(condition);
                       return (
-                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); }}>
+                        <Pressable key={condition} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => { setCustomRuleCondition(condition); if (condition === "on square") setCustomRuleTiming("at move"); if (condition === "game result") setCustomRuleResult("win"); }}>
                           <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                           <View style={compactStyles.multiplayerOptionCopy}>
                             <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{copy.title}</Text>
