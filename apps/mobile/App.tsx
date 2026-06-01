@@ -178,6 +178,11 @@ function isFailedReceipt(receipt?: MobileAccountState["latestReceipt"] | null) {
   return receipt?.status === "failed" || receipt?.headline?.toLowerCase().includes("failed") === true;
 }
 
+
+function isPendingReceipt(receipt?: MobileAccountState["latestReceipt"] | null) {
+  return Boolean(receipt && receipt.status !== "passed" && !isFailedReceipt(receipt));
+}
+
 function getReceiptFailureText(receipt?: MobileAccountState["latestReceipt"] | null) {
   if (!receipt || !isFailedReceipt(receipt)) return null;
   return receipt.failureDiagnostic?.explanation ?? receipt.detail ?? "Latest game checked — Side Quest not completed.";
@@ -1504,7 +1509,8 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
               </View>
             </View>
-            {activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : <ActiveQuestNoGameSummary />}
+            {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
+            {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
             {canViewCurrentProof ? (
               <View style={compactStyles.actionRowTight}>
                 <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
@@ -2267,7 +2273,8 @@ function CurrentSideQuestDetailModal({
             <DetailRow label="Latest check" value={latestCheckLabel} tone={latestCheckPassed ? "good" : "default"} />
           </View>
 
-          <FailureDiagnosticBoard receipt={latestReceipt} />
+          {latestCheckFailed ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
+          {!completed && isPendingReceipt(latestReceipt) ? <ActiveQuestNoGameSummary /> : null}
 
           {canViewCurrentProof ? (
             <View style={compactStyles.detailPanelStrong}>
@@ -5270,6 +5277,7 @@ function SelectedQuestDetailCard({
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
   const badgeSource = getChallengeCoatImageSource(challenge);
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
+  const latestCheckFailed = isFailedReceipt(latestReceipt);
   const actionTitle = activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
   const actionBody = activeQuest
     ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
@@ -5339,7 +5347,8 @@ function SelectedQuestDetailCard({
 
           </View>
           {latestReceipt ? <Text style={isFailedReceipt(latestReceipt) ? styles.errorCopy : styles.successCopy}>{normalizeCheckHeadline(latestReceipt.headline)} · {getReceiptFailureText(latestReceipt) ?? latestReceipt.detail}</Text> : null}
-          <FailureDiagnosticBoard receipt={latestReceipt} />
+          {latestCheckFailed ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
+          {!completed && isPendingReceipt(latestReceipt) ? <ActiveQuestNoGameSummary /> : null}
           {actionState.message ? <Text style={actionState.message.toLowerCase().includes("not completed") ? styles.errorCopy : styles.successCopy}>{actionState.message}</Text> : null}
           {actionState.error ? <Text style={styles.errorCopy}>{actionState.error}</Text> : null}
         </View>

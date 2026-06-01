@@ -3,7 +3,7 @@
     "name": "Side Quest Chess",
     "slug": "side-quest-chess",
     "scheme": "sidequestchess",
-    "version": "0.1.149",
+    "version": "0.1.150",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "assetBundlePatterns": [
@@ -18,7 +18,7 @@
     },
     "android": {
       "package": "com.sidequestchess.app",
-      "versionCode": 149,
+      "versionCode": 150,
       "permissions": [],
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {

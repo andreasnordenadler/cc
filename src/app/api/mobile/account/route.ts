@@ -16,6 +16,7 @@ import {
   getLichessUsername,
   getPreferredRunnerName,
   getRunnerBio,
+  type ChallengeAttempt,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -52,8 +53,8 @@ export async function GET(request: Request) {
   const completedCustomQuests = customSideQuests.filter((quest) => completedSet.has(quest.id));
   const attempts = getChallengeAttempts(metadata);
   const rawLatestAttempt = getLatestAttemptForChallenge(metadata, activeChallenge?.id) ?? attempts.at(-1) ?? null;
-  const latestPassedAttempt = activeChallenge?.id ? getLatestPassedAttempt(metadata, activeChallenge.id) : null;
-  const latestAttempt = normalizeCurrentVerifierAttempt(rawLatestAttempt, latestPassedAttempt, activeChallenge?.id);
+  const latestPassedAttempt = activeChallenge?.id ? getLatestPassedAttempt(metadata, activeChallenge.id, activeChallenge.startedAt) : null;
+  const latestAttempt = normalizeCurrentVerifierAttempt(rawLatestAttempt, latestPassedAttempt, activeChallenge?.id, activeChallenge?.startedAt);
   const latestAttemptSummary = buildAttemptSummary(latestAttempt);
   const latestChallengeRecord = latestAttempt?.challengeId
     ? CHALLENGES.find((challenge) => challenge.id === latestAttempt.challengeId) ?? null
@@ -411,6 +412,7 @@ function normalizeCurrentVerifierAttempt(
   latestAttempt: ReturnType<typeof getLatestAttemptForChallenge>,
   latestPassedAttempt: ReturnType<typeof getLatestPassedAttempt>,
   activeChallengeId?: string,
+  activeChallengeStartedAt?: string,
 ) {
   if (latestPassedAttempt) {
     return latestPassedAttempt;
@@ -420,19 +422,39 @@ function normalizeCurrentVerifierAttempt(
     return null;
   }
 
-  if (activeChallengeId && latestAttempt.challengeId === activeChallengeId && latestAttempt.status !== "passed" && !latestAttempt.startedGameAt) {
-    return {
-      ...latestAttempt,
-      status: "pending",
-      summary: "No new eligible games were found since this quest was started. Play a new public game after starting the quest, then check again.",
-    };
+  if (activeChallengeId && latestAttempt.challengeId === activeChallengeId && latestAttempt.status !== "passed" && !isAttemptAfterActivation(latestAttempt, activeChallengeStartedAt)) {
+    return buildAwaitingFreshGameAttempt(latestAttempt);
   }
 
   return latestAttempt;
 }
 
-function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string) {
+function buildAwaitingFreshGameAttempt(attempt: NonNullable<ReturnType<typeof getLatestAttemptForChallenge>>): ChallengeAttempt {
+  return {
+    id: attempt.id,
+    challengeId: attempt.challengeId,
+    gameId: attempt.gameId,
+    provider: attempt.provider,
+    status: "pending",
+    summary: "No new eligible games were found since this quest was started. Play a new public game after starting the quest, then check again.",
+    checkedAt: attempt.checkedAt,
+    startedGameAt: attempt.startedGameAt,
+    completedGameAt: attempt.completedGameAt,
+  };
+}
+
+function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string, activeChallengeStartedAt?: string) {
   return getChallengeAttempts(metadata, challengeId)
     .filter((attempt) => attempt.status === "passed")
+    .filter((attempt) => isAttemptAfterActivation(attempt, activeChallengeStartedAt))
     .at(-1) ?? null;
+}
+
+function isAttemptAfterActivation(attempt: { startedGameAt?: string; completedGameAt?: string } | null | undefined, activeChallengeStartedAt?: string) {
+  if (!activeChallengeStartedAt) return true;
+  const raw = attempt?.startedGameAt ?? attempt?.completedGameAt;
+  if (!raw) return false;
+  const gameAt = Date.parse(raw);
+  const activatedAt = Date.parse(activeChallengeStartedAt);
+  return Number.isFinite(gameAt) && Number.isFinite(activatedAt) && gameAt > activatedAt;
 }

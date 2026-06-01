@@ -340,7 +340,7 @@ async function buildLatestGameCheck(challengeId: string, provider: "lichess" | "
 function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeTitle: string, activatedAfter: string): Omit<MobileProviderCheck, "provider"> {
   const gameTime = verdict.startedGameAt ?? verdict.completedGameAt;
 
-  if (verdict.status === "passed" && !isAfterActivation(gameTime, activatedAfter)) {
+  if (verdict.status !== "pending" && !isAfterActivation(gameTime, activatedAfter)) {
     return {
       status: "pending",
       gameId: `${challengeTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-new-game-required`,
