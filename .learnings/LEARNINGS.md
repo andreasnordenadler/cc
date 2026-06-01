@@ -689,3 +689,10 @@ For the SQC mobile Multiplayer Lobby header, Andreas wants the multiplayer graph
 
 When Andreas says not to use “room/rooms,” run a case-sensitive and case-insensitive sweep for both lower- and upper-case visible copy. I missed capitalized “Rooms you host.” in the SQC mobile Multiplayer Lobby.
 
+
+## [CORRECTION-20260601-005] Custom verifier `by move` means deadline, not still-at-deadline
+
+**Category**: correction
+**Context**: SQC Mobile custom Side Quest verifier.
+**Correction**: Andreas clarified that `by move 20` means the condition must have happened at any time before move 21, not that the piece must still satisfy the condition in the exact move-20 position.
+**Change**: Piece-state custom verifier checks should scan snapshots up to the deadline for `byMove` and pass on the first matching snapshot; `atMove` remains exact-position semantics.

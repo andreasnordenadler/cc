@@ -194,12 +194,24 @@ function evaluateBlock(block: CustomSideQuestRuleBlock, game: LatestGame, replay
   let base: EvalResult;
   if (block.type === "openingSequence") base = evalSequence(block.moves, game.pgnMoves, 1, snapshot);
   else if (block.type === "moveSequence") base = evalSequence(block.sequence.split(/\s+/).filter(Boolean), game.pgnMoves, block.timing?.atMove ?? block.timing?.byMove ?? 1, snapshot);
-  else base = evalPieceState(block, game, snapshot);
+  else base = evalPieceState(block, game, snapshot, replay);
   return block.negate ? { ...base, passed: !base.passed, explanation: base.passed ? `This condition happened, but the Side Quest required it not to happen.` : `The forbidden condition did not happen.` } : base;
 }
 function pickSnapshot(block: CustomSideQuestRuleBlock, replay: { snapshots: Snapshot[] }) { if (block.type !== "pieceState" && block.type !== "moveSequence") return replay.snapshots.at(-1); const moveNo = block.timing && "atMove" in block.timing ? block.timing.atMove : block.timing && "byMove" in block.timing ? block.timing.byMove : undefined; return moveNo ? replay.snapshots[Math.min(replay.snapshots.length - 1, Math.max(0, moveNo * 2 - 1))] : replay.snapshots.at(-1); }
 function evalSequence(expected: string[], actual: string[], moveNumber: number, snapshot?: Snapshot): EvalResult { const norm = (v: string) => v.replace(/[+#?!]+$/g, "").replace(/0/g, "O"); const ok = expected.every((token, index) => norm(actual[index]) === norm(token)); return { passed: ok, label: "Move sequence", explanation: ok ? `The game followed ${expected.join(" ")}.` : `Expected ${expected.join(" ")}, but the latest game began ${actual.slice(0, Math.max(expected.length, 1)).join(" ") || "with no parsed moves"}.`, ply: snapshot?.ply, moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen }; }
-function evalPieceState(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, game: LatestGame, snapshot?: Snapshot): EvalResult {
+function evalPieceState(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, game: LatestGame, snapshot: Snapshot | undefined, replay?: { snapshots: Snapshot[] }): EvalResult {
+  if (block.timing && "byMove" in block.timing && replay?.snapshots.length) {
+    const deadlinePly = Math.max(1, block.timing.byMove ?? 1) * 2;
+    const candidates = replay.snapshots.filter((candidate) => candidate.ply <= deadlinePly);
+    const evaluated = candidates.map((candidate) => evalPieceStateAtSnapshot(block, game, candidate));
+    const passing = evaluated.find((result) => result.passed);
+    if (passing) return { ...passing, explanation: `${passing.explanation} Condition happened by move ${block.timing.byMove}.` };
+    return evaluated.at(-1) ?? evalPieceStateAtSnapshot(block, game, snapshot);
+  }
+  return evalPieceStateAtSnapshot(block, game, snapshot);
+}
+
+function evalPieceStateAtSnapshot(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, game: LatestGame, snapshot?: Snapshot): EvalResult {
   const board = snapshot?.after ?? new Map();
   const colorFilter = block.owner === "my" ? [game.playerColor === "white" ? "w" : "b"] : block.owner === "opponent" ? [game.playerColor === "white" ? "b" : "w"] : ["w", "b"];
   const identity = block.selector?.identity ?? "any";
