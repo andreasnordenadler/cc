@@ -603,15 +603,24 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
     ? identity
     : getCustomPieceLabel(input.piece, input.quantifier === "all" ? getCustomPieceMaxCount(input.piece) : count);
   const hasSpecificIdentity = customPieceNeedsIdentityChoice(input.piece) && input.identity && normalizeCustomPieceIdentity(input.piece, input.identity) !== "any";
+  const hasSingleUniquePiece = getCustomPieceMaxCount(input.piece) === 1;
   const quantifier = input.quantifier === "all"
     ? `all ${getCustomPieceMaxCount(input.piece)}`
     : input.quantifier === "any one"
       ? "any 1"
       : `${input.quantifier} ${count}`;
   const condition = input.condition === "on square" ? `on ${normalizeCustomSquare(input.targetSquare)}` : input.condition;
-  const subject = hasSpecificIdentity ? `${owner} ${pieceLabel}` : `${owner} ${quantifier} ${pieceLabel}`;
+  const subject = hasSpecificIdentity || hasSingleUniquePiece ? `${owner} ${pieceLabel}` : `${owner} ${quantifier} ${pieceLabel}`;
   const positiveRule = `${titleCaseRuleValue(subject)} must be ${condition} ${timing}.`;
   return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
+}
+
+function cleanCustomRuleSummaryText(value: string) {
+  return value
+    .replace(/\b(your|opponent's) any 1 (king|queen)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\b(your|opponent's) any 1 ((?:queenside|kingside) (?:rook|bishop|knight)|[a-h]-pawn)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
@@ -5536,7 +5545,7 @@ function buildCustomActiveChallenge(
   activeQuest: NonNullable<MobileAccountState["activeQuest"]>,
   customQuest: MobileCustomSideQuest | null,
 ): MobileChallenge {
-  const summary = customQuest?.summary?.trim() || activeQuest.banner?.trim() || "Complete your custom Side Quest rule in a fresh public game.";
+  const summary = cleanCustomRuleSummaryText(customQuest?.summary?.trim() || activeQuest.banner?.trim() || "Complete your custom Side Quest rule in a fresh public game.");
   return {
     id: activeQuest.id,
     title: customQuest?.title?.trim() || activeQuest.title,
@@ -5575,7 +5584,7 @@ function buildCustomProofChallenge(
   completedQuest: MobileAccountState["completedQuests"][number],
   customQuest: MobileCustomSideQuest | null,
 ): MobileChallenge {
-  const summary = customQuest?.summary?.trim() || "Complete your custom Side Quest rule in a verified public game.";
+  const summary = cleanCustomRuleSummaryText(customQuest?.summary?.trim() || "Complete your custom Side Quest rule in a verified public game.");
   return {
     id: completedQuest.id,
     title: completedQuest.title,
