@@ -163,6 +163,11 @@ export type MobileAccountState = {
     href: string;
     proofHref: string | null;
     badgeImageUrl: string | null;
+    gameId?: string | null;
+    provider?: string | null;
+    finalPositionFen?: string | null;
+    lastMoveUci?: string | null;
+    lastMoveSan?: string | null;
   }>;
   multiplayerTrophies?: Array<{
     id: string;
@@ -179,6 +184,7 @@ export type MobileAccountState = {
     status: string | null;
     gameId: string | null;
     checkedAt: string | null;
+    startedGameAt?: string | null;
     completedGameAt: string | null;
     headline: string;
     detail: string;

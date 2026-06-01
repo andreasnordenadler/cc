@@ -331,6 +331,54 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   );
 }
 
+
+type VictoryProofBoardInput = {
+  finalPositionFen?: string | null;
+  lastMoveUci?: string | null;
+  lastMoveSan?: string | null;
+  provider?: string | null;
+  gameId?: string | null;
+};
+
+function VictoryProofBoard({ proof }: { proof: VictoryProofBoardInput | null | undefined }) {
+  const board = parseMobileFenBoard(proof?.finalPositionFen, proof?.lastMoveUci ?? undefined, "white");
+
+  if (!board) return null;
+
+  const moveText = proof?.lastMoveSan ?? proof?.lastMoveUci ?? null;
+  const sourceText = [proof?.provider, proof?.gameId].filter(Boolean).join(" · ");
+
+  return (
+    <View style={compactStyles.failureBoardPanel}>
+      <View style={compactStyles.failureBoardHeader}>
+        <Text style={compactStyles.failureBoardKicker}>SQC proof board</Text>
+        <Text style={compactStyles.failureBoardMove}>{moveText ? `Final position · ${moveText}` : "Verified final position"}</Text>
+        <Text style={compactStyles.failureBoardSubhead}>{sourceText || "This is the verified board attached to the completed quest."}</Text>
+      </View>
+      <View style={compactStyles.failureBoardFrame}>
+        <View style={compactStyles.failureBoardInnerFrame}>
+          <View style={compactStyles.failureBoard}>
+            {board.map((square, index) => (
+              <View key={square.square} style={[compactStyles.failureBoardSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+                {square.rankLabel ? <Text style={compactStyles.failureBoardRankLabel}>{square.rankLabel}</Text> : null}
+                {square.fileLabel ? <Text style={compactStyles.failureBoardFileLabel}>{square.fileLabel}</Text> : null}
+                {square.highlight ? <View style={compactStyles.failureBoardHighlightRing} /> : null}
+                <Text style={[compactStyles.failureBoardPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        {proof?.lastMoveUci ? (
+          <View style={compactStyles.failureBoardLegendRow}>
+            <View style={compactStyles.failureBoardLegendSwatch} />
+            <Text style={compactStyles.failureBoardLegendText}>Final move squares</Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 function getMultiplayerInviteUrl(quest: Pick<MobileGroupQuestSummary, "id" | "inviteMode" | "inviteKey">) {
   const baseUrl = `${SQC_WEB_BASE_URL}/groupquests/${encodeURIComponent(quest.id)}`;
   const key = quest.inviteMode === "private-key" ? quest.inviteKey?.trim() : "";
@@ -2275,6 +2323,7 @@ function CurrentSideQuestDetailModal({
 
           {latestCheckFailed ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
           {!completed && isPendingReceipt(latestReceipt) ? <ActiveQuestNoGameSummary /> : null}
+          {completed ? <VictoryProofBoard proof={latestReceipt} /> : null}
 
           {canViewCurrentProof ? (
             <View style={compactStyles.detailPanelStrong}>
@@ -5421,6 +5470,8 @@ function CompletedQuestProofCard({
         <View style={compactStyles.proofScrollRule} />
         <Text style={compactStyles.proofScrollMeta}>+{completedQuest.reward} points · {completedQuest.badgeName}</Text>
       </View>
+
+      <VictoryProofBoard proof={completedQuest} />
 
       <Pressable accessibilityRole="button" accessibilityLabel="View proof details" style={compactStyles.detailPrimaryButton} onPress={() => Alert.alert("Proof details", `${challenge.title} is confirmed in the app. ${completedQuest.badgeName} unlocked for +${completedQuest.reward} points.`)}>
         <Text style={compactStyles.detailPrimaryButtonText}>Proof details</Text>

@@ -92,18 +92,31 @@ export async function GET(request: Request) {
       href: new URL(`/challenges/${challenge.id}`, baseUrl).toString(),
       proofHref: proofPath ? new URL(proofPath, baseUrl).toString() : null,
       badgeImageUrl: challenge.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, baseUrl).toString() : null,
+      gameId: latestPassed?.gameId ?? null,
+      provider: latestPassed?.provider ?? null,
+      finalPositionFen: latestPassed?.finalPositionFen ?? null,
+      lastMoveUci: latestPassed?.lastMoveUci ?? null,
+      lastMoveSan: latestPassed?.lastMoveSan ?? null,
     };
   }));
-  completedQuestPayloads.push(...completedCustomQuests.map((quest) => ({
-    id: quest.id,
-    title: quest.title,
-    reward: 100,
-    badgeName: "Custom Side Quest",
-    completedAt: getLatestPassedAttempt(metadata, quest.id)?.completedGameAt ?? getLatestPassedAttempt(metadata, quest.id)?.checkedAt ?? null,
-    href: new URL(`/challenges`, baseUrl).toString(),
-    proofHref: null,
-    badgeImageUrl: null,
-  })));
+  completedQuestPayloads.push(...completedCustomQuests.map((quest) => {
+    const latestPassed = getLatestPassedAttempt(metadata, quest.id);
+    return {
+      id: quest.id,
+      title: quest.title,
+      reward: 100,
+      badgeName: "Custom Side Quest",
+      completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
+      href: new URL(`/challenges`, baseUrl).toString(),
+      proofHref: null,
+      badgeImageUrl: null,
+      gameId: latestPassed?.gameId ?? null,
+      provider: latestPassed?.provider ?? null,
+      finalPositionFen: latestPassed?.finalPositionFen ?? null,
+      lastMoveUci: latestPassed?.lastMoveUci ?? null,
+      lastMoveSan: latestPassed?.lastMoveSan ?? null,
+    };
+  }));
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, userId);
   const publicGroupQuests = await listPublicGroupQuests(client);
   const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
