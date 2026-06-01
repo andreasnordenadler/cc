@@ -85,11 +85,12 @@ const MULTIPLAYER_RULE_OPTIONS = {
 
 const CUSTOM_RULE_PIECES = ["king", "queen", "rook", "bishop", "knight", "pawn"] as const;
 const CUSTOM_RULE_OWNERS = ["my", "opponent"] as const;
-const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square", "move sequence", "opening sequence"] as const;
+const CUSTOM_RULE_CONDITIONS = ["gone", "still on board", "moved", "not moved", "on square", "move sequence", "opening sequence", "game result"] as const;
 const CUSTOM_RULE_TIMINGS = ["by move", "at move", "at game end"] as const;
 const CUSTOM_RULE_QUANTIFIERS = ["any one", "at least", "exactly", "all"] as const;
 const CUSTOM_RULE_LOGICS = ["all", "any"] as const;
 const CUSTOM_RULE_FILES = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
+const CUSTOM_RULE_RESULTS = ["win", "draw", "lose"] as const;
 
 type CustomRulePiece = typeof CUSTOM_RULE_PIECES[number];
 type CustomRuleOwner = typeof CUSTOM_RULE_OWNERS[number];
@@ -97,6 +98,7 @@ type CustomRuleCondition = typeof CUSTOM_RULE_CONDITIONS[number];
 type CustomRuleTiming = typeof CUSTOM_RULE_TIMINGS[number];
 type CustomRuleQuantifier = typeof CUSTOM_RULE_QUANTIFIERS[number];
 type CustomRuleLogic = typeof CUSTOM_RULE_LOGICS[number];
+type CustomRuleResult = typeof CUSTOM_RULE_RESULTS[number];
 type CustomRuleRequirement = {
   id: string;
   piece: CustomRulePiece;
@@ -110,6 +112,7 @@ type CustomRuleRequirement = {
   targetSquare: string;
   moveSequence: string;
   openingSequence: string;
+  result: CustomRuleResult;
   negated: boolean;
 };
 
@@ -429,12 +432,13 @@ function getCustomConditionLabel(index: number) {
 }
 
 function customConditionUsesPiece(condition: CustomRuleCondition) {
-  return condition !== "move sequence" && condition !== "opening sequence";
+  return condition !== "move sequence" && condition !== "opening sequence" && condition !== "game result";
 }
 
 function getCustomConditionTypeCopy(condition: CustomRuleCondition) {
   if (condition === "move sequence") return { title: "Move sequence", helper: "A required sequence of algebraic moves, not tied to one piece." };
   if (condition === "opening sequence") return { title: "Opening sequence", helper: "Paste opening notation like 1.e4 e5 2.f4." };
+  if (condition === "game result") return { title: "Game result", helper: "Require a win, draw, or loss." };
   return { title: titleCaseRuleValue(condition), helper: "A piece-based condition." };
 }
 
@@ -596,6 +600,10 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
     const positiveRule = `Opening line from move 1 must match “${sequence}”.`;
     return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
   }
+  if (input.condition === "game result") {
+    const positiveRule = `Game result must be ${input.result}.`;
+    return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
+  }
   const owner = input.owner === "my" ? "your" : "opponent's";
   const count = normalizeCustomRuleCount(input.piece, input.count);
   const identity = getCustomPieceIdentityLabel(input.piece, input.identity);
@@ -638,6 +646,13 @@ function buildCustomRuleBlock(input: Omit<CustomRuleRequirement, "id">) {
       raw: input.openingSequence,
       moves: getCustomOpeningMoves(input.openingSequence),
       anchor: "gameStart",
+      negate: input.negated,
+    };
+  }
+  if (input.condition === "game result") {
+    return {
+      type: "gameResult",
+      result: input.result,
       negate: input.negated,
     };
   }
@@ -3157,6 +3172,7 @@ function QuestBoardDashboard({
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleMoveSequence, setCustomRuleMoveSequence] = useState("e4 e5 Nf3");
   const [customRuleOpeningSequence, setCustomRuleOpeningSequence] = useState("1.e4 e5 2.f4");
+  const [customRuleResult, setCustomRuleResult] = useState<CustomRuleResult>("win");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
@@ -3175,6 +3191,7 @@ function QuestBoardDashboard({
     targetSquare: normalizeCustomSquare(customRuleTargetSquare),
     moveSequence: normalizeCustomMoveSequence(customRuleMoveSequence),
     openingSequence: normalizeCustomOpeningSequence(customRuleOpeningSequence),
+    result: customRuleResult,
     negated: customRuleNegated,
   };
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
@@ -3193,6 +3210,7 @@ function QuestBoardDashboard({
     setCustomRuleTargetSquare(requirement.targetSquare);
     setCustomRuleMoveSequence(requirement.moveSequence || "e4 e5 Nf3");
     setCustomRuleOpeningSequence(requirement.openingSequence || "1.e4 e5 2.f4");
+    setCustomRuleResult(requirement.result || "win");
     setCustomRuleNegated(requirement.negated);
   }
 
@@ -3547,7 +3565,24 @@ function QuestBoardDashboard({
                       <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
-                  {customRuleCondition !== "opening sequence" ? (
+                  {customRuleCondition === "game result" ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Result</Text>
+                      <View style={compactStyles.multiplayerOptionGrid}>
+                        {CUSTOM_RULE_RESULTS.map((result) => {
+                          const selected = customRuleResult === result;
+                          return (
+                            <Pressable key={result} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleResult(result)}>
+                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(result)}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                      <Text style={styles.microcopy}>Result is checked from your linked chess account’s perspective.</Text>
+                    </View>
+                  ) : null}
+                  {customRuleCondition !== "opening sequence" && customRuleCondition !== "game result" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
                       <View style={compactStyles.multiplayerOptionGrid}>
@@ -3575,7 +3610,7 @@ function QuestBoardDashboard({
                       </View>
                     </View>
                   ) : (
-                    <Text style={styles.microcopy}>Opening sequence is always checked from move 1, so no timing is needed.</Text>
+                    <Text style={styles.microcopy}>{customRuleCondition === "game result" ? "Game result is checked at the end, so no timing is needed." : "Opening sequence is always checked from move 1, so no timing is needed."}</Text>
                   )}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
@@ -4233,6 +4268,7 @@ function SideQuestsScreen({
   const [customRuleTargetSquare, setCustomRuleTargetSquare] = useState("e4");
   const [customRuleMoveSequence, setCustomRuleMoveSequence] = useState("e4 e5 Nf3");
   const [customRuleOpeningSequence, setCustomRuleOpeningSequence] = useState("1.e4 e5 2.f4");
+  const [customRuleResult, setCustomRuleResult] = useState<CustomRuleResult>("win");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
@@ -4251,6 +4287,7 @@ function SideQuestsScreen({
     targetSquare: normalizeCustomSquare(customRuleTargetSquare),
     moveSequence: normalizeCustomMoveSequence(customRuleMoveSequence),
     openingSequence: normalizeCustomOpeningSequence(customRuleOpeningSequence),
+    result: customRuleResult,
     negated: customRuleNegated,
   };
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
@@ -4269,6 +4306,7 @@ function SideQuestsScreen({
     setCustomRuleTargetSquare(requirement.targetSquare);
     setCustomRuleMoveSequence(requirement.moveSequence || "e4 e5 Nf3");
     setCustomRuleOpeningSequence(requirement.openingSequence || "1.e4 e5 2.f4");
+    setCustomRuleResult(requirement.result || "win");
     setCustomRuleNegated(requirement.negated);
   }
 
@@ -4572,7 +4610,24 @@ function SideQuestsScreen({
                       <Text style={styles.microcopy}>Paste opening notation with move numbers. SQC cleans it into: {getCustomOpeningPreview(customRuleOpeningSequence)}</Text>
                     </View>
                   ) : null}
-                  {customRuleCondition !== "opening sequence" ? (
+                  {customRuleCondition === "game result" ? (
+                    <View>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Result</Text>
+                      <View style={compactStyles.multiplayerOptionGrid}>
+                        {CUSTOM_RULE_RESULTS.map((result) => {
+                          const selected = customRuleResult === result;
+                          return (
+                            <Pressable key={result} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleResult(result)}>
+                              <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                              <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{titleCaseRuleValue(result)}</Text>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                      <Text style={styles.microcopy}>Result is checked from your linked chess account’s perspective.</Text>
+                    </View>
+                  ) : null}
+                  {customRuleCondition !== "opening sequence" && customRuleCondition !== "game result" ? (
                     <View>
                       <Text style={compactStyles.multiplayerRuleLabel}>Timing</Text>
                       <View style={compactStyles.multiplayerOptionGrid}>
@@ -4600,7 +4655,7 @@ function SideQuestsScreen({
                       </View>
                     </View>
                   ) : (
-                    <Text style={styles.microcopy}>Opening sequence is always checked from move 1, so no timing is needed.</Text>
+                    <Text style={styles.microcopy}>{customRuleCondition === "game result" ? "Game result is checked at the end, so no timing is needed." : "Opening sequence is always checked from move 1, so no timing is needed."}</Text>
                   )}
                   <Text style={compactStyles.multiplayerRuleLabel}>Pass when this condition is</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>

@@ -30,6 +30,11 @@ export type CustomSideQuestRuleBlock =
       moves: string[];
       anchor?: "gameStart";
       negate?: boolean;
+    }
+  | {
+      type: "gameResult";
+      result: "win" | "draw" | "lose";
+      negate?: boolean;
     };
 
 export type CustomSideQuest = {
@@ -53,6 +58,7 @@ type LatestGame = {
   uciMoves?: string[];
   playerColor: "white" | "black";
   status: "finished" | "open" | "unknown";
+  outcome: "win" | "draw" | "lose" | "unknown";
   startedGameAt?: string;
   completedGameAt?: string;
 };
@@ -123,7 +129,7 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   if (!response.ok) return null;
   const [line] = (await response.text()).split("\n").filter(Boolean);
   if (!line) return null;
-  const game = JSON.parse(line) as { id?: string; status?: string; moves?: string; pgn?: string; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } };
+  const game = JSON.parse(line) as { id?: string; status?: string; winner?: "white" | "black"; moves?: string; pgn?: string; createdAt?: number; lastMoveAt?: number; players?: { white?: { user?: { name?: string } }; black?: { user?: { name?: string } } } };
   const normalized = username.trim().toLowerCase();
   const white = game.players?.white?.user?.name?.toLowerCase();
   const black = game.players?.black?.user?.name?.toLowerCase();
@@ -131,7 +137,7 @@ async function fetchLatestLichessGame(username: string): Promise<LatestGame | nu
   if (!playerColor) return null;
   const moveTokens = (game.moves ?? "").split(/\s+/).filter(Boolean);
   const uciMoves = moveTokens.length && moveTokens.every((token) => /^[a-h][1-8][a-h][1-8][qrbn]?$/i.test(token)) ? moveTokens : undefined;
-  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
+  return { provider: "lichess", gameId: game.id ?? "lichess-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? game.moves ?? ""), uciMoves, playerColor, status: game.status && !["created", "started"].includes(game.status) ? "finished" : "open", outcome: getLichessOutcome(game.status, game.winner, playerColor), startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined, completedGameAt: typeof (game.lastMoveAt ?? game.createdAt) === "number" ? new Date((game.lastMoveAt ?? game.createdAt) as number).toISOString() : undefined };
 }
 
 async function fetchLatestChessComGame(username: string): Promise<LatestGame | null> {
@@ -146,9 +152,23 @@ async function fetchLatestChessComGame(username: string): Promise<LatestGame | n
     const game = games.reverse().find((item) => item.white?.username?.toLowerCase() === username.trim().toLowerCase() || item.black?.username?.toLowerCase() === username.trim().toLowerCase());
     if (!game) continue;
     const playerColor = game.white?.username?.toLowerCase() === username.trim().toLowerCase() ? "white" : "black";
-    return { provider: "chesscom", gameId: game.url ?? "chesscom-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
+    return { provider: "chesscom", gameId: game.url ?? "chesscom-latest-game", username, pgnMoves: extractSanMoveTokens(game.pgn ?? ""), playerColor, status: game.end_time ? "finished" : "open", outcome: getChessComOutcome(playerColor === "white" ? game.white?.result : game.black?.result), startedGameAt: getChessComStartedGameAt(game.pgn), completedGameAt: game.end_time ? new Date(game.end_time * 1000).toISOString() : undefined };
   }
   return null;
+}
+
+function getLichessOutcome(status: string | undefined, winner: "white" | "black" | undefined, playerColor: "white" | "black"): LatestGame["outcome"] {
+  if (winner === playerColor) return "win";
+  if (winner && winner !== playerColor) return "lose";
+  if (["draw", "stalemate"].includes(status ?? "")) return "draw";
+  return "unknown";
+}
+
+function getChessComOutcome(result: string | undefined): LatestGame["outcome"] {
+  if (result === "win") return "win";
+  if (["agreed", "repetition", "stalemate", "insufficient", "50move", "timevsinsufficient"].includes(result ?? "")) return "draw";
+  if (result) return "lose";
+  return "unknown";
 }
 
 function extractSanMoveTokens(pgn: string): string[] {
@@ -196,11 +216,17 @@ function evaluateBlock(block: CustomSideQuestRuleBlock, game: LatestGame, replay
   let base: EvalResult;
   if (block.type === "openingSequence") base = evalSequence(block.moves, game.pgnMoves, 1, snapshot);
   else if (block.type === "moveSequence") base = evalSequence(block.sequence.split(/\s+/).filter(Boolean), game.pgnMoves, block.timing?.atMove ?? block.timing?.byMove ?? 1, snapshot);
+  else if (block.type === "gameResult") base = evalGameResult(block, game, replay.snapshots.at(-1));
   else base = evalPieceState(block, game, snapshot, replay);
   return block.negate ? { ...base, passed: !base.passed, explanation: base.passed ? `This condition happened, but the Side Quest required it not to happen.` : `The forbidden condition did not happen.` } : base;
 }
 function pickSnapshot(block: CustomSideQuestRuleBlock, replay: { snapshots: Snapshot[] }) { if (block.type !== "pieceState" && block.type !== "moveSequence") return replay.snapshots.at(-1); const moveNo = block.timing && "atMove" in block.timing ? block.timing.atMove : block.timing && "byMove" in block.timing ? block.timing.byMove : undefined; return moveNo ? replay.snapshots[Math.min(replay.snapshots.length - 1, Math.max(0, moveNo * 2 - 1))] : replay.snapshots.at(-1); }
 function evalSequence(expected: string[], actual: string[], moveNumber: number, snapshot?: Snapshot): EvalResult { const norm = (v: string) => v.replace(/[+#?!]+$/g, "").replace(/0/g, "O"); const ok = expected.every((token, index) => norm(actual[index]) === norm(token)); return { passed: ok, label: "Move sequence", explanation: ok ? `The game followed ${expected.join(" ")}.` : `Expected ${expected.join(" ")}, but the latest game began ${actual.slice(0, Math.max(expected.length, 1)).join(" ") || "with no parsed moves"}.`, ply: snapshot?.ply, moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen }; }
+function evalGameResult(block: Extract<CustomSideQuestRuleBlock, { type: "gameResult" }>, game: LatestGame, snapshot?: Snapshot): EvalResult {
+  const passed = game.outcome === block.result;
+  return { passed, label: "Game result", explanation: passed ? `Game result was ${block.result}.` : `Game result was ${game.outcome === "unknown" ? "unknown" : game.outcome}, but needed ${block.result}.`, ply: snapshot?.ply, moveNumber: snapshot?.moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen };
+}
+
 function evalPieceState(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, game: LatestGame, snapshot: Snapshot | undefined, replay?: { snapshots: Snapshot[] }): EvalResult {
   if (block.timing && "byMove" in block.timing && replay?.snapshots.length) {
     const deadlinePly = Math.max(1, block.timing.byMove ?? 1) * 2;

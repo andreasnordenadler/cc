@@ -43,3 +43,9 @@ The reset is destructive: it removes the completion, proof receipt, coat of arms
 - Tags: sqc, quest-reset, destructive-confirmation
 
 ---
+
+## [FEATURE-20260601-001] Custom Side Quest game-result condition
+
+**Logged**: 2026-06-01T18:15:00+02:00
+**Request**: Andreas noticed the custom Side Quest builder lacked win/draw/lose condition options.
+**Action**: Added a builder condition type for game result and backend verifier support for win/draw/lose from the linked player perspective.
