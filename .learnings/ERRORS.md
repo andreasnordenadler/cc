@@ -4289,3 +4289,19 @@ Adding the full-resolution multiplayer seal PNG to the React Native bundle pushe
 **What happened**: `./scripts/deploy-production-guard.mjs` failed with `permission denied` because the script is not executable in this checkout.
 **Resolution**: Run it via `node scripts/deploy-production-guard.mjs`.
 **Prevention**: Use `pnpm deploy:prod` for production deploys, or invoke `.mjs` guard scripts through `node` unless executable bit is confirmed.
+
+## [ERR-20260601-009] image generation transparent background unsupported
+
+**Logged**: 2026-06-01T21:24:00+02:00
+**Context**: Regenerating SQC custom coat-of-arms variants to match official badge quality.
+**What happened**: `image_generate` failed with HTTP 400 because transparent background is not supported for the selected model.
+**Resolution**: Retry with opaque PNG and preserve app badge shape/style instead of requiring transparent output.
+**Prevention**: For this provider/model, avoid `background: transparent` unless provider listing confirms support.
+
+## [ERR-20260601-010] image generation multi-image timeout
+
+**Logged**: 2026-06-01T21:27:00+02:00
+**Context**: Regenerating second premium SQC custom coat-of-arms set.
+**What happened**: A 4-image `image_generate` request timed out.
+**Resolution**: Retry in smaller batches or continue with first generated set if enough for the limited v1 pool.
+**Prevention**: Prefer 2-image batches for high-quality referenced image generation when latency matters.

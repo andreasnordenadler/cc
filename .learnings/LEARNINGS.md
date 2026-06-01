@@ -703,3 +703,24 @@ When Andreas says not to use “room/rooms,” run a case-sensitive and case-ins
 **Context**: SQC Mobile custom Side Quest proof display.
 **Correction**: Andreas pointed out that after fixing `by move` pass/fail semantics, the proof board still showed the deadline/final board instead of the earlier board where the condition was actually completed.
 **Change**: For passed custom verifications, use the passing condition snapshot as the proof board/FEN/last move; keep final-game fallback only when no specific proof snapshot exists.
+
+## [LRN-20260601-001] correction
+
+**Logged**: 2026-06-01T21:31:00+02:00
+**Priority**: high
+**Status**: pending
+**Area**: frontend
+
+### Summary
+SQC custom coat-of-arms variants must match official premium badge quality/style and should not include text labels.
+
+### Details
+Andreas corrected the first generated custom coat pool: it looked like generic placeholder/icon art and used visible text such as WIN/DRAW/LOSE. Correct direction is same quality and style as existing SQC coats of arms, likely with no text.
+
+### Suggested Action
+Use existing official badges and Andreas screenshots as style references for generated custom coats; avoid labels, words, numbers, flat vector symbols, and low-fidelity placeholder assets.
+
+### Metadata
+- Source: user_feedback
+- Related Files: public/badges/custom/*
+- Tags: sqc-mobile, badges, visual-style, custom-side-quests
