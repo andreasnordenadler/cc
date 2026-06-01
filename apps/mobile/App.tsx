@@ -260,6 +260,32 @@ function ActiveQuestNoGameSummary() {
   );
 }
 
+
+function ActiveQuestMiniProofBoard({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
+  const board = parseMobileFenBoard(receipt?.finalPositionFen, receipt?.lastMoveUci ?? undefined, "white");
+
+  if (!receipt || receipt.status !== "passed" || !board) return null;
+
+  return (
+    <View style={compactStyles.currentFailurePanel}>
+      <View style={compactStyles.currentFailureMiniBoardFrame}>
+        <View style={compactStyles.currentFailureMiniBoard}>
+          {board.map((square, index) => (
+            <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark, square.highlight ? compactStyles.currentProofMiniSquareHighlight : null]}>
+              {square.highlight ? <View style={compactStyles.currentProofMiniHighlightDot} /> : null}
+              <Text style={[compactStyles.currentProofMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+      <View style={compactStyles.currentFailureCopyBlock}>
+        <Text style={compactStyles.currentFailureTitle}>Proof board</Text>
+        <Text style={compactStyles.currentFailureCopy} numberOfLines={3}>{receipt.lastMoveSan || receipt.lastMoveUci ? `Final position · ${receipt.lastMoveSan ?? receipt.lastMoveUci}` : "Final verified chess position from the completed Side Quest."}</Text>
+      </View>
+    </View>
+  );
+}
+
 function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
   const failureText = getReceiptFailureText(receipt);
   if (!failureText) return null;
@@ -1557,6 +1583,7 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
               </View>
             </View>
+            {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
             {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
             {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
             {canViewCurrentProof ? (
@@ -3780,7 +3807,9 @@ function AccountSoloSideQuestSection({
               <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
             </View>
           </View>
-          {activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : <ActiveQuestNoGameSummary />}
+          {activeStatus === "Completed" && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
+          {activeStatus !== "Completed" && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
+          {activeStatus !== "Completed" && !activeQuestReceipt ? <ActiveQuestNoGameSummary /> : null}
         </Pressable>
         </View>
       ) : (
@@ -6411,6 +6440,9 @@ const compactStyles = StyleSheet.create({
   currentFailureCopyBlock: { flex: 1, gap: 4 },
   currentFailureTitle: { color: "rgba(245,200,106,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentFailureCopy: { color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  currentProofMiniPiece: { fontSize: 12, lineHeight: 13, fontWeight: "900", textAlign: "center" },
+  currentProofMiniSquareHighlight: { borderWidth: 1, borderColor: "rgba(84,226,151,.76)" },
+  currentProofMiniHighlightDot: { position: "absolute", width: 12, height: 12, borderRadius: 6, backgroundColor: "rgba(84,226,151,.24)", borderWidth: 1, borderColor: "rgba(84,226,151,.55)" },
   currentEmptyBoardTitle: { color: "rgba(245,200,106,.9)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
   currentEmptyBoardCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   failureBoardPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(46,31,26,.82)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)", shadowColor: "#000", shadowOpacity: .24, shadowRadius: 18, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
