@@ -44,6 +44,7 @@ export type CustomSideQuest = {
   config: string;
   createdAt: string;
   updatedAt: string;
+  badgeImageUrl?: string | null;
 };
 
 export type CustomSideQuestMetadata = {
@@ -72,6 +73,42 @@ const HOME_SQUARES: Record<string, Record<string, Record<string, string>>> = {
     king: { original: "e8" }, queen: { original: "d8" }, rook: { queenside: "a8", kingside: "h8" }, bishop: { queenside: "c8", kingside: "f8" }, knight: { queenside: "b8", kingside: "g8" }, pawn: { a: "a7", b: "b7", c: "c7", d: "d7", e: "e7", f: "f7", g: "g7", h: "h7" },
   },
 };
+
+
+const CUSTOM_COAT_VARIANTS = {
+  winKing: "/badges/custom/custom-win-king.png",
+  winQueen: "/badges/custom/custom-win-queen.png",
+  winKnight: "/badges/custom/custom-win-knight.png",
+  winPawn: "/badges/custom/custom-win-pawn.png",
+  drawBishop: "/badges/custom/custom-draw-bishop.png",
+  drawRook: "/badges/custom/custom-draw-rook.png",
+  loseKing: "/badges/custom/custom-lose-king.png",
+  loseQueen: "/badges/custom/custom-lose-queen.png",
+  opening: "/badges/custom/custom-opening-scroll.png",
+  sequence: "/badges/custom/custom-sequence-scroll.png",
+  square: "/badges/custom/custom-square-star.png",
+  wild: "/badges/custom/custom-wild-card.png",
+} as const;
+
+export function chooseCustomSideQuestBadge(config: CustomSideQuestRuleConfig | null, seed: string) {
+  const blocks = config?.blocks ?? [];
+  const result = blocks.find((block): block is Extract<CustomSideQuestRuleBlock, { type: "gameResult" }> => block.type === "gameResult")?.result;
+  const piece = blocks.find((block): block is Extract<CustomSideQuestRuleBlock, { type: "pieceState" }> => block.type === "pieceState")?.piece;
+  if (result === "win") {
+    if (piece === "king") return CUSTOM_COAT_VARIANTS.winKing;
+    if (piece === "knight") return CUSTOM_COAT_VARIANTS.winKnight;
+    if (piece === "pawn") return CUSTOM_COAT_VARIANTS.winPawn;
+    return CUSTOM_COAT_VARIANTS.winQueen;
+  }
+  if (result === "draw") return piece === "rook" ? CUSTOM_COAT_VARIANTS.drawRook : CUSTOM_COAT_VARIANTS.drawBishop;
+  if (result === "lose") return piece === "queen" ? CUSTOM_COAT_VARIANTS.loseQueen : CUSTOM_COAT_VARIANTS.loseKing;
+  if (blocks.some((block) => block.type === "openingSequence")) return CUSTOM_COAT_VARIANTS.opening;
+  if (blocks.some((block) => block.type === "moveSequence")) return CUSTOM_COAT_VARIANTS.sequence;
+  if (blocks.some((block) => block.type === "pieceState" && block.condition === "on square")) return CUSTOM_COAT_VARIANTS.square;
+  const fallback = [CUSTOM_COAT_VARIANTS.winQueen, CUSTOM_COAT_VARIANTS.winKnight, CUSTOM_COAT_VARIANTS.drawBishop, CUSTOM_COAT_VARIANTS.square, CUSTOM_COAT_VARIANTS.wild];
+  const hash = [...seed].reduce((total, char) => (total * 31 + char.charCodeAt(0)) >>> 0, 0);
+  return fallback[hash % fallback.length] ?? CUSTOM_COAT_VARIANTS.wild;
+}
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {
   return Array.isArray(metadata.customSideQuests)

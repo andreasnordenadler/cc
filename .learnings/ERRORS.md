@@ -4273,3 +4273,19 @@ Adding the full-resolution multiplayer seal PNG to the React Native bundle pushe
 ## 2026-05-31 — MaterialCommunityIcons TypeScript rejects guessed icon names
 - What happened: During SQC v144 board polish, typecheck failed because `chess-board` is not a valid typed MaterialCommunityIcons name.
 - Do differently: Reuse known-valid icon names from the project or verify against the icon type/package before choosing a new one; `checkerboard` passed.
+
+## [ERR-20260601-007] custom coat preview style missing
+
+**Logged**: 2026-06-01T20:32:00+02:00
+**Context**: SQC Mobile custom coat-of-arms preview implementation.
+**What happened**: Mobile typecheck failed because preview JSX referenced `customCoatPreviewRow/Image/Copy` styles before they were added to `compactStyles`; the initial style insertion targeted an outdated text block.
+**Resolution**: Added the missing preview styles next to the actual `customPieceSubchoiceLabel` style block.
+**Prevention**: After Python text edits, grep the concrete style key definitions before running full release.
+
+## [ERR-20260601-008] production guard script invoked without node
+
+**Logged**: 2026-06-01T20:40:00+02:00
+**Context**: SQC Mobile v162 custom coat-of-arms release verification.
+**What happened**: `./scripts/deploy-production-guard.mjs` failed with `permission denied` because the script is not executable in this checkout.
+**Resolution**: Run it via `node scripts/deploy-production-guard.mjs`.
+**Prevention**: Use `pnpm deploy:prod` for production deploys, or invoke `.mjs` guard scripts through `node` unless executable bit is confirmed.

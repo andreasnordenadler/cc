@@ -105,6 +105,7 @@ export type MobileCustomSideQuest = {
   config: string;
   createdAt: string;
   updatedAt: string;
+  badgeImageUrl?: string | null;
 };
 
 export type MobileAccountState = {

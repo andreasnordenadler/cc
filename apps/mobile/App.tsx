@@ -3176,8 +3176,8 @@ function QuestBoardDashboard({
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
-  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
-  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config })) : [];
+  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }>>([]);
+  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const currentCustomRequirement = {
     piece: customRulePiece,
@@ -3197,6 +3197,7 @@ function QuestBoardDashboard({
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
   const customRuleSummary = customRuleRequirements.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: customRuleRequirements }) : "Add at least one condition before this Side Quest can be scored.";
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
+  const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
     setCustomRulePiece(requirement.piece);
@@ -3264,7 +3265,7 @@ function QuestBoardDashboard({
     }
     const name = customQuestName.trim() || "Custom Side Quest";
     if (!authBridge.isSignedIn) {
-      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, badgeImageUrl: customBadgePreviewUrl }, ...current].slice(0, 6));
       Alert.alert("Sign in to launch this Side Quest", `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
       setCustomCreateOpen(false);
       return;
@@ -3350,7 +3351,7 @@ function QuestBoardDashboard({
         {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
             {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => void startCustomSideQuest(draft.id)} />
+              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status="Ready" imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => void startCustomSideQuest(draft.id)} />
             ))}
           </View>
         ) : null}
@@ -3632,6 +3633,13 @@ function QuestBoardDashboard({
                   <View style={compactStyles.multiplayerRuleRow}>
                     <Text style={compactStyles.multiplayerRuleLabel}>Condition preview</Text>
                     <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(currentCustomRequirement)}</Text>
+                  </View>
+                  <View style={compactStyles.customCoatPreviewRow}>
+                    <Image source={{ uri: absoluteAssetUrl(customBadgePreviewUrl) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
+                    <View style={compactStyles.customCoatPreviewCopy}>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Coat preview</Text>
+                      <Text style={styles.microcopy}>SQC picks a custom coat from this limited heraldry pool when you save.</Text>
+                    </View>
                   </View>
                   <View style={compactStyles.multiplayerFooterActions}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
@@ -4272,8 +4280,8 @@ function SideQuestsScreen({
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
-  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string }>>([]);
-  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config })) : [];
+  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }>>([]);
+  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const currentCustomRequirement = {
     piece: customRulePiece,
@@ -4293,6 +4301,7 @@ function SideQuestsScreen({
   const customRuleRequirements = customRequirements.map(({ id: _id, ...requirement }) => requirement);
   const customRuleSummary = customRuleRequirements.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: customRuleRequirements }) : "Add at least one condition before this Side Quest can be scored.";
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
+  const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
     setCustomRulePiece(requirement.piece);
@@ -4360,7 +4369,7 @@ function SideQuestsScreen({
     }
     const name = customQuestName.trim() || "Custom Side Quest";
     if (!authBridge.isSignedIn) {
-      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig }, ...current].slice(0, 6));
+      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, badgeImageUrl: customBadgePreviewUrl }, ...current].slice(0, 6));
       Alert.alert("Sign in to launch this Side Quest", `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
       setCustomCreateOpen(false);
       return;
@@ -4677,6 +4686,13 @@ function SideQuestsScreen({
                   <View style={compactStyles.multiplayerRuleRow}>
                     <Text style={compactStyles.multiplayerRuleLabel}>Condition preview</Text>
                     <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(currentCustomRequirement)}</Text>
+                  </View>
+                  <View style={compactStyles.customCoatPreviewRow}>
+                    <Image source={{ uri: absoluteAssetUrl(customBadgePreviewUrl) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
+                    <View style={compactStyles.customCoatPreviewCopy}>
+                      <Text style={compactStyles.multiplayerRuleLabel}>Coat preview</Text>
+                      <Text style={styles.microcopy}>SQC picks a custom coat from this limited heraldry pool when you save.</Text>
+                    </View>
                   </View>
                   <View style={compactStyles.multiplayerFooterActions}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
@@ -5598,6 +5614,25 @@ function CompletedQuestProofCard({
       {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
     </View>
   );
+}
+
+function getCustomCoatPreviewUrl(requirements: Array<Omit<CustomRuleRequirement, "id">>, seed: string) {
+  const result = requirements.find((requirement) => requirement.condition === "game result")?.result;
+  const piece = requirements.find((requirement) => requirement.condition !== "game result" && requirement.condition !== "move sequence" && requirement.condition !== "opening sequence")?.piece;
+  if (result === "win") {
+    if (piece === "king") return "/badges/custom/custom-win-king.png";
+    if (piece === "knight") return "/badges/custom/custom-win-knight.png";
+    if (piece === "pawn") return "/badges/custom/custom-win-pawn.png";
+    return "/badges/custom/custom-win-queen.png";
+  }
+  if (result === "draw") return piece === "rook" ? "/badges/custom/custom-draw-rook.png" : "/badges/custom/custom-draw-bishop.png";
+  if (result === "lose") return piece === "queen" ? "/badges/custom/custom-lose-queen.png" : "/badges/custom/custom-lose-king.png";
+  if (requirements.some((requirement) => requirement.condition === "opening sequence")) return "/badges/custom/custom-opening-scroll.png";
+  if (requirements.some((requirement) => requirement.condition === "move sequence")) return "/badges/custom/custom-sequence-scroll.png";
+  if (requirements.some((requirement) => requirement.condition === "on square")) return "/badges/custom/custom-square-star.png";
+  const fallback = ["/badges/custom/custom-win-queen.png", "/badges/custom/custom-win-knight.png", "/badges/custom/custom-draw-bishop.png", "/badges/custom/custom-square-star.png", "/badges/custom/custom-wild-card.png"];
+  const hash = [...seed].reduce((total, char) => (total * 31 + char.charCodeAt(0)) >>> 0, 0);
+  return fallback[hash % fallback.length] ?? "/badges/custom/custom-wild-card.png";
 }
 
 function buildCustomActiveChallenge(
@@ -6540,6 +6575,9 @@ const compactStyles = StyleSheet.create({
   customPieceChoiceGroupSelected: { gap: 7, padding: 7, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(245,200,106,.055)" },
   customPieceSubchoicePanel: { gap: 7, marginLeft: 18, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },
   customPieceSubchoiceLabel: { color: "rgba(245,200,106,.82)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
+  customCoatPreviewRow: { marginTop: 10, flexDirection: "row", alignItems: "center", gap: 12, padding: 10, borderRadius: 18, backgroundColor: "rgba(245,200,106,.09)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  customCoatPreviewImage: { width: 74, height: 74 },
+  customCoatPreviewCopy: { flex: 1, gap: 4 },
   customTimingChoiceCard: { flexDirection: "column", alignItems: "stretch", gap: 8 },
   customTimingChoiceHeader: { flexDirection: "row", alignItems: "center", gap: 9 },
   customTimingNestedInput: { gap: 5, marginLeft: 24, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },

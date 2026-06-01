@@ -1,7 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
-import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
+import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
 import type { UserMetadataRecord } from "@/lib/user-metadata";
 
 export async function POST(request: Request) {
@@ -24,7 +24,9 @@ export async function POST(request: Request) {
   const now = new Date().toISOString();
   const existing = getCustomSideQuests(metadata);
   const id = typeof payload.id === "string" && payload.id.startsWith("custom-") ? payload.id : `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-  const quest: CustomSideQuest = { id, title, summary: summary || "Custom rule recipe", config, createdAt: existing.find((item) => item.id === id)?.createdAt ?? now, updatedAt: now };
+  const existingQuest = existing.find((item) => item.id === id);
+  const badgeImageUrl = existingQuest?.badgeImageUrl ?? chooseCustomSideQuestBadge(parsed, `${id}:${config}`);
+  const quest: CustomSideQuest = { id, title, summary: summary || "Custom rule recipe", config, createdAt: existingQuest?.createdAt ?? now, updatedAt: now, badgeImageUrl };
   const next = [quest, ...existing.filter((item) => item.id !== id)].slice(0, 20);
   await client.users.updateUserMetadata(userId, { publicMetadata: { ...metadata, customSideQuests: next } });
   return NextResponse.json({ apiVersion: 1, authenticated: true, ok: true, action: "save", customQuest: quest, customSideQuests: next, message: "Custom Side Quest saved." });

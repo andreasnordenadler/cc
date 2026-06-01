@@ -109,7 +109,7 @@ export async function GET(request: Request) {
       completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
       href: new URL(`/challenges`, baseUrl).toString(),
       proofHref: null,
-      badgeImageUrl: null,
+      badgeImageUrl: quest.badgeImageUrl ?? null,
       gameId: latestPassed?.gameId ?? null,
       provider: latestPassed?.provider ?? null,
       finalPositionFen: latestPassed?.finalPositionFen ?? null,
@@ -278,9 +278,11 @@ export async function GET(request: Request) {
           banner: challengeBanner(activeChallenge),
           href: activeChallengeRecord.id.startsWith("custom-") ? new URL(`/challenges`, baseUrl).toString() : new URL(`/challenges/${activeChallengeRecord.id}`, baseUrl).toString(),
           proofHref: latestProofPath && latestAttempt?.challengeId === activeChallengeRecord.id ? new URL(latestProofPath, baseUrl).toString() : null,
-          badgeImageUrl: "badgeIdentity" in activeChallengeRecord && activeChallengeRecord.badgeIdentity.image
-            ? new URL(activeChallengeRecord.badgeIdentity.image, baseUrl).toString()
-            : null,
+          badgeImageUrl: "badgeImageUrl" in activeChallengeRecord && activeChallengeRecord.badgeImageUrl
+            ? new URL(activeChallengeRecord.badgeImageUrl, baseUrl).toString()
+            : "badgeIdentity" in activeChallengeRecord && activeChallengeRecord.badgeIdentity.image
+              ? new URL(activeChallengeRecord.badgeIdentity.image, baseUrl).toString()
+              : null,
         }
       : null,
     activeGroupQuests,
