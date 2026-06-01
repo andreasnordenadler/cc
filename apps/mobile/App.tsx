@@ -1337,7 +1337,9 @@ function TodayDashboard({
 }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const latestReceipt = signedIn?.latestReceipt;
-  const activeChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeOfficialChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeCustomQuest = signedIn?.activeQuest?.id ? signedIn.customSideQuests?.find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeChallenge = activeOfficialChallenge ?? (signedIn?.activeQuest ? buildCustomActiveChallenge(signedIn.activeQuest, activeCustomQuest) : null);
   const activeCoatSource = activeChallenge
     ? getChallengeCoatImageSource(activeChallenge)
     : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
@@ -3760,7 +3762,9 @@ function AccountSoloSideQuestSection({
   onSelectTab: (tab: AppTab) => void;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
 }) {
-  const activeChallenge = account.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === account.activeQuest?.id) ?? null : null;
+  const activeOfficialChallenge = account.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === account.activeQuest?.id) ?? null : null;
+  const activeCustomQuest = account.activeQuest?.id ? account.customSideQuests?.find((quest) => quest.id === account.activeQuest?.id) ?? null : null;
+  const activeChallenge = activeOfficialChallenge ?? (account.activeQuest ? buildCustomActiveChallenge(account.activeQuest, activeCustomQuest) : null);
   const activeCoatSource = activeChallenge
     ? getChallengeCoatImageSource(activeChallenge)
     : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
@@ -5526,6 +5530,45 @@ function CompletedQuestProofCard({
       {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
     </View>
   );
+}
+
+function buildCustomActiveChallenge(
+  activeQuest: NonNullable<MobileAccountState["activeQuest"]>,
+  customQuest: MobileCustomSideQuest | null,
+): MobileChallenge {
+  const summary = customQuest?.summary?.trim() || activeQuest.banner?.trim() || "Complete your custom Side Quest rule in a fresh public game.";
+  return {
+    id: activeQuest.id,
+    title: customQuest?.title?.trim() || activeQuest.title,
+    objective: summary,
+    instruction: summary,
+    openingHint: "Custom Side Quest",
+    reward: 10,
+    category: "Custom",
+    difficulty: "Custom",
+    completionRate: "Custom",
+    flavor: "A personally invented chess errand, waiting for official nonsense paperwork.",
+    badge: activeQuest.title,
+    proofCallout: summary,
+    rules: [summary],
+    requirement: { side: "any", result: "custom" },
+    badgeIdentity: {
+      name: activeQuest.title,
+      motif: "Custom Side Quest",
+      rarity: "Custom",
+      unlockCopy: `${activeQuest.title} completed.`,
+      imageUrl: activeQuest.badgeImageUrl,
+      colors: { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
+      heraldry: {
+        shield: "Custom",
+        charge: "Player-made rule",
+        crest: "Side Quest Chess",
+        motto: "Verified by mischief",
+        meaning: "This coat marks a custom Side Quest attempt.",
+        weirdness: "Player-authored nonsense, formally checked.",
+      },
+    },
+  };
 }
 
 function buildCustomProofChallenge(
