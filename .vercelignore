@@ -12,6 +12,8 @@ apps/mobile/android/app/build
 apps/mobile/dist-android-*
 public/downloads/*.apk
 public/downloads/*.apk.sha256
+!public/downloads/sqc-mobile-android-v149-2026-05-31.apk
+!public/downloads/sqc-mobile-android-v149-2026-05-31.apk.sha256
 
 *.tsbuildinfo
 .env*
