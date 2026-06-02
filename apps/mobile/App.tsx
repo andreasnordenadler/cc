@@ -265,11 +265,15 @@ function ActiveQuestEmptyMiniBoard() {
   );
 }
 
-function ActiveQuestNoGameSummary() {
+function ActiveQuestNoGameSummary({ goal, pickedLabel }: { goal?: string; pickedLabel?: string }) {
   return (
     <View style={compactStyles.currentEmptyBoardPanel}>
       <ActiveQuestEmptyMiniBoard />
-      <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={3}>Play a new public game on Lichess or Chess.com after picking this Side Quest, then come back and refresh proof.</Text>
+      <View style={compactStyles.currentProofTextBlock}>
+        {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
+        {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
+        <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>Play a new public game on Lichess or Chess.com after picking this Side Quest, then come back and refresh proof.</Text>
+      </View>
     </View>
   );
 }
@@ -298,14 +302,19 @@ function ActiveQuestMiniProofBoard({ receipt }: { receipt: MobileAccountState["l
   );
 }
 
-function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
+function ActiveQuestFailureSummary({ receipt, goal, pickedLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string }) {
   const failureText = getReceiptFailureText(receipt);
   if (!failureText) return null;
 
   return (
     <View style={compactStyles.currentFailurePanel}>
       <ActiveQuestMiniFailureBoard receipt={receipt} />
-      <Text style={compactStyles.currentFailureCopy} numberOfLines={3}>{failureText}</Text>
+      <View style={compactStyles.currentProofTextBlock}>
+        {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
+        {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
+        <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={compactStyles.currentQuestMetaDanger}>not completed</Text></Text>
+        <Text style={compactStyles.currentFailureCopy} numberOfLines={3}>{failureText}</Text>
+      </View>
     </View>
   );
 }
@@ -1617,31 +1626,20 @@ function TodayDashboard({
                 <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
               </View>
             ) : null}
-            <View style={compactStyles.currentQuestRow}>
-              <View style={compactStyles.coatMarker}>
-                {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
-                <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
-                {signedIn.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
+            <View style={compactStyles.currentQuestHero}>
+              <View style={compactStyles.coatHeroMarker}>
+                {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatHeroGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+                <Image source={activeCoatSource} style={compactStyles.coatHeroImage} resizeMode="contain" />
+                {signedIn.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatHeroSeal} resizeMode="contain" /> : null}
               </View>
-              <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
-                <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
-              </View>
-            </View>
-            <View style={compactStyles.currentQuestMetaStack}>
-              <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{activeQuestPickedLabel}</Text>
-              {latestCheckFailed ? (
-                <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={compactStyles.currentQuestMetaDanger}>not completed</Text></Text>
-              ) : (
-                <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Last proof check: </Text>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
-              )}
+              <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
             </View>
             {actionState.message && !latestCheckFailed ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
           {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
-          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
-          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
+          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} /> : null}
+          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} /> : null}
           <View style={compactStyles.activeSoloActions}>
             <Pressable accessibilityRole="button" accessibilityLabel="Explore More Solo Side Quests" style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("sideQuests")}>
               <Text style={compactStyles.soloSecondaryActionText}>Explore More Solo Side Quests</Text>
@@ -6968,7 +6966,7 @@ const compactStyles = StyleSheet.create({
   blockerCopy: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
   activeSoloSection: { gap: 10, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
-  activeSoloSummary: { gap: 11 },
+  activeSoloSummary: { gap: 10, alignItems: "center" },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
   freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4 },
   freshGuestCoat: { width: 132, height: 148 },
@@ -6985,6 +6983,12 @@ const compactStyles = StyleSheet.create({
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  currentQuestHero: { alignItems: "center", justifyContent: "center", gap: 6, paddingTop: 1, paddingBottom: 2 },
+  coatHeroMarker: { width: 118, height: 132, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  coatHeroGlowImage: { position: "absolute", width: 148, height: 164, opacity: .72, transform: [{ translateY: 7 }] },
+  coatHeroImage: { width: 106, height: 120 },
+  coatHeroSeal: { position: "absolute", width: 46, height: 46, right: 2, bottom: 2, zIndex: 4, transform: [{ rotate: "-10deg" }] },
+  currentQuestHeroTitle: { maxWidth: 286, color: colors.paper, fontSize: 20, lineHeight: 23, fontWeight: "900", letterSpacing: -.55, textAlign: "center" },
   coatMarker: { width: 62, height: 70, alignItems: "center", justifyContent: "center", overflow: "visible" },
   coatMarkerGlowImage: { position: "absolute", width: 78, height: 88, opacity: .74, transform: [{ translateY: 4 }] },
   coatMarkerImage: { width: 56, height: 64 },
@@ -7131,9 +7135,9 @@ const compactStyles = StyleSheet.create({
   proofReadySealFrame: { width: 48, height: 48, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.18)" },
   proofReadySealImage: { width: 46, height: 46 },
   proofReadyCopyBlock: { flex: 1, minWidth: 0, gap: 3 },
-  currentFailurePanel: { alignItems: "center", gap: 10, marginTop: 8, paddingVertical: 4, paddingHorizontal: 2, backgroundColor: "transparent", borderWidth: 0, borderColor: "transparent" },
-  currentProofInlinePanel: { alignItems: "center", gap: 10, marginTop: 6, paddingHorizontal: 2, paddingVertical: 4 },
-  currentEmptyBoardPanel: { alignItems: "center", gap: 10, marginTop: 6, paddingHorizontal: 2, paddingVertical: 4 },
+  currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 8, paddingVertical: 4, paddingHorizontal: 2, backgroundColor: "transparent", borderWidth: 0, borderColor: "transparent" },
+  currentProofInlinePanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 6, paddingHorizontal: 2, paddingVertical: 4 },
+  currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 6, paddingHorizontal: 2, paddingVertical: 4 },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
   currentProofMiniBoardFrame: { width: 112, height: 112, flexShrink: 0, padding: 0, borderRadius: 13, backgroundColor: "transparent", borderWidth: 0 },
   currentFailureMiniBoard: { width: 148, height: 148, flexShrink: 0, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 13, borderWidth: 0 },
@@ -7143,14 +7147,15 @@ const compactStyles = StyleSheet.create({
   currentFailureMiniPiece: { fontSize: 15, lineHeight: 17, fontWeight: "900" },
   emptyBoardSquareLight: { backgroundColor: "rgba(230,201,147,.38)" },
   emptyBoardSquareDark: { backgroundColor: "rgba(127,79,49,.52)" },
-  currentFailureCopyBlock: { flex: 1, gap: 4 },
+  currentFailureCopyBlock: { flex: 1, minWidth: 0, gap: 4 },
+  currentProofTextBlock: { flex: 1, minWidth: 0, gap: 4, alignItems: "flex-start" },
   currentFailureTitle: { color: "rgba(245,200,106,.95)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
-  currentFailureCopy: { maxWidth: 292, color: "rgba(255,247,232,.84)", fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center" },
+  currentFailureCopy: { color: "rgba(255,247,232,.84)", fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "left" },
   currentProofMiniPiece: { fontSize: 15, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   currentProofMiniSquareHighlight: { borderWidth: 1, borderColor: "rgba(84,226,151,.76)" },
   currentProofMiniHighlightDot: { position: "absolute", width: 12, height: 12, borderRadius: 6, backgroundColor: "rgba(84,226,151,.24)", borderWidth: 1, borderColor: "rgba(84,226,151,.55)" },
   currentEmptyBoardTitle: { color: "rgba(245,200,106,.9)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .6 },
-  currentEmptyBoardCopy: { maxWidth: 292, color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center" },
+  currentEmptyBoardCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "left" },
   failureBoardPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(46,31,26,.82)", borderWidth: 1, borderColor: "rgba(245,200,106,.34)", shadowColor: "#000", shadowOpacity: .24, shadowRadius: 18, shadowOffset: { width: 0, height: 10 }, elevation: 5 },
   failureBoardHeader: { gap: 3, paddingHorizontal: 2 },
   failureBoardKicker: { color: "rgba(245,200,106,.94)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.15 },
