@@ -1712,9 +1712,39 @@ function TodayDashboard({
         }}
       />
 
+      <AppSection title="Explore Side Quests">
+        <AppRow
+          title="Official SQC Side Quests"
+          meta="Curated Solo Side Quests with official Coat of Arms rewards."
+          status="Official"
+          sourceBadge="Official SQC"
+          imageSource={SQC_COAT_OF_ARMS_ASSET}
+          onPress={() => onSelectTab("sideQuests")}
+        />
+        <AppRow
+          title="Community Side Quests"
+          meta="User-generated Side Quests will appear here once public discovery opens."
+          status="Soon"
+          sourceBadge="Community"
+          imageSource={getCustomQuestImageSource(null)}
+          variant="seal"
+          dimImage
+          onPress={() => onSelectTab("sideQuests")}
+        />
+        <AppRow
+          title="Multiplayer Side Quests"
+          meta="Your, Official SQC, and Community multiplayer challenges."
+          status="Open"
+          sourceBadge="Multiplayer"
+          imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+          variant="seal"
+          onPress={() => onSelectTab("multiplayerSideQuests")}
+        />
+      </AppSection>
+
       <AppSection title="My Multiplayer Side Quests" action="Join / Create Multiplayer" onAction={() => onSelectTab("multiplayerSideQuests")}>
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
         )) : (
           <View style={compactStyles.emptyMultiplayerPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
@@ -1775,8 +1805,8 @@ function TodayDashboard({
 
       <AppSection title="Official Multiplayer Side Quests" action="Leaderboards" onAction={() => onSelectTab("officialLeaderboards")}>
         {officialPublic.length ? officialPublic.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
-        )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Official SQC" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
+        )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." sourceBadge="Official SQC" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
       </AppSection>
 
       <AppSection title="Trophy Cabinet">
@@ -2003,7 +2033,7 @@ function JoinedMultiplayerQuestModal({
         >
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={getMultiplayerSealSource(quest)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
-            <Text style={compactStyles.multiplayerDetailKicker}>{quest.isOwner ? "Hosted Multiplayer Side Quest" : mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
+            <Text style={compactStyles.multiplayerDetailKicker}>{quest.official || quest.id.startsWith("official-") ? "Official SQC Multiplayer Side Quest" : quest.isOwner ? "Hosted by you" : "Community Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{cleanMultiplayerInviteCopy(quest.inviteCopy)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
@@ -2822,6 +2852,7 @@ function AppRow({
   meta,
   status,
   statusImageSource,
+  sourceBadge,
   imageSource,
   glowSource,
   glowColor,
@@ -2835,6 +2866,7 @@ function AppRow({
   meta: string;
   status?: string;
   statusImageSource?: ImageSourcePropType | null;
+  sourceBadge?: string | null;
   imageSource?: ImageSourcePropType | null;
   glowSource?: ImageSourcePropType | null;
   glowColor?: string;
@@ -2865,6 +2897,7 @@ function AppRow({
         </View>
       ) : null}
       <View style={compactStyles.appRowText}>
+        {sourceBadge ? <Text style={compactStyles.sourceBadge} numberOfLines={1}>{sourceBadge}</Text> : null}
         <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
         <Text style={compactStyles.appRowMeta} numberOfLines={2}>{meta}</Text>
       </View>
@@ -2975,6 +3008,7 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
       title: challenge.title,
       meta: challenge.objective,
       status: "Official",
+      sourceBadge: "Official SQC",
       imageSource: getChallengeCoatImageSource(challenge),
     })),
     ...Array.from(customById.values()).map((quest) => ({
@@ -2982,6 +3016,7 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
       title: quest.title,
       meta: `Custom · ${getCustomVisibilityLabel(quest.visibility)} · ${cleanCustomRuleSummaryText(quest.summary)}`,
       status: "Custom",
+      sourceBadge: quest.visibility === "public" ? "Community" : "Private",
       imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
     })),
   ];
@@ -3030,7 +3065,7 @@ const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/custom-side-quest-cr
 
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
   if (!stats) return "No attempts yet";
-  return `Solo: ${stats.soloAttempts} tries, ${stats.soloCompletions} wins · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments}`;
+  return `Solo: ${stats.soloAttempts} tries, ${stats.soloCompletions} completed · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments}`;
 }
 
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
@@ -3046,7 +3081,7 @@ function getSingleCustomQuestBadgePath(badgeImageUrl?: string | null) {
 }
 
 function getJoinedMultiplayerListStatus(quest: MobileAccountState["activeGroupQuests"][number]) {
-  return quest.isOwner ? "Admin" : "Joined";
+  return quest.isOwner ? "Hosting" : "Joined";
 }
 
 function getJoinedMultiplayerListMeta(quest: MobileAccountState["activeGroupQuests"][number]) {
@@ -3540,7 +3575,60 @@ function QuestBoardDashboard({
       </View>
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>Custom Side Quests</Text>
+          <Text style={compactStyles.freshSectionTitle}>Official SQC Side Quests</Text>
+          <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
+        </View>
+        <View style={compactStyles.appRows}>
+          {sortedQuests.map((challenge) => {
+          const comingSoon = challenge.browseKind === "coming-soon";
+          const active = challenge.id === activeId;
+          const completed = !comingSoon && completedIds.has(challenge.id);
+          const comingSoonDate = challenge.releaseDate ? formatComingSoonDate(challenge.releaseDate) : null;
+          return (
+            <AppRow
+              key={challenge.id}
+              title={challenge.title}
+              meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
+              status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : active ? "Active" : completed ? "Completed" : challenge.difficulty}
+              sourceBadge="Official SQC"
+              imageSource={getChallengeCoatImageSource(challenge)}
+              glowSource={getChallengeCoatGlowSource(challenge.id)}
+              glowColor={challenge.badgeIdentity.colors.glow}
+              blurImage={comingSoon}
+              dimImage={comingSoon}
+              overlaySeal={completed}
+              onPress={() => {
+                if (comingSoon) {
+                  Alert.alert(challenge.title, `Coming ${comingSoonDate ?? "soon"}.`);
+                  return;
+                }
+                if (completed) {
+                  setCompletedDetailId(challenge.id);
+                  return;
+                }
+                onSelectChallenge(challenge.id, "sideQuests");
+                setDetailChallengeId(challenge.id);
+              }}
+            />
+          );
+          })}
+        </View>
+      </View>
+
+      <View style={compactStyles.appSection}>
+        <View style={compactStyles.panelHeaderRow}>
+          <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
+          <Text style={compactStyles.sectionAction}>Coming next</Text>
+        </View>
+        <View style={compactStyles.communityEmptyPanel}>
+          <Text style={compactStyles.communityEmptyTitle}>Public community browsing is not open yet.</Text>
+          <Text style={compactStyles.communityEmptyCopy}>User-generated public Side Quests will live here, separate from Official SQC content, with search and safety controls before we expose the full feed.</Text>
+        </View>
+      </View>
+
+      <View style={compactStyles.appSection}>
+        <View style={compactStyles.panelHeaderRow}>
+          <Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
             <Text style={compactStyles.sectionAction}>Create</Text>
           </Pressable>
@@ -3567,46 +3655,10 @@ function QuestBoardDashboard({
         {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
             {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+              <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} sourceBadge={draft.lifecycle === "draft" ? "Draft" : draft.visibility === "public" ? "Community" : "Private"} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
             ))}
           </View>
         ) : null}
-      </View>
-      <View style={compactStyles.appSection}>
-        <View style={compactStyles.appRows}>
-          {sortedQuests.map((challenge) => {
-          const comingSoon = challenge.browseKind === "coming-soon";
-          const active = challenge.id === activeId;
-          const completed = !comingSoon && completedIds.has(challenge.id);
-          const comingSoonDate = challenge.releaseDate ? formatComingSoonDate(challenge.releaseDate) : null;
-          return (
-            <AppRow
-              key={challenge.id}
-              title={challenge.title}
-              meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
-              status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : completed ? "Completed" : challenge.difficulty}
-              imageSource={getChallengeCoatImageSource(challenge)}
-              glowSource={getChallengeCoatGlowSource(challenge.id)}
-              glowColor={challenge.badgeIdentity.colors.glow}
-              blurImage={comingSoon}
-              dimImage={comingSoon}
-              overlaySeal={completed}
-              onPress={() => {
-                if (comingSoon) {
-                  Alert.alert(challenge.title, `Coming ${comingSoonDate ?? "soon"}.`);
-                  return;
-                }
-                if (completed) {
-                  setCompletedDetailId(challenge.id);
-                  return;
-                }
-                onSelectChallenge(challenge.id, "sideQuests");
-                setDetailChallengeId(challenge.id);
-              }}
-            />
-          );
-          })}
-        </View>
       </View>
 
       <CustomSideQuestDetailModal
@@ -4722,8 +4774,8 @@ function SideQuestsScreen({
           <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={styles.primaryButtonWide} onPress={() => setCustomCreateOpen(true)}>
             <Text style={styles.primaryButtonText}>Build a Side Quest</Text>
           </Pressable>
-          <Pressable accessibilityRole="button" accessibilityLabel="Browse public Solo Side Quests" style={styles.secondaryButtonWide} onPress={() => undefined}>
-            <Text style={styles.secondaryButtonText}>Browse Public Solo Side Quests</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Browse community Side Quests" style={styles.secondaryButtonWide} onPress={() => undefined}>
+            <Text style={styles.secondaryButtonText}>Browse Community Side Quests</Text>
           </Pressable>
         </View>
       </View>
@@ -5316,14 +5368,14 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Joined Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Joined Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Multiplayer Side Quests you host are included here too.</Text>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Your Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Hosted and joined by you.</Text>
+        <Text style={styles.sectionBody}>Your own Multiplayer Side Quests stay separate from official events and community browsing.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : (
@@ -5339,20 +5391,33 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : null}
       </View>
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Public Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Public Multiplayer Side Quests · {availableGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Public Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Join an open Multiplayer Side Quest directly from the list.</Text>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Official SQC Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Official SQC · {officialPublicGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Official SQC Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Curated SQC events and official leaderboards stay in their own trusted lane.</Text>
+        {officialPublicGroupQuests.length ? (
+          <View style={compactStyles.appRows}>
+            {officialPublicGroupQuests.map((quest) => (
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Official SQC" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
+            ))}
+          </View>
+        ) : <Text style={styles.sectionBody}>No official Multiplayer Side Quests are open right now.</Text>}
+      </View>
+
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Public user-hosted Multiplayer Side Quests. These are separate from Official SQC events.</Text>
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
-        ) : <Text style={styles.sectionBody}>No open public Multiplayer Side Quests right now.</Text>}
+        ) : <Text style={styles.sectionBody}>No open community Multiplayer Side Quests right now.</Text>}
         {hiddenAvailableCount ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setAvailableListLimit((current) => current + 4)}>
-            <Text style={styles.secondaryButtonText}>More open Side Quests ({hiddenAvailableCount})</Text>
+            <Text style={styles.secondaryButtonText}>More community Side Quests ({hiddenAvailableCount})</Text>
           </Pressable>
         ) : null}
       </View>
@@ -5372,21 +5437,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
       </View>
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Hosted Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Hosting · {hostedLobbyGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Side Quests you host.</Text>
-        {visibleHostedGroupQuests.length ? (
-          <View style={compactStyles.appRows}>
-            {visibleHostedGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status="Hosting" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
-            ))}
-          </View>
-        ) : <Text style={styles.sectionBody}>You are not hosting any active Multiplayer Side Quests yet.</Text>}
-        {hiddenHostedCount ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Show more hosted Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setHostedListLimit((current) => current + 3)}>
-            <Text style={styles.secondaryButtonText}>More hosted ({hiddenHostedCount})</Text>
-          </Pressable>
-        ) : null}
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Create Multiplayer Side Quest">
+        <Text style={styles.eyebrow}>Create</Text>
+        <Text style={styles.sectionTitle}>Host a Community Multiplayer Side Quest.</Text>
+        <Text style={styles.sectionBody}>Your hosted Multiplayer Side Quests appear under Your Multiplayer Side Quests, not in Official SQC.</Text>
         <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create a New Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
           <Text style={styles.primaryButtonText}>Create a New Multiplayer Side Quest</Text>
         </Pressable>
@@ -5502,6 +5556,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                     title={choice.title}
                     meta={choice.meta}
                     status={createQuestIds.includes(choice.id) ? "Included" : choice.status}
+                    sourceBadge={choice.sourceBadge}
                     imageSource={choice.imageSource}
                     onPress={() => toggleCreateQuestId(choice.id)}
                   />
@@ -7038,6 +7093,10 @@ const compactStyles = StyleSheet.create({
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
   appRowMeta: { color: colors.muted, fontSize: 12 },
+  sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  communityEmptyPanel: { gap: 5, padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,.055)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
+  communityEmptyTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
+  communityEmptyCopy: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
   appRowStatus: { maxWidth: 112, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase", overflow: "hidden", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,247,232,.08)" },
   appRowStatusJoined: { color: colors.green },
   appRowStatusGreen: { backgroundColor: "#60f0af", color: "#111" },

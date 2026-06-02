@@ -10,6 +10,15 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Design scalable discovery/browsing for many Custom and Multiplayer Side Quests.
+  - added_at: 2026-06-02 17:35 Europe/Stockholm
+  - completed_at: 2026-06-02 18:50 Europe/Stockholm
+  - source: Andreas asked how the UI should work once many users create many Custom Side Quests and Multiplayer Side Quests, with potentially long lists and difficulty finding/browsing user-generated content.
+  - product_rule: Andreas clarified the primary content split is **Official SQC** versus **User Generated** across both Solo Side Quests and Multiplayer Side Quests. Official SQC content is controlled by us; user-generated content is not controlled by us and needs clearer separation, trust cues, and likely moderation/reporting/discovery guardrails.
+  - scope: hierarchy-only mobile UI pass first: Home gets compact `Explore Side Quests`; live Solo list separates `Official SQC Side Quests`, placeholder `Community Side Quests`, and `My Custom Side Quests`; Multiplayer list separates `Your Multiplayer Side Quests`, `Official SQC Multiplayer Side Quests`, `Community Multiplayer Side Quests`, and creator hosting CTA.
+  - success_direction: keep Home focused on “what should I do next?”, keep My SQC focused on account/control state, and introduce discovery surfaces that make public/user-generated content browsable without turning core screens into giant dashboards.
+  - proof: implemented Android v180 hierarchy-only UI pass with source/status badges (`Official SQC`, `Community`, `Private`, `Draft`, `Hosted by you`, `Joined`) and placeholder Community areas where backend discovery is not ready. Verification passed: `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm exec eslint apps/mobile/App.tsx`, `pnpm quest:release-gate`, `pnpm build`, Android `:app:lintRelease :app:assembleRelease`, APK install/launch, emulator screenshot review for Home and Multiplayer top, plus source inspection for live Solo/Multiplayer sections; no visible `room`/`rooms`, point/pts, or `By Andreas` leaks in reviewed screenshots.
+
 
 - [x] Apply second-round SQC Mobile v176 persona polish and retest.
   - added_at: 2026-06-02 12:32 Europe/Stockholm
