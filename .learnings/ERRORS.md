@@ -4313,3 +4313,17 @@ Adding the full-resolution multiplayer seal PNG to the React Native bundle pushe
 **What happened**: Custom Side Quest rows called `startCustomSideQuest(...)` directly on tap, while official Side Quest rows opened a detail screen first. Andreas reported tapping a custom quest from the home Browse/Create flow wrongly activated it immediately.
 **Resolution**: Added a `CustomSideQuestDetailModal` and changed custom row taps to open detail; activation now only happens from the modal CTA.
 **Prevention**: Row tap semantics should match official quest behavior: list row opens detail; primary CTA inside detail starts/joins/activates.
+
+## [ERR-20260602-001] zsh glob bracketed Next route path
+
+**Logged**: 2026-06-02T09:08:00+02:00
+**Priority**: low
+
+A grep command failed because zsh expanded `src/app/api/mobile/groupquests/[id]/route.ts` as a glob and found no match. Quote bracketed Next.js route paths in shell commands, e.g. `'src/app/api/mobile/groupquests/[id]/route.ts'`.
+
+## [ERR-20260602-002] TypeScript widened local mobile draft visibility literal
+
+**Logged**: 2026-06-02T09:18:00+02:00
+**Priority**: low
+
+Mobile typecheck failed after adding `CustomLibraryQuest` because an inline local draft object widened `visibility: "private"` to `string` inside a `setState` array expression. Fix by assigning the object to an explicitly typed `CustomLibraryQuest` before returning it from the updater.

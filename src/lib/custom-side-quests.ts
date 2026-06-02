@@ -42,6 +42,8 @@ export type CustomSideQuest = {
   title: string;
   summary: string;
   config: string;
+  visibility?: "private" | "public";
+  lifecycle?: "draft" | "published" | "archived";
   createdAt: string;
   updatedAt: string;
   badgeImageUrl?: string | null;
@@ -50,6 +52,14 @@ export type CustomSideQuest = {
 export type CustomSideQuestMetadata = {
   customSideQuests?: CustomSideQuest[];
 };
+
+export function normalizeCustomSideQuestLifecycle(quest: CustomSideQuest): CustomSideQuest {
+  return {
+    ...quest,
+    visibility: quest.visibility === "public" ? "public" : "private",
+    lifecycle: quest.lifecycle === "draft" || quest.lifecycle === "archived" ? quest.lifecycle : "published",
+  };
+}
 
 type LatestGame = {
   provider: "lichess" | "chesscom";
@@ -112,7 +122,7 @@ export function chooseCustomSideQuestBadge(config: CustomSideQuestRuleConfig | n
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {
   return Array.isArray(metadata.customSideQuests)
-    ? metadata.customSideQuests.filter((entry): entry is CustomSideQuest => Boolean(entry && typeof entry === "object" && typeof (entry as CustomSideQuest).id === "string" && typeof (entry as CustomSideQuest).title === "string" && typeof (entry as CustomSideQuest).config === "string")).slice(0, 20)
+    ? metadata.customSideQuests.filter((entry): entry is CustomSideQuest => Boolean(entry && typeof entry === "object" && typeof (entry as CustomSideQuest).id === "string" && typeof (entry as CustomSideQuest).title === "string" && typeof (entry as CustomSideQuest).config === "string")).map(normalizeCustomSideQuestLifecycle).slice(0, 20)
     : [];
 }
 

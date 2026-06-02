@@ -381,6 +381,7 @@ function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown
 
     const customQuest = ownedCustomQuests.get(questId);
     if (!customQuest) return { error: "Only official Side Quests or your own saved custom Side Quests can be added to multiplayer." };
+    if ((customQuest.lifecycle ?? "published") !== "published") return { error: `${customQuest.title} must be published before it can be used in multiplayer.` };
     if (!parseCustomRuleConfig(customQuest.config)?.blocks.length) return { error: `${customQuest.title} needs a launch-ready custom rule before it can be used in multiplayer.` };
     customQuestSnapshots.push(buildCustomSnapshot(customQuest));
   }

@@ -193,6 +193,9 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
   if (!challenge && !customQuest) {
     throw new Error("Unknown quest.");
   }
+  if (customQuest && (customQuest.lifecycle ?? "published") !== "published") {
+    throw new Error("Publish this custom Side Quest before starting it.");
+  }
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
@@ -236,6 +239,9 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
 
   if (!challenge && !customQuest) {
     throw new Error("Unknown active quest.");
+  }
+  if (customQuest && (customQuest.lifecycle ?? "published") !== "published") {
+    throw new Error("Publish this custom Side Quest before checking it.");
   }
   const questId = challenge?.id ?? customQuest!.id;
 

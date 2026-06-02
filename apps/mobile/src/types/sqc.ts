@@ -104,6 +104,8 @@ export type MobileCustomSideQuest = {
   title: string;
   summary: string;
   config: string;
+  visibility?: "private" | "public";
+  lifecycle?: "draft" | "published" | "archived";
   createdAt: string;
   updatedAt: string;
   badgeImageUrl?: string | null;

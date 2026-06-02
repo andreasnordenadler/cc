@@ -14,8 +14,10 @@ export async function POST(request: Request) {
   const title = cleanText(payload.title, 80) || "Custom Side Quest";
   const summary = cleanText(payload.summary, 500);
   const config = typeof payload.config === "string" ? payload.config : "";
+  const visibility = payload.visibility === "public" ? "public" : "private";
+  const lifecycle = payload.lifecycle === "draft" || payload.lifecycle === "archived" ? payload.lifecycle : "published";
   const parsed = parseCustomRuleConfig(config);
-  const validation = validateConfig(parsed);
+  const validation = lifecycle === "published" ? validateConfig(parsed) : null;
   if (validation) return NextResponse.json({ apiVersion: 1, authenticated: true, ok: false, message: validation }, { status: 400 });
 
   const client = await clerkClient();
@@ -27,7 +29,7 @@ export async function POST(request: Request) {
   const id = typeof payload.id === "string" && payload.id.startsWith("custom-") ? payload.id : `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const existingQuest = existing.find((item) => item.id === id);
   const badgeImageUrl = existingQuest?.badgeImageUrl ?? chooseCustomSideQuestBadge(parsed, `${id}:${config}`);
-  const quest: CustomSideQuest = { id, title, summary: summary || "Custom rule recipe", config, createdAt: existingQuest?.createdAt ?? now, updatedAt: now, badgeImageUrl };
+  const quest: CustomSideQuest = { id, title, summary: summary || (lifecycle === "draft" ? "Draft custom Side Quest" : "Custom rule recipe"), config, visibility, lifecycle, createdAt: existingQuest?.createdAt ?? now, updatedAt: now, badgeImageUrl };
   const next = [quest, ...existing.filter((item) => item.id !== id)].slice(0, 10);
 
   try {

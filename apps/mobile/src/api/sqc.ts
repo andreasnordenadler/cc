@@ -116,17 +116,21 @@ export async function saveMobileCustomSideQuest({
   summary,
   config,
   id,
+  lifecycle,
+  visibility,
 }: {
   sessionToken?: string | null;
   title: string;
   summary: string;
   config: string;
   id?: string;
+  lifecycle?: "draft" | "published" | "archived";
+  visibility?: "private" | "public";
 }): Promise<MobileCustomQuestSaveResponse> {
   const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/custom-quests`, {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
-    body: JSON.stringify({ id, title, summary, config }),
+    body: JSON.stringify({ id, title, summary, config, lifecycle, visibility }),
   }, 20000);
   const payload = await readMobileJson<MobileCustomQuestSaveResponse>(response, "custom Side Quest save");
 

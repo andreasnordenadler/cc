@@ -116,6 +116,16 @@ type CustomRuleRequirement = {
   negated: boolean;
 };
 
+type CustomLibraryQuest = {
+  id: string;
+  name: string;
+  summary: string;
+  config: string;
+  visibility?: "private" | "public";
+  lifecycle?: "draft" | "published" | "archived";
+  badgeImageUrl?: string | null;
+};
+
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
 
@@ -2866,7 +2876,7 @@ function getMultiplayerQuestBrowseRow(input: { questId?: string | null; title: s
 }
 
 function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests: MobileCustomSideQuest[], existingSummaries: MobileGroupQuestSummary["customQuestSummaries"] = []) {
-  const customById = new Map(customQuests.map((quest) => [quest.id, quest]));
+  const customById = new Map(customQuests.filter(isCustomQuestPublished).map((quest) => [quest.id, quest]));
   for (const summary of existingSummaries ?? []) {
     if (!customById.has(summary.id)) {
       customById.set(summary.id, {
@@ -2876,6 +2886,8 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
         config: "",
         createdAt: "",
         updatedAt: "",
+        visibility: "private",
+        lifecycle: "published",
         badgeImageUrl: summary.badgeImageUrl ?? null,
       });
     }
@@ -2892,11 +2904,31 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
     ...Array.from(customById.values()).map((quest) => ({
       id: quest.id,
       title: quest.title,
-      meta: `Custom · Private to you · ${quest.summary}`,
+      meta: `Custom · ${getCustomVisibilityLabel(quest.visibility)} · ${quest.summary}`,
       status: "+100",
       imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
     })),
   ];
+}
+
+function isCustomQuestPublished(quest: Pick<MobileCustomSideQuest, "lifecycle">) {
+  return (quest.lifecycle ?? "published") === "published";
+}
+
+function getCustomVisibilityLabel(visibility?: "private" | "public") {
+  return visibility === "public" ? "Public" : "Private to you";
+}
+
+function getCustomLifecycleStatus(quest: Pick<CustomLibraryQuest, "id" | "lifecycle">, activeId?: string | null, completed = false) {
+  const lifecycle = quest.lifecycle ?? "published";
+  if (lifecycle === "draft") return "Draft";
+  if (lifecycle === "archived") return "Archived";
+  if (quest.id === activeId) return "Active";
+  return completed ? "Completed" : "Ready";
+}
+
+function getCustomLibraryMeta(quest: Pick<CustomLibraryQuest, "summary" | "visibility" | "lifecycle">) {
+  return [quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Published", getCustomVisibilityLabel(quest.visibility), quest.summary].filter(Boolean).join(" · ");
 }
 
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
@@ -3219,8 +3251,8 @@ function QuestBoardDashboard({
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
-  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }>>([]);
-  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
+  const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
+  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedIn ? signedIn.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
@@ -3300,27 +3332,30 @@ function QuestBoardDashboard({
     }
   }
 
-  async function saveCustomDraft() {
+  async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
     if (customConditionEditorOpen) {
       Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
       return;
     }
-    if (!customRequirements.length) {
-      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be saved.");
+    if (lifecycle === "published" && !customRequirements.length) {
+      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be published.");
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
     if (!authBridge.isSignedIn) {
-      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, badgeImageUrl: customBadgePreviewUrl }, ...current].slice(0, 6));
-      Alert.alert("Sign in to launch this Side Quest", `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
+      setCustomDrafts((current) => {
+        const draft: CustomLibraryQuest = { id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, visibility: "private", lifecycle, badgeImageUrl: customBadgePreviewUrl };
+        return [draft, ...current].slice(0, 6);
+      });
+      Alert.alert(lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
       setCustomCreateOpen(false);
       return;
     }
     try {
       const sessionToken = await authBridge.getSessionToken();
-      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig });
+      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig, lifecycle, visibility: "private" });
       await Promise.resolve(onAccountUpdated());
-      Alert.alert("Custom Side Quest saved", `${name} is ready to pick and verify in your Side Quest Library.`);
+      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready to pick and verify in your Side Quest Library.`);
       setCustomCreateOpen(false);
     } catch (caught) {
       Alert.alert("Could not save custom Side Quest", caught instanceof Error ? caught.message : "Try again in a moment.");
@@ -3397,7 +3432,7 @@ function QuestBoardDashboard({
         {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
             {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={draft.summary} status={draft.id === activeId ? "Active" : signedIn?.completedQuests.some((quest) => quest.id === draft.id) ? "Completed" : "Ready"} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+              <AppRow key={draft.id} title={draft.name} meta={getCustomLibraryMeta(draft)} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
             ))}
           </View>
         ) : null}
@@ -3453,7 +3488,7 @@ function QuestBoardDashboard({
         onDuplicate={async (quest) => {
           if (!authBridge.isSignedIn) return Alert.alert("Sign in required", "Sign in to duplicate saved custom Side Quests.");
           const sessionToken = await authBridge.getSessionToken();
-          await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config });
+          await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config, lifecycle: "published", visibility: quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
           Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
         }}
@@ -3466,6 +3501,16 @@ function QuestBoardDashboard({
             await Promise.resolve(onAccountUpdated());
           }
           setCustomDetailId(null);
+        }}
+        onSaveState={async (quest, next) => {
+          if (!authBridge.isSignedIn) {
+            setCustomDrafts((current) => current.map((draft) => draft.id === quest.id ? { ...draft, lifecycle: next.lifecycle ?? draft.lifecycle, visibility: next.visibility ?? draft.visibility } : draft));
+            return;
+          }
+          const sessionToken = await authBridge.getSessionToken();
+          await saveMobileCustomSideQuest({ sessionToken, id: quest.id, title: quest.name, summary: quest.summary, config: quest.config, lifecycle: next.lifecycle ?? quest.lifecycle ?? "published", visibility: next.visibility ?? quest.visibility ?? "private" });
+          await Promise.resolve(onAccountUpdated());
+          Alert.alert("Custom Side Quest updated", `${quest.name} is now ${next.lifecycle === "archived" ? "archived" : next.visibility === "public" ? "marked public" : next.visibility === "private" ? "private" : "published"}.`);
         }}
         onViewResult={customDetailCompletedQuest ? () => {
           setCompletedDetailId(customDetailCompletedQuest.id);
@@ -3735,8 +3780,11 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Save Custom Side Quest</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={() => void saveCustomDraft("published")}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Publish Private Side Quest</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailSecondaryButton} onPress={() => void saveCustomDraft("draft")}>
+                <Text style={compactStyles.detailSecondaryButtonText}>Save Draft</Text>
               </Pressable>
             </View>
           </ScrollHintedScrollView>
@@ -4361,8 +4409,8 @@ function SideQuestsScreen({
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
-  const [customDrafts, setCustomDrafts] = useState<Array<{ id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }>>([]);
-  const serverCustomDrafts = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
+  const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
+  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedInAccount ? signedInAccount.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
@@ -4442,27 +4490,30 @@ function SideQuestsScreen({
     }
   }
 
-  async function saveCustomDraft() {
+  async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
     if (customConditionEditorOpen) {
       Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
       return;
     }
-    if (!customRequirements.length) {
-      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be saved.");
+    if (lifecycle === "published" && !customRequirements.length) {
+      Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be published.");
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
     if (!authBridge.isSignedIn) {
-      setCustomDrafts((current) => [{ id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, badgeImageUrl: customBadgePreviewUrl }, ...current].slice(0, 6));
-      Alert.alert("Sign in to launch this Side Quest", `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
+      setCustomDrafts((current) => {
+        const draft: CustomLibraryQuest = { id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, visibility: "private", lifecycle, badgeImageUrl: customBadgePreviewUrl };
+        return [draft, ...current].slice(0, 6);
+      });
+      Alert.alert(lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
       setCustomCreateOpen(false);
       return;
     }
     try {
       const sessionToken = await authBridge.getSessionToken();
-      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig });
+      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig, lifecycle, visibility: "private" });
       await Promise.resolve(onAccountUpdated());
-      Alert.alert("Custom Side Quest saved", `${name} is ready to pick and verify in your Side Quest Library.`);
+      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready to pick and verify in your Side Quest Library.`);
       setCustomCreateOpen(false);
     } catch (caught) {
       Alert.alert("Could not save custom Side Quest", caught instanceof Error ? caught.message : "Try again in a moment.");
@@ -4517,7 +4568,7 @@ function SideQuestsScreen({
         <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
-            <AppRow key={draft.id} title={draft.name} meta={draft.summary} status={draft.id === activeQuestId ? "Active" : signedInAccount?.completedQuests.some((quest) => quest.id === draft.id) ? "Completed" : "Ready"} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+            <AppRow key={draft.id} title={draft.name} meta={getCustomLibraryMeta(draft)} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
           )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Create" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>
@@ -4544,7 +4595,7 @@ function SideQuestsScreen({
         onDuplicate={async (quest) => {
           if (!authBridge.isSignedIn) return Alert.alert("Sign in required", "Sign in to duplicate saved custom Side Quests.");
           const sessionToken = await authBridge.getSessionToken();
-          await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config });
+          await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config, lifecycle: "published", visibility: quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
           Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
         }}
@@ -4557,6 +4608,16 @@ function SideQuestsScreen({
             await Promise.resolve(onAccountUpdated());
           }
           setCustomDetailId(null);
+        }}
+        onSaveState={async (quest, next) => {
+          if (!authBridge.isSignedIn) {
+            setCustomDrafts((current) => current.map((draft) => draft.id === quest.id ? { ...draft, lifecycle: next.lifecycle ?? draft.lifecycle, visibility: next.visibility ?? draft.visibility } : draft));
+            return;
+          }
+          const sessionToken = await authBridge.getSessionToken();
+          await saveMobileCustomSideQuest({ sessionToken, id: quest.id, title: quest.name, summary: quest.summary, config: quest.config, lifecycle: next.lifecycle ?? quest.lifecycle ?? "published", visibility: next.visibility ?? quest.visibility ?? "private" });
+          await Promise.resolve(onAccountUpdated());
+          Alert.alert("Custom Side Quest updated", `${quest.name} is now ${next.lifecycle === "archived" ? "archived" : next.visibility === "public" ? "marked public" : next.visibility === "private" ? "private" : "published"}.`);
         }}
       />
 
@@ -4822,8 +4883,11 @@ function SideQuestsScreen({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={saveCustomDraft}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Save Custom Side Quest</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={() => void saveCustomDraft("published")}>
+                <Text style={compactStyles.detailPrimaryButtonText}>Publish Private Side Quest</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailSecondaryButton} onPress={() => void saveCustomDraft("draft")}>
+                <Text style={compactStyles.detailSecondaryButtonText}>Save Draft</Text>
               </Pressable>
             </View>
           </ScrollHintedScrollView>
@@ -5655,27 +5719,31 @@ function CustomSideQuestDetailModal({
   onStart,
   onDuplicate,
   onDelete,
+  onSaveState,
   onViewResult,
 }: {
-  quest: { id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null } | null;
+  quest: CustomLibraryQuest | null;
   visible: boolean;
   active: boolean;
   completed: boolean;
   completedAt: string | null;
   onClose: () => void;
   onStart: (questId: string) => Promise<void> | void;
-  onDuplicate?: (quest: { id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }) => Promise<void> | void;
+  onDuplicate?: (quest: CustomLibraryQuest) => Promise<void> | void;
   onDelete?: (questId: string) => Promise<void> | void;
+  onSaveState?: (quest: CustomLibraryQuest, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) => Promise<void> | void;
   onViewResult?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
-  const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | null>(null);
+  const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
   if (!quest) return null;
   const badgeSource = getRowImageSource(quest.badgeImageUrl ?? null) ?? SQC_COAT_OF_ARMS_ASSET;
-  const statusLabel = completed ? "Completed" : active ? "Active" : "Ready to pick";
+  const lifecycle = quest.lifecycle ?? "published";
+  const canStart = lifecycle === "published";
+  const statusLabel = getCustomLifecycleStatus(quest, active ? quest.id : null, completed);
 
   async function handleStart() {
-    if (!quest || busy || active || completed) return;
+    if (!quest || busy || active || completed || !canStart) return;
     setBusy(true);
     try {
       await onStart(quest.id);
@@ -5716,6 +5784,16 @@ function CustomSideQuestDetailModal({
     }
   }
 
+  async function handleSaveState(next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) {
+    if (!quest || !onSaveState || manageBusy) return;
+    setManageBusy("state");
+    try {
+      await onSaveState(quest, next);
+    } finally {
+      setManageBusy(null);
+    }
+  }
+
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
       <SafeAreaView style={compactStyles.detailScreen}>
@@ -5734,7 +5812,7 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
             <Text style={compactStyles.detailTitle}>{quest.name}</Text>
             <Text style={compactStyles.detailGoal}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
-            <Text style={compactStyles.detailLatestCheck}>{statusLabel}{completedAt ? ` · ${formatLatestCheckTime(completedAt)}` : ""}</Text>
+            <Text style={compactStyles.detailLatestCheck}>{statusLabel} · {getCustomVisibilityLabel(quest.visibility)}{completedAt ? ` · ${formatLatestCheckTime(completedAt)}` : ""}</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
@@ -5747,10 +5825,10 @@ function CustomSideQuestDetailModal({
 
           <View style={compactStyles.proofScrollCard}>
             <Text style={compactStyles.proofScrollEyebrow}>Library management</Text>
-            <Text style={compactStyles.proofScrollTitle}>Private saved recipe</Text>
-            <Text style={compactStyles.proofScrollCopy}>Visible only in your account. You can pick it for Solo or include it in Multiplayer Side Quests you create; other players see only the safe title and summary.</Text>
+            <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityLabel(quest.visibility)} saved recipe</Text>
+            <Text style={compactStyles.proofScrollCopy}>{quest.visibility === "public" ? "Marked public for future discovery surfaces. Publishing does not expose the private verifier config to other players." : "Visible only in your account. You can pick it for Solo or include it in Multiplayer Side Quests you create; other players see only the safe title and summary."}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · Multiplayer eligible</Text>
+            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Solo and Multiplayer eligible" : "Not eligible until published"}</Text>
           </View>
 
           {completed && onViewResult ? (
@@ -5758,8 +5836,8 @@ function CustomSideQuestDetailModal({
               <Text style={compactStyles.detailPrimaryButtonText}>View Result</Text>
             </Pressable>
           ) : (
-            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (active || busy) ? compactStyles.disabledAction : null]} disabled={active || busy} onPress={() => void handleStart()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : active ? "Already Active" : "Pick This Side Quest"}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (active || busy || !canStart) ? compactStyles.disabledAction : null]} disabled={active || busy || !canStart} onPress={() => void handleStart()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : active ? "Already Active" : !canStart ? "Publish to pick" : "Pick This Side Quest"}</Text>
             </Pressable>
           )}
           <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>
@@ -5768,6 +5846,21 @@ function CustomSideQuestDetailModal({
           {onDuplicate ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Duplicate custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleDuplicate()}>
               <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "duplicate" ? "Duplicating..." : "Duplicate recipe"}</Text>
+            </Pressable>
+          ) : null}
+          {onSaveState && lifecycle !== "published" ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Publish custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility ?? "private" })}>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : "Publish recipe"}</Text>
+            </Pressable>
+          ) : null}
+          {onSaveState && lifecycle === "published" ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Toggle custom Side Quest visibility" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" })}>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : quest.visibility === "public" ? "Make private" : "Mark public"}</Text>
+            </Pressable>
+          ) : null}
+          {onSaveState && lifecycle !== "archived" ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Archive custom Side Quest" style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "archived", visibility: quest.visibility ?? "private" })}>
+              <Text style={compactStyles.detailQuietButtonText}>{manageBusy === "state" ? "Saving..." : "Archive recipe"}</Text>
             </Pressable>
           ) : null}
           {onDelete ? (
