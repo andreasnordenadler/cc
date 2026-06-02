@@ -4359,3 +4359,8 @@ Update recurring SQC daily ops scripts/docs to avoid `curl` dependency and avoid
 - Fix: use `git rev-parse HEAD` and pass the full commit SHA for GitHub release target.
 - Reminder: for release creation, avoid short SHAs even when Git accepts them locally.
 
+
+## 2026-06-02 — Exact block patch mismatch during v184 Home polish
+- What happened: an initial scripted replacement for the Home Trophy Cabinet block failed because the source differed slightly from the assumed block.
+- Impact: no file write happened before the failure; recovered by reading the exact section and applying smaller targeted edits.
+- Do differently: for large JSX section swaps, inspect the exact block immediately before replacement and prefer smaller `edit` replacements over one broad scripted string match.
