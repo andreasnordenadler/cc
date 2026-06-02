@@ -736,3 +736,26 @@ Final Save Draft / Publish actions must not depend on a separate, easy-to-miss "
 
 ### Prevention
 When adding nested editors, test the obvious user path from screenshot/phone: edit condition → tap final save/publish. Keep reward/identity UI at parent Side Quest level and condition UI limited to earning rules.
+
+## [LRN-20260602-001] correction
+
+**Logged**: 2026-06-02T09:26:00+02:00
+**Priority**: high
+**Status**: pending
+**Area**: tests
+
+### Summary
+Mobile UI fixes must be verified in the Android emulator for screenshot-reported issues, not only by typecheck/build/release gates.
+
+### Details
+Andreas reported the custom Side Quest builder issue was still the same after v169. I had shipped based on code inspection, backend logs, and build/release gates, but did not personally run the exact emulator flow. That missed a user-visible regression path.
+
+### Suggested Action
+For SQC Mobile UI/save-flow bugs, reproduce in emulator before claiming fixed; capture the exact screen/state and only release after the failing flow passes on-device/emulator.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx, src/app/api/mobile/custom-quests/route.ts
+- Tags: mobile, emulator, verification, custom-side-quests
+
+---
