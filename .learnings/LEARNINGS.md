@@ -865,3 +865,7 @@ For empty Community sections, avoid launch-status placeholders (`not open yet`, 
 ## 2026-06-02 — SQC Mobile highlighted board box can mean whole failed-state panel
 - When Andreas highlights a box around the active Solo proof board, inspect both the mini-board frame and the surrounding failed-state panel. Removing only the inner frame can leave the user-visible “box” intact.
 - Future screenshot fixes should flatten the visible container that matches the highlight, then verify the exact highlighted state when possible.
+
+## 2026-06-02 — Mobile active-state redesigns must cover sibling states
+- During SQC Mobile v190, the failed proof row was converted to a stacked layout, but emulator QA showed the waiting/no-game state still used the old side-by-side row.
+- Do differently: when redesigning an active-state module, inspect and screenshot all sibling states that share visual components (failed, pending/no-game, completed/proof-ready), not only the named state in the user feedback.

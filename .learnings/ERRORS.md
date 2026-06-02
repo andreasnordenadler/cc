@@ -4364,3 +4364,7 @@ Update recurring SQC daily ops scripts/docs to avoid `curl` dependency and avoid
 - What happened: an initial scripted replacement for the Home Trophy Cabinet block failed because the source differed slightly from the assumed block.
 - Impact: no file write happened before the failure; recovered by reading the exact section and applying smaller targeted edits.
 - Do differently: for large JSX section swaps, inspect the exact block immediately before replacement and prefer smaller `edit` replacements over one broad scripted string match.
+
+## 2026-06-02 — Git status cannot include files outside repo
+- A post-release status command ran `git status` inside `cc` while including `/Users/sam/.openclaw/workspace/memory/2026-06-02.md`, which failed because the memory file is outside the repository.
+- Do differently: check repo files and global workspace memory files separately; do not pass outside-repo paths to `git status` from a repo worktree.
