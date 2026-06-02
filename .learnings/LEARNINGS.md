@@ -857,3 +857,7 @@ For empty Community sections, avoid launch-status placeholders (`not open yet`, 
 - Category: correction
 - Andreas corrected the v186 My Active Solo Side Quest design: putting the chessboard inside its own visible mini-frame made the section feel like multiple sections, and duplicated `not completed` state copy felt noisy.
 - Do differently: for SQC mobile Home sections, keep important visuals like chessboards and Coat of Arms integrated into the section container. Avoid nested boxes unless there is a clear interaction boundary. State should be expressed once; supporting copy should explain the next useful action.
+
+## 2026-06-02 — SQC Mobile “only button” means remove icon controls too
+- When Andreas asks for a section to have only one button/control, treat inline icon affordances such as refresh icons as controls too, even if visually small or embedded in metadata.
+- For future Home card polish, screenshot-review action surfaces strictly before release: visible Pressables/icons inside the section count against “only button”.
