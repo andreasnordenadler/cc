@@ -2961,6 +2961,25 @@ function getCustomLibraryMeta(quest: Pick<CustomLibraryQuest, "summary" | "visib
   return [quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Published", getCustomVisibilityLabel(quest.visibility), quest.summary].filter(Boolean).join(" · ");
 }
 
+function getCustomVisibilityTitle(visibility?: "private" | "public") {
+  return visibility === "public" ? "Public: shareable summary" : "Private: only you manage it";
+}
+
+function getCustomVisibilityExplanation(visibility?: "private" | "public") {
+  if (visibility === "public") {
+    return "Other players may see the title, goal, and Coat of Arms when you share it or when public custom Side Quest browsing arrives. Your editor details and account stay private.";
+  }
+
+  return "Only you can find and manage this Side Quest in your library. You can still include it in Multiplayer rooms you host; players only see the title, goal, and Coat of Arms needed to play.";
+}
+
+function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) {
+  if (next.lifecycle === "archived") return `${name} is archived and no longer playable.`;
+  if (next.visibility === "public") return `${name} is public. Other players may see its title, goal, and Coat of Arms when it is shared.`;
+  if (next.visibility === "private") return `${name} is private. Only you can manage it, but you can still use it in Multiplayer rooms you host.`;
+  return `${name} is published and ready to play.`;
+}
+
 const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/custom-side-quest-crest.png";
 
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
@@ -3575,7 +3594,7 @@ function QuestBoardDashboard({
           const sessionToken = await authBridge.getSessionToken();
           await saveMobileCustomSideQuest({ sessionToken, id: quest.id, title: quest.name, summary: quest.summary, config: quest.config, lifecycle: next.lifecycle ?? quest.lifecycle ?? "published", visibility: next.visibility ?? quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
-          Alert.alert("Custom Side Quest updated", `${quest.name} is now ${next.lifecycle === "archived" ? "archived" : next.visibility === "public" ? "marked public" : next.visibility === "private" ? "private" : "published"}.`);
+          Alert.alert("Custom Side Quest updated", getCustomStateSavedMessage(quest.name, next));
         }}
         onViewResult={customDetailCompletedQuest ? () => {
           setCompletedDetailId(customDetailCompletedQuest.id);
@@ -3845,6 +3864,7 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
+              <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from your library if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={() => void saveCustomDraft("published")}>
                 <Text style={compactStyles.detailPrimaryButtonText}>Publish Private Side Quest</Text>
               </Pressable>
@@ -4704,7 +4724,7 @@ function SideQuestsScreen({
           const sessionToken = await authBridge.getSessionToken();
           await saveMobileCustomSideQuest({ sessionToken, id: quest.id, title: quest.name, summary: quest.summary, config: quest.config, lifecycle: next.lifecycle ?? quest.lifecycle ?? "published", visibility: next.visibility ?? quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
-          Alert.alert("Custom Side Quest updated", `${quest.name} is now ${next.lifecycle === "archived" ? "archived" : next.visibility === "public" ? "marked public" : next.visibility === "private" ? "private" : "published"}.`);
+          Alert.alert("Custom Side Quest updated", getCustomStateSavedMessage(quest.name, next));
         }}
       />
 
@@ -4970,6 +4990,7 @@ function SideQuestsScreen({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
+              <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from your library if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={() => void saveCustomDraft("published")}>
                 <Text style={compactStyles.detailPrimaryButtonText}>Publish Private Side Quest</Text>
               </Pressable>
@@ -5911,11 +5932,11 @@ function CustomSideQuestDetailModal({
           </View>
 
           <View style={compactStyles.proofScrollCard}>
-            <Text style={compactStyles.proofScrollEyebrow}>Library</Text>
-            <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityLabel(quest.visibility)} Side Quest</Text>
-            <Text style={compactStyles.proofScrollCopy}>{quest.visibility === "public" ? "Public Side Quests can be shared later. Other players see the title, goal, and Coat of Arms." : "Only you can see it. You can still use it in Solo or in Multiplayer rooms you create."}</Text>
+            <Text style={compactStyles.proofScrollEyebrow}>Visibility</Text>
+            <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityTitle(quest.visibility)}</Text>
+            <Text style={compactStyles.proofScrollCopy}>{getCustomVisibilityExplanation(quest.visibility)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Ready for Solo and Multiplayer" : "Publish it before playing"}</Text>
+            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Playable in Solo and your hosted Multiplayer rooms" : "Publish it before playing"}</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
@@ -5950,7 +5971,7 @@ function CustomSideQuestDetailModal({
           ) : null}
           {onSaveState && lifecycle === "published" ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Toggle custom Side Quest visibility" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" })}>
-              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : quest.visibility === "public" ? "Make private" : "Share publicly"}</Text>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : quest.visibility === "public" ? "Make private again" : "Make public / shareable"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle !== "archived" ? (
