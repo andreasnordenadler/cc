@@ -28,8 +28,8 @@ export async function POST(request: Request) {
   const existing = getCustomSideQuestStore(privateMetadata, publicMetadata);
   const id = typeof payload.id === "string" && payload.id.startsWith("custom-") ? payload.id : `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const existingQuest = existing.find((item) => item.id === id);
-  const badgeImageUrl = existingQuest?.badgeImageUrl ?? chooseCustomSideQuestBadge(parsed, `${id}:${config}`);
-  const quest: CustomSideQuest = compactCustomSideQuest({ id, title, summary: summary || (lifecycle === "draft" ? "Draft custom Side Quest" : "Custom rule recipe"), config, visibility, lifecycle, createdAt: existingQuest?.createdAt ?? now, updatedAt: now, badgeImageUrl });
+  const badgeImageUrl = chooseCustomSideQuestBadge();
+  const quest: CustomSideQuest = compactCustomSideQuest({ id, title, summary: summary || (lifecycle === "draft" ? "Draft Side Quest" : "Custom Side Quest"), config, visibility, lifecycle, createdAt: existingQuest?.createdAt ?? now, updatedAt: now, badgeImageUrl });
   const next = [quest, ...existing.filter((item) => item.id !== id).map(compactCustomSideQuest)].slice(0, 8);
 
   try {
@@ -69,7 +69,7 @@ function getCustomSideQuestStore(privateMetadata: UserMetadataRecord, publicMeta
 function getMetadataSaveErrorMessage(caught: unknown) {
   const text = caught instanceof Error ? caught.message : String(caught ?? "");
   if (/metadata exceeds|metadata.*too large|exceeds the maximum allowed size|form_param_exceeds_allowed_size|too large|maximum allowed|unprocessable entity/i.test(text)) {
-    return "Your Side Quest library storage is full. SQC compacted older custom Side Quest metadata; try saving again.";
+    return "Your Side Quest library is full. SQC cleaned up older saved data; please try again.";
   }
   return "Could not save this custom Side Quest right now.";
 }
@@ -129,7 +129,7 @@ function compactCustomSideQuest(quest: CustomSideQuest): CustomSideQuest {
   return {
     id: quest.id,
     title: cleanText(quest.title, 80) || "Custom Side Quest",
-    summary: cleanText(quest.summary, 220) || (quest.lifecycle === "draft" ? "Draft custom Side Quest" : "Custom rule recipe"),
+    summary: cleanText(quest.summary, 220) || (quest.lifecycle === "draft" ? "Draft Side Quest" : "Custom Side Quest"),
     config: compactConfig,
     visibility: quest.visibility === "public" ? "public" : "private",
     lifecycle: quest.lifecycle === "draft" || quest.lifecycle === "archived" ? quest.lifecycle : "published",

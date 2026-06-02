@@ -97,27 +97,11 @@ const CUSTOM_COAT_VARIANTS = {
   opening: "/badges/custom/custom-opening-scroll.png",
   sequence: "/badges/custom/custom-sequence-scroll.png",
   square: "/badges/custom/custom-square-star.png",
-  wild: "/badges/custom/custom-wild-card.png",
+  wild: "/badges/custom/custom-side-quest-crest.png",
 } as const;
 
-export function chooseCustomSideQuestBadge(config: CustomSideQuestRuleConfig | null, seed: string) {
-  const blocks = config?.blocks ?? [];
-  const result = blocks.find((block): block is Extract<CustomSideQuestRuleBlock, { type: "gameResult" }> => block.type === "gameResult")?.result;
-  const piece = blocks.find((block): block is Extract<CustomSideQuestRuleBlock, { type: "pieceState" }> => block.type === "pieceState")?.piece;
-  if (result === "win") {
-    if (piece === "king") return CUSTOM_COAT_VARIANTS.winKing;
-    if (piece === "knight") return CUSTOM_COAT_VARIANTS.winKnight;
-    if (piece === "pawn") return CUSTOM_COAT_VARIANTS.winPawn;
-    return CUSTOM_COAT_VARIANTS.winQueen;
-  }
-  if (result === "draw") return piece === "rook" ? CUSTOM_COAT_VARIANTS.drawRook : CUSTOM_COAT_VARIANTS.drawBishop;
-  if (result === "lose") return piece === "queen" ? CUSTOM_COAT_VARIANTS.loseQueen : CUSTOM_COAT_VARIANTS.loseKing;
-  if (blocks.some((block) => block.type === "openingSequence")) return CUSTOM_COAT_VARIANTS.opening;
-  if (blocks.some((block) => block.type === "moveSequence")) return CUSTOM_COAT_VARIANTS.sequence;
-  if (blocks.some((block) => block.type === "pieceState" && block.condition === "on square")) return CUSTOM_COAT_VARIANTS.square;
-  const fallback = [CUSTOM_COAT_VARIANTS.winQueen, CUSTOM_COAT_VARIANTS.winKnight, CUSTOM_COAT_VARIANTS.drawBishop, CUSTOM_COAT_VARIANTS.square, CUSTOM_COAT_VARIANTS.wild];
-  const hash = [...seed].reduce((total, char) => (total * 31 + char.charCodeAt(0)) >>> 0, 0);
-  return fallback[hash % fallback.length] ?? CUSTOM_COAT_VARIANTS.wild;
+export function chooseCustomSideQuestBadge() {
+  return CUSTOM_COAT_VARIANTS.wild;
 }
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {

@@ -43,7 +43,7 @@ type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" 
 const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   activeSolo: {
     title: "This active Side Quest card",
-    body: "Picked shows when this quest became active. Proof needed is the exact rule your next public game must satisfy. Latest check is the most recent time SQC looked at your connected chess accounts for a matching finished game.",
+    body: "Picked shows when this quest became active. What to do is the exact rule your next public game must satisfy. Latest check is the most recent time SQC looked at your connected chess accounts for a matching finished game.",
   },
   solo: {
     title: "Choosing a Solo Side Quest",
@@ -1620,7 +1620,7 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestInfoValue}>{activeQuestPickedLabel}</Text>
               </View>
               <View style={compactStyles.currentQuestInfoRow}>
-                <Text style={compactStyles.currentQuestInfoLabel}>Proof needed</Text>
+                <Text style={compactStyles.currentQuestInfoLabel}>What to do</Text>
                 <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
               </View>
               <View style={compactStyles.currentQuestInfoRow}>
@@ -1634,7 +1634,7 @@ function TodayDashboard({
             {canViewCurrentProof ? (
               <View style={compactStyles.actionRowTight}>
                 <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
-                  <Text style={compactStyles.primaryActionText}>View Result</Text>
+                  <Text style={compactStyles.primaryActionText}>View result</Text>
                 </Pressable>
                 <Pressable accessibilityRole="button" accessibilityLabel="Pick your Next Side Quest" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
                   <Text style={compactStyles.secondaryActionText}>Pick your Next Side Quest</Text>
@@ -2389,7 +2389,7 @@ function CurrentSideQuestDetailModal({
 
           <View style={compactStyles.detailPanel}>
             <DetailRow label="Picked" value={pickedLabel} />
-            <DetailRow label="Proof needed" value={proofNeeded} />
+            <DetailRow label="What to do" value={proofNeeded} />
             <DetailRow label="Latest check" value={latestCheckLabel} tone={latestCheckPassed ? "good" : "default"} />
           </View>
 
@@ -2938,13 +2938,21 @@ function getCustomLibraryMeta(quest: Pick<CustomLibraryQuest, "summary" | "visib
   return [quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Published", getCustomVisibilityLabel(quest.visibility), quest.summary].filter(Boolean).join(" · ");
 }
 
+const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/custom-side-quest-crest.png";
+
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
-  if (!stats) return "No stats yet";
-  return `Solo ${stats.soloAttempts} attempts / ${stats.soloCompletions} completions · Multiplayer ${stats.multiplayerLineups} lineups / ${stats.multiplayerFulfillments} fulfills`;
+  if (!stats) return "No attempts yet";
+  return `Solo: ${stats.soloAttempts} attempts, ${stats.soloCompletions} completions · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments} times`;
 }
 
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
-  return badgeImageUrl ? { uri: absoluteAssetUrl(badgeImageUrl) } : SQC_COAT_OF_ARMS_ASSET;
+  return { uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(badgeImageUrl)) };
+}
+
+function getSingleCustomQuestBadgePath(badgeImageUrl?: string | null) {
+  if (!badgeImageUrl) return CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH;
+  if (badgeImageUrl.includes("/badges/custom/") && !badgeImageUrl.includes("custom-side-quest-crest.png")) return CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH;
+  return badgeImageUrl;
 }
 
 function getJoinedMultiplayerListStatus(quest: MobileAccountState["activeGroupQuests"][number]) {
@@ -3136,7 +3144,7 @@ function getBrowseStatusTone(status: string): "green" | "gold" | "orange" | "dan
 
 function getRowImageSource(url: string | null): ImageSourcePropType | null {
   if (!url) return null;
-  return { uri: absoluteAssetUrl(url) };
+  return { uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(url)) };
 }
 
 function FeedSection({ title, children }: { title: string; children: ReactNode }) {
@@ -3389,7 +3397,7 @@ function QuestBoardDashboard({
       const sessionToken = await authBridge.getSessionToken();
       await saveMobileCustomSideQuest({ sessionToken, title: name, summary, config, lifecycle, visibility: "private" });
       await Promise.resolve(onAccountUpdated());
-      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready to pick and verify in your Side Quest Library.`);
+      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready in your Side Quest Library.`);
       setCustomCreateOpen(false);
     } catch (caught) {
       Alert.alert(lifecycle === "published" ? "Could not publish Side Quest" : "Could not save draft", caught instanceof Error ? caught.message : "Try again in a moment.");
@@ -3398,7 +3406,7 @@ function QuestBoardDashboard({
 
   async function startCustomSideQuest(questId: string) {
     if (!authBridge.isSignedIn) {
-      Alert.alert("Sign in to start custom Side Quests", "Saved custom Side Quests can be picked and verified after sign-in.");
+      Alert.alert("Sign in to start custom Side Quests", "Saved Side Quests can be picked after sign-in.");
       return;
     }
     try {
@@ -3451,7 +3459,7 @@ function QuestBoardDashboard({
             </View>
             <View style={compactStyles.currentQuestText}>
               <Text style={compactStyles.currentQuestTitle}>Create Custom Side Quest</Text>
-              <Text style={compactStyles.currentQuestMeta}>Build a solo Side Quest from safe rule blocks. No AI, no code, no multiplayer required.</Text>
+              <Text style={compactStyles.currentQuestMeta}>Create your own chess challenge and save it to your library.</Text>
             </View>
           </View>
           <View style={compactStyles.actionRowTight}>
@@ -3562,26 +3570,26 @@ function QuestBoardDashboard({
           </View>
           <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
-              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
-              <Text style={compactStyles.detailTitle}>Build a verifier recipe.</Text>
-              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Save a custom Side Quest recipe to your mobile library. Live scoring/publishing can use this rule recipe next.</Text>
+              <Text style={compactStyles.detailTitle}>Build your Side Quest.</Text>
+              <Text style={compactStyles.detailGoal}>Choose what should happen in a real game. SQC will check it after you play.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>Saved custom Side Quests stay in your mobile Side Quest Library while live scoring/publishing is finalized.</Text>
+              <Text style={styles.microcopy}>Saved Side Quests appear in your library and can be used for Solo or Multiplayer.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
-                <Image source={{ uri: absoluteAssetUrl(customBadgePreviewUrl) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
+                <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
                 <View style={compactStyles.customCoatPreviewCopy}>
                   <Text style={compactStyles.multiplayerRuleLabel}>Side Quest Coat of Arms</Text>
-                  <Text style={styles.microcopy}>This Coat of Arms belongs to the whole custom Side Quest. Conditions only define how it is earned.</Text>
+                  <Text style={styles.microcopy}>This is the Coat of Arms players unlock when this Side Quest is completed.</Text>
                 </View>
               </View>
-              <Text style={compactStyles.multiplayerCardEyebrow}>Quest rules</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Side Quest conditions</Text>
-              <Text style={styles.microcopy}>Quest settings live here. Individual piece/square settings only appear after you tap Add Condition.</Text>
-              <Text style={compactStyles.multiplayerRuleLabel}>How should saved conditions match?</Text>
+              <Text style={compactStyles.multiplayerCardEyebrow}>How to complete it</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
+              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game.</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
                   const selected = customRuleLogic === logic;
@@ -3589,16 +3597,16 @@ function QuestBoardDashboard({
                     <Pressable key={logic} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
-                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "All conditions must match" : "At least one condition must match"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "AND: every saved condition must be true." : "OR: one saved condition is enough."}</Text>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "Complete every condition" : "Complete any one condition"}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "Hard mode: every condition must happen." : "Flexible: one condition is enough."}</Text>
                       </View>
                     </Pressable>
                   );
                 })}
               </View>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Saved conditions</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They are equal clauses, not ordered steps.` : "No conditions yet. Add one to define what SQC should check."}</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Your conditions</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.` : "No conditions yet. Add the first thing players must do."}</Text>
               </View>
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
@@ -4022,7 +4030,7 @@ function AccountSoloSideQuestSection({
               <Text style={compactStyles.currentQuestInfoValue}>{activeQuestPickedLabel}</Text>
             </View>
             <View style={compactStyles.currentQuestInfoRow}>
-              <Text style={compactStyles.currentQuestInfoLabel}>Proof needed</Text>
+              <Text style={compactStyles.currentQuestInfoLabel}>What to do</Text>
               <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
             </View>
             <View style={compactStyles.currentQuestInfoRow}>
@@ -4569,7 +4577,7 @@ function SideQuestsScreen({
       const sessionToken = await authBridge.getSessionToken();
       await saveMobileCustomSideQuest({ sessionToken, title: name, summary, config, lifecycle, visibility: "private" });
       await Promise.resolve(onAccountUpdated());
-      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready to pick and verify in your Side Quest Library.`);
+      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready in your Side Quest Library.`);
       setCustomCreateOpen(false);
     } catch (caught) {
       Alert.alert(lifecycle === "published" ? "Could not publish Side Quest" : "Could not save draft", caught instanceof Error ? caught.message : "Try again in a moment.");
@@ -4578,7 +4586,7 @@ function SideQuestsScreen({
 
   async function startCustomSideQuest(questId: string) {
     if (!authBridge.isSignedIn) {
-      Alert.alert("Sign in to start custom Side Quests", "Saved custom Side Quests can be picked and verified after sign-in.");
+      Alert.alert("Sign in to start custom Side Quests", "Saved Side Quests can be picked after sign-in.");
       return;
     }
     try {
@@ -4621,11 +4629,11 @@ function SideQuestsScreen({
       <View style={compactStyles.multiplayerNativeCard}>
         <Text style={compactStyles.multiplayerCardEyebrow}>Side Quest Library</Text>
         <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest library.</Text>
-        <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
+        <Text style={styles.sectionBody}>Create your own chess challenges, then use them in Solo or Multiplayer.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
             <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
-          )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Create" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
+          )) : <AppRow title="No custom Side Quests yet" meta="Create your own chess challenge and give it a Coat of Arms." status="Create" imageSource={getCustomQuestImageSource(null)} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>
 
@@ -4687,26 +4695,26 @@ function SideQuestsScreen({
           </View>
           <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
-              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
-              <Text style={compactStyles.detailTitle}>Build a verifier recipe.</Text>
-              <Text style={compactStyles.detailGoal}>Create a solo Side Quest from safe configurable rule blocks. Save a custom Side Quest recipe to your mobile library. Live scoring/publishing can use this rule recipe next.</Text>
+              <Text style={compactStyles.detailTitle}>Build your Side Quest.</Text>
+              <Text style={compactStyles.detailGoal}>Choose what should happen in a real game. SQC will check it after you play.</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>Saved custom Side Quests stay in your mobile Side Quest Library while live scoring/publishing is finalized.</Text>
+              <Text style={styles.microcopy}>Saved Side Quests appear in your library and can be used for Solo or Multiplayer.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
-                <Image source={{ uri: absoluteAssetUrl(customBadgePreviewUrl) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
+                <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
                 <View style={compactStyles.customCoatPreviewCopy}>
                   <Text style={compactStyles.multiplayerRuleLabel}>Side Quest Coat of Arms</Text>
-                  <Text style={styles.microcopy}>This Coat of Arms belongs to the whole custom Side Quest. Conditions only define how it is earned.</Text>
+                  <Text style={styles.microcopy}>This is the Coat of Arms players unlock when this Side Quest is completed.</Text>
                 </View>
               </View>
-              <Text style={compactStyles.multiplayerCardEyebrow}>Quest rules</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Side Quest conditions</Text>
-              <Text style={styles.microcopy}>Quest settings live here. Individual piece/square settings only appear after you tap Add Condition.</Text>
-              <Text style={compactStyles.multiplayerRuleLabel}>How should saved conditions match?</Text>
+              <Text style={compactStyles.multiplayerCardEyebrow}>How to complete it</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
+              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game.</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
                   const selected = customRuleLogic === logic;
@@ -4714,16 +4722,16 @@ function SideQuestsScreen({
                     <Pressable key={logic} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomRuleLogic(logic)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
-                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "All conditions must match" : "At least one condition must match"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "AND: every saved condition must be true." : "OR: one saved condition is enough."}</Text>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "Complete every condition" : "Complete any one condition"}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "Hard mode: every condition must happen." : "Flexible: one condition is enough."}</Text>
                       </View>
                     </Pressable>
                   );
                 })}
               </View>
               <View style={compactStyles.multiplayerRuleRow}>
-                <Text style={compactStyles.multiplayerRuleLabel}>Saved conditions</Text>
-                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They are equal clauses, not ordered steps.` : "No conditions yet. Add one to define what SQC should check."}</Text>
+                <Text style={compactStyles.multiplayerRuleLabel}>Your conditions</Text>
+                <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.` : "No conditions yet. Add the first thing players must do."}</Text>
               </View>
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
@@ -5822,7 +5830,7 @@ function CustomSideQuestDetailModal({
     if (!quest || !onDelete || manageBusy) return;
     Alert.alert(
       "Delete custom Side Quest?",
-      active ? "This will remove it from your library and clear it as your active Side Quest." : "This removes it from your custom Side Quest library. Existing multiplayer lineups keep their safe saved snapshot.",
+      active ? "This will remove it from your library and clear it as your active Side Quest." : "This removes it from your custom Side Quest library. Existing Multiplayer rooms keep the version they already saved.",
       [
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: () => void handleDelete() },
@@ -5872,36 +5880,36 @@ function CustomSideQuestDetailModal({
           </View>
 
           <View style={compactStyles.proofScrollCard}>
-            <Text style={compactStyles.proofScrollEyebrow}>Rule scroll</Text>
-            <Text style={compactStyles.proofScrollTitle}>Proof needed</Text>
+            <Text style={compactStyles.proofScrollEyebrow}>Challenge</Text>
+            <Text style={compactStyles.proofScrollTitle}>What to do</Text>
             <Text style={compactStyles.proofScrollCopy}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>Custom verifier · Fresh games count after activation</Text>
+            <Text style={compactStyles.proofScrollMeta}>Play a fresh public game after picking this Side Quest.</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
-            <Text style={compactStyles.proofScrollEyebrow}>Library management</Text>
-            <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityLabel(quest.visibility)} saved recipe</Text>
-            <Text style={compactStyles.proofScrollCopy}>{quest.visibility === "public" ? "Marked public for future discovery surfaces. Publishing does not expose the private verifier config to other players." : "Visible only in your account. You can pick it for Solo or include it in Multiplayer Side Quests you create; other players see only the safe title and summary."}</Text>
+            <Text style={compactStyles.proofScrollEyebrow}>Library</Text>
+            <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityLabel(quest.visibility)} Side Quest</Text>
+            <Text style={compactStyles.proofScrollCopy}>{quest.visibility === "public" ? "Public Side Quests can be shared later. Other players see the title, goal, and Coat of Arms." : "Only you can see it. You can still use it in Solo or in Multiplayer rooms you create."}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Solo and Multiplayer eligible" : "Not eligible until published"}</Text>
+            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Ready for Solo and Multiplayer" : "Publish it before playing"}</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
-            <Text style={compactStyles.proofScrollEyebrow}>Side Quest stats</Text>
-            <Text style={compactStyles.proofScrollTitle}>Usage so far</Text>
+            <Text style={compactStyles.proofScrollEyebrow}>Stats</Text>
+            <Text style={compactStyles.proofScrollTitle}>Activity so far</Text>
             <Text style={compactStyles.proofScrollCopy}>{getCustomStatsLine(quest.stats)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>Stats are account-scoped and never expose private player details.</Text>
+            <Text style={compactStyles.proofScrollMeta}>Stats show your activity with this Side Quest.</Text>
           </View>
 
           {completed && onViewResult ? (
             <Pressable accessibilityRole="button" accessibilityLabel="View custom Side Quest result" style={compactStyles.detailPrimaryButton} onPress={onViewResult}>
-              <Text style={compactStyles.detailPrimaryButtonText}>View Result</Text>
+              <Text style={compactStyles.detailPrimaryButtonText}>View result</Text>
             </Pressable>
           ) : (
             <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (active || busy || !canStart) ? compactStyles.disabledAction : null]} disabled={active || busy || !canStart} onPress={() => void handleStart()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : active ? "Already Active" : !canStart ? "Publish to pick" : "Pick This Side Quest"}</Text>
+              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : active ? "Already active" : !canStart ? "Publish to play" : "Pick this Side Quest"}</Text>
             </Pressable>
           )}
           <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>
@@ -5909,22 +5917,22 @@ function CustomSideQuestDetailModal({
           </Pressable>
           {onDuplicate ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Duplicate custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleDuplicate()}>
-              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "duplicate" ? "Duplicating..." : "Duplicate recipe"}</Text>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "duplicate" ? "Duplicating..." : "Duplicate"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle !== "published" ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Publish custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility ?? "private" })}>
-              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : "Publish recipe"}</Text>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : "Publish"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle === "published" ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Toggle custom Side Quest visibility" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "published", visibility: quest.visibility === "public" ? "private" : "public" })}>
-              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : quest.visibility === "public" ? "Make private" : "Mark public"}</Text>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "state" ? "Saving..." : quest.visibility === "public" ? "Make private" : "Share publicly"}</Text>
             </Pressable>
           ) : null}
           {onSaveState && lifecycle !== "archived" ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Archive custom Side Quest" style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={() => void handleSaveState({ lifecycle: "archived", visibility: quest.visibility ?? "private" })}>
-              <Text style={compactStyles.detailQuietButtonText}>{manageBusy === "state" ? "Saving..." : "Archive recipe"}</Text>
+              <Text style={compactStyles.detailQuietButtonText}>{manageBusy === "state" ? "Saving..." : "Archive"}</Text>
             </Pressable>
           ) : null}
           {onDelete ? (
@@ -6026,23 +6034,8 @@ function CompletedQuestProofCard({
   );
 }
 
-function getCustomCoatPreviewUrl(requirements: Array<Omit<CustomRuleRequirement, "id">>, seed: string) {
-  const result = requirements.find((requirement) => requirement.condition === "game result")?.result;
-  const piece = requirements.find((requirement) => requirement.condition !== "game result" && requirement.condition !== "move sequence" && requirement.condition !== "opening sequence")?.piece;
-  if (result === "win") {
-    if (piece === "king") return "/badges/custom/custom-win-king.png";
-    if (piece === "knight") return "/badges/custom/custom-win-knight.png";
-    if (piece === "pawn") return "/badges/custom/custom-win-pawn.png";
-    return "/badges/custom/custom-win-queen.png";
-  }
-  if (result === "draw") return piece === "rook" ? "/badges/custom/custom-draw-rook.png" : "/badges/custom/custom-draw-bishop.png";
-  if (result === "lose") return piece === "queen" ? "/badges/custom/custom-lose-queen.png" : "/badges/custom/custom-lose-king.png";
-  if (requirements.some((requirement) => requirement.condition === "opening sequence")) return "/badges/custom/custom-opening-scroll.png";
-  if (requirements.some((requirement) => requirement.condition === "move sequence")) return "/badges/custom/custom-sequence-scroll.png";
-  if (requirements.some((requirement) => requirement.condition === "on square")) return "/badges/custom/custom-square-star.png";
-  const fallback = ["/badges/custom/custom-win-queen.png", "/badges/custom/custom-win-knight.png", "/badges/custom/custom-draw-bishop.png", "/badges/custom/custom-square-star.png", "/badges/custom/custom-wild-card.png"];
-  const hash = [...seed].reduce((total, char) => (total * 31 + char.charCodeAt(0)) >>> 0, 0);
-  return fallback[hash % fallback.length] ?? "/badges/custom/custom-wild-card.png";
+function getCustomCoatPreviewUrl(_requirements: Array<Omit<CustomRuleRequirement, "id">>, _seed: string) {
+  return CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH;
 }
 
 function buildCustomActiveChallenge(
@@ -6140,7 +6133,7 @@ function buildMobileVictoryScrollCopy(challenge: MobileChallenge) {
     return `${challenge.objective} Losing on these terms still counts as commitment to the bit.`;
   }
 
-  return `${challenge.objective} The verifier accepted the evidence, so the coat of arms may now be displayed.`;
+  return `${challenge.objective} SQC accepted the proof, so the Coat of Arms is unlocked.`;
 }
 
 function getMobileAccountNextStep(account: MobileAccountState) {
@@ -6580,7 +6573,7 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
       <Text style={styles.stateBoardTitle}>Your progress stays connected.</Text>
       <Text style={styles.stateBoardBody}>SQC keeps browsing available and syncs progress after sign-in.</Text>
       <View style={styles.stateTimeline}>
-        <FlowStep done title="Browse quests" body="Quest rules, rewards, and Coat of Arms previews are available before sign-in." />
+        <FlowStep done title="Browse quests" body="Quest goals, rewards, and Coat of Arms previews are available before sign-in." />
         <FlowStep done={authBridge.configured} title="Account sign-in" body={authBridge.configured ? "Sign in to save progress and proof." : "Sign-in is temporarily unavailable."} />
         <FlowStep done={authenticated} title="Progress sync" body={backendAccepted} />
       </View>

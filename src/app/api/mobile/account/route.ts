@@ -111,7 +111,7 @@ export async function GET(request: Request) {
       completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
       href: new URL(`/challenges`, baseUrl).toString(),
       proofHref: null,
-      badgeImageUrl: quest.badgeImageUrl ?? null,
+      badgeImageUrl: new URL("/badges/custom/custom-side-quest-crest.png", baseUrl).toString(),
       gameId: latestPassed?.gameId ?? null,
       provider: latestPassed?.provider ?? null,
       finalPositionFen: latestPassed?.finalPositionFen ?? null,
