@@ -265,13 +265,15 @@ function ActiveQuestEmptyMiniBoard() {
   );
 }
 
-function ActiveQuestNoGameSummary({ goal, pickedLabel }: { goal?: string; pickedLabel?: string }) {
+function ActiveQuestNoGameSummary({ goal, pickedLabel, latestCheckLabel, statusLabel }: { goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
   return (
     <View style={compactStyles.currentEmptyBoardPanel}>
       <ActiveQuestEmptyMiniBoard />
       <View style={compactStyles.currentProofTextBlock}>
         {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
+        {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
+        {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
         <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>Play a new public game on Lichess or Chess.com after picking this Side Quest, then come back and refresh proof.</Text>
       </View>
     </View>
@@ -279,7 +281,7 @@ function ActiveQuestNoGameSummary({ goal, pickedLabel }: { goal?: string; picked
 }
 
 
-function ActiveQuestMiniProofBoard({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
+function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabel, statusLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
   const board = parseMobileFenBoard(receipt?.finalPositionFen, receipt?.lastMoveUci ?? undefined, "white");
 
   if (!receipt || receipt.status !== "passed" || !board) return null;
@@ -294,15 +296,18 @@ function ActiveQuestMiniProofBoard({ receipt }: { receipt: MobileAccountState["l
           </View>
         ))}
       </View>
-      <View style={compactStyles.currentFailureCopyBlock}>
-        <Text style={compactStyles.currentFailureTitle}>Proof board</Text>
+      <View style={compactStyles.currentProofTextBlock}>
+        {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
+        {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
+        {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
+        {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
         <Text style={compactStyles.currentFailureCopy} numberOfLines={3}>{receipt.lastMoveSan || receipt.lastMoveUci ? `Final position · ${receipt.lastMoveSan ?? receipt.lastMoveUci}` : "Final verified chess position from the completed Side Quest."}</Text>
       </View>
     </View>
   );
 }
 
-function ActiveQuestFailureSummary({ receipt, goal, pickedLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string }) {
+function ActiveQuestFailureSummary({ receipt, goal, pickedLabel, latestCheckLabel, statusLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
   const failureText = getReceiptFailureText(receipt);
   if (!failureText) return null;
 
@@ -312,7 +317,8 @@ function ActiveQuestFailureSummary({ receipt, goal, pickedLabel }: { receipt: Mo
       <View style={compactStyles.currentProofTextBlock}>
         {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
-        <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={compactStyles.currentQuestMetaDanger}>not completed</Text></Text>
+        {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
+        {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
         <Text style={compactStyles.currentFailureCopy} numberOfLines={3}>{failureText}</Text>
       </View>
     </View>
@@ -1611,9 +1617,9 @@ function TodayDashboard({
         </Pressable>
       ) : null}
 
+      <Text style={compactStyles.activeSoloSectionTitle}>My Active Solo Side Quest</Text>
       <View style={compactStyles.activeSoloSection}>
-        <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>My Active Solo Side Quest</Text>
+        <View style={compactStyles.activeSoloRefreshRow}>
           <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
             <MaterialCommunityIcons name={actionState.busy ? "sync" : "refresh"} size={17} color={colors.gold} />
           </Pressable>
@@ -1637,9 +1643,9 @@ function TodayDashboard({
             {actionState.message && !latestCheckFailed ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
-          {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
-          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} /> : null}
-          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} /> : null}
+          {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)} statusLabel="Completed" /> : null}
+          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)} statusLabel="Not Completed" /> : null}
+          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)} statusLabel="Not Completed" /> : null}
           <View style={compactStyles.activeSoloActions}>
             <Pressable accessibilityRole="button" accessibilityLabel="Explore More Solo Side Quests" style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("sideQuests")}>
               <Text style={compactStyles.soloSecondaryActionText}>Explore More Solo Side Quests</Text>
@@ -6965,7 +6971,9 @@ const compactStyles = StyleSheet.create({
   blockerTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
   blockerCopy: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
-  activeSoloSection: { gap: 10, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  activeSoloSectionTitle: { color: colors.paper, fontSize: 16, lineHeight: 20, fontWeight: "900", letterSpacing: -.2, textAlign: "center", marginBottom: -2 },
+  activeSoloSection: { gap: 8, padding: 13, paddingTop: 8, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  activeSoloRefreshRow: { flexDirection: "row", justifyContent: "flex-end", minHeight: 34 },
   activeSoloSummary: { gap: 10, alignItems: "center" },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
   freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4 },
@@ -6998,6 +7006,7 @@ const compactStyles = StyleSheet.create({
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   currentQuestMetaStrong: { color: colors.gold, fontWeight: "900" },
   currentQuestMetaDanger: { color: "#ff6f6f", fontWeight: "900" },
+  currentQuestMetaGood: { color: "#60f0af", fontWeight: "900" },
   currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
   currentQuestMetaStack: { gap: 4, paddingTop: 1 },
   proofCheckMetaRow: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", maxWidth: "100%" },
