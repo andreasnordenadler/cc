@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
-import { checkLatestCustomSideQuestForProvider, getCustomSideQuestById } from "@/lib/custom-side-quests";
+import { checkLatestCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   buildChallengeProgressRecord,
   compactChallengeAttempts,
@@ -50,11 +50,17 @@ export async function POST(request: Request) {
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
+  const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
+  const readMetadata = {
+    ...metadata,
+    customSideQuests: privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata),
+  };
 
   try {
     if (action === "start") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      const result = await startMobileChallenge(userId, metadata, challengeId);
+      const result = await startMobileChallenge(userId, metadata, readMetadata, challengeId);
 
       return NextResponse.json({
         apiVersion: 1,
@@ -67,7 +73,7 @@ export async function POST(request: Request) {
     }
 
     if (action === "check") {
-      const result = await checkMobileActiveChallenge(userId, metadata);
+      const result = await checkMobileActiveChallenge(userId, metadata, readMetadata);
 
       return NextResponse.json({
         apiVersion: 1,
@@ -95,7 +101,7 @@ export async function POST(request: Request) {
 
     if (action === "reset") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
-      await resetMobileCompletedChallenge(userId, metadata, challengeId);
+      await resetMobileCompletedChallenge(userId, metadata, readMetadata, challengeId);
 
       return NextResponse.json({
         apiVersion: 1,
@@ -180,9 +186,9 @@ function getPassedProviderCheck(checks: MobileProviderCheck[]): MobileProviderCh
     .sort((a, b) => getProviderCheckTimeMs(b) - getProviderCheckTimeMs(a))[0];
 }
 
-async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
+async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord, challengeId: string) {
   const challenge = getChallengeById(challengeId);
-  const customQuest = challenge ? null : getCustomSideQuestById(metadata, challengeId);
+  const customQuest = challenge ? null : getCustomSideQuestById(readMetadata, challengeId);
 
   if (!challenge && !customQuest) {
     throw new Error("Unknown quest.");
@@ -191,7 +197,7 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
   const questId = challenge?.id ?? customQuest!.id;
-  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, metadata, now));
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, readMetadata, now));
   const progress = getChallengeProgress(metadata);
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
@@ -216,7 +222,7 @@ async function startMobileChallenge(userId: string, metadata: UserMetadataRecord
   return { challengeId: questId, completed: Boolean(passedCheck) };
 }
 
-async function checkMobileActiveChallenge(userId: string, metadata: UserMetadataRecord) {
+async function checkMobileActiveChallenge(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord) {
   const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
     ? (metadata.activeChallenge as { id?: string; startedAt?: string })
     : null;
@@ -226,7 +232,7 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
   }
 
   const challenge = getChallengeById(activeChallenge.id);
-  const customQuest = challenge ? null : getCustomSideQuestById(metadata, activeChallenge.id);
+  const customQuest = challenge ? null : getCustomSideQuestById(readMetadata, activeChallenge.id);
 
   if (!challenge && !customQuest) {
     throw new Error("Unknown active quest.");
@@ -235,7 +241,7 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
 
   const existingAttempts = getExistingAttempts(metadata);
   const now = new Date().toISOString();
-  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, metadata, activeChallenge.startedAt ?? now));
+  const providerChecks = orderProviderChecksForReceipt(await safeBuildLatestGameChecks(questId, readMetadata, activeChallenge.startedAt ?? now));
   const passedCheck = getPassedProviderCheck(providerChecks);
   const latestCheck = providerChecks.at(-1);
   const progress = getChallengeProgress(metadata);
@@ -272,9 +278,9 @@ async function deactivateMobileActiveChallenge(userId: string, metadata: UserMet
   await updateUserPublicMetadata(userId, metadata, { activeChallenge: null });
 }
 
-async function resetMobileCompletedChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {
+async function resetMobileCompletedChallenge(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord, challengeId: string) {
   const challenge = getChallengeById(challengeId);
-  const customQuest = challenge ? null : getCustomSideQuestById(metadata, challengeId);
+  const customQuest = challenge ? null : getCustomSideQuestById(readMetadata, challengeId);
 
   if (!challenge && !customQuest) {
     throw new Error("Unknown quest.");
@@ -383,9 +389,12 @@ function buildAttempt(challengeId: string, check: MobileProviderCheck, id: strin
 
 async function updateUserPublicMetadata(userId: string, metadata: UserMetadataRecord, patch: UserMetadataRecord) {
   const client = await clerkClient();
+  const safeMetadata = { ...metadata };
+  delete safeMetadata.customSideQuests;
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
-      ...metadata,
+      ...safeMetadata,
+      customSideQuests: null,
       ...patch,
     },
   });

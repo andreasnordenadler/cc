@@ -39,8 +39,10 @@ export async function GET(request: Request) {
   const user = await client.users.getUser(userId);
   const baseUrl = new URL(request.url).origin;
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
   const progress = getChallengeProgress(metadata);
-  const customSideQuests = getCustomSideQuests(metadata);
+  const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
+  const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
   const customQuestMap = new Map(customSideQuests.map((quest) => [quest.id, quest]));
   const activeChallenge = getActiveChallenge(metadata);
   const activeOfficialChallengeRecord = activeChallenge?.id
