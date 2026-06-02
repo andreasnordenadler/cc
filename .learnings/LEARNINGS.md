@@ -852,3 +852,8 @@ For empty Community sections, avoid launch-status placeholders (`not open yet`, 
 - Related Files: apps/mobile/App.tsx
 - Tags: sqc-mobile, community, empty-state, ux-copy
 ---
+
+## 2026-06-02 — SQC Home card containment means no nested visual cards
+- Category: correction
+- Andreas corrected the v186 My Active Solo Side Quest design: putting the chessboard inside its own visible mini-frame made the section feel like multiple sections, and duplicated `not completed` state copy felt noisy.
+- Do differently: for SQC mobile Home sections, keep important visuals like chessboards and Coat of Arms integrated into the section container. Avoid nested boxes unless there is a clear interaction boundary. State should be expressed once; supporting copy should explain the next useful action.
