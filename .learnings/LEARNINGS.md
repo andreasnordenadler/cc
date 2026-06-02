@@ -861,3 +861,7 @@ For empty Community sections, avoid launch-status placeholders (`not open yet`, 
 ## 2026-06-02 — SQC Mobile “only button” means remove icon controls too
 - When Andreas asks for a section to have only one button/control, treat inline icon affordances such as refresh icons as controls too, even if visually small or embedded in metadata.
 - For future Home card polish, screenshot-review action surfaces strictly before release: visible Pressables/icons inside the section count against “only button”.
+
+## 2026-06-02 — SQC Mobile highlighted board box can mean whole failed-state panel
+- When Andreas highlights a box around the active Solo proof board, inspect both the mini-board frame and the surrounding failed-state panel. Removing only the inner frame can leave the user-visible “box” intact.
+- Future screenshot fixes should flatten the visible container that matches the highlight, then verify the exact highlighted state when possible.
