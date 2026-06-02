@@ -759,3 +759,7 @@ For SQC Mobile UI/save-flow bugs, reproduce in emulator before claiming fixed; c
 - Tags: mobile, emulator, verification, custom-side-quests
 
 ---
+
+## 2026-06-02 — Verify combined mobile flows, not only independent parts
+- What happened: SQC Mobile v170 independently passed custom quest picker selection and multiplayer room creation, but a final combined emulator pass (custom quest included in the created room) exposed a detail-screen fallback text bug.
+- Do differently: For mobile features that cross creation + persisted detail screens, always add one end-to-end emulator pass that creates the object with the new custom data and reopens/views the persisted detail before calling QA complete.
