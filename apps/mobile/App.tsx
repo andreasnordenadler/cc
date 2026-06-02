@@ -127,7 +127,7 @@ type CustomLibraryQuest = {
   stats?: MobileCustomSideQuest["stats"];
 };
 
-const MULTIPLAYER_DEFAULT_INVITE_COPY = "A multiplayer room where everyone tries the same Side Quests with fresh public games.";
+const MULTIPLAYER_DEFAULT_INVITE_COPY = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
 
 
@@ -2003,7 +2003,7 @@ function JoinedMultiplayerQuestModal({
         >
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={getMultiplayerSealSource(quest)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
-            <Text style={compactStyles.multiplayerDetailKicker}>{quest.isOwner ? "Hosted room" : mode === "joined" ? "Joined room" : "Official room"}</Text>
+            <Text style={compactStyles.multiplayerDetailKicker}>{quest.isOwner ? "Hosted Multiplayer Side Quest" : mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
             <Text style={compactStyles.detailGoal}>{cleanMultiplayerInviteCopy(quest.inviteCopy)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
@@ -2097,7 +2097,7 @@ function JoinedMultiplayerQuestModal({
           ) : (
             <>
               <View style={compactStyles.multiplayerNativeCard}>
-                <Text style={compactStyles.multiplayerCardEyebrow}>Quests in this room</Text>
+                <Text style={compactStyles.multiplayerCardEyebrow}>Quests in this Multiplayer Side Quest</Text>
                 <Text style={compactStyles.multiplayerCardTitle}>{questRows.length} Side Quests to complete.</Text>
                 <View style={compactStyles.appRows}>
                   {questRows.slice(0, 4).map((row) => (
@@ -2418,9 +2418,11 @@ function CurrentSideQuestDetailModal({
 
           <View style={compactStyles.detailPanelStrong}>
             <Text style={compactStyles.detailPanelTitle}>How proof works</Text>
-            <Text style={compactStyles.detailPanelCopy}>1. Pick a Side Quest.
-2. Play a new public Lichess or Chess.com game.
-3. Return here and check your latest game.</Text>
+            <View style={compactStyles.proofStepList}>
+              <ProofStep number="1" text="Pick a Side Quest." />
+              <ProofStep number="2" text="Play a new public Lichess or Chess.com game." />
+              <ProofStep number="3" text="Return here and check your latest game." />
+            </View>
           </View>
 
           <View style={compactStyles.detailPanel}>
@@ -2486,6 +2488,15 @@ function DetailRow({ label, value, tone = "default" }: { label: string; value: s
     <View style={compactStyles.detailRow}>
       <Text style={compactStyles.detailRowLabel}>{label}</Text>
       <Text style={[compactStyles.detailRowValue, tone === "good" && compactStyles.detailRowValueGood]} numberOfLines={2}>{value}</Text>
+    </View>
+  );
+}
+
+function ProofStep({ number, text }: { number: string; text: string }) {
+  return (
+    <View style={compactStyles.proofStepRow}>
+      <Text style={compactStyles.proofStepBadge}>{number}</Text>
+      <Text style={compactStyles.proofStepText}>{text}</Text>
     </View>
   );
 }
@@ -3006,13 +3017,13 @@ function getCustomVisibilityExplanation(visibility?: "private" | "public") {
     return "Other players may see the title, goal, and Coat of Arms when you share it or when public custom Side Quest browsing arrives. Your editor details and account stay private.";
   }
 
-  return "Only you can find and manage this Side Quest. Other players can play it in your room, but they cannot browse, edit, or reuse the private setup unless you share it.";
+  return "Only you can find and manage this Side Quest. Other players can play it in a Multiplayer Side Quest you host, but they cannot browse, edit, or reuse the private setup unless you share it.";
 }
 
 function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) {
   if (next.lifecycle === "archived") return `${name} is archived and no longer playable.`;
   if (next.visibility === "public") return `${name} is public/shareable. Other players may see its title, goal, and Coat of Arms when it is shared.`;
-  if (next.visibility === "private") return `${name} is private. Only you can manage it, but you can still use it in Multiplayer rooms you host.`;
+  if (next.visibility === "private") return `${name} is private. Only you can manage it, but you can still use it in Multiplayer Side Quests you host.`;
   return `${name} is published and ready to play.`;
 }
 
@@ -3379,6 +3390,7 @@ function QuestBoardDashboard({
   const customRuleSummary = customRuleRequirements.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: customRuleRequirements }) : "Add at least one condition before this Side Quest can be scored.";
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
   const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
+  const canPublishCustomQuest = customRequirements.length > 0 || customConditionEditorOpen;
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
     setCustomRulePiece(requirement.piece);
@@ -3541,7 +3553,7 @@ function QuestBoardDashboard({
             </View>
             <View style={compactStyles.currentQuestText}>
               <Text style={compactStyles.currentQuestTitle}>Build your own Side Quest</Text>
-              <Text style={compactStyles.currentQuestMeta}>Choose the rule, save it privately, then use it solo or in Multiplayer rooms you host.</Text>
+              <Text style={compactStyles.currentQuestMeta}>Choose the rule, save it privately, then use it solo or in Multiplayer Side Quests you host.</Text>
             </View>
           </View>
           <View style={compactStyles.actionRowTight}>
@@ -3910,8 +3922,8 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from your library if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={() => void saveCustomDraft("published")}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Publish Private Side Quest</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" accessibilityState={{ disabled: !canPublishCustomQuest }} style={[compactStyles.detailPrimaryButton, !canPublishCustomQuest && compactStyles.detailPrimaryButtonDisabled]} disabled={!canPublishCustomQuest} onPress={() => void saveCustomDraft("published")}>
+                <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? "Publish Private Side Quest" : "Add Condition to Publish"}</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailSecondaryButton} onPress={() => void saveCustomDraft("draft")}>
                 <Text style={compactStyles.detailSecondaryButtonText}>Save Draft</Text>
@@ -4565,6 +4577,7 @@ function SideQuestsScreen({
   const customRuleSummary = customRuleRequirements.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: customRuleRequirements }) : "Add at least one condition before this Side Quest can be scored.";
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
   const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
+  const canPublishCustomQuest = customRequirements.length > 0 || customConditionEditorOpen;
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
     setCustomRulePiece(requirement.piece);
@@ -5041,8 +5054,8 @@ function SideQuestsScreen({
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
               <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from your library if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" style={compactStyles.detailPrimaryButton} onPress={() => void saveCustomDraft("published")}>
-                <Text style={compactStyles.detailPrimaryButtonText}>Publish Private Side Quest</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" accessibilityState={{ disabled: !canPublishCustomQuest }} style={[compactStyles.detailPrimaryButton, !canPublishCustomQuest && compactStyles.detailPrimaryButtonDisabled]} disabled={!canPublishCustomQuest} onPress={() => void saveCustomDraft("published")}>
+                <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? "Publish Private Side Quest" : "Add Condition to Publish"}</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailSecondaryButton} onPress={() => void saveCustomDraft("draft")}>
                 <Text style={compactStyles.detailSecondaryButtonText}>Save Draft</Text>
@@ -5302,10 +5315,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Rooms you joined">
-        <Text style={styles.eyebrow}>Rooms you joined · {activeMineGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Your multiplayer rooms.</Text>
-        <Text style={styles.sectionBody}>Rooms you host are included here too.</Text>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Joined Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Joined Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Multiplayer Side Quests you host are included here too.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
@@ -5325,10 +5338,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : null}
       </View>
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Public rooms">
-        <Text style={styles.eyebrow}>Public rooms · {availableGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Public rooms.</Text>
-        <Text style={styles.sectionBody}>Join an open room directly from the list.</Text>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Public Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Public Multiplayer Side Quests · {availableGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Public Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Join an open Multiplayer Side Quest directly from the list.</Text>
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
@@ -5345,8 +5358,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
         <Text style={styles.eyebrow}>Invite Code</Text>
-        <Text style={styles.sideQuestModeTitle}>Join private room.</Text>
-        <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private room.</Text>
+        <Text style={styles.sideQuestModeTitle}>Join private Multiplayer Side Quest.</Text>
+        <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private Multiplayer Side Quest.</Text>
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Invite code</Text>
           <TextInput autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
@@ -5924,7 +5937,7 @@ function CustomSideQuestDetailModal({
     if (!quest || !onDelete || manageBusy) return;
     Alert.alert(
       "Delete custom Side Quest?",
-      active ? "This will remove it from your library and clear it as your active Side Quest." : "This removes it from your custom Side Quest library. Existing Multiplayer rooms keep the version they already saved.",
+      active ? "This will remove it from your library and clear it as your active Side Quest." : "This removes it from your custom Side Quest library. Existing Multiplayer Side Quests keep the version they already saved.",
       [
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: () => void handleDelete() },
@@ -5986,7 +5999,7 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityTitle(quest.visibility)}</Text>
             <Text style={compactStyles.proofScrollCopy}>{getCustomVisibilityExplanation(quest.visibility)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Playable in Solo and your hosted Multiplayer rooms" : "Publish it before playing"}</Text>
+            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Playable in Solo and your hosted Multiplayer Side Quests" : "Publish it before playing"}</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
@@ -7172,6 +7185,10 @@ const compactStyles = StyleSheet.create({
   failureBoardCopy: { color: "rgba(224,211,188,.9)", fontSize: 12, lineHeight: 17, fontWeight: "800" },
   detailPanelTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.2 },
   detailPanelCopy: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
+  proofStepList: { gap: 8, marginTop: 2 },
+  proofStepRow: { flexDirection: "row", alignItems: "center", gap: 9 },
+  proofStepBadge: { width: 22, height: 22, borderRadius: 11, overflow: "hidden", textAlign: "center", lineHeight: 22, color: colors.gold, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.32)", fontSize: 11, fontWeight: "900" },
+  proofStepText: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
   detailRow: { minHeight: 36, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.07)" },
   detailRowLabel: { color: colors.muted, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
   detailRowValue: { flex: 1, color: colors.paper, fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "right" },
