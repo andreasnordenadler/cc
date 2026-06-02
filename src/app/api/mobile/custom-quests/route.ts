@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   const next = [quest, ...existing.filter((item) => item.id !== id).map(compactCustomSideQuest)].slice(0, 8);
 
   try {
-    const saved = await saveCustomQuestStoreWithFallback(client, userId, next);
+    const saved = await saveCustomQuestStoreWithFallback(client, userId, next, privateMetadata);
     return NextResponse.json({ apiVersion: 1, authenticated: true, ok: true, action: "save", customQuest: quest, customSideQuests: saved, message: "Custom Side Quest saved." });
   } catch (caught) {
     const message = getMetadataSaveErrorMessage(caught);
@@ -56,7 +56,7 @@ export async function DELETE(request: Request) {
   if (active !== publicMetadata.activeChallenge) {
     await client.users.updateUserMetadata(userId, { publicMetadata: { ...publicMetadata, activeChallenge: active }, privateMetadata: { customSideQuests: next } });
   } else {
-    await saveCustomQuestStoreWithFallback(client, userId, next);
+    await saveCustomQuestStoreWithFallback(client, userId, next, privateMetadata);
   }
   return NextResponse.json({ apiVersion: 1, authenticated: true, ok: true, action: "delete", customSideQuests: next, message: "Custom Side Quest deleted." });
 }
@@ -84,7 +84,7 @@ function getMetadataSaveLogReason(caught: unknown) {
   }).slice(0, 1000);
 }
 
-async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeof clerkClient>>, userId: string, quests: CustomSideQuest[]) {
+async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeof clerkClient>>, userId: string, quests: CustomSideQuest[], privateMetadata: UserMetadataRecord) {
   const attempts = [quests.slice(0, 8), quests.slice(0, 5), quests.slice(0, 3), quests.slice(0, 1)];
   let lastError: unknown = null;
 
@@ -98,7 +98,29 @@ async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeo
     }
   }
 
+  for (const attempt of attempts.slice(-2)) {
+    try {
+      const cleanedPrivateMetadata = buildCleanPrivateMetadataPatch(privateMetadata, attempt);
+      await client.users.updateUserMetadata(userId, { privateMetadata: cleanedPrivateMetadata });
+      console.error("mobile custom Side Quest save recovered by clearing oversized private metadata", { count: attempt.length, bytes: JSON.stringify(cleanedPrivateMetadata).length, clearedKeys: Object.keys(privateMetadata).filter((key) => key !== "sqcAdmin" && key !== "customSideQuests") });
+      return attempt;
+    } catch (caught) {
+      lastError = caught;
+      console.error("mobile custom Side Quest cleaned save retry", { count: attempt.length, reason: getMetadataSaveLogReason(caught) });
+    }
+  }
+
   throw lastError;
+}
+
+function buildCleanPrivateMetadataPatch(privateMetadata: UserMetadataRecord, customSideQuests: CustomSideQuest[]) {
+  const patch: UserMetadataRecord = {};
+  for (const key of Object.keys(privateMetadata)) {
+    patch[key] = null;
+  }
+  if (privateMetadata.sqcAdmin === true) patch.sqcAdmin = true;
+  patch.customSideQuests = customSideQuests;
+  return patch;
 }
 
 function compactCustomSideQuest(quest: CustomSideQuest): CustomSideQuest {
