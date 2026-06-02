@@ -10,11 +10,12 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Add Custom Side Quests to SQC Mobile Multiplayer builder.
+- [x] Add Custom Side Quests to SQC Mobile Multiplayer builder.
   - added_at: 2026-06-02 08:24 Europe/Stockholm
+  - completed_at: 2026-06-02 08:45 Europe/Stockholm
   - source: Andreas requested that Custom Side Quests should be selectable in the Multiplayer Side Quest builder.
   - scope: include eligible custom Side Quests alongside official quests in mobile multiplayer create/edit included-list selector; preserve private visibility so only the creator can add private custom quests to their own multiplayer lineups; ensure created multiplayer rooms persist enough rule/config data to verify custom entries.
-  - proof_required: mobile typecheck/lint, Next build, quest release gate, Android release build, production deploy/API smoke, and user-visible APK/release proof.
+  - proof: commit `a71564b` (`Add custom quests to multiplayer builder`) adds owner-private custom quest snapshots on mobile multiplayer create/update, safe custom summaries in the mobile account payload, custom verifier routing for multiplayer proof refresh, and merged official/custom selectors in mobile create/edit. Commit `e7e187c` (`Release SQC Mobile v164`) bumps Android version to `0.1.164` / versionCode `164`. Checks passed: mobile typecheck, targeted ESLint, `pnpm quest:release-gate`, `pnpm build`, production deploy guard, Vercel production deploy to `https://sidequestchess.com`, production smoke (`/` and `/api/mobile/bootstrap` 200; 13 challenges), Vercel error log scan clean, Android `lintRelease`, Android `assembleRelease`, APK manifest/signature verification with `debuggable=false`. GitHub Release: `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v164`; APK SHA256 `4a673cea37d3af9a85a6326cfeeb5d76d213715cb9162b3b2283b6371e4a68cf`.
 
 - [ ] Build proper Custom Side Quest management in SQC Mobile.
   - added_at: 2026-06-02 08:24 Europe/Stockholm
