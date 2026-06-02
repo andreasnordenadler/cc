@@ -257,11 +257,11 @@ function ActiveQuestUnavailableMiniBoard() {
 
 function ActiveQuestEmptyMiniBoard() {
   return (
-    <View style={compactStyles.currentFailureMiniBoardFrame}>
+    <View style={compactStyles.currentProofMiniBoardFrame}>
       <View style={compactStyles.currentFailureMiniBoard}>
         {Array.from({ length: 64 }).map((_, index) => (
           <View key={`empty-${index}`} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
-            {index === 27 ? <MaterialCommunityIcons name="chess-knight" size={16} color="rgba(255,247,232,.3)" /> : null}
+            {index === 27 ? <MaterialCommunityIcons name="chess-knight" size={22} color="rgba(245,200,106,.82)" /> : null}
           </View>
         ))}
       </View>
@@ -1614,13 +1614,13 @@ function TodayDashboard({
         </Pressable>
       ) : null}
 
-      <View style={compactStyles.appSection}>
+      <View style={compactStyles.activeSoloSection}>
         <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
+          <Text style={compactStyles.freshSectionTitle}>My Active Solo Side Quest</Text>
         </View>
         {signedIn.activeQuest ? (
           <View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.freshPanel} onPress={() => setCurrentDetailOpen(true)}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.activeSoloSummary} onPress={() => setCurrentDetailOpen(true)}>
             {activeStatus === "Completed" ? (
               <View style={compactStyles.currentStatusRow}>
                 <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
@@ -6983,6 +6983,8 @@ const compactStyles = StyleSheet.create({
   blockerTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
   blockerCopy: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
+  activeSoloSection: { gap: 10, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  activeSoloSummary: { gap: 11 },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
   freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4 },
   freshGuestCoat: { width: 132, height: 148 },
@@ -6997,11 +6999,11 @@ const compactStyles = StyleSheet.create({
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
-  currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 11 },
-  coatMarker: { width: 54, height: 60, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatMarkerGlowImage: { position: "absolute", width: 68, height: 76, opacity: .72, transform: [{ translateY: 4 }] },
-  coatMarkerImage: { width: 48, height: 56 },
-  coatMarkerSeal: { position: "absolute", width: 30, height: 30, right: -4, bottom: -3, zIndex: 4, transform: [{ rotate: "-10deg" }] },
+  currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  coatMarker: { width: 62, height: 70, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  coatMarkerGlowImage: { position: "absolute", width: 78, height: 88, opacity: .74, transform: [{ translateY: 4 }] },
+  coatMarkerImage: { width: 56, height: 64 },
+  coatMarkerSeal: { position: "absolute", width: 32, height: 32, right: -4, bottom: -3, zIndex: 4, transform: [{ rotate: "-10deg" }] },
   currentQuestText: { flex: 1, minWidth: 0, gap: 3 },
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
@@ -7140,10 +7142,10 @@ const compactStyles = StyleSheet.create({
   proofReadySealImage: { width: 46, height: 46 },
   proofReadyCopyBlock: { flex: 1, minWidth: 0, gap: 3 },
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
-  currentProofInlinePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 4, paddingHorizontal: 2, paddingVertical: 4 },
-  currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 4, paddingHorizontal: 2, paddingVertical: 4 },
+  currentProofInlinePanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 2, paddingHorizontal: 1, paddingVertical: 4 },
+  currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 2, paddingHorizontal: 1, paddingVertical: 4 },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
-  currentProofMiniBoardFrame: { width: 84, height: 84, flexShrink: 0, padding: 3, borderRadius: 14, backgroundColor: "rgba(18,14,13,.58)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  currentProofMiniBoardFrame: { width: 108, height: 108, flexShrink: 0, padding: 4, borderRadius: 17, backgroundColor: "rgba(18,14,13,.7)", borderWidth: 1, borderColor: "rgba(245,200,106,.28)" },
   currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.9)" },
   currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
   currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1.5, borderColor: "#79e6ff", backgroundColor: "rgba(255,210,78,.28)" },
