@@ -786,3 +786,25 @@ When fixing mobile badge/crest rendering, audit all helper layers (`getCustomQue
 - Tags: sqc-mobile, image-rendering, emulator-qa
 
 ---
+
+## [LRN-20260602-SQC-HOME-TAXONOMY-OVERLOAD] correction
+
+**Logged**: 2026-06-02T19:40:00+02:00
+**Priority**: high
+**Status**: applied
+**Area**: frontend
+
+### Summary
+SQC Mobile Home should not expose the full Official/Community/Multiplayer taxonomy as multiple sections.
+
+### Details
+Andreas disliked the v180 Home because `Explore Side Quests`, `My Multiplayer Side Quests`, and `Official Multiplayer Side Quests` together felt confusing. Home should stay action-oriented: current active quest first, then a simple next-action area. Deeper Official/Community separation belongs inside Solo/Multiplayer screens, not as multiple Home sections.
+
+### Suggested Action
+For future SQC Mobile Home work, prefer one simple navigation block such as `More to play` with `Solo Side Quests` and `Multiplayer Side Quests`; avoid duplicating discovery/taxonomy lanes on Home.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx
+- Tags: sqc-mobile, home, ux, hierarchy
+---

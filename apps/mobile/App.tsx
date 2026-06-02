@@ -1712,58 +1712,22 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="Explore Side Quests">
+      <AppSection title="More to play">
         <AppRow
-          title="Official SQC Side Quests"
-          meta="Curated Solo Side Quests with official Coat of Arms rewards."
-          status="Official"
-          sourceBadge="Official SQC"
+          title="Solo Side Quests"
+          meta="Pick an official quest, check proof, or build your own."
+          status="Browse"
           imageSource={SQC_COAT_OF_ARMS_ASSET}
           onPress={() => onSelectTab("sideQuests")}
         />
         <AppRow
-          title="Community Side Quests"
-          meta="User-generated Side Quests will appear here once public discovery opens."
-          status="Soon"
-          sourceBadge="Community"
-          imageSource={getCustomQuestImageSource(null)}
-          variant="seal"
-          dimImage
-          onPress={() => onSelectTab("sideQuests")}
-        />
-        <AppRow
           title="Multiplayer Side Quests"
-          meta="Your, Official SQC, and Community multiplayer challenges."
-          status="Open"
-          sourceBadge="Multiplayer"
+          meta={activeMultiplayer.length ? `${activeMultiplayer.length} active · join or host shared challenges.` : "Join or host shared challenges with other players."}
+          status={activeMultiplayer.length ? "Active" : "Browse"}
           imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
           variant="seal"
           onPress={() => onSelectTab("multiplayerSideQuests")}
         />
-      </AppSection>
-
-      <AppSection title="My Multiplayer Side Quests" action="Join / Create Multiplayer" onAction={() => onSelectTab("multiplayerSideQuests")}>
-        {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
-        )) : (
-          <View style={compactStyles.emptyMultiplayerPanel}>
-            <View style={compactStyles.emptyQuestHeroRow}>
-              <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.emptyMultiplayerSeal} resizeMode="contain" />
-              <View style={compactStyles.currentQuestText}>
-                <Text style={compactStyles.currentQuestTitle}>Join a Multiplayer Side Quest</Text>
-                <Text style={compactStyles.currentQuestMeta}>Join a shared challenge when you want the same strange chess Side Quests scored against other players.</Text>
-              </View>
-            </View>
-            <View style={compactStyles.emptyMultiplayerActions}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Browse Multiplayer Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
-                <Text style={compactStyles.primaryActionText}>Browse Multiplayer Side Quests</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest" style={[compactStyles.secondaryAction, compactStyles.emptyMultiplayerCreateButton]} onPress={onOpenMultiplayerCreate}>
-                <Text style={compactStyles.secondaryActionText}>Create Multiplayer Side Quest</Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
       </AppSection>
 
 
@@ -1802,12 +1766,6 @@ function TodayDashboard({
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-
-      <AppSection title="Official Multiplayer Side Quests" action="Leaderboards" onAction={() => onSelectTab("officialLeaderboards")}>
-        {officialPublic.length ? officialPublic.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Official SQC" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
-        )) : <AppRow title="No official rows right now" meta="Check back for the next official Multiplayer Side Quest week." sourceBadge="Official SQC" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("officialLeaderboards")} />}
-      </AppSection>
 
       <AppSection title="Trophy Cabinet">
         {signedIn.multiplayerTrophies?.map((trophy) => (

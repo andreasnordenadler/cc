@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Simplify SQC Mobile Home after v180 hierarchy feedback.
+  - added_at: 2026-06-02 19:29 Europe/Stockholm
+  - completed_at: 2026-06-02 19:40 Europe/Stockholm
+  - source: Andreas said the v180 Home was confusing because it showed `Explore Side Quests`, `My Multiplayer Side Quests`, and `Official Multiplayer Side Quests` as separate sections.
+  - scope: keep Home action-oriented rather than taxonomy-oriented. Removed the duplicated discovery/multiplayer sections from Home and replaced them with one simple `More to play` section containing only `Solo Side Quests` and `Multiplayer Side Quests`; deeper Official/Community grouping remains inside the relevant Solo/Multiplayer screens.
+  - proof: v181 mobile typecheck, focused ESLint, `pnpm quest:release-gate`, `pnpm build`, Android `:app:lintRelease :app:assembleRelease`, emulator install/launch, and screenshot review passed. Home screenshot no longer shows `Explore Side Quests`, `My Multiplayer Side Quests`, or `Official Multiplayer Side Quests`, and no visible `room`/`rooms`, point/pts, or `By Andreas` leaks.
+
 - [x] Design scalable discovery/browsing for many Custom and Multiplayer Side Quests.
   - added_at: 2026-06-02 17:35 Europe/Stockholm
   - completed_at: 2026-06-02 18:50 Europe/Stockholm
