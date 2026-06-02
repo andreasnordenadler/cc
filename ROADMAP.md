@@ -10,6 +10,14 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Polish SQC Mobile usability/clarity from persona review.
+  - added_at: 2026-06-02 12:09 Europe/Stockholm
+  - completed_at: 2026-06-02 12:27 Europe/Stockholm
+  - source: Andreas approved implementing the persona-review findings and emphasized polishing UI rather than adding complexity.
+  - shipped: Android v175 mobile polish release.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm exec eslint apps/mobile/App.tsx`, `pnpm quest:release-gate`, `pnpm build`, and Android `:app:lintRelease :app:assembleRelease` passed; emulator screenshots `153-v175-dashboard-polish-corrected.png`, `154-v175-sidequest-list-polish-corrected.png`, `155-v175-custom-detail-polish-corrected.png`, and `157-v175-multiplayer-terminology.png` verified the copy/flow polish.
+  - scope: focused mobile polish only: clearer next-action copy, friendlier custom Side Quest wording, invite-code terminology, stronger CTA labels, and preserve Coat of Arms as app identity while improving scanability.
+
 - [x] Add Custom Side Quests to SQC Mobile Multiplayer builder.
   - added_at: 2026-06-02 08:24 Europe/Stockholm
   - completed_at: 2026-06-02 08:45 Europe/Stockholm

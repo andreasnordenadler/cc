@@ -43,7 +43,7 @@ type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" 
 const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   activeSolo: {
     title: "This active Side Quest card",
-    body: "Picked shows when this quest became active. What to do is the exact rule your next public game must satisfy. Latest check is the most recent time SQC looked at your connected chess accounts for a matching finished game.",
+    body: "This card shows the Side Quest you are trying now. Play a new public game on your connected Lichess or Chess.com account after picking it, then come back and check proof.",
   },
   solo: {
     title: "Choosing a Solo Side Quest",
@@ -267,8 +267,8 @@ function ActiveQuestNoGameSummary() {
     <View style={compactStyles.currentEmptyBoardPanel}>
       <ActiveQuestEmptyMiniBoard />
       <View style={compactStyles.currentFailureCopyBlock}>
-        <Text style={compactStyles.currentEmptyBoardTitle}>Awaiting first game</Text>
-        <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>No public games are available since this Side Quest started. Play a fresh public game, then check again.</Text>
+        <Text style={compactStyles.currentEmptyBoardTitle}>Waiting for your next game</Text>
+        <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>Play a new public game on Lichess or Chess.com after picking this Side Quest, then come back and check proof.</Text>
       </View>
     </View>
   );
@@ -612,8 +612,9 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
     return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
   }
   if (input.condition === "game result") {
-    const positiveRule = `Game result must be ${input.result}.`;
-    return input.negated ? `It must NOT be true that ${positiveRule.slice(0, 1).toLowerCase()}${positiveRule.slice(1)}` : positiveRule;
+    const resultRule = input.result === "win" ? "Win a game." : input.result === "draw" ? "Draw a game." : "Finish with a loss.";
+    const negatedRule = input.result === "win" ? "Do not win the game." : input.result === "draw" ? "Do not draw the game." : "Do not lose the game.";
+    return input.negated ? negatedRule : resultRule;
   }
   const owner = input.owner === "my" ? "your" : "opponent's";
   const count = normalizeCustomRuleCount(input.piece, input.count);
@@ -642,8 +643,12 @@ function buildCustomPieceRuleSummary(input: Omit<CustomRuleRequirement, "id">) {
 
 function cleanCustomRuleSummaryText(value: string) {
   return value
+    .replace(/game\s+result\s+must\s+be\s+win\.?/gi, "Win a game.")
+    .replace(/game\s+result\s+must\s+be\s+draw\.?/gi, "Draw a game.")
+    .replace(/game\s+result\s+must\s+be\s+lose\.?/gi, "Finish with a loss.")
     .replace(/\b(your|opponent's) any 1 (king|queen)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
     .replace(/\b(your|opponent's) any 1 ((?:queenside|kingside) (?:rook|bishop|knight)|[a-h]-pawn)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\.\./g, ".")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -708,7 +713,7 @@ function buildCustomPieceRuleConfig(input: { logic: CustomRuleLogic; requirement
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
   return mode === "public"
     ? { title: "Public", helper: "Visible in Browse" }
-    : { title: "Private key", helper: "Only players with the key can join" };
+    : { title: "Invite code", helper: "Only players with the invite code or link can join" };
 }
 
 function getMultiplayerRuleOptionCopy(ruleId: string, option: string) {
@@ -1394,7 +1399,7 @@ function TodayDashboard({
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
   const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn?.activeQuest?.verifiedAt);
   const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
-  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a fresh public game that matches this Side Quest rule.";
+  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a new public game on Lichess or Chess.com that matches this Side Quest.";
   const officialPublic = (signedIn?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const officialPublicIds = new Set(officialPublic.map((quest) => quest.id));
   const activeMultiplayer = (signedIn?.activeGroupQuests ?? []).filter((quest) => !officialPublicIds.has(quest.id) && !quest.id.startsWith("official-"));
@@ -1593,7 +1598,7 @@ function TodayDashboard({
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Browse or create Solo Side Quests" onPress={() => onSelectTab("sideQuests")}>
-            <Text style={compactStyles.sectionAction}>Browse/Create</Text>
+          <Text style={compactStyles.sectionAction}>Pick / Create</Text>
           </Pressable>
         </View>
         {signedIn.activeQuest ? (
@@ -1684,7 +1689,7 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="My Multiplayer Side Quests" action="Browse/Create/Join" onAction={() => onSelectTab("multiplayerSideQuests")}>
+      <AppSection title="My Multiplayer Side Quests" action="Open / Create" onAction={() => onSelectTab("multiplayerSideQuests")}>
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
           <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
         )) : (
@@ -1921,11 +1926,11 @@ function JoinedMultiplayerQuestModal({
   async function copyInviteKey() {
     const key = quest?.inviteKey?.trim();
     if (!key) {
-      Alert.alert("Invite key not ready", "Refresh this Multiplayer Side Quest and try again.");
+      Alert.alert("Invite code not ready", "Refresh this Multiplayer Side Quest and try again.");
       return;
     }
     await Clipboard.setStringAsync(key);
-    Alert.alert("Invite key copied", key);
+    Alert.alert("Invite code copied", key);
   }
 
   async function copyInviteLink() {
@@ -2007,7 +2012,7 @@ function JoinedMultiplayerQuestModal({
                 <Text style={compactStyles.detailQuietButtonText}>Copy invite link</Text>
               </Pressable>
             </View>
-            {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the key. Only share it with players you want in.</Text> : null}
+            {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the invite code. Only share it with players you want in.</Text> : null}
           </View>
 
           {mode === "joined" && proofMode ? (
@@ -2122,10 +2127,10 @@ function JoinedMultiplayerQuestModal({
               </View>
               {adminInviteMode === "private-key" ? (
                 <View style={compactStyles.multiplayerRuleRow}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>Invite key</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Invite code</Text>
                   <View style={compactStyles.multiplayerInlineAction}>
                     <Text selectable style={compactStyles.multiplayerRuleValue}>{quest.inviteKey ?? "Key pending"}</Text>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Copy private invite key" style={compactStyles.detailQuietButton} onPress={copyInviteKey}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Copy private invite code" style={compactStyles.detailQuietButton} onPress={copyInviteKey}>
                       <Text style={compactStyles.detailQuietButtonText}>Copy</Text>
                     </Pressable>
                   </View>
@@ -2959,11 +2964,11 @@ function getCustomLifecycleStatus(quest: Pick<CustomLibraryQuest, "id" | "lifecy
 }
 
 function getCustomLibraryMeta(quest: Pick<CustomLibraryQuest, "summary" | "visibility" | "lifecycle">) {
-  return [quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Published", getCustomVisibilityLabel(quest.visibility), quest.summary].filter(Boolean).join(" · ");
+  return [quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Saved", getCustomVisibilityLabel(quest.visibility), cleanCustomRuleSummaryText(quest.summary)].filter(Boolean).join(" · ");
 }
 
 function getCustomVisibilityTitle(visibility?: "private" | "public") {
-  return visibility === "public" ? "Public: shareable summary" : "Private: only you manage it";
+  return visibility === "public" ? "Public: shareable when ready" : "Private: only you can find it";
 }
 
 function getCustomVisibilityExplanation(visibility?: "private" | "public") {
@@ -2971,12 +2976,12 @@ function getCustomVisibilityExplanation(visibility?: "private" | "public") {
     return "Other players may see the title, goal, and Coat of Arms when you share it or when public custom Side Quest browsing arrives. Your editor details and account stay private.";
   }
 
-  return "Only you can find and manage this Side Quest in your library. You can still include it in Multiplayer rooms you host; players only see the title, goal, and Coat of Arms needed to play.";
+  return "Only you can find and manage this Side Quest. You can still use it in Multiplayer rooms you host; other players only see the title, goal, and Coat of Arms.";
 }
 
 function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) {
   if (next.lifecycle === "archived") return `${name} is archived and no longer playable.`;
-  if (next.visibility === "public") return `${name} is public. Other players may see its title, goal, and Coat of Arms when it is shared.`;
+  if (next.visibility === "public") return `${name} is public/shareable. Other players may see its title, goal, and Coat of Arms when it is shared.`;
   if (next.visibility === "private") return `${name} is private. Only you can manage it, but you can still use it in Multiplayer rooms you host.`;
   return `${name} is published and ready to play.`;
 }
@@ -2985,7 +2990,7 @@ const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/custom-side-quest-cr
 
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
   if (!stats) return "No attempts yet";
-  return `Solo: ${stats.soloAttempts} attempts, ${stats.soloCompletions} completions · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments} times`;
+  return `Solo: ${stats.soloAttempts} tries, ${stats.soloCompletions} wins · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments}`;
 }
 
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
@@ -3505,13 +3510,13 @@ function QuestBoardDashboard({
               <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
             </View>
             <View style={compactStyles.currentQuestText}>
-              <Text style={compactStyles.currentQuestTitle}>Create Custom Side Quest</Text>
-              <Text style={compactStyles.currentQuestMeta}>Create your own chess challenge and save it to your library.</Text>
+              <Text style={compactStyles.currentQuestTitle}>Build your own Side Quest</Text>
+              <Text style={compactStyles.currentQuestMeta}>Choose the rule, save it privately, then use it solo or in Multiplayer rooms you host.</Text>
             </View>
           </View>
           <View style={compactStyles.actionRowTight}>
             <View style={compactStyles.primaryAction}>
-              <Text style={compactStyles.primaryActionText}>Open Builder</Text>
+              <Text style={compactStyles.primaryActionText}>Build a Side Quest</Text>
             </View>
             <View style={compactStyles.secondaryAction}>
               <Text style={compactStyles.secondaryActionText}>{visibleCustomDrafts.length ? `${visibleCustomDrafts.length} custom` : "No custom yet"}</Text>
@@ -4045,7 +4050,7 @@ function AccountSoloSideQuestSection({
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
   const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? account.activeQuest?.verifiedAt);
   const activeQuestPickedLabel = formatQuestPickedDate(account.activeQuest?.startedAt);
-  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a fresh public game that matches this Side Quest rule.";
+  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a new public game on Lichess or Chess.com that matches this Side Quest.";
 
   return (
       <View style={compactStyles.appSection}>
@@ -4666,7 +4671,7 @@ function SideQuestsScreen({
         </View>
         <View style={styles.homeHeroActions}>
           <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={styles.primaryButtonWide} onPress={() => setCustomCreateOpen(true)}>
-            <Text style={styles.primaryButtonText}>Create Custom Side Quest</Text>
+            <Text style={styles.primaryButtonText}>Build a Side Quest</Text>
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel="Browse public Solo Side Quests" style={styles.secondaryButtonWide} onPress={() => undefined}>
             <Text style={styles.secondaryButtonText}>Browse Public Solo Side Quests</Text>
@@ -5157,7 +5162,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   async function joinByInviteKey() {
     const key = inviteKey.trim();
     if (!key) {
-      setGroupQuestActionState({ busy: false, questId: "invite", message: null, error: "Paste a private invite key first." });
+      setGroupQuestActionState({ busy: false, questId: "invite", message: null, error: "Paste a private invite code first." });
       return;
     }
     await runGroupQuestAction("invite", "join", { inviteKey: key });
@@ -5270,7 +5275,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : (
           <View style={styles.multiplayerLobbyEmptyCard}>
             <Text style={styles.sideQuestModeTitle}>No active Multiplayer Side Quests yet.</Text>
-            <Text style={styles.sideQuestModeCopy}>Join an open Multiplayer Side Quest, paste an invite key, or create your own.</Text>
+            <Text style={styles.sideQuestModeCopy}>Join an open Multiplayer Side Quest, paste an invite code, or create your own.</Text>
           </View>
         )}
         {hiddenMineCount ? (
@@ -5299,15 +5304,15 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       </View>
 
       <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
-        <Text style={styles.eyebrow}>Invite Key</Text>
+        <Text style={styles.eyebrow}>Invite Code</Text>
         <Text style={styles.sideQuestModeTitle}>Join private Multiplayer Side Quest.</Text>
-        <Text style={styles.sideQuestModeCopy}>Paste an invite key from the host to join a private Multiplayer Side Quest.</Text>
+        <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private Multiplayer Side Quest.</Text>
         <View style={styles.inputStack}>
-          <Text style={styles.inputLabel}>Invite key</Text>
+          <Text style={styles.inputLabel}>Invite code</Text>
           <TextInput autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
         </View>
         <Pressable accessibilityRole="button" style={styles.secondaryButtonWide} accessibilityLabel="Join private Multiplayer Side Quest" disabled={groupQuestActionState.busy && groupQuestActionState.questId === "invite"} onPress={() => void joinByInviteKey()}>
-          <Text style={styles.secondaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "invite" ? "Joining..." : "Join with key"}</Text>
+          <Text style={styles.secondaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "invite" ? "Joining..." : "Join with code"}</Text>
         </Pressable>
         {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
         {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
@@ -5933,7 +5938,7 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollTitle}>What to do</Text>
             <Text style={compactStyles.proofScrollCopy}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>Play a fresh public game after picking this Side Quest.</Text>
+            <Text style={compactStyles.proofScrollMeta}>Play a new public game after picking this Side Quest.</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
