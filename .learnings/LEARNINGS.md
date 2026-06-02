@@ -763,3 +763,26 @@ For SQC Mobile UI/save-flow bugs, reproduce in emulator before claiming fixed; c
 ## 2026-06-02 — Verify combined mobile flows, not only independent parts
 - What happened: SQC Mobile v170 independently passed custom quest picker selection and multiplayer room creation, but a final combined emulator pass (custom quest included in the created room) exposed a detail-screen fallback text bug.
 - Do differently: For mobile features that cross creation + persisted detail screens, always add one end-to-end emulator pass that creates the object with the new custom data and reopens/views the persisted detail before calling QA complete.
+
+## [LRN-20260602-002] correction
+
+**Logged**: 2026-06-02T11:40:00+02:00
+**Priority**: high
+**Status**: pending
+**Area**: frontend
+
+### Summary
+Custom Side Quest badge fixes must cover every image-source helper, not only library/detail rows.
+
+### Details
+After v173, Andreas showed the active Solo Side Quest dashboard card still rendering a custom Coat of Arms with a black background. The missed path built custom quests as generic challenges and used `getChallengeCoatImageSource`, bypassing the custom bundled transparent crest helper.
+
+### Suggested Action
+When fixing mobile badge/crest rendering, audit all helper layers (`getCustomQuestImageSource`, row image helpers, challenge image helpers, active quest cards, modals, proof/completed views) and verify the exact screenshot-reported screen in emulator before final release claims.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx
+- Tags: sqc-mobile, image-rendering, emulator-qa
+
+---

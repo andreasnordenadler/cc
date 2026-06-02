@@ -6823,6 +6823,8 @@ function isAuthenticatedAccount(account: MobileAccountResponse | null): account 
 }
 
 function getChallengeCoatImageSource(challenge: MobileChallenge): ImageSourcePropType {
+  const imageUrl = challenge.badgeIdentity.imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id] ?? null;
+  if (imageUrl?.includes("/badges/custom/")) return getCustomQuestImageSource(imageUrl);
   return CHALLENGE_COAT_IMAGE_ASSETS[challenge.id] ?? { uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
 }
 
