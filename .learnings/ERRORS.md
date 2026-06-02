@@ -4327,3 +4327,26 @@ A grep command failed because zsh expanded `src/app/api/mobile/groupquests/[id]/
 **Priority**: low
 
 Mobile typecheck failed after adding `CustomLibraryQuest` because an inline local draft object widened `visibility: "private"` to `string` inside a `setState` array expression. Fix by assigning the object to an explicitly typed `CustomLibraryQuest` before returning it from the updater.
+
+## [ERR-20260602-001] sqc_daily_ops_command_assumptions
+
+**Logged**: 2026-06-02T07:00:00Z
+**Priority**: low
+**Status**: pending
+**Area**: ops
+
+### Summary
+SQC daily ops check initially assumed local `curl` availability and an unsupported `gh release view --json isLatest` field.
+
+### Details
+The Mac mini environment did not have `curl` on PATH, so production smoke should use Node `fetch` or another available HTTP client. GitHub CLI release JSON fields do not include `isLatest`; use `gh release list` for latest ordering or valid `release view` fields (`tagName`, `name`, `publishedAt`, `assets`, `url`, etc.).
+
+### Suggested Action
+Update recurring SQC daily ops scripts/docs to avoid `curl` dependency and avoid querying unsupported GH CLI JSON fields.
+
+### Metadata
+- Source: command_failure
+- Related Files: docs/SQC_DAILY_THREE_LANE_REPORT_2026-06-02.md
+- Tags: sqc, ops, cli
+
+---

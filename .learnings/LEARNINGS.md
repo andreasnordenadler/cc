@@ -724,3 +724,15 @@ Use existing official badges and Andreas screenshots as style references for gen
 - Source: user_feedback
 - Related Files: public/badges/custom/*
 - Tags: sqc-mobile, badges, visual-style, custom-side-quests
+
+## [LRN-20260602-001] correction
+
+**Logged**: 2026-06-02T09:08:00+02:00
+**Priority**: high
+**Area**: SQC Mobile custom Side Quest builder
+
+### Learning
+Final Save Draft / Publish actions must not depend on a separate, easy-to-miss "Save Condition" prerequisite when the condition editor is open. The final action should either include the currently edited condition when possible or explain the exact invalid field. Coat of Arms identity belongs to the whole Side Quest, not inside the conditions section.
+
+### Prevention
+When adding nested editors, test the obvious user path from screenshot/phone: edit condition → tap final save/publish. Keep reward/identity UI at parent Side Quest level and condition UI limited to earning rules.
