@@ -288,8 +288,8 @@ function ActiveQuestMiniProofBoard({ receipt }: { receipt: MobileAccountState["l
   if (!receipt || receipt.status !== "passed" || !board) return null;
 
   return (
-    <View style={compactStyles.currentFailurePanel}>
-      <View style={compactStyles.currentFailureMiniBoardFrame}>
+    <View style={compactStyles.currentProofInlinePanel}>
+      <View style={compactStyles.currentProofMiniBoardFrame}>
         <View style={compactStyles.currentFailureMiniBoard}>
           {board.map((square, index) => (
             <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark, square.highlight ? compactStyles.currentProofMiniSquareHighlight : null]}>
@@ -1617,9 +1617,6 @@ function TodayDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Explore Solo Side Quests" onPress={() => onSelectTab("sideQuests")}>
-          <Text style={compactStyles.sectionAction}>Explore Solo</Text>
-          </Pressable>
         </View>
         {signedIn.activeQuest ? (
           <View>
@@ -1640,46 +1637,33 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
               </View>
             </View>
-            <View style={compactStyles.currentQuestInfoGrid}>
-              <View style={compactStyles.currentQuestInfoRow}>
-                <Text style={compactStyles.currentQuestInfoLabel}>Picked</Text>
-                <Text style={compactStyles.currentQuestInfoValue}>{activeQuestPickedLabel}</Text>
-              </View>
-              <View style={compactStyles.currentQuestInfoRow}>
-                <Text style={compactStyles.currentQuestInfoLabel}>What to do</Text>
-                <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
-              </View>
-              <View style={compactStyles.currentQuestInfoRow}>
-                <Text style={compactStyles.currentQuestInfoLabel}>Last proof check</Text>
-                <Text style={compactStyles.currentQuestInfoValue}>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
-              </View>
+            <View style={compactStyles.currentQuestMetaStack}>
+              <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{activeQuestPickedLabel}</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Refresh last proof check" style={compactStyles.proofCheckMetaRow} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+                <Text style={[compactStyles.currentQuestMeta, compactStyles.proofCheckMetaText]} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Last proof check: </Text>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
+                <MaterialCommunityIcons name={actionState.busy ? "sync" : "refresh"} size={16} color={colors.gold} />
+              </Pressable>
             </View>
-            {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
-            {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
-            {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
-            {canViewCurrentProof ? (
-              <View style={compactStyles.actionRowTight}>
-                <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
-                  <Text style={compactStyles.primaryActionText}>View result</Text>
-                </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel="Pick your Next Side Quest" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
-                  <Text style={compactStyles.secondaryActionText}>Pick your Next Side Quest</Text>
-                </Pressable>
-              </View>
-            ) : null}
             {actionState.message ? <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
-          {!canViewCurrentProof ? (
-            <View style={compactStyles.actionRowTight}>
+          {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
+          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
+          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
+          <View style={compactStyles.actionRowTight}>
+            {canViewCurrentProof ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="View result" style={compactStyles.primaryAction} onPress={openCurrentProof}>
+                <Text style={compactStyles.primaryActionText}>View result</Text>
+              </Pressable>
+            ) : (
               <Pressable accessibilityRole="button" accessibilityLabel="Check my latest game" style={[compactStyles.primaryAction, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
-                <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check my latest game"}</Text>
+                <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Switch Solo Side Quest" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
-                <Text style={compactStyles.secondaryActionText}>Switch Quest</Text>
-              </Pressable>
-            </View>
-          ) : null}
+            )}
+            <Pressable accessibilityRole="button" accessibilityLabel="Explore Solo Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
+              <Text style={compactStyles.secondaryActionText}>Explore Solo Side Quests</Text>
+            </Pressable>
+          </View>
           </View>
         ) : (
           <View style={compactStyles.emptyQuestPanel}>
@@ -7023,10 +7007,9 @@ const compactStyles = StyleSheet.create({
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   currentQuestMetaStrong: { color: colors.gold, fontWeight: "900" },
   currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
-  currentQuestInfoGrid: { gap: 6, paddingTop: 2 },
-  currentQuestInfoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 10, paddingVertical: 7, paddingHorizontal: 9, borderRadius: 13, backgroundColor: "rgba(0,0,0,.16)", borderWidth: 1, borderColor: "rgba(255,247,232,.07)" },
-  currentQuestInfoLabel: { width: 104, color: colors.gold, fontSize: 10, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
-  currentQuestInfoValue: { flex: 1, color: colors.paper, opacity: .88, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "right" },
+  currentQuestMetaStack: { gap: 4, paddingTop: 1 },
+  proofCheckMetaRow: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", maxWidth: "100%" },
+  proofCheckMetaText: { flexShrink: 1 },
   actionRowTight: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   primaryActionCentered: { alignSelf: "center" },
@@ -7157,8 +7140,10 @@ const compactStyles = StyleSheet.create({
   proofReadySealImage: { width: 46, height: 46 },
   proofReadyCopyBlock: { flex: 1, minWidth: 0, gap: 3 },
   currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
-  currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(255,247,232,.07)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
+  currentProofInlinePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 4, paddingHorizontal: 2, paddingVertical: 4 },
+  currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 4, paddingHorizontal: 2, paddingVertical: 4 },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
+  currentProofMiniBoardFrame: { width: 84, height: 84, flexShrink: 0, padding: 3, borderRadius: 14, backgroundColor: "rgba(18,14,13,.58)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.9)" },
   currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
   currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1.5, borderColor: "#79e6ff", backgroundColor: "rgba(255,210,78,.28)" },
