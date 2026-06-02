@@ -7,6 +7,33 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 
 
+
+## Active queue update — 2026-06-02
+
+- [ ] Add Custom Side Quests to SQC Mobile Multiplayer builder.
+  - added_at: 2026-06-02 08:24 Europe/Stockholm
+  - source: Andreas requested that Custom Side Quests should be selectable in the Multiplayer Side Quest builder.
+  - scope: include eligible custom Side Quests alongside official quests in mobile multiplayer create/edit included-list selector; preserve private visibility so only the creator can add private custom quests to their own multiplayer lineups; ensure created multiplayer rooms persist enough rule/config data to verify custom entries.
+  - proof_required: mobile typecheck/lint, Next build, quest release gate, Android release build, production deploy/API smoke, and user-visible APK/release proof.
+
+- [ ] Build proper Custom Side Quest management in SQC Mobile.
+  - added_at: 2026-06-02 08:24 Europe/Stockholm
+  - source: Andreas requested much better management for user-created Custom Side Quests.
+  - scope: add a dedicated library/manage surface for custom quests with clear statuses, open/edit/duplicate/delete/archive actions, visibility controls, draft/public/private labels, and better empty/error states.
+  - proof_required: mobile typecheck/lint, Android release build, screenshot/emulator smoke, and production API smoke where relevant.
+
+- [ ] Add Custom Side Quest draft/public/private publishing model.
+  - added_at: 2026-06-02 08:24 Europe/Stockholm
+  - source: Andreas requested custom quests can be saved as drafts, public, or private; private quests are only available to their creator but can be used by that user in multiplayer side quests.
+  - scope: extend custom quest persistence schema/API with visibility and lifecycle state; support draft saves before launch; make public quests discoverable where appropriate; keep private quests owner-only; make private-owner usage in multiplayer explicit and safe.
+  - proof_required: API validation tests/checks, mobile typecheck/lint, Next build, Android release build, production smoke.
+
+- [ ] Add user-visible Side Quest statistics.
+  - added_at: 2026-06-02 08:24 Europe/Stockholm
+  - source: Andreas requested statistics for side quests: solo/multiplayer attempts, users choosing it as solo quest, times included in multiplayer lineups, fulfillments, etc., visible to end users.
+  - scope: define and collect stats for official and custom quests; expose end-user stat cards on quest detail/library/builder surfaces; include solo picks/attempts/completions, multiplayer lineup inclusion, multiplayer attempts/completions, and unique-user counts where feasible without exposing private user data.
+  - proof_required: analytics/storage proof, API smoke, mobile UI verification, Next build, Android release build, production deploy/log scan.
+
 ## Active queue update — 2026-05-22
 
 - [x] Fix active Solo failed-check alignment and no-board fallback.
