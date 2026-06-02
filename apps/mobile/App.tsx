@@ -127,7 +127,7 @@ type CustomLibraryQuest = {
   stats?: MobileCustomSideQuest["stats"];
 };
 
-const MULTIPLAYER_DEFAULT_INVITE_COPY = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
+const MULTIPLAYER_DEFAULT_INVITE_COPY = "A multiplayer room where everyone tries the same Side Quests with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
 
 
@@ -207,6 +207,13 @@ function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | n
   if (receipt.status === "passed" || receipt.headline?.toLowerCase().includes("passed")) return "Quest completed.";
   if (isFailedReceipt(receipt)) return "Latest game checked — Side Quest not completed.";
   return "Latest-game check done.";
+}
+
+function getProofCheckDisplay(label: string, receipt?: MobileAccountState["latestReceipt"] | null) {
+  if (label === "not yet") return "Not checked yet";
+  if (receipt?.status === "passed" || receipt?.headline?.toLowerCase().includes("passed")) return `${label} · completed`;
+  if (isFailedReceipt(receipt)) return `${label} · not completed`;
+  return `${label} · no new eligible game found`;
 }
 
 function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState["latestReceipt"] }) {
@@ -429,8 +436,14 @@ function cleanMultiplayerTitle(title: string) {
   return title.replace(/\s+Demo(?=\s+Results\b|$)/gi, "").replace(/\s{2,}/g, " ").trim();
 }
 
+function cleanMultiplayerInviteCopy(copy?: string | null) {
+  const trimmed = copy?.trim();
+  if (!trimmed) return MULTIPLAYER_DEFAULT_INVITE_COPY;
+  return trimmed.replace(/A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games\.?/gi, MULTIPLAYER_DEFAULT_INVITE_COPY);
+}
+
 function getMultiplayerInviteMessage(quest: Pick<MobileGroupQuestSummary, "id" | "title" | "inviteMode" | "inviteKey" | "inviteCopy">) {
-  const intro = quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY;
+  const intro = cleanMultiplayerInviteCopy(quest.inviteCopy);
   return `Join my Multiplayer Side Quest on Side Quest Chess: ${cleanMultiplayerTitle(quest.title)}\n${intro}\n${getMultiplayerInviteUrl(quest)}`;
 }
 
@@ -1598,7 +1611,7 @@ function TodayDashboard({
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Browse or create Solo Side Quests" onPress={() => onSelectTab("sideQuests")}>
-          <Text style={compactStyles.sectionAction}>Pick / Create</Text>
+          <Text style={compactStyles.sectionAction}>Browse / Create Solo</Text>
           </Pressable>
         </View>
         {signedIn.activeQuest ? (
@@ -1630,8 +1643,8 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
               </View>
               <View style={compactStyles.currentQuestInfoRow}>
-                <Text style={compactStyles.currentQuestInfoLabel}>Latest check</Text>
-                <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
+                <Text style={compactStyles.currentQuestInfoLabel}>Last proof check</Text>
+                <Text style={compactStyles.currentQuestInfoValue}>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
               </View>
             </View>
             {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
@@ -1650,6 +1663,16 @@ function TodayDashboard({
             {actionState.message ? <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
+          {!canViewCurrentProof ? (
+            <View style={compactStyles.actionRowTight}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Check my latest game" style={[compactStyles.primaryAction, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+                <Text style={compactStyles.primaryActionText}>{actionState.busy ? "Checking…" : "Check my latest game"}</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Switch Solo Side Quest" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
+                <Text style={compactStyles.secondaryActionText}>Switch Quest</Text>
+              </Pressable>
+            </View>
+          ) : null}
           </View>
         ) : (
           <View style={compactStyles.emptyQuestPanel}>
@@ -1689,7 +1712,7 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="My Multiplayer Side Quests" action="Open / Create" onAction={() => onSelectTab("multiplayerSideQuests")}>
+      <AppSection title="My Multiplayer Side Quests" action="Join / Create Multiplayer" onAction={() => onSelectTab("multiplayerSideQuests")}>
         {activeMultiplayer.length ? activeMultiplayer.map((quest) => (
           <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
         )) : (
@@ -1860,7 +1883,7 @@ function JoinedMultiplayerQuestModal({
   const [proofMode, setProofMode] = useState(false);
   const [selectedRuleQuestTitle, setSelectedRuleQuestTitle] = useState<string | null>(null);
   const [adminName, setAdminName] = useState(quest?.title ?? "");
-  const [adminInviteCopy, setAdminInviteCopy] = useState(quest?.inviteCopy ?? MULTIPLAYER_DEFAULT_INVITE_COPY);
+  const [adminInviteCopy, setAdminInviteCopy] = useState(cleanMultiplayerInviteCopy(quest?.inviteCopy));
   const [adminInviteMode, setAdminInviteMode] = useState<"public" | "private-key">(quest?.inviteMode === "private-key" ? "private-key" : "public");
   const [adminProviderMode, setAdminProviderMode] = useState<"both" | "lichess" | "chesscom">(quest?.providerMode ?? "both");
   const [adminStartAt, setAdminStartAt] = useState(() => dateFromGroupQuestValue(quest?.startAt));
@@ -1980,9 +2003,9 @@ function JoinedMultiplayerQuestModal({
         >
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={getMultiplayerSealSource(quest)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
-            <Text style={compactStyles.multiplayerDetailKicker}>{mode === "joined" ? "Joined Multiplayer Side Quest" : "Official Multiplayer Side Quest"}</Text>
+            <Text style={compactStyles.multiplayerDetailKicker}>{quest.isOwner ? "Hosted room" : mode === "joined" ? "Joined room" : "Official room"}</Text>
             <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
-            <Text style={compactStyles.detailGoal}>{quest.inviteCopy?.trim() || MULTIPLAYER_DEFAULT_INVITE_COPY}</Text>
+            <Text style={compactStyles.detailGoal}>{cleanMultiplayerInviteCopy(quest.inviteCopy)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
@@ -2074,8 +2097,8 @@ function JoinedMultiplayerQuestModal({
           ) : (
             <>
               <View style={compactStyles.multiplayerNativeCard}>
-                <Text style={compactStyles.multiplayerCardEyebrow}>Quests included</Text>
-                <Text style={compactStyles.multiplayerCardTitle}>{questRows.length} Side Quests in this Multiplayer Side Quest.</Text>
+                <Text style={compactStyles.multiplayerCardEyebrow}>Quests in this room</Text>
+                <Text style={compactStyles.multiplayerCardTitle}>{questRows.length} Side Quests to complete.</Text>
                 <View style={compactStyles.appRows}>
                   {questRows.slice(0, 4).map((row) => (
                     <AppRow
@@ -2393,10 +2416,17 @@ function CurrentSideQuestDetailModal({
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
           </View>
 
+          <View style={compactStyles.detailPanelStrong}>
+            <Text style={compactStyles.detailPanelTitle}>How proof works</Text>
+            <Text style={compactStyles.detailPanelCopy}>1. Pick a Side Quest.
+2. Play a new public Lichess or Chess.com game.
+3. Return here and check your latest game.</Text>
+          </View>
+
           <View style={compactStyles.detailPanel}>
             <DetailRow label="Picked" value={pickedLabel} />
             <DetailRow label="What to do" value={proofNeeded} />
-            <DetailRow label="Latest check" value={latestCheckLabel} tone={latestCheckPassed ? "good" : "default"} />
+            <DetailRow label="Last proof check" value={getProofCheckDisplay(latestCheckLabel, latestReceipt)} tone={latestCheckPassed ? "good" : "default"} />
           </View>
 
           {latestCheckFailed ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
@@ -2420,8 +2450,8 @@ function CurrentSideQuestDetailModal({
             </View>
           ) : (
             <View style={compactStyles.detailActionStack}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={[compactStyles.detailPrimaryButton, actionState.busy && compactStyles.detailPrimaryButtonDisabled]} disabled={actionState.busy} onPress={() => void onRunCheck()}>
-                <Text style={compactStyles.detailPrimaryButtonText}>{actionState.busy ? "Checking…" : "Check latest game"}</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Check my latest game" style={[compactStyles.detailPrimaryButton, actionState.busy && compactStyles.detailPrimaryButtonDisabled]} disabled={actionState.busy} onPress={() => void onRunCheck()}>
+                <Text style={compactStyles.detailPrimaryButtonText}>{actionState.busy ? "Checking…" : "Check my latest game"}</Text>
               </Pressable>
               <View style={compactStyles.detailInlineRefresh}>
                 <MaterialCommunityIcons name="arrow-down" size={13} color="rgba(199,189,169,.72)" />
@@ -2826,7 +2856,7 @@ function AppRow({
       ) : null}
       <View style={compactStyles.appRowText}>
         <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
-        <Text style={compactStyles.appRowMeta} numberOfLines={1}>{meta}</Text>
+        <Text style={compactStyles.appRowMeta} numberOfLines={2}>{meta}</Text>
       </View>
       {statusImageSource ? <Image source={statusImageSource} style={compactStyles.rowStatusSealImage} resizeMode="contain" /> : visibleStatus ? <Text style={[
         compactStyles.appRowStatus,
@@ -2883,13 +2913,13 @@ function getMultiplayerQuestBrowseRow(
   if (customSummary) {
     return {
       title: customSummary.title,
-      meta: customSummary.summary,
+      meta: cleanCustomRuleSummaryText(customSummary.summary),
       status: "Included",
       imageSource: getCustomQuestImageSource(customSummary.badgeImageUrl),
       glowSource: null,
       glowColor: colors.gold,
       ruleLines: [
-        customSummary.summary,
+        cleanCustomRuleSummaryText(customSummary.summary),
         "Complete it during the Multiplayer Side Quest time window.",
         "Use a fresh public Lichess or Chess.com game that satisfies the multiplayer rules.",
       ],
@@ -2940,7 +2970,7 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
     ...Array.from(customById.values()).map((quest) => ({
       id: quest.id,
       title: quest.title,
-      meta: `Custom · ${getCustomVisibilityLabel(quest.visibility)} · ${quest.summary}`,
+      meta: `Custom · ${getCustomVisibilityLabel(quest.visibility)} · ${cleanCustomRuleSummaryText(quest.summary)}`,
       status: "+100",
       imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
     })),
@@ -2976,7 +3006,7 @@ function getCustomVisibilityExplanation(visibility?: "private" | "public") {
     return "Other players may see the title, goal, and Coat of Arms when you share it or when public custom Side Quest browsing arrives. Your editor details and account stay private.";
   }
 
-  return "Only you can find and manage this Side Quest. You can still use it in Multiplayer rooms you host; other players only see the title, goal, and Coat of Arms.";
+  return "Only you can find and manage this Side Quest. Other players can play it in your room, but they cannot browse, edit, or reuse the private setup unless you share it.";
 }
 
 function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) {
@@ -3640,7 +3670,7 @@ function QuestBoardDashboard({
               </View>
               <Text style={compactStyles.multiplayerCardEyebrow}>How to complete it</Text>
               <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
-              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game.</Text>
+              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
@@ -3650,7 +3680,7 @@ function QuestBoardDashboard({
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "Complete every condition" : "Complete any one condition"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "Hard mode: every condition must happen." : "Flexible: one condition is enough."}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "All selected conditions must happen. You can change this later." : "One selected condition is enough. You can change this later."}</Text>
                       </View>
                     </Pressable>
                   );
@@ -3659,6 +3689,11 @@ function QuestBoardDashboard({
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Your conditions</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.` : "No conditions yet. Add the first thing players must do."}</Text>
+                {!customRequirements.length && !customConditionEditorOpen ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Add first custom Side Quest condition" style={compactStyles.detailPrimaryButton} onPress={openNewCustomRequirement}>
+                    <Text style={compactStyles.detailPrimaryButtonText}>Add Condition</Text>
+                  </Pressable>
+                ) : null}
               </View>
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
@@ -3688,11 +3723,11 @@ function QuestBoardDashboard({
                   ))}
                 </View>
               ) : null}
-              {!customConditionEditorOpen ? (
+              {!customConditionEditorOpen && customRequirements.length ? (
                 <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={openNewCustomRequirement}>
-                  <Text style={compactStyles.detailSecondaryButtonText}>{customRequirements.length ? "Add Another Condition" : "Add Condition"}</Text>
+                  <Text style={compactStyles.detailSecondaryButtonText}>Add Another Condition</Text>
                 </Pressable>
-              ) : (
+              ) : customConditionEditorOpen ? (
                 <View>
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
@@ -3869,7 +3904,7 @@ function QuestBoardDashboard({
                     </Pressable>
                   </View>
                 </View>
-              )}
+              ) : null}
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
@@ -4087,8 +4122,8 @@ function AccountSoloSideQuestSection({
               <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
             </View>
             <View style={compactStyles.currentQuestInfoRow}>
-              <Text style={compactStyles.currentQuestInfoLabel}>Latest check</Text>
-              <Text style={compactStyles.currentQuestInfoValue}>{activeQuestLatestCheck}</Text>
+              <Text style={compactStyles.currentQuestInfoLabel}>Last proof check</Text>
+              <Text style={compactStyles.currentQuestInfoValue}>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
             </View>
           </View>
           {activeStatus === "Completed" && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
@@ -4766,7 +4801,7 @@ function SideQuestsScreen({
               </View>
               <Text style={compactStyles.multiplayerCardEyebrow}>How to complete it</Text>
               <Text style={compactStyles.multiplayerCardTitle}>What must happen?</Text>
-              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game.</Text>
+              <Text style={styles.microcopy}>Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.</Text>
               <Text style={compactStyles.multiplayerRuleLabel}>If you add several conditions, how should they count?</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
                 {CUSTOM_RULE_LOGICS.map((logic) => {
@@ -4776,7 +4811,7 @@ function SideQuestsScreen({
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
                       <View style={compactStyles.multiplayerOptionCopy}>
                         <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{logic === "all" ? "Complete every condition" : "Complete any one condition"}</Text>
-                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "Hard mode: every condition must happen." : "Flexible: one condition is enough."}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{logic === "all" ? "All selected conditions must happen. You can change this later." : "One selected condition is enough. You can change this later."}</Text>
                       </View>
                     </Pressable>
                   );
@@ -4785,6 +4820,11 @@ function SideQuestsScreen({
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Your conditions</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRequirements.length ? `${customRequirements.length} saved. They can happen in any order.` : "No conditions yet. Add the first thing players must do."}</Text>
+                {!customRequirements.length && !customConditionEditorOpen ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Add first custom Side Quest condition" style={compactStyles.detailPrimaryButton} onPress={openNewCustomRequirement}>
+                    <Text style={compactStyles.detailPrimaryButtonText}>Add Condition</Text>
+                  </Pressable>
+                ) : null}
               </View>
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
@@ -4814,11 +4854,11 @@ function SideQuestsScreen({
                   ))}
                 </View>
               ) : null}
-              {!customConditionEditorOpen ? (
+              {!customConditionEditorOpen && customRequirements.length ? (
                 <Pressable accessibilityRole="button" accessibilityLabel="Add custom Side Quest condition" style={compactStyles.detailSecondaryButton} onPress={openNewCustomRequirement}>
-                  <Text style={compactStyles.detailSecondaryButtonText}>{customRequirements.length ? "Add Another Condition" : "Add Condition"}</Text>
+                  <Text style={compactStyles.detailSecondaryButtonText}>Add Another Condition</Text>
                 </Pressable>
-              ) : (
+              ) : customConditionEditorOpen ? (
                 <View>
                   <Text style={compactStyles.multiplayerCardEyebrow}>Condition editor</Text>
                   <Text style={compactStyles.multiplayerCardTitle}>{customEditingRequirementId ? "Edit condition" : "New condition"}</Text>
@@ -4995,7 +5035,7 @@ function SideQuestsScreen({
                     </Pressable>
                   </View>
                 </View>
-              )}
+              ) : null}
               <View style={compactStyles.multiplayerRuleRow}>
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
@@ -5262,10 +5302,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
       />
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="My Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>My Quests · {activeMineGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Joined and hosted Side Quests.</Text>
-        <Text style={styles.sectionBody}>Hosted Side Quests are included here too, because creating one also joins you by default.</Text>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Rooms you joined">
+        <Text style={styles.eyebrow}>Rooms you joined · {activeMineGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Your multiplayer rooms.</Text>
+        <Text style={styles.sectionBody}>Rooms you host are included here too.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
@@ -5285,10 +5325,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : null}
       </View>
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Open Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Open to Join · {availableGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Open Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Join a public Multiplayer Side Quest directly from the list.</Text>
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Public rooms">
+        <Text style={styles.eyebrow}>Public rooms · {availableGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Public rooms.</Text>
+        <Text style={styles.sectionBody}>Join an open room directly from the list.</Text>
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
@@ -5305,8 +5345,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
         <Text style={styles.eyebrow}>Invite Code</Text>
-        <Text style={styles.sideQuestModeTitle}>Join private Multiplayer Side Quest.</Text>
-        <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private Multiplayer Side Quest.</Text>
+        <Text style={styles.sideQuestModeTitle}>Join private room.</Text>
+        <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private room.</Text>
         <View style={styles.inputStack}>
           <Text style={styles.inputLabel}>Invite code</Text>
           <TextInput autoCapitalize="none" autoCorrect={false} value={inviteKey} placeholder="e.g. nocastle-ab12cd" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setInviteKey} />
@@ -6960,7 +7000,7 @@ const compactStyles = StyleSheet.create({
   currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
   currentQuestInfoGrid: { gap: 6, paddingTop: 2 },
   currentQuestInfoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 10, paddingVertical: 7, paddingHorizontal: 9, borderRadius: 13, backgroundColor: "rgba(0,0,0,.16)", borderWidth: 1, borderColor: "rgba(255,247,232,.07)" },
-  currentQuestInfoLabel: { width: 86, color: colors.gold, fontSize: 10, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .55 },
+  currentQuestInfoLabel: { width: 104, color: colors.gold, fontSize: 10, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
   currentQuestInfoValue: { flex: 1, color: colors.paper, opacity: .88, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "right" },
   actionRowTight: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },

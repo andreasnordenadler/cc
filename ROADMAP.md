@@ -10,6 +10,15 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+
+- [x] Apply second-round SQC Mobile v176 persona polish and retest.
+  - added_at: 2026-06-02 12:32 Europe/Stockholm
+  - completed_at: 2026-06-02 12:57 Europe/Stockholm
+  - source: Andreas approved implementing the v175 persona retest recommendations and requested another review round after implementation.
+  - shipped: Android v176 mobile polish release candidate.
+  - proof: `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm exec eslint apps/mobile/App.tsx`, `pnpm quest:release-gate`, `pnpm build`, Android `:app:lintRelease :app:assembleRelease`, emulator install, and signed-in emulator persona review passed. Report: `artifacts/SQC_MOBILE_V176_PERSONA_REVIEW_2026-06-02.md`; screenshots: `artifacts/emulator-screenshots/sqc-v176-persona-review/`.
+  - scope: active proof-loop explainer/status copy, dashboard CTAs, custom snapshot copy normalization, builder Add Condition empty state, private custom copy, multiplayer room terminology, and persisted default invite copy cleanup.
+
 - [x] Polish SQC Mobile usability/clarity from persona review.
   - added_at: 2026-06-02 12:09 Europe/Stockholm
   - completed_at: 2026-06-02 12:27 Europe/Stockholm
