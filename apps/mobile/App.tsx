@@ -3256,6 +3256,7 @@ function QuestBoardDashboard({
   const [customRuleResult, setCustomRuleResult] = useState<CustomRuleResult>("win");
   const [customRuleNegated, setCustomRuleNegated] = useState(false);
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
+  const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
   const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
@@ -3314,16 +3315,32 @@ function QuestBoardDashboard({
     const validationError = getCustomRequirementValidation(currentCustomRequirement);
     if (validationError) {
       Alert.alert("Condition needs one fix", validationError);
-      return;
+      return false;
+    }
+
+    setCustomRequirements(getCustomRequirementsIncludingOpenCondition(false) ?? customRequirements);
+    setCustomEditingRequirementId(null);
+    setCustomConditionEditorOpen(false);
+    return true;
+  }
+
+  function getCustomRequirementsIncludingOpenCondition(allowInvalidDraft: boolean) {
+    if (!customConditionEditorOpen) {
+      return customRequirements;
+    }
+
+    const validationError = getCustomRequirementValidation(currentCustomRequirement);
+    if (validationError && !allowInvalidDraft) {
+      Alert.alert("Condition needs one fix", validationError);
+      return null;
     }
 
     if (customEditingRequirementId) {
-      setCustomRequirements((current) => current.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement));
-    } else {
-      setCustomRequirements((current) => [{ id: `${Date.now()}`, ...currentCustomRequirement }, ...current].slice(0, 6));
+      return customRequirements.map((requirement) => requirement.id === customEditingRequirementId ? { id: requirement.id, ...currentCustomRequirement } : requirement);
     }
-    setCustomEditingRequirementId(null);
-    setCustomConditionEditorOpen(false);
+
+    customRequirementIdCounter.current += 1;
+    return [{ id: `draft-condition-${customRequirementIdCounter.current}`, ...currentCustomRequirement }, ...customRequirements].slice(0, 6);
   }
 
   function duplicateCustomRequirement(requirement: CustomRuleRequirement) {
@@ -3339,18 +3356,21 @@ function QuestBoardDashboard({
   }
 
   async function saveCustomDraft(lifecycle: "draft" | "published" = "published") {
-    if (customConditionEditorOpen) {
-      Alert.alert("Save or cancel the open condition", "Finish the current condition before saving the custom Side Quest.");
+    const requirementsForSave = getCustomRequirementsIncludingOpenCondition(lifecycle === "draft");
+    if (!requirementsForSave) {
       return;
     }
-    if (lifecycle === "published" && !customRequirements.length) {
+    if (lifecycle === "published" && !requirementsForSave.length) {
       Alert.alert("Add a condition first", "A custom Side Quest needs at least one saved condition before it can be published.");
       return;
     }
     const name = customQuestName.trim() || "Custom Side Quest";
+    const summary = requirementsForSave.length ? buildCustomRuleSetSummary({ logic: customRuleLogic, requirements: requirementsForSave.map(({ id: _id, ...requirement }) => requirement) }) : "Add at least one condition before this Side Quest can be scored.";
+    const config = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: requirementsForSave.map(({ id: _id, ...requirement }) => requirement) });
+    const badgePreviewUrl = getCustomCoatPreviewUrl(requirementsForSave, name);
     if (!authBridge.isSignedIn) {
       setCustomDrafts((current) => {
-        const draft: CustomLibraryQuest = { id: `${Date.now()}`, name, summary: customRuleSummary, config: customRuleConfig, visibility: "private", lifecycle, badgeImageUrl: customBadgePreviewUrl };
+        const draft: CustomLibraryQuest = { id: `${Date.now()}`, name, summary, config, visibility: "private", lifecycle, badgeImageUrl: badgePreviewUrl };
         return [draft, ...current].slice(0, 6);
       });
       Alert.alert(lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
@@ -3359,7 +3379,7 @@ function QuestBoardDashboard({
     }
     try {
       const sessionToken = await authBridge.getSessionToken();
-      await saveMobileCustomSideQuest({ sessionToken, title: name, summary: customRuleSummary, config: customRuleConfig, lifecycle, visibility: "private" });
+      await saveMobileCustomSideQuest({ sessionToken, title: name, summary, config, lifecycle, visibility: "private" });
       await Promise.resolve(onAccountUpdated());
       Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready to pick and verify in your Side Quest Library.`);
       setCustomCreateOpen(false);
@@ -3543,6 +3563,13 @@ function QuestBoardDashboard({
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
               <Text style={styles.microcopy}>Saved custom Side Quests stay in your mobile Side Quest Library while live scoring/publishing is finalized.</Text>
+              <View style={compactStyles.customCoatPreviewRow}>
+                <Image source={{ uri: absoluteAssetUrl(customBadgePreviewUrl) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
+                <View style={compactStyles.customCoatPreviewCopy}>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Side Quest Coat of Arms</Text>
+                  <Text style={styles.microcopy}>This Coat of Arms belongs to the whole custom Side Quest. Conditions only define how it is earned.</Text>
+                </View>
+              </View>
               <Text style={compactStyles.multiplayerCardEyebrow}>Quest rules</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Side Quest conditions</Text>
               <Text style={styles.microcopy}>Quest settings live here. Individual piece/square settings only appear after you tap Add Condition.</Text>
@@ -3764,13 +3791,6 @@ function QuestBoardDashboard({
                   <View style={compactStyles.multiplayerRuleRow}>
                     <Text style={compactStyles.multiplayerRuleLabel}>Condition preview</Text>
                     <Text style={compactStyles.multiplayerRuleValue}>{buildCustomPieceRuleSummary(currentCustomRequirement)}</Text>
-                  </View>
-                  <View style={compactStyles.customCoatPreviewRow}>
-                    <Image source={{ uri: absoluteAssetUrl(customBadgePreviewUrl) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
-                    <View style={compactStyles.customCoatPreviewCopy}>
-                      <Text style={compactStyles.multiplayerRuleLabel}>Coat preview</Text>
-                      <Text style={styles.microcopy}>SQC picks a custom coat from this limited heraldry pool when you save.</Text>
-                    </View>
                   </View>
                   <View style={compactStyles.multiplayerFooterActions}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Save current condition" style={compactStyles.detailSecondaryButton} onPress={saveCustomRequirement}>
