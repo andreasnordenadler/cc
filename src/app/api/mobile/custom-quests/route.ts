@@ -34,11 +34,11 @@ export async function POST(request: Request) {
 
   try {
     await client.users.updateUserMetadata(userId, {
-      privateMetadata: { ...privateMetadata, customSideQuests: next },
+      privateMetadata: { customSideQuests: next },
     });
   } catch (caught) {
     const message = getMetadataSaveErrorMessage(caught);
-    console.error("mobile custom Side Quest save failed", { message });
+    console.error("mobile custom Side Quest save failed", { message, reason: getMetadataSaveLogReason(caught) });
     return NextResponse.json({ apiVersion: 1, authenticated: true, ok: false, message }, { status: 400 });
   }
 
@@ -57,9 +57,9 @@ export async function DELETE(request: Request) {
   const next = getCustomSideQuestStore(privateMetadata, publicMetadata).filter((item) => item.id !== id);
   const active = publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === id ? null : publicMetadata.activeChallenge;
   if (active !== publicMetadata.activeChallenge) {
-    await client.users.updateUserMetadata(userId, { publicMetadata: { ...publicMetadata, activeChallenge: active }, privateMetadata: { ...privateMetadata, customSideQuests: next } });
+    await client.users.updateUserMetadata(userId, { publicMetadata: { ...publicMetadata, activeChallenge: active }, privateMetadata: { customSideQuests: next } });
   } else {
-    await client.users.updateUserMetadata(userId, { privateMetadata: { ...privateMetadata, customSideQuests: next } });
+    await client.users.updateUserMetadata(userId, { privateMetadata: { customSideQuests: next } });
   }
   return NextResponse.json({ apiVersion: 1, authenticated: true, ok: true, action: "delete", customSideQuests: next, message: "Custom Side Quest deleted." });
 }
@@ -71,10 +71,15 @@ function getCustomSideQuestStore(privateMetadata: UserMetadataRecord, publicMeta
 
 function getMetadataSaveErrorMessage(caught: unknown) {
   const text = caught instanceof Error ? caught.message : String(caught ?? "");
-  if (/metadata exceeds|exceeds the maximum allowed size|form_param_exceeds_allowed_size/i.test(text)) {
-    return "Your Side Quest library storage is full. I need to compact older account data before this can be saved.";
+  if (/metadata exceeds|metadata.*too large|exceeds the maximum allowed size|form_param_exceeds_allowed_size|too large|maximum allowed/i.test(text)) {
+    return "Your Side Quest library storage is full. I’m saving a smaller account patch now; try again after updating the app.";
   }
   return "Could not save this custom Side Quest right now.";
+}
+
+function getMetadataSaveLogReason(caught: unknown) {
+  if (caught instanceof Error) return caught.message.slice(0, 500);
+  return String(caught ?? "").slice(0, 500);
 }
 
 function cleanText(value: unknown, max: number) { return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
