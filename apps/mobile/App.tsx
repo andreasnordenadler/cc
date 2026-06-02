@@ -1696,6 +1696,7 @@ function TodayDashboard({
         visible={Boolean(joinedMultiplayerQuest)}
         quest={joinedMultiplayerQuest}
         challenges={bootstrap.challenges}
+        customQuests={signedIn?.customSideQuests ?? []}
         mode="joined"
         busy={groupQuestActionState.busy && groupQuestActionState.questId === joinedMultiplayerQuest?.id}
         message={groupQuestActionState.questId === joinedMultiplayerQuest?.id ? groupQuestActionState.message : null}
@@ -1806,6 +1807,7 @@ function JoinedMultiplayerQuestModal({
   visible,
   quest,
   challenges = [],
+  customQuests = [],
   mode = "joined",
   busy = false,
   message = null,
@@ -1820,6 +1822,7 @@ function JoinedMultiplayerQuestModal({
   visible: boolean;
   quest: MobileGroupQuestSummary | null;
   challenges?: MobileChallenge[];
+  customQuests?: MobileCustomSideQuest[];
   mode?: "joined" | "public";
   busy?: boolean;
   message?: string | null;
@@ -1877,6 +1880,7 @@ function JoinedMultiplayerQuestModal({
     { rank: position, name: "Andreas", provider: "lichess · and72nor", points, verified: `${verified.replace(" / ", "/")} verified`, note: "You" },
   ];
   const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges));
+  const adminQuestChoices = getMultiplayerQuestChoices(challenges, customQuests, quest.customQuestSummaries);
   const selectedRuleQuest = selectedRuleQuestTitle ? questRows.find((row) => row.title === selectedRuleQuestTitle) ?? null : null;
 
   function toggleAdminQuestId(questId: string) {
@@ -2154,14 +2158,14 @@ function JoinedMultiplayerQuestModal({
               <Text style={styles.microcopy}>Dates save as your local time. No typing needed.</Text>
               <Text style={styles.inputLabel}>Included Side Quests</Text>
               <View style={compactStyles.appRows}>
-                {challenges.map((challenge) => (
+                {adminQuestChoices.map((choice) => (
                   <AppRow
-                    key={challenge.id}
-                    title={challenge.title}
-                    meta={challenge.objective}
-                    status={adminQuestIds.includes(challenge.id) ? "Included" : `+${challenge.reward}`}
-                    imageSource={getChallengeCoatImageSource(challenge)}
-                    onPress={() => toggleAdminQuestId(challenge.id)}
+                    key={choice.id}
+                    title={choice.title}
+                    meta={choice.meta}
+                    status={adminQuestIds.includes(choice.id) ? "Included" : choice.status}
+                    imageSource={choice.imageSource}
+                    onPress={() => toggleAdminQuestId(choice.id)}
                   />
                 ))}
               </View>
@@ -2859,6 +2863,44 @@ function getMultiplayerQuestBrowseRow(input: { questId?: string | null; title: s
       "Use a fresh public Lichess or Chess.com game that satisfies the multiplayer rules.",
     ],
   };
+}
+
+function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests: MobileCustomSideQuest[], existingSummaries: MobileGroupQuestSummary["customQuestSummaries"] = []) {
+  const customById = new Map(customQuests.map((quest) => [quest.id, quest]));
+  for (const summary of existingSummaries ?? []) {
+    if (!customById.has(summary.id)) {
+      customById.set(summary.id, {
+        id: summary.id,
+        title: summary.title,
+        summary: summary.summary,
+        config: "",
+        createdAt: "",
+        updatedAt: "",
+        badgeImageUrl: summary.badgeImageUrl ?? null,
+      });
+    }
+  }
+
+  return [
+    ...challenges.map((challenge) => ({
+      id: challenge.id,
+      title: challenge.title,
+      meta: challenge.objective,
+      status: `+${challenge.reward}`,
+      imageSource: getChallengeCoatImageSource(challenge),
+    })),
+    ...Array.from(customById.values()).map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      meta: `Custom · Private to you · ${quest.summary}`,
+      status: "+100",
+      imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
+    })),
+  ];
+}
+
+function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
+  return badgeImageUrl ? { uri: absoluteAssetUrl(badgeImageUrl) } : SQC_COAT_OF_ARMS_ASSET;
 }
 
 function getJoinedMultiplayerListStatus(quest: MobileAccountState["activeGroupQuests"][number]) {
@@ -4787,6 +4829,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
   const [createRules, setCreateRules] = useState<Record<string, string>>({ timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
+  const createQuestChoices = getMultiplayerQuestChoices(bootstrap.challenges, signedInAccount?.customSideQuests ?? []);
 
   useEffect(() => {
     if (!pendingCreateOpen) return;
@@ -4972,6 +5015,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         visible={Boolean(officialMultiplayerQuest)}
         quest={officialMultiplayerQuest}
         challenges={bootstrap.challenges}
+        customQuests={signedInAccount?.customSideQuests ?? []}
         mode={officialMultiplayerQuest?.joinState === "Joined" ? "joined" : "public"}
         busy={groupQuestActionState.busy && groupQuestActionState.questId === officialMultiplayerQuest?.id}
         message={groupQuestActionState.questId === officialMultiplayerQuest?.id ? groupQuestActionState.message : null}
@@ -4989,6 +5033,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         visible={Boolean(publicMultiplayerQuest)}
         quest={publicMultiplayerQuest}
         challenges={bootstrap.challenges}
+        customQuests={signedInAccount?.customSideQuests ?? []}
         mode={publicMultiplayerQuest?.joinState === "Joined" ? "joined" : "public"}
         busy={groupQuestActionState.busy && groupQuestActionState.questId === publicMultiplayerQuest?.id}
         message={groupQuestActionState.questId === publicMultiplayerQuest?.id ? groupQuestActionState.message : null}
@@ -5181,14 +5226,14 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>
               <View style={compactStyles.appRows}>
-                {bootstrap.challenges.map((challenge) => (
+                {createQuestChoices.map((choice) => (
                   <AppRow
-                    key={challenge.id}
-                    title={challenge.title}
-                    meta={challenge.objective}
-                    status={createQuestIds.includes(challenge.id) ? "Included" : `+${challenge.reward}`}
-                    imageSource={getChallengeCoatImageSource(challenge)}
-                    onPress={() => toggleCreateQuestId(challenge.id)}
+                    key={choice.id}
+                    title={choice.title}
+                    meta={choice.meta}
+                    status={createQuestIds.includes(choice.id) ? "Included" : choice.status}
+                    imageSource={choice.imageSource}
+                    onPress={() => toggleCreateQuestId(choice.id)}
                   />
                 ))}
               </View>

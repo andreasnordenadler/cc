@@ -92,6 +92,7 @@ export type MobileGroupQuestSummary = {
   rules?: Record<string, string>;
   questIds?: string[];
   questTitles?: string[];
+  customQuestSummaries?: Array<{ id: string; title: string; summary: string; badgeImageUrl?: string | null; reward?: number }>;
   completedQuestTitles?: string[];
   ruleRows?: Array<{ label: string; value: string }>;
   leaderboardRows?: MobileGroupQuestParticipantRow[];

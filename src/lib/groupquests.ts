@@ -31,11 +31,21 @@ export type ServerGroupQuest = {
   providerLabel: string;
   official?: boolean;
   officialLabel?: string;
+  customQuestSnapshots?: GroupQuestCustomQuestSnapshot[];
   startAt: string;
   endAt: string;
   rules: Record<string, string>;
   createdAt: string;
   participants: GroupQuestParticipant[];
+};
+
+export type GroupQuestCustomQuestSnapshot = {
+  id: string;
+  title: string;
+  summary: string;
+  config: string;
+  badgeImageUrl?: string | null;
+  reward?: number;
 };
 
 export type GroupQuestHostRecord = {
@@ -75,6 +85,7 @@ export function buildGroupQuest(input: {
   questIds?: unknown;
   providerMode?: unknown;
   providerLabel?: unknown;
+  customQuestSnapshots?: unknown;
   startAt?: unknown;
   endAt?: unknown;
   rules?: unknown;
@@ -97,6 +108,7 @@ export function buildGroupQuest(input: {
     providerMode: normalizeProviderMode(input.providerMode),
     providerLabel: cleanText(input.providerLabel, 80) ?? providerLabelFor(input.providerMode),
     official: false,
+    customQuestSnapshots: normalizeCustomQuestSnapshots(input.customQuestSnapshots),
     startAt: cleanText(input.startAt, 40) ?? now,
     endAt: cleanText(input.endAt, 40) ?? now,
     rules: normalizeRules(input.rules),
@@ -251,6 +263,7 @@ function compactGroupQuestForStorage(groupQuest: ServerGroupQuest) {
     ...(providerMode !== "both" ? { providerLabel: providerLabelFor(providerMode) } : {}),
     ...(hasCustomRules ? { rules } : {}),
     ...(groupQuest.official ? { official: true, officialLabel: groupQuest.officialLabel } : {}),
+    ...(groupQuest.customQuestSnapshots?.length ? { customQuestSnapshots: groupQuest.customQuestSnapshots.slice(0, 8).map(compactCustomQuestSnapshot) } : {}),
     startAt: groupQuest.startAt,
     endAt: groupQuest.endAt,
     createdAt: groupQuest.createdAt,
@@ -289,11 +302,45 @@ function normalizeGroupQuest(value: unknown): ServerGroupQuest | null {
     providerLabel: cleanText(record.providerLabel, 80) ?? providerLabelFor(record.providerMode),
     official: record.official === true,
     officialLabel: cleanText(record.officialLabel, 80),
+    customQuestSnapshots: normalizeCustomQuestSnapshots(record.customQuestSnapshots),
     startAt: cleanText(record.startAt, 40) ?? "Not set",
     endAt: cleanText(record.endAt, 40) ?? "Not set",
     rules: normalizeRules(record.rules),
     createdAt: cleanText(record.createdAt, 40) ?? new Date().toISOString(),
     participants: Array.isArray(record.participants) ? record.participants.map(normalizeParticipant).filter((entry): entry is GroupQuestParticipant => Boolean(entry)) : [],
+  };
+}
+
+function compactCustomQuestSnapshot(snapshot: GroupQuestCustomQuestSnapshot) {
+  return {
+    id: snapshot.id,
+    title: snapshot.title,
+    summary: snapshot.summary,
+    config: snapshot.config,
+    ...(snapshot.badgeImageUrl ? { badgeImageUrl: snapshot.badgeImageUrl } : {}),
+    ...(snapshot.reward ? { reward: snapshot.reward } : {}),
+  };
+}
+
+function normalizeCustomQuestSnapshots(value: unknown): GroupQuestCustomQuestSnapshot[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(normalizeCustomQuestSnapshot).filter((snapshot): snapshot is GroupQuestCustomQuestSnapshot => Boolean(snapshot)).slice(0, 8);
+}
+
+function normalizeCustomQuestSnapshot(value: unknown): GroupQuestCustomQuestSnapshot | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  const id = cleanText(record.id, 100);
+  const title = cleanText(record.title, 80);
+  const config = cleanText(record.config, 3000);
+  if (!id || !title || !config) return null;
+  return {
+    id,
+    title,
+    summary: cleanText(record.summary, 500) ?? "Custom Side Quest rule",
+    config,
+    badgeImageUrl: cleanText(record.badgeImageUrl, 240) ?? null,
+    reward: typeof record.reward === "number" && record.reward > 0 ? Math.min(record.reward, 500) : 100,
   };
 }
 

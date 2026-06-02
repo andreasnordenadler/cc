@@ -1,5 +1,6 @@
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider } from "@/lib/challenge-latest-verifiers";
+import { checkLatestCustomSideQuestForProvider, type CustomSideQuest } from "@/lib/custom-side-quests";
 
 export type GroupQuestCheckResult = {
   status: "passed" | "failed" | "pending";
@@ -50,14 +51,35 @@ function buildWindowedResult(
   };
 }
 
-export async function checkLatestGroupQuestChallenge(input: {
+function buildCustomQuestForVerifier(snapshot: NonNullable<CheckLatestGroupQuestChallengeInput["customQuest"]>): CustomSideQuest {
+  return {
+    id: snapshot.id,
+    title: snapshot.title,
+    summary: snapshot.summary,
+    config: snapshot.config,
+    createdAt: new Date(0).toISOString(),
+    updatedAt: new Date(0).toISOString(),
+    badgeImageUrl: snapshot.badgeImageUrl ?? null,
+  };
+}
+
+export type CheckLatestGroupQuestChallengeInput = {
   challengeId: string;
   provider: "lichess" | "chesscom";
   username: string;
   startAt?: string;
   endAt?: string;
-}): Promise<GroupQuestCheckResult> {
-  const { challengeId, provider, username, startAt, endAt } = input;
+  customQuest?: {
+    id: string;
+    title: string;
+    summary: string;
+    config: string;
+    badgeImageUrl?: string | null;
+  } | null;
+};
+
+export async function checkLatestGroupQuestChallenge(input: CheckLatestGroupQuestChallengeInput): Promise<GroupQuestCheckResult> {
+  const { challengeId, provider, username, startAt, endAt, customQuest } = input;
 
   if (!username) {
     return {
@@ -69,7 +91,9 @@ export async function checkLatestGroupQuestChallenge(input: {
 
   return buildWindowedResult(
     challengeId,
-    await checkLatestChallengeForProvider({ challengeId, provider, username }),
+    customQuest
+      ? await checkLatestCustomSideQuestForProvider({ quest: buildCustomQuestForVerifier(customQuest), provider, username })
+      : await checkLatestChallengeForProvider({ challengeId, provider, username }),
     startAt,
     endAt,
   );

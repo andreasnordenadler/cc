@@ -4,7 +4,7 @@ import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
 import { buildPublicProofPath } from "@/lib/proof-share";
-import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   buildAttemptSummary,
@@ -155,8 +155,9 @@ export async function GET(request: Request) {
         endAt: quest.endAt,
         rules: quest.rules,
         questIds: quest.questIds,
-        questTitles: quest.questIds.map((questId) => getChallengeTitle(questId)),
-        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getChallengeTitle(questId)),
+        questTitles: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
+        customQuestSummaries: buildCustomQuestSummaries(quest),
+        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getGroupQuestChallengeTitle(quest, questId)),
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
       };
@@ -193,8 +194,9 @@ export async function GET(request: Request) {
         endAt: quest.endAt,
         rules: quest.rules,
         questIds: quest.questIds,
-        questTitles: quest.questIds.map((questId) => getChallengeTitle(questId)),
-        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getChallengeTitle(questId)),
+        questTitles: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
+        customQuestSummaries: buildCustomQuestSummaries(quest),
+        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getGroupQuestChallengeTitle(quest, questId)),
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
       };
@@ -237,8 +239,9 @@ export async function GET(request: Request) {
         endAt: quest.endAt,
         rules: quest.rules,
         questIds: quest.questIds,
-        questTitles: quest.questIds.map((questId) => getChallengeTitle(questId)),
-        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getChallengeTitle(questId)),
+        questTitles: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
+        customQuestSummaries: buildCustomQuestSummaries(quest),
+        completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getGroupQuestChallengeTitle(quest, questId)),
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
       };
@@ -387,8 +390,20 @@ function deriveGroupQuestStatus(startAt: string, endAt: string) {
   return "Live";
 }
 
-function getChallengeTitle(challengeId: string) {
-  return CHALLENGES.find((challenge) => challenge.id === challengeId)?.title ?? challengeId;
+function getGroupQuestChallengeTitle(quest: Pick<ServerGroupQuest, "customQuestSnapshots">, challengeId: string) {
+  return CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
+    ?? quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
+    ?? challengeId;
+}
+
+function buildCustomQuestSummaries(quest: Pick<ServerGroupQuest, "customQuestSnapshots">) {
+  return quest.customQuestSnapshots?.map((snapshot) => ({
+    id: snapshot.id,
+    title: snapshot.title,
+    summary: snapshot.summary,
+    badgeImageUrl: snapshot.badgeImageUrl ?? null,
+    reward: snapshot.reward ?? 100,
+  })) ?? [];
 }
 
 function buildRuleRows(quest: { providerLabel: string; rules: Record<string, string> }) {
