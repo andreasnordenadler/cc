@@ -433,7 +433,13 @@ function getMultiplayerInviteUrl(quest: Pick<MobileGroupQuestSummary, "id" | "in
 }
 
 function cleanMultiplayerTitle(title: string) {
-  return title.replace(/\s+Demo(?=\s+Results\b|$)/gi, "").replace(/\s{2,}/g, " ").trim();
+  return title
+    .replace(/\s+Demo(?=\s+Results\b|$)/gi, "")
+    .replace(/([a-z])Room(?=\d|$)/g, "$1 Multiplayer Side Quest ")
+    .replace(/\brooms\b/gi, "Multiplayer Side Quests")
+    .replace(/\broom\b/gi, "Multiplayer Side Quest")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 function cleanMultiplayerInviteCopy(copy?: string | null) {
@@ -1414,8 +1420,7 @@ function TodayDashboard({
   const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
   const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a new public game on Lichess or Chess.com that matches this Side Quest.";
   const officialPublic = (signedIn?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
-  const officialPublicIds = new Set(officialPublic.map((quest) => quest.id));
-  const activeMultiplayer = (signedIn?.activeGroupQuests ?? []).filter((quest) => !officialPublicIds.has(quest.id) && !quest.id.startsWith("official-"));
+  const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const hasChessAccount = Boolean(signedIn?.chessAccounts.hasAny);
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [groupQuestActionState, setGroupQuestActionState] = useState<{ busy: boolean; questId: string | null; message: string | null; error: string | null }>({
@@ -1429,6 +1434,8 @@ function TodayDashboard({
   const joinedMultiplayerQuest = joinedMultiplayerId ? activeMultiplayer.find((quest) => quest.id === joinedMultiplayerId) ?? null : null;
   const [officialMultiplayerId, setOfficialMultiplayerId] = useState<string | null>(null);
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublic.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
+  const [showAllActiveMultiplayer, setShowAllActiveMultiplayer] = useState(false);
+  const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 3);
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
   const celebratedCompletionIds = useRef<Set<string>>(new Set());
@@ -1610,8 +1617,8 @@ function TodayDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Browse or create Solo Side Quests" onPress={() => onSelectTab("sideQuests")}>
-          <Text style={compactStyles.sectionAction}>Browse / Create Solo</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Explore Solo Side Quests" onPress={() => onSelectTab("sideQuests")}>
+          <Text style={compactStyles.sectionAction}>Explore Solo</Text>
           </Pressable>
         </View>
         {signedIn.activeQuest ? (
@@ -1683,8 +1690,8 @@ function TodayDashboard({
                 <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
               </View>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Browse or create Solo Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
-              <Text style={compactStyles.primaryActionText}>Browse / Create Solo Side Quests</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Explore Solo Side Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
+              <Text style={compactStyles.primaryActionText}>Explore Solo Side Quests</Text>
             </Pressable>
           </View>
         )}
@@ -1712,22 +1719,15 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="More to play">
-        <AppRow
-          title="Solo Side Quests"
-          meta="Browse SQC Official and Community Solo Side Quests."
-          status="Browse"
-          imageSource={SQC_COAT_OF_ARMS_ASSET}
-          onPress={() => onSelectTab("sideQuests")}
-        />
-        <AppRow
-          title="Multiplayer Side Quests"
-          meta="Browse SQC Official and Community Multiplayer Side Quests."
-          status="Browse"
-          imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-          variant="seal"
-          onPress={() => onSelectTab("multiplayerSideQuests")}
-        />
+      <AppSection title="My Active Multiplayer Side Quests" action="Explore Multiplayer" onAction={() => onSelectTab("multiplayerSideQuests")}>
+        {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+        )) : (
+          <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with other players." status="Explore" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />
+        )}
+        {activeMultiplayer.length > 3 ? (
+          <AppRow title={showAllActiveMultiplayer ? "Show fewer active Multiplayer Side Quests" : "Expand all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top three." : `${activeMultiplayer.length - 3} more active Multiplayer Side Quests.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
+        ) : null}
       </AppSection>
 
 
@@ -1767,8 +1767,8 @@ function TodayDashboard({
       />
 
 
-      <AppSection title="Trophy Cabinet">
-        {signedIn.multiplayerTrophies?.map((trophy) => (
+      <AppSection title="Recent Coat of Arms" action="Open Trophy Cabinet" onAction={() => onSelectTab("coatOfArms")}>
+        {signedIn.multiplayerTrophies?.slice(0, 3).map((trophy) => (
           <AppRow
             key={trophy.id}
             title={trophy.title}
@@ -1777,28 +1777,26 @@ function TodayDashboard({
             statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
             imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
             variant="seal"
-            onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy is saved to your account.`)}
+            onPress={() => onSelectTab("coatOfArms")}
           />
         ))}
-        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, 3).map((quest) => {
+        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, Math.max(0, 3 - (signedIn.multiplayerTrophies?.length ?? 0))).map((quest) => {
           const completedChallenge = bootstrap.challenges.find((challenge) => challenge.id === quest.id) ?? null;
           return (
-            <View key={quest.id} style={compactStyles.trophyProofStack}>
-              <AppRow
-                title={cleanMultiplayerTitle(quest.title)}
-                meta={`Coat of Arms: ${quest.badgeName}`}
-                status={undefined}
-                statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
-                imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
-                glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
-                glowColor={completedChallenge?.badgeIdentity.colors.glow}
-                onPress={() => setCompletedProofId(quest.id)}
-              />
-              <VictoryProofBoard proof={quest} />
-            </View>
+            <AppRow
+              key={quest.id}
+              title={cleanMultiplayerTitle(quest.title)}
+              meta={`Coat of Arms: ${quest.badgeName}`}
+              status={undefined}
+              statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
+              imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
+              glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
+              glowColor={completedChallenge?.badgeIdentity.colors.glow}
+              onPress={() => setCompletedProofId(quest.id)}
+            />
           );
         }) : !signedIn.multiplayerTrophies?.length ? (
-          <AppRow title="No completed Side Quests yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
+          <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first Coat of Arms." status="Explore" onPress={() => onSelectTab("sideQuests")} />
         ) : null}
       </AppSection>
 
