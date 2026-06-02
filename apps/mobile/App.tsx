@@ -1896,7 +1896,7 @@ function JoinedMultiplayerQuestModal({
     { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "0 pts", verified: "0/4 verified", note: "Joined this Multiplayer Side Quest" },
     { rank: position, name: "Andreas", provider: "lichess · and72nor", points, verified: `${verified.replace(" / ", "/")} verified`, note: "You" },
   ];
-  const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges));
+  const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges, quest.customQuestSummaries));
   const adminQuestChoices = getMultiplayerQuestChoices(challenges, customQuests, quest.customQuestSummaries);
   const selectedRuleQuest = selectedRuleQuestTitle ? questRows.find((row) => row.title === selectedRuleQuestTitle) ?? null : null;
 
@@ -2850,7 +2850,11 @@ function getMultiplayerQuestCoatSource(title: string): ImageSourcePropType {
   return SQC_COAT_OF_ARMS_ASSET;
 }
 
-function getMultiplayerQuestBrowseRow(input: { questId?: string | null; title: string }, challenges: MobileChallenge[]) {
+function getMultiplayerQuestBrowseRow(
+  input: { questId?: string | null; title: string },
+  challenges: MobileChallenge[],
+  customQuestSummaries: MobileGroupQuestSummary["customQuestSummaries"] = [],
+) {
   const lowerTitle = input.title.toLowerCase();
   const challenge = (input.questId ? challenges.find((item) => item.id === input.questId) : null)
     ?? challenges.find((item) => item.title.toLowerCase() === lowerTitle);
@@ -2864,6 +2868,25 @@ function getMultiplayerQuestBrowseRow(input: { questId?: string | null; title: s
       glowSource: getChallengeCoatGlowSource(challenge.id),
       glowColor: challenge.badgeIdentity.colors.glow,
       ruleLines: challenge.rules.length ? challenge.rules : [challenge.instruction, challenge.proofCallout],
+    };
+  }
+
+  const customSummary = (input.questId ? customQuestSummaries?.find((summary) => summary.id === input.questId) : null)
+    ?? customQuestSummaries?.find((summary) => summary.title.toLowerCase() === lowerTitle);
+
+  if (customSummary) {
+    return {
+      title: customSummary.title,
+      meta: customSummary.summary,
+      status: "Included",
+      imageSource: getCustomQuestImageSource(customSummary.badgeImageUrl),
+      glowSource: null,
+      glowColor: colors.gold,
+      ruleLines: [
+        customSummary.summary,
+        "Complete it during the Multiplayer Side Quest time window.",
+        "Use a fresh public Lichess or Chess.com game that satisfies the multiplayer rules.",
+      ],
     };
   }
 
