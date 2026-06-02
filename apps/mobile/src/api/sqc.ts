@@ -137,6 +137,26 @@ export async function saveMobileCustomSideQuest({
   return payload;
 }
 
+export async function deleteMobileCustomSideQuest({
+  sessionToken,
+  id,
+}: {
+  sessionToken?: string | null;
+  id: string;
+}): Promise<MobileCustomQuestSaveResponse> {
+  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/custom-quests?id=${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: buildMobileAuthHeaders(sessionToken),
+  }, 20000);
+  const payload = await readMobileJson<MobileCustomQuestSaveResponse>(response, "custom Side Quest delete");
+
+  if (!response.ok) {
+    throw new Error(payload.message || `SQC mobile custom Side Quest delete failed: ${response.status}`);
+  }
+
+  return payload;
+}
+
 export async function runMobileQuestAction({
   sessionToken,
   action,

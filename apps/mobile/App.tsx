@@ -31,7 +31,7 @@ import {
   type ScrollViewProps,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { getApiBaseUrl, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
@@ -3450,6 +3450,23 @@ function QuestBoardDashboard({
           await startCustomSideQuest(questId);
           setCustomDetailId(null);
         }}
+        onDuplicate={async (quest) => {
+          if (!authBridge.isSignedIn) return Alert.alert("Sign in required", "Sign in to duplicate saved custom Side Quests.");
+          const sessionToken = await authBridge.getSessionToken();
+          await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config });
+          await Promise.resolve(onAccountUpdated());
+          Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
+        }}
+        onDelete={async (questId) => {
+          if (!authBridge.isSignedIn) {
+            setCustomDrafts((current) => current.filter((draft) => draft.id !== questId));
+          } else {
+            const sessionToken = await authBridge.getSessionToken();
+            await deleteMobileCustomSideQuest({ sessionToken, id: questId });
+            await Promise.resolve(onAccountUpdated());
+          }
+          setCustomDetailId(null);
+        }}
         onViewResult={customDetailCompletedQuest ? () => {
           setCompletedDetailId(customDetailCompletedQuest.id);
           setCustomDetailId(null);
@@ -4522,6 +4539,23 @@ function SideQuestsScreen({
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
+          setCustomDetailId(null);
+        }}
+        onDuplicate={async (quest) => {
+          if (!authBridge.isSignedIn) return Alert.alert("Sign in required", "Sign in to duplicate saved custom Side Quests.");
+          const sessionToken = await authBridge.getSessionToken();
+          await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config });
+          await Promise.resolve(onAccountUpdated());
+          Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
+        }}
+        onDelete={async (questId) => {
+          if (!authBridge.isSignedIn) {
+            setCustomDrafts((current) => current.filter((draft) => draft.id !== questId));
+          } else {
+            const sessionToken = await authBridge.getSessionToken();
+            await deleteMobileCustomSideQuest({ sessionToken, id: questId });
+            await Promise.resolve(onAccountUpdated());
+          }
           setCustomDetailId(null);
         }}
       />
@@ -5619,6 +5653,8 @@ function CustomSideQuestDetailModal({
   completedAt,
   onClose,
   onStart,
+  onDuplicate,
+  onDelete,
   onViewResult,
 }: {
   quest: { id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null } | null;
@@ -5628,9 +5664,12 @@ function CustomSideQuestDetailModal({
   completedAt: string | null;
   onClose: () => void;
   onStart: (questId: string) => Promise<void> | void;
+  onDuplicate?: (quest: { id: string; name: string; summary: string; config: string; badgeImageUrl?: string | null }) => Promise<void> | void;
+  onDelete?: (questId: string) => Promise<void> | void;
   onViewResult?: () => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | null>(null);
   if (!quest) return null;
   const badgeSource = getRowImageSource(quest.badgeImageUrl ?? null) ?? SQC_COAT_OF_ARMS_ASSET;
   const statusLabel = completed ? "Completed" : active ? "Active" : "Ready to pick";
@@ -5642,6 +5681,38 @@ function CustomSideQuestDetailModal({
       await onStart(quest.id);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function handleDuplicate() {
+    if (!quest || !onDuplicate || manageBusy) return;
+    setManageBusy("duplicate");
+    try {
+      await onDuplicate(quest);
+    } finally {
+      setManageBusy(null);
+    }
+  }
+
+  function confirmDelete() {
+    if (!quest || !onDelete || manageBusy) return;
+    Alert.alert(
+      "Delete custom Side Quest?",
+      active ? "This will remove it from your library and clear it as your active Side Quest." : "This removes it from your custom Side Quest library. Existing multiplayer lineups keep their safe saved snapshot.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Delete", style: "destructive", onPress: () => void handleDelete() },
+      ],
+    );
+  }
+
+  async function handleDelete() {
+    if (!quest || !onDelete || manageBusy) return;
+    setManageBusy("delete");
+    try {
+      await onDelete(quest.id);
+    } finally {
+      setManageBusy(null);
     }
   }
 
@@ -5674,6 +5745,14 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollMeta}>Custom verifier · Fresh games count after activation</Text>
           </View>
 
+          <View style={compactStyles.proofScrollCard}>
+            <Text style={compactStyles.proofScrollEyebrow}>Library management</Text>
+            <Text style={compactStyles.proofScrollTitle}>Private saved recipe</Text>
+            <Text style={compactStyles.proofScrollCopy}>Visible only in your account. You can pick it for Solo or include it in Multiplayer Side Quests you create; other players see only the safe title and summary.</Text>
+            <View style={compactStyles.proofScrollRule} />
+            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · Multiplayer eligible</Text>
+          </View>
+
           {completed && onViewResult ? (
             <Pressable accessibilityRole="button" accessibilityLabel="View custom Side Quest result" style={compactStyles.detailPrimaryButton} onPress={onViewResult}>
               <Text style={compactStyles.detailPrimaryButtonText}>View Result</Text>
@@ -5686,6 +5765,16 @@ function CustomSideQuestDetailModal({
           <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>
             <Text style={compactStyles.detailQuietButtonText}>Back to list</Text>
           </Pressable>
+          {onDuplicate ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Duplicate custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleDuplicate()}>
+              <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "duplicate" ? "Duplicating..." : "Duplicate recipe"}</Text>
+            </Pressable>
+          ) : null}
+          {onDelete ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Delete custom Side Quest" style={compactStyles.detailQuietButton} disabled={Boolean(manageBusy)} onPress={confirmDelete}>
+              <Text style={compactStyles.detailQuietButtonText}>{manageBusy === "delete" ? "Deleting..." : "Delete from library"}</Text>
+            </Pressable>
+          ) : null}
         </ScrollHintedScrollView>
       </SafeAreaView>
     </Modal>
