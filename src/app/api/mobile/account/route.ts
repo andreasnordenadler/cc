@@ -36,7 +36,9 @@ export async function GET(request: Request) {
   }
 
   const client = await clerkClient();
-  const user = await client.users.getUser(userId);
+  const userResult = await getMobileAccountUser(client, userId);
+  if (!userResult.ok) return userResult.response;
+  const user = userResult.user;
   const baseUrl = new URL(request.url).origin;
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
@@ -119,8 +121,7 @@ export async function GET(request: Request) {
       lastMoveSan: latestPassed?.lastMoveSan ?? null,
     };
   }));
-  const relatedGroupQuests = await listUserRelatedGroupQuests(client, userId);
-  const publicGroupQuests = await listPublicGroupQuests(client);
+  const { relatedGroupQuests, publicGroupQuests } = await getMobileAccountGroupQuests(client, userId);
   const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
   const officialGroupQuestIds = new Set(publicGroupQuests.filter(isOfficialGroupQuest).map((quest) => quest.id));
   const relatedUserGroupQuestPayloads = relatedGroupQuests
@@ -336,6 +337,69 @@ export async function GET(request: Request) {
       source: message.source ?? "mobile",
     })),
   });
+}
+
+async function getMobileAccountUser(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  userId: string,
+) {
+  try {
+    const user = await client.users.getUser(userId);
+    return { ok: true as const, user };
+  } catch (error) {
+    const retryAfter = getRetryAfterSeconds(error);
+    console.warn("mobile account user fetch unavailable", { retryAfter, reason: getClerkErrorReason(error) });
+    return {
+      ok: false as const,
+      response: NextResponse.json(
+        {
+          apiVersion: 1,
+          authenticated: true,
+          temporarilyUnavailable: true,
+          message: "SQC could not refresh your account for a moment. Try again shortly.",
+        },
+        { status: 503, headers: retryAfter ? { "Retry-After": String(retryAfter) } : undefined },
+      ),
+    };
+  }
+}
+
+async function getMobileAccountGroupQuests(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  userId: string,
+) {
+  try {
+    const [relatedGroupQuests, publicGroupQuests] = await Promise.all([
+      listUserRelatedGroupQuests(client, userId),
+      listPublicGroupQuests(client),
+    ]);
+    return { relatedGroupQuests, publicGroupQuests };
+  } catch (error) {
+    console.warn("mobile account group quest fetch unavailable", { reason: getClerkErrorReason(error) });
+    return { relatedGroupQuests: [] as ServerGroupQuest[], publicGroupQuests: [] as ServerGroupQuest[] };
+  }
+}
+
+function getRetryAfterSeconds(error: unknown) {
+  if (!error || typeof error !== "object") return null;
+  const retryAfter = (error as { retryAfter?: unknown }).retryAfter;
+  if (typeof retryAfter === "number" && Number.isFinite(retryAfter)) return Math.max(1, Math.round(retryAfter));
+  if (typeof retryAfter === "string") {
+    const parsed = Number.parseInt(retryAfter, 10);
+    if (Number.isFinite(parsed)) return Math.max(1, parsed);
+  }
+  return null;
+}
+
+function getClerkErrorReason(error: unknown) {
+  if (!error || typeof error !== "object") return "unknown";
+  const fields = error as { code?: unknown; status?: unknown; clerkTraceId?: unknown; message?: unknown };
+  return {
+    code: typeof fields.code === "string" ? fields.code : undefined,
+    status: typeof fields.status === "number" ? fields.status : undefined,
+    clerkTraceId: typeof fields.clerkTraceId === "string" ? fields.clerkTraceId : undefined,
+    message: typeof fields.message === "string" ? fields.message : undefined,
+  };
 }
 
 function buildOfficialGroupQuestWeeks<T extends { id: string; startAt?: string; endAt?: string }>(quests: T[]) {
