@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Clarify SQC Mobile Home routing vs landing-screen taxonomy.
+  - added_at: 2026-06-02 19:50 Europe/Stockholm
+  - completed_at: 2026-06-02 20:02 Europe/Stockholm
+  - source: Andreas clarified that the `More to play` Home approach is good, but both Home rows should say `Browse`, Home copy should route to both `SQC Official` and `Community`, and the actual differentiation belongs on the Solo/Multiplayer landing screens.
+  - scope: Home `More to play` now has only `Solo Side Quests` and `Multiplayer Side Quests`, both with `Browse` status and copy pointing to `SQC Official and Community`; visible landing labels now use `SQC Official` plus `Community` sections.
+  - proof: v182 mobile typecheck, focused ESLint, `pnpm quest:release-gate`, `pnpm build`, Android `:app:lintRelease :app:assembleRelease`, emulator install/launch, screenshot review of Home copy/status, and source inspection of Solo/Multiplayer landing labels passed. Screenshot review confirmed no visible `room`/`rooms`, point/pts, `By Andreas`, or `Official SQC` wording.
+
 - [x] Simplify SQC Mobile Home after v180 hierarchy feedback.
   - added_at: 2026-06-02 19:29 Europe/Stockholm
   - completed_at: 2026-06-02 19:40 Europe/Stockholm

@@ -808,3 +808,25 @@ For future SQC Mobile Home work, prefer one simple navigation block such as `Mor
 - Related Files: apps/mobile/App.tsx
 - Tags: sqc-mobile, home, ux, hierarchy
 ---
+
+## [LRN-20260602-SQC-HOME-VS-LANDING-TAXONOMY] correction
+
+**Logged**: 2026-06-02T20:02:00+02:00
+**Priority**: high
+**Status**: applied
+**Area**: frontend
+
+### Summary
+SQC Mobile Home should route to Solo/Multiplayer, while SQC Official vs Community belongs on those landing screens.
+
+### Details
+Andreas clarified the `More to play` Home approach is good, but Home should not mix current user state with official/community categorization. Both Home rows should use `Browse`, and their copy should explain that the destination contains both `SQC Official` and `Community`. The actual split between `SQC Official` and `Community` should appear on the Solo Side Quests and Multiplayer Side Quests landing screens.
+
+### Suggested Action
+When adding SQC discovery hierarchy, keep Home as simple routing (`Solo Side Quests`, `Multiplayer Side Quests`) and place source/trust taxonomy on the destination landing screens.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx
+- Tags: sqc-mobile, home, landing-screens, ux, taxonomy
+---
