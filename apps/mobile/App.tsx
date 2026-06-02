@@ -1534,7 +1534,7 @@ function TodayDashboard({
       const result = await runMobileGroupQuestAction({ sessionToken, groupQuestId, action, payload });
       const refreshedAccount = await Promise.resolve(onAccountUpdated());
       if (action === "refresh") {
-        showNewCompletionCelebration(previousCompletedIds, coerceAccountResponse(refreshedAccount), "multiplayer", (typeof result.score === "number" ? `+${result.score} points` : null));
+        showNewCompletionCelebration(previousCompletedIds, coerceAccountResponse(refreshedAccount), "multiplayer", null);
       }
       if (action === "join" || action === "leave" || action === "update" || action === "remove-participant") {
         await waitMs(450);
@@ -1907,8 +1907,8 @@ function JoinedMultiplayerQuestModal({
   const players = quest.playersLabel ?? metaParts[0] ?? "Players pending";
   const timeLeft = quest.timeLeftLabel ?? metaParts[1] ?? "Window open";
   const position = quest.positionLabel ?? metaParts[2] ?? (mode === "joined" ? "Rank pending" : "Join to place");
-  const points = quest.pointsLabel ?? "0 pts";
   const verified = quest.verifiedLabel ?? "0 / 4";
+  const verifiedCompact = `${verified.replace(" / ", "/")} verified`;
   const questInputs = (quest.questIds?.length ? quest.questIds.map((questId, index) => ({ questId, title: quest.questTitles?.[index] ?? questId })) : (quest.questTitles ?? []).map((title) => ({ title })));
   const completedQuestTitles = new Set((quest.completedQuestTitles ?? []).map((title) => title.toLowerCase()));
   const ruleRows = [
@@ -1918,12 +1918,12 @@ function JoinedMultiplayerQuestModal({
       { label: "Games allowed", value: "Lichess or Chess.com" },
       { label: "Variant", value: "Standard chess only" },
       { label: "Proof", value: "Fresh public games inside this window" },
-      { label: "Winner", value: "First to complete all quests wins; otherwise highest points at the deadline wins." },
+      { label: "Winner", value: "First to complete all included Side Quests wins; otherwise best completion progress at the deadline wins." },
     ]),
   ];
   const leaderboardRows = quest.leaderboardRows ?? [
-    { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "0 pts", verified: "0/4 verified", note: "Joined this Multiplayer Side Quest" },
-    { rank: position, name: "Andreas", provider: "lichess · and72nor", points, verified: `${verified.replace(" / ", "/")} verified`, note: "You" },
+    { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "0/4", verified: "0/4 verified", note: "Joined this Multiplayer Side Quest" },
+    { rank: position, name: "Andreas", provider: "lichess · and72nor", points: verified.replace(" / ", "/"), verified: verifiedCompact, note: "You" },
   ];
   const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges, quest.customQuestSummaries));
   const adminQuestChoices = getMultiplayerQuestChoices(challenges, customQuests, quest.customQuestSummaries);
@@ -2042,8 +2042,8 @@ function JoinedMultiplayerQuestModal({
             <>
               <View style={compactStyles.multiplayerScoreGrid}>
                 <View style={compactStyles.multiplayerScoreTile}>
-                  <Text style={compactStyles.multiplayerScoreLabel}>Your points</Text>
-                  <Text style={compactStyles.multiplayerScoreValue}>{points}</Text>
+                  <Text style={compactStyles.multiplayerScoreLabel}>Completed</Text>
+                  <Text style={compactStyles.multiplayerScoreValue}>{verified.replace(" / ", "/")}</Text>
                 </View>
                 <View style={compactStyles.multiplayerScoreTile}>
                   <Text style={compactStyles.multiplayerScoreLabel}>Verified</Text>
@@ -2222,7 +2222,7 @@ function JoinedMultiplayerQuestModal({
                 <Text style={compactStyles.multiplayerRuleLabel}>Players</Text>
                 {leaderboardRows.map((row) => (
                   <View key={`${row.rank}-${row.name}-admin`} style={compactStyles.multiplayerRuleRow}>
-                    <Text style={compactStyles.multiplayerRuleValue}>{row.rank} · {row.name} · {row.points}</Text>
+                    <Text style={compactStyles.multiplayerRuleValue}>{row.rank} · {row.name} · {row.verified}</Text>
                     {row.removable ? (
                       <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${row.name}`} style={compactStyles.detailQuietButton} disabled={busy} onPress={() => removeParticipant(row)}>
                         <Text style={compactStyles.detailQuietButtonText}>Remove player</Text>
@@ -2334,7 +2334,7 @@ function MultiplayerLeaderboardRow({
       <View style={compactStyles.appRowText}>
         <View style={compactStyles.multiplayerLeaderboardTopLine}>
           <Text style={compactStyles.appRowTitle} numberOfLines={1}>{row.name}</Text>
-          <Text style={compactStyles.multiplayerLeaderboardPoints}>{row.points}</Text>
+          <Text style={compactStyles.multiplayerLeaderboardPoints}>{row.verified.replace(" verified", "")}</Text>
         </View>
         {!compact ? <Text style={compactStyles.appRowMeta} numberOfLines={1}>{row.provider}</Text> : null}
         <View style={compactStyles.multiplayerProgressTrack}>
@@ -2542,7 +2542,6 @@ function CompletionCelebrationOverlay({
           <Text style={compactStyles.celebrationTitle}>{unlock.challengeTitle}</Text>
           <Text style={compactStyles.celebrationBadge}>Coat of Arms: {unlock.badgeName}</Text>
           <Text style={compactStyles.celebrationFlavor}>{unlock.flavorLine}</Text>
-          {unlock.multiplayerPointsAwarded ? <Text style={compactStyles.celebrationMeta}>{unlock.multiplayerPointsAwarded} added to this Multiplayer Side Quest.</Text> : null}
           {unlock.extraCompletedCount ? <Text style={compactStyles.celebrationMeta}>+{unlock.extraCompletedCount} more Side Quest{unlock.extraCompletedCount === 1 ? "" : "s"} completed in this refresh.</Text> : null}
 
 
@@ -2975,14 +2974,14 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
       id: challenge.id,
       title: challenge.title,
       meta: challenge.objective,
-      status: `+${challenge.reward}`,
+      status: "Official",
       imageSource: getChallengeCoatImageSource(challenge),
     })),
     ...Array.from(customById.values()).map((quest) => ({
       id: quest.id,
       title: quest.title,
       meta: `Custom · ${getCustomVisibilityLabel(quest.visibility)} · ${cleanCustomRuleSummaryText(quest.summary)}`,
-      status: "+100",
+      status: "Custom",
       imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
     })),
   ];
@@ -4155,9 +4154,9 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
         <View style={compactStyles.metricGrid}>
           <CompactMetric label="Completed" value={`${completedCount}`} />
           <CompactMetric label="Proofs" value={`${proofCount}`} />
-          <CompactMetric label="Points" value={`${account.progress.totalRewardPoints}`} />
+          <CompactMetric label="Coat of Arms" value={`${completedCount + multiplayerTrophyCount}`} />
         </View>
-        <Text style={compactStyles.micro}>Coats earned: {completedCount + multiplayerTrophyCount} · Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
+        <Text style={compactStyles.micro}>Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
       </View>
     </AppSection>
   );
@@ -4233,7 +4232,7 @@ function CompactQuestRow({ challenge, active, completed, onPress }: { challenge:
         <Text style={compactStyles.rowMeta} numberOfLines={1}>{challenge.objective}</Text>
       </View>
       <View style={compactStyles.questPill}>
-        <Text style={compactStyles.questPillText}>{completed ? "Done" : active ? "Now" : `+${challenge.reward}`}</Text>
+        <Text style={compactStyles.questPillText}>{completed ? "Done" : active ? "Now" : "Coat"}</Text>
       </View>
     </Pressable>
   );
@@ -4339,8 +4338,8 @@ function HomeScreen({
           <Text style={styles.sectionTitle}>{signedInAccount?.activeQuest ? signedInAccount.activeQuest.title : "No active Solo Side Quest yet."}</Text>
           <Text style={styles.sectionBody}>{signedInAccount?.activeQuest ? "Open the active Side Quest page for rules, badge details, and the next weird chess Side Quest." : "Choose one Solo Side Quest first so My Side Quests knows which weird rule to judge after your next public game."}</Text>
           <View style={styles.scoreboardRow}>
-            <BigScore label="Points" value={`${signedInAccount?.progress.totalRewardPoints ?? 0}`} />
-            <BigScore label="Coats" value={`${signedInAccount?.progress.totalCompletedChallenges ?? 0}`} />
+            <BigScore label="Completed" value={`${signedInAccount?.progress.totalCompletedChallenges ?? 0}`} />
+            <BigScore label="Coat of Arms" value={`${signedInAccount?.progress.totalCompletedChallenges ?? 0}`} />
             <BigScore label="Proofs" value={`${signedInAccount?.progress.proofReceiptCount ?? 0}`} />
           </View>
         </View>
@@ -5766,8 +5765,8 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
       {active && !completed ? <Text style={styles.activeQuestStampText}>Active Side Quest</Text> : null}
       {completed ? <Text style={styles.completedQuestStampText}>Side Quest completed</Text> : null}
       <View style={styles.questCardMetaMobile}>
-        <Text style={styles.questPointsMobile}>+{challenge.reward} pts</Text>
         <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
+        <Text style={styles.questPointsMobile}>Coat of Arms</Text>
       </View>
       <View style={styles.challengeCardTitleRowMobile}>
         <View style={styles.challengeCardBadgeMobile}>
@@ -6067,7 +6066,7 @@ function CompletedQuestProofCard({
   onAccountUpdated: AccountUpdatedCallback;
 }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
-  const shareCopy = `I completed “${challenge.title}” in the Side Quest Chess app. ${completedQuest.badgeName} unlocked. +${completedQuest.reward} points.`;
+  const shareCopy = `I completed “${challenge.title}” in the Side Quest Chess app. ${completedQuest.badgeName} unlocked.`;
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [shareStatus, setShareStatus] = useState<string | null>(null);
 
@@ -6121,12 +6120,12 @@ function CompletedQuestProofCard({
         <Text style={compactStyles.proofScrollTitle}>The clerks accept this proof.</Text>
         <Text style={compactStyles.proofScrollCopy}>{buildMobileVictoryScrollCopy(challenge)}</Text>
         <View style={compactStyles.proofScrollRule} />
-        <Text style={compactStyles.proofScrollMeta}>+{completedQuest.reward} points · {completedQuest.badgeName}</Text>
+        <Text style={compactStyles.proofScrollMeta}>{completedQuest.badgeName} unlocked</Text>
       </View>
 
       <VictoryProofBoard proof={completedQuest} />
 
-      <Pressable accessibilityRole="button" accessibilityLabel="View proof details" style={compactStyles.detailPrimaryButton} onPress={() => Alert.alert("Proof details", `${challenge.title} is confirmed in the app. ${completedQuest.badgeName} unlocked for +${completedQuest.reward} points.`)}>
+      <Pressable accessibilityRole="button" accessibilityLabel="View proof details" style={compactStyles.detailPrimaryButton} onPress={() => Alert.alert("Proof details", `${challenge.title} is confirmed in the app. ${completedQuest.badgeName} unlocked.`)}>
         <Text style={compactStyles.detailPrimaryButtonText}>Proof details</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Share proof" style={compactStyles.detailSecondaryButton} onPress={() => void shareProof()}>
@@ -6433,8 +6432,8 @@ function AccountShell({
         <Text style={styles.sectionTitle}>{signedInAccount.completedQuests.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</Text>
         <Text style={styles.sectionBody}>{signedInAccount.completedQuests.length ? "Officially impressive. Socially complicated. Please admire responsibly." : "No tiny heraldic paperwork yet. The shame is currently very organized."}</Text>
         <View style={styles.scoreboardRow}>
-          <BigScore label="Points" value={`${signedInAccount.progress.totalRewardPoints}`} />
-          <BigScore label="Coats" value={`${signedInAccount.progress.totalCompletedChallenges}`} />
+          <BigScore label="Completed" value={`${signedInAccount.progress.totalCompletedChallenges}`} />
+          <BigScore label="Coat of Arms" value={`${signedInAccount.progress.totalCompletedChallenges}`} />
           <BigScore label="Proofs" value={`${signedInAccount.progress.proofReceiptCount}`} />
         </View>
         <CompletedQuestShelf account={signedInAccount} />
@@ -6577,20 +6576,20 @@ function CompletedQuestShelf({ account }: { account: MobileAccountState }) {
     return (
       <View style={styles.noticeStrip}>
         <Text style={styles.noticeIcon}>♜</Text>
-        <Text style={styles.noticeCopy}>No completed coats yet. Finish one quest and this turns into a mobile trophy shelf.</Text>
+        <Text style={styles.noticeCopy}>No completed Coat of Arms yet. Finish one Side Quest and this turns into a mobile trophy shelf.</Text>
       </View>
     );
   }
 
   return (
     <View style={styles.trophyShelf}>
-      <Text style={styles.eyebrow}>Recent coats</Text>
+      <Text style={styles.eyebrow}>Recent Coat of Arms</Text>
       {account.completedQuests.slice(0, 3).map((quest) => (
         <View key={quest.id} style={styles.trophyRow}>
           <View style={styles.trophyBadge}>{quest.badgeImageUrl ? <Image source={{ uri: absoluteAssetUrl(quest.badgeImageUrl) }} style={styles.trophyImage} resizeMode="contain" /> : <Text style={styles.trophyGlyph}>♛</Text>}</View>
           <View style={styles.trophyCopy}>
             <Text style={styles.trophyTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
-            <Text style={styles.trophyMeta}>{quest.badgeName} · +{quest.reward}</Text>
+            <Text style={styles.trophyMeta}>{quest.badgeName} unlocked</Text>
           </View>
         </View>
       ))}
@@ -6764,7 +6763,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         playersLabel: "2 players",
         timeLeftLabel: "2d left",
         positionLabel: "#2",
-        pointsLabel: "1,800 pts",
+        pointsLabel: "",
         verifiedLabel: "2 / 4",
         questTitles: ["Queen? Never Heard of Her", "Knightmare Mode", "Rookless Rampage", "One Bishop to Rule Them All"],
         completedQuestTitles: ["Queen? Never Heard of Her", "Knightmare Mode"],
@@ -6772,11 +6771,11 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Games allowed", value: "Lichess or Chess.com" },
           { label: "Variant", value: "Standard chess only" },
           { label: "Proof", value: "Fresh public games inside this window" },
-          { label: "Winner", value: "First to complete all quests wins. If nobody finishes, highest points at the deadline wins." },
+          { label: "Winner", value: "First to complete all included Side Quests wins. If nobody finishes, best completion progress at the deadline wins." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "2,400 pts", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", points: "1,800 pts", verified: "2/4 verified", note: "You" },
+          { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", points: "2/4", verified: "2/4 verified", note: "You" },
         ],
       },
     ],
@@ -6795,11 +6794,11 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Games allowed", value: "Lichess or Chess.com" },
           { label: "Variant", value: "Standard chess only" },
           { label: "Proof", value: "Fresh public games inside this window" },
-          { label: "Winner", value: "Highest points when time expires." },
+          { label: "Winner", value: "Best completion progress when time expires." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Mira", provider: "lichess · miragambit", points: "600 pts", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Jon", provider: "chess.com · jonforks", points: "0 pts", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#1", name: "Mira", provider: "lichess · miragambit", points: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Jon", provider: "chess.com · jonforks", points: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
         ],
       },
       {
@@ -6812,7 +6811,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         timeLeftLabel: "2d left",
         positionLabel: "#4",
         joinState: "Joined",
-        pointsLabel: "420 pts",
+        pointsLabel: "",
         verifiedLabel: "1 / 2",
         questTitles: ["No Castle Club", "Early King Walk"],
         completedQuestTitles: ["Early King Walk"],
@@ -6820,11 +6819,11 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Games allowed", value: "Lichess or Chess.com" },
           { label: "Variant", value: "Standard chess only" },
           { label: "Proof", value: "Fresh public games inside this window" },
-          { label: "Winner", value: "Highest points when time expires." },
+          { label: "Winner", value: "Best completion progress when time expires." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Greta", provider: "lichess · gretafork", points: "900 pts", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", points: "420 pts", verified: "1/2 verified", note: "You" },
+          { rank: "#1", name: "Greta", provider: "lichess · gretafork", points: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", points: "1/2", verified: "1/2 verified", note: "You" },
         ],
       },
       {
@@ -6841,11 +6840,11 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Games allowed", value: "Lichess or Chess.com" },
           { label: "Variant", value: "Standard chess only" },
           { label: "Proof", value: "Fresh public games inside this window" },
-          { label: "Winner", value: "Highest points when time expires." },
+          { label: "Winner", value: "Best completion progress when time expires." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", points: "300 pts", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", points: "0 pts", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", points: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", points: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
         ],
       },
     ],
