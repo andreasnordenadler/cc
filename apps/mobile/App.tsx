@@ -3576,11 +3576,11 @@ function QuestBoardDashboard({
       <View style={compactStyles.appSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
-          <Text style={compactStyles.sectionAction}>Coming next</Text>
+          <Text style={compactStyles.sectionAction}>Browse</Text>
         </View>
         <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>Public community browsing is not open yet.</Text>
-          <Text style={compactStyles.communityEmptyCopy}>User-generated public Side Quests will live here, separate from SQC Official content, with search and safety controls before we expose the full feed.</Text>
+          <Text style={compactStyles.communityEmptyTitle}>No Community Side Quests to show yet.</Text>
+          <Text style={compactStyles.communityEmptyCopy}>Published player-created Side Quests appear here, separate from SQC Official quests.</Text>
         </View>
       </View>
 

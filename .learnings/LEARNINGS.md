@@ -830,3 +830,25 @@ When adding SQC discovery hierarchy, keep Home as simple routing (`Solo Side Que
 - Related Files: apps/mobile/App.tsx
 - Tags: sqc-mobile, home, landing-screens, ux, taxonomy
 ---
+
+## [LRN-20260602-SQC-COMMUNITY-NOT-CLOSED] correction
+
+**Logged**: 2026-06-02T20:17:00+02:00
+**Priority**: high
+**Status**: applied
+**Area**: frontend
+
+### Summary
+Do not frame SQC Community content as "not open yet" when it is a product category.
+
+### Details
+Andreas objected to Solo landing copy saying Community Side Quests were not open yet. That wording makes Community sound closed, broken, or unavailable. Community should be presented as a normal browse category; if there are no items, use a neutral empty state such as `No Community Side Quests to show yet` and explain that published player-created Side Quests appear there.
+
+### Suggested Action
+For empty Community sections, avoid launch-status placeholders (`not open yet`, `coming next`, `before we expose...`). Use neutral empty states and preserve Community as a first-class category.
+
+### Metadata
+- Source: user_feedback
+- Related Files: apps/mobile/App.tsx
+- Tags: sqc-mobile, community, empty-state, ux-copy
+---

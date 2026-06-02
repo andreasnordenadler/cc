@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Remove closed/broken Community placeholder wording from SQC Mobile Solo landing.
+  - added_at: 2026-06-02 20:08 Europe/Stockholm
+  - completed_at: 2026-06-02 20:17 Europe/Stockholm
+  - source: Andreas challenged why the app said Community Side Quests were `not open yet`; this wrongly framed Community as closed/broken instead of a normal browse category.
+  - scope: Solo landing `Community Side Quests` now uses `Browse` in the header and the empty state says `No Community Side Quests to show yet.` with copy `Published player-created Side Quests appear here, separate from SQC Official quests.`
+  - proof: v183 mobile typecheck, focused ESLint, `pnpm quest:release-gate`, `pnpm build`, Android `:app:lintRelease :app:assembleRelease`, APK install/launch, and emulator Solo landing scroll verification passed. UI dump confirmed the Community section no longer contains `not open yet` or `Coming next` wording.
+
 - [x] Clarify SQC Mobile Home routing vs landing-screen taxonomy.
   - added_at: 2026-06-02 19:50 Europe/Stockholm
   - completed_at: 2026-06-02 20:02 Europe/Stockholm
