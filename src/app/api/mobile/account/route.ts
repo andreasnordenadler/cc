@@ -248,6 +248,16 @@ export async function GET(request: Request) {
     });
   const publicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
   const closedPublicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status === "Finished").slice(0, 12);
+  const customSideQuestsWithStats = customSideQuests.map((quest) => ({
+    ...quest,
+    stats: buildCustomQuestStats({
+      questId: quest.id,
+      attempts,
+      completedSet,
+      activeChallengeId: activeChallenge?.id ?? null,
+      groupQuests: dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]),
+    }),
+  }));
 
   return NextResponse.json({
     apiVersion: 1,
@@ -271,7 +281,7 @@ export async function GET(request: Request) {
       totalRewardPoints: progress.totalRewardPoints,
       proofReceiptCount: attempts.length,
     },
-    customSideQuests,
+    customSideQuests: customSideQuestsWithStats,
     activeQuest: activeChallenge && activeChallengeRecord
       ? {
           id: activeChallengeRecord.id,
@@ -433,6 +443,37 @@ function buildLeaderboardRows(
       note: participant.userId === userId ? "You" : "",
       removable: participant.userId !== userId,
     }));
+}
+
+function dedupeGroupQuests(groupQuests: ServerGroupQuest[]) {
+  const byId = new Map<string, ServerGroupQuest>();
+  for (const quest of groupQuests) byId.set(quest.id, quest);
+  return [...byId.values()];
+}
+
+function buildCustomQuestStats({
+  questId,
+  attempts,
+  completedSet,
+  activeChallengeId,
+  groupQuests,
+}: {
+  questId: string;
+  attempts: ChallengeAttempt[];
+  completedSet: Set<string>;
+  activeChallengeId: string | null;
+  groupQuests: ServerGroupQuest[];
+}) {
+  const soloAttempts = attempts.filter((attempt) => (attempt.challengeId ?? attempt.id?.split(":")[0]) === questId).length;
+  const lineups = groupQuests.filter((quest) => quest.questIds.includes(questId));
+  return {
+    soloAttempts,
+    soloSelections: activeChallengeId === questId ? 1 : 0,
+    soloCompletions: completedSet.has(questId) ? 1 : 0,
+    multiplayerLineups: lineups.length,
+    multiplayerAttempts: lineups.reduce((total, quest) => total + quest.participants.length, 0),
+    multiplayerFulfillments: lineups.reduce((total, quest) => total + quest.participants.filter((participant) => participant.completedQuestIds?.includes(questId)).length, 0),
+  };
 }
 
 function getLatestAttemptForChallenge(metadata: UserMetadataRecord, challengeId?: string) {

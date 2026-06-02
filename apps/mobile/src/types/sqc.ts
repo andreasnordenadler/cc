@@ -109,6 +109,14 @@ export type MobileCustomSideQuest = {
   createdAt: string;
   updatedAt: string;
   badgeImageUrl?: string | null;
+  stats?: {
+    soloAttempts: number;
+    soloSelections: number;
+    soloCompletions: number;
+    multiplayerLineups: number;
+    multiplayerAttempts: number;
+    multiplayerFulfillments: number;
+  };
 };
 
 export type MobileAccountState = {

@@ -124,6 +124,7 @@ type CustomLibraryQuest = {
   visibility?: "private" | "public";
   lifecycle?: "draft" | "published" | "archived";
   badgeImageUrl?: string | null;
+  stats?: MobileCustomSideQuest["stats"];
 };
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
@@ -2931,6 +2932,11 @@ function getCustomLibraryMeta(quest: Pick<CustomLibraryQuest, "summary" | "visib
   return [quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Published", getCustomVisibilityLabel(quest.visibility), quest.summary].filter(Boolean).join(" · ");
 }
 
+function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
+  if (!stats) return "No stats yet";
+  return `Solo ${stats.soloAttempts} attempts / ${stats.soloCompletions} completions · Multiplayer ${stats.multiplayerLineups} lineups / ${stats.multiplayerFulfillments} fulfills`;
+}
+
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
   return badgeImageUrl ? { uri: absoluteAssetUrl(badgeImageUrl) } : SQC_COAT_OF_ARMS_ASSET;
 }
@@ -3252,7 +3258,7 @@ function QuestBoardDashboard({
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
-  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
+  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedIn ? signedIn.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
@@ -3432,7 +3438,7 @@ function QuestBoardDashboard({
         {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
             {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={getCustomLibraryMeta(draft)} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+              <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
             ))}
           </View>
         ) : null}
@@ -4410,7 +4416,7 @@ function SideQuestsScreen({
   const [customRequirements, setCustomRequirements] = useState<CustomRuleRequirement[]>([]);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
-  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null })) : [];
+  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedInAccount ? signedInAccount.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
@@ -4568,7 +4574,7 @@ function SideQuestsScreen({
         <Text style={styles.sectionBody}>Custom Side Quests are separate from Multiplayer and will use reusable verifier rule blocks.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
-            <AppRow key={draft.id} title={draft.name} meta={getCustomLibraryMeta(draft)} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+            <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
           )) : <AppRow title="No custom Side Quests yet" meta="Create one from safe rule blocks. No AI, no code, no multiplayer required." status="Create" imageSource={SQC_COAT_OF_ARMS_ASSET} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>
@@ -5829,6 +5835,14 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollCopy}>{quest.visibility === "public" ? "Marked public for future discovery surfaces. Publishing does not expose the private verifier config to other players." : "Visible only in your account. You can pick it for Solo or include it in Multiplayer Side Quests you create; other players see only the safe title and summary."}</Text>
             <View style={compactStyles.proofScrollRule} />
             <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Solo and Multiplayer eligible" : "Not eligible until published"}</Text>
+          </View>
+
+          <View style={compactStyles.proofScrollCard}>
+            <Text style={compactStyles.proofScrollEyebrow}>Side Quest stats</Text>
+            <Text style={compactStyles.proofScrollTitle}>Usage so far</Text>
+            <Text style={compactStyles.proofScrollCopy}>{getCustomStatsLine(quest.stats)}</Text>
+            <View style={compactStyles.proofScrollRule} />
+            <Text style={compactStyles.proofScrollMeta}>Stats are account-scoped and never expose private player details.</Text>
           </View>
 
           {completed && onViewResult ? (
