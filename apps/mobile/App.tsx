@@ -926,6 +926,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
 ];
 
 const SQC_COAT_OF_ARMS_ASSET = require("./assets/sqc-coat-of-arms.png") as ImageSourcePropType;
+const SQC_CUSTOM_SIDE_QUEST_CREST_ASSET = require("./assets/badges/custom-side-quest-crest.png") as ImageSourcePropType;
 const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
 const SQC_MULTIPLAYER_SEAL_ASSET = require("./assets/stamps/sqc-multiplayer-seal.png") as ImageSourcePropType;
 const getMultiplayerSealSource = (quest?: { official?: boolean | null; id?: string | null } | null) => (quest?.official || quest?.id?.startsWith("official-") ? SQC_BLACK_SEAL_ASSET : SQC_MULTIPLAYER_SEAL_ASSET);
@@ -2988,7 +2989,9 @@ function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
 }
 
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
-  return { uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(badgeImageUrl)) };
+  const badgePath = getSingleCustomQuestBadgePath(badgeImageUrl);
+  if (badgePath.includes("custom-side-quest-crest.png")) return SQC_CUSTOM_SIDE_QUEST_CREST_ASSET;
+  return { uri: absoluteAssetUrl(badgePath) };
 }
 
 function getSingleCustomQuestBadgePath(badgeImageUrl?: string | null) {
@@ -3186,7 +3189,9 @@ function getBrowseStatusTone(status: string): "green" | "gold" | "orange" | "dan
 
 function getRowImageSource(url: string | null): ImageSourcePropType | null {
   if (!url) return null;
-  return { uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(url)) };
+  const badgePath = getSingleCustomQuestBadgePath(url);
+  if (badgePath.includes("custom-side-quest-crest.png")) return SQC_CUSTOM_SIDE_QUEST_CREST_ASSET;
+  return { uri: absoluteAssetUrl(badgePath) };
 }
 
 function FeedSection({ title, children }: { title: string; children: ReactNode }) {
@@ -3516,7 +3521,7 @@ function QuestBoardDashboard({
         {visibleCustomDrafts.length ? (
           <View style={compactStyles.appRows}>
             {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+              <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
             ))}
           </View>
         ) : null}
@@ -4675,7 +4680,7 @@ function SideQuestsScreen({
         <Text style={styles.sectionBody}>Create your own chess challenges, then use them in Solo or Multiplayer.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
-            <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getRowImageSource(draft.badgeImageUrl ?? null)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+            <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
           )) : <AppRow title="No custom Side Quests yet" meta="Create your own chess challenge and give it a Coat of Arms." status="Create" imageSource={getCustomQuestImageSource(null)} variant="seal" onPress={() => setCustomCreateOpen(true)} />}
         </View>
       </View>
@@ -5845,7 +5850,7 @@ function CustomSideQuestDetailModal({
   const [busy, setBusy] = useState(false);
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
   if (!quest) return null;
-  const badgeSource = getRowImageSource(quest.badgeImageUrl ?? null) ?? SQC_COAT_OF_ARMS_ASSET;
+  const badgeSource = getCustomQuestImageSource(quest.badgeImageUrl);
   const lifecycle = quest.lifecycle ?? "published";
   const canStart = lifecycle === "published";
   const statusLabel = getCustomLifecycleStatus(quest, active ? quest.id : null, completed);
