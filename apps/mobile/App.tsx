@@ -2657,12 +2657,12 @@ function AccountIdentityLine({ name, lichessUsername, chessComUsername }: { name
   );
 }
 
-function ReadinessChip({ label, value, onPress }: { label: string; value: string | null; onPress: () => void }) {
+function ReadinessChip({ label, value }: { label: string; value: string | null }) {
   return (
-    <Pressable accessibilityRole="button" style={[compactStyles.readinessChip, !value && compactStyles.readinessChipMissing]} onPress={onPress}>
+    <View style={[compactStyles.readinessChip, !value && compactStyles.readinessChipMissing]}>
       <Text style={compactStyles.readinessLabel}>{label}</Text>
       <Text style={compactStyles.readinessValue} numberOfLines={1}>{value ?? "Add"}</Text>
-    </Pressable>
+    </View>
   );
 }
 
@@ -4006,7 +4006,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <View style={compactStyles.stack}>
         <View style={compactStyles.heroPanel}>
           <View style={compactStyles.topLine}>
-            <Text style={compactStyles.kicker}>Account</Text>
+            <Text style={compactStyles.kicker}>My SQC</Text>
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
@@ -4036,7 +4036,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     <View style={compactStyles.stack}>
       <View style={compactStyles.heroPanel}>
         <View style={compactStyles.topLine}>
-          <Text style={compactStyles.kicker}>Account</Text>
+          <Text style={compactStyles.kicker}>My SQC</Text>
         </View>
         <View style={compactStyles.accountIdentityCard}>
           <View style={compactStyles.accountIdentityAvatar}>
@@ -4055,14 +4055,15 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Text style={compactStyles.accountInfoText}>Last login: {formatAccountDate(accountState.profile.lastSignInAt)}</Text>
           </View>
         </View>
-        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Ready for latest-game checks." : "Add a public chess username before checking quest proof."}</Text>
-        <View style={compactStyles.metricGrid}>
-          <CompactMetric label="Lichess" value={accountState.chessAccounts.lichessUsername ? "✓" : "-"} />
-          <CompactMetric label="Chess.com" value={accountState.chessAccounts.chessComUsername ? "✓" : "-"} />
+        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. SQC can read your public Lichess / Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
+        <View style={compactStyles.readinessRow}>
+          <ReadinessChip label="Lichess" value={accountState.chessAccounts.lichessUsername} />
+          <ReadinessChip label="Chess.com" value={accountState.chessAccounts.chessComUsername} />
         </View>
       </View>
-      <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
+      <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
+      <AccountProgressStatsSection account={accountState} onSelectTab={onSelectTab} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
@@ -4087,77 +4088,78 @@ function AccountSoloSideQuestSection({
   const activeOfficialChallenge = account.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === account.activeQuest?.id) ?? null : null;
   const activeCustomQuest = account.activeQuest?.id ? account.customSideQuests?.find((quest) => quest.id === account.activeQuest?.id) ?? null : null;
   const activeChallenge = activeOfficialChallenge ?? (account.activeQuest ? buildCustomActiveChallenge(account.activeQuest, activeCustomQuest) : null);
-  const activeCoatSource = activeChallenge
-    ? getChallengeCoatImageSource(activeChallenge)
-    : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
   const activeQuestReceipt = account.latestReceipt?.challengeId === account.activeQuest?.id ? account.latestReceipt : null;
   const latestCheckText = activeQuestReceipt?.headline ? normalizeCheckHeadline(activeQuestReceipt.headline) : null;
   const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
-  const activeStatus = account.activeQuest?.completed || latestCheckPassed ? "Completed" : account.activeQuest ? "In progress" : "No active Side Quest";
-  const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
-  const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? account.activeQuest?.verifiedAt);
-  const activeQuestPickedLabel = formatQuestPickedDate(account.activeQuest?.startedAt);
-  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a new public game on Lichess or Chess.com that matches this Side Quest.";
+  const soloStatus = account.activeQuest?.completed || latestCheckPassed ? "Completed" : account.activeQuest ? "Active" : "None";
+  const soloTitle = account.activeQuest?.title ?? "Choose a Solo Side Quest";
+  const soloMeta = account.activeQuest
+    ? `${activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Waiting for your next public game."} · ${getProofCheckDisplay(formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? account.activeQuest.verifiedAt), activeQuestReceipt)}`
+    : "Pick one Side Quest to judge against your next public game.";
+  const hostedMultiplayer = account.activeGroupQuests.filter((quest) => quest.isOwner).length;
+  const joinedMultiplayer = account.activeGroupQuests.length - hostedMultiplayer;
+  const multiplayerStatus = account.activeGroupQuests.length ? `${account.activeGroupQuests.length} active` : "Open";
+  const multiplayerMeta = account.activeGroupQuests.length
+    ? `${hostedMultiplayer} hosted · ${joinedMultiplayer} joined`
+    : "Join or create a Multiplayer Side Quest.";
+  const customQuests = account.customSideQuests ?? [];
+  const publishedCustom = customQuests.filter((quest) => quest.lifecycle !== "archived" && quest.lifecycle !== "draft").length;
+  const draftCustom = customQuests.filter((quest) => quest.lifecycle === "draft").length;
+  const customMeta = customQuests.length
+    ? `${publishedCustom} playable · ${draftCustom} draft${draftCustom === 1 ? "" : "s"} · private by default`
+    : "Build a private custom Side Quest for solo or multiplayer use.";
 
   return (
-      <View style={compactStyles.appSection}>
-        <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>My Solo Side Quest</Text>
-          
+    <AppSection title="Side Quests" action="Open" onAction={() => onSelectTab("sideQuests")}>
+      <AppRow
+        title={`Solo: ${soloTitle}`}
+        meta={soloMeta}
+        status={soloStatus}
+        imageSource={activeChallenge ? getChallengeCoatImageSource(activeChallenge) : SQC_COAT_OF_ARMS_ASSET}
+        glowSource={activeChallenge ? getChallengeCoatGlowSource(activeChallenge.id) : null}
+        glowColor={activeChallenge?.badgeIdentity.colors.glow}
+        overlaySeal={account.activeQuest?.completed || latestCheckPassed}
+        onPress={() => account.activeQuest?.id ? onSelectChallenge(account.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}
+      />
+      <AppRow
+        title="Multiplayer Side Quests"
+        meta={multiplayerMeta}
+        status={multiplayerStatus}
+        imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+        variant="seal"
+        onPress={() => onSelectTab("multiplayerSideQuests")}
+      />
+      <AppRow
+        title="Custom Side Quests"
+        meta={customMeta}
+        status={customQuests.length ? `${customQuests.length} made` : "Create"}
+        imageSource={getCustomQuestImageSource(null)}
+        variant="seal"
+        onPress={() => onSelectTab("sideQuests")}
+      />
+    </AppSection>
+  );
+}
+
+function AccountProgressStatsSection({ account, onSelectTab }: { account: Extract<MobileAccountResponse, { authenticated: true }>; onSelectTab: (tab: AppTab) => void }) {
+  const completedCount = account.completedQuests.length;
+  const multiplayerTrophyCount = account.multiplayerTrophies?.length ?? 0;
+  const customQuests = account.customSideQuests ?? [];
+  const customTries = customQuests.reduce((sum, quest) => sum + (quest.stats?.soloAttempts ?? 0) + (quest.stats?.multiplayerAttempts ?? 0), 0);
+  const customWins = customQuests.reduce((sum, quest) => sum + (quest.stats?.soloCompletions ?? 0) + (quest.stats?.multiplayerFulfillments ?? 0), 0);
+  const proofCount = account.progress.proofReceiptCount;
+
+  return (
+    <AppSection title="Progress & Stats" action="Details" onAction={() => onSelectTab("coatOfArms")}>
+      <View style={compactStyles.statsPanel}>
+        <View style={compactStyles.metricGrid}>
+          <CompactMetric label="Completed" value={`${completedCount}`} />
+          <CompactMetric label="Proofs" value={`${proofCount}`} />
+          <CompactMetric label="Points" value={`${account.progress.totalRewardPoints}`} />
         </View>
-      {account.activeQuest ? (
-        <View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest" style={compactStyles.freshPanel} onPress={() => onSelectChallenge(account.activeQuest?.id ?? "", "sideQuests")}>
-          {activeStatus === "Completed" ? (
-            <View style={compactStyles.currentStatusRow}>
-              <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
-            </View>
-          ) : null}
-          <View style={compactStyles.currentQuestRow}>
-            <View style={compactStyles.coatMarker}>
-              {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatMarkerGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
-              <Image source={activeCoatSource} style={compactStyles.coatMarkerImage} resizeMode="contain" />
-              {account.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatMarkerSeal} resizeMode="contain" /> : null}
-            </View>
-            <View style={compactStyles.currentQuestText}>
-              <Text style={compactStyles.currentQuestTitle} numberOfLines={2}>{account.activeQuest.title}</Text>
-              <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{activeQuestGoal}</Text>
-            </View>
-          </View>
-          <View style={compactStyles.currentQuestInfoGrid}>
-            <View style={compactStyles.currentQuestInfoRow}>
-              <Text style={compactStyles.currentQuestInfoLabel}>Picked</Text>
-              <Text style={compactStyles.currentQuestInfoValue}>{activeQuestPickedLabel}</Text>
-            </View>
-            <View style={compactStyles.currentQuestInfoRow}>
-              <Text style={compactStyles.currentQuestInfoLabel}>What to do</Text>
-              <Text style={compactStyles.currentQuestInfoValue} numberOfLines={2}>{activeQuestProofNeeded}</Text>
-            </View>
-            <View style={compactStyles.currentQuestInfoRow}>
-              <Text style={compactStyles.currentQuestInfoLabel}>Last proof check</Text>
-              <Text style={compactStyles.currentQuestInfoValue}>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
-            </View>
-          </View>
-          {activeStatus === "Completed" && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} /> : null}
-          {activeStatus !== "Completed" && activeQuestReceipt && isFailedReceipt(activeQuestReceipt) ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} /> : null}
-          {activeStatus !== "Completed" && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary /> : null}
-        </Pressable>
-        </View>
-      ) : (
-        <View style={compactStyles.emptyQuestPanel}>
-          <View style={compactStyles.emptyQuestHeroRow}>
-            <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
-            <View style={compactStyles.currentQuestText}>
-              <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
-              <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
-            </View>
-          </View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Quests" style={compactStyles.primaryAction} onPress={() => onSelectTab("sideQuests")}>
-            <Text style={compactStyles.primaryActionText}>Browse Solo Quests</Text>
-          </Pressable>
-        </View>
-      )}
-    </View>
+        <Text style={compactStyles.micro}>Coats earned: {completedCount + multiplayerTrophyCount} · Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
+      </View>
+    </AppSection>
   );
 }
 
@@ -7252,6 +7254,7 @@ const compactStyles = StyleSheet.create({
   darkButtonSmall: { flex: 1, alignItems: "center", justifyContent: "center", paddingVertical: 11, paddingHorizontal: 12, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(0,0,0,.22)" },
   darkButtonText: { color: colors.paper, fontWeight: "900", fontSize: 13 },
   scorePanel: { gap: 4, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.2)" },
+  statsPanel: { gap: 9, padding: 10 },
   panelTitle: { color: colors.paper, fontSize: 18, fontWeight: "900", letterSpacing: -.4 },
   statusRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 8, paddingHorizontal: 8, borderRadius: 15, backgroundColor: "rgba(255,247,232,.055)" },
   questRow: { minHeight: 60, flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 7, paddingHorizontal: 8, borderRadius: 15, backgroundColor: "rgba(255,247,232,.055)" },
