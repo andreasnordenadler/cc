@@ -4350,3 +4350,7 @@ Update recurring SQC daily ops scripts/docs to avoid `curl` dependency and avoid
 - Tags: sqc, ops, cli
 
 ---
+
+## 2026-06-02 — Regex word-boundary escape bug in mobile copy normalization
+- During SQC Mobile v175 polish, an attempted `/\b...\b/` replacement path briefly produced literal backspace control characters in `apps/mobile/App.tsx`, so persisted custom summary copy still showed `Game result must be win.` in emulator.
+- Emulator smoke caught it before release. Fix: inspect generated source around regex replacements and prefer explicit phrase regexes like `/game\s+result\s+must\s+be\s+win\.?/gi` for user-visible copy normalization.
