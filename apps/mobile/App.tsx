@@ -207,14 +207,14 @@ function getReceiptFailureText(receipt?: MobileAccountState["latestReceipt"] | n
 function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | null) {
   if (!receipt) return "Latest-game check done.";
   if (receipt.status === "passed" || receipt.headline?.toLowerCase().includes("passed")) return "Quest completed.";
-  if (isFailedReceipt(receipt)) return "Latest game checked.";
+  if (isFailedReceipt(receipt)) return "That game did not match this Side Quest goal.";
   return "Latest-game check done.";
 }
 
 function getProofCheckDisplay(label: string, receipt?: MobileAccountState["latestReceipt"] | null) {
   if (label === "not yet") return "Not checked yet";
   if (receipt?.status === "passed" || receipt?.headline?.toLowerCase().includes("passed")) return `${label} · completed`;
-  if (isFailedReceipt(receipt)) return `${label} · not completed`;
+  if (isFailedReceipt(receipt)) return "not completed";
   return `${label} · no new eligible game found`;
 }
 
@@ -230,29 +230,25 @@ function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState[
   }
 
   return (
-    <View style={compactStyles.currentFailureMiniBoardFrame}>
-      <View style={compactStyles.currentFailureMiniBoard}>
-        {board.map((square, index) => (
-          <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
-            {square.highlight ? <View style={compactStyles.currentFailureMiniHighlightRing} /> : null}
-            <Text style={[compactStyles.currentFailureMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
-          </View>
-        ))}
-      </View>
+    <View style={compactStyles.currentFailureMiniBoard}>
+      {board.map((square, index) => (
+        <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.failureBoardSquareHighlight : null]}>
+          {square.highlight ? <View style={compactStyles.currentFailureMiniHighlightRing} /> : null}
+          <Text style={[compactStyles.currentFailureMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
+        </View>
+      ))}
     </View>
   );
 }
 
 function ActiveQuestUnavailableMiniBoard() {
   return (
-    <View style={compactStyles.currentFailureMiniBoardFrame}>
-      <View style={compactStyles.currentFailureMiniBoard}>
-        {Array.from({ length: 64 }).map((_, index) => (
-          <View key={`unavailable-${index}`} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
-            {index === 27 ? <MaterialCommunityIcons name="checkerboard" size={13} color="rgba(245,200,106,.5)" /> : null}
-          </View>
-        ))}
-      </View>
+    <View style={compactStyles.currentFailureMiniBoard}>
+      {Array.from({ length: 64 }).map((_, index) => (
+        <View key={`unavailable-${index}`} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
+          {index === 27 ? <MaterialCommunityIcons name="checkerboard" size={13} color="rgba(245,200,106,.5)" /> : null}
+        </View>
+      ))}
     </View>
   );
 }
@@ -313,7 +309,6 @@ function ActiveQuestFailureSummary({ receipt }: { receipt: MobileAccountState["l
     <View style={compactStyles.currentFailurePanel}>
       <ActiveQuestMiniFailureBoard receipt={receipt} />
       <View style={compactStyles.currentFailureCopyBlock}>
-        <Text style={compactStyles.currentFailureTitle}>Latest game checked</Text>
         <Text style={compactStyles.currentFailureCopy} numberOfLines={4}>{failureText}</Text>
       </View>
     </View>
@@ -1615,6 +1610,9 @@ function TodayDashboard({
       <View style={compactStyles.activeSoloSection}>
         <View style={compactStyles.panelHeaderRow}>
           <Text style={compactStyles.freshSectionTitle}>My Active Solo Side Quest</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+            <MaterialCommunityIcons name={actionState.busy ? "sync" : "refresh"} size={17} color={colors.gold} />
+          </Pressable>
         </View>
         {signedIn.activeQuest ? (
           <View>
@@ -1637,7 +1635,10 @@ function TodayDashboard({
             </View>
             <View style={compactStyles.currentQuestMetaStack}>
               <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{activeQuestPickedLabel}</Text>
-              <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Last proof check: </Text>{getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}</Text>
+              <Text style={compactStyles.currentQuestMeta} numberOfLines={2}>
+                <Text style={compactStyles.currentQuestMetaStrong}>Last proof check: </Text>
+                {latestCheckFailed ? <Text style={compactStyles.currentQuestMetaDanger}>not completed</Text> : getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)}
+              </Text>
             </View>
             {actionState.message ? <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
@@ -6983,6 +6984,7 @@ const compactStyles = StyleSheet.create({
   emptyMultiplayerActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   emptyMultiplayerCreateButton: { alignSelf: "center" },
   panelHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  headerIconButton: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(245,200,106,.1)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   currentStatusRow: { flexDirection: "row", justifyContent: "flex-end" },
   freshSectionTitle: { color: colors.paper, fontSize: 15, fontWeight: "900", letterSpacing: -.15 },
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
@@ -6995,6 +6997,7 @@ const compactStyles = StyleSheet.create({
   currentQuestTitle: { color: colors.paper, fontSize: 19, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
   currentQuestMeta: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   currentQuestMetaStrong: { color: colors.gold, fontWeight: "900" },
+  currentQuestMetaDanger: { color: "#ff6f6f", fontWeight: "900" },
   currentQuestSupport: { color: colors.paper, opacity: .82, fontSize: 12, lineHeight: 15, fontWeight: "800" },
   currentQuestMetaStack: { gap: 4, paddingTop: 1 },
   proofCheckMetaRow: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", maxWidth: "100%" },
@@ -7132,12 +7135,12 @@ const compactStyles = StyleSheet.create({
   proofReadySealFrame: { width: 48, height: 48, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,.18)" },
   proofReadySealImage: { width: 46, height: 46 },
   proofReadyCopyBlock: { flex: 1, minWidth: 0, gap: 3 },
-  currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 10, borderRadius: 16, backgroundColor: "rgba(119,43,43,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  currentFailurePanel: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8, padding: 0, borderRadius: 0, backgroundColor: "transparent", borderWidth: 0, borderColor: "transparent" },
   currentProofInlinePanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 2, paddingHorizontal: 1, paddingVertical: 4 },
   currentEmptyBoardPanel: { flexDirection: "row", alignItems: "center", gap: 12, marginTop: 2, paddingHorizontal: 1, paddingVertical: 4 },
   currentFailureMiniBoardFrame: { width: 86, height: 86, flexShrink: 0, padding: 4, borderRadius: 15, backgroundColor: "rgba(18,14,13,.94)", borderWidth: 1, borderColor: "rgba(245,200,106,.4)", shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 5 }, elevation: 3 },
   currentProofMiniBoardFrame: { width: 112, height: 112, flexShrink: 0, padding: 0, borderRadius: 13, backgroundColor: "transparent", borderWidth: 0 },
-  currentFailureMiniBoard: { flex: 1, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 1, borderColor: "rgba(28,19,16,.9)" },
+  currentFailureMiniBoard: { width: 86, height: 86, flexShrink: 0, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 10, borderWidth: 0 },
   currentProofIntegratedBoard: { width: 112, height: 112, flexShrink: 0, flexDirection: "row", flexWrap: "wrap", overflow: "hidden", borderRadius: 9, borderWidth: 0 },
   currentFailureMiniSquare: { width: "12.5%", height: "12.5%", alignItems: "center", justifyContent: "center", position: "relative" },
   currentFailureMiniHighlightRing: { position: "absolute", left: 1, right: 1, top: 1, bottom: 1, borderRadius: 2, borderWidth: 1.5, borderColor: "#79e6ff", backgroundColor: "rgba(255,210,78,.28)" },
