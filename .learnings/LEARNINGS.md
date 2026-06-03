@@ -869,3 +869,9 @@ For empty Community sections, avoid launch-status placeholders (`not open yet`, 
 ## 2026-06-02 — Mobile active-state redesigns must cover sibling states
 - During SQC Mobile v190, the failed proof row was converted to a stacked layout, but emulator QA showed the waiting/no-game state still used the old side-by-side row.
 - Do differently: when redesigning an active-state module, inspect and screenshot all sibling states that share visual components (failed, pending/no-game, completed/proof-ready), not only the named state in the user feedback.
+
+## 2026-06-03 — Clarify SQC website vs mobile before UI patches
+
+- **Category:** correction
+- **What happened:** Andreas said “Too much space above coat of arms. Latest check should display date and time.” I applied it to the SQC website result page, but he intended the SQC Mobile app.
+- **Do differently:** For SQC UI feedback that mentions app-like surfaces or recent mobile work, inspect/fix `apps/mobile` first. If ambiguous, ask “website or mobile?” before deploying web changes.

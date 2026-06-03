@@ -214,7 +214,7 @@ function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | n
 function getProofCheckDisplay(label: string, receipt?: MobileAccountState["latestReceipt"] | null) {
   if (label === "not yet") return "Not checked yet";
   if (receipt?.status === "passed" || receipt?.headline?.toLowerCase().includes("passed")) return `${label} · completed`;
-  if (isFailedReceipt(receipt)) return "not completed";
+  if (isFailedReceipt(receipt)) return label === "not yet" ? "Not checked yet · not completed" : `${label} · not completed`;
   return `${label} · no new eligible game found`;
 }
 
@@ -6972,8 +6972,8 @@ const compactStyles = StyleSheet.create({
   blockerCopy: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
   activeSoloSectionTitle: { color: colors.paper, fontSize: 16, lineHeight: 20, fontWeight: "900", letterSpacing: -.2, textAlign: "center", marginBottom: -2 },
-  activeSoloSection: { gap: 8, padding: 13, paddingTop: 8, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
-  activeSoloRefreshRow: { flexDirection: "row", justifyContent: "flex-end", minHeight: 34 },
+  activeSoloSection: { position: "relative", gap: 8, padding: 13, paddingTop: 8, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  activeSoloRefreshRow: { position: "absolute", top: 8, right: 8, zIndex: 6, flexDirection: "row", justifyContent: "flex-end" },
   activeSoloSummary: { gap: 10, alignItems: "center" },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
   freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4 },
