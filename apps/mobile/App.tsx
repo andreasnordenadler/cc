@@ -123,9 +123,16 @@ type CustomLibraryQuest = {
   config: string;
   visibility?: "private" | "public";
   lifecycle?: "draft" | "published" | "archived";
+  createdAt?: string;
+  updatedAt?: string;
   badgeImageUrl?: string | null;
   stats?: MobileCustomSideQuest["stats"];
 };
+
+type CommunityBrowseView = "discover" | "mine";
+type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
+type CommunityBrowseSort = "popular" | "newest" | "az";
+type CustomLibraryFilter = "all" | "published" | "drafts" | "public" | "archived";
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
@@ -3135,6 +3142,23 @@ function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
   return `Solo: ${stats.soloAttempts} tries, ${stats.soloCompletions} completed · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments}`;
 }
 
+function getCustomQuestPopularity(stats?: MobileCustomSideQuest["stats"]) {
+  if (!stats) return 0;
+  return stats.soloSelections + stats.soloCompletions * 3 + stats.multiplayerLineups * 2 + stats.multiplayerFulfillments * 4;
+}
+
+function getCustomQuestUpdatedMs(quest: Pick<CustomLibraryQuest, "updatedAt" | "createdAt">) {
+  const value = quest.updatedAt ?? quest.createdAt;
+  const parsed = value ? Date.parse(value) : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function customQuestMatchesSearch(quest: Pick<CustomLibraryQuest, "name" | "summary">, search: string) {
+  const needle = search.trim().toLowerCase();
+  if (!needle) return true;
+  return `${quest.name} ${quest.summary}`.toLowerCase().includes(needle);
+}
+
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
   const badgePath = getSingleCustomQuestBadgePath(badgeImageUrl);
   if (badgePath.includes("custom-side-quest-crest.png")) return SQC_CUSTOM_SIDE_QUEST_CREST_ASSET;
@@ -3448,6 +3472,11 @@ function QuestBoardDashboard({
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
   const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
+  const [communityView, setCommunityView] = useState<CommunityBrowseView>("discover");
+  const [communitySearch, setCommunitySearch] = useState("");
+  const [communityFilter, setCommunityFilter] = useState<CommunityBrowseFilter>("all");
+  const [communitySort, setCommunitySort] = useState<CommunityBrowseSort>("popular");
+  const [customLibraryFilter, setCustomLibraryFilter] = useState<CustomLibraryFilter>("all");
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -3468,8 +3497,35 @@ function QuestBoardDashboard({
   const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
-  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
+  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
+  const communityReferenceMs = signedIn?.generatedAt ? Date.parse(signedIn.generatedAt) : 0;
+  const publicCommunityQuests = visibleCustomDrafts.filter((quest) => quest.lifecycle === "published" && quest.visibility === "public");
+  const communityBrowseQuests = publicCommunityQuests
+    .filter((quest) => customQuestMatchesSearch(quest, communitySearch))
+    .filter((quest) => {
+      if (communityFilter === "popular") return getCustomQuestPopularity(quest.stats) > 0;
+      if (communityFilter === "new") return Boolean(communityReferenceMs) && communityReferenceMs - getCustomQuestUpdatedMs(quest) < 1000 * 60 * 60 * 24 * 30;
+      if (communityFilter === "completed") return Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id));
+      return true;
+    })
+    .sort((a, b) => {
+      if (communitySort === "newest") return getCustomQuestUpdatedMs(b) - getCustomQuestUpdatedMs(a);
+      if (communitySort === "az") return a.name.localeCompare(b.name);
+      const popularDelta = getCustomQuestPopularity(b.stats) - getCustomQuestPopularity(a.stats);
+      if (popularDelta !== 0) return popularDelta;
+      return getCustomQuestUpdatedMs(b) - getCustomQuestUpdatedMs(a);
+    });
+  const filteredCustomDrafts = visibleCustomDrafts
+    .filter((quest) => customQuestMatchesSearch(quest, communitySearch))
+    .filter((quest) => {
+      if (customLibraryFilter === "published") return quest.lifecycle === "published";
+      if (customLibraryFilter === "drafts") return quest.lifecycle === "draft";
+      if (customLibraryFilter === "public") return quest.visibility === "public";
+      if (customLibraryFilter === "archived") return quest.lifecycle === "archived";
+      return true;
+    })
+    .sort((a, b) => getCustomQuestUpdatedMs(b) - getCustomQuestUpdatedMs(a));
   const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedIn ? signedIn.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
   const customDetailActive = Boolean(customDetailDraft && activeId === customDetailDraft.id);
@@ -3582,7 +3638,8 @@ function QuestBoardDashboard({
     if (!authBridge.isSignedIn) {
       setCustomDrafts((current) => {
         customRequirementIdCounter.current += 1;
-        const draft: CustomLibraryQuest = { id: `local-custom-${customRequirementIdCounter.current}`, name, summary, config, visibility: "private", lifecycle, badgeImageUrl: badgePreviewUrl };
+        const now = new Date().toISOString();
+        const draft: CustomLibraryQuest = { id: `local-custom-${customRequirementIdCounter.current}`, name, summary, config, visibility: "private", lifecycle, createdAt: now, updatedAt: now, badgeImageUrl: badgePreviewUrl };
         return [draft, ...current].slice(0, 6);
       });
       Alert.alert(lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
@@ -3688,7 +3745,6 @@ function QuestBoardDashboard({
                 title={challenge.title}
                 meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
                 status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : active ? "Active" : completed ? "Completed" : challenge.difficulty}
-                sourceBadge="SQC Official"
                 imageSource={getChallengeCoatImageSource(challenge)}
                 glowSource={getChallengeCoatGlowSource(challenge.id)}
                 glowColor={getSafeBadgeColors(challenge).glow}
@@ -3714,51 +3770,144 @@ function QuestBoardDashboard({
         </View>
       ) : (
         <>
-          <View style={compactStyles.appSection}>
-            <View style={compactStyles.panelHeaderRow}>
-              <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
-              <Text style={compactStyles.sectionAction}>Browse</Text>
-            </View>
-            <View style={compactStyles.communityEmptyPanel}>
-              <Text style={compactStyles.communityEmptyTitle}>No Community Side Quests to show yet.</Text>
-              <Text style={compactStyles.communityEmptyCopy}>Published player-created Side Quests appear here, separate from SQC Official quests.</Text>
-            </View>
+          <View style={compactStyles.communitySubTabs}>
+            {(["discover", "mine"] as CommunityBrowseView[]).map((view) => (
+              <Pressable
+                key={view}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: communityView === view }}
+                style={[compactStyles.communitySubTab, communityView === view && compactStyles.communitySubTabActive]}
+                onPress={() => setCommunityView(view)}
+              >
+                <Text style={[compactStyles.communitySubTabText, communityView === view && compactStyles.communitySubTabTextActive]}>{view === "discover" ? "Discover" : "My Quests"}</Text>
+              </Pressable>
+            ))}
           </View>
 
-          <View style={compactStyles.appSection}>
-            <View style={compactStyles.panelHeaderRow}>
-              <Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
-              <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
-                <Text style={compactStyles.sectionAction}>Create</Text>
-              </Pressable>
+          {communityView === "discover" ? (
+            <View style={compactStyles.appSection}>
+              <View style={compactStyles.panelHeaderRow}>
+                <Text style={compactStyles.freshSectionTitle}>Community Discover</Text>
+                <Text style={compactStyles.sectionAction}>{publicCommunityQuests.length ? `${communityBrowseQuests.length}/${publicCommunityQuests.length}` : "0 public"}</Text>
+              </View>
+              {publicCommunityQuests.length || communitySearch ? (
+                <View style={compactStyles.communityBrowsePanel}>
+                  <View style={compactStyles.communitySearchBox}>
+                    <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
+                    <TextInput
+                      value={communitySearch}
+                      placeholder="Search by name or rule"
+                      placeholderTextColor="rgba(255,247,232,.42)"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      style={compactStyles.communitySearchInput}
+                      onChangeText={setCommunitySearch}
+                    />
+                    {communitySearch ? (
+                      <Pressable accessibilityRole="button" accessibilityLabel="Clear community search" onPress={() => setCommunitySearch("")}>
+                        <MaterialCommunityIcons name="close-circle" size={18} color="rgba(255,247,232,.5)" />
+                      </Pressable>
+                    ) : null}
+                  </View>
+                  <View style={compactStyles.communityControlsRow}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+                      {(["all", "popular", "new", "completed"] as CommunityBrowseFilter[]).map((filter) => (
+                        <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: communityFilter === filter }} style={[compactStyles.communityChip, communityFilter === filter && compactStyles.communityChipActive]} onPress={() => setCommunityFilter(filter)}>
+                          <Text style={[compactStyles.communityChipText, communityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "popular" ? "Popular" : filter === "new" ? "New" : "Completed"}</Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Change community sort" style={compactStyles.communitySortCompact} onPress={() => setCommunitySort(communitySort === "popular" ? "newest" : communitySort === "newest" ? "az" : "popular")}>
+                      <Text style={compactStyles.communitySortCompactText}>{communitySort === "popular" ? "Sort: Top" : communitySort === "newest" ? "Sort: New" : "Sort: A–Z"}</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : null}
+              {communityBrowseQuests.length ? (
+                <View style={compactStyles.sideQuestCatalogRows}>
+                  {communityBrowseQuests.map((quest) => (
+                    <AppRow key={quest.id} title={quest.name} meta={`${cleanCustomRuleSummaryText(quest.summary)} · ${getCustomStatsLine(quest.stats)}`} status={getCustomLifecycleStatus(quest, activeId, Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id)))} sourceBadge="Community" imageSource={getCustomQuestImageSource(quest.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(quest.id)} />
+                  ))}
+                </View>
+              ) : (
+                <View style={compactStyles.communityEmptyPanel}>
+                  <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? "No matches yet." : "No public Community Side Quests yet."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Quests. Public quests will appear here as the catalog grows."}</Text>
+                  <View style={compactStyles.actionRowTight}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => setCustomCreateOpen(true)}>
+                      <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
+                    </Pressable>
+                    <Pressable accessibilityRole="button" accessibilityLabel="View my Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityView("mine")}>
+                      <Text style={compactStyles.secondaryActionText}>My Quests</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
-              <View style={compactStyles.currentQuestRow}>
-                <View style={compactStyles.coatMarker}>
-                  <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
-                </View>
-                <View style={compactStyles.currentQuestText}>
-                  <Text style={compactStyles.currentQuestTitle}>Build your own Side Quest</Text>
-                  <Text style={compactStyles.currentQuestMeta}>Choose the rule, save it privately, then use it solo or in Multiplayer Side Quests you host.</Text>
-                </View>
+          ) : (
+            <View style={compactStyles.appSection}>
+              <View style={compactStyles.panelHeaderRow}>
+                <Text style={compactStyles.freshSectionTitle}>My Side Quests</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
+                  <Text style={compactStyles.sectionAction}>+ Create</Text>
+                </Pressable>
               </View>
-              <View style={compactStyles.actionRowTight}>
-                <View style={compactStyles.primaryAction}>
-                  <Text style={compactStyles.primaryActionText}>Build a Side Quest</Text>
-                </View>
-                <View style={compactStyles.secondaryAction}>
-                  <Text style={compactStyles.secondaryActionText}>{visibleCustomDrafts.length ? `${visibleCustomDrafts.length} custom` : "No custom yet"}</Text>
-                </View>
+              {visibleCustomDrafts.length ? null : (
+                <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
+                  <View style={compactStyles.currentQuestRow}>
+                    <View style={compactStyles.coatMarker}>
+                      <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
+                    </View>
+                    <View style={compactStyles.currentQuestText}>
+                      <Text style={compactStyles.currentQuestTitle}>Build your own Side Quest</Text>
+                      <Text style={compactStyles.currentQuestMeta}>Create rules, keep drafts private, publish when ready, and use them solo or in Multiplayer Side Quests you host.</Text>
+                    </View>
+                  </View>
+                  <View style={compactStyles.actionRowTight}>
+                    <View style={compactStyles.primaryAction}>
+                      <Text style={compactStyles.primaryActionText}>Build a Side Quest</Text>
+                    </View>
+                  </View>
+                </Pressable>
+              )}
+              <View style={compactStyles.communitySearchBox}>
+                <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
+                <TextInput
+                  value={communitySearch}
+                  placeholder="Search my quests"
+                  placeholderTextColor="rgba(255,247,232,.42)"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={compactStyles.communitySearchInput}
+                  onChangeText={setCommunitySearch}
+                />
+                {communitySearch ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Clear library search" onPress={() => setCommunitySearch("")}>
+                    <MaterialCommunityIcons name="close-circle" size={18} color="rgba(255,247,232,.5)" />
+                  </Pressable>
+                ) : null}
               </View>
-            </Pressable>
-            {visibleCustomDrafts.length ? (
-              <View style={compactStyles.sideQuestCatalogRows}>
-                {visibleCustomDrafts.map((draft) => (
-                  <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} sourceBadge={draft.lifecycle === "draft" ? "Draft" : draft.visibility === "public" ? "Community" : "Private"} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+                {(["all", "published", "drafts", "public", "archived"] as CustomLibraryFilter[]).map((filter) => (
+                  <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: customLibraryFilter === filter }} style={[compactStyles.communityChip, customLibraryFilter === filter && compactStyles.communityChipActive]} onPress={() => setCustomLibraryFilter(filter)}>
+                    <Text style={[compactStyles.communityChipText, customLibraryFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "drafts" ? "Drafts" : filter === "public" ? "Public" : filter === "archived" ? "Archived" : "Published"}</Text>
+                  </Pressable>
                 ))}
-              </View>
-            ) : null}
-          </View>
+              </ScrollView>
+              {filteredCustomDrafts.length ? (
+                <View style={compactStyles.sideQuestCatalogRows}>
+                  {filteredCustomDrafts.map((draft) => (
+                    <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} sourceBadge={draft.lifecycle === "draft" ? "Draft" : draft.visibility === "public" ? "Community" : "Private"} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+                  ))}
+                </View>
+              ) : (
+                <View style={compactStyles.communityEmptyPanel}>
+                  <Text style={compactStyles.communityEmptyTitle}>{visibleCustomDrafts.length ? "No library matches." : "Your library is empty."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{visibleCustomDrafts.length ? "Change the library filter or search text to find another saved Side Quest." : "Create a draft first, then publish it when the rule feels ready."}</Text>
+                </View>
+              )}
+            </View>
+          )}
         </>
       )}
 
@@ -7232,6 +7381,28 @@ const compactStyles = StyleSheet.create({
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800", flexShrink: 1 },
   appRowMeta: { color: colors.muted, fontSize: 12 },
   sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  communitySubTabs: { flexDirection: "row", gap: 8, padding: 4, borderRadius: 18, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },
+  communitySubTab: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 38, borderRadius: 14 },
+  communitySubTabActive: { backgroundColor: "rgba(96,240,175,.16)", borderWidth: 1, borderColor: "rgba(96,240,175,.3)" },
+  communitySubTabText: { color: "rgba(255,247,232,.62)", fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  communitySubTabTextActive: { color: colors.green },
+  communityBrowsePanel: { gap: 8, padding: 10, borderRadius: 18, backgroundColor: "rgba(255,255,255,.045)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
+  communitySearchBox: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
+  communitySearchInput: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "800", paddingVertical: Platform.OS === "ios" ? 10 : 6 },
+  communityChipRow: { gap: 7, paddingRight: 4 },
+  communityChip: { paddingHorizontal: 11, paddingVertical: 7, borderRadius: 999, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  communityChipActive: { backgroundColor: "rgba(96,240,175,.16)", borderColor: "rgba(96,240,175,.34)" },
+  communityChipText: { color: "rgba(255,247,232,.68)", fontSize: 11, lineHeight: 14, fontWeight: "900" },
+  communityChipTextActive: { color: colors.green },
+  communityControlsRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  communitySortRow: { flexDirection: "row", alignItems: "center", gap: 7 },
+  communitySortLabel: { color: "rgba(255,247,232,.52)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
+  communitySortButton: { paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(255,247,232,.045)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
+  communitySortButtonActive: { backgroundColor: "rgba(245,200,106,.14)", borderColor: "rgba(245,200,106,.28)" },
+  communitySortText: { color: "rgba(255,247,232,.62)", fontSize: 10, lineHeight: 13, fontWeight: "900" },
+  communitySortTextActive: { color: colors.gold },
+  communitySortCompact: { flexShrink: 0, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  communitySortCompactText: { color: colors.gold, fontSize: 11, lineHeight: 14, fontWeight: "900" },
   communityEmptyPanel: { gap: 5, padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,.055)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   communityEmptyTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
   communityEmptyCopy: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
@@ -7419,7 +7590,7 @@ const compactStyles = StyleSheet.create({
   sideQuestBrandTabOfficialActive: { borderColor: "rgba(245,200,106,.62)", backgroundColor: "rgba(245,200,106,.18)" },
   sideQuestBrandTabCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.065)" },
   sideQuestBrandTabCommunityActive: { borderColor: "rgba(96,240,175,.52)", backgroundColor: "rgba(96,240,175,.15)" },
-  sideQuestBrandTabText: { color: "rgba(255,247,232,.62)", fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "center" },
+  sideQuestBrandTabText: { color: "rgba(255,247,232,.62)", fontSize: 12, lineHeight: 15, fontWeight: "900", textAlign: "center" },
   sideQuestBrandTabOfficialTextActive: { color: colors.gold },
   sideQuestBrandTabCommunityTextActive: { color: colors.green },
   sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
