@@ -3641,24 +3641,26 @@ function QuestBoardDashboard({
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={compactStyles.sideQuestCatalogTabs}>
+      <View style={compactStyles.sideQuestBrandTabs}>
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
           accessibilityLabel="Show SQC Official Side Quests"
-          style={[compactStyles.sideQuestCatalogTab, sideQuestCatalogTab === "official" && compactStyles.sideQuestCatalogTabActive]}
+          style={[compactStyles.sideQuestBrandTab, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabActive]}
           onPress={() => setSideQuestCatalogTab("official")}
         >
-          <Text style={[compactStyles.sideQuestCatalogTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestCatalogTabTextActive]} numberOfLines={2}>SQC Official Side Quests</Text>
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabTextActive]} numberOfLines={2}>SQC Official Side Quests</Text>
+          {sideQuestCatalogTab === "official" ? <View style={compactStyles.sideQuestBrandTabUnderline} /> : null}
         </Pressable>
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
           accessibilityLabel="Show Community Side Quests"
-          style={[compactStyles.sideQuestCatalogTab, sideQuestCatalogTab === "community" && compactStyles.sideQuestCatalogTabActive]}
+          style={[compactStyles.sideQuestBrandTab, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabActive]}
           onPress={() => setSideQuestCatalogTab("community")}
         >
-          <Text style={[compactStyles.sideQuestCatalogTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestCatalogTabTextActive]} numberOfLines={2}>Community Side Quests</Text>
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabTextActive]} numberOfLines={2}>Community Side Quests</Text>
+          {sideQuestCatalogTab === "community" ? <View style={compactStyles.sideQuestBrandTabUnderline} /> : null}
         </Pressable>
       </View>
 
@@ -7405,11 +7407,12 @@ const compactStyles = StyleSheet.create({
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
-  sideQuestCatalogTabs: { flexDirection: "row", gap: 7, padding: 6, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.18)" },
-  sideQuestCatalogTab: { flex: 1, minHeight: 46, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 9, borderRadius: 17, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.045)" },
-  sideQuestCatalogTabActive: { borderColor: "rgba(245,200,106,.58)", backgroundColor: "rgba(245,200,106,.16)" },
-  sideQuestCatalogTabText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "900", textAlign: "center" },
-  sideQuestCatalogTabTextActive: { color: colors.paper },
+  sideQuestBrandTabs: { flexDirection: "row", alignItems: "stretch", marginHorizontal: -12, paddingHorizontal: 12, paddingTop: 2, backgroundColor: "rgba(12,11,11,.96)", borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.08)" },
+  sideQuestBrandTab: { flex: 1, minHeight: 62, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.035)", position: "relative" },
+  sideQuestBrandTabActive: { backgroundColor: colors.paper, borderColor: colors.paper },
+  sideQuestBrandTabText: { color: "rgba(255,247,232,.72)", fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "center" },
+  sideQuestBrandTabTextActive: { color: "#17120c" },
+  sideQuestBrandTabUnderline: { position: "absolute", left: 0, right: 0, bottom: -1, height: 4, backgroundColor: colors.gold },
   browseTopBar: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 4, paddingTop: 6 },
   browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2, flexShrink: 1 },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
