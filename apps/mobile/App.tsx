@@ -299,7 +299,7 @@ function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabe
     <View style={compactStyles.currentProofInlinePanel}>
       <View style={compactStyles.currentProofIntegratedBoard}>
         {board.map((square, index) => (
-          <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark, square.highlight ? compactStyles.currentProofMiniSquareHighlight : null]}>
+          <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark, square.highlight ? compactStyles.currentProofMiniSquareHighlight : null]}>
             {square.highlight ? <View style={compactStyles.currentProofMiniHighlightDot} /> : null}
             <Text style={[compactStyles.currentProofMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
           </View>
