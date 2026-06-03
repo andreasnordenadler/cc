@@ -791,6 +791,32 @@ type CompletionCelebrationMode = "solo" | "multiplayer";
 
 type CompletionCelebrationFamily = "triumphant" | "absurd" | "surgical" | "dark" | "mythic";
 
+
+const DEFAULT_BADGE_IDENTITY: MobileChallenge["badgeIdentity"] = {
+  name: "Coat of Arms",
+  motif: "Side Quest Chess",
+  rarity: "Verified",
+  unlockCopy: "Side Quest completed.",
+  imageUrl: null,
+  colors: { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
+  heraldry: {
+    shield: "SQC",
+    charge: "Verified proof",
+    crest: "Side Quest Chess",
+    motto: "Proof accepted",
+    meaning: "This coat marks a completed Side Quest.",
+    weirdness: "The paperwork survived the refresh.",
+  },
+};
+
+function getSafeBadgeIdentity(challenge?: MobileChallenge | null): MobileChallenge["badgeIdentity"] {
+  return challenge?.badgeIdentity ?? DEFAULT_BADGE_IDENTITY;
+}
+
+function getSafeBadgeColors(challenge?: MobileChallenge | null): MobileChallenge["badgeIdentity"]["colors"] {
+  return getSafeBadgeIdentity(challenge).colors ?? DEFAULT_BADGE_IDENTITY.colors;
+}
+
 type CompletionCelebrationUnlock = {
   challengeId: string;
   challengeTitle: string;
@@ -1502,7 +1528,7 @@ function TodayDashboard({
       reward: quest.reward,
       completedAt: quest.completedAt,
       family: getCelebrationFamily(challenge),
-      accentColor: challenge?.badgeIdentity.colors.primary ?? colors.gold,
+      accentColor: getSafeBadgeColors(challenge).primary,
       flavorLine: getCelebrationFlavorLine(challenge),
       mode,
       multiplayerPointsAwarded,
@@ -1644,7 +1670,7 @@ function TodayDashboard({
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.activeSoloSummary} onPress={() => setCurrentDetailOpen(true)}>
             <View style={compactStyles.currentQuestHero}>
               <View style={compactStyles.coatHeroMarker}>
-                {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatHeroGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+                {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatHeroGlowImage, { tintColor: getSafeBadgeColors(activeChallenge).glow }]} resizeMode="contain" /> : null}
                 <Image source={activeCoatSource} style={compactStyles.coatHeroImage} resizeMode="contain" />
                 {signedIn.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatHeroSeal} resizeMode="contain" /> : null}
               </View>
@@ -1780,7 +1806,7 @@ function TodayDashboard({
               statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
               imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
               glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
-              glowColor={completedChallenge?.badgeIdentity.colors.glow}
+              glowColor={getSafeBadgeColors(completedChallenge).glow}
               onPress={() => setCompletedProofId(quest.id)}
             />
           );
@@ -2380,7 +2406,7 @@ function CurrentSideQuestDetailModal({
         >
           <View style={compactStyles.detailHero}>
             <Pressable accessibilityRole="imagebutton" accessibilityLabel="Enlarge Coat of Arms" style={compactStyles.detailCoatFrame} onPress={() => setCoatExpanded(true)}>
-              {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+              {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: getSafeBadgeColors(challenge).glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
             </Pressable>
             <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
@@ -2443,9 +2469,9 @@ function CurrentSideQuestDetailModal({
         <Modal visible={coatExpanded} transparent animationType="fade" onRequestClose={() => setCoatExpanded(false)}>
           <Pressable accessibilityRole="button" accessibilityLabel="Close enlarged Coat of Arms" style={compactStyles.coatLightbox} onPress={() => setCoatExpanded(false)}>
             <View style={compactStyles.coatLightboxCard}>
-              {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.coatLightboxGlow, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
+              {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.coatLightboxGlow, { tintColor: getSafeBadgeColors(challenge).glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.coatLightboxImage} resizeMode="contain" />
-              <Text style={compactStyles.coatLightboxTitle}>{challenge?.badgeIdentity.name ?? "Coat of Arms"}</Text>
+              <Text style={compactStyles.coatLightboxTitle}>{getSafeBadgeIdentity(challenge).name}</Text>
             </View>
           </Pressable>
         </Modal>
@@ -2504,7 +2530,7 @@ function CompletionCelebrationOverlay({
           <Text style={compactStyles.celebrationSubline}>{subline}</Text>
 
           <View style={compactStyles.celebrationCoatFrame}>
-            {glowSource ? <Image source={glowSource} style={[compactStyles.celebrationCoatGlow, { tintColor: challenge?.badgeIdentity.colors.glow ?? unlock.accentColor }]} resizeMode="contain" /> : null}
+            {glowSource ? <Image source={glowSource} style={[compactStyles.celebrationCoatGlow, { tintColor: getSafeBadgeColors(challenge).glow ?? unlock.accentColor }]} resizeMode="contain" /> : null}
             <CelebrationParticles accentColor={unlock.accentColor} family={unlock.family} />
             <Image source={coatSource} style={compactStyles.celebrationCoat} resizeMode="contain" />
             <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.celebrationSeal} resizeMode="contain" />
@@ -2551,7 +2577,7 @@ function getCelebrationFamily(challenge: MobileChallenge | null): CompletionCele
 
 function getCelebrationFlavorLine(challenge: MobileChallenge | null) {
   if (!challenge) return "The heralds have recorded this one.";
-  if (challenge.badgeIdentity.unlockCopy) return challenge.badgeIdentity.unlockCopy;
+  if (getSafeBadgeIdentity(challenge).unlockCopy) return getSafeBadgeIdentity(challenge).unlockCopy;
   return challenge.flavor || challenge.proofCallout || "The heralds have recorded this one.";
 }
 
@@ -2886,7 +2912,7 @@ function getMultiplayerQuestBrowseRow(
       status: challenge.difficulty,
       imageSource: getChallengeCoatImageSource(challenge),
       glowSource: getChallengeCoatGlowSource(challenge.id),
-      glowColor: challenge.badgeIdentity.colors.glow,
+      glowColor: getSafeBadgeColors(challenge).glow,
       ruleLines: challenge.rules.length ? challenge.rules : [challenge.instruction, challenge.proofCallout],
     };
   }
@@ -3534,7 +3560,7 @@ function QuestBoardDashboard({
               sourceBadge="SQC Official"
               imageSource={getChallengeCoatImageSource(challenge)}
               glowSource={getChallengeCoatGlowSource(challenge.id)}
-              glowColor={challenge.badgeIdentity.colors.glow}
+              glowColor={getSafeBadgeColors(challenge).glow}
               blurImage={comingSoon}
               dimImage={comingSoon}
               overlaySeal={completed}
@@ -4109,7 +4135,7 @@ function AccountSoloSideQuestSection({
         status={soloStatus}
         imageSource={activeChallenge ? getChallengeCoatImageSource(activeChallenge) : SQC_COAT_OF_ARMS_ASSET}
         glowSource={activeChallenge ? getChallengeCoatGlowSource(activeChallenge.id) : null}
-        glowColor={activeChallenge?.badgeIdentity.colors.glow}
+        glowColor={getSafeBadgeColors(activeChallenge).glow}
         overlaySeal={account.activeQuest?.completed || latestCheckPassed}
         onPress={() => account.activeQuest?.id ? onSelectChallenge(account.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}
       />
@@ -4342,9 +4368,9 @@ function HomeScreen({
 }
 
 function GradientBackdrop({ challenge }: { challenge?: MobileChallenge | null }) {
-  const primary = challenge?.badgeIdentity.colors.primary ?? colors.gold;
-  const secondary = challenge?.badgeIdentity.colors.secondary ?? "#ff5f9f";
-  const glow = challenge?.badgeIdentity.colors.glow ?? primary;
+  const primary = getSafeBadgeColors(challenge).primary;
+  const secondary = getSafeBadgeColors(challenge).secondary;
+  const glow = getSafeBadgeColors(challenge).glow ?? primary;
 
   return (
     <View pointerEvents="none" style={styles.appGradientFrame}>
@@ -6096,7 +6122,7 @@ function CompletedQuestProofCard({
     <View style={compactStyles.completedProofScreen} accessibilityLabel={`${challenge.title} completed proof`}>
       <View style={compactStyles.detailHero}>
         <View style={compactStyles.completedProofCoatFrame}>
-          <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: challenge.badgeIdentity.colors.glow }]} resizeMode="contain" />
+          <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: getSafeBadgeColors(challenge).glow }]} resizeMode="contain" />
           <Image source={badgeSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
           <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.completedProofSeal} resizeMode="contain" />
         </View>
@@ -6512,15 +6538,15 @@ function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileCha
         <Image source={badgeSource} style={[styles.badgeMeaningImage, !earned && styles.badgeMeaningImageLocked]} resizeMode="contain" />
       </View>
       <View style={styles.badgeMeaningCopy}>
-        <Text style={styles.badgeMeaningTitle}>{challenge.badgeIdentity.name}</Text>
+        <Text style={styles.badgeMeaningTitle}>{getSafeBadgeIdentity(challenge).name}</Text>
         <View style={styles.badgeMeaningRows}>
           <View style={styles.badgeMeaningRow}>
             <Text style={styles.badgeMeaningTerm}>Shield</Text>
-            <Text style={styles.badgeMeaningDefinition}>{challenge.badgeIdentity.heraldry.shield}</Text>
+            <Text style={styles.badgeMeaningDefinition}>{getSafeBadgeIdentity(challenge).heraldry.shield}</Text>
           </View>
           <View style={styles.badgeMeaningRow}>
             <Text style={styles.badgeMeaningTerm}>Meaning</Text>
-            <Text style={styles.badgeMeaningDefinition}>{challenge.badgeIdentity.heraldry.meaning}</Text>
+            <Text style={styles.badgeMeaningDefinition}>{getSafeBadgeIdentity(challenge).heraldry.meaning}</Text>
           </View>
           <View style={styles.badgeMeaningRow}>
             <Text style={styles.badgeMeaningTerm}>Side Quest</Text>
@@ -6746,7 +6772,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           banner: "Waiting for latest-game proof",
           href: `/challenges/${active.id}`,
           proofHref: null,
-          badgeImageUrl: active.badgeIdentity.imageUrl,
+          badgeImageUrl: getSafeBadgeIdentity(active).imageUrl,
         }
       : null,
     activeGroupQuests: [
@@ -6848,11 +6874,11 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       id: challenge.id,
       title: challenge.title,
       reward: challenge.reward,
-      badgeName: challenge.badgeIdentity.name,
+      badgeName: getSafeBadgeIdentity(challenge).name,
       completedAt: new Date().toISOString(),
       href: `/challenges/${challenge.id}`,
       proofHref: `/proof/preview-${challenge.id}`,
-      badgeImageUrl: challenge.badgeIdentity.imageUrl,
+      badgeImageUrl: getSafeBadgeIdentity(challenge).imageUrl,
     })),
     multiplayerTrophies: [
       {
@@ -6878,13 +6904,13 @@ function isAuthenticatedAccount(account: MobileAccountResponse | null): account 
 }
 
 function getChallengeCoatImageSource(challenge: MobileChallenge): ImageSourcePropType {
-  const imageUrl = challenge.badgeIdentity.imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id] ?? null;
+  const imageUrl = getSafeBadgeIdentity(challenge).imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id] ?? null;
   if (imageUrl?.includes("/badges/custom/")) return getCustomQuestImageSource(imageUrl);
   return CHALLENGE_COAT_IMAGE_ASSETS[challenge.id] ?? { uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
 }
 
 function getChallengeCoatImageUrl(challenge: MobileChallenge) {
-  const imageUrl = challenge.badgeIdentity.imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id];
+  const imageUrl = getSafeBadgeIdentity(challenge).imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id];
   return imageUrl ? absoluteAssetUrl(imageUrl) : null;
 }
 
