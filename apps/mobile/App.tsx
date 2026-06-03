@@ -3447,6 +3447,7 @@ function QuestBoardDashboard({
   const completedDetailChallenge = completedDetailOfficialChallenge ?? (completedQuestRecord ? buildCustomProofChallenge(completedQuestRecord, completedDetailCustomQuest) : null);
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
+  const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -3640,93 +3641,118 @@ function QuestBoardDashboard({
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={compactStyles.appSection}>
-        <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>SQC Official Side Quests</Text>
-          <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
-        </View>
-        <View style={compactStyles.appRows}>
-          {sortedQuests.map((challenge) => {
-          const comingSoon = challenge.browseKind === "coming-soon";
-          const active = challenge.id === activeId;
-          const completed = !comingSoon && completedIds.has(challenge.id);
-          const comingSoonDate = challenge.releaseDate ? formatComingSoonDate(challenge.releaseDate) : null;
-          return (
-            <AppRow
-              key={challenge.id}
-              title={challenge.title}
-              meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
-              status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : active ? "Active" : completed ? "Completed" : challenge.difficulty}
-              sourceBadge="SQC Official"
-              imageSource={getChallengeCoatImageSource(challenge)}
-              glowSource={getChallengeCoatGlowSource(challenge.id)}
-              glowColor={getSafeBadgeColors(challenge).glow}
-              blurImage={comingSoon}
-              dimImage={comingSoon}
-              overlaySeal={completed}
-              onPress={() => {
-                if (comingSoon) {
-                  Alert.alert(challenge.title, `Coming ${comingSoonDate ?? "soon"}.`);
-                  return;
-                }
-                if (completed) {
-                  setCompletedDetailId(challenge.id);
-                  return;
-                }
-                onSelectChallenge(challenge.id, "sideQuests");
-                setDetailChallengeId(challenge.id);
-              }}
-            />
-          );
-          })}
-        </View>
-      </View>
-
-      <View style={compactStyles.appSection}>
-        <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
-          <Text style={compactStyles.sectionAction}>Browse</Text>
-        </View>
-        <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>No Community Side Quests to show yet.</Text>
-          <Text style={compactStyles.communityEmptyCopy}>Published player-created Side Quests appear here, separate from SQC Official quests.</Text>
-        </View>
-      </View>
-
-      <View style={compactStyles.appSection}>
-        <View style={compactStyles.panelHeaderRow}>
-          <Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
-            <Text style={compactStyles.sectionAction}>Create</Text>
-          </Pressable>
-        </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
-          <View style={compactStyles.currentQuestRow}>
-            <View style={compactStyles.coatMarker}>
-              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
-            </View>
-            <View style={compactStyles.currentQuestText}>
-              <Text style={compactStyles.currentQuestTitle}>Build your own Side Quest</Text>
-              <Text style={compactStyles.currentQuestMeta}>Choose the rule, save it privately, then use it solo or in Multiplayer Side Quests you host.</Text>
-            </View>
-          </View>
-          <View style={compactStyles.actionRowTight}>
-            <View style={compactStyles.primaryAction}>
-              <Text style={compactStyles.primaryActionText}>Build a Side Quest</Text>
-            </View>
-            <View style={compactStyles.secondaryAction}>
-              <Text style={compactStyles.secondaryActionText}>{visibleCustomDrafts.length ? `${visibleCustomDrafts.length} custom` : "No custom yet"}</Text>
-            </View>
-          </View>
+      <View style={compactStyles.sideQuestCatalogTabs}>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
+          accessibilityLabel="Show SQC Official Side Quests"
+          style={[compactStyles.sideQuestCatalogTab, sideQuestCatalogTab === "official" && compactStyles.sideQuestCatalogTabActive]}
+          onPress={() => setSideQuestCatalogTab("official")}
+        >
+          <Text style={[compactStyles.sideQuestCatalogTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestCatalogTabTextActive]} numberOfLines={2}>SQC Official Side Quests</Text>
         </Pressable>
-        {visibleCustomDrafts.length ? (
-          <View style={compactStyles.appRows}>
-            {visibleCustomDrafts.map((draft) => (
-              <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} sourceBadge={draft.lifecycle === "draft" ? "Draft" : draft.visibility === "public" ? "Community" : "Private"} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
-            ))}
-          </View>
-        ) : null}
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
+          accessibilityLabel="Show Community Side Quests"
+          style={[compactStyles.sideQuestCatalogTab, sideQuestCatalogTab === "community" && compactStyles.sideQuestCatalogTabActive]}
+          onPress={() => setSideQuestCatalogTab("community")}
+        >
+          <Text style={[compactStyles.sideQuestCatalogTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestCatalogTabTextActive]} numberOfLines={2}>Community Side Quests</Text>
+        </Pressable>
       </View>
+
+      {sideQuestCatalogTab === "official" ? (
+        <View style={compactStyles.appSection}>
+          <View style={compactStyles.panelHeaderRow}>
+            <Text style={compactStyles.freshSectionTitle}>SQC Official Side Quests</Text>
+            <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
+          </View>
+          <View style={compactStyles.appRows}>
+            {sortedQuests.map((challenge) => {
+            const comingSoon = challenge.browseKind === "coming-soon";
+            const active = challenge.id === activeId;
+            const completed = !comingSoon && completedIds.has(challenge.id);
+            const comingSoonDate = challenge.releaseDate ? formatComingSoonDate(challenge.releaseDate) : null;
+            return (
+              <AppRow
+                key={challenge.id}
+                title={challenge.title}
+                meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
+                status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : active ? "Active" : completed ? "Completed" : challenge.difficulty}
+                sourceBadge="SQC Official"
+                imageSource={getChallengeCoatImageSource(challenge)}
+                glowSource={getChallengeCoatGlowSource(challenge.id)}
+                glowColor={getSafeBadgeColors(challenge).glow}
+                blurImage={comingSoon}
+                dimImage={comingSoon}
+                overlaySeal={completed}
+                onPress={() => {
+                  if (comingSoon) {
+                    Alert.alert(challenge.title, `Coming ${comingSoonDate ?? "soon"}.`);
+                    return;
+                  }
+                  if (completed) {
+                    setCompletedDetailId(challenge.id);
+                    return;
+                  }
+                  onSelectChallenge(challenge.id, "sideQuests");
+                  setDetailChallengeId(challenge.id);
+                }}
+              />
+            );
+            })}
+          </View>
+        </View>
+      ) : (
+        <>
+          <View style={compactStyles.appSection}>
+            <View style={compactStyles.panelHeaderRow}>
+              <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
+              <Text style={compactStyles.sectionAction}>Browse</Text>
+            </View>
+            <View style={compactStyles.communityEmptyPanel}>
+              <Text style={compactStyles.communityEmptyTitle}>No Community Side Quests to show yet.</Text>
+              <Text style={compactStyles.communityEmptyCopy}>Published player-created Side Quests appear here, separate from SQC Official quests.</Text>
+            </View>
+          </View>
+
+          <View style={compactStyles.appSection}>
+            <View style={compactStyles.panelHeaderRow}>
+              <Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
+                <Text style={compactStyles.sectionAction}>Create</Text>
+              </Pressable>
+            </View>
+            <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
+              <View style={compactStyles.currentQuestRow}>
+                <View style={compactStyles.coatMarker}>
+                  <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
+                </View>
+                <View style={compactStyles.currentQuestText}>
+                  <Text style={compactStyles.currentQuestTitle}>Build your own Side Quest</Text>
+                  <Text style={compactStyles.currentQuestMeta}>Choose the rule, save it privately, then use it solo or in Multiplayer Side Quests you host.</Text>
+                </View>
+              </View>
+              <View style={compactStyles.actionRowTight}>
+                <View style={compactStyles.primaryAction}>
+                  <Text style={compactStyles.primaryActionText}>Build a Side Quest</Text>
+                </View>
+                <View style={compactStyles.secondaryAction}>
+                  <Text style={compactStyles.secondaryActionText}>{visibleCustomDrafts.length ? `${visibleCustomDrafts.length} custom` : "No custom yet"}</Text>
+                </View>
+              </View>
+            </Pressable>
+            {visibleCustomDrafts.length ? (
+              <View style={compactStyles.appRows}>
+                {visibleCustomDrafts.map((draft) => (
+                  <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} sourceBadge={draft.lifecycle === "draft" ? "Draft" : draft.visibility === "public" ? "Community" : "Private"} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
+                ))}
+              </View>
+            ) : null}
+          </View>
+        </>
+      )}
 
       <CustomSideQuestDetailModal
         quest={customDetailDraft}
@@ -4653,6 +4679,7 @@ function SideQuestsScreen({
   const completedCount = completedIds.size;
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
+  const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -7378,6 +7405,11 @@ const compactStyles = StyleSheet.create({
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
+  sideQuestCatalogTabs: { flexDirection: "row", gap: 7, padding: 6, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.18)" },
+  sideQuestCatalogTab: { flex: 1, minHeight: 46, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 9, borderRadius: 17, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.045)" },
+  sideQuestCatalogTabActive: { borderColor: "rgba(245,200,106,.58)", backgroundColor: "rgba(245,200,106,.16)" },
+  sideQuestCatalogTabText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "900", textAlign: "center" },
+  sideQuestCatalogTabTextActive: { color: colors.paper },
   browseTopBar: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 4, paddingTop: 6 },
   browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2, flexShrink: 1 },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
