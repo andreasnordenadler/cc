@@ -292,9 +292,9 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "queen-never-heard-of-her",
     title: "Queen? Never Heard of Her",
-    objective: "Win after losing your queen before move 15 while the opponent keeps theirs.",
+    objective: "Lose your queen before move 15, keep the opponent queen alive, and win a 15+ move game.",
     instruction:
-      "Start this brutal side quest, play a public Lichess or Chess.com game, lose your queen before move 15 while the opponent still has theirs, and somehow turn the clip-worthy disaster into a win.",
+      "Start this brutal side quest, play a 15+ move public Lichess or Chess.com game, lose your queen before move 15 while the opponent still has theirs, and somehow turn the clip-worthy disaster into a win.",
     openingHint: "The queen is overrated. Please do not quote us.",
     reward: 650,
     category: "Streamer Hard",
@@ -336,7 +336,7 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "no-castle-club",
     title: "No Castle Club",
-    objective: "Win without castling.",
+    objective: "Win a 10+ move game without castling.",
     instruction:
       "Play a normal game and win while your king refuses the sensible adult option of castling.",
     openingHint: "Your king wanted cardio anyway.",
@@ -377,7 +377,7 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "the-blunder-gambit",
     title: "The Blunder Gambit",
-    objective: "Hang a piece in the first 10 moves and still win.",
+    objective: "Hang a piece in the first 10 moves and still win a 15+ move game.",
     instruction:
       "Give away real material early, then pretend it was all theory when you somehow win later.",
     openingHint: "It was not a mistake. It was branding.",
@@ -418,9 +418,9 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "pawn-storm-maniac",
     title: "Pawn Storm Maniac",
-    objective: "Move at least six pawns before move 15 and win.",
+    objective: "Move at least six pawns before move 15, then win a 20+ move game.",
     instruction:
-      "Launch pawns like you forgot pieces exist, then convert the chaos into a win.",
+      "Launch six different pawns before move 15 like you forgot pieces exist, then convert the 20+ move chaos into a win.",
     openingHint: "Development is optional. Vibes are mandatory.",
     reward: 350,
     category: "Chaos",
@@ -432,7 +432,7 @@ export const CHALLENGES: Challenge[] = [
       name: "Pawn Monsoon",
       motif: "♟",
       rarity: "Chaos badge",
-      unlockCopy: "Send six pawns into the storm before move 15 and make it work.",
+      unlockCopy: "Send six pawns into the storm before move 15, survive 20+ moves, and make it work.",
       image: "/badges/v4/pawn-storm-maniac-badge.png",
       heraldry: {
         shield: "Green-gold storm field with six pawn drops like rain.",
@@ -444,7 +444,7 @@ export const CHALLENGES: Challenge[] = [
       },
       colors: { primary: "#60f0af", secondary: "#f5c86a", glow: "rgba(96,240,175,.38)" },
     },
-    proofCallout: "Six pawns launched before move 15",
+    proofCallout: "Six pawns before move 15 · 20+ move win",
     rules: [
       "Move at least six different pawns before move 15.",
       "Win the game.",
@@ -459,9 +459,9 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "knightmare-mode",
     title: "Knightmare Mode",
-    objective: "Deliver checkmate with a knight in a real public game.",
+    objective: "Deliver knight checkmate in a 15+ move public game.",
     instruction:
-      "Win with the horse getting the final word. The verifier looks for a public Lichess or Chess.com game where the final move is knight checkmate — elegant, annoying, and very shareable.",
+      "Win a 15+ move public Lichess or Chess.com game with the horse getting the final word. The verifier checks that the final move is knight checkmate — elegant, annoying, and very shareable.",
     openingHint: "The horse gets the final word and the clip title.",
     reward: 750,
     category: "Streamer Hard",
@@ -501,9 +501,9 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "rookless-rampage",
     title: "Rookless Rampage",
-    objective: "Win a rated game after both original rooks are gone before move 20.",
+    objective: "Lose both original rooks before move 20, then win a rated 20+ move game.",
     instruction:
-      "Absurd quests are the no-excuses tier: play a rated public Lichess or Chess.com game, lose both original rooks before move 20, then win anyway so the receipt feels impossible but fair.",
+      "Absurd quests are the no-excuses tier: play a rated 20+ move public Lichess or Chess.com game, lose both original rooks before move 20, then win anyway so the receipt feels impossible but fair.",
     openingHint: "Castles are temporary. Rating points are not.",
     reward: 1200,
     category: "Absurdity",
@@ -543,9 +543,9 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "one-bishop-to-rule-them-all",
     title: "One Bishop to Rule Them All",
-    objective: "Win with only one bishop remaining as your minor piece.",
+    objective: "Win a 15+ move game with only one bishop remaining as your minor piece.",
     instruction:
-      "End the game with one bishop carrying the entire minor-piece department.",
+      "End a 15+ move game with one bishop carrying the entire minor-piece department.",
     openingHint: "Middle management, but diagonal.",
     reward: 400,
     category: "Style Kill",

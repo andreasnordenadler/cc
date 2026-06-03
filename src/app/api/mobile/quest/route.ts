@@ -161,6 +161,7 @@ type MobileProviderCheck = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  playerColor?: "white" | "black";
   failureDiagnostic?: LatestChallengeVerdict["failureDiagnostic"];
 };
 
@@ -371,6 +372,7 @@ function buildLatestGameCheckPayload(verdict: LatestChallengeVerdict, challengeT
     finalPositionFen: verdict.finalPositionFen,
     lastMoveUci: verdict.lastMoveUci,
     lastMoveSan: verdict.lastMoveSan,
+    playerColor: verdict.playerColor ?? verdict.failureDiagnostic?.playerColor,
     failureDiagnostic: verdict.failureDiagnostic,
   };
 }
@@ -389,6 +391,7 @@ function buildAttempt(challengeId: string, check: MobileProviderCheck, id: strin
     finalPositionFen: check.finalPositionFen,
     lastMoveUci: check.lastMoveUci,
     lastMoveSan: check.lastMoveSan,
+    playerColor: check.playerColor ?? check.failureDiagnostic?.playerColor,
     failureDiagnostic: check.failureDiagnostic,
   };
 }

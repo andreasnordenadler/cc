@@ -180,6 +180,7 @@ export type MobileAccountState = {
     finalPositionFen?: string | null;
     lastMoveUci?: string | null;
     lastMoveSan?: string | null;
+    playerColor?: "white" | "black" | null;
   }>;
   multiplayerTrophies?: Array<{
     id: string;
@@ -206,6 +207,7 @@ export type MobileAccountState = {
     finalPositionFen?: string | null;
     lastMoveUci?: string | null;
     lastMoveSan?: string | null;
+    playerColor?: "white" | "black" | null;
     failureDiagnostic?: {
       label?: string;
       explanation?: string;
@@ -214,7 +216,7 @@ export type MobileAccountState = {
       san?: string;
       uci?: string;
       fenAtBreak?: string;
-  playerColor?: "white" | "black";
+      playerColor?: "white" | "black";
     } | null;
   } | null;
   supportMessages?: MobileSupportMessage[];

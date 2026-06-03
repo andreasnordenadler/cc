@@ -39,6 +39,7 @@ export type ChallengeAttempt = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  playerColor?: "white" | "black";
   failureDiagnostic?: ChallengeFailureDiagnostic;
 };
 

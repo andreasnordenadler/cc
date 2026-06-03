@@ -101,6 +101,7 @@ export async function GET(request: Request) {
       finalPositionFen: latestPassed?.finalPositionFen ?? null,
       lastMoveUci: latestPassed?.lastMoveUci ?? null,
       lastMoveSan: latestPassed?.lastMoveSan ?? null,
+      playerColor: latestPassed?.playerColor ?? latestPassed?.failureDiagnostic?.playerColor ?? null,
     };
   }));
   completedQuestPayloads.push(...completedCustomQuests.map((quest) => {
@@ -119,6 +120,7 @@ export async function GET(request: Request) {
       finalPositionFen: latestPassed?.finalPositionFen ?? null,
       lastMoveUci: latestPassed?.lastMoveUci ?? null,
       lastMoveSan: latestPassed?.lastMoveSan ?? null,
+      playerColor: latestPassed?.playerColor ?? latestPassed?.failureDiagnostic?.playerColor ?? null,
     };
   }));
   const { relatedGroupQuests, publicGroupQuests } = await getMobileAccountGroupQuests(client, userId);
@@ -327,6 +329,7 @@ export async function GET(request: Request) {
           finalPositionFen: latestAttempt.finalPositionFen ?? null,
           lastMoveUci: latestAttempt.lastMoveUci ?? null,
           lastMoveSan: latestAttempt.lastMoveSan ?? null,
+          playerColor: latestAttempt.playerColor ?? latestAttempt.failureDiagnostic?.playerColor ?? null,
           failureDiagnostic: latestAttempt.failureDiagnostic ?? null,
       }
       : null,

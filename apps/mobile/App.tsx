@@ -229,7 +229,7 @@ function ActiveQuestMiniFailureBoard({ receipt }: { receipt: MobileAccountState[
   const diagnostic = receipt?.failureDiagnostic;
   const fen = diagnostic?.fenAtBreak ?? receipt?.finalPositionFen;
   const uci = diagnostic?.uci ?? receipt?.lastMoveUci;
-  const orientation = diagnostic?.playerColor === "black" ? "black" : "white";
+  const orientation = mobileBoardOrientation(diagnostic?.playerColor);
   const board = parseMobileFenBoard(fen, uci, orientation);
 
   if (!board) {
@@ -291,7 +291,8 @@ function ActiveQuestNoGameSummary({ goal, pickedLabel, latestCheckLabel, statusL
 
 
 function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabel, statusLabel }: { receipt: MobileAccountState["latestReceipt"]; goal?: string; pickedLabel?: string; latestCheckLabel?: string; statusLabel?: string }) {
-  const board = parseMobileFenBoard(receipt?.finalPositionFen, receipt?.lastMoveUci ?? undefined, "white");
+  const orientation = mobileBoardOrientation(receipt?.playerColor ?? receipt?.failureDiagnostic?.playerColor);
+  const board = parseMobileFenBoard(receipt?.finalPositionFen, receipt?.lastMoveUci ?? undefined, orientation);
 
   if (!receipt || receipt.status !== "passed" || !board) return null;
 
@@ -338,7 +339,7 @@ function FailureDiagnosticBoard({ receipt }: { receipt: MobileAccountState["late
   const diagnostic = receipt?.failureDiagnostic;
   const fen = diagnostic?.fenAtBreak ?? receipt?.finalPositionFen;
   const uci = diagnostic?.uci ?? receipt?.lastMoveUci;
-  const orientation = diagnostic?.playerColor === "black" ? "black" : "white";
+  const orientation = mobileBoardOrientation(diagnostic?.playerColor);
   const board = parseMobileFenBoard(fen, uci, orientation);
 
   if (!receipt || !isFailedReceipt(receipt)) return null;
@@ -395,12 +396,18 @@ type VictoryProofBoardInput = {
   finalPositionFen?: string | null;
   lastMoveUci?: string | null;
   lastMoveSan?: string | null;
+  playerColor?: "white" | "black" | null;
   provider?: string | null;
   gameId?: string | null;
 };
 
+function mobileBoardOrientation(playerColor?: "white" | "black" | null): "white" | "black" {
+  return playerColor === "black" ? "black" : "white";
+}
+
 function VictoryProofBoard({ proof }: { proof: VictoryProofBoardInput | null | undefined }) {
-  const board = parseMobileFenBoard(proof?.finalPositionFen, proof?.lastMoveUci ?? undefined, "white");
+  const orientation = mobileBoardOrientation(proof?.playerColor);
+  const board = parseMobileFenBoard(proof?.finalPositionFen, proof?.lastMoveUci ?? undefined, orientation);
 
   if (!board) return null;
 

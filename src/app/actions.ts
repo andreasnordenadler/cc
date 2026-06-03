@@ -229,6 +229,7 @@ function pickProofReceiptFields(attempt: Partial<ChallengeAttempt>): Partial<Cha
     finalPositionFen: attempt.finalPositionFen,
     lastMoveUci: attempt.lastMoveUci,
     lastMoveSan: attempt.lastMoveSan,
+    playerColor: attempt.playerColor,
   };
 }
 

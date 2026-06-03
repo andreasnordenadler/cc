@@ -25,6 +25,7 @@ export type LichessVerificationVerdict = {
   summary: string;
   startedGameAt?: string;
   completedGameAt?: string;
+  playerColor?: "white" | "black";
 } & Partial<ProofPosition>;
 
 const OPEN_GAME_STATUSES = new Set(["created", "started"]);
@@ -247,6 +248,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       summary: `Verified ${gameId}. ${username} appears in a finished public Lichess game, so Any Game Counts is complete.`,
       startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
+      playerColor: whiteName === normalizedUsername ? "white" : "black",
       evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control all count."],
       ...proofPosition,
     };

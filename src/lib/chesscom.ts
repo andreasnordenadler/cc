@@ -15,6 +15,7 @@ export type ChessComVerificationVerdict = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  playerColor?: "white" | "black";
 };
 
 type QueenChallengeSide = "white" | "black";
@@ -2801,12 +2802,14 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
 
       if (match) {
         const gameId = normalizeChessComGameUrl(match.url ?? "chesscom-latest-game");
+        const playerColor = getPlayerSideForUsername(match, username) ?? undefined;
         return {
           status: "passed",
           gameId,
           summary: `Verified Chess.com game. ${username} appears in a finished public game, so Any Game Counts is complete.`,
           startedGameAt: getChessComStartedGameAt(match),
           completedGameAt: getChessComCompletedGameAt(match),
+          playerColor,
           ...buildChessComProofPositionFromPgn(match.pgn),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control all count."],
         };

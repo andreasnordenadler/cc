@@ -53,6 +53,7 @@ export type LatestChallengeVerdict = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  playerColor?: "white" | "black";
   failureDiagnostic?: LatestChallengeFailureDiagnostic;
 };
 
@@ -147,8 +148,15 @@ async function enrichVerdictWithLatestBoard(input: {
 }): Promise<LatestChallengeVerdict> {
   const { provider, username, verdict } = input;
 
-  if (verdict.status === "pending" || (verdict.finalPositionFen && (verdict.status === "passed" || verdict.failureDiagnostic?.fenAtBreak))) {
+  if (verdict.status === "pending") {
     return verdict;
+  }
+
+  if (verdict.finalPositionFen && verdict.failureDiagnostic?.fenAtBreak) {
+    return {
+      ...verdict,
+      playerColor: verdict.playerColor ?? verdict.failureDiagnostic?.playerColor,
+    };
   }
 
   const latestFinished = await getLatestFinishedBoardVerdict(provider, username);
@@ -164,6 +172,7 @@ async function enrichVerdictWithLatestBoard(input: {
     finalPositionFen: verdict.finalPositionFen ?? latestFinished.finalPositionFen,
     lastMoveUci: verdict.lastMoveUci ?? latestFinished.lastMoveUci,
     lastMoveSan: verdict.lastMoveSan ?? latestFinishedLastMoveSan,
+    playerColor: verdict.playerColor ?? latestFinished.playerColor ?? verdict.failureDiagnostic?.playerColor,
   };
 
   if (verdict.status === "failed") {
