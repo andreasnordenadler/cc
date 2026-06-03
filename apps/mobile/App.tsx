@@ -1346,7 +1346,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
         </Pressable>
       ) : null}
-      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
+      {shell.activeTab === "home" ? null : <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />}
     </SafeAreaView>
   );
 
@@ -1490,6 +1490,9 @@ function TodayDashboard({
   const completedProofOfficialChallenge = completedProofId ? bootstrap.challenges.find((challenge) => challenge.id === completedProofId) ?? null : null;
   const completedProofCustomQuest = completedProofId ? signedIn?.customSideQuests?.find((quest) => quest.id === completedProofId) ?? null : null;
   const completedProofChallenge = completedProofOfficialChallenge ?? (completedProofRecord ? buildCustomProofChallenge(completedProofRecord, completedProofCustomQuest) : null);
+  const latestCompletedQuest = signedIn?.completedQuests[0] ?? null;
+  const latestCompletedChallenge = latestCompletedQuest ? bootstrap.challenges.find((challenge) => challenge.id === latestCompletedQuest.id) ?? null : null;
+  const unlockedCoatCount = (signedIn?.completedQuests.length ?? 0) + (signedIn?.multiplayerTrophies?.length ?? 0);
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
@@ -1734,14 +1737,22 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="My Active Multiplayer Side Quests" action="Explore Multiplayer" onAction={() => onSelectTab("multiplayerSideQuests")}>
+      <AppSection title="Multiplayer Side Quests" action="Explore" onAction={() => onSelectTab("multiplayerSideQuests")}>
+        <HomeFeatureCard
+          imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+          variant="seal"
+          eyebrow={activeMultiplayer.length ? "Competition board" : "Play together"}
+          title={activeMultiplayer.length ? `${activeMultiplayer.length} active Multiplayer Side Quest${activeMultiplayer.length === 1 ? "" : "s"}` : "Join or host a Multiplayer Side Quest"}
+          copy={activeMultiplayer.length ? "Open a room to refresh proof, check standings, or share the invite." : "Compete with friends on shared Side Quests, leaderboards, and proof windows."}
+          primaryMeta={activeMultiplayer.length ? "Live" : "Ready"}
+          secondaryMeta={officialPublic.length ? `${officialPublic.length} official` : "Browse"}
+          onPress={() => activeMultiplayer[0] ? setJoinedMultiplayerId(activeMultiplayer[0].id) : onSelectTab("multiplayerSideQuests")}
+        />
         {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
-        )) : (
-          <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with other players." status="Explore" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />
-        )}
+          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Your room" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+        )) : null}
         {activeMultiplayer.length > 3 ? (
-          <AppRow title={showAllActiveMultiplayer ? "Show fewer active Multiplayer Side Quests" : "Expand all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top three." : `${activeMultiplayer.length - 3} more active Multiplayer Side Quests.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
+          <AppRow title={showAllActiveMultiplayer ? "Show fewer Multiplayer Side Quests" : "Show all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top three." : `${activeMultiplayer.length - 3} more active competitions waiting below.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
         ) : null}
       </AppSection>
 
@@ -1782,12 +1793,23 @@ function TodayDashboard({
       />
 
 
-      <AppSection title="Recent Coat of Arms" action="Open Trophy Cabinet" onAction={() => onSelectTab("coatOfArms")}>
-        {signedIn.multiplayerTrophies?.slice(0, 3).map((trophy) => (
+      <AppSection title="Trophy Cabinet" action="Open" onAction={() => onSelectTab("coatOfArms")}>
+        <HomeFeatureCard
+          imageSource={latestCompletedQuest ? (latestCompletedChallenge ? getChallengeCoatImageSource(latestCompletedChallenge) : getRowImageSource(latestCompletedQuest.badgeImageUrl)) : SQC_COAT_OF_ARMS_ASSET}
+          glowSource={latestCompletedChallenge ? getChallengeCoatGlowSource(latestCompletedChallenge.id) : undefined}
+          glowColor={latestCompletedChallenge ? getSafeBadgeColors(latestCompletedChallenge).glow : colors.gold}
+          eyebrow="Your rewards"
+          title={unlockedCoatCount ? `${unlockedCoatCount} unlocked Coat${unlockedCoatCount === 1 ? "" : "s"}` : "No Coat of Arms yet"}
+          copy={unlockedCoatCount ? "Proof, seals, and Multiplayer placements live here." : "Complete a Side Quest to make this section start filling up."}
+          primaryMeta={signedIn.completedQuests.length ? `${signedIn.completedQuests.length} solo` : "Solo pending"}
+          secondaryMeta={signedIn.multiplayerTrophies?.length ? `${signedIn.multiplayerTrophies.length} multiplayer` : "MP pending"}
+          onPress={() => onSelectTab("coatOfArms")}
+        />
+        {signedIn.multiplayerTrophies?.slice(0, 2).map((trophy) => (
           <AppRow
             key={trophy.id}
             title={trophy.title}
-            meta={`Multiplayer win · ${trophy.rankLabel}`}
+            meta={`Multiplayer placement · ${trophy.rankLabel}`}
             status={undefined}
             statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
             imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
@@ -1801,7 +1823,7 @@ function TodayDashboard({
             <AppRow
               key={quest.id}
               title={cleanMultiplayerTitle(quest.title)}
-              meta={`Coat of Arms: ${quest.badgeName}`}
+              meta={`Unlocked ${quest.badgeName}`}
               status={undefined}
               statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
               imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
@@ -1810,9 +1832,7 @@ function TodayDashboard({
               onPress={() => setCompletedProofId(quest.id)}
             />
           );
-        }) : !signedIn.multiplayerTrophies?.length ? (
-          <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first Coat of Arms." status="Explore" onPress={() => onSelectTab("sideQuests")} />
-        ) : null}
+        }) : null}
       </AppSection>
 
       <Modal visible={Boolean(completedProofRecord && completedProofChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCompletedProofId(null)}>
@@ -2675,6 +2695,51 @@ function AppSection({ title, action, onAction, children }: { title: string; acti
       </View>
       <View style={compactStyles.appRows}>{children}</View>
     </View>
+  );
+}
+
+function HomeFeatureCard({
+  imageSource,
+  glowSource,
+  glowColor,
+  variant = "coat",
+  eyebrow,
+  title,
+  copy,
+  primaryMeta,
+  secondaryMeta,
+  onPress,
+}: {
+  imageSource: ImageSourcePropType | null;
+  glowSource?: ImageSourcePropType | null;
+  glowColor?: string;
+  variant?: "coat" | "seal";
+  eyebrow: string;
+  title: string;
+  copy: string;
+  primaryMeta: string;
+  secondaryMeta: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable accessibilityRole="button" style={compactStyles.homeFeatureCard} onPress={onPress}>
+      {imageSource ? (
+        <View style={compactStyles.homeFeatureImageFrame}>
+          {glowSource ? <Image source={glowSource} style={[compactStyles.homeFeatureGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
+          <Image source={imageSource} style={variant === "seal" ? compactStyles.homeFeatureSealImage : compactStyles.homeFeatureCoatImage} resizeMode="contain" />
+        </View>
+      ) : null}
+      <View style={compactStyles.homeFeatureCopy}>
+        <Text style={compactStyles.homeFeatureEyebrow}>{eyebrow}</Text>
+        <Text style={compactStyles.homeFeatureTitle}>{title}</Text>
+        <Text style={compactStyles.homeFeatureBody}>{copy}</Text>
+        <View style={compactStyles.homeFeatureMetaRow}>
+          <Text style={compactStyles.homeFeatureMeta}>{primaryMeta}</Text>
+          <Text style={compactStyles.homeFeatureMeta}>{secondaryMeta}</Text>
+        </View>
+      </View>
+      <MaterialCommunityIcons name="chevron-right" size={20} color="rgba(255,247,232,.52)" />
+    </Pressable>
   );
 }
 
@@ -7063,9 +7128,20 @@ const compactStyles = StyleSheet.create({
   secondaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 13, borderRadius: 999, backgroundColor: "rgba(255,255,255,.08)", borderWidth: 1, borderColor: "rgba(255,255,255,.13)" },
   secondaryActionText: { color: colors.paper, fontSize: 13, fontWeight: "900" },
   appSection: { gap: 6 },
-  sectionAction: { color: colors.gold, fontSize: 12, fontWeight: "900" },
-  appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
-  appRow: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.07)" },
+  sectionAction: { color: "rgba(245,200,106,.78)", fontSize: 12, fontWeight: "900" },
+  appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
+  homeFeatureCard: { minHeight: 90, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 13, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.065)", backgroundColor: "rgba(245,200,106,.032)" },
+  homeFeatureImageFrame: { width: 58, height: 62, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  homeFeatureGlowImage: { position: "absolute", width: 74, height: 82, opacity: .54, transform: [{ translateY: 3 }] },
+  homeFeatureCoatImage: { width: 51, height: 58 },
+  homeFeatureSealImage: { width: 52, height: 52, borderRadius: 26 },
+  homeFeatureCopy: { flex: 1, minWidth: 0, gap: 3 },
+  homeFeatureEyebrow: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
+  homeFeatureTitle: { color: colors.paper, fontSize: 15, lineHeight: 19, fontWeight: "900", letterSpacing: -.25 },
+  homeFeatureBody: { color: "rgba(199,189,169,.82)", fontSize: 12, lineHeight: 16, fontWeight: "700" },
+  homeFeatureMetaRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, paddingTop: 2 },
+  homeFeatureMeta: { overflow: "hidden", color: "rgba(255,247,232,.82)", fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .42, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999, backgroundColor: "rgba(255,247,232,.065)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  appRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.065)" },
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
   rowCoatGlowImage: { position: "absolute", width: 44, height: 48, opacity: .62, transform: [{ translateY: 3 }] },
   rowCoatImage: { width: 30, height: 34 },
@@ -7075,13 +7151,13 @@ const compactStyles = StyleSheet.create({
   rowCompletedSeal: { position: "absolute", width: 18, height: 18, right: -4, bottom: -3 },
   rowStatusSealImage: { width: 35, height: 35, marginLeft: 6 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
-  appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800" },
+  appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800", flexShrink: 1 },
   appRowMeta: { color: colors.muted, fontSize: 12 },
   sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   communityEmptyPanel: { gap: 5, padding: 12, borderRadius: 18, backgroundColor: "rgba(255,255,255,.055)", borderWidth: 1, borderColor: "rgba(255,255,255,.1)" },
   communityEmptyTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
   communityEmptyCopy: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
-  appRowStatus: { maxWidth: 112, color: colors.gold, fontSize: 11, fontWeight: "900", textAlign: "right", textTransform: "uppercase", overflow: "hidden", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,247,232,.08)" },
+  appRowStatus: { maxWidth: 88, color: "rgba(245,200,106,.86)", fontSize: 10, fontWeight: "900", textAlign: "right", textTransform: "uppercase", overflow: "hidden", paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999, backgroundColor: "rgba(255,247,232,.065)" },
   appRowStatusJoined: { color: colors.green },
   appRowStatusGreen: { backgroundColor: "#60f0af", color: "#111" },
   appRowStatusGold: { backgroundColor: "#f5c86a", color: "#111" },
@@ -7257,7 +7333,7 @@ const compactStyles = StyleSheet.create({
   coatLightboxGlow: { position: "absolute", width: 330, height: 360, opacity: .78 },
   coatLightboxImage: { width: 238, height: 268 },
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
-  pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 2, paddingBottom: 4, opacity: .72 },
+  pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   browseTopBar: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 4, paddingTop: 6 },
   browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2, flexShrink: 1 },
