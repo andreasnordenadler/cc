@@ -3641,24 +3641,41 @@ function QuestBoardDashboard({
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
-      <View style={[compactStyles.sideQuestCatalogShell, sideQuestCatalogTab === "official" ? compactStyles.sideQuestCatalogShellOfficial : compactStyles.sideQuestCatalogShellCommunity]}>
-        <View style={compactStyles.sideQuestSourceHeader}>
-          <View style={compactStyles.sideQuestSourceCopy}>
-            <Text style={compactStyles.sideQuestSourceEyebrow}>Viewing</Text>
-            <Text style={compactStyles.sideQuestSourceTitle}>{sideQuestCatalogTab === "official" ? "Official Side Quests" : "Community Side Quests"}</Text>
-          </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={sideQuestCatalogTab === "official" ? "Show Community Side Quests" : "Show Official Side Quests"}
-            style={compactStyles.sideQuestSourceSwitch}
-            onPress={() => setSideQuestCatalogTab(sideQuestCatalogTab === "official" ? "community" : "official")}
-          >
-            <Text style={compactStyles.sideQuestSourceSwitchText}>{sideQuestCatalogTab === "official" ? "Show Community" : "Show Official"}</Text>
-          </Pressable>
-        </View>
+      <View style={compactStyles.sideQuestBrandTabs}>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
+          accessibilityLabel="Show SQC Official Side Quests"
+          style={[
+            compactStyles.sideQuestBrandTab,
+            compactStyles.sideQuestBrandTabOfficial,
+            sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialActive,
+          ]}
+          onPress={() => setSideQuestCatalogTab("official")}
+        >
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>SQC Official Side Quests</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
+          accessibilityLabel="Show Community Side Quests"
+          style={[
+            compactStyles.sideQuestBrandTab,
+            compactStyles.sideQuestBrandTabCommunity,
+            sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityActive,
+          ]}
+          onPress={() => setSideQuestCatalogTab("community")}
+        >
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
+        </Pressable>
+      </View>
 
-        {sideQuestCatalogTab === "official" ? (
-          <View style={compactStyles.sideQuestCatalogPanel}>
+      {sideQuestCatalogTab === "official" ? (
+        <View style={compactStyles.appSection}>
+          <View style={compactStyles.panelHeaderRow}>
+            <Text style={compactStyles.freshSectionTitle}>SQC Official Side Quests</Text>
+            <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
+          </View>
           <View style={compactStyles.sideQuestCatalogRows}>
             {sortedQuests.map((challenge) => {
             const comingSoon = challenge.browseKind === "coming-soon";
@@ -3694,11 +3711,15 @@ function QuestBoardDashboard({
             );
             })}
           </View>
-          </View>
-        ) : (
-          <>
-            <View style={compactStyles.sideQuestCatalogPanel}>
-            <View style={compactStyles.sideQuestCatalogInlinePanel}>
+        </View>
+      ) : (
+        <>
+          <View style={compactStyles.appSection}>
+            <View style={compactStyles.panelHeaderRow}>
+              <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
+              <Text style={compactStyles.sectionAction}>Browse</Text>
+            </View>
+            <View style={compactStyles.communityEmptyPanel}>
               <Text style={compactStyles.communityEmptyTitle}>No Community Side Quests to show yet.</Text>
               <Text style={compactStyles.communityEmptyCopy}>Published player-created Side Quests appear here, separate from SQC Official quests.</Text>
             </View>
@@ -3711,7 +3732,7 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.sectionAction}>Create</Text>
               </Pressable>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.sideQuestCatalogInlinePanel} onPress={() => setCustomCreateOpen(true)}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
               <View style={compactStyles.currentQuestRow}>
                 <View style={compactStyles.coatMarker}>
                   <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
@@ -3738,9 +3759,8 @@ function QuestBoardDashboard({
               </View>
             ) : null}
           </View>
-          </>
-        )}
-      </View>
+        </>
+      )}
 
       <CustomSideQuestDetailModal
         quest={customDetailDraft}
@@ -7393,27 +7413,16 @@ const compactStyles = StyleSheet.create({
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
-  sideQuestCatalogShell: { gap: 8, padding: 10, borderRadius: 26, borderWidth: 1.5, shadowColor: "#000", shadowOpacity: .16, shadowRadius: 12, shadowOffset: { width: 0, height: 8 }, elevation: 2 },
-  sideQuestCatalogShellOfficial: { borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(245,200,106,.13)" },
-  sideQuestCatalogShellCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.11)" },
-  sideQuestBrandTabs: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 4, paddingTop: 2, paddingBottom: 8 },
-  sideQuestBrandTab: { flex: 1, minHeight: 38, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, paddingVertical: 6, borderWidth: 0, backgroundColor: "transparent" },
-  sideQuestBrandTabOfficial: { backgroundColor: "transparent" },
-  sideQuestBrandTabOfficialActive: { backgroundColor: "transparent" },
-  sideQuestBrandTabCommunity: { backgroundColor: "transparent" },
-  sideQuestBrandTabCommunityActive: { backgroundColor: "transparent" },
-  sideQuestBrandTabText: { color: "rgba(255,247,232,.55)", fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "center" },
-  sideQuestBrandTabOfficialTextActive: { color: colors.paper },
-  sideQuestBrandTabCommunityTextActive: { color: colors.paper },
-  sideQuestCatalogPanel: { gap: 8 },
-  sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "transparent", borderWidth: 0 },
-  sideQuestCatalogInlinePanel: { gap: 8, paddingHorizontal: 2, paddingVertical: 4, backgroundColor: "transparent", borderWidth: 0 },
-  sideQuestSourceHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 4, paddingTop: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.1)" },
-  sideQuestSourceCopy: { flex: 1, minWidth: 0, gap: 2 },
-  sideQuestSourceEyebrow: { color: "rgba(255,247,232,.55)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .75 },
-  sideQuestSourceTitle: { color: colors.paper, fontSize: 18, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
-  sideQuestSourceSwitch: { flexShrink: 0, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, backgroundColor: "rgba(13,11,14,.34)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
-  sideQuestSourceSwitchText: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  sideQuestBrandTabs: { flexDirection: "row", alignItems: "stretch", gap: 10, marginTop: 2, marginBottom: 6 },
+  sideQuestBrandTab: { flex: 1, minHeight: 62, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderRadius: 22, borderWidth: 1.5, shadowColor: "#000", shadowOpacity: .14, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  sideQuestBrandTabOfficial: { borderColor: "rgba(245,200,106,.3)", backgroundColor: "rgba(245,200,106,.08)" },
+  sideQuestBrandTabOfficialActive: { borderColor: "rgba(245,200,106,.62)", backgroundColor: "rgba(245,200,106,.18)" },
+  sideQuestBrandTabCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.065)" },
+  sideQuestBrandTabCommunityActive: { borderColor: "rgba(96,240,175,.52)", backgroundColor: "rgba(96,240,175,.15)" },
+  sideQuestBrandTabText: { color: "rgba(255,247,232,.62)", fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "center" },
+  sideQuestBrandTabOfficialTextActive: { color: colors.gold },
+  sideQuestBrandTabCommunityTextActive: { color: colors.green },
+  sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
   browseTopBar: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 4, paddingTop: 6 },
   browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2, flexShrink: 1 },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
