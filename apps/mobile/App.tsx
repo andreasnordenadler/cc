@@ -1480,6 +1480,7 @@ function TodayDashboard({
   const [officialMultiplayerId, setOfficialMultiplayerId] = useState<string | null>(null);
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublic.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [showAllActiveMultiplayer, setShowAllActiveMultiplayer] = useState(false);
+  const [showAllTrophyCabinet, setShowAllTrophyCabinet] = useState(false);
   const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 5);
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
@@ -1493,6 +1494,11 @@ function TodayDashboard({
   const latestCompletedQuest = signedIn?.completedQuests[0] ?? null;
   const latestCompletedChallenge = latestCompletedQuest ? bootstrap.challenges.find((challenge) => challenge.id === latestCompletedQuest.id) ?? null : null;
   const unlockedCoatCount = (signedIn?.completedQuests.length ?? 0) + (signedIn?.multiplayerTrophies?.length ?? 0);
+  const trophyCabinetItems = [
+    ...(signedIn?.multiplayerTrophies ?? []).map((trophy) => ({ kind: "multiplayer" as const, trophy })),
+    ...(signedIn?.completedQuests ?? []).map((quest) => ({ kind: "solo" as const, quest })),
+  ];
+  const visibleTrophyCabinetItems = showAllTrophyCabinet ? trophyCabinetItems : trophyCabinetItems.slice(0, 5);
 
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
@@ -1803,47 +1809,61 @@ function TodayDashboard({
       />
 
 
-      <AppSection title="Trophy Cabinet" action="Open" onAction={() => onSelectTab("coatOfArms")}>
-        <HomeFeatureCard
-          imageSource={latestCompletedQuest ? (latestCompletedChallenge ? getChallengeCoatImageSource(latestCompletedChallenge) : getRowImageSource(latestCompletedQuest.badgeImageUrl)) : SQC_COAT_OF_ARMS_ASSET}
-          glowSource={latestCompletedChallenge ? getChallengeCoatGlowSource(latestCompletedChallenge.id) : undefined}
-          glowColor={latestCompletedChallenge ? getSafeBadgeColors(latestCompletedChallenge).glow : colors.gold}
-          eyebrow="Your rewards"
-          title={unlockedCoatCount ? `${unlockedCoatCount} unlocked Coat${unlockedCoatCount === 1 ? "" : "s"}` : "No Coat of Arms yet"}
-          copy={unlockedCoatCount ? "Proof, seals, and Multiplayer placements live here." : "Complete a Side Quest to make this section start filling up."}
-          primaryMeta={signedIn.completedQuests.length ? `${signedIn.completedQuests.length} solo` : "Solo pending"}
-          secondaryMeta={signedIn.multiplayerTrophies?.length ? `${signedIn.multiplayerTrophies.length} multiplayer` : "MP pending"}
-          onPress={() => onSelectTab("coatOfArms")}
-        />
-        {signedIn.multiplayerTrophies?.slice(0, 2).map((trophy) => (
-          <AppRow
-            key={trophy.id}
-            title={trophy.title}
-            meta={`Multiplayer placement · ${trophy.rankLabel}`}
-            status={undefined}
-            statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-            imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-            variant="seal"
-            onPress={() => onSelectTab("coatOfArms")}
-          />
-        ))}
-        {signedIn.completedQuests.length ? signedIn.completedQuests.slice(0, Math.max(0, 3 - (signedIn.multiplayerTrophies?.length ?? 0))).map((quest) => {
-          const completedChallenge = bootstrap.challenges.find((challenge) => challenge.id === quest.id) ?? null;
-          return (
-            <AppRow
-              key={quest.id}
-              title={cleanMultiplayerTitle(quest.title)}
-              meta={`Unlocked ${quest.badgeName}`}
-              status={undefined}
-              statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
-              imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(quest.badgeImageUrl)}
-              glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
-              glowColor={getSafeBadgeColors(completedChallenge).glow}
-              onPress={() => setCompletedProofId(quest.id)}
-            />
-          );
-        }) : null}
-      </AppSection>
+      <View style={compactStyles.trophyCabinetSection}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open Trophy Cabinet" style={compactStyles.activeMultiplayerSummary} onPress={() => onSelectTab("coatOfArms")}>
+          <View style={compactStyles.trophyHeroMarker}>
+            <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.trophyHeroCoat} resizeMode="contain" />
+          </View>
+          <View style={compactStyles.activeSoloPill}>
+            <Text style={compactStyles.activeSoloPillText}>Trophy Cabinet</Text>
+          </View>
+          <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{unlockedCoatCount ? `${unlockedCoatCount} unlocked Coat${unlockedCoatCount === 1 ? "" : "s"}` : "No Coat of Arms yet"}</Text>
+        </Pressable>
+
+        <View style={compactStyles.activeMultiplayerList}>
+          {visibleTrophyCabinetItems.length ? visibleTrophyCabinetItems.map((item) => {
+            if (item.kind === "multiplayer") {
+              return (
+                <AppRow
+                  key={`multiplayer-${item.trophy.id}`}
+                  title={item.trophy.title}
+                  meta={`Multiplayer placement · ${item.trophy.rankLabel}`}
+                  status={undefined}
+                  statusImageSource={getMultiplayerTrophySealSource(item.trophy.placement)}
+                  imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+                  variant="seal"
+                  onPress={() => onSelectTab("coatOfArms")}
+                />
+              );
+            }
+            const completedChallenge = bootstrap.challenges.find((challenge) => challenge.id === item.quest.id) ?? null;
+            return (
+              <AppRow
+                key={`solo-${item.quest.id}`}
+                title={cleanMultiplayerTitle(item.quest.title)}
+                meta={`Unlocked ${item.quest.badgeName}`}
+                status={undefined}
+                statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
+                imageSource={completedChallenge ? getChallengeCoatImageSource(completedChallenge) : getRowImageSource(item.quest.badgeImageUrl)}
+                glowSource={completedChallenge ? getChallengeCoatGlowSource(completedChallenge.id) : null}
+                glowColor={getSafeBadgeColors(completedChallenge).glow}
+                onPress={() => setCompletedProofId(item.quest.id)}
+              />
+            );
+          }) : (
+            <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onSelectTab("sideQuests")} />
+          )}
+          {trophyCabinetItems.length > 5 ? (
+            <AppRow title={showAllTrophyCabinet ? "Show fewer Trophy Cabinet items" : "Show all Trophy Cabinet items"} meta={showAllTrophyCabinet ? "Collapse this list back to the top five." : `${trophyCabinetItems.length - 5} more unlocked item${trophyCabinetItems.length - 5 === 1 ? "" : "s"}.`} status={showAllTrophyCabinet ? "Collapse" : "Expand"} imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => setShowAllTrophyCabinet((current) => !current)} />
+          ) : null}
+        </View>
+
+        <View style={compactStyles.activeSoloActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open Trophy Cabinet" style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("coatOfArms")}>
+            <Text style={compactStyles.soloSecondaryActionText}>Open Trophy Cabinet</Text>
+          </Pressable>
+        </View>
+      </View>
 
       <Modal visible={Boolean(completedProofRecord && completedProofChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCompletedProofId(null)}>
         <SafeAreaView style={compactStyles.detailScreen}>
@@ -7093,6 +7113,9 @@ const compactStyles = StyleSheet.create({
   multiplayerHeroMarker: { position: "absolute", top: -116, alignSelf: "center", width: 112, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
   multiplayerHeroSeal: { width: 100, height: 100 },
   activeMultiplayerList: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
+  trophyCabinetSection: { position: "relative", gap: 8, marginTop: 100, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.064)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
+  trophyHeroMarker: { position: "absolute", top: -118, alignSelf: "center", width: 126, height: 126, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  trophyHeroCoat: { width: 112, height: 126 },
   activeSoloRefreshRow: { position: "absolute", top: 8, right: 8, zIndex: 8, flexDirection: "row", justifyContent: "flex-end" },
   activeSoloSummary: { gap: 10, alignItems: "center" },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
