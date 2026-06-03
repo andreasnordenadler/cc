@@ -135,6 +135,7 @@ const MOBILE_CHESS_PIECES: Record<string, string> = {
   K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙",
   k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟",
 };
+const MOBILE_CHESS_START_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 type MobileBoardSquare = { square: string; piece?: string; highlight?: boolean; fileLabel?: string; rankLabel?: string };
 
@@ -260,11 +261,13 @@ function ActiveQuestUnavailableMiniBoard() {
 }
 
 function ActiveQuestEmptyMiniBoard() {
+  const board = parseMobileFenBoard(MOBILE_CHESS_START_FEN);
+
   return (
     <View style={compactStyles.currentProofIntegratedBoard}>
-      {Array.from({ length: 64 }).map((_, index) => (
-        <View key={`empty-${index}`} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
-          {index === 27 ? <MaterialCommunityIcons name="chess-knight" size={28} color="rgba(245,200,106,.82)" /> : null}
+      {(board ?? []).map((square, index) => (
+        <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
+          <Text style={[compactStyles.currentProofMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
         </View>
       ))}
     </View>
@@ -280,7 +283,7 @@ function ActiveQuestNoGameSummary({ goal, pickedLabel, latestCheckLabel, statusL
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
         {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
-        <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>Play a new public game on Lichess or Chess.com after picking this Side Quest, then come back and refresh proof.</Text>
+        <Text style={compactStyles.currentEmptyBoardCopy} numberOfLines={4}>Starting position shown until your next public game is available. Play on Lichess or Chess.com, then come back and refresh proof.</Text>
       </View>
     </View>
   );
