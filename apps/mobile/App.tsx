@@ -6998,7 +6998,7 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   currentQuestHero: { alignItems: "center", justifyContent: "center", gap: 2, paddingTop: 0, paddingBottom: 0 },
-  coatHeroMarker: { position: "absolute", top: -132, alignSelf: "center", width: 151, height: 151, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  coatHeroMarker: { position: "absolute", top: -146, alignSelf: "center", width: 151, height: 151, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
   coatHeroGlowImage: { position: "absolute", width: 170, height: 170, opacity: .62, transform: [{ translateY: 3 }] },
   coatHeroImage: { width: 139, height: 152 },
   coatHeroSeal: { position: "absolute", width: 30, height: 30, right: 2, bottom: 2, zIndex: 4, transform: [{ rotate: "-10deg" }] },
