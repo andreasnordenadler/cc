@@ -1623,10 +1623,6 @@ function TodayDashboard({
         </Pressable>
       ) : null}
 
-      <View style={compactStyles.activeSoloPill}>
-        <MaterialCommunityIcons name="shield-star" size={12} color={colors.gold} />
-        <Text style={compactStyles.activeSoloPillText}>Active Solo Quest</Text>
-      </View>
       <View style={compactStyles.activeSoloSection}>
         <View style={compactStyles.activeSoloRefreshRow}>
           <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
@@ -1646,6 +1642,9 @@ function TodayDashboard({
                 {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatHeroGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
                 <Image source={activeCoatSource} style={compactStyles.coatHeroImage} resizeMode="contain" />
                 {signedIn.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatHeroSeal} resizeMode="contain" /> : null}
+              </View>
+              <View style={compactStyles.activeSoloPill}>
+                <Text style={compactStyles.activeSoloPillText}>Active Solo Quest</Text>
               </View>
               <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
             </View>
@@ -6980,7 +6979,7 @@ const compactStyles = StyleSheet.create({
   blockerTitle: { color: colors.paper, fontSize: 15, fontWeight: "900" },
   blockerCopy: { color: colors.muted, fontSize: 12, lineHeight: 16 },
   freshPanel: { gap: 10, padding: 12, borderRadius: 20, backgroundColor: "rgba(255,255,255,.075)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
-  activeSoloPill: { alignSelf: "center", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(245,200,106,.10)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)", marginBottom: -2 },
+  activeSoloPill: { alignSelf: "center", alignItems: "center", justifyContent: "center", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(245,200,106,.10)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)", marginTop: 0, marginBottom: 1 },
   activeSoloPillText: { color: colors.gold, fontSize: 10, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1 },
   activeSoloSection: { position: "relative", gap: 8, marginTop: 138, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   activeSoloRefreshRow: { position: "absolute", top: 8, right: 8, zIndex: 8, flexDirection: "row", justifyContent: "flex-end" },
