@@ -1653,8 +1653,8 @@ function TodayDashboard({
           {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Not Completed" /> : null}
           {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Not Completed" /> : null}
           <View style={compactStyles.activeSoloActions}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Explore More Solo Side Quests" style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("sideQuests")}>
-              <Text style={compactStyles.soloSecondaryActionText}>Explore More Solo Side Quests</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel={canViewCurrentProof ? "Pick your next Solo Side Quest" : "Explore More Solo Side Quests"} style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("sideQuests")}>
+              <Text style={compactStyles.soloSecondaryActionText}>{canViewCurrentProof ? "Pick your next Solo Side Quest" : "Explore More Solo Side Quests"}</Text>
             </Pressable>
           </View>
           </View>
@@ -6998,10 +6998,10 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   currentQuestHero: { alignItems: "center", justifyContent: "center", gap: 2, paddingTop: 0, paddingBottom: 0 },
-  coatHeroMarker: { position: "absolute", top: -146, alignSelf: "center", width: 151, height: 151, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  coatHeroMarker: { position: "absolute", top: -158, alignSelf: "center", width: 151, height: 151, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
   coatHeroGlowImage: { position: "absolute", width: 170, height: 170, opacity: .62, transform: [{ translateY: 3 }] },
   coatHeroImage: { width: 139, height: 152 },
-  coatHeroSeal: { position: "absolute", width: 30, height: 30, right: 2, bottom: 2, zIndex: 4, transform: [{ rotate: "-10deg" }] },
+  coatHeroSeal: { position: "absolute", width: 42, height: 42, right: 6, bottom: 4, zIndex: 4, transform: [{ rotate: "-10deg" }] },
   currentQuestHeroTitle: { maxWidth: 286, color: colors.paper, fontSize: 20, lineHeight: 23, fontWeight: "900", letterSpacing: -.55, textAlign: "center", marginTop: 0 },
   coatMarker: { width: 62, height: 70, alignItems: "center", justifyContent: "center", overflow: "visible" },
   coatMarkerGlowImage: { position: "absolute", width: 78, height: 88, opacity: .74, transform: [{ translateY: 4 }] },
