@@ -3642,33 +3642,19 @@ function QuestBoardDashboard({
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
       <View style={[compactStyles.sideQuestCatalogShell, sideQuestCatalogTab === "official" ? compactStyles.sideQuestCatalogShellOfficial : compactStyles.sideQuestCatalogShellCommunity]}>
-        <View style={compactStyles.sideQuestBrandTabs}>
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
-          accessibilityLabel="Show SQC Official Side Quests"
-          style={[
-            compactStyles.sideQuestBrandTab,
-            compactStyles.sideQuestBrandTabOfficial,
-            sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialActive,
-          ]}
-          onPress={() => setSideQuestCatalogTab("official")}
-        >
-          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>SQC Official Side Quests</Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="tab"
-          accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
-          accessibilityLabel="Show Community Side Quests"
-          style={[
-            compactStyles.sideQuestBrandTab,
-            compactStyles.sideQuestBrandTabCommunity,
-            sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityActive,
-          ]}
-          onPress={() => setSideQuestCatalogTab("community")}
-        >
-          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
-        </Pressable>
+        <View style={compactStyles.sideQuestSourceHeader}>
+          <View style={compactStyles.sideQuestSourceCopy}>
+            <Text style={compactStyles.sideQuestSourceEyebrow}>Viewing</Text>
+            <Text style={compactStyles.sideQuestSourceTitle}>{sideQuestCatalogTab === "official" ? "Official Side Quests" : "Community Side Quests"}</Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={sideQuestCatalogTab === "official" ? "Show Community Side Quests" : "Show Official Side Quests"}
+            style={compactStyles.sideQuestSourceSwitch}
+            onPress={() => setSideQuestCatalogTab(sideQuestCatalogTab === "official" ? "community" : "official")}
+          >
+            <Text style={compactStyles.sideQuestSourceSwitchText}>{sideQuestCatalogTab === "official" ? "Show Community" : "Show Official"}</Text>
+          </Pressable>
         </View>
 
         {sideQuestCatalogTab === "official" ? (
@@ -7422,6 +7408,12 @@ const compactStyles = StyleSheet.create({
   sideQuestCatalogPanel: { gap: 8 },
   sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "transparent", borderWidth: 0 },
   sideQuestCatalogInlinePanel: { gap: 8, paddingHorizontal: 2, paddingVertical: 4, backgroundColor: "transparent", borderWidth: 0 },
+  sideQuestSourceHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 4, paddingTop: 2, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: "rgba(255,247,232,.1)" },
+  sideQuestSourceCopy: { flex: 1, minWidth: 0, gap: 2 },
+  sideQuestSourceEyebrow: { color: "rgba(255,247,232,.55)", fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .75 },
+  sideQuestSourceTitle: { color: colors.paper, fontSize: 18, lineHeight: 22, fontWeight: "900", letterSpacing: -.35 },
+  sideQuestSourceSwitch: { flexShrink: 0, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 999, backgroundColor: "rgba(13,11,14,.34)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  sideQuestSourceSwitchText: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   browseTopBar: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 4, paddingTop: 6 },
   browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2, flexShrink: 1 },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
