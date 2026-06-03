@@ -1817,7 +1817,6 @@ function TodayDashboard({
           <View style={compactStyles.activeSoloPill}>
             <Text style={compactStyles.activeSoloPillText}>Trophy Cabinet</Text>
           </View>
-          <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{unlockedCoatCount ? `${unlockedCoatCount} unlocked Coat${unlockedCoatCount === 1 ? "" : "s"}` : "No Coat of Arms yet"}</Text>
         </Pressable>
 
         <View style={compactStyles.activeMultiplayerList}>
@@ -1863,6 +1862,11 @@ function TodayDashboard({
             <Text style={compactStyles.soloSecondaryActionText}>Open Trophy Cabinet</Text>
           </Pressable>
         </View>
+      </View>
+
+      <View style={compactStyles.pullRefreshHint}>
+        <MaterialCommunityIcons name="arrow-down" size={13} color="rgba(199,189,169,.72)" />
+        <Text style={compactStyles.pullRefreshHintText}>Pull down to refresh</Text>
       </View>
 
       <Modal visible={Boolean(completedProofRecord && completedProofChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCompletedProofId(null)}>
