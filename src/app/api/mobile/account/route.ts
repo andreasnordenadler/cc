@@ -124,6 +124,29 @@ export async function GET(request: Request) {
     };
   }));
   const { relatedGroupQuests, publicGroupQuests } = await getMobileAccountGroupQuests(client, userId);
+  const communitySideQuests = await listPublicCommunitySideQuests(client, userId, dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]));
+  const activeCommunityCustomQuestRecord = activeChallenge?.id ? communitySideQuests.find((quest) => quest.id === activeChallenge.id) ?? null : null;
+  const mobileActiveChallengeRecord = activeChallengeRecord ?? activeCommunityCustomQuestRecord;
+  const completedCommunityQuests = communitySideQuests.filter((quest) => completedSet.has(quest.id) && !customQuestMap.has(quest.id));
+  completedQuestPayloads.push(...completedCommunityQuests.map((quest) => {
+    const latestPassed = getLatestPassedAttempt(metadata, quest.id);
+    return {
+      id: quest.id,
+      title: quest.title,
+      reward: 100,
+      badgeName: "Community Side Quest",
+      completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
+      href: new URL(`/challenges`, baseUrl).toString(),
+      proofHref: null,
+      badgeImageUrl: quest.badgeImageUrl ? new URL(quest.badgeImageUrl, baseUrl).toString() : new URL("/badges/custom/custom-side-quest-crest.png", baseUrl).toString(),
+      gameId: latestPassed?.gameId ?? null,
+      provider: latestPassed?.provider ?? null,
+      finalPositionFen: latestPassed?.finalPositionFen ?? null,
+      lastMoveUci: latestPassed?.lastMoveUci ?? null,
+      lastMoveSan: latestPassed?.lastMoveSan ?? null,
+      playerColor: latestPassed?.playerColor ?? latestPassed?.failureDiagnostic?.playerColor ?? null,
+    };
+  }));
   const isOfficialGroupQuest = (quest: { id: string; official?: boolean | null }) => quest.official === true || quest.id.startsWith("official-");
   const officialGroupQuestIds = new Set(publicGroupQuests.filter(isOfficialGroupQuest).map((quest) => quest.id));
   const relatedUserGroupQuestPayloads = relatedGroupQuests
@@ -285,21 +308,22 @@ export async function GET(request: Request) {
       proofReceiptCount: attempts.length,
     },
     customSideQuests: customSideQuestsWithStats,
-    activeQuest: activeChallenge && activeChallengeRecord
+    communitySideQuests,
+    activeQuest: activeChallenge && mobileActiveChallengeRecord
       ? {
-          id: activeChallengeRecord.id,
-          title: activeChallengeRecord.title,
+          id: mobileActiveChallengeRecord.id,
+          title: mobileActiveChallengeRecord.title,
           status: activeChallenge.status ?? "accepted",
           startedAt: activeChallenge.startedAt ?? null,
           verifiedAt: activeChallenge.verifiedAt ?? null,
-          completed: completedSet.has(activeChallengeRecord.id),
+          completed: completedSet.has(mobileActiveChallengeRecord.id),
           banner: challengeBanner(activeChallenge),
-          href: activeChallengeRecord.id.startsWith("custom-") ? new URL(`/challenges`, baseUrl).toString() : new URL(`/challenges/${activeChallengeRecord.id}`, baseUrl).toString(),
-          proofHref: latestProofPath && latestAttempt?.challengeId === activeChallengeRecord.id ? new URL(latestProofPath, baseUrl).toString() : null,
-          badgeImageUrl: "badgeImageUrl" in activeChallengeRecord && activeChallengeRecord.badgeImageUrl
-            ? new URL(activeChallengeRecord.badgeImageUrl, baseUrl).toString()
-            : "badgeIdentity" in activeChallengeRecord && activeChallengeRecord.badgeIdentity.image
-              ? new URL(activeChallengeRecord.badgeIdentity.image, baseUrl).toString()
+          href: mobileActiveChallengeRecord.id.startsWith("custom-") ? new URL(`/challenges`, baseUrl).toString() : new URL(`/challenges/${mobileActiveChallengeRecord.id}`, baseUrl).toString(),
+          proofHref: latestProofPath && latestAttempt?.challengeId === mobileActiveChallengeRecord.id ? new URL(latestProofPath, baseUrl).toString() : null,
+          badgeImageUrl: "badgeImageUrl" in mobileActiveChallengeRecord && mobileActiveChallengeRecord.badgeImageUrl
+            ? new URL(mobileActiveChallengeRecord.badgeImageUrl, baseUrl).toString()
+            : "badgeIdentity" in mobileActiveChallengeRecord && mobileActiveChallengeRecord.badgeIdentity.image
+              ? new URL(mobileActiveChallengeRecord.badgeIdentity.image, baseUrl).toString()
               : null,
         }
       : null,
@@ -364,6 +388,76 @@ async function getMobileAccountUser(
         { status: 503, headers: retryAfter ? { "Retry-After": String(retryAfter) } : undefined },
       ),
     };
+  }
+}
+
+async function listPublicCommunitySideQuests(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  currentUserId: string,
+  groupQuests: ServerGroupQuest[],
+) {
+  try {
+    const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
+    const publicQuestRecords = users.data.flatMap((user) => {
+      const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
+      const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
+      const quests = getCustomSideQuests(privateMetadata).length ? getCustomSideQuests(privateMetadata) : getCustomSideQuests(publicMetadata);
+      const creatorName = getPreferredRunnerName(publicMetadata, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      });
+      return quests
+        .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public")
+        .map((quest) => ({ quest, userId: user.id, creatorName: creatorName || "SQC player" }));
+    });
+
+    const seen = new Set<string>();
+    return publicQuestRecords
+      .filter(({ quest }) => {
+        if (seen.has(quest.id)) return false;
+        seen.add(quest.id);
+        return true;
+      })
+      .map(({ quest, userId: ownerUserId, creatorName }) => {
+        const allAttempts = users.data.flatMap((user) => {
+          const metadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
+          return getChallengeAttempts(metadata, quest.id);
+        });
+        const completions = users.data.filter((user) => {
+          const metadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
+          return new Set(getChallengeProgress(metadata).completedChallengeIds).has(quest.id);
+        }).length;
+        const activeSelections = users.data.filter((user) => {
+          const metadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
+          return getActiveChallenge(metadata)?.id === quest.id;
+        }).length;
+        const lineups = groupQuests.filter((groupQuest) => groupQuest.questIds.includes(quest.id));
+        return {
+          ...quest,
+          creatorName,
+          ownedByYou: ownerUserId === currentUserId,
+          stats: {
+            soloAttempts: allAttempts.length,
+            soloSelections: activeSelections,
+            soloCompletions: completions,
+            multiplayerLineups: lineups.length,
+            multiplayerAttempts: lineups.reduce((total, groupQuest) => total + groupQuest.participants.length, 0),
+            multiplayerFulfillments: lineups.reduce((total, groupQuest) => total + groupQuest.participants.filter((participant) => participant.completedQuestIds?.includes(quest.id)).length, 0),
+          },
+        };
+      })
+      .sort((a, b) => {
+        const popularityA = (a.stats?.soloSelections ?? 0) + (a.stats?.soloCompletions ?? 0) * 3 + (a.stats?.multiplayerLineups ?? 0) * 2 + (a.stats?.multiplayerFulfillments ?? 0) * 4;
+        const popularityB = (b.stats?.soloSelections ?? 0) + (b.stats?.soloCompletions ?? 0) * 3 + (b.stats?.multiplayerLineups ?? 0) * 2 + (b.stats?.multiplayerFulfillments ?? 0) * 4;
+        if (popularityA !== popularityB) return popularityB - popularityA;
+        return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
+      })
+      .slice(0, 80);
+  } catch (error) {
+    console.warn("mobile community Side Quest catalog unavailable", { reason: getClerkErrorReason(error) });
+    return [];
   }
 }
 

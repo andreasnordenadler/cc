@@ -109,6 +109,8 @@ export type MobileCustomSideQuest = {
   createdAt: string;
   updatedAt: string;
   badgeImageUrl?: string | null;
+  creatorName?: string;
+  ownedByYou?: boolean;
   stats?: {
     soloAttempts: number;
     soloSelections: number;
@@ -142,6 +144,7 @@ export type MobileAccountState = {
     proofReceiptCount: number;
   };
   customSideQuests?: MobileCustomSideQuest[];
+  communitySideQuests?: MobileCustomSideQuest[];
   activeQuest: {
     id: string;
     title: string;

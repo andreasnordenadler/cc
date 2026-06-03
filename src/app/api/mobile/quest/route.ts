@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
-  const readMetadata = {
+  let readMetadata: UserMetadataRecord = {
     ...metadata,
     customSideQuests: privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata),
   };
@@ -60,6 +60,7 @@ export async function POST(request: Request) {
   try {
     if (action === "start") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
+      readMetadata = await withPublicCustomSideQuest(client, readMetadata, challengeId);
       const result = await startMobileChallenge(userId, metadata, readMetadata, challengeId);
 
       return NextResponse.json({
@@ -73,6 +74,8 @@ export async function POST(request: Request) {
     }
 
     if (action === "check") {
+      const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object" ? (metadata.activeChallenge as { id?: string }) : null;
+      readMetadata = await withPublicCustomSideQuest(client, readMetadata, activeChallenge?.id ?? "");
       const result = await checkMobileActiveChallenge(userId, metadata, readMetadata);
 
       return NextResponse.json({
@@ -101,6 +104,7 @@ export async function POST(request: Request) {
 
     if (action === "reset") {
       const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
+      readMetadata = await withPublicCustomSideQuest(client, readMetadata, challengeId);
       await resetMobileCompletedChallenge(userId, metadata, readMetadata, challengeId);
 
       return NextResponse.json({
@@ -185,6 +189,34 @@ function getPassedProviderCheck(checks: MobileProviderCheck[]): MobileProviderCh
   return checks
     .filter((check) => check.status === "passed")
     .sort((a, b) => getProviderCheckTimeMs(b) - getProviderCheckTimeMs(a))[0];
+}
+
+async function withPublicCustomSideQuest(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  readMetadata: UserMetadataRecord,
+  challengeId: string,
+): Promise<UserMetadataRecord> {
+  if (!challengeId || getChallengeById(challengeId) || getCustomSideQuestById(readMetadata, challengeId)) return readMetadata;
+
+  try {
+    const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
+    for (const user of users.data) {
+      const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
+      const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? (user.publicMetadata as UserMetadataRecord) : {};
+      const customQuest = [...getCustomSideQuests(privateMetadata), ...getCustomSideQuests(publicMetadata)]
+        .find((quest) => quest.id === challengeId && quest.visibility === "public" && quest.lifecycle === "published");
+      if (customQuest) {
+        return {
+          ...readMetadata,
+          customSideQuests: [customQuest, ...getCustomSideQuests(readMetadata)].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index),
+        };
+      }
+    }
+  } catch (error) {
+    console.warn("mobile public custom Side Quest lookup unavailable", { reason: error instanceof Error ? error.message : "unknown" });
+  }
+
+  return readMetadata;
 }
 
 async function startMobileChallenge(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord, challengeId: string) {

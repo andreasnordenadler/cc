@@ -125,6 +125,8 @@ type CustomLibraryQuest = {
   lifecycle?: "draft" | "published" | "archived";
   createdAt?: string;
   updatedAt?: string;
+  creatorName?: string;
+  ownedByYou?: boolean;
   badgeImageUrl?: string | null;
   stats?: MobileCustomSideQuest["stats"];
 };
@@ -133,6 +135,8 @@ type CommunityBrowseView = "discover" | "mine";
 type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
 type CommunityBrowseSort = "popular" | "newest" | "az";
 type CustomLibraryFilter = "all" | "published" | "drafts" | "public" | "archived";
+type MultiplayerCommunityFilter = "open" | "all" | "joined" | "hosted" | "finished";
+type MultiplayerCommunitySort = "closing" | "newest" | "players";
 
 const MULTIPLAYER_DEFAULT_INVITE_COPY = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
 const SQC_WEB_BASE_URL = getApiBaseUrl();
@@ -3159,6 +3163,22 @@ function customQuestMatchesSearch(quest: Pick<CustomLibraryQuest, "name" | "summ
   return `${quest.name} ${quest.summary}`.toLowerCase().includes(needle);
 }
 
+function multiplayerQuestMatchesSearch(quest: MobileGroupQuestSummary, search: string) {
+  const needle = search.trim().toLowerCase();
+  if (!needle) return true;
+  return [quest.title, quest.hostName, quest.copy, quest.providerLabel, ...(quest.questTitles ?? []), ...(quest.customQuestSummaries?.map((item) => `${item.title} ${item.summary}`) ?? []), ...Object.values(quest.rules ?? {})]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .includes(needle);
+}
+
+function getMultiplayerCommunitySortTime(quest: MobileGroupQuestSummary, sort: MultiplayerCommunitySort) {
+  const raw = sort === "closing" ? quest.endAt : quest.startAt ?? quest.endAt;
+  const parsed = raw ? Date.parse(raw) : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
   const badgePath = getSingleCustomQuestBadgePath(badgeImageUrl);
   if (badgePath.includes("custom-side-quest-crest.png")) return SQC_CUSTOM_SIDE_QUEST_CREST_ASSET;
@@ -3467,7 +3487,7 @@ function QuestBoardDashboard({
   const detailChallenge = detailChallengeId ? bootstrap.challenges.find((challenge) => challenge.id === detailChallengeId) ?? null : null;
   const completedQuestRecord = completedDetailId && signedIn ? signedIn.completedQuests.find((quest) => quest.id === completedDetailId) ?? null : null;
   const completedDetailOfficialChallenge = completedDetailId ? bootstrap.challenges.find((challenge) => challenge.id === completedDetailId) ?? null : null;
-  const completedDetailCustomQuest = completedDetailId ? signedIn?.customSideQuests?.find((quest) => quest.id === completedDetailId) ?? null : null;
+  const completedDetailCustomQuest = completedDetailId ? [...(signedIn?.customSideQuests ?? []), ...(signedIn?.communitySideQuests ?? [])].find((quest) => quest.id === completedDetailId) ?? null : null;
   const completedDetailChallenge = completedDetailOfficialChallenge ?? (completedQuestRecord ? buildCustomProofChallenge(completedQuestRecord, completedDetailCustomQuest) : null);
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
@@ -3477,6 +3497,7 @@ function QuestBoardDashboard({
   const [communityFilter, setCommunityFilter] = useState<CommunityBrowseFilter>("all");
   const [communitySort, setCommunitySort] = useState<CommunityBrowseSort>("popular");
   const [customLibraryFilter, setCustomLibraryFilter] = useState<CustomLibraryFilter>("all");
+  const [customPublishVisibility, setCustomPublishVisibility] = useState<"private" | "public">("private");
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -3497,10 +3518,11 @@ function QuestBoardDashboard({
   const customRequirementIdCounter = useRef(0);
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
-  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
+  const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
+  const serverCommunityQuests: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.communitySideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "public", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats })) : [];
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const communityReferenceMs = signedIn?.generatedAt ? Date.parse(signedIn.generatedAt) : 0;
-  const publicCommunityQuests = visibleCustomDrafts.filter((quest) => quest.lifecycle === "published" && quest.visibility === "public");
+  const publicCommunityQuests = serverCommunityQuests.filter((quest) => quest.lifecycle === "published" && quest.visibility === "public");
   const communityBrowseQuests = publicCommunityQuests
     .filter((quest) => customQuestMatchesSearch(quest, communitySearch))
     .filter((quest) => {
@@ -3526,9 +3548,10 @@ function QuestBoardDashboard({
       return true;
     })
     .sort((a, b) => getCustomQuestUpdatedMs(b) - getCustomQuestUpdatedMs(a));
-  const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
+  const customDetailDraft = customDetailId ? [...visibleCustomDrafts, ...publicCommunityQuests].find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedIn ? signedIn.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
   const customDetailActive = Boolean(customDetailDraft && activeId === customDetailDraft.id);
+  const customDetailOwned = Boolean(customDetailDraft && visibleCustomDrafts.some((draft) => draft.id === customDetailDraft.id));
   const currentCustomRequirement = {
     piece: customRulePiece,
     owner: customRuleOwner,
@@ -3639,7 +3662,7 @@ function QuestBoardDashboard({
       setCustomDrafts((current) => {
         customRequirementIdCounter.current += 1;
         const now = new Date().toISOString();
-        const draft: CustomLibraryQuest = { id: `local-custom-${customRequirementIdCounter.current}`, name, summary, config, visibility: "private", lifecycle, createdAt: now, updatedAt: now, badgeImageUrl: badgePreviewUrl };
+        const draft: CustomLibraryQuest = { id: `local-custom-${customRequirementIdCounter.current}`, name, summary, config, visibility: lifecycle === "published" ? customPublishVisibility : "private", lifecycle, createdAt: now, updatedAt: now, badgeImageUrl: badgePreviewUrl };
         return [draft, ...current].slice(0, 6);
       });
       Alert.alert(lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
@@ -3648,9 +3671,10 @@ function QuestBoardDashboard({
     }
     try {
       const sessionToken = await authBridge.getSessionToken();
-      await saveMobileCustomSideQuest({ sessionToken, title: name, summary, config, lifecycle, visibility: "private" });
+      const visibility = lifecycle === "published" ? customPublishVisibility : "private";
+      await saveMobileCustomSideQuest({ sessionToken, title: name, summary, config, lifecycle, visibility });
       await Promise.resolve(onAccountUpdated());
-      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : `${name} is ready in your Side Quest Library.`);
+      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : visibility === "public" ? "Community Side Quest published" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : visibility === "public" ? `${name} is now public in Community Discover.` : `${name} is ready in your private Side Quest Library.`);
       setCustomCreateOpen(false);
     } catch (caught) {
       Alert.alert(lifecycle === "published" ? "Could not publish Side Quest" : "Could not save draft", caught instanceof Error ? caught.message : "Try again in a moment.");
@@ -3826,7 +3850,7 @@ function QuestBoardDashboard({
               {communityBrowseQuests.length ? (
                 <View style={compactStyles.sideQuestCatalogRows}>
                   {communityBrowseQuests.map((quest) => (
-                    <AppRow key={quest.id} title={quest.name} meta={`${cleanCustomRuleSummaryText(quest.summary)} · ${getCustomStatsLine(quest.stats)}`} status={getCustomLifecycleStatus(quest, activeId, Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id)))} sourceBadge="Community" imageSource={getCustomQuestImageSource(quest.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(quest.id)} />
+                    <AppRow key={quest.id} title={quest.name} meta={`${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${cleanCustomRuleSummaryText(quest.summary)} · ${getCustomStatsLine(quest.stats)}`} status={getCustomLifecycleStatus(quest, activeId, Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id)))} sourceBadge={quest.ownedByYou ? "Yours" : "Community"} imageSource={getCustomQuestImageSource(quest.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(quest.id)} />
                   ))}
                 </View>
               ) : (
@@ -3929,7 +3953,7 @@ function QuestBoardDashboard({
           await Promise.resolve(onAccountUpdated());
           Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
         }}
-        onDelete={async (questId) => {
+        onDelete={customDetailOwned ? async (questId) => {
           if (!authBridge.isSignedIn) {
             setCustomDrafts((current) => current.filter((draft) => draft.id !== questId));
           } else {
@@ -3938,8 +3962,8 @@ function QuestBoardDashboard({
             await Promise.resolve(onAccountUpdated());
           }
           setCustomDetailId(null);
-        }}
-        onSaveState={async (quest, next) => {
+        } : undefined}
+        onSaveState={customDetailOwned ? async (quest, next) => {
           if (!authBridge.isSignedIn) {
             setCustomDrafts((current) => current.map((draft) => draft.id === quest.id ? { ...draft, lifecycle: next.lifecycle ?? draft.lifecycle, visibility: next.visibility ?? draft.visibility } : draft));
             return;
@@ -3948,7 +3972,7 @@ function QuestBoardDashboard({
           await saveMobileCustomSideQuest({ sessionToken, id: quest.id, title: quest.name, summary: quest.summary, config: quest.config, lifecycle: next.lifecycle ?? quest.lifecycle ?? "published", visibility: next.visibility ?? quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
           Alert.alert("Custom Side Quest updated", getCustomStateSavedMessage(quest.name, next));
-        }}
+        } : undefined}
         onViewResult={customDetailCompletedQuest ? () => {
           setCompletedDetailId(customDetailCompletedQuest.id);
           setCustomDetailId(null);
@@ -4222,9 +4246,23 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
-              <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from your library if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
+              <Text style={compactStyles.multiplayerRuleLabel}>Publish visibility</Text>
+              <View style={compactStyles.multiplayerOptionGrid}>
+                {(["private", "public"] as const).map((visibility) => {
+                  const selected = customPublishVisibility === visibility;
+                  return (
+                    <Pressable key={visibility} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCustomPublishVisibility(visibility)}>
+                      <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
+                      <View style={compactStyles.multiplayerOptionCopy}>
+                        <Text style={selected ? compactStyles.multiplayerOptionTitleSelected : compactStyles.multiplayerOptionTitle}>{visibility === "public" ? "Public Community" : "Private Library"}</Text>
+                        <Text style={compactStyles.multiplayerOptionHelper}>{visibility === "public" ? "Appears in Community Discover and can be picked by other players." : "Only you can pick it or use it in hosted Multiplayer Side Quests."}</Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" accessibilityState={{ disabled: !canPublishCustomQuest }} style={[compactStyles.detailPrimaryButton, !canPublishCustomQuest && compactStyles.detailPrimaryButtonDisabled]} disabled={!canPublishCustomQuest} onPress={() => void saveCustomDraft("published")}>
-                <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? "Publish Private Side Quest" : "Add Condition to Publish"}</Text>
+                <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? (customPublishVisibility === "public" ? "Publish to Community" : "Publish Private Side Quest") : "Add Condition to Publish"}</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailSecondaryButton} onPress={() => void saveCustomDraft("draft")}>
                 <Text style={compactStyles.detailSecondaryButtonText}>Save Draft</Text>
@@ -4387,7 +4425,7 @@ function AccountSoloSideQuestSection({
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
 }) {
   const activeOfficialChallenge = account.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === account.activeQuest?.id) ?? null : null;
-  const activeCustomQuest = account.activeQuest?.id ? account.customSideQuests?.find((quest) => quest.id === account.activeQuest?.id) ?? null : null;
+  const activeCustomQuest = account.activeQuest?.id ? [...(account.customSideQuests ?? []), ...(account.communitySideQuests ?? [])].find((quest) => quest.id === account.activeQuest?.id) ?? null : null;
   const activeChallenge = activeOfficialChallenge ?? (account.activeQuest ? buildCustomActiveChallenge(account.activeQuest, activeCustomQuest) : null);
   const activeQuestReceipt = account.latestReceipt?.challengeId === account.activeQuest?.id ? account.latestReceipt : null;
   const latestCheckText = activeQuestReceipt?.headline ? normalizeCheckHeadline(activeQuestReceipt.headline) : null;
@@ -5388,6 +5426,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublicGroupQuests.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
   const publicMultiplayerQuest = publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null;
+  const [multiplayerCommunitySearch, setMultiplayerCommunitySearch] = useState("");
+  const [multiplayerCommunityFilter, setMultiplayerCommunityFilter] = useState<MultiplayerCommunityFilter>("open");
+  const [multiplayerCommunitySort, setMultiplayerCommunitySort] = useState<MultiplayerCommunitySort>("closing");
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
   const [mineListLimit, setMineListLimit] = useState(4);
@@ -5529,6 +5570,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     setCreateQuestIds((current) => current.includes(questId) ? current.filter((id) => id !== questId) : [...current, questId].slice(0, 4));
   }
 
+  const allCommunityMultiplayerQuests = [...publicUserGroupQuests, ...closedPublicUserGroupQuests]
+    .filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
   const joinablePublicUserGroupQuests = publicUserGroupQuests.filter((quest) => quest.joinState !== "Joined" && quest.status !== "Finished");
   const joinedActiveGroupQuests = activeGroupQuests.filter((quest) => !quest.isOwner && quest.status !== "Finished");
   const hostedActiveGroupQuests = activeGroupQuests.filter((quest) => Boolean(quest.isOwner) && quest.status !== "Finished");
@@ -5539,7 +5582,21 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const hostedBrowseGroupQuests = [...hostedActiveGroupQuests, ...hostedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
   const sortLobbyGroupQuests = <T extends { startAt?: string | null; endAt?: string | null }>(quests: T[]) => [...quests].sort((a, b) => Date.parse(b.startAt ?? b.endAt ?? "") - Date.parse(a.startAt ?? a.endAt ?? ""));
   const activeMineGroupQuests = sortLobbyGroupQuests(joinedBrowseGroupQuests);
-  const availableGroupQuests = sortLobbyGroupQuests(joinablePublicUserGroupQuests);
+  const availableGroupQuests = allCommunityMultiplayerQuests
+    .filter((quest) => multiplayerQuestMatchesSearch(quest, multiplayerCommunitySearch))
+    .filter((quest) => {
+      if (multiplayerCommunityFilter === "open") return quest.status !== "Finished";
+      if (multiplayerCommunityFilter === "joined") return quest.joinState === "Joined" && !quest.isOwner;
+      if (multiplayerCommunityFilter === "hosted") return Boolean(quest.isOwner);
+      if (multiplayerCommunityFilter === "finished") return quest.status === "Finished";
+      return true;
+    })
+    .sort((a, b) => {
+      if (multiplayerCommunitySort === "players") return Number.parseInt(b.playersLabel ?? "0", 10) - Number.parseInt(a.playersLabel ?? "0", 10);
+      const aTime = getMultiplayerCommunitySortTime(a, multiplayerCommunitySort);
+      const bTime = getMultiplayerCommunitySortTime(b, multiplayerCommunitySort);
+      return multiplayerCommunitySort === "closing" ? aTime - bTime : bTime - aTime;
+    });
   const hostedLobbyGroupQuests = sortLobbyGroupQuests(hostedBrowseGroupQuests);
   const historyGroupQuests = sortLobbyGroupQuests(closedUserGroupQuests);
   const visibleMineGroupQuests = activeMineGroupQuests.slice(0, mineListLimit);
@@ -5656,16 +5713,47 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       </View>
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}</Text>
+        <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}/{allCommunityMultiplayerQuests.length}</Text>
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Public user-hosted Multiplayer Side Quests. These are separate from SQC Official events.</Text>
+        <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests by title, host, rules, or included Side Quests.</Text>
+        <View style={compactStyles.communityBrowsePanel}>
+          <View style={compactStyles.communitySearchBox}>
+            <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
+            <TextInput
+              value={multiplayerCommunitySearch}
+              placeholder="Search multiplayer community"
+              placeholderTextColor="rgba(255,247,232,.42)"
+              autoCapitalize="none"
+              autoCorrect={false}
+              style={compactStyles.communitySearchInput}
+              onChangeText={setMultiplayerCommunitySearch}
+            />
+            {multiplayerCommunitySearch ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Clear multiplayer community search" onPress={() => setMultiplayerCommunitySearch("")}>
+                <MaterialCommunityIcons name="close-circle" size={18} color="rgba(255,247,232,.5)" />
+              </Pressable>
+            ) : null}
+          </View>
+          <View style={compactStyles.communityControlsStack}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
+              {(["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[]).map((filter) => (
+                <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: multiplayerCommunityFilter === filter }} style={[compactStyles.communityChip, multiplayerCommunityFilter === filter && compactStyles.communityChipActive]} onPress={() => setMultiplayerCommunityFilter(filter)}>
+                  <Text style={[compactStyles.communityChipText, multiplayerCommunityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "open" ? "Open" : filter === "joined" ? "Joined" : filter === "hosted" ? "Hosted" : "Finished"}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+            <Pressable accessibilityRole="button" accessibilityLabel="Change multiplayer community sort" style={compactStyles.communitySortCompact} onPress={() => setMultiplayerCommunitySort(multiplayerCommunitySort === "closing" ? "newest" : multiplayerCommunitySort === "newest" ? "players" : "closing")}>
+              <Text style={compactStyles.communitySortCompactText}>{multiplayerCommunitySort === "closing" ? "Sort: Closing" : multiplayerCommunitySort === "newest" ? "Sort: New" : "Sort: Players"}</Text>
+            </Pressable>
+          </View>
+        </View>
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
               <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
-        ) : <Text style={styles.sectionBody}>No open community Multiplayer Side Quests right now.</Text>}
+        ) : <Text style={styles.sectionBody}>{allCommunityMultiplayerQuests.length ? "No community Multiplayer Side Quests match this search/filter." : "No public community Multiplayer Side Quests right now."}</Text>}
         {hiddenAvailableCount ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setAvailableListLimit((current) => current + 4)}>
             <Text style={styles.secondaryButtonText}>More community Side Quests ({hiddenAvailableCount})</Text>
@@ -7395,6 +7483,7 @@ const compactStyles = StyleSheet.create({
   communityChipText: { color: "rgba(255,247,232,.68)", fontSize: 11, lineHeight: 14, fontWeight: "900" },
   communityChipTextActive: { color: colors.green },
   communityControlsRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  communityControlsStack: { gap: 8, alignItems: "flex-start" },
   communitySortRow: { flexDirection: "row", alignItems: "center", gap: 7 },
   communitySortLabel: { color: "rgba(255,247,232,.52)", fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
   communitySortButton: { paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(255,247,232,.045)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
