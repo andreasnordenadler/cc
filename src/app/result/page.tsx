@@ -1,5 +1,4 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
@@ -112,10 +111,6 @@ export default async function ResultPage({
               <Fact label="Quest" value={challenge.title} />
               <Fact label="Status" value={proofStatus} />
               <Fact label="Game" value={gameLabel} />
-              <Fact
-                label="Latest check"
-                value={latestAttempt?.checkedAt ? <ProofTime value={latestAttempt.checkedAt} /> : latestAttemptSummary.meta}
-              />
               <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
             </div>
             <strong>{isPassed ? `Coat unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
@@ -289,7 +284,7 @@ function buildVictoryScrollCopy(challenge: (typeof CHALLENGES)[number], attempt?
   return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
 }
 
-function Fact({ label, value }: { label: string; value: ReactNode }) {
+function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="fact">
       <span>{label}</span>
