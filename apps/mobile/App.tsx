@@ -1492,6 +1492,7 @@ function TodayDashboard({
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublic.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [showAllActiveMultiplayer, setShowAllActiveMultiplayer] = useState(false);
   const [showAllTrophyCabinet, setShowAllTrophyCabinet] = useState(false);
+  const [homeMenuOpen, setHomeMenuOpen] = useState(false);
   const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 5);
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
@@ -1514,6 +1515,11 @@ function TodayDashboard({
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
     showNativeOnlyNotice("Sign-in is unavailable right now.");
+  }
+
+  function openHomeMenuTab(tab: AppTab) {
+    setHomeMenuOpen(false);
+    onSelectTab(tab);
   }
 
   function openCurrentProof() {
@@ -1656,6 +1662,9 @@ function TodayDashboard({
   return (
     <View style={compactStyles.freshShell}>
       <View style={compactStyles.freshHeader}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open main menu" style={compactStyles.homeMenuButton} onPress={() => setHomeMenuOpen(true)}>
+          <MaterialCommunityIcons name="menu" size={22} color={colors.paper} />
+        </Pressable>
         <View style={compactStyles.identityBlock}>
           <AccountIdentityLine
             name={signedIn.profile.displayName}
@@ -1663,14 +1672,56 @@ function TodayDashboard({
             chessComUsername={signedIn.chessAccounts.chessComUsername}
           />
         </View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Open account settings" style={compactStyles.accountDot} onPress={() => onSelectTab("account")}>
-          {signedIn.profile.imageUrl ? (
-            <Image source={{ uri: signedIn.profile.imageUrl }} style={compactStyles.accountAvatarImage} resizeMode="cover" />
-          ) : (
-            <Text style={compactStyles.accountDotText}>{signedIn.profile.displayName.slice(0, 1).toUpperCase()}</Text>
-          )}
-        </Pressable>
+        <View style={compactStyles.homeMenuSpacer} />
       </View>
+
+      <Modal visible={homeMenuOpen} transparent animationType="fade" onRequestClose={() => setHomeMenuOpen(false)}>
+        <View style={compactStyles.homeMenuOverlay}>
+          <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setHomeMenuOpen(false)} />
+          <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
+            <View style={compactStyles.homeMenuHeaderRow}>
+              <View style={compactStyles.homeMenuIdentityRow}>
+                <View style={compactStyles.accountDot}>
+                  {signedIn.profile.imageUrl ? (
+                    <Image source={{ uri: signedIn.profile.imageUrl }} style={compactStyles.accountAvatarImage} resizeMode="cover" />
+                  ) : (
+                    <Text style={compactStyles.accountDotText}>{signedIn.profile.displayName.slice(0, 1).toUpperCase()}</Text>
+                  )}
+                </View>
+                <View style={compactStyles.homeMenuIdentityCopy}>
+                  <Text style={compactStyles.homeMenuTitle} numberOfLines={1}>{signedIn.profile.displayName}</Text>
+                  <Text style={compactStyles.homeMenuSubtitle} numberOfLines={1}>Side Quest Chess menu</Text>
+                </View>
+              </View>
+              <Pressable accessibilityRole="button" accessibilityLabel="Close main menu" style={compactStyles.homeMenuCloseButton} onPress={() => setHomeMenuOpen(false)}>
+                <MaterialCommunityIcons name="close" size={20} color={colors.paper} />
+              </Pressable>
+            </View>
+            <View style={compactStyles.homeMenuItems}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Today" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("home")}>
+                <MaterialCommunityIcons name="view-dashboard" size={20} color={colors.gold} />
+                <Text style={compactStyles.homeMenuItemText}>Today</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Solo Side Quests" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("sideQuests")}>
+                <MaterialCommunityIcons name="flag-checkered" size={20} color={colors.gold} />
+                <Text style={compactStyles.homeMenuItemText}>Solo Side Quests</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("multiplayerSideQuests")}>
+                <MaterialCommunityIcons name="account-group" size={20} color={colors.gold} />
+                <Text style={compactStyles.homeMenuItemText}>Multiplayer Side Quests</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Trophy Cabinet" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("coatOfArms")}>
+                <MaterialCommunityIcons name="shield-star" size={20} color={colors.gold} />
+                <Text style={compactStyles.homeMenuItemText}>Trophy Cabinet</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open account settings" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("account")}>
+                <MaterialCommunityIcons name="account-cog" size={20} color={colors.gold} />
+                <Text style={compactStyles.homeMenuItemText}>Account Settings</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {!hasChessAccount ? (
         <Pressable accessibilityRole="button" style={compactStyles.blockerPanel} onPress={() => onSelectTab("account")}>
@@ -7356,16 +7407,16 @@ const compactStyles = StyleSheet.create({
   celebrationCloseButton: { position: "absolute", top: 12, right: 12, width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.10)" },
   stack: { gap: 8 },
   freshShell: { gap: 12 },
-  freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, paddingHorizontal: 2, paddingTop: 0 },
+  freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 2, paddingTop: 0 },
   freshHeaderCentered: { flexDirection: "column", justifyContent: "center", gap: 6, paddingHorizontal: 12 },
   centerText: { textAlign: "center" },
-  identityBlock: { flex: 1, minWidth: 0, gap: 4 },
+  identityBlock: { flex: 1, minWidth: 0, alignItems: "center", gap: 4 },
   freshTitle: { color: colors.paper, fontSize: 24, lineHeight: 28, fontWeight: "900", letterSpacing: -.65 },
   freshSubtle: { color: colors.muted, fontSize: 12, fontWeight: "800", marginTop: 2 },
-  identityLine: { gap: 4, minWidth: 0 },
-  identityName: { color: colors.paper, fontSize: 17, lineHeight: 21, fontWeight: "900", letterSpacing: -.25 },
-  identityAccountsLine: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", columnGap: 7, rowGap: 3 },
-  identityAccount: { flexDirection: "row", alignItems: "center", gap: 4, maxWidth: "48%" },
+  identityLine: { alignItems: "center", gap: 4, minWidth: 0, maxWidth: "100%" },
+  identityName: { color: colors.paper, fontSize: 17, lineHeight: 21, fontWeight: "900", letterSpacing: -.25, textAlign: "center" },
+  identityAccountsLine: { flexDirection: "row", alignItems: "center", justifyContent: "center", flexWrap: "wrap", columnGap: 7, rowGap: 3 },
+  identityAccount: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4, maxWidth: "48%" },
   identityPlatform: { overflow: "hidden", paddingHorizontal: 5, paddingVertical: 1, borderRadius: 5, fontSize: 8, lineHeight: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: .25 },
   identityPlatformLichess: { color: colors.green, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   identityPlatformChessCom: { color: "#76a9ff", backgroundColor: "rgba(118,169,255,.1)", borderWidth: 1, borderColor: "rgba(118,169,255,.18)" },
@@ -7373,6 +7424,20 @@ const compactStyles = StyleSheet.create({
   accountDot: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   accountAvatarImage: { width: "100%", height: "100%", borderRadius: 19 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
+  homeMenuButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
+  homeMenuSpacer: { width: 40, height: 40 },
+  homeMenuOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,.48)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: Platform.OS === "ios" ? 72 : 42, paddingHorizontal: 16 },
+  homeMenuBackdrop: { ...StyleSheet.absoluteFillObject },
+  homeMenuPanel: { gap: 14, padding: 14, borderRadius: 24, backgroundColor: "rgba(18,15,20,.97)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", shadowColor: "#000", shadowOpacity: .35, shadowRadius: 18, shadowOffset: { width: 0, height: 12 }, elevation: 10 },
+  homeMenuHeaderRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  homeMenuIdentityRow: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: 10 },
+  homeMenuIdentityCopy: { flex: 1, minWidth: 0, gap: 2 },
+  homeMenuTitle: { color: colors.paper, fontSize: 16, lineHeight: 20, fontWeight: "900" },
+  homeMenuSubtitle: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
+  homeMenuCloseButton: { width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,247,232,.08)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
+  homeMenuItems: { gap: 8 },
+  homeMenuItem: { minHeight: 48, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 12, paddingVertical: 10, borderRadius: 18, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.095)" },
+  homeMenuItemText: { flex: 1, color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
   readinessRow: { flexDirection: "row", gap: 8 },
   readinessChip: { flex: 1, gap: 1, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 14, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
   readinessChipMissing: { backgroundColor: "rgba(245,200,106,.12)", borderColor: "rgba(245,200,106,.22)" },
