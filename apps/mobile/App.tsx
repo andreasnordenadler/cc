@@ -3672,10 +3672,6 @@ function QuestBoardDashboard({
 
       {sideQuestCatalogTab === "official" ? (
         <View style={compactStyles.appSection}>
-          <View style={compactStyles.panelHeaderRow}>
-            <Text style={compactStyles.freshSectionTitle}>SQC Official Side Quests</Text>
-            <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
-          </View>
           <View style={compactStyles.appRows}>
             {sortedQuests.map((challenge) => {
             const comingSoon = challenge.browseKind === "coming-soon";
