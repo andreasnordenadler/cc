@@ -2650,11 +2650,21 @@ function waitMs(ms: number) {
 
 const ENGLISH_DATE_LOCALE = "en-US";
 
-function formatLatestCheckTime(value: string | null | undefined): string {
-  if (!value) return "not yet";
+function formatRelativeDateTime(value: string | null | undefined, fallback: string): string {
+  if (!value) return fallback;
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "not yet";
-  return date.toLocaleString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
+  if (Number.isNaN(date.getTime())) return fallback;
+  const today = new Date();
+  const dateKey = date.toDateString();
+  const todayKey = today.toDateString();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const prefix = dateKey === todayKey ? "Today" : dateKey === yesterday.toDateString() ? "Yesterday" : date.toLocaleDateString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric" });
+  return `${prefix} · ${date.toLocaleTimeString(ENGLISH_DATE_LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false })}`;
+}
+
+function formatLatestCheckTime(value: string | null | undefined): string {
+  return formatRelativeDateTime(value, "not yet");
 }
 
 function formatAccountDate(value: string | null | undefined): string {
@@ -2665,16 +2675,7 @@ function formatAccountDate(value: string | null | undefined): string {
 }
 
 function formatQuestPickedDate(value: string | null | undefined): string {
-  if (!value) return "not recorded";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "not recorded";
-  const today = new Date();
-  const dateKey = date.toDateString();
-  const todayKey = today.toDateString();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  const prefix = dateKey === todayKey ? "Today" : dateKey === yesterday.toDateString() ? "Yesterday" : date.toLocaleDateString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric" });
-  return `${prefix} · ${date.toLocaleTimeString(ENGLISH_DATE_LOCALE, { hour: "2-digit", minute: "2-digit", hour12: false })}`;
+  return formatRelativeDateTime(value, "not recorded");
 }
 
 function normalizeCheckHeadline(headline: string): string {
