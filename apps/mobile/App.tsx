@@ -3712,7 +3712,7 @@ function QuestBoardDashboard({
         ) : (
           <>
             <View style={compactStyles.sideQuestCatalogPanel}>
-            <View style={compactStyles.communityEmptyPanel}>
+            <View style={compactStyles.sideQuestCatalogInlinePanel}>
               <Text style={compactStyles.communityEmptyTitle}>No Community Side Quests to show yet.</Text>
               <Text style={compactStyles.communityEmptyCopy}>Published player-created Side Quests appear here, separate from SQC Official quests.</Text>
             </View>
@@ -3725,7 +3725,7 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.sectionAction}>Create</Text>
               </Pressable>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.sideQuestCatalogInlinePanel} onPress={() => setCustomCreateOpen(true)}>
               <View style={compactStyles.currentQuestRow}>
                 <View style={compactStyles.coatMarker}>
                   <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
@@ -3745,7 +3745,7 @@ function QuestBoardDashboard({
               </View>
             </Pressable>
             {visibleCustomDrafts.length ? (
-              <View style={compactStyles.appRows}>
+              <View style={compactStyles.sideQuestCatalogRows}>
                 {visibleCustomDrafts.map((draft) => (
                   <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeId, Boolean(signedIn?.completedQuests.some((quest) => quest.id === draft.id)))} sourceBadge={draft.lifecycle === "draft" ? "Draft" : draft.visibility === "public" ? "Community" : "Private"} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
                 ))}
@@ -7407,20 +7407,21 @@ const compactStyles = StyleSheet.create({
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
-  sideQuestCatalogShell: { gap: 0, padding: 7, borderRadius: 26, borderWidth: 1.5, shadowColor: "#000", shadowOpacity: .16, shadowRadius: 12, shadowOffset: { width: 0, height: 8 }, elevation: 2 },
+  sideQuestCatalogShell: { gap: 8, padding: 8, borderRadius: 26, borderWidth: 1.5, shadowColor: "#000", shadowOpacity: .16, shadowRadius: 12, shadowOffset: { width: 0, height: 8 }, elevation: 2 },
   sideQuestCatalogShellOfficial: { borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(245,200,106,.13)" },
   sideQuestCatalogShellCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.11)" },
-  sideQuestBrandTabs: { flexDirection: "row", alignItems: "stretch", gap: 7, marginBottom: 7 },
-  sideQuestBrandTab: { flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderRadius: 20, borderWidth: 1.5 },
-  sideQuestBrandTabOfficial: { borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.075)" },
-  sideQuestBrandTabOfficialActive: { borderColor: "rgba(245,200,106,.38)", backgroundColor: "rgba(245,200,106,.2)" },
-  sideQuestBrandTabCommunity: { borderColor: "rgba(96,240,175,.26)", backgroundColor: "rgba(96,240,175,.065)" },
-  sideQuestBrandTabCommunityActive: { borderColor: "rgba(96,240,175,.36)", backgroundColor: "rgba(96,240,175,.18)" },
+  sideQuestBrandTabs: { flexDirection: "row", alignItems: "stretch", gap: 7 },
+  sideQuestBrandTab: { flex: 1, minHeight: 54, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 11, borderRadius: 19, borderWidth: 0 },
+  sideQuestBrandTabOfficial: { backgroundColor: "rgba(245,200,106,.08)" },
+  sideQuestBrandTabOfficialActive: { backgroundColor: "rgba(245,200,106,.2)" },
+  sideQuestBrandTabCommunity: { backgroundColor: "rgba(96,240,175,.075)" },
+  sideQuestBrandTabCommunityActive: { backgroundColor: "rgba(96,240,175,.18)" },
   sideQuestBrandTabText: { color: "rgba(255,247,232,.72)", fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   sideQuestBrandTabOfficialTextActive: { color: colors.paper },
   sideQuestBrandTabCommunityTextActive: { color: colors.paper },
   sideQuestCatalogPanel: { gap: 8 },
-  sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.68)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "transparent", borderWidth: 0 },
+  sideQuestCatalogInlinePanel: { gap: 8, paddingHorizontal: 2, paddingVertical: 4, backgroundColor: "transparent", borderWidth: 0 },
   browseTopBar: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 4, paddingTop: 6 },
   browseTopBarLabel: { color: colors.paper, fontSize: 14, fontWeight: "900", letterSpacing: -.2, flexShrink: 1 },
   topNavPanel: { padding: 6, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.09)", backgroundColor: "rgba(0,0,0,.18)" },
