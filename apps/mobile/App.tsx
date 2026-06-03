@@ -270,7 +270,7 @@ function ActiveQuestNoGameSummary({ goal, pickedLabel, latestCheckLabel, statusL
     <View style={compactStyles.currentEmptyBoardPanel}>
       <ActiveQuestEmptyMiniBoard />
       <View style={compactStyles.currentProofTextBlock}>
-        {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
+        {goal ? <Text style={compactStyles.currentQuestMeta}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
         {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
@@ -297,7 +297,7 @@ function ActiveQuestMiniProofBoard({ receipt, goal, pickedLabel, latestCheckLabe
         ))}
       </View>
       <View style={compactStyles.currentProofTextBlock}>
-        {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
+        {goal ? <Text style={compactStyles.currentQuestMeta}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
         {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
@@ -315,7 +315,7 @@ function ActiveQuestFailureSummary({ receipt, goal, pickedLabel, latestCheckLabe
     <View style={compactStyles.currentFailurePanel}>
       <ActiveQuestMiniFailureBoard receipt={receipt} />
       <View style={compactStyles.currentProofTextBlock}>
-        {goal ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
+        {goal ? <Text style={compactStyles.currentQuestMeta}><Text style={compactStyles.currentQuestMetaStrong}>Goal: </Text>{goal}</Text> : null}
         {pickedLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Picked: </Text>{pickedLabel}</Text> : null}
         {latestCheckLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={2}><Text style={compactStyles.currentQuestMetaStrong}>Latest check: </Text>{latestCheckLabel}</Text> : null}
         {statusLabel ? <Text style={compactStyles.currentQuestMeta} numberOfLines={1}><Text style={compactStyles.currentQuestMetaStrong}>Status: </Text><Text style={statusLabel === "Completed" ? compactStyles.currentQuestMetaGood : compactStyles.currentQuestMetaDanger}>{statusLabel}</Text></Text> : null}
@@ -1643,9 +1643,9 @@ function TodayDashboard({
             {actionState.message && !latestCheckFailed ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
           </Pressable>
-          {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)} statusLabel="Completed" /> : null}
-          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)} statusLabel="Not Completed" /> : null}
-          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={getProofCheckDisplay(activeQuestLatestCheck, activeQuestReceipt)} statusLabel="Not Completed" /> : null}
+          {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Completed" /> : null}
+          {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Not Completed" /> : null}
+          {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Not Completed" /> : null}
           <View style={compactStyles.activeSoloActions}>
             <Pressable accessibilityRole="button" accessibilityLabel="Explore More Solo Side Quests" style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("sideQuests")}>
               <Text style={compactStyles.soloSecondaryActionText}>Explore More Solo Side Quests</Text>
@@ -2386,7 +2386,7 @@ function CurrentSideQuestDetailModal({
           <View style={compactStyles.detailPanel}>
             <DetailRow label="Picked" value={pickedLabel} />
             <DetailRow label="What to do" value={proofNeeded} />
-            <DetailRow label="Last proof check" value={getProofCheckDisplay(latestCheckLabel, latestReceipt)} tone={latestCheckPassed ? "good" : "default"} />
+            <DetailRow label="Latest check" value={latestCheckLabel} tone={latestCheckPassed ? "good" : "default"} />
           </View>
 
           {latestCheckFailed ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
@@ -6992,9 +6992,9 @@ const compactStyles = StyleSheet.create({
   freshBody: { color: colors.muted, fontSize: 13, lineHeight: 18 },
   currentQuestRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   currentQuestHero: { alignItems: "center", justifyContent: "center", gap: 6, paddingTop: 1, paddingBottom: 2 },
-  coatHeroMarker: { width: 118, height: 132, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  coatHeroGlowImage: { position: "absolute", width: 148, height: 164, opacity: .72, transform: [{ translateY: 7 }] },
-  coatHeroImage: { width: 106, height: 120 },
+  coatHeroMarker: { width: 126, height: 140, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  coatHeroGlowImage: { position: "absolute", width: 158, height: 174, opacity: .72, transform: [{ translateY: 7 }] },
+  coatHeroImage: { width: 114, height: 128 },
   coatHeroSeal: { position: "absolute", width: 46, height: 46, right: 2, bottom: 2, zIndex: 4, transform: [{ rotate: "-10deg" }] },
   currentQuestHeroTitle: { maxWidth: 286, color: colors.paper, fontSize: 20, lineHeight: 23, fontWeight: "900", letterSpacing: -.55, textAlign: "center" },
   coatMarker: { width: 62, height: 70, alignItems: "center", justifyContent: "center", overflow: "visible" },
