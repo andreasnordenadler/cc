@@ -1480,7 +1480,7 @@ function TodayDashboard({
   const [officialMultiplayerId, setOfficialMultiplayerId] = useState<string | null>(null);
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublic.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [showAllActiveMultiplayer, setShowAllActiveMultiplayer] = useState(false);
-  const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 3);
+  const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 5);
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
   const celebratedCompletionIds = useRef<Set<string>>(new Set());
@@ -1737,24 +1737,34 @@ function TodayDashboard({
         }}
       />
 
-      <AppSection title="Multiplayer Side Quests" action="Explore" onAction={() => onSelectTab("multiplayerSideQuests")}>
-        <HomeFeatureCard
-          imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-          variant="seal"
-          eyebrow={activeMultiplayer.length ? "Competition board" : "Play together"}
-          title={activeMultiplayer.length ? `${activeMultiplayer.length} active Multiplayer Side Quest${activeMultiplayer.length === 1 ? "" : "s"}` : "Join or host a Multiplayer Side Quest"}
-          copy={activeMultiplayer.length ? "Open a room to refresh proof, check standings, or share the invite." : "Compete with friends on shared Side Quests, leaderboards, and proof windows."}
-          primaryMeta={activeMultiplayer.length ? "Live" : "Ready"}
-          secondaryMeta={officialPublic.length ? `${officialPublic.length} official` : "Browse"}
-          onPress={() => activeMultiplayer[0] ? setJoinedMultiplayerId(activeMultiplayer[0].id) : onSelectTab("multiplayerSideQuests")}
-        />
-        {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
-          <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Your room" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
-        )) : null}
-        {activeMultiplayer.length > 3 ? (
-          <AppRow title={showAllActiveMultiplayer ? "Show fewer Multiplayer Side Quests" : "Show all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top three." : `${activeMultiplayer.length - 3} more active competitions waiting below.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
-        ) : null}
-      </AppSection>
+      <View style={compactStyles.activeMultiplayerSection}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Open active Multiplayer Side Quest details" style={compactStyles.activeMultiplayerSummary} onPress={() => activeMultiplayer[0] ? setJoinedMultiplayerId(activeMultiplayer[0].id) : onSelectTab("multiplayerSideQuests")}>
+          <View style={compactStyles.multiplayerHeroMarker}>
+            <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerHeroSeal} resizeMode="contain" />
+          </View>
+          <View style={compactStyles.activeSoloPill}>
+            <Text style={compactStyles.activeSoloPillText}>Active Multiplayer Side Quests</Text>
+          </View>
+          <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{activeMultiplayer.length ? `${activeMultiplayer.length} active Multiplayer Side Quest${activeMultiplayer.length === 1 ? "" : "s"}` : "No active Multiplayer Side Quests"}</Text>
+        </Pressable>
+
+        <View style={compactStyles.activeMultiplayerList}>
+          {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
+            <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Your room" : "Joined"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+          )) : (
+            <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />
+          )}
+          {activeMultiplayer.length > 5 ? (
+            <AppRow title={showAllActiveMultiplayer ? "Show fewer Multiplayer Side Quests" : "Show all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top five." : `${activeMultiplayer.length - 5} more active Multiplayer Side Quest${activeMultiplayer.length - 5 === 1 ? "" : "s"}.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
+          ) : null}
+        </View>
+
+        <View style={compactStyles.activeSoloActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Explore More Multiplayer Side Quests" style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
+            <Text style={compactStyles.soloSecondaryActionText}>Explore More Multiplayer Side Quests</Text>
+          </Pressable>
+        </View>
+      </View>
 
 
       <JoinedMultiplayerQuestModal
@@ -7078,6 +7088,11 @@ const compactStyles = StyleSheet.create({
   activeSoloPill: { alignSelf: "center", alignItems: "center", justifyContent: "center", paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(245,200,106,.10)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)", marginTop: 0, marginBottom: 1 },
   activeSoloPillText: { color: colors.gold, fontSize: 10, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1 },
   activeSoloSection: { position: "relative", gap: 8, marginTop: 132, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
+  activeMultiplayerSection: { position: "relative", gap: 8, marginTop: 70, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.064)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  activeMultiplayerSummary: { gap: 10, alignItems: "center" },
+  multiplayerHeroMarker: { position: "absolute", top: -102, alignSelf: "center", width: 112, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  multiplayerHeroSeal: { width: 100, height: 100 },
+  activeMultiplayerList: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
   activeSoloRefreshRow: { position: "absolute", top: 8, right: 8, zIndex: 8, flexDirection: "row", justifyContent: "flex-end" },
   activeSoloSummary: { gap: 10, alignItems: "center" },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
