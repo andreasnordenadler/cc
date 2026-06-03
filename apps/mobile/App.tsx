@@ -266,7 +266,7 @@ function ActiveQuestEmptyMiniBoard() {
   return (
     <View style={compactStyles.currentProofIntegratedBoard}>
       {(board ?? []).map((square, index) => (
-        <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.emptyBoardSquareLight : compactStyles.emptyBoardSquareDark]}>
+        <View key={square.square} style={[compactStyles.currentFailureMiniSquare, (Math.floor(index / 8) + index) % 2 === 0 ? compactStyles.failureBoardSquareLight : compactStyles.failureBoardSquareDark]}>
           <Text style={[compactStyles.currentProofMiniPiece, square.piece && square.piece === square.piece.toUpperCase() ? compactStyles.failureBoardPieceWhite : compactStyles.failureBoardPieceBlack]}>{square.piece ? MOBILE_CHESS_PIECES[square.piece] : ""}</Text>
         </View>
       ))}
@@ -1635,11 +1635,6 @@ function TodayDashboard({
         {signedIn.activeQuest ? (
           <View>
           <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.activeSoloSummary} onPress={() => setCurrentDetailOpen(true)}>
-            {activeStatus === "Completed" ? (
-              <View style={compactStyles.currentStatusRow}>
-                <Text style={[compactStyles.statusPill, compactStyles.statusPillGood]}>{activeStatus}</Text>
-              </View>
-            ) : null}
             <View style={compactStyles.currentQuestHero}>
               <View style={compactStyles.coatHeroMarker}>
                 {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatHeroGlowImage, { tintColor: activeChallenge.badgeIdentity.colors.glow }]} resizeMode="contain" /> : null}
