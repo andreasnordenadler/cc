@@ -4374,3 +4374,15 @@ Update recurring SQC daily ops scripts/docs to avoid `curl` dependency and avoid
 - **What happened:** After deploying SQC result-page polish, I first tried a curl-based smoke check and the shell returned `command not found: curl`.
 - **Impact:** Low; reran the same HTTP checks with Python `urllib.request`, which passed.
 - **Do differently:** Prefer Python urllib for portable local smoke checks on this Mac unless curl availability has been confirmed in-session.
+
+## 2026-06-03 — SQC v193 release follow-up command used unsupported gh field
+
+- **What happened:** After creating `mobile-v193`, I ran `gh release view --json ... isLatest`, but this installed `gh` does not support the `isLatest` JSON field for release views.
+- **Impact:** Low; release creation had already succeeded, and rerunning verification with supported fields passed.
+- **Do differently:** For `gh release view`, prefer stable fields (`url`, `tagName`, `name`, `assets`, `targetCommitish`, `publishedAt`) unless `gh release view --json` field support is checked first.
+
+## 2026-06-03 — Android monkey launch failed after APK install
+
+- **What happened:** `adb shell monkey -p com.sidequestchess.app -c android.intent.category.LAUNCHER 1` exited with code 251 after the APK installed successfully.
+- **Impact:** Low; direct activity launch with `adb shell am start -n com.sidequestchess.app/.MainActivity` worked and screenshot capture succeeded.
+- **Do differently:** For SQC Mobile emulator launch proof, use `cmd package resolve-activity --brief` plus `am start -n` instead of relying on `monkey`.
