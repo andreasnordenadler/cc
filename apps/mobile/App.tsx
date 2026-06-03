@@ -1678,7 +1678,7 @@ function TodayDashboard({
                 {signedIn.activeQuest.completed || latestCheckPassed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.coatHeroSeal} resizeMode="contain" /> : null}
               </View>
               <View style={compactStyles.activeSoloPill}>
-                <Text style={compactStyles.activeSoloPillText}>Active Solo Quest</Text>
+                <Text style={compactStyles.activeSoloPillText}>Active Solo Side Quest</Text>
               </View>
               <Text style={compactStyles.currentQuestHeroTitle} numberOfLines={2}>{signedIn.activeQuest.title}</Text>
             </View>
@@ -7090,7 +7090,7 @@ const compactStyles = StyleSheet.create({
   activeSoloSection: { position: "relative", gap: 8, marginTop: 132, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   activeMultiplayerSection: { position: "relative", gap: 8, marginTop: 70, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.064)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   activeMultiplayerSummary: { gap: 10, alignItems: "center" },
-  multiplayerHeroMarker: { position: "absolute", top: -102, alignSelf: "center", width: 112, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  multiplayerHeroMarker: { position: "absolute", top: -116, alignSelf: "center", width: 112, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
   multiplayerHeroSeal: { width: 100, height: 100 },
   activeMultiplayerList: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
   activeSoloRefreshRow: { position: "absolute", top: 8, right: 8, zIndex: 8, flexDirection: "row", justifyContent: "flex-end" },
