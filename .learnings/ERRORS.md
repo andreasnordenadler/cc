@@ -4368,3 +4368,9 @@ Update recurring SQC daily ops scripts/docs to avoid `curl` dependency and avoid
 ## 2026-06-02 — Git status cannot include files outside repo
 - A post-release status command ran `git status` inside `cc` while including `/Users/sam/.openclaw/workspace/memory/2026-06-02.md`, which failed because the memory file is outside the repository.
 - Do differently: check repo files and global workspace memory files separately; do not pass outside-repo paths to `git status` from a repo worktree.
+
+## 2026-06-03 — SQC smoke check assumed curl existed
+
+- **What happened:** After deploying SQC result-page polish, I first tried a curl-based smoke check and the shell returned `command not found: curl`.
+- **Impact:** Low; reran the same HTTP checks with Python `urllib.request`, which passed.
+- **Do differently:** Prefer Python urllib for portable local smoke checks on this Mac unless curl availability has been confirmed in-session.
