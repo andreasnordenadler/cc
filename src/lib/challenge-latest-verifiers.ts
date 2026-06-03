@@ -172,7 +172,7 @@ async function enrichVerdictWithLatestBoard(input: {
       ...sharedBoardFields,
       failureDiagnostic: verdict.failureDiagnostic ?? {
         label: "Latest checked position",
-        explanation: "This is the final board from the same latest game that was checked for the Side Quest.",
+        explanation: verdict.summary,
         fenAtBreak: latestFinished.finalPositionFen,
       },
     };

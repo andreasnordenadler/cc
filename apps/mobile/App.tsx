@@ -199,9 +199,15 @@ function isPendingReceipt(receipt?: MobileAccountState["latestReceipt"] | null) 
 
 function getReceiptFailureText(receipt?: MobileAccountState["latestReceipt"] | null) {
   if (!receipt || !isFailedReceipt(receipt)) return null;
-  const text = receipt.failureDiagnostic?.explanation ?? receipt.detail;
+  const diagnosticText = receipt.failureDiagnostic?.explanation?.trim();
+  const detailText = receipt.detail?.trim();
+  const text = diagnosticText && !isGenericBoardDiagnostic(diagnosticText) ? diagnosticText : detailText || diagnosticText;
   if (!text) return "That game did not match this Side Quest goal. Try again after your next public game.";
   return text.replace(/latest game checked\s*[—-]\s*side quest not completed\.?/i, "That game did not match this Side Quest goal.");
+}
+
+function isGenericBoardDiagnostic(text: string) {
+  return /final board from the same latest game/i.test(text) || /verified board attached to the completed quest/i.test(text);
 }
 
 function getCheckActionMessage(receipt?: MobileAccountState["latestReceipt"] | null) {
