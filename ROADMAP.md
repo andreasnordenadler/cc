@@ -47,10 +47,17 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: compared creator context parity and closed the next concrete mobile standalone gap: website Community Solo detail pages had creator context links/shelves, while mobile Community Solo detail sheets only showed the creator name inline.
   - proof: added a mobile `Creator context` detail card, `More by {creator}` action, local creator-shelf filtering, clear/empty recovery, and private-data copy that says drafts/account details stay hidden. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.241 --version-code=241`. APK verified `versionName=0.1.241`, `versionCode=241`, `debuggable=false`, SHA256 `b4c1c6d6501297e5f6c1f6969a81817828bafafeddbdc3963da1a3cdc15c00be`.
 
+- [x] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-05
+  - completed_at: 2026-06-05
+  - source: continue Andreas's equal-functionality model after closing Community Solo reports, Community Multiplayer reports, and mobile Community Solo creator context.
+  - scope: compared Multiplayer creator/host context parity and closed the next concrete mobile standalone gap: mobile Community Multiplayer detail sheets showed host name but did not let users browse more public tables by the same host like the website creator-context model.
+  - proof: added a native Multiplayer host context card, `More by host` detail action, local host-shelf filtering, host-specific search placeholder, clear/show-all recovery, and private-data copy that says invite-only tables/account details stay hidden. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.242 --version-code=242`. APK verified `versionName=0.1.242`, `versionCode=242`, `debuggable=false`, SHA256 `4b5540c432238417e5786b1e1ba1cc7bbe7bcc142b69e21b375fc195a5793299`.
+
 - [ ] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-05
-  - source: continue Andreas's equal-functionality model after closing Community Solo reports, Community Multiplayer reports, and mobile Community Solo creator context.
-  - scope: compare Custom Side Quest create/edit/manage parity, Multiplayer creator context/website support parity, start/check/prove/collect flows, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
+  - source: continue Andreas's equal-functionality model after closing Community Solo reports, Community Multiplayer reports, mobile Community Solo creator context, and mobile Community Multiplayer host context.
+  - scope: compare Custom Side Quest create/edit/manage parity, start/check/prove/collect flows, Trophy Cabinet, account readiness, and remaining community safety/discovery affordances; pick the highest-impact missing capability and implement it on the weaker surface.
   - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.

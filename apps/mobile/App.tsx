@@ -1958,6 +1958,7 @@ function JoinedMultiplayerQuestModal({
   onUpdate,
   onRemoveParticipant,
   onReport,
+  onViewHost,
 }: {
   visible: boolean;
   quest: MobileGroupQuestSummary | null;
@@ -1974,6 +1975,7 @@ function JoinedMultiplayerQuestModal({
   onUpdate?: (payload: Record<string, unknown>) => void;
   onRemoveParticipant?: (participantUserId: string) => void;
   onReport?: (quest: MobileGroupQuestSummary) => void;
+  onViewHost?: (quest: MobileGroupQuestSummary) => void;
 }) {
   const [proofMode, setProofMode] = useState(false);
   const [selectedRuleQuestTitle, setSelectedRuleQuestTitle] = useState<string | null>(null);
@@ -2129,6 +2131,11 @@ function JoinedMultiplayerQuestModal({
               <Pressable accessibilityRole="button" accessibilityLabel="Copy Multiplayer Side Quest invite link" style={compactStyles.detailQuietButton} onPress={() => void copyInviteLink()}>
                 <Text style={compactStyles.detailQuietButtonText}>Copy invite link</Text>
               </Pressable>
+              {onViewHost && !quest.official && quest.hostName ? (
+                <Pressable accessibilityRole="button" accessibilityLabel="View more by this Multiplayer host" style={compactStyles.detailQuietButton} onPress={() => onViewHost(quest)}>
+                  <Text style={compactStyles.detailQuietButtonText}>More by host</Text>
+                </Pressable>
+              ) : null}
               {onReport && !quest.official && !quest.isOwner ? (
                 <Pressable accessibilityRole="button" accessibilityLabel="Report Multiplayer Side Quest" style={compactStyles.detailQuietButton} onPress={() => onReport(quest)}>
                   <Text style={compactStyles.detailQuietButtonText}>Report Side Quest</Text>
@@ -2138,6 +2145,14 @@ function JoinedMultiplayerQuestModal({
             {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the invite code. Only share it with players you want in.</Text> : null}
             {onReport && !quest.official && !quest.isOwner ? <Text style={styles.microcopy}>Community Multiplayer reports go to SQC support with the quest ID and host context, not private player data.</Text> : null}
           </View>
+
+          {!quest.official && quest.hostName ? (
+            <View style={compactStyles.multiplayerNativeCard}>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Host context</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Hosted by {quest.hostName}</Text>
+              <Text style={styles.microcopy}>Open a local host shelf to browse other public Community Multiplayer Side Quests from this host. Private invite-only tables and account details stay hidden.</Text>
+            </View>
+          ) : null}
 
           {mode === "joined" && proofMode ? (
             <>
@@ -5510,6 +5525,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
   const publicMultiplayerQuest = publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [multiplayerCommunitySearch, setMultiplayerCommunitySearch] = useState("");
+  const [multiplayerHostFilter, setMultiplayerHostFilter] = useState<string | null>(null);
   const [multiplayerCommunityFilter, setMultiplayerCommunityFilter] = useState<MultiplayerCommunityFilter>("open");
   const [multiplayerCommunitySort, setMultiplayerCommunitySort] = useState<MultiplayerCommunitySort>("closing");
   const [createOpen, setCreateOpen] = useState(false);
@@ -5669,6 +5685,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const activeMineGroupQuests = sortLobbyGroupQuests(joinedBrowseGroupQuests);
   const availableGroupQuests = allCommunityMultiplayerQuests
     .filter((quest) => multiplayerQuestMatchesSearch(quest, multiplayerCommunitySearch))
+    .filter((quest) => !multiplayerHostFilter || quest.hostName === multiplayerHostFilter)
     .filter((quest) => {
       if (multiplayerCommunityFilter === "open") return quest.status !== "Finished";
       if (multiplayerCommunityFilter === "joined") return quest.joinState === "Joined" && !quest.isOwner;
@@ -5699,6 +5716,14 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       return;
     }
     setPublicMultiplayerId(groupQuestId);
+  }
+
+  function openMultiplayerHostShelf(quest: MobileGroupQuestSummary) {
+    if (!quest.hostName) return;
+    setMultiplayerHostFilter(quest.hostName);
+    setMultiplayerCommunityFilter("all");
+    setPublicMultiplayerId(null);
+    setJoinedMultiplayerId(null);
   }
 
   function openMultiplayerReport(quest: MobileGroupQuestSummary) {
@@ -5739,6 +5764,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onUpdate={(payload) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
         onReport={openMultiplayerReport}
+        onViewHost={openMultiplayerHostShelf}
       />
 
       <JoinedMultiplayerQuestModal
@@ -5777,6 +5803,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onUpdate={(payload) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
         onReport={openMultiplayerReport}
+        onViewHost={openMultiplayerHostShelf}
       />
 
       <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
@@ -5822,19 +5849,28 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
         <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests when you are ready to join. App and website both support discovery, inspection, joining, and proof; this view keeps it native and compact.</Text>
         <View style={compactStyles.communityBrowsePanel}>
+          {multiplayerHostFilter ? (
+            <View style={compactStyles.communityEmptyPanel}>
+              <Text style={compactStyles.communityEmptyTitle}>Host shelf: {multiplayerHostFilter}</Text>
+              <Text style={compactStyles.communityEmptyCopy}>Showing public Community Multiplayer Side Quests from this host only. Private invite-only tables and account details stay hidden.</Text>
+              <Pressable accessibilityRole="button" accessibilityLabel="Show all Multiplayer hosts" style={compactStyles.secondaryAction} onPress={() => setMultiplayerHostFilter(null)}>
+                <Text style={compactStyles.secondaryActionText}>Show all hosts</Text>
+              </Pressable>
+            </View>
+          ) : null}
           <View style={compactStyles.communitySearchBox}>
             <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
             <TextInput
               value={multiplayerCommunitySearch}
-              placeholder="Search multiplayer community"
+              placeholder={multiplayerHostFilter ? "Search this host shelf" : "Search multiplayer community"}
               placeholderTextColor="rgba(255,247,232,.42)"
               autoCapitalize="none"
               autoCorrect={false}
               style={compactStyles.communitySearchInput}
               onChangeText={setMultiplayerCommunitySearch}
             />
-            {multiplayerCommunitySearch ? (
-              <Pressable accessibilityRole="button" accessibilityLabel="Clear multiplayer community search" onPress={() => setMultiplayerCommunitySearch("")}>
+            {multiplayerCommunitySearch || multiplayerHostFilter ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Clear multiplayer community search" onPress={() => { setMultiplayerCommunitySearch(""); setMultiplayerHostFilter(null); }}>
                 <MaterialCommunityIcons name="close-circle" size={18} color="rgba(255,247,232,.5)" />
               </Pressable>
             ) : null}
@@ -5858,7 +5894,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
-        ) : <Text style={styles.sectionBody}>{allCommunityMultiplayerQuests.length ? "No community Multiplayer Side Quests match this search/filter." : "No public community Multiplayer Side Quests right now."}</Text>}
+        ) : <Text style={styles.sectionBody}>{allCommunityMultiplayerQuests.length ? multiplayerHostFilter ? "No public Community Multiplayer Side Quests match this host shelf/search. Nothing private is shown from guessed host context." : "No community Multiplayer Side Quests match this search/filter." : "No public community Multiplayer Side Quests right now."}</Text>}
         {hiddenAvailableCount ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Show more open Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setAvailableListLimit((current) => current + 4)}>
             <Text style={styles.secondaryButtonText}>More community Side Quests ({hiddenAvailableCount})</Text>
