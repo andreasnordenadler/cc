@@ -10,11 +10,18 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Align mobile Community Solo / Multiplayer language with shared IA.
+- [x] Align mobile Community Solo / Multiplayer language with shared IA.
   - added_at: 2026-06-04 16:48 Europe/Stockholm
+  - completed_at: 2026-06-04 16:55 Europe/Stockholm
   - source: next step after website community backfill shipped browse, detail, signed-in library ownership, and report/trust affordances.
-  - scope: make the mobile community entry points and labels reinforce the agreed model: website is rich tavern-wall/product canon, mobile is pocket quest tracker for start/check/prove/join; keep the v236 anchored menu structure intact and avoid generic utility-shell wording.
-  - proof_needed: mobile typecheck/lint, Android release build if native-visible copy changes are meaningful, emulator screenshot smoke for affected menu/community screens, and no APK artifacts committed.
+  - scope: made the mobile community entry points and labels reinforce the agreed model: website is rich tavern-wall/product canon, mobile is pocket quest tracker for start/check/prove/join; kept the v236 anchored menu structure intact and avoided generic utility-shell wording.
+  - proof: updated mobile Solo labels to `Community Solo`, `My Library`, and `My Custom Library`; added `Pocket tracker for borrowed bad ideas` guidance; updated Multiplayer to `Multiplayer Pocket Lobby` plus fast-action/website-role copy. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, Android release build `pnpm mobile:release --version-name=0.1.237 --version-code=237`, APK package verification `versionName=0.1.237` / `versionCode=237` with no `application-debuggable`, SHA256 `5035ea1c8a8c98a4ced7381df2d062f6afcc7ee40b3f00312152454328bf78a5`, emulator install/launch, and screenshot smoke for anchored menu, Community Solo, and Multiplayer Pocket Lobby. APK artifacts were not committed.
+
+- [ ] Add website Community Solo creator profile/context links.
+  - added_at: 2026-06-04 16:55 Europe/Stockholm
+  - source: next shared community surface after website browse/detail/library/trust and mobile language alignment.
+  - scope: give public Community Solo cards/detail pages a safer creator/context path without exposing private data: creator handle/profile link where available, clear `created by community member` fallback, and a route-safe empty state if a creator profile is unavailable.
+  - proof_needed: targeted lint/build, production deploy/smoke for `/challenges/community` and one seeded detail page, privacy check that private metadata/raw quest config is not exposed.
 
 - [x] Add Community Solo report/trust affordances.
   - added_at: 2026-06-04 16:40 Europe/Stockholm

@@ -3778,9 +3778,16 @@ function QuestBoardDashboard({
           ]}
           onPress={() => setSideQuestCatalogTab("community")}
         >
-          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Solo</Text>
         </Pressable>
       </View>
+
+      {sideQuestCatalogTab === "community" ? (
+        <View style={compactStyles.communityEmptyPanel}>
+          <Text style={compactStyles.communityEmptyTitle}>Pocket tracker for borrowed bad ideas.</Text>
+          <Text style={compactStyles.communityEmptyCopy}>Use mobile to pick, check, prove, and collect. Use the website when you want the full tavern-wall browse, public detail pages, and report links.</Text>
+        </View>
+      ) : null}
 
       {sideQuestCatalogTab === "official" ? (
         <View style={compactStyles.appSection}>
@@ -3834,7 +3841,7 @@ function QuestBoardDashboard({
                 style={[compactStyles.communitySubTab, communityView === view && compactStyles.communitySubTabActive]}
                 onPress={() => setCommunityView(view)}
               >
-                <Text style={[compactStyles.communitySubTabText, communityView === view && compactStyles.communitySubTabTextActive]}>{view === "discover" ? "Discover" : "My Quests"}</Text>
+                <Text style={[compactStyles.communitySubTabText, communityView === view && compactStyles.communitySubTabTextActive]}>{view === "discover" ? "Discover" : "My Library"}</Text>
               </Pressable>
             ))}
           </View>
@@ -3842,7 +3849,7 @@ function QuestBoardDashboard({
           {communityView === "discover" ? (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>Community Discover</Text>
+                <Text style={compactStyles.freshSectionTitle}>Community Solo Discover</Text>
                 <Text style={compactStyles.sectionAction}>{publicCommunityQuests.length ? `${communityBrowseQuests.length}/${publicCommunityQuests.length}` : "0 public"}</Text>
               </View>
               {publicCommunityQuests.length || communitySearch ? (
@@ -3887,13 +3894,13 @@ function QuestBoardDashboard({
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
                   <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? "No matches yet." : "No public Community Side Quests yet."}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Quests. Public quests will appear here as the catalog grows."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Library. Public quests will appear here as the catalog grows."}</Text>
                   <View style={compactStyles.actionRowTight}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => setCustomCreateOpen(true)}>
                       <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
                     </Pressable>
                     <Pressable accessibilityRole="button" accessibilityLabel="View my Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityView("mine")}>
-                      <Text style={compactStyles.secondaryActionText}>My Quests</Text>
+                      <Text style={compactStyles.secondaryActionText}>My Library</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -3902,7 +3909,7 @@ function QuestBoardDashboard({
           ) : (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>My Side Quests</Text>
+                <Text style={compactStyles.freshSectionTitle}>My Custom Library</Text>
                 <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
                   <Text style={compactStyles.sectionAction}>+ Create</Text>
                 </Pressable>
@@ -5651,7 +5658,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     <View style={styles.screenStack}>
       <View style={styles.multiplayerLobbyHero}>
         <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.multiplayerLobbyHeroGraphic} resizeMode="contain" />
-        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Lobby</Text>
+        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Pocket Lobby</Text>
+        <Text style={styles.sectionBody}>Join, host, refresh proof, and check standings here. Use the website for the full public tavern-wall view and shareable detail pages.</Text>
       </View>
 
 
@@ -5710,7 +5718,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Your Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
         <Text style={styles.sectionTitle}>Hosted and joined by you.</Text>
-        <Text style={styles.sectionBody}>Your own Multiplayer Side Quests stay separate from official events and community browsing.</Text>
+        <Text style={styles.sectionBody}>Your own Multiplayer Side Quests stay separate from official events and community browsing. This is your fast action queue.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
@@ -5746,7 +5754,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}/{allCommunityMultiplayerQuests.length}</Text>
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests by title, host, rules, or included Side Quests.</Text>
+        <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests when you are ready to join. Richer inspection and sharing live on the website; mobile stays focused on action.</Text>
         <View style={compactStyles.communityBrowsePanel}>
           <View style={compactStyles.communitySearchBox}>
             <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
