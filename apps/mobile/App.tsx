@@ -1686,25 +1686,17 @@ function TodayDashboard({
           <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setHomeMenuOpen(false)} />
           <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
             <View style={compactStyles.homeMenuItems}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Today" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("home")}>
-                <MaterialCommunityIcons name="view-dashboard" size={20} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Today</Text>
-              </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Open Solo Side Quests" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("sideQuests")}>
-                <MaterialCommunityIcons name="flag-checkered" size={20} color={colors.gold} />
+                <MaterialCommunityIcons name="flag-checkered" size={17} color={colors.gold} />
                 <Text style={compactStyles.homeMenuItemText}>Solo Side Quests</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("multiplayerSideQuests")}>
-                <MaterialCommunityIcons name="account-group" size={20} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Multiplayer Side Quests</Text>
+                <MaterialCommunityIcons name="account-group" size={17} color={colors.gold} />
+                <Text style={compactStyles.homeMenuItemText}>Multiplayer</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Open Trophy Cabinet" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("coatOfArms")}>
-                <MaterialCommunityIcons name="shield-star" size={20} color={colors.gold} />
+                <MaterialCommunityIcons name="shield-star" size={17} color={colors.gold} />
                 <Text style={compactStyles.homeMenuItemText}>Trophy Cabinet</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open account settings" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("account")}>
-                <MaterialCommunityIcons name="account-cog" size={20} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Account Settings</Text>
               </Pressable>
             </View>
           </View>
@@ -7415,12 +7407,12 @@ const compactStyles = StyleSheet.create({
   homeMenuButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   homeMenuButtonActive: { backgroundColor: "rgba(245,200,106,.18)", borderColor: "rgba(245,200,106,.28)" },
   homeMenuSpacer: { width: 40, height: 40 },
-  homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.08)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: Platform.OS === "ios" ? 86 : 56, paddingHorizontal: 16 },
+  homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.018)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: 112, paddingHorizontal: 18 },
   homeMenuBackdrop: { ...StyleSheet.absoluteFillObject },
-  homeMenuPanel: { alignSelf: "flex-start", width: 206, gap: 4, paddingVertical: 6, paddingHorizontal: 6, borderRadius: 18, backgroundColor: "rgba(52,37,24,.975)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)", shadowColor: "#000", shadowOpacity: .16, shadowRadius: 10, shadowOffset: { width: 0, height: 8 }, elevation: 6 },
-  homeMenuItems: { gap: 4 },
-  homeMenuItem: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 9, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, backgroundColor: "rgba(255,247,232,.06)", borderWidth: 1, borderColor: "rgba(245,200,106,.12)" },
-  homeMenuItemText: { flex: 1, color: colors.paper, fontSize: 12, lineHeight: 16, fontWeight: "900" },
+  homeMenuPanel: { alignSelf: "flex-start", width: 162, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
+  homeMenuItems: { gap: 2 },
+  homeMenuItem: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: "transparent" },
+  homeMenuItemText: { flex: 1, color: colors.paper, fontSize: 11.5, lineHeight: 15, fontWeight: "900" },
   readinessRow: { flexDirection: "row", gap: 8 },
   readinessChip: { flex: 1, gap: 1, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 14, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
   readinessChipMissing: { backgroundColor: "rgba(245,200,106,.12)", borderColor: "rgba(245,200,106,.22)" },
