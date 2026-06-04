@@ -274,6 +274,11 @@ export async function GET(request: Request) {
     });
   const publicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
   const closedPublicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status === "Finished").slice(0, 12);
+  const multiplayerTrophies = buildMobileMultiplayerTrophies({
+    groupQuests: dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]),
+    userId,
+    baseUrl,
+  });
   const customSideQuestsWithStats = customSideQuests.map((quest) => ({
     ...quest,
     stats: buildCustomQuestStats({
@@ -334,6 +339,7 @@ export async function GET(request: Request) {
     officialPublicGroupQuests,
     previousOfficialGroupQuests,
     officialGroupQuestWeeks,
+    multiplayerTrophies,
     completedQuests: completedQuestPayloads,
     latestReceipt: latestAttempt
       ? {
@@ -610,6 +616,29 @@ function dedupeGroupQuests(groupQuests: ServerGroupQuest[]) {
   const byId = new Map<string, ServerGroupQuest>();
   for (const quest of groupQuests) byId.set(quest.id, quest);
   return [...byId.values()];
+}
+
+function buildMobileMultiplayerTrophies({ groupQuests, userId, baseUrl }: { groupQuests: ServerGroupQuest[]; userId: string; baseUrl: string }) {
+  return groupQuests
+    .filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished")
+    .map((quest) => {
+      const ranked = [...quest.participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      const index = ranked.findIndex((participant) => participant.userId === userId);
+      const participant = index >= 0 ? ranked[index] : null;
+      if (!participant || index > 2 || (participant.score ?? 0) <= 0) return null;
+      const placement = index === 0 ? "Gold" : index === 1 ? "Silver" : "Bronze";
+      const finishedAtValues = Object.values(participant.questFinishedAt ?? {}).filter(Boolean);
+      return {
+        id: `${quest.id}-${placement.toLowerCase()}`,
+        title: quest.name,
+        placement,
+        rankLabel: `${index + 1}${index === 0 ? "st" : index === 1 ? "nd" : "rd"} place`,
+        completedAt: participant.lastProofAt ?? finishedAtValues.at(-1) ?? quest.endAt,
+        href: new URL(`/groupquests/${quest.id}?accepted=1`, baseUrl).toString(),
+      };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+    .slice(0, 12);
 }
 
 function buildCustomQuestStats({

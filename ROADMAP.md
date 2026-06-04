@@ -89,9 +89,16 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: compared proof sharing parity and closed the next concrete mobile standalone gap: website completed Side Quest pages expose canonical proof links/share actions, while mobile proof sharing only sent local text even when the account API already supplied `proofHref`.
   - proof: upgraded mobile completed-proof sharing to include the canonical proof URL when present, added a native `Copy proof link` action, and kept text-only fallback for custom/local proof records without a public proof URL. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.247 --version-code=247`. APK verified `versionName=0.1.247`, `versionCode=247`, `debuggable=false`, SHA256 `c751ea0db51a5a0c1b76d8fd7bac947f356660561caf21567deba61b2f86d536`.
 
+- [x] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-05
+  - completed_at: 2026-06-05
+  - source: continue Andreas's equal-functionality model after closing mobile proof-link sharing, account profile editing, official/community public sharing, Community reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
+  - scope: audited Trophy Cabinet data parity after the mobile UI work and closed the backend gap: mobile already had a native Multiplayer podium-scroll lane, but the mobile account API did not populate `multiplayerTrophies`, so real accounts could still see an empty lane even after finished podium results existed.
+  - proof: added `multiplayerTrophies` to `/api/mobile/account` from finished related/public Multiplayer Side Quests, limited to top-three podium placements with positive score, canonical group quest href, rank label, placement seal label, and completion timestamp. Verification passed: `pnpm --dir apps/mobile typecheck` and `pnpm lint -- src/app/api/mobile/account/route.ts apps/mobile/App.tsx`. No APK release was created because this is a server/account-payload parity fix for the already-released mobile UI.
+
 - [ ] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-05
-  - source: continue Andreas's equal-functionality model after closing mobile proof-link sharing, account profile editing, official/community public sharing, Community reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
+  - source: continue Andreas's equal-functionality model after closing mobile multiplayer trophy payloads, proof-link sharing, account profile editing, official/community public sharing, Community reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
   - scope: compare Custom Side Quest create/edit/manage parity, start/check/prove/collect flows, account readiness, and remaining community safety/discovery affordances; pick the highest-impact missing capability and implement it on the weaker surface.
   - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
