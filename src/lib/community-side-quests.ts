@@ -3,7 +3,9 @@ import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-meta
 
 export type PublicCommunitySideQuest = CustomSideQuest & {
   creatorName: string;
+  creatorKey: string;
   creatorUserId: string;
+  creatorBrowsePath: string;
   detailPath: string;
   ruleLabel: string;
   ruleDetails: string[];
@@ -39,13 +41,16 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
       username: user.username,
       emailAddress: user.primaryEmailAddress?.emailAddress,
     }) || "SQC player";
+    const creatorKey = makeCreatorKey(creatorName, user.id);
 
     return records
       .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public")
       .map((quest) => ({
         ...quest,
         creatorName,
+        creatorKey,
         creatorUserId: user.id,
+        creatorBrowsePath: `/challenges/community?creator=${encodeURIComponent(creatorKey)}#creator-${creatorKey}`,
         detailPath: `/challenges/community/${encodeURIComponent(quest.id)}`,
         ruleLabel: describeCustomSideQuestRule(quest.config),
         ruleDetails: describeCustomSideQuestRuleDetails(quest.config),
@@ -113,4 +118,13 @@ function isDisplayableCommunitySideQuest(quest: PublicCommunitySideQuest) {
 
 function capitalize(value: string) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function makeCreatorKey(name: string, userId: string) {
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 28) || "sqc-player";
+  return `${slug}-${userId.slice(-6).toLowerCase()}`;
 }

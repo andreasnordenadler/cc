@@ -11,10 +11,15 @@ export const metadata = {
   description: "Browse public player-created Solo Side Quests for Side Quest Chess.",
 };
 
-export default async function CommunitySideQuestsPage() {
+export default async function CommunitySideQuestsPage({ searchParams }: { searchParams?: Promise<{ creator?: string }> }) {
   const { userId } = await auth();
+  const resolvedSearchParams: { creator?: string } = searchParams ? await searchParams : {};
+  const { creator } = resolvedSearchParams;
   const client = await clerkClient();
   const quests = await listPublicCommunitySideQuests(client, { limit: 80 });
+  const selectedCreator = typeof creator === "string" ? decodeURIComponent(creator) : null;
+  const visibleQuests = selectedCreator ? quests.filter((quest) => quest.creatorKey === selectedCreator) : quests;
+  const selectedCreatorQuest = selectedCreator ? quests.find((quest) => quest.creatorKey === selectedCreator) : null;
 
   return (
     <main className="site-shell">
@@ -56,19 +61,26 @@ export default async function CommunitySideQuestsPage() {
             <div>
               <span className="eyebrow">Open community recipes</span>
               <h2>Pick someone else’s strange rule.</h2>
-              <p>{quests.length ? `${quests.length} public Community Solo Side Quest${quests.length === 1 ? "" : "s"} available right now.` : "No public Community Solo Side Quests are available yet."}</p>
+              <p>{quests.length ? `${visibleQuests.length} public Community Solo Side Quest${visibleQuests.length === 1 ? "" : "s"}${selectedCreatorQuest ? ` by ${selectedCreatorQuest.creatorName}` : " available right now"}.` : "No public Community Solo Side Quests are available yet."}</p>
             </div>
-            <span className="badge gold">{quests.length}</span>
+            <span className="badge gold">{visibleQuests.length}</span>
           </div>
 
-          {quests.length ? (
+          {selectedCreatorQuest ? (
+            <div className="groupquest-empty-state" id={`creator-${selectedCreatorQuest.creatorKey}`}>
+              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo recipe{visibleQuests.length === 1 ? "" : "s"} on the tavern wall. This is a creator context view, not a public profile; private account details stay private.</p>
+              <Link className="button secondary" href="/challenges/community">Show all creators</Link>
+            </div>
+          ) : null}
+
+          {visibleQuests.length ? (
             <div className="big-grid starter-route-grid">
-              {quests.map((quest) => <CommunityQuestCard key={`${quest.creatorUserId}:${quest.id}`} quest={quest} />)}
+              {visibleQuests.map((quest) => <CommunityQuestCard key={`${quest.creatorUserId}:${quest.id}`} quest={quest} />)}
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules.</p>
-              <Link className="button primary" href="/account">Open account</Link>
+              <p>{selectedCreator ? "No public Community Solo Side Quests are visible for that creator context. The recipe may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
+              <Link className="button primary" href={selectedCreator ? "/challenges/community" : "/account"}>{selectedCreator ? "Show all Community Solo" : "Open account"}</Link>
             </div>
           )}
         </section>
@@ -100,9 +112,11 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         <div className="public-groupquest-meta">
           <small>{quest.ruleLabel}</small>
           <small>Updated {formatDate(quest.updatedAt)}</small>
+          <small><Link href={quest.creatorBrowsePath}>More by {quest.creatorName}</Link></small>
         </div>
         <div className="button-row">
           <Link className="button secondary" href={quest.detailPath}>Inspect recipe</Link>
+          <Link className="button ghost" href={quest.creatorBrowsePath}>Creator context</Link>
           <Link className="button ghost" href="/account">Try in account</Link>
           <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
         </div>

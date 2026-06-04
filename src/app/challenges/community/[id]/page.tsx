@@ -57,6 +57,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
               <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect it here, then start it from your account or fold it into a Multiplayer Side Quest lineup.</p>
+              <p className="quest-detail-flavor">Creator context is intentionally small: public quest name, public creator label, and more public recipes by the same creator when available. No private account profile is exposed here.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
               <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
@@ -65,7 +66,19 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="button-row hero-actions quest-detail-actions">
             <Link className="button primary" href="/account">Try this in your account</Link>
             <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
+            <Link className="button secondary" href={quest.creatorBrowsePath}>More by {quest.creatorName}</Link>
             <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
+          </div>
+        </section>
+
+        <section className="mission-card quest-detail-section" aria-label="Community Side Quest creator context">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Creator context</span>
+              <h2>Made public by {quest.creatorName}.</h2>
+              <p>This link opens the public Community Solo board filtered to recipes from the same creator label. If that creator has no other public recipes, the page safely falls back without exposing private profile data.</p>
+            </div>
+            <Link className="button secondary" href={quest.creatorBrowsePath}>Open creator context</Link>
           </div>
         </section>
 
