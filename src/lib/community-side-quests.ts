@@ -47,8 +47,8 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
         creatorName,
         creatorUserId: user.id,
         detailPath: `/challenges/community/${encodeURIComponent(quest.id)}`,
-        ruleLabel: describeCustomRule(quest.config),
-        ruleDetails: describeCustomRuleDetails(quest.config),
+        ruleLabel: describeCustomSideQuestRule(quest.config),
+        ruleDetails: describeCustomSideQuestRuleDetails(quest.config),
         updatedAtMs: Date.parse(quest.updatedAt) || Date.parse(quest.createdAt) || 0,
       }));
   });
@@ -83,11 +83,11 @@ function asMetadata(value: unknown): UserMetadataRecord {
   return value && typeof value === "object" ? (value as UserMetadataRecord) : {};
 }
 
-function describeCustomRule(config: string) {
-  return describeCustomRuleDetails(config)[0] ?? "Custom rule";
+export function describeCustomSideQuestRule(config: string) {
+  return describeCustomSideQuestRuleDetails(config)[0] ?? "Custom rule";
 }
 
-function describeCustomRuleDetails(config: string) {
+export function describeCustomSideQuestRuleDetails(config: string) {
   const parsed = parseCustomRuleConfig(config);
   if (!parsed?.blocks.length) return ["Custom rule"];
   const lines = parsed.blocks.map((block) => {

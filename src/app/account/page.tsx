@@ -102,6 +102,7 @@ export default async function MyQuestLogPage() {
               <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
               {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
               <Link href="/profile" className="button secondary">Edit profile</Link>
+              <Link href="/account/custom-side-quests" className="button secondary">My Custom Side Quests</Link>
             </div>
             <div className="current-mission-multiplayer" aria-label="Active multiplayer side quests">
               <span className="eyebrow">Active Multiplayer Side Quests</span>
