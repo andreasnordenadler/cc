@@ -31,11 +31,18 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: tightened website Community Solo browse/detail CTAs so users understand the flow: inspect/share/report on website, then start/check/prove/collect on mobile/account; avoided implying a custom quest can be started anonymously.
   - proof: commit `78774a7` (`Tighten Community Solo website mobile handoff`) changed Community Solo browse/detail copy and CTAs to `Open account to start`, `Start/check in account`, and explicit website/mobile role language. Targeted ESLint and `pnpm build` passed locally; production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-9apdv5ie0-andreas-nordenadlers-projects.vercel.app`. Live smoke: `/challenges/community?handoffSmoke=20260604` returned 200 and included `start/check/prove them from your SQC account and mobile pocket tracker`, `Open account to start`, `Start/check in account`, `Website is the tavern wall`, and `Mobile is the pocket tracker`; seeded detail `/challenges/community/seed-opening-hipster-32-1?handoffSmoke=20260604` returned 200 and included `Inspect, share, and report it here`, `start/check/prove it from your account or mobile pocket tracker`, `Start/check in account`, `It does not start anonymous runs`, and `Open your SQC account`; private/raw strings (`privateMetadata`, `publicMetadata`, `customSideQuests`, `creatorUserId`, `blocks`, `pieceState`, `openingSequence`) were absent.
 
-- [ ] Improve Community Solo empty/error states.
+- [x] Improve Community Solo empty/error states.
   - added_at: 2026-06-04 17:10 Europe/Stockholm
+  - completed_at: 2026-06-04 17:16 Europe/Stockholm
   - source: next website community hardening item after browse/detail/trust/creator/handoff flows shipped.
-  - scope: make empty, malformed, unpublished, and creator-filter-miss states more useful and SQC-flavored without exposing private data; include clear account/support recovery paths.
-  - proof_needed: targeted lint/build, production deploy/smoke for empty/filter-miss paths and normal browse/detail paths, raw-config privacy check.
+  - scope: made empty, malformed, unpublished, and creator-filter-miss states more useful and SQC-flavored without exposing private data; included clear account/support recovery paths.
+  - proof: commit `56fc570` (`Improve Community Solo empty states`) added a creator-filter miss state and `src/app/challenges/community/[id]/not-found.tsx` with friendly recovery links. Targeted ESLint and `pnpm build` passed locally; production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-a1qcts67j-andreas-nordenadlers-projects.vercel.app`. Live smoke: normal browse `/challenges/community?emptySmoke=20260604` returned 200 and still included `The bad ideas escaped into the village`, `Creator context`, and `Start/check in account`; creator miss `/challenges/community?creator=missing-goblin-shelf&emptySmoke=20260604` returned 200 with `That creator shelf is empty`, `Nothing private is shown just because a URL guessed at it`, `Show all Community Solo`, and `Ask Support`; malformed detail `/challenges/community/not-a-real-recipe-20260604?emptySmoke=20260604` returned 404 with friendly copy `This recipe slipped off the tavern wall`, `malformed, unpublished, archived, or cleaned up`, `Draft and private custom Side Quests stay hidden`, `Browse Community Solo`, and `Ask Support`; private/raw strings (`privateMetadata`, `publicMetadata`, `customSideQuests`, `creatorUserId`, `blocks`, `pieceState`, `openingSequence`) were absent.
+
+- [ ] Add Community Solo web analytics hooks.
+  - added_at: 2026-06-04 17:16 Europe/Stockholm
+  - source: next website community hardening item after public browse/detail/trust/creator/handoff/empty states shipped.
+  - scope: add lightweight privacy-safe analytics events for Community Solo browse, detail, creator-filter, report-link, and account-handoff clicks using existing analytics conventions; no raw custom quest configs or private metadata in event payloads.
+  - proof_needed: inspect existing analytics pattern, targeted lint/build, deploy/smoke or unit-level verification that payloads are privacy-safe.
 
 - [x] Add Community Solo report/trust affordances.
   - added_at: 2026-06-04 16:40 Europe/Stockholm
