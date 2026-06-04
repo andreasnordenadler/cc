@@ -6475,6 +6475,7 @@ function CustomSideQuestDetailModal({
 }) {
   const [busy, setBusy] = useState(false);
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   if (!quest) return null;
   const badgeSource = getCustomQuestImageSource(quest.badgeImageUrl);
   const lifecycle = quest.lifecycle ?? "published";
@@ -6530,6 +6531,20 @@ function CustomSideQuestDetailModal({
       await onSaveState(quest, next);
     } finally {
       setManageBusy(null);
+    }
+  }
+
+  async function shareCommunityQuest() {
+    if (!quest || quest.visibility !== "public" || lifecycle !== "published") return;
+    const url = `${SQC_WEB_BASE_URL}/challenges/community/${encodeURIComponent(quest.id)}`;
+    try {
+      await Share.share({
+        title: `Side Quest Chess: ${quest.name}`,
+        message: `Try “${quest.name}”, a public Community Solo Side Quest in Side Quest Chess. ${url}`,
+      });
+      setShareStatus("Community Solo share sheet opened.");
+    } catch {
+      setShareStatus("Could not open sharing here.");
     }
   }
 
@@ -6605,6 +6620,12 @@ function CustomSideQuestDetailModal({
               <Text style={compactStyles.detailSecondaryButtonText}>More by {quest.creatorName}</Text>
             </Pressable>
           ) : null}
+          {quest.visibility === "public" && lifecycle === "published" ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Share Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => void shareCommunityQuest()}>
+              <Text style={compactStyles.detailSecondaryButtonText}>Share public link</Text>
+            </Pressable>
+          ) : null}
+          {shareStatus ? <Text style={compactStyles.inlineSuccess}>{shareStatus}</Text> : null}
           {onReport ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Report Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => onReport(quest)}>
               <Text style={compactStyles.detailSecondaryButtonText}>Report this Side Quest</Text>

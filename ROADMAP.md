@@ -61,9 +61,16 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: compared Trophy Cabinet parity and closed the next concrete mobile standalone gap: the website account trophy cabinet showed completed solo Coat of Arms and Multiplayer podium scrolls together, while the mobile Coat of Arms tab only showed solo coat tiles.
   - proof: added a native Trophy Cabinet summary card to the mobile Coat of Arms tab and a `Multiplayer podium scrolls` lane that lists account multiplayer trophies with placement seals, rank labels, completion date, and privacy copy. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.243 --version-code=243`. APK verified `versionName=0.1.243`, `versionCode=243`, `debuggable=false`, SHA256 `ac6c1535e56caec1e5a31ead0b1656dfe89365c09b20b8a407544c8c6d4ccd85`.
 
+- [x] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-05
+  - completed_at: 2026-06-05
+  - source: continue Andreas's equal-functionality model after closing Community Solo reports, Community Multiplayer reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
+  - scope: compared Community Solo detail parity and closed the next concrete mobile standalone gap: the website has canonical public Community Solo URLs, while the mobile detail sheet could inspect/start/report but could not share a public quest link from the app.
+  - proof: added a native `Share public link` action for published public Community Solo Side Quests using the platform share sheet and canonical `/challenges/community/{id}` URL; kept private/draft quests unshareable. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.244 --version-code=244`. APK verified `versionName=0.1.244`, `versionCode=244`, `debuggable=false`, SHA256 `151a33568194367cc9332cb335e6d3e73604c1bfc080c6aa95826eda8e193e03`.
+
 - [ ] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-05
-  - source: continue Andreas's equal-functionality model after closing Community Solo reports, Community Multiplayer reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
+  - source: continue Andreas's equal-functionality model after closing Community Solo reports/share links, Community Multiplayer reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
   - scope: compare Custom Side Quest create/edit/manage parity, start/check/prove/collect flows, account readiness, and remaining community safety/discovery affordances; pick the highest-impact missing capability and implement it on the weaker surface.
   - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
