@@ -10,11 +10,18 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Add website My Custom Side Quest management parity.
+- [ ] Add Community Solo report/trust affordances.
+  - added_at: 2026-06-04 16:40 Europe/Stockholm
+  - source: next website community backfill after public browse/detail and signed-in custom-library ownership shipped.
+  - scope: add lightweight public trust affordances for Community Solo detail/listing pages, such as “Report weird quest”, published-by context, and safe handling copy; keep it non-destructive and avoid moderator/admin workflows unless already supported.
+  - proof_needed: lint/build pass, production deploy, live browse/detail smoke showing report/trust affordance and no raw private config exposure.
+
+- [x] Add website My Custom Side Quest management parity.
   - added_at: 2026-06-04 16:36 Europe/Stockholm
+  - completed_at: 2026-06-04 16:40 Europe/Stockholm
   - source: next website community backfill after Community Solo browse and detail pages shipped.
-  - scope: add a signed-in website management surface for the user's Custom Side Quests with draft/private/public/archived status, links to public detail pages for published public quests, and clear CTAs that match mobile lifecycle wording; do not add new custom quest creation complexity beyond existing safe actions unless needed.
-  - proof_needed: lint/build pass, production deploy, signed-out/signed-in-safe smoke for route availability, and no private custom quest visible publicly.
+  - scope: added a signed-in website management surface for the user's Custom Side Quests with draft/private/public/archived status, links to public detail pages for published public quests, and clear CTAs that match mobile lifecycle wording; deliberately kept read-only on web for now to avoid adding a risky parallel editor.
+  - proof: commit `29b614b` (`Add web Custom Side Quest library`) added `/account/custom-side-quests`, exported shared safe rule-summary helpers, and linked the page from `/account`. Targeted ESLint and `pnpm build` passed; build route manifest includes `ƒ /account/custom-side-quests`. Production deploy guard and Vercel deploy passed, aliasing `https://sidequestchess.com` to `https://cc-4vk7khya2-andreas-nordenadlers-projects.vercel.app`. Live signed-out smoke for `/account/custom-side-quests?smoke=20260604` returned `307` to `/sign-in`, final sign-in page returned 200, and the signed-out HTML did not expose seeded/private quest titles (`No Queen, No Problem`, `Knight Tourist`, or `seed-opening-hipster`). Signed-in live rendering was not cookie-smoked in this session, but the page is auth-gated with `currentUser()` + `redirect('/sign-in')`, fetches only the current Clerk user's metadata, and passed full TypeScript/build checks.
 
 - [x] Add public Community Solo Side Quest detail pages.
   - added_at: 2026-06-04 16:24 Europe/Stockholm
