@@ -10,11 +10,18 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Add Community Solo report/trust affordances.
+- [ ] Align mobile Community Solo / Multiplayer language with shared IA.
+  - added_at: 2026-06-04 16:48 Europe/Stockholm
+  - source: next step after website community backfill shipped browse, detail, signed-in library ownership, and report/trust affordances.
+  - scope: make the mobile community entry points and labels reinforce the agreed model: website is rich tavern-wall/product canon, mobile is pocket quest tracker for start/check/prove/join; keep the v236 anchored menu structure intact and avoid generic utility-shell wording.
+  - proof_needed: mobile typecheck/lint, Android release build if native-visible copy changes are meaningful, emulator screenshot smoke for affected menu/community screens, and no APK artifacts committed.
+
+- [x] Add Community Solo report/trust affordances.
   - added_at: 2026-06-04 16:40 Europe/Stockholm
+  - completed_at: 2026-06-04 16:48 Europe/Stockholm
   - source: next website community backfill after public browse/detail and signed-in custom-library ownership shipped.
-  - scope: add lightweight public trust affordances for Community Solo detail/listing pages, such as “Report weird quest”, published-by context, and safe handling copy; keep it non-destructive and avoid moderator/admin workflows unless already supported.
-  - proof_needed: lint/build pass, production deploy, live browse/detail smoke showing report/trust affordance and no raw private config exposure.
+  - scope: added lightweight public trust affordances for Community Solo detail/listing pages: “Report weird quest”, support links with quest IDs, public creator context, and safe handling copy; deliberately avoided destructive/admin moderation workflows.
+  - proof: commit `01b3908` (`Add Community Solo trust affordances`) added report/trust copy and support CTAs to `/challenges/community` and `/challenges/community/[id]`. Targeted ESLint and `pnpm build` passed; production deploy guard and Vercel deploy passed, aliasing `https://sidequestchess.com` to `https://cc-2vwwjhdst-andreas-nordenadlers-projects.vercel.app`. Live smoke: `/challenges/community?trustSmoke=20260604` returned 200, had 94 detail links, and included `Report weird quests`, `Report weird quest`, `Community should feel odd, not hostile`, and `/support?topic=community-side-quest`. Seeded detail `/challenges/community/seed-opening-hipster-32-1?trustSmoke=20260604` returned 200 and included `Community trust`, `Player-created, publicly labeled, easy to flag`, `Report weird quest`, `This is not an official SQC quest`, and the support link; raw config strings (`blocks`, `pieceState`, `openingSequence`) were not present.
 
 - [x] Add website My Custom Side Quest management parity.
   - added_at: 2026-06-04 16:36 Europe/Stockholm
