@@ -40,9 +40,16 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: compared app Multiplayer discovery/detail/share/report parity and closed the next concrete mobile standalone gap: Community Multiplayer detail sheets supported inspect/share/join/proof/owner controls, but did not expose a native report/support affordance for non-owner community tables.
   - proof: added `Report Side Quest` to non-owner, non-official Multiplayer detail sheets and routed it through the existing in-app support flow with quest name, quest ID, host context, and status prefilled; owner/private controls and official SQC events do not expose the community report action. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.240 --version-code=240`. APK verified `versionName=0.1.240`, `versionCode=240`, `debuggable=false`, SHA256 `b8de03a71b4d74de3ccae7263bb6488504452e961d90336404c65ece5152e97f`.
 
+- [x] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-05
+  - completed_at: 2026-06-05
+  - source: continue Andreas's equal-functionality model after closing Community Solo report/support and Community Multiplayer report/support mismatches.
+  - scope: compared creator context parity and closed the next concrete mobile standalone gap: website Community Solo detail pages had creator context links/shelves, while mobile Community Solo detail sheets only showed the creator name inline.
+  - proof: added a mobile `Creator context` detail card, `More by {creator}` action, local creator-shelf filtering, clear/empty recovery, and private-data copy that says drafts/account details stay hidden. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.241 --version-code=241`. APK verified `versionName=0.1.241`, `versionCode=241`, `debuggable=false`, SHA256 `b4c1c6d6501297e5f6c1f6969a81817828bafafeddbdc3963da1a3cdc15c00be`.
+
 - [ ] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-05
-  - source: continue Andreas's equal-functionality model after closing Community Solo report/support and Community Multiplayer report/support mismatches.
+  - source: continue Andreas's equal-functionality model after closing Community Solo reports, Community Multiplayer reports, and mobile Community Solo creator context.
   - scope: compare Custom Side Quest create/edit/manage parity, Multiplayer creator context/website support parity, start/check/prove/collect flows, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
   - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 

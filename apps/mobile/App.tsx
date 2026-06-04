@@ -3533,6 +3533,7 @@ function QuestBoardDashboard({
   const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
   const [communityView, setCommunityView] = useState<CommunityBrowseView>("discover");
   const [communitySearch, setCommunitySearch] = useState("");
+  const [communityCreatorFilter, setCommunityCreatorFilter] = useState<string | null>(null);
   const [communityFilter, setCommunityFilter] = useState<CommunityBrowseFilter>("all");
   const [communitySort, setCommunitySort] = useState<CommunityBrowseSort>("popular");
   const [customLibraryFilter, setCustomLibraryFilter] = useState<CustomLibraryFilter>("all");
@@ -3566,6 +3567,7 @@ function QuestBoardDashboard({
   const publicCommunityQuests = serverCommunityQuests.filter((quest) => quest.lifecycle === "published" && quest.visibility === "public");
   const communityBrowseQuests = publicCommunityQuests
     .filter((quest) => customQuestMatchesSearch(quest, communitySearch))
+    .filter((quest) => !communityCreatorFilter || quest.creatorName === communityCreatorFilter)
     .filter((quest) => {
       if (communityFilter === "popular") return getCustomQuestPopularity(quest.stats) > 0;
       if (communityFilter === "new") return Boolean(communityReferenceMs) && communityReferenceMs - getCustomQuestUpdatedMs(quest) < 1000 * 60 * 60 * 24 * 30;
@@ -3722,6 +3724,14 @@ function QuestBoardDashboard({
     }
   }
 
+  function openCommunityCreatorShelf(quest: CustomLibraryQuest) {
+    if (!quest.creatorName) return;
+    setCommunityCreatorFilter(quest.creatorName);
+    setCommunityView("discover");
+    setSideQuestCatalogTab("community");
+    setCustomDetailId(null);
+  }
+
   function openCommunityReport(quest: CustomLibraryQuest) {
     const creatorLine = quest.creatorName ? `Creator: ${quest.creatorName}` : "Creator: unknown";
     setCommunityReportMessage([
@@ -3874,21 +3884,30 @@ function QuestBoardDashboard({
                 <Text style={compactStyles.freshSectionTitle}>Community Solo Discover</Text>
                 <Text style={compactStyles.sectionAction}>{publicCommunityQuests.length ? `${communityBrowseQuests.length}/${publicCommunityQuests.length}` : "0 public"}</Text>
               </View>
-              {publicCommunityQuests.length || communitySearch ? (
+              {publicCommunityQuests.length || communitySearch || communityCreatorFilter ? (
                 <View style={compactStyles.communityBrowsePanel}>
+                  {communityCreatorFilter ? (
+                    <View style={compactStyles.communityEmptyPanel}>
+                      <Text style={compactStyles.communityEmptyTitle}>Creator shelf: {communityCreatorFilter}</Text>
+                      <Text style={compactStyles.communityEmptyCopy}>Showing public Community Solo Side Quests from this creator only. Private drafts and account details stay hidden.</Text>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Solo creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
+                        <Text style={compactStyles.secondaryActionText}>Show all creators</Text>
+                      </Pressable>
+                    </View>
+                  ) : null}
                   <View style={compactStyles.communitySearchBox}>
                     <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
                     <TextInput
                       value={communitySearch}
-                      placeholder="Search by name or rule"
+                      placeholder={communityCreatorFilter ? "Search this creator shelf" : "Search by name or rule"}
                       placeholderTextColor="rgba(255,247,232,.42)"
                       autoCapitalize="none"
                       autoCorrect={false}
                       style={compactStyles.communitySearchInput}
                       onChangeText={setCommunitySearch}
                     />
-                    {communitySearch ? (
-                      <Pressable accessibilityRole="button" accessibilityLabel="Clear community search" onPress={() => setCommunitySearch("")}>
+                    {communitySearch || communityCreatorFilter ? (
+                      <Pressable accessibilityRole="button" accessibilityLabel="Clear community search" onPress={() => { setCommunitySearch(""); setCommunityCreatorFilter(null); }}>
                         <MaterialCommunityIcons name="close-circle" size={18} color="rgba(255,247,232,.5)" />
                       </Pressable>
                     ) : null}
@@ -3915,8 +3934,8 @@ function QuestBoardDashboard({
                 </View>
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
-                  <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? "No matches yet." : "No public Community Side Quests yet."}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Library. Public quests will appear here as the catalog grows."}</Text>
+                  <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? communityCreatorFilter ? "That creator shelf is empty." : "No matches yet." : "No public Community Side Quests yet."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator shelf, search text, or filter. Nothing private is shown from guessed creator context." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Library. Public quests will appear here as the catalog grows."}</Text>
                   <View style={compactStyles.actionRowTight}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => setCustomCreateOpen(true)}>
                       <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
@@ -4038,6 +4057,7 @@ function QuestBoardDashboard({
           setCustomDetailId(null);
         } : undefined}
         onReport={!customDetailOwned && customDetailDraft?.visibility === "public" ? openCommunityReport : undefined}
+        onViewCreator={customDetailDraft?.visibility === "public" ? openCommunityCreatorShelf : undefined}
       />
 
       <HelpSupportModal key={communityReportMessage || "community-report"} visible={communityReportOpen} onClose={() => setCommunityReportOpen(false)} signedIn={signedIn} authBridge={authBridge} initialMessage={communityReportMessage} />
@@ -6373,6 +6393,7 @@ function CustomSideQuestDetailModal({
   onSaveState,
   onViewResult,
   onReport,
+  onViewCreator,
 }: {
   quest: CustomLibraryQuest | null;
   visible: boolean;
@@ -6386,6 +6407,7 @@ function CustomSideQuestDetailModal({
   onSaveState?: (quest: CustomLibraryQuest, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) => Promise<void> | void;
   onViewResult?: () => void;
   onReport?: (quest: CustomLibraryQuest) => void;
+  onViewCreator?: (quest: CustomLibraryQuest) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
@@ -6492,6 +6514,16 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollMeta}>Stats show your activity with this Side Quest.</Text>
           </View>
 
+          {quest.creatorName ? (
+            <View style={compactStyles.proofScrollCard}>
+              <Text style={compactStyles.proofScrollEyebrow}>Creator context</Text>
+              <Text style={compactStyles.proofScrollTitle}>Made by {quest.creatorName}</Text>
+              <Text style={compactStyles.proofScrollCopy}>Open a local creator shelf to browse other public Community Solo Side Quests from this creator.</Text>
+              <View style={compactStyles.proofScrollRule} />
+              <Text style={compactStyles.proofScrollMeta}>Private drafts and account details stay hidden.</Text>
+            </View>
+          ) : null}
+
           {completed && onViewResult ? (
             <Pressable accessibilityRole="button" accessibilityLabel="View custom Side Quest result" style={compactStyles.detailPrimaryButton} onPress={onViewResult}>
               <Text style={compactStyles.detailPrimaryButtonText}>View result</Text>
@@ -6504,6 +6536,11 @@ function CustomSideQuestDetailModal({
           <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>
             <Text style={compactStyles.detailQuietButtonText}>Back to list</Text>
           </Pressable>
+          {onViewCreator && quest.creatorName ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="View more by this creator" style={compactStyles.detailSecondaryButton} onPress={() => onViewCreator(quest)}>
+              <Text style={compactStyles.detailSecondaryButtonText}>More by {quest.creatorName}</Text>
+            </Pressable>
+          ) : null}
           {onReport ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Report Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => onReport(quest)}>
               <Text style={compactStyles.detailSecondaryButtonText}>Report this Side Quest</Text>
