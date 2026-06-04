@@ -18,11 +18,18 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: updated source-of-truth docs and roadmap, audited recent copy, and corrected shipped v237/community handoff language that made mobile sound subordinate.
   - proof: commit `c9045f6` (`Correct SQC website mobile parity model`) corrected docs, roadmap, website Community Solo browse/detail copy, and mobile Community Solo/Multiplayer copy to say app and website are equal-functionality surfaces. Verification passed: `pnpm --dir apps/mobile typecheck`, targeted ESLint, and `pnpm build`. Production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-mv8nhkyem-andreas-nordenadlers-projects.vercel.app`. Live smoke confirmed `/challenges/community` and a seeded detail page include equal-functionality copy and no old `mobile pocket tracker` / `Website is the tavern wall` wording or private/raw config strings. Mobile release commit `664db92` bumped Android to v238; `mobile-v238` release published with APK SHA256 `b31e37d40ee0cdf5eb14e098c2d508b84748fc7d2f0cb5577ffc9df72c106681`.
 
-- [ ] Audit and close the first concrete website/mobile parity gap.
+- [x] Audit and close the first concrete website/mobile parity gap.
   - added_at: 2026-06-05 00:38 Europe/Stockholm
+  - completed_at: 2026-06-05
   - source: follow-up to Andreas's equal-functionality correction; analytics should wait until the product surfaces are aligned.
-  - scope: compare app and website capabilities for Community Solo, Custom Side Quest library/editor lifecycle, Multiplayer discovery/detail/create/manage, proof/reward, reporting/support, creator context, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
-  - proof_needed: updated parity matrix/roadmap note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
+  - scope: compared app and website capabilities for Community Solo reporting/support and closed the first concrete mismatch: website public Community Solo detail pages had a report affordance, while mobile Community Solo detail sheets did not.
+  - proof: commit `4ab0303` (`Mobile: add Community Solo report action`) added a native `Report this Side Quest` action for public Community Solo detail sheets. The action reuses the existing in-app support flow and pre-fills quest name, quest ID, and creator context so mobile matches the website report affordance without exposing raw quest config. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.239 --version-code=239`. APK verified `versionName=0.1.239`, `versionCode=239`, `debuggable=false`, SHA256 `801c1f57ac93d3894826aa96bb16ae5a1233de04ef18050b2efecd690d039bad`; GitHub release `mobile-v239` published at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v239`.
+
+- [ ] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-05
+  - source: continue Andreas's equal-functionality model after closing the first Community Solo report/support mismatch.
+  - scope: compare app and website capabilities for Custom Side Quest create/edit/manage parity, Multiplayer discovery/detail/share/report parity, start/check/prove/collect flows, creator context, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
+  - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.
   - added_at: 2026-06-04 16:48 Europe/Stockholm
