@@ -94,15 +94,15 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
       </div>
       <div className="challenge-card-body">
         <span className="eyebrow">Community · by {quest.creatorName}</span>
-        <h3>{quest.title}</h3>
+        <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
         <p>{quest.summary}</p>
         <div className="public-groupquest-meta">
           <small>{quest.ruleLabel}</small>
           <small>Updated {formatDate(quest.updatedAt)}</small>
         </div>
         <div className="button-row">
-          <Link className="button secondary" href="/account">Try in your account</Link>
-          <Link className="button ghost" href="/groupquests/create">Use in Multiplayer</Link>
+          <Link className="button secondary" href={quest.detailPath}>Inspect recipe</Link>
+          <Link className="button ghost" href="/account">Try in account</Link>
         </div>
       </div>
     </article>

@@ -4,7 +4,9 @@ import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-meta
 export type PublicCommunitySideQuest = CustomSideQuest & {
   creatorName: string;
   creatorUserId: string;
+  detailPath: string;
   ruleLabel: string;
+  ruleDetails: string[];
   updatedAtMs: number;
 };
 
@@ -44,7 +46,9 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
         ...quest,
         creatorName,
         creatorUserId: user.id,
+        detailPath: `/challenges/community/${encodeURIComponent(quest.id)}`,
         ruleLabel: describeCustomRule(quest.config),
+        ruleDetails: describeCustomRuleDetails(quest.config),
         updatedAtMs: Date.parse(quest.updatedAt) || Date.parse(quest.createdAt) || 0,
       }));
   });
@@ -57,6 +61,11 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
     })
     .sort((a, b) => b.updatedAtMs - a.updatedAtMs)
     .slice(0, options.limit ?? 80);
+}
+
+export async function findPublicCommunitySideQuestById(client: ClerkUserListClient, id: string) {
+  const quests = await listPublicCommunitySideQuests(client, { limit: 200 });
+  return quests.find((quest) => quest.id === id) ?? null;
 }
 
 async function fetchAllUsers(client: ClerkUserListClient) {
@@ -75,17 +84,24 @@ function asMetadata(value: unknown): UserMetadataRecord {
 }
 
 function describeCustomRule(config: string) {
+  return describeCustomRuleDetails(config)[0] ?? "Custom rule";
+}
+
+function describeCustomRuleDetails(config: string) {
   const parsed = parseCustomRuleConfig(config);
-  const first = parsed?.blocks[0];
-  if (!first) return "Custom rule";
-  if (first.type === "gameResult") return `${capitalize(first.result)} result`;
-  if (first.type === "openingSequence") return "Opening pattern";
-  if (first.type === "moveSequence") return first.negate ? "Avoid a move pattern" : "Move pattern";
-  if (first.type === "pieceState") {
-    const timing = first.timing?.byMove ? ` by move ${first.timing.byMove}` : first.timing?.atGameEnd ? " by game end" : "";
-    return `${capitalize(first.piece)} ${first.condition}${timing}`;
-  }
-  return "Custom rule";
+  if (!parsed?.blocks.length) return ["Custom rule"];
+  const lines = parsed.blocks.map((block) => {
+    if (block.type === "gameResult") return `${capitalize(block.result)} the game.`;
+    if (block.type === "openingSequence") return `Play the opening pattern ${block.moves.join(" ")}.`;
+    if (block.type === "moveSequence") return block.negate ? `Avoid the move pattern ${block.sequence}.` : `Play the move pattern ${block.sequence}.`;
+    if (block.type === "pieceState") {
+      const timing = block.timing?.byMove ? ` by move ${block.timing.byMove}` : block.timing?.atGameEnd ? " by game end" : "";
+      const target = block.targetSquare ? ` on ${block.targetSquare}` : "";
+      return `${capitalize(block.owner)} ${block.piece} must be ${block.condition}${target}${timing}.`;
+    }
+    return "Custom rule";
+  });
+  return parsed.logic === "any" && lines.length > 1 ? ["Complete any one of these rules.", ...lines] : lines;
 }
 
 function isDisplayableCommunitySideQuest(quest: PublicCommunitySideQuest) {

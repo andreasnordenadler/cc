@@ -1,0 +1,106 @@
+import Image from "next/image";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { auth, clerkClient } from "@clerk/nextjs/server";
+import SiteNav from "@/components/site-nav";
+import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const client = await clerkClient();
+  const quest = await findPublicCommunitySideQuestById(client, decodeURIComponent(id));
+  if (!quest) return { title: "Community Solo Side Quest · Side Quest Chess" };
+  const title = `${quest.title} · Community Solo Side Quest · Side Quest Chess`;
+  const description = `${quest.summary} Public player-created Side Quest by ${quest.creatorName}.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: quest.detailPath },
+    openGraph: {
+      title,
+      description,
+      url: quest.detailPath,
+      siteName: "Side Quest Chess",
+      type: "website",
+      images: quest.badgeImageUrl ? [{ url: quest.badgeImageUrl, alt: `${quest.title} custom Side Quest crest` }] : undefined,
+    },
+    twitter: { card: "summary", title, description },
+  };
+}
+
+export default async function CommunitySideQuestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { userId } = await auth();
+  const { id } = await params;
+  const client = await clerkClient();
+  const quest = await findPublicCommunitySideQuestById(client, decodeURIComponent(id));
+
+  if (!quest) notFound();
+
+  return (
+    <main className="site-shell">
+      <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
+
+      <div className="content-wrap quest-detail-wrap">
+        <Link href="/challenges/community" className="button secondary back-to-hub">← Back to Community Solo</Link>
+
+        <section className="hero-card detail-hero quest-detail-hero community-side-quest-detail-hero">
+          <div className="quest-detail-meta card-meta quest-card-meta">
+            <span className="badge green">Community</span>
+            <span className="badge">Solo Side Quest</span>
+          </div>
+          <div className="detail-hero-grid quest-detail-hero-grid">
+            <div className="quest-detail-copy">
+              <span className="eyebrow">Player-created by {quest.creatorName}</span>
+              <h1>{quest.title}</h1>
+              <p className="hero-copy">{quest.summary}</p>
+              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect it here, then start it from your account or fold it into a Multiplayer Side Quest lineup.</p>
+            </div>
+            <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
+              <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
+            </div>
+          </div>
+          <div className="button-row hero-actions quest-detail-actions">
+            <Link className="button primary" href="/account">Try this in your account</Link>
+            <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
+          </div>
+        </section>
+
+        <section className="mission-card quest-detail-section" aria-label="Community Side Quest rule summary">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Safe rule summary</span>
+              <h2>The public recipe, without leaking private workspace clutter.</h2>
+              <p>Only the published rule summary is shown here. Draft, private, archived, and malformed custom quests stay out of public browse.</p>
+            </div>
+          </div>
+          <div className="groupquest-onboarding-steps">
+            {quest.ruleDetails.map((line, index) => (
+              <div className="groupquest-onboarding-step" key={`${line}-${index}`}>
+                <em>{index + 1}</em>
+                <span><strong>{index === 0 ? quest.ruleLabel : "Additional condition"}</strong><small>{line}</small></span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
+          <article className="mission-card groupquests-live-card">
+            <span className="eyebrow">Website role</span>
+            <h2>Inspect and share the tavern-wall version.</h2>
+            <p>The website keeps the richer community view: creator context, rule explanation, public URLs, and eventually reporting/trust tools.</p>
+            <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
+          </article>
+          <article className="mission-card groupquests-live-card">
+            <span className="eyebrow">Mobile role</span>
+            <h2>Use the app when you are ready to play.</h2>
+            <p>The mobile app stays the pocket quest tracker: start, check, prove, join, and collect the reward moment without turning into a giant catalog.</p>
+            <Link className="button primary" href="/account">Open your SQC account</Link>
+          </article>
+        </section>
+      </div>
+    </main>
+  );
+}
