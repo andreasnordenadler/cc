@@ -56,7 +56,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <span className="eyebrow">Player-created by {quest.creatorName}</span>
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
-              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect it here, then start it from your account or fold it into a Multiplayer Side Quest lineup.</p>
+              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect, share, and report it here; start/check/prove it from your account or mobile pocket tracker.</p>
               <p className="quest-detail-flavor">Creator context is intentionally small: public quest name, public creator label, and more public recipes by the same creator when available. No private account profile is exposed here.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
@@ -64,7 +64,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             </div>
           </div>
           <div className="button-row hero-actions quest-detail-actions">
-            <Link className="button primary" href="/account">Try this in your account</Link>
+            <Link className="button primary" href="/account">Start/check in account</Link>
             <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
             <Link className="button secondary" href={quest.creatorBrowsePath}>More by {quest.creatorName}</Link>
             <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
@@ -115,7 +115,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Website role</span>
             <h2>Inspect and share the tavern-wall version.</h2>
-            <p>The website keeps the richer community view: creator context, rule explanation, public URLs, and report/trust affordances.</p>
+            <p>The website keeps the richer community view: creator context, rule explanation, public URLs, and report/trust affordances. It does not start anonymous runs.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">

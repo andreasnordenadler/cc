@@ -30,11 +30,11 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <span className="eyebrow">Community Solo Side Quests</span>
           <h1>The bad ideas escaped into the village.</h1>
           <p className="hero-copy">
-            Browse public Solo Side Quests made by SQC players. Some are elegant. Some are cursed. All of them should make a normal chess game slightly less normal.
+            Browse public Solo Side Quests made by SQC players. Some are elegant. Some are cursed. Inspect, share, and report them here; start/check/prove them from your SQC account and mobile pocket tracker.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/challenges">Back to SQC Official</Link>
-            <Link className="button primary" href="/account">Create your own</Link>
+            <Link className="button primary" href="/account">Open account to start</Link>
           </div>
         </section>
 
@@ -51,7 +51,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <div className="grid side-quest-mode-grid">
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show creator names and custom rule summaries so you know whose bad idea you are borrowing." />
-            <InfoCard title="Mobile gets the quick action" copy="Use the app to browse compactly, start, check, and prove. Use the website when you want the richer tavern-wall view." />
+            <InfoCard title="Mobile gets the quick action" copy="Website is the tavern wall. Mobile is the pocket tracker: pick the quest, check the proof, prove the game, collect the crest." />
             <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>
@@ -117,7 +117,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         <div className="button-row">
           <Link className="button secondary" href={quest.detailPath}>Inspect recipe</Link>
           <Link className="button ghost" href={quest.creatorBrowsePath}>Creator context</Link>
-          <Link className="button ghost" href="/account">Try in account</Link>
+          <Link className="button ghost" href="/account">Start/check in account</Link>
           <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
         </div>
       </div>
