@@ -67,17 +67,21 @@ export async function fetchMobileAccountState(sessionToken?: string | null): Pro
 
 export async function updateMobileChessUsernames({
   sessionToken,
+  runnerDisplayName,
+  runnerBio,
   lichessUsername,
   chessComUsername,
 }: {
   sessionToken?: string | null;
+  runnerDisplayName?: string;
+  runnerBio?: string;
   lichessUsername: string;
   chessComUsername: string;
 }): Promise<MobileProfileUpdateResponse> {
   const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/profile`, {
     method: "PATCH",
     headers: buildMobileAuthHeaders(sessionToken),
-    body: JSON.stringify({ lichessUsername, chessComUsername }),
+    body: JSON.stringify({ runnerDisplayName, runnerBio, lichessUsername, chessComUsername }),
   });
   const payload = await readMobileJson<MobileProfileUpdateResponse>(response, "profile update");
 

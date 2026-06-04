@@ -7233,6 +7233,8 @@ function ChessUsernameEditor({
   authBridge: MobileAuthBridge;
   onSaved: () => void;
 }) {
+  const [runnerDisplayName, setRunnerDisplayName] = useState(account.profile.displayName ?? "");
+  const [runnerBio, setRunnerBio] = useState(account.profile.bio ?? "");
   const [lichessUsername, setLichessUsername] = useState(account.chessAccounts.lichessUsername ?? "");
   const [chessComUsername, setChessComUsername] = useState(account.chessAccounts.chessComUsername ?? "");
   const [saving, setSaving] = useState(false);
@@ -7240,9 +7242,11 @@ function ChessUsernameEditor({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setRunnerDisplayName(account.profile.displayName ?? "");
+    setRunnerBio(account.profile.bio ?? "");
     setLichessUsername(account.chessAccounts.lichessUsername ?? "");
     setChessComUsername(account.chessAccounts.chessComUsername ?? "");
-  }, [account.chessAccounts.chessComUsername, account.chessAccounts.lichessUsername]);
+  }, [account.chessAccounts.chessComUsername, account.chessAccounts.lichessUsername, account.profile.bio, account.profile.displayName]);
 
   async function saveUsernames() {
     setSaving(true);
@@ -7251,8 +7255,8 @@ function ChessUsernameEditor({
 
     try {
       const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
-      const result = await updateMobileChessUsernames({ sessionToken, lichessUsername, chessComUsername });
-      setMessage(result.message || "Chess usernames saved.");
+      const result = await updateMobileChessUsernames({ sessionToken, runnerDisplayName, runnerBio, lichessUsername, chessComUsername });
+      setMessage(result.message || "Profile saved.");
       onSaved();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Could not save chess usernames.");
@@ -7263,10 +7267,29 @@ function ChessUsernameEditor({
 
   return (
     <View style={styles.usernameEditorCard}>
-      <Text style={styles.eyebrow}>Chess accounts</Text>
-      <Text style={styles.usernameEditorTitle}>Connect chess usernames</Text>
-      <Text style={styles.usernameEditorBody}>Save public Lichess / Chess.com usernames to your SQC account. No chess-site passwords - SQC only checks public games.</Text>
+      <Text style={styles.eyebrow}>Profile details</Text>
+      <Text style={styles.usernameEditorTitle}>Edit profile and chess usernames</Text>
+      <Text style={styles.usernameEditorBody}>Save your public SQC name, brag line, and chess usernames from the app. Website and mobile stay in sync.</Text>
       <View style={styles.inputStack}>
+        <Text style={styles.inputLabel}>Display name</Text>
+        <TextInput
+          value={runnerDisplayName}
+          placeholder="e.g. Andreas"
+          placeholderTextColor="rgba(255,247,232,.42)"
+          maxLength={60}
+          style={styles.textInput}
+          onChangeText={setRunnerDisplayName}
+        />
+        <Text style={styles.inputLabel}>Brag line</Text>
+        <TextInput
+          multiline
+          value={runnerBio}
+          placeholder="Trying to win while doing deeply unreasonable things."
+          placeholderTextColor="rgba(255,247,232,.42)"
+          maxLength={180}
+          style={[styles.textInput, styles.multilineInput]}
+          onChangeText={setRunnerBio}
+        />
         <Text style={styles.inputLabel}>Lichess username</Text>
         <TextInput
           autoCapitalize="none"
@@ -8434,6 +8457,7 @@ const styles = StyleSheet.create({
   inputStack: { gap: 7 },
   inputLabel: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.8 },
   textInput: { color: colors.paper, paddingHorizontal: 13, paddingVertical: 11, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.15)", backgroundColor: "rgba(0,0,0,.22)", fontSize: 15, fontWeight: "800" },
+  multilineInput: { minHeight: 88, textAlignVertical: "top" },
   textAreaInput: { minHeight: 92, textAlignVertical: "top" },
   dateTimeControl: { gap: 7 },
   dateTimePanel: { gap: 9, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.14)", backgroundColor: "rgba(0,0,0,.2)" },

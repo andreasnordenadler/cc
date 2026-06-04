@@ -43,6 +43,8 @@ export async function PATCH(request: Request) {
   }
 
   const record = payload && typeof payload === "object" ? (payload as Record<string, unknown>) : {};
+  const runnerDisplayName = typeof record.runnerDisplayName === "string" ? record.runnerDisplayName.trim().slice(0, 60) : undefined;
+  const runnerBio = typeof record.runnerBio === "string" ? record.runnerBio.trim().slice(0, 180) : undefined;
   const lichessUsername = sanitizeChessUsername(record.lichessUsername);
   const chessComUsername = sanitizeChessUsername(record.chessComUsername);
 
@@ -94,6 +96,8 @@ export async function PATCH(request: Request) {
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
       ...metadata,
+      ...(runnerDisplayName !== undefined ? { runnerDisplayName } : {}),
+      ...(runnerBio !== undefined ? { runnerBio } : {}),
       lichessUsername: lichessValidation.username,
       chessComUsername: chessComValidation.username,
     },
@@ -103,7 +107,7 @@ export async function PATCH(request: Request) {
     apiVersion: 1,
     authenticated: true,
     ok: true,
-    message: "Chess usernames saved for mobile and website sync.",
+    message: "Profile saved for mobile and website sync.",
     chessAccounts: {
       lichessUsername: lichessValidation.username || null,
       chessComUsername: chessComValidation.username || null,
