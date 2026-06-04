@@ -17,11 +17,18 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: made the mobile community entry points and labels reinforce the agreed model: website is rich tavern-wall/product canon, mobile is pocket quest tracker for start/check/prove/join; kept the v236 anchored menu structure intact and avoided generic utility-shell wording.
   - proof: updated mobile Solo labels to `Community Solo`, `My Library`, and `My Custom Library`; added `Pocket tracker for borrowed bad ideas` guidance; updated Multiplayer to `Multiplayer Pocket Lobby` plus fast-action/website-role copy. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, Android release build `pnpm mobile:release --version-name=0.1.237 --version-code=237`, APK package verification `versionName=0.1.237` / `versionCode=237` with no `application-debuggable`, SHA256 `5035ea1c8a8c98a4ced7381df2d062f6afcc7ee40b3f00312152454328bf78a5`, emulator install/launch, and screenshot smoke for anchored menu, Community Solo, and Multiplayer Pocket Lobby. APK artifacts were not committed.
 
-- [ ] Add website Community Solo creator profile/context links.
+- [x] Add website Community Solo creator profile/context links.
   - added_at: 2026-06-04 16:55 Europe/Stockholm
+  - completed_at: 2026-06-04 17:05 Europe/Stockholm
   - source: next shared community surface after website browse/detail/library/trust and mobile language alignment.
-  - scope: give public Community Solo cards/detail pages a safer creator/context path without exposing private data: creator handle/profile link where available, clear `created by community member` fallback, and a route-safe empty state if a creator profile is unavailable.
-  - proof_needed: targeted lint/build, production deploy/smoke for `/challenges/community` and one seeded detail page, privacy check that private metadata/raw quest config is not exposed.
+  - scope: gave public Community Solo cards/detail pages a safer creator/context path without exposing private data: route-safe creator filter links, creator context cards, clear fallback copy when a creator has no visible public recipes, and no fake public profile route.
+  - proof: commit `a39cf30` (`Add Community Solo creator context links`) added `creatorKey` / `creatorBrowsePath`, `More by {creator}` links, filtered `/challenges/community?creator=...` creator context, and detail-page creator context copy. Targeted ESLint and `pnpm build` passed locally; production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-i0tgeg6vg-andreas-nordenadlers-projects.vercel.app`. Live smoke: `/challenges/community?creatorSmoke=20260604` returned 200 with 94 creator links and 94 detail links; filtered creator URL returned 200 and included `This is a creator context view`, `private account details stay private`, and `Show all creators`; seeded detail `/challenges/community/seed-opening-hipster-32-1?creatorDetailSmoke=20260604` returned 200 with `Creator context`, `Open creator context`, `No private account profile is exposed here`, and `More by`; private/raw strings (`privateMetadata`, `publicMetadata`, `customSideQuests`, `creatorUserId`, `blocks`, `pieceState`, `openingSequence`) were absent.
+
+- [ ] Add Community Solo starter-to-mobile handoff copy.
+  - added_at: 2026-06-04 17:05 Europe/Stockholm
+  - source: next shared website/mobile continuity item after creator context links shipped.
+  - scope: tighten website Community Solo browse/detail CTAs so users understand the flow: inspect/share/report on website, then start/check/prove/collect on mobile/account; avoid implying a custom quest can be started anonymously.
+  - proof_needed: targeted lint/build, production deploy/smoke for browse/detail copy and CTA hrefs, no private/raw quest config exposure.
 
 - [x] Add Community Solo report/trust affordances.
   - added_at: 2026-06-04 16:40 Europe/Stockholm
