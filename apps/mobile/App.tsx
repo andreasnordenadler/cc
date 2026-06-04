@@ -6693,17 +6693,24 @@ function CompletedQuestProofCard({
   onAccountUpdated: AccountUpdatedCallback;
 }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
-  const shareCopy = `I completed “${challenge.title}” in the Side Quest Chess app. ${completedQuest.badgeName} unlocked.`;
+  const proofHref = completedQuest.proofHref?.trim() || null;
+  const shareCopy = `I completed “${challenge.title}” in the Side Quest Chess app. ${completedQuest.badgeName} unlocked.${proofHref ? ` ${proofHref}` : ""}`;
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [shareStatus, setShareStatus] = useState<string | null>(null);
 
   async function shareProof() {
     try {
-      await Share.share({ title: `Side Quest Chess: ${challenge.title}`, message: shareCopy });
-      setShareStatus("Proof share sheet opened.");
+      await Share.share({ title: `Side Quest Chess: ${challenge.title}`, message: shareCopy, ...(proofHref ? { url: proofHref } : {}) });
+      setShareStatus(proofHref ? "Proof link share sheet opened." : "Proof share sheet opened.");
     } catch {
       setShareStatus("Could not open sharing here.");
     }
+  }
+
+  async function copyProofLink() {
+    if (!proofHref) return;
+    await Clipboard.setStringAsync(proofHref);
+    setShareStatus("Proof link copied.");
   }
 
   async function runReset() {
@@ -6756,8 +6763,13 @@ function CompletedQuestProofCard({
         <Text style={compactStyles.detailPrimaryButtonText}>Proof details</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Share proof" style={compactStyles.detailSecondaryButton} onPress={() => void shareProof()}>
-        <Text style={compactStyles.detailSecondaryButtonText}>Share proof</Text>
+        <Text style={compactStyles.detailSecondaryButtonText}>{proofHref ? "Share proof link" : "Share proof"}</Text>
       </Pressable>
+      {proofHref ? (
+        <Pressable accessibilityRole="button" accessibilityLabel="Copy proof link" style={compactStyles.detailQuietButton} onPress={() => void copyProofLink()}>
+          <Text style={compactStyles.detailQuietButtonText}>Copy proof link</Text>
+        </Pressable>
+      ) : null}
       {shareStatus ? <Text style={compactStyles.inlineSuccess}>{shareStatus}</Text> : null}
 
       <Pressable accessibilityRole="button" accessibilityLabel="Reset Side Quest" style={compactStyles.detailQuietButton} disabled={actionState.busy} onPress={() => void runReset()}>
