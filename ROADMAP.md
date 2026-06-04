@@ -10,11 +10,18 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Add public Community Solo Side Quest detail pages.
+- [ ] Add website My Custom Side Quest management parity.
+  - added_at: 2026-06-04 16:36 Europe/Stockholm
+  - source: next website community backfill after Community Solo browse and detail pages shipped.
+  - scope: add a signed-in website management surface for the user's Custom Side Quests with draft/private/public/archived status, links to public detail pages for published public quests, and clear CTAs that match mobile lifecycle wording; do not add new custom quest creation complexity beyond existing safe actions unless needed.
+  - proof_needed: lint/build pass, production deploy, signed-out/signed-in-safe smoke for route availability, and no private custom quest visible publicly.
+
+- [x] Add public Community Solo Side Quest detail pages.
   - added_at: 2026-06-04 16:24 Europe/Stockholm
+  - completed_at: 2026-06-04 16:35 Europe/Stockholm
   - source: follows the shared website/mobile community IA map after the first website backfill shipped.
-  - scope: add canonical public detail URLs for published Community Solo Side Quests, showing creator, rule summary, badge/crest, safe config explanation, and CTAs to try in account / use in Multiplayer; keep private/draft/archived quests inaccessible.
-  - proof_needed: lint/build pass, production deploy, live 200 smoke for at least one seeded public Community Solo detail URL, and no exposure of private custom quest config beyond safe summary.
+  - scope: added canonical public detail URLs for published Community Solo Side Quests, showing creator, rule summary, badge/crest, safe config explanation, and CTAs to try in account / use in Multiplayer; private/draft/archived quests remain excluded by the shared public listing helper.
+  - proof: commit `115d941` (`Add Community Solo detail pages`) added `/challenges/community/[id]`, linked browse cards to detail URLs, and added safe rule summaries without raw config exposure. Targeted ESLint and `pnpm build` passed; production deploy guard and Vercel deploy succeeded, aliasing `https://sidequestchess.com` to `https://cc-kqvuqmb1c-andreas-nordenadlers-projects.vercel.app`. Live smoke found 94 detail links on `/challenges/community?detailSmoke=20260604`; `/challenges/community/seed-opening-hipster-32-1?detailSmoke=20260604` returned 200 and included `Player-created by`, `Safe rule summary`, `Try this in your account`, `Use in Multiplayer`, `Website role`, and `Mobile role`; smoke confirmed raw config strings like `blocks`, `pieceState`, and `openingSequence` were not present.
 
 - [x] Map shared SQC website/mobile community surfaces before the next mobile design pass.
   - added_at: 2026-06-04 15:49 Europe/Stockholm
