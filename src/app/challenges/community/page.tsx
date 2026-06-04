@@ -71,6 +71,14 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
               <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo recipe{visibleQuests.length === 1 ? "" : "s"} on the tavern wall. This is a creator context view, not a public profile; private account details stay private.</p>
               <Link className="button secondary" href="/challenges/community">Show all creators</Link>
             </div>
+          ) : selectedCreator ? (
+            <div className="groupquest-empty-state" role="status">
+              <p><strong>That creator shelf is empty.</strong> The creator link may be stale, the recipe may have been unpublished, or the public label may have changed. Nothing private is shown just because a URL guessed at it.</p>
+              <div className="button-row">
+                <Link className="button primary" href="/challenges/community">Show all Community Solo</Link>
+                <Link className="button secondary" href="/support?topic=community-side-quest">Ask Support</Link>
+              </div>
+            </div>
           ) : null}
 
           {visibleQuests.length ? (
