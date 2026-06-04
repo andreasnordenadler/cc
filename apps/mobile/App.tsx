@@ -6359,6 +6359,7 @@ function SelectedQuestDetailCard({
   onAccountUpdated: AccountUpdatedCallback;
 }) {
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   const authenticated = isAuthenticatedAccount(account);
   const completed = authenticated ? account.progress.completedChallengeIds.includes(challenge.id) : false;
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
@@ -6392,6 +6393,19 @@ function SelectedQuestDetailCard({
     }
   }
 
+  async function shareOfficialQuest() {
+    const url = `${SQC_WEB_BASE_URL}/challenges/${encodeURIComponent(challenge.id)}`;
+    try {
+      await Share.share({
+        title: `Side Quest Chess: ${challenge.title}`,
+        message: `Try “${challenge.title}” in Side Quest Chess. ${url}`,
+      });
+      setShareStatus("Side Quest share sheet opened.");
+    } catch {
+      setShareStatus("Could not open sharing here.");
+    }
+  }
+
   return (
     <View style={styles.questCard} accessibilityLabel={`${challenge.title} details`}>
       <View style={styles.questCardHeader}>
@@ -6411,6 +6425,11 @@ function SelectedQuestDetailCard({
         <Text style={styles.instructionCopy}>{challenge.instruction}</Text>
         <Text style={styles.openingHint}>{challenge.openingHint}</Text>
       </View>
+
+      <Pressable accessibilityRole="button" accessibilityLabel="Share Side Quest public link" style={styles.secondaryButton} onPress={() => void shareOfficialQuest()}>
+        <Text style={styles.secondaryButtonText}>Share public link</Text>
+      </Pressable>
+      {shareStatus ? <Text style={styles.successCopy}>{shareStatus}</Text> : null}
 
       {completed ? null : (
         <View style={styles.proofActionCard}>
