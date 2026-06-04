@@ -16,7 +16,7 @@ Status: SQC-mobile-focus / website-feature-freeze
   - source: Andreas clarified that users will likely use the website OR the app, not both.
   - product_rule: SQC website and SQC mobile are equal standalone product surfaces. Each should be complete enough for a website-first or app-first user to browse/create/manage/join/prove/share/report/collect without needing to switch surfaces for normal use. Cross-links and shareable web URLs are useful, but core flows must not require a website-to-app or app-to-website handoff.
   - scope: updated the shared community docs, IA map, roadmap language, and current Community Solo website copy to say users can choose either surface as their SQC home.
-  - proof_needed: targeted lint/build, commit, deploy/smoke for changed website copy.
+  - proof: commit `9c139c9` (`Clarify SQC standalone surface model`) updated docs, roadmap, IA map, and Community Solo website copy to clarify users may choose website OR app as their SQC home. Verification passed: `pnpm lint -- src/app/challenges/community/page.tsx 'src/app/challenges/community/[id]/page.tsx'` and `pnpm build`. Production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-eb7rqcewx-andreas-nordenadlers-projects.vercel.app`. Live smoke confirmed `/challenges/community` includes `Choose either surface as your SQC home`; seeded detail includes `Website-first players`, `App-first players`, `You should not need the app`, and `without needing the website for normal play`; forbidden old dependency/handoff phrases were absent. Bounded Vercel log stream produced no suspicious 500/error tokens during the check window.
 
 - [x] Correct SQC website/mobile equal-functionality model.
   - added_at: 2026-06-05 00:15 Europe/Stockholm
