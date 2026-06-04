@@ -10,14 +10,20 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Map shared SQC website/mobile community surfaces before the next mobile design pass.
+- [ ] Add public Community Solo Side Quest detail pages.
+  - added_at: 2026-06-04 16:24 Europe/Stockholm
+  - source: follows the shared website/mobile community IA map after the first website backfill shipped.
+  - scope: add canonical public detail URLs for published Community Solo Side Quests, showing creator, rule summary, badge/crest, safe config explanation, and CTAs to try in account / use in Multiplayer; keep private/draft/archived quests inaccessible.
+  - proof_needed: lint/build pass, production deploy, live 200 smoke for at least one seeded public Community Solo detail URL, and no exposure of private custom quest config beyond safe summary.
+
+- [x] Map shared SQC website/mobile community surfaces before the next mobile design pass.
   - added_at: 2026-06-04 15:49 Europe/Stockholm
+  - completed_at: 2026-06-04 16:23 Europe/Stockholm
   - source: Andreas agreed the mobile app needs a deliberate UI/design pass, then noted the complicating product issue: several app functions also need to exist on the website, especially community/custom Side Quest and Multiplayer functions.
   - product_rule: SQC must not split into separate website/mobile products. Treat community-facing functions as cross-surface capabilities first, then express them differently per surface: website for richer browsing/explanation/sharing/moderation; mobile for fast status/action/proof/joining and compact discovery.
-  - scope: create a shared website/mobile IA map for public custom Solo Side Quest discovery, custom quest lifecycle, public Multiplayer discovery/joining, hosted/joined Multiplayer management, Trophy Cabinet/proof sharing, creator identity, and trust/moderation cues; use it to drive the next mobile UI pass so mobile inherits the website's funny/quirky/graphic SQC identity without becoming a cramped website clone.
-  - mapping_done: `docs/SQC_SHARED_COMMUNITY_IA_MAP_2026-06-04.md` now defines the product principle, website/mobile surface roles, function ownership table, navigation model, mobile design pass direction, and phased implementation plan.
-  - next_execution_rule: do website community backfill first (public Community Solo browse, public custom quest detail, My Custom Side Quest management parity, report/trust affordances), then do the mobile identity pass from that shared map.
-  - proof_needed: mark complete only after the first website community backfill item ships with live verification, then follow with mobile screenshots/build proof for the identity pass.
+  - scope: created a shared website/mobile IA map for public custom Solo Side Quest discovery, custom quest lifecycle, public Multiplayer discovery/joining, hosted/joined Multiplayer management, Trophy Cabinet/proof sharing, creator identity, and trust/moderation cues; used it to drive the first website community backfill.
+  - proof: commit `ef118b1` mapped shared SQC community surfaces; commit `4f7b7f4` added `/challenges/community` and shared `listPublicCommunitySideQuests`; production deploy `https://cc-pz5vrcxfk-andreas-nordenadlers-projects.vercel.app` was aliased to `https://sidequestchess.com`; live smoke returned 200 for `/challenges/community?smoke=20260604` and `/challenges?smoke=20260604`, confirmed page copy (`The bad ideas escaped into the village`), seeded titles (`No Queen, No Problem`, `Knight Tourist`), and hub link `/challenges/community`.
+  - next_execution_rule: continue website community backfill first (public custom quest detail, My Custom Side Quest management parity, report/trust affordances), then do the mobile identity pass from that shared map.
   - design_note: see `docs/SQC_MOBILE_WEBSITE_SHARED_COMMUNITY_SURFACES_2026-06-04.md` and `docs/SQC_SHARED_COMMUNITY_IA_MAP_2026-06-04.md`.
 
 - [x] Remove closed/broken Community placeholder wording from SQC Mobile Solo landing.
