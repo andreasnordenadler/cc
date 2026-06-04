@@ -47,10 +47,16 @@ export default async function ChallengesPage() {
 
         <section className="grid side-quest-mode-grid" aria-label="Side Quest modes">
           <article className="mission-card side-quest-mode-card">
-            <span className="eyebrow">Solo Side Quests</span>
+            <span className="eyebrow">SQC Official Solo</span>
             <h2>One player. One ridiculous rule. One proof receipt.</h2>
-            <p>Choose from the live-backed deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</p>
-            <Link href="#solo-side-quest-deck" className="button primary">Browse Solo Side Quests</Link>
+            <p>Choose from the live-backed official deck, play on Lichess or Chess.com, then come back when the bad idea has evidence.</p>
+            <Link href="#solo-side-quest-deck" className="button primary">Browse SQC Official</Link>
+          </article>
+          <article className="mission-card side-quest-mode-card">
+            <span className="eyebrow">Community Solo</span>
+            <h2>Player-made rules from the village notice board.</h2>
+            <p>Browse public custom Solo Side Quests made by SQC players — the experimental, funny, occasionally cursed side of the catalog.</p>
+            <Link href="/challenges/community" className="button primary">Browse Community</Link>
           </article>
           <article className="mission-card side-quest-mode-card group-mode-card">
             <span className="eyebrow">Multiplayer Side Quests</span>
