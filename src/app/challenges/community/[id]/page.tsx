@@ -56,7 +56,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <span className="eyebrow">Player-created by {quest.creatorName}</span>
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
-              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect, share, and report it here; start/check/prove it from your account or mobile pocket tracker.</p>
+              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect, share, report, start, check, and prove it on website or app — same product, different layout.</p>
               <p className="quest-detail-flavor">Creator context is intentionally small: public quest name, public creator label, and more public recipes by the same creator when available. No private account profile is exposed here.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
@@ -114,14 +114,14 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
         <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Website role</span>
-            <h2>Inspect and share the tavern-wall version.</h2>
-            <p>The website keeps the richer community view: creator context, rule explanation, public URLs, and report/trust affordances. It does not start anonymous runs.</p>
+            <h2>Use the wide community view.</h2>
+            <p>The website supports the same Community Solo product with a wider layout: creator context, rule explanation, public URLs, report/trust affordances, and account handoff. It does not start anonymous runs.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Mobile role</span>
-            <h2>Use the app when you are ready to play.</h2>
-            <p>The mobile app stays the pocket quest tracker: start, check, prove, join, and collect the reward moment without turning into a giant catalog.</p>
+            <h2>Use the native community view.</h2>
+            <p>The mobile app supports the same Community Solo product in a compact native layout: browse, inspect, start, check, prove, report, and collect the reward moment.</p>
             <Link className="button primary" href="/account">Open your SQC account</Link>
           </article>
         </section>

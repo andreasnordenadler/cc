@@ -3784,8 +3784,8 @@ function QuestBoardDashboard({
 
       {sideQuestCatalogTab === "community" ? (
         <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>Pocket tracker for borrowed bad ideas.</Text>
-          <Text style={compactStyles.communityEmptyCopy}>Use mobile to pick, check, prove, and collect. Use the website when you want the full tavern-wall browse, public detail pages, and report links.</Text>
+          <Text style={compactStyles.communityEmptyTitle}>Community Solo, fully in your hand.</Text>
+          <Text style={compactStyles.communityEmptyCopy}>Browse, inspect, start, check, prove, collect, and report Community Solo Side Quests in the app. The website has the same product surface in a wider layout.</Text>
         </View>
       ) : null}
 
@@ -5658,8 +5658,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     <View style={styles.screenStack}>
       <View style={styles.multiplayerLobbyHero}>
         <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.multiplayerLobbyHeroGraphic} resizeMode="contain" />
-        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Pocket Lobby</Text>
-        <Text style={styles.sectionBody}>Join, host, refresh proof, and check standings here. Use the website for the full public tavern-wall view and shareable detail pages.</Text>
+        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Lobby</Text>
+        <Text style={styles.sectionBody}>Join, host, refresh proof, check standings, and manage Multiplayer Side Quests here. The website has the same Multiplayer product surface in a wider layout.</Text>
       </View>
 
 
@@ -5754,7 +5754,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}/{allCommunityMultiplayerQuests.length}</Text>
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests when you are ready to join. Richer inspection and sharing live on the website; mobile stays focused on action.</Text>
+        <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests when you are ready to join. App and website both support discovery, inspection, joining, and proof; this view keeps it native and compact.</Text>
         <View style={compactStyles.communityBrowsePanel}>
           <View style={compactStyles.communitySearchBox}>
             <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />

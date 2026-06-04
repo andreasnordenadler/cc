@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [ ] Correct SQC website/mobile equal-functionality model.
+  - added_at: 2026-06-05 00:15 Europe/Stockholm
+  - source: Andreas corrected the product direction after review: app and website need to be equal in functionality; the earlier `website rich canon / mobile pocket tracker` framing is wrong.
+  - product_rule: SQC website and SQC mobile are equal product surfaces. Both should support the same core capabilities: browse/discover, create, manage, join, prove/check, share, report/support, creator context, Trophy Cabinet, and account readiness. Differences should be layout/interaction/design differences only, not missing functionality.
+  - scope: update source-of-truth docs and roadmap; audit recent copy and shipped v237/community handoff language that makes mobile sound subordinate; queue/implement corrections so mobile and website both own full Community Solo and Multiplayer functionality.
+  - proof_needed: docs/roadmap correction commit, memory/learning update, targeted copy audit, then implementation pass to remove subordinate `pocket tracker`/`website canon only` wording from website and mobile surfaces with lint/build/mobile gates as needed.
+
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.
   - added_at: 2026-06-04 16:48 Europe/Stockholm
   - completed_at: 2026-06-04 16:55 Europe/Stockholm

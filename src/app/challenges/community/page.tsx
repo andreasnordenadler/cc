@@ -30,7 +30,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <span className="eyebrow">Community Solo Side Quests</span>
           <h1>The bad ideas escaped into the village.</h1>
           <p className="hero-copy">
-            Browse public Solo Side Quests made by SQC players. Some are elegant. Some are cursed. Inspect, share, and report them here; start/check/prove them from your SQC account and mobile pocket tracker.
+            Browse public Solo Side Quests made by SQC players. Some are elegant. Some are cursed. Inspect, share, report, start, check, and prove them on website or app — same product, different layout.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/challenges">Back to SQC Official</Link>
@@ -51,7 +51,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <div className="grid side-quest-mode-grid">
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show creator names and custom rule summaries so you know whose bad idea you are borrowing." />
-            <InfoCard title="Mobile gets the quick action" copy="Website is the tavern wall. Mobile is the pocket tracker: pick the quest, check the proof, prove the game, collect the crest." />
+            <InfoCard title="Equal on app and website" copy="Both surfaces support Community Solo discovery, inspection, starting, proof, reporting, and rewards. Website spreads it out; mobile keeps it compact and native." />
             <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>
@@ -68,7 +68,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
 
           {selectedCreatorQuest ? (
             <div className="groupquest-empty-state" id={`creator-${selectedCreatorQuest.creatorKey}`}>
-              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo recipe{visibleQuests.length === 1 ? "" : "s"} on the tavern wall. This is a creator context view, not a public profile; private account details stay private.</p>
+              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo recipe{visibleQuests.length === 1 ? "" : "s"} on the public board. This is a creator context view, not a public profile; private account details stay private.</p>
               <Link className="button secondary" href="/challenges/community">Show all creators</Link>
             </div>
           ) : selectedCreator ? (
