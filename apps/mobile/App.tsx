@@ -4411,6 +4411,8 @@ function QuestBoardDashboard({
 function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onOpenChallengeDetail: (challengeId: string) => void; onClose: () => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const earnedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
+  const multiplayerTrophies = signedIn?.multiplayerTrophies ?? [];
+  const unlockedCount = earnedIds.size + multiplayerTrophies.length;
 
   return (
     <View style={compactStyles.stack}>
@@ -4422,6 +4424,32 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
       <View style={compactStyles.coatBoardHeroEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatBoardHeroEmblem} resizeMode="contain" />
       </View>
+      <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
+        <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{signedIn ? `${unlockedCount} unlocked item${unlockedCount === 1 ? "" : "s"}.` : "Sign in to sync your cabinet."}</Text>
+        <Text style={styles.microcopy}>Solo Coat of Arms and Multiplayer podium scrolls live together here, so the app stands alone as your complete SQC trophy shelf.</Text>
+      </View>
+      {multiplayerTrophies.length ? (
+        <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Multiplayer podium scrolls">
+          <Text style={compactStyles.multiplayerCardEyebrow}>Multiplayer podium scrolls</Text>
+          <Text style={compactStyles.multiplayerCardTitle}>Completed Multiplayer Side Quests.</Text>
+          <View style={compactStyles.appRows}>
+            {multiplayerTrophies.map((trophy) => (
+              <AppRow
+                key={trophy.id}
+                title={trophy.title}
+                meta={`Multiplayer podium · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
+                status={trophy.placement}
+                imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+                variant="seal"
+                statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
+                onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen Multiplayer Side Quests to inspect the full leaderboard and receipt context.`)}
+              />
+            ))}
+          </View>
+          <Text style={styles.microcopy}>These are account trophy records only; private player/account details stay out of the cabinet.</Text>
+        </View>
+      ) : null}
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
           <Pressable key={challenge.id} accessibilityRole="button" style={compactStyles.coatTile} onPress={() => onOpenChallengeDetail(challenge.id)}>
