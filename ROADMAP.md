@@ -10,12 +10,19 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
-- [ ] Correct SQC website/mobile equal-functionality model.
+- [x] Correct SQC website/mobile equal-functionality model.
   - added_at: 2026-06-05 00:15 Europe/Stockholm
+  - completed_at: 2026-06-05 00:38 Europe/Stockholm
   - source: Andreas corrected the product direction after review: app and website need to be equal in functionality; the earlier `website rich canon / mobile pocket tracker` framing is wrong.
   - product_rule: SQC website and SQC mobile are equal product surfaces. Both should support the same core capabilities: browse/discover, create, manage, join, prove/check, share, report/support, creator context, Trophy Cabinet, and account readiness. Differences should be layout/interaction/design differences only, not missing functionality.
-  - scope: update source-of-truth docs and roadmap; audit recent copy and shipped v237/community handoff language that makes mobile sound subordinate; queue/implement corrections so mobile and website both own full Community Solo and Multiplayer functionality.
-  - proof_needed: docs/roadmap correction commit, memory/learning update, targeted copy audit, then implementation pass to remove subordinate `pocket tracker`/`website canon only` wording from website and mobile surfaces with lint/build/mobile gates as needed.
+  - scope: updated source-of-truth docs and roadmap, audited recent copy, and corrected shipped v237/community handoff language that made mobile sound subordinate.
+  - proof: commit `c9045f6` (`Correct SQC website mobile parity model`) corrected docs, roadmap, website Community Solo browse/detail copy, and mobile Community Solo/Multiplayer copy to say app and website are equal-functionality surfaces. Verification passed: `pnpm --dir apps/mobile typecheck`, targeted ESLint, and `pnpm build`. Production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-mv8nhkyem-andreas-nordenadlers-projects.vercel.app`. Live smoke confirmed `/challenges/community` and a seeded detail page include equal-functionality copy and no old `mobile pocket tracker` / `Website is the tavern wall` wording or private/raw config strings. Mobile release commit `664db92` bumped Android to v238; `mobile-v238` release published with APK SHA256 `b31e37d40ee0cdf5eb14e098c2d508b84748fc7d2f0cb5577ffc9df72c106681`.
+
+- [ ] Audit and close the first concrete website/mobile parity gap.
+  - added_at: 2026-06-05 00:38 Europe/Stockholm
+  - source: follow-up to Andreas's equal-functionality correction; analytics should wait until the product surfaces are aligned.
+  - scope: compare app and website capabilities for Community Solo, Custom Side Quest library/editor lifecycle, Multiplayer discovery/detail/create/manage, proof/reward, reporting/support, creator context, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
+  - proof_needed: updated parity matrix/roadmap note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.
   - added_at: 2026-06-04 16:48 Europe/Stockholm
