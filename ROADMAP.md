@@ -33,10 +33,17 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: compared app and website capabilities for Community Solo reporting/support and closed the first concrete mismatch: website public Community Solo detail pages had a report affordance, while mobile Community Solo detail sheets did not.
   - proof: commit `4ab0303` (`Mobile: add Community Solo report action`) added a native `Report this Side Quest` action for public Community Solo detail sheets. The action reuses the existing in-app support flow and pre-fills quest name, quest ID, and creator context so mobile matches the website report affordance without exposing raw quest config. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.239 --version-code=239`. APK verified `versionName=0.1.239`, `versionCode=239`, `debuggable=false`, SHA256 `801c1f57ac93d3894826aa96bb16ae5a1233de04ef18050b2efecd690d039bad`; GitHub release `mobile-v239` published at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v239`. Emulator smoke installed the release APK, launched `com.sidequestchess.app/.MainActivity`, and captured `artifacts/mobile-smoke/sqc-mobile-v239-launch.png`; visual check confirmed the SQC home screen loaded with account state and Solo/Multiplayer entry points visible.
 
+- [x] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-05
+  - completed_at: 2026-06-05
+  - source: continue Andreas's equal-functionality model after closing the first Community Solo report/support mismatch.
+  - scope: compared app Multiplayer discovery/detail/share/report parity and closed the next concrete mobile standalone gap: Community Multiplayer detail sheets supported inspect/share/join/proof/owner controls, but did not expose a native report/support affordance for non-owner community tables.
+  - proof: added `Report Side Quest` to non-owner, non-official Multiplayer detail sheets and routed it through the existing in-app support flow with quest name, quest ID, host context, and status prefilled; owner/private controls and official SQC events do not expose the community report action. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and Android release build `pnpm mobile:release --version-name=0.1.240 --version-code=240`. APK verified `versionName=0.1.240`, `versionCode=240`, `debuggable=false`, SHA256 `b8de03a71b4d74de3ccae7263bb6488504452e961d90336404c65ece5152e97f`.
+
 - [ ] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-05
-  - source: continue Andreas's equal-functionality model after closing the first Community Solo report/support mismatch.
-  - scope: compare app and website capabilities for Custom Side Quest create/edit/manage parity, Multiplayer discovery/detail/share/report parity, start/check/prove/collect flows, creator context, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
+  - source: continue Andreas's equal-functionality model after closing Community Solo report/support and Community Multiplayer report/support mismatches.
+  - scope: compare Custom Side Quest create/edit/manage parity, Multiplayer creator context/website support parity, start/check/prove/collect flows, Trophy Cabinet, and account readiness; pick the highest-impact missing capability and implement it on the weaker surface.
   - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.

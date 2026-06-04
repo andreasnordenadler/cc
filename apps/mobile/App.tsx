@@ -1957,6 +1957,7 @@ function JoinedMultiplayerQuestModal({
   onJoin,
   onUpdate,
   onRemoveParticipant,
+  onReport,
 }: {
   visible: boolean;
   quest: MobileGroupQuestSummary | null;
@@ -1972,6 +1973,7 @@ function JoinedMultiplayerQuestModal({
   onJoin?: () => void;
   onUpdate?: (payload: Record<string, unknown>) => void;
   onRemoveParticipant?: (participantUserId: string) => void;
+  onReport?: (quest: MobileGroupQuestSummary) => void;
 }) {
   const [proofMode, setProofMode] = useState(false);
   const [selectedRuleQuestTitle, setSelectedRuleQuestTitle] = useState<string | null>(null);
@@ -2127,8 +2129,14 @@ function JoinedMultiplayerQuestModal({
               <Pressable accessibilityRole="button" accessibilityLabel="Copy Multiplayer Side Quest invite link" style={compactStyles.detailQuietButton} onPress={() => void copyInviteLink()}>
                 <Text style={compactStyles.detailQuietButtonText}>Copy invite link</Text>
               </Pressable>
+              {onReport && !quest.official && !quest.isOwner ? (
+                <Pressable accessibilityRole="button" accessibilityLabel="Report Multiplayer Side Quest" style={compactStyles.detailQuietButton} onPress={() => onReport(quest)}>
+                  <Text style={compactStyles.detailQuietButtonText}>Report Side Quest</Text>
+                </Pressable>
+              ) : null}
             </View>
             {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the invite code. Only share it with players you want in.</Text> : null}
+            {onReport && !quest.official && !quest.isOwner ? <Text style={styles.microcopy}>Community Multiplayer reports go to SQC support with the quest ID and host context, not private player data.</Text> : null}
           </View>
 
           {mode === "joined" && proofMode ? (
@@ -5486,6 +5494,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [multiplayerCommunitySort, setMultiplayerCommunitySort] = useState<MultiplayerCommunitySort>("closing");
   const [createOpen, setCreateOpen] = useState(false);
   const [inviteKey, setInviteKey] = useState("");
+  const [multiplayerReportOpen, setMultiplayerReportOpen] = useState(false);
+  const [multiplayerReportMessage, setMultiplayerReportMessage] = useState("");
   const [mineListLimit, setMineListLimit] = useState(4);
   const [availableListLimit, setAvailableListLimit] = useState(4);
   const [hostedListLimit, setHostedListLimit] = useState(3);
@@ -5671,6 +5681,20 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     setPublicMultiplayerId(groupQuestId);
   }
 
+  function openMultiplayerReport(quest: MobileGroupQuestSummary) {
+    const hostLine = quest.hostName ? `Host: ${quest.hostName}` : "Host: unknown";
+    const statusLine = quest.status ? `Status: ${quest.status}` : "Status: unknown";
+    setMultiplayerReportMessage([
+      "Report Community Multiplayer Side Quest",
+      `Quest: ${cleanMultiplayerTitle(quest.title)}`,
+      `Quest ID: ${quest.id}`,
+      hostLine,
+      statusLine,
+      "Issue: ",
+    ].join("\n"));
+    setMultiplayerReportOpen(true);
+  }
+
   return (
     <View style={styles.screenStack}>
       <View style={styles.multiplayerLobbyHero}>
@@ -5694,6 +5718,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onLeave={() => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "leave") : undefined}
         onUpdate={(payload) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
+        onReport={openMultiplayerReport}
       />
 
       <JoinedMultiplayerQuestModal
@@ -5712,6 +5737,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onJoin={() => officialMultiplayerQuest && officialMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
+        onReport={openMultiplayerReport}
       />
 
       <JoinedMultiplayerQuestModal
@@ -5730,7 +5756,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onJoin={() => publicMultiplayerQuest && publicMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(publicMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => publicMultiplayerQuest ? void runGroupQuestAction(publicMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
+        onReport={openMultiplayerReport}
       />
+
+      <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Your Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
