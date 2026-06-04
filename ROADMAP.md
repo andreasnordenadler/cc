@@ -24,11 +24,18 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: gave public Community Solo cards/detail pages a safer creator/context path without exposing private data: route-safe creator filter links, creator context cards, clear fallback copy when a creator has no visible public recipes, and no fake public profile route.
   - proof: commit `a39cf30` (`Add Community Solo creator context links`) added `creatorKey` / `creatorBrowsePath`, `More by {creator}` links, filtered `/challenges/community?creator=...` creator context, and detail-page creator context copy. Targeted ESLint and `pnpm build` passed locally; production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-i0tgeg6vg-andreas-nordenadlers-projects.vercel.app`. Live smoke: `/challenges/community?creatorSmoke=20260604` returned 200 with 94 creator links and 94 detail links; filtered creator URL returned 200 and included `This is a creator context view`, `private account details stay private`, and `Show all creators`; seeded detail `/challenges/community/seed-opening-hipster-32-1?creatorDetailSmoke=20260604` returned 200 with `Creator context`, `Open creator context`, `No private account profile is exposed here`, and `More by`; private/raw strings (`privateMetadata`, `publicMetadata`, `customSideQuests`, `creatorUserId`, `blocks`, `pieceState`, `openingSequence`) were absent.
 
-- [ ] Add Community Solo starter-to-mobile handoff copy.
+- [x] Add Community Solo starter-to-mobile handoff copy.
   - added_at: 2026-06-04 17:05 Europe/Stockholm
+  - completed_at: 2026-06-04 17:10 Europe/Stockholm
   - source: next shared website/mobile continuity item after creator context links shipped.
-  - scope: tighten website Community Solo browse/detail CTAs so users understand the flow: inspect/share/report on website, then start/check/prove/collect on mobile/account; avoid implying a custom quest can be started anonymously.
-  - proof_needed: targeted lint/build, production deploy/smoke for browse/detail copy and CTA hrefs, no private/raw quest config exposure.
+  - scope: tightened website Community Solo browse/detail CTAs so users understand the flow: inspect/share/report on website, then start/check/prove/collect on mobile/account; avoided implying a custom quest can be started anonymously.
+  - proof: commit `78774a7` (`Tighten Community Solo website mobile handoff`) changed Community Solo browse/detail copy and CTAs to `Open account to start`, `Start/check in account`, and explicit website/mobile role language. Targeted ESLint and `pnpm build` passed locally; production deploy guard passed and Vercel deployed/aliased `https://sidequestchess.com` to `https://cc-9apdv5ie0-andreas-nordenadlers-projects.vercel.app`. Live smoke: `/challenges/community?handoffSmoke=20260604` returned 200 and included `start/check/prove them from your SQC account and mobile pocket tracker`, `Open account to start`, `Start/check in account`, `Website is the tavern wall`, and `Mobile is the pocket tracker`; seeded detail `/challenges/community/seed-opening-hipster-32-1?handoffSmoke=20260604` returned 200 and included `Inspect, share, and report it here`, `start/check/prove it from your account or mobile pocket tracker`, `Start/check in account`, `It does not start anonymous runs`, and `Open your SQC account`; private/raw strings (`privateMetadata`, `publicMetadata`, `customSideQuests`, `creatorUserId`, `blocks`, `pieceState`, `openingSequence`) were absent.
+
+- [ ] Improve Community Solo empty/error states.
+  - added_at: 2026-06-04 17:10 Europe/Stockholm
+  - source: next website community hardening item after browse/detail/trust/creator/handoff flows shipped.
+  - scope: make empty, malformed, unpublished, and creator-filter-miss states more useful and SQC-flavored without exposing private data; include clear account/support recovery paths.
+  - proof_needed: targeted lint/build, production deploy/smoke for empty/filter-miss paths and normal browse/detail paths, raw-config privacy check.
 
 - [x] Add Community Solo report/trust affordances.
   - added_at: 2026-06-04 16:40 Europe/Stockholm
