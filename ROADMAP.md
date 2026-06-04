@@ -10,6 +10,14 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Correct SQC one-or-the-other surface model.
+  - added_at: 2026-06-05
+  - completed_at: 2026-06-05
+  - source: Andreas clarified that users will likely use the website OR the app, not both.
+  - product_rule: SQC website and SQC mobile are equal standalone product surfaces. Each should be complete enough for a website-first or app-first user to browse/create/manage/join/prove/share/report/collect without needing to switch surfaces for normal use. Cross-links and shareable web URLs are useful, but core flows must not require a website-to-app or app-to-website handoff.
+  - scope: updated the shared community docs, IA map, roadmap language, and current Community Solo website copy to say users can choose either surface as their SQC home.
+  - proof_needed: targeted lint/build, commit, deploy/smoke for changed website copy.
+
 - [x] Correct SQC website/mobile equal-functionality model.
   - added_at: 2026-06-05 00:15 Europe/Stockholm
   - completed_at: 2026-06-05 00:38 Europe/Stockholm

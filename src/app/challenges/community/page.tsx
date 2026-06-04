@@ -51,7 +51,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <div className="grid side-quest-mode-grid">
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show creator names and custom rule summaries so you know whose bad idea you are borrowing." />
-            <InfoCard title="Equal on app and website" copy="Both surfaces support Community Solo discovery, inspection, starting, proof, reporting, and rewards. Website spreads it out; mobile keeps it compact and native." />
+            <InfoCard title="Equal on app and website" copy="Both surfaces support Community Solo discovery, inspection, starting, proof, reporting, and rewards. Choose either surface as your SQC home; website spreads it out, mobile keeps it compact and native." />
             <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>

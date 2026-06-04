@@ -113,15 +113,15 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
 
         <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Website role</span>
+            <span className="eyebrow">Website-first players</span>
             <h2>Use the wide community view.</h2>
-            <p>The website supports the same Community Solo product with a wider layout: creator context, rule explanation, public URLs, report/trust affordances, and account handoff. It does not start anonymous runs.</p>
+            <p>The website supports Community Solo as a complete surface with creator context, rule explanation, public URLs, report/trust affordances, and account actions. You should not need the app to understand or manage the quest.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Mobile role</span>
+            <span className="eyebrow">App-first players</span>
             <h2>Use the native community view.</h2>
-            <p>The mobile app supports the same Community Solo product in a compact native layout: browse, inspect, start, check, prove, report, and collect the reward moment.</p>
+            <p>The mobile app supports Community Solo as a complete compact surface: browse, inspect, start, check, prove, report, and collect the reward moment without needing the website for normal play.</p>
             <Link className="button primary" href="/account">Open your SQC account</Link>
           </article>
         </section>

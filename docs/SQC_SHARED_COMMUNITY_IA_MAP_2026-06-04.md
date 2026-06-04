@@ -8,16 +8,16 @@ Status: product/design planning, ready to drive next mobile UI pass
 
 Andreas likes the current SQC website direction: funny, quirky, graphic, and product-rich. The mobile app is useful, but still risks feeling like a separate utility shell. The complication is that several mobile functions also need website equivalents, especially community/custom Side Quest and Multiplayer features.
 
-The answer is not to make mobile visually copy the website. The answer is to treat community as a shared SQC product layer with **equal functionality** on both website and app, then adapt layout and interaction patterns to each surface.
+The answer is not to make mobile visually copy the website. The answer is to treat community as a shared SQC product layer with **equal standalone functionality** on both website and app, then adapt layout and interaction patterns to each surface.
 
 ## Core principle
 
-**SQC has one product model, two equal surfaces:**
+**SQC has one product model, two equal standalone surfaces:**
 
 - **Website:** full SQC functionality in a wide, rich, graphic layout.
 - **Mobile:** full SQC functionality in a compact, native, touch-first layout.
 
-No community feature should become “mobile-only” or “website-only” by accident. Differences should be interaction/design differences, not missing capabilities.
+No community feature should become “mobile-only” or “website-only” by accident. Differences should be interaction/design differences, not missing capabilities. Assume a user may choose website **or** app and never touch the other; core flows must complete on the chosen surface.
 
 ---
 
@@ -25,11 +25,11 @@ No community feature should become “mobile-only” or “website-only” by ac
 
 ### Website role — full SQC in a wide layout
 
-The website should support the full product: public discovery and browsing, creator/profile context, full quest pages with rules and examples, Custom Side Quest creation/management, public Multiplayer discovery/join/create/manage, leaderboards, trophy/proof sharing, trust cues, moderation/reporting, and account readiness.
+The website should support the full product for website-first users: public discovery and browsing, creator/profile context, full quest pages with rules and examples, Custom Side Quest creation/management, public Multiplayer discovery/join/create/manage, leaderboards, trophy/proof sharing, trust cues, moderation/reporting, and account readiness.
 
 ### Mobile role — full SQC in a native layout
 
-The app should support the same functional product: public discovery and browsing, creator context, quest detail, Custom Side Quest creation/management, Multiplayer discovery/join/create/manage, proof/check flows, Trophy Cabinet, sharing/reporting/support, and account readiness. Mobile may prioritize fast actions and compact cards, but it must not omit core functionality just because the website has it.
+The app should support the same functional product for app-first users: public discovery and browsing, creator context, quest detail, Custom Side Quest creation/management, Multiplayer discovery/join/create/manage, proof/check flows, Trophy Cabinet, sharing/reporting/support, and account readiness. Mobile may prioritize fast actions and compact cards, but it must not omit core functionality just because the website has it.
 
 ---
 
@@ -182,6 +182,6 @@ The next mobile UI pass should not add more sections. It should make existing se
 
 Do **Phase 1 first**: correct the product model and copy. The new rule is:
 
-> SQC website and SQC mobile are equal in functionality. Website is the wide/rich expression; mobile is the compact/native expression. Neither surface is subordinate.
+> SQC website and SQC mobile are equal standalone product surfaces. Website is the wide/rich expression; mobile is the compact/native expression. Neither surface is subordinate, and neither should require the other for core use.
 
 Then continue parity work by auditing gaps in both directions and implementing the missing capability on whichever surface is behind.
