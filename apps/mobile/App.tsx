@@ -2829,8 +2829,8 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   );
 }
 
-function HelpSupportModal({ visible, onClose, signedIn, authBridge }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge }) {
-  const [supportMessage, setSupportMessage] = useState("");
+function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessage = "" }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge; initialMessage?: string }) {
+  const [supportMessage, setSupportMessage] = useState(initialMessage);
   const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
@@ -3529,6 +3529,8 @@ function QuestBoardDashboard({
   const [communitySort, setCommunitySort] = useState<CommunityBrowseSort>("popular");
   const [customLibraryFilter, setCustomLibraryFilter] = useState<CustomLibraryFilter>("all");
   const [customPublishVisibility, setCustomPublishVisibility] = useState<"private" | "public">("private");
+  const [communityReportOpen, setCommunityReportOpen] = useState(false);
+  const [communityReportMessage, setCommunityReportMessage] = useState("");
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -3710,6 +3712,18 @@ function QuestBoardDashboard({
     } catch (caught) {
       Alert.alert(lifecycle === "published" ? "Could not publish Side Quest" : "Could not save draft", caught instanceof Error ? caught.message : "Try again in a moment.");
     }
+  }
+
+  function openCommunityReport(quest: CustomLibraryQuest) {
+    const creatorLine = quest.creatorName ? `Creator: ${quest.creatorName}` : "Creator: unknown";
+    setCommunityReportMessage([
+      "Report Community Solo Side Quest",
+      `Quest: ${quest.name}`,
+      `Quest ID: ${quest.id}`,
+      creatorLine,
+      "Issue: ",
+    ].join("\n"));
+    setCommunityReportOpen(true);
   }
 
   async function startCustomSideQuest(questId: string) {
@@ -4015,7 +4029,10 @@ function QuestBoardDashboard({
           setCompletedDetailId(customDetailCompletedQuest.id);
           setCustomDetailId(null);
         } : undefined}
+        onReport={!customDetailOwned && customDetailDraft?.visibility === "public" ? openCommunityReport : undefined}
       />
+
+      <HelpSupportModal key={communityReportMessage || "community-report"} visible={communityReportOpen} onClose={() => setCommunityReportOpen(false)} signedIn={signedIn} authBridge={authBridge} initialMessage={communityReportMessage} />
 
       <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCustomCreateOpen(false)}>
         <SafeAreaView style={compactStyles.detailScreen}>
@@ -6326,6 +6343,7 @@ function CustomSideQuestDetailModal({
   onDelete,
   onSaveState,
   onViewResult,
+  onReport,
 }: {
   quest: CustomLibraryQuest | null;
   visible: boolean;
@@ -6338,6 +6356,7 @@ function CustomSideQuestDetailModal({
   onDelete?: (questId: string) => Promise<void> | void;
   onSaveState?: (quest: CustomLibraryQuest, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) => Promise<void> | void;
   onViewResult?: () => void;
+  onReport?: (quest: CustomLibraryQuest) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
@@ -6456,6 +6475,11 @@ function CustomSideQuestDetailModal({
           <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>
             <Text style={compactStyles.detailQuietButtonText}>Back to list</Text>
           </Pressable>
+          {onReport ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Report Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => onReport(quest)}>
+              <Text style={compactStyles.detailSecondaryButtonText}>Report this Side Quest</Text>
+            </Pressable>
+          ) : null}
           {onDuplicate ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Duplicate custom Side Quest" style={compactStyles.detailSecondaryButton} disabled={Boolean(manageBusy)} onPress={() => void handleDuplicate()}>
               <Text style={compactStyles.detailSecondaryButtonText}>{manageBusy === "duplicate" ? "Duplicating..." : "Duplicate"}</Text>
