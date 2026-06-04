@@ -65,6 +65,18 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="button-row hero-actions quest-detail-actions">
             <Link className="button primary" href="/account">Try this in your account</Link>
             <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
+            <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
+          </div>
+        </section>
+
+        <section className="mission-card quest-detail-section" aria-label="Community Side Quest trust and safety">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Community trust</span>
+              <h2>Player-created, publicly labeled, easy to flag.</h2>
+              <p>This is not an official SQC quest. It is a public recipe from {quest.creatorName}. If the rule looks abusive, confusing, spammy, or broken, report it with the quest title so it can be reviewed.</p>
+            </div>
+            <Link className="button secondary" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
           </div>
         </section>
 
@@ -90,7 +102,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Website role</span>
             <h2>Inspect and share the tavern-wall version.</h2>
-            <p>The website keeps the richer community view: creator context, rule explanation, public URLs, and eventually reporting/trust tools.</p>
+            <p>The website keeps the richer community view: creator context, rule explanation, public URLs, and report/trust affordances.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">

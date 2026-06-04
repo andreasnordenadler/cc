@@ -47,6 +47,7 @@ export default async function CommunitySideQuestsPage() {
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show creator names and custom rule summaries so you know whose bad idea you are borrowing." />
             <InfoCard title="Mobile gets the quick action" copy="Use the app to browse compactly, start, check, and prove. Use the website when you want the richer tavern-wall view." />
+            <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>
 
@@ -103,6 +104,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         <div className="button-row">
           <Link className="button secondary" href={quest.detailPath}>Inspect recipe</Link>
           <Link className="button ghost" href="/account">Try in account</Link>
+          <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
         </div>
       </div>
     </article>
