@@ -1,9 +1,7 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const BACKSLASH_NORMALIZED_PATHS = new Set(["/support", "/terms"]);
-
-function normalizeTrailingBackslashPath(pathname: string) {
+function normalizeBackslashPath(pathname: string) {
   let decodedPathname = pathname;
 
   try {
@@ -12,15 +10,14 @@ function normalizeTrailingBackslashPath(pathname: string) {
     decodedPathname = pathname;
   }
 
-  const normalizedPathname = decodedPathname.replace(/\\+$/u, "");
+  const normalizedPathname = decodedPathname.replace(/\\+/gu, "") || "/";
   if (normalizedPathname === decodedPathname) return null;
-  if (!BACKSLASH_NORMALIZED_PATHS.has(normalizedPathname)) return null;
 
   return normalizedPathname;
 }
 
 export default clerkMiddleware((_auth, request) => {
-  const normalizedPathname = normalizeTrailingBackslashPath(request.nextUrl.pathname);
+  const normalizedPathname = normalizeBackslashPath(request.nextUrl.pathname);
   if (!normalizedPathname) return undefined;
 
   const url = request.nextUrl.clone();
