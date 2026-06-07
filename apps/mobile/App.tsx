@@ -2564,7 +2564,7 @@ function MultiplayerLeaderboardRow({
         <View style={compactStyles.multiplayerProgressTrack}>
           <View style={[compactStyles.multiplayerProgressFill, { width: `${getLeaderboardProgressPercent(row.verified)}%` }]} />
         </View>
-        <Text style={compactStyles.appRowMeta} numberOfLines={1}>{row.verified} · {row.note}</Text>
+        <Text style={compactStyles.appRowMeta} numberOfLines={1}>{row.note ? `${row.verified} · ${row.note}` : row.verified}</Text>
       </View>
     </View>
   );

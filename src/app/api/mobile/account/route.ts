@@ -594,7 +594,7 @@ function buildRuleRows(quest: { providerLabel: string; rules: Record<string, str
 }
 
 function buildLeaderboardRows(
-  quest: { participants: Array<{ userId: string; username: string; provider: string; score?: number; completedQuestIds?: string[]; leaderboardName: string }> ; questIds: string[] },
+  quest: { participants: Array<{ userId: string; username: string; provider: string; score?: number; completedQuestIds?: string[]; leaderboardName: string; lastProofSummary?: string; lastProofAt?: string }> ; questIds: string[] },
   userId: string,
 ) {
   const totalCount = Math.max(quest.questIds.length, 1);
@@ -607,9 +607,30 @@ function buildLeaderboardRows(
       provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
       points: formatPointsLabel(participant.score ?? 0),
       verified: `${participant.completedQuestIds?.length ?? 0}/${totalCount} verified`,
-      note: participant.userId === userId ? "You" : "",
+      note: formatLeaderboardNote(participant, userId),
+      lastProofSummary: participant.lastProofSummary ?? undefined,
+      lastProofAt: participant.lastProofAt ?? undefined,
       removable: participant.userId !== userId,
     }));
+}
+
+function formatLeaderboardNote(
+  participant: { userId: string; lastProofSummary?: string; lastProofAt?: string },
+  userId: string,
+) {
+  const summary = participant.lastProofSummary?.trim();
+  const selfPrefix = participant.userId === userId ? "You" : "";
+  if (!summary) return selfPrefix;
+
+  const proofDate = participant.lastProofAt ? formatShortDateTime(participant.lastProofAt) : "";
+  const proofLabel = proofDate ? `Latest proof ${proofDate}` : "Latest proof";
+  return [selfPrefix, `${proofLabel}: ${summary}`].filter(Boolean).join(" · ");
+}
+
+function formatShortDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 function dedupeGroupQuests(groupQuests: ServerGroupQuest[]) {

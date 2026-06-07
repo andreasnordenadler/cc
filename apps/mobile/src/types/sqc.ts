@@ -83,6 +83,8 @@ export type MobileGroupQuestParticipantRow = {
   points: string;
   verified: string;
   note: string;
+  lastProofSummary?: string;
+  lastProofAt?: string;
   removable?: boolean;
 };
 
