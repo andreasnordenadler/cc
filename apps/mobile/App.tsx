@@ -1211,6 +1211,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const scrollViewRef = useRef<ScrollView>(null);
   const [scrollState, setScrollState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
   const [pendingMultiplayerCreateOpen, setPendingMultiplayerCreateOpen] = useState(false);
+  const [pendingMultiplayerCreateQuestId, setPendingMultiplayerCreateQuestId] = useState<string | null>(null);
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
     account: null,
@@ -1359,7 +1360,8 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
 
-  function openMultiplayerCreate() {
+  function openMultiplayerCreate(questId?: string) {
+    setPendingMultiplayerCreateQuestId(questId ?? null);
     setPendingMultiplayerCreateOpen(true);
     selectTab("multiplayerSideQuests");
   }
@@ -1435,7 +1437,11 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               onSelectTab={selectTab}
               onOpenMultiplayerCreate={openMultiplayerCreate}
               pendingMultiplayerCreateOpen={pendingMultiplayerCreateOpen}
-              onConsumePendingMultiplayerCreate={() => setPendingMultiplayerCreateOpen(false)}
+              pendingMultiplayerCreateQuestId={pendingMultiplayerCreateQuestId}
+              onConsumePendingMultiplayerCreate={() => {
+                setPendingMultiplayerCreateOpen(false);
+                setPendingMultiplayerCreateQuestId(null);
+              }}
               onAccountUpdated={loadAccount}
             />
           </>
@@ -3583,6 +3589,7 @@ function QuestBoardDashboard({
   onSelectTab,
   onAccountUpdated,
   onOpenChallengeDetail,
+  onOpenMultiplayerCreate,
 }: {
   bootstrap: MobileBootstrap;
   selectedChallenge: MobileChallenge;
@@ -3595,6 +3602,7 @@ function QuestBoardDashboard({
   onSelectTab: (tab: AppTab) => void;
   onAccountUpdated: AccountUpdatedCallback;
   onOpenChallengeDetail: (challengeId: string) => void;
+  onOpenMultiplayerCreate: (questId?: string) => void;
 }) {
   const [detailChallengeId, setDetailChallengeId] = useState<string | null>(null);
   const [completedDetailId, setCompletedDetailId] = useState<string | null>(null);
@@ -4191,6 +4199,10 @@ function QuestBoardDashboard({
         } : undefined}
         onReport={!customDetailOwned && customDetailDraft?.visibility === "public" ? openCommunityReport : undefined}
         onViewCreator={customDetailDraft?.visibility === "public" ? openCommunityCreatorShelf : undefined}
+        onUseInMultiplayer={customDetailDraft && (customDetailDraft.lifecycle ?? "published") === "published" ? (quest) => {
+          setCustomDetailId(null);
+          onOpenMultiplayerCreate(quest.id);
+        } : undefined}
       />
 
       <HelpSupportModal key={communityReportMessage || "community-report"} visible={communityReportOpen} onClose={() => setCommunityReportOpen(false)} signedIn={signedIn} authBridge={authBridge} initialMessage={communityReportMessage} />
@@ -5054,6 +5066,7 @@ function ActiveScreen({
   onSelectTab,
   onOpenMultiplayerCreate,
   pendingMultiplayerCreateOpen,
+  pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
   onAccountUpdated,
 }: {
@@ -5070,8 +5083,9 @@ function ActiveScreen({
   onOpenCompletedQuestDetail: (challengeId: string) => void;
   onConsumePendingQuestOpen: () => void;
   onSelectTab: (tab: AppTab) => void;
-  onOpenMultiplayerCreate: () => void;
+  onOpenMultiplayerCreate: (questId?: string) => void;
   pendingMultiplayerCreateOpen: boolean;
+  pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
   onAccountUpdated: AccountUpdatedCallback;
 }) {
@@ -5079,9 +5093,9 @@ function ActiveScreen({
     case "home":
       return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
-      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} />;
+      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} />;
     case "multiplayerSideQuests":
-      return <MultiplayerSideQuestsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpen={pendingMultiplayerCreateOpen} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
+      return <MultiplayerSideQuestsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpen={pendingMultiplayerCreateOpen} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
@@ -5654,7 +5668,7 @@ function SideQuestsScreen({
   );
 }
 
-function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectTab, pendingCreateOpen, onConsumePendingCreateOpen, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; pendingCreateOpen?: boolean; onConsumePendingCreateOpen?: () => void; onAccountUpdated: AccountUpdatedCallback }) {
+function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectTab, pendingCreateOpen, pendingCreateQuestId, onConsumePendingCreateOpen, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; pendingCreateOpen?: boolean; pendingCreateQuestId?: string | null; onConsumePendingCreateOpen?: () => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedInAccount = isAuthenticatedAccount(account) ? account : null;
   const officialPublicGroupQuests = (signedInAccount?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const officialPublicGroupQuestIds = new Set(officialPublicGroupQuests.map((quest) => quest.id));
@@ -5690,16 +5704,23 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
   const [createRules, setCreateRules] = useState<Record<string, string>>({ timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
-  const createQuestChoices = getMultiplayerQuestChoices(bootstrap.challenges, signedInAccount?.customSideQuests ?? []);
+  const createQuestChoices = useMemo(() => getMultiplayerQuestChoices(bootstrap.challenges, signedInAccount?.customSideQuests ?? []), [bootstrap.challenges, signedInAccount?.customSideQuests]);
 
   useEffect(() => {
     if (!pendingCreateOpen) return;
     const timer = setTimeout(() => {
+      if (pendingCreateQuestId && createQuestChoices.some((choice) => choice.id === pendingCreateQuestId)) {
+        setCreateQuestIds((current) => [pendingCreateQuestId, ...current.filter((id) => id !== pendingCreateQuestId)].slice(0, 4));
+        const selectedQuest = createQuestChoices.find((choice) => choice.id === pendingCreateQuestId);
+        if (selectedQuest) {
+          setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
+        }
+      }
       setCreateOpen(true);
       onConsumePendingCreateOpen?.();
     }, 0);
     return () => clearTimeout(timer);
-  }, [pendingCreateOpen, onConsumePendingCreateOpen]);
+  }, [createQuestChoices, onConsumePendingCreateOpen, pendingCreateOpen, pendingCreateQuestId]);
 
   const overviewSteps = [
     {
@@ -6596,6 +6617,7 @@ function CustomSideQuestDetailModal({
   onViewResult,
   onReport,
   onViewCreator,
+  onUseInMultiplayer,
 }: {
   quest: CustomLibraryQuest | null;
   visible: boolean;
@@ -6611,6 +6633,7 @@ function CustomSideQuestDetailModal({
   onViewResult?: () => void;
   onReport?: (quest: CustomLibraryQuest) => void;
   onViewCreator?: (quest: CustomLibraryQuest) => void;
+  onUseInMultiplayer?: (quest: CustomLibraryQuest) => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
@@ -6791,6 +6814,11 @@ function CustomSideQuestDetailModal({
           {onReport ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Report Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => onReport(quest)}>
               <Text style={compactStyles.detailSecondaryButtonText}>Report this Side Quest</Text>
+            </Pressable>
+          ) : null}
+          {onUseInMultiplayer ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Use custom Side Quest in Multiplayer" style={compactStyles.detailSecondaryButton} onPress={() => onUseInMultiplayer(quest)}>
+              <Text style={compactStyles.detailSecondaryButtonText}>Use in Multiplayer</Text>
             </Pressable>
           ) : null}
           {onEdit ? (
