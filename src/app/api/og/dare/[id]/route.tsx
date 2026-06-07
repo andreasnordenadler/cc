@@ -8,6 +8,16 @@ const size = {
   height: 630,
 };
 
+const ogSafeMotif: Record<string, string> = {
+  "♜": "R",
+  "♞": "N",
+  "♝": "B",
+  "♔": "K",
+  "♟": "P",
+  "♛": "Q",
+  "✓": "OK",
+};
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -16,6 +26,7 @@ export async function GET(
   const challenge = getChallengeById(id) ?? CHALLENGES[0];
   const primary = challenge.badgeIdentity.colors.primary;
   const secondary = challenge.badgeIdentity.colors.secondary;
+  const motif = ogSafeMotif[challenge.badgeIdentity.motif] ?? challenge.badgeIdentity.motif;
 
   return new ImageResponse(
     (
@@ -72,13 +83,12 @@ export async function GET(
             color: secondary,
             fontSize: 138,
             fontWeight: 900,
-            zIndex: 1,
           }}
         >
-          {challenge.badgeIdentity.motif}
+          {motif}
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 28, position: "relative", zIndex: 2, maxWidth: 760 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 28, position: "relative", maxWidth: 760 }}>
           <div
             style={{
               display: "flex",
@@ -108,7 +118,6 @@ export async function GET(
             alignItems: "center",
             justifyContent: "space-between",
             position: "relative",
-            zIndex: 2,
             fontSize: 27,
             color: "#f8f4e8",
           }}
