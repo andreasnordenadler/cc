@@ -2960,6 +2960,23 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   );
 }
 
+const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
+
+function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
+  return [
+    "Side Quest Chess mobile diagnostics",
+    `Platform: ${Platform.OS}`,
+    `API base: ${getApiBaseUrl()}`,
+    `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
+    `Lichess: ${signedIn?.chessAccounts.lichessUsername ?? "not connected"}`,
+    `Chess.com: ${signedIn?.chessAccounts.chessComUsername ?? "not connected"}`,
+    `Active solo quest: ${signedIn?.activeQuest?.title ?? "none"}`,
+    `Active multiplayer quests: ${signedIn?.activeGroupQuests.length ?? 0}`,
+    `Public hosted multiplayer quests: ${signedIn?.publicUserGroupQuests?.length ?? 0}`,
+    `Recorded at: ${new Date().toISOString()}`,
+  ].join("\n");
+}
+
 function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessage = "" }: { visible: boolean; onClose: () => void; signedIn: MobileAccountState | null; authBridge: MobileAuthBridge; initialMessage?: string }) {
   const [supportMessage, setSupportMessage] = useState(initialMessage);
   const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
@@ -2968,15 +2985,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
   async function copySupportDetails() {
-    const details = [
-      "Side Quest Chess support",
-      `Account: ${signedIn?.profile.email ?? signedIn?.profile.displayName ?? "not signed in"}`,
-      `Lichess: ${signedIn?.chessAccounts.lichessUsername ?? "not connected"}`,
-      `Chess.com: ${signedIn?.chessAccounts.chessComUsername ?? "not connected"}`,
-      `Active quest: ${signedIn?.activeQuest?.title ?? "none"}`,
-      `Time: ${new Date().toISOString()}`,
-    ].join("\n");
-    await Clipboard.setStringAsync(details);
+    await Clipboard.setStringAsync(buildMobileSupportDiagnostics(signedIn));
     Alert.alert("Support details copied", "Paste this into the support form and add what went wrong.");
   }
 
@@ -2996,7 +3005,8 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
     try {
       const sessionToken = await authBridge.getSessionToken();
-      const result = await submitMobileSupportMessage({ sessionToken, message: trimmed });
+      const messageWithDiagnostics = `${trimmed}\n\n---\n${buildMobileSupportDiagnostics(signedIn)}`;
+      const result = await submitMobileSupportMessage({ sessionToken, message: messageWithDiagnostics });
       if (result.supportMessage) {
         setLocalSupportMessages((current) => [...current, result.supportMessage as MobileSupportMessage]);
       }
@@ -3079,7 +3089,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
               <TextInput
                 value={supportMessage}
                 multiline
-                maxLength={1200}
+                maxLength={MOBILE_SUPPORT_NOTE_MAX_LENGTH}
                 placeholder="What happened"
                 placeholderTextColor="rgba(255,247,232,.42)"
                 style={[styles.textInput, styles.textAreaInput]}
