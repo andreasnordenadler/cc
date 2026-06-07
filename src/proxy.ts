@@ -1,28 +1,33 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-function normalizeBackslashPath(pathname: string) {
-  let decodedPathname = pathname;
+const BACKSLASH_TOKEN_PATTERN = /(?:\\|%5c)/i;
 
-  try {
-    decodedPathname = decodeURIComponent(pathname);
-  } catch {
-    decodedPathname = pathname;
+function normalizeBackslashPath(pathname: string) {
+  if (!BACKSLASH_TOKEN_PATTERN.test(pathname)) {
+    return null;
   }
 
-  const normalizedPathname = decodedPathname.replace(/\\+/gu, "") || "/";
-  if (normalizedPathname === decodedPathname) return null;
+  const normalizedPathname = pathname
+    .replace(/%5c/gi, "/")
+    .replace(/\\/g, "/")
+    .replace(/\/+/g, "/")
+    .replace(/\/$/, "");
 
-  return normalizedPathname;
+  return normalizedPathname || "/";
 }
 
 export default clerkMiddleware((_auth, request) => {
   const normalizedPathname = normalizeBackslashPath(request.nextUrl.pathname);
-  if (!normalizedPathname) return undefined;
 
-  const url = request.nextUrl.clone();
-  url.pathname = normalizedPathname;
-  return NextResponse.redirect(url, 308);
+  if (!normalizedPathname) {
+    return NextResponse.next();
+  }
+
+  const destination = request.nextUrl.clone();
+  destination.pathname = normalizedPathname;
+
+  return NextResponse.redirect(destination, 308);
 });
 
 export const config = {
