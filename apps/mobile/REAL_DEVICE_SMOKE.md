@@ -1,0 +1,68 @@
+# SQC Mobile Real-Device Smoke
+
+Use this checklist before calling an APK launch-ready. Emulator-only smoke is useful, but it does **not** close the signed-device launch gate.
+
+## Candidate identity
+
+- GitHub Release tag:
+- APK filename:
+- Version name:
+- Android version code:
+- APK SHA256:
+- Tester/device/OS:
+- Test time:
+
+## Install and launch
+
+- [ ] Download the APK from the GitHub Release, not a local `dist-*` directory.
+- [ ] Verify SHA256 matches the release note.
+- [ ] Confirm the APK is not debuggable (`application-debuggable` absent/false).
+- [ ] Install on a real signed Android device.
+- [ ] Launch `com.sidequestchess.app` and confirm Home loads without a crash.
+
+## Auth and account sync
+
+- [ ] Start Google sign-in from the app.
+- [ ] Confirm Clerk returns through `sidequestchess://sso-callback`.
+- [ ] Confirm Account shows signed-in runner state.
+- [ ] Confirm `/api/mobile/account` accepts the mobile bearer token (not signed-out fallback JSON).
+- [ ] Edit and save display name or brag line, then refresh Account and confirm it persists.
+
+## Solo / Custom / Community
+
+- [ ] Browse SQC Official Solo quests.
+- [ ] Start a Solo quest.
+- [ ] Check latest game and record success/failure receipt behavior.
+- [ ] Submit explicit game/link proof.
+- [ ] View proof, copy proof link when available, and invoke native share.
+- [ ] Reset the active quest.
+- [ ] Create a Custom Side Quest.
+- [ ] Reopen/edit the saved Custom Side Quest rules and confirm saved conditions are shown.
+- [ ] Start/check/reset the Custom Side Quest from the detail sheet.
+- [ ] Browse Community Solo.
+- [ ] Open a Community Solo detail, confirm rule-detail cards, creator context, share public link, and report/support handoff.
+
+## Multiplayer
+
+- [ ] Browse SQC Official and Community Multiplayer.
+- [ ] Create a Multiplayer Side Quest.
+- [ ] Share/copy the invite or public link.
+- [ ] Join a Multiplayer Side Quest with a second account/device if available.
+- [ ] Refresh participant/leaderboard state.
+- [ ] Leave a joined table.
+- [ ] Submit/check proof for a Multiplayer table where possible.
+- [ ] Confirm host context and report/support handoff on a non-owned Community table.
+
+## Support, trophy cabinet, and logout
+
+- [ ] Send a support message from the app.
+- [ ] Confirm prior support messages render after refresh.
+- [ ] Open Coat of Arms / Trophy Cabinet and confirm Solo coats plus Multiplayer podium scrolls render.
+- [ ] Log out.
+- [ ] Confirm signed-out Home/Solo/Multiplayer browsing still works.
+
+## Evidence to record
+
+- APK SHA256 and non-debuggable proof.
+- Screenshots or short clips for launch, signed-in Account, Solo proof, Custom edit, Multiplayer create/join, Support, Trophy Cabinet, and logout.
+- Any failed step with device, timestamp, app version, and exact observed text.
