@@ -96,10 +96,17 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: audited Trophy Cabinet data parity after the mobile UI work and closed the backend gap: mobile already had a native Multiplayer podium-scroll lane, but the mobile account API did not populate `multiplayerTrophies`, so real accounts could still see an empty lane even after finished podium results existed.
   - proof: added `multiplayerTrophies` to `/api/mobile/account` from finished related/public Multiplayer Side Quests, limited to top-three podium placements with positive score, canonical group quest href, rank label, placement seal label, and completion timestamp. Verification passed: `pnpm --dir apps/mobile typecheck` and `pnpm lint -- src/app/api/mobile/account/route.ts apps/mobile/App.tsx`. No APK release was created because this is a server/account-payload parity fix for the already-released mobile UI.
 
-- [ ] Audit and close the next concrete website/mobile parity gap.
+- [x] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-05
+  - completed_at: 2026-06-07
   - source: continue Andreas's equal-functionality model after closing mobile multiplayer trophy payloads, proof-link sharing, account profile editing, official/community public sharing, Community reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
-  - scope: compare Custom Side Quest create/edit/manage parity, start/check/prove/collect flows, account readiness, and remaining community safety/discovery affordances; pick the highest-impact missing capability and implement it on the weaker surface.
+  - scope: compared Custom Side Quest create/edit/manage parity and closed the next concrete mobile standalone gap: mobile could create Custom Side Quests and list/manage them, but an existing saved rule set reopened as a blank starter recipe instead of a rule editor, making post-publish edits unsafe/opaque compared with website management expectations.
+  - proof: commit `78922f2` (`Mobile: edit custom Side Quest rules`) added parsing for saved Custom Side Quest rule blocks, restored edit state for piece-state, game-result, move-sequence, and opening-sequence conditions, and made existing Custom Side Quest edits open with their real saved conditions instead of a blank default. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and full `pnpm mobile:release:check`. Android release build `pnpm mobile:release --github-release` published `mobile-v248` with APK verified `versionName=0.1.248`, `versionCode=248`, `debuggable=false`, SHA256 `79c37cd9d97c24d9caea466991415debf96096bbe22ca7087a45558e1ddbe8a3`.
+
+- [ ] Audit and close the next concrete website/mobile parity gap.
+  - added_at: 2026-06-07
+  - source: continue Andreas's equal-functionality model after closing mobile Custom Side Quest rule editing, mobile multiplayer trophy payloads, proof-link sharing, account profile editing, official/community public sharing, Community reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
+  - scope: compare remaining Custom Side Quest lifecycle parity, start/check/prove/collect flows, account readiness, and community safety/discovery affordances; pick the highest-impact missing capability and implement it on the weaker surface.
   - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
 
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.
