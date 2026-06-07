@@ -4877,6 +4877,15 @@ function HomeScreen({
 }) {
   const signedInAccount = isAuthenticatedAccount(account) ? account : null;
   const isSignedIn = Boolean(signedInAccount);
+  const completedChallengeIds = new Set(signedInAccount?.progress.completedChallengeIds ?? []);
+  const randomChallengePool = bootstrap.challenges.filter((challenge) => challenge.id !== signedInAccount?.activeQuest?.id && !completedChallengeIds.has(challenge.id));
+  const randomFallbackPool = randomChallengePool.length > 0 ? randomChallengePool : bootstrap.challenges;
+  const handleRandomSoloQuest = () => {
+    if (randomFallbackPool.length === 0) return;
+
+    const challenge = randomFallbackPool[Math.floor(Math.random() * randomFallbackPool.length)];
+    onSelectChallenge(challenge.id, "sideQuests");
+  };
   const heroismChoices = [
     {
       label: "Cautiously heroic",
@@ -4941,6 +4950,9 @@ function HomeScreen({
             <HeroismChoiceCard key={challenge.id} label={label} copy={copy} cta={cta} challenge={challenge} onPress={() => onSelectChallenge(challenge.id, "sideQuests")} />
           ))}
         </View>
+        <Pressable accessibilityRole="button" accessibilityLabel="Surprise me with a random Solo Side Quest" testID="home-random-solo-side-quest" style={styles.secondaryButtonWide} onPress={handleRandomSoloQuest}>
+          <Text style={styles.secondaryButtonText}>Surprise me with a random Solo Side Quest</Text>
+        </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Find your own path" testID="home-find-own-path" onPress={() => onSelectTab("sideQuests")}>
           <Text style={styles.heroismCustomPath}>Or go find your own path.</Text>
         </Pressable>
