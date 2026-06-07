@@ -759,6 +759,80 @@ function buildCustomPieceRuleConfig(input: { logic: CustomRuleLogic; requirement
   });
 }
 
+function getDefaultCustomRequirement(id: string): CustomRuleRequirement {
+  return {
+    id,
+    piece: "queen",
+    owner: "my",
+    condition: "game result",
+    timing: "by move",
+    moveNumber: 15,
+    quantifier: "any one",
+    count: 1,
+    identity: "original",
+    targetSquare: "e4",
+    moveSequence: "e4 e5 Nf3",
+    openingSequence: "1.e4 e5 2.f4",
+    result: "win",
+    negated: false,
+  };
+}
+
+function getCustomTimingFromConfig(timing: unknown): { timing: CustomRuleTiming; moveNumber: number } {
+  if (timing && typeof timing === "object") {
+    const timingRecord = timing as Record<string, unknown>;
+    if (typeof timingRecord.atMove === "number") return { timing: "at move", moveNumber: normalizeCustomMoveNumber(timingRecord.atMove) };
+    if (typeof timingRecord.byMove === "number") return { timing: "by move", moveNumber: normalizeCustomMoveNumber(timingRecord.byMove) };
+  }
+  return { timing: "at game end", moveNumber: 15 };
+}
+
+function parseCustomRuleRequirements(config: string): { logic: CustomRuleLogic; requirements: CustomRuleRequirement[] } | null {
+  try {
+    const parsed = JSON.parse(config) as { logic?: unknown; blocks?: unknown };
+    const blocks = Array.isArray(parsed.blocks) ? parsed.blocks : [];
+    const requirements = blocks.map((block, index): CustomRuleRequirement | null => {
+      if (!block || typeof block !== "object") return null;
+      const record = block as Record<string, unknown>;
+      const base = getDefaultCustomRequirement(`saved-condition-${index + 1}`);
+      const { timing, moveNumber } = getCustomTimingFromConfig(record.timing);
+      if (record.type === "moveSequence") {
+        return { ...base, condition: "move sequence", timing, moveNumber, moveSequence: typeof record.sequence === "string" ? record.sequence : base.moveSequence, negated: record.negate === true };
+      }
+      if (record.type === "openingSequence") {
+        const moves = Array.isArray(record.moves) ? record.moves.filter((move): move is string => typeof move === "string").join(" ") : "";
+        return { ...base, condition: "opening sequence", openingSequence: typeof record.raw === "string" ? record.raw : moves || base.openingSequence, negated: record.negate === true };
+      }
+      if (record.type === "gameResult") {
+        const result = CUSTOM_RULE_RESULTS.includes(record.result as CustomRuleResult) ? record.result as CustomRuleResult : base.result;
+        return { ...base, condition: "game result", result, negated: record.negate === true };
+      }
+      if (record.type !== "pieceState") return null;
+      const selector = record.selector && typeof record.selector === "object" ? record.selector as Record<string, unknown> : {};
+      const piece = CUSTOM_RULE_PIECES.includes(record.piece as CustomRulePiece) ? record.piece as CustomRulePiece : base.piece;
+      const owner = CUSTOM_RULE_OWNERS.includes(record.owner as CustomRuleOwner) ? record.owner as CustomRuleOwner : base.owner;
+      const condition = CUSTOM_RULE_CONDITIONS.includes(record.condition as CustomRuleCondition) ? record.condition as CustomRuleCondition : base.condition;
+      const quantifier = CUSTOM_RULE_QUANTIFIERS.includes(selector.quantifier as CustomRuleQuantifier) ? selector.quantifier as CustomRuleQuantifier : base.quantifier;
+      return {
+        ...base,
+        piece,
+        owner,
+        condition,
+        timing,
+        moveNumber,
+        quantifier,
+        count: typeof selector.count === "number" ? normalizeCustomRuleCount(piece, selector.count) : base.count,
+        identity: typeof selector.identity === "string" ? normalizeCustomPieceIdentity(piece, selector.identity) : base.identity,
+        targetSquare: typeof record.targetSquare === "string" ? normalizeCustomSquare(record.targetSquare) : base.targetSquare,
+        negated: record.negate === true,
+      };
+    }).filter((requirement): requirement is CustomRuleRequirement => Boolean(requirement));
+    return { logic: CUSTOM_RULE_LOGICS.includes(parsed.logic as CustomRuleLogic) ? parsed.logic as CustomRuleLogic : "all", requirements };
+  } catch {
+    return null;
+  }
+}
+
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
   return mode === "public"
     ? { title: "Public", helper: "Visible in Browse" }
@@ -3544,6 +3618,7 @@ function QuestBoardDashboard({
   const completedDetailCustomQuest = completedDetailId ? [...(signedIn?.customSideQuests ?? []), ...(signedIn?.communitySideQuests ?? [])].find((quest) => quest.id === completedDetailId) ?? null : null;
   const completedDetailChallenge = completedDetailOfficialChallenge ?? (completedQuestRecord ? buildCustomProofChallenge(completedQuestRecord, completedDetailCustomQuest) : null);
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
+  const [customEditingQuestId, setCustomEditingQuestId] = useState<string | null>(null);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
   const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
   const [communityView, setCommunityView] = useState<CommunityBrowseView>("discover");
@@ -3630,6 +3705,26 @@ function QuestBoardDashboard({
   const customRuleConfig = buildCustomPieceRuleConfig({ logic: customRuleLogic, requirements: customRuleRequirements });
   const customBadgePreviewUrl = getCustomCoatPreviewUrl(customRuleRequirements, customQuestName);
   const canPublishCustomQuest = customRequirements.length > 0 || customConditionEditorOpen;
+
+  function openCustomEditor(quest?: CustomLibraryQuest | null) {
+    setCustomConditionEditorOpen(false);
+    setCustomEditingRequirementId(null);
+    if (quest) {
+      const parsedRules = parseCustomRuleRequirements(quest.config);
+      setCustomEditingQuestId(quest.id);
+      setCustomQuestName(quest.name);
+      setCustomPublishVisibility(quest.visibility ?? "private");
+      setCustomRuleLogic(parsedRules?.logic ?? "all");
+      setCustomRequirements(parsedRules?.requirements ?? []);
+    } else {
+      setCustomEditingQuestId(null);
+      setCustomQuestName("My custom Side Quest");
+      setCustomPublishVisibility("private");
+      setCustomRuleLogic("all");
+      setCustomRequirements([]);
+    }
+    setCustomCreateOpen(true);
+  }
 
   function loadCustomRequirement(requirement: CustomRuleRequirement) {
     setCustomRulePiece(requirement.piece);
@@ -3718,22 +3813,26 @@ function QuestBoardDashboard({
     const badgePreviewUrl = getCustomCoatPreviewUrl(requirementsForSave, name);
     if (!authBridge.isSignedIn) {
       setCustomDrafts((current) => {
-        customRequirementIdCounter.current += 1;
         const now = new Date().toISOString();
-        const draft: CustomLibraryQuest = { id: `local-custom-${customRequirementIdCounter.current}`, name, summary, config, visibility: lifecycle === "published" ? customPublishVisibility : "private", lifecycle, createdAt: now, updatedAt: now, badgeImageUrl: badgePreviewUrl };
+        const editingLocalId = customEditingQuestId?.startsWith("local-custom-") ? customEditingQuestId : null;
+        const draft: CustomLibraryQuest = { id: editingLocalId ?? `local-custom-${customRequirementIdCounter.current + 1}`, name, summary, config, visibility: lifecycle === "published" ? customPublishVisibility : "private", lifecycle, createdAt: now, updatedAt: now, badgeImageUrl: badgePreviewUrl };
+        if (!editingLocalId) customRequirementIdCounter.current += 1;
+        if (editingLocalId) return current.map((entry) => entry.id === editingLocalId ? { ...entry, ...draft, createdAt: entry.createdAt ?? now } : entry);
         return [draft, ...current].slice(0, 6);
       });
-      Alert.alert(lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
+      Alert.alert(customEditingQuestId ? "Local Side Quest updated" : lifecycle === "draft" ? "Draft saved locally" : "Sign in to launch this Side Quest", customEditingQuestId ? `${name} has the latest rules on this device.` : lifecycle === "draft" ? `${name} is saved as a local draft.` : `${name} is saved locally for now. Sign in to make it pickable and verifiable.`);
       setCustomCreateOpen(false);
+      setCustomEditingQuestId(null);
       return;
     }
     try {
       const sessionToken = await authBridge.getSessionToken();
       const visibility = lifecycle === "published" ? customPublishVisibility : "private";
-      await saveMobileCustomSideQuest({ sessionToken, title: name, summary, config, lifecycle, visibility });
+      await saveMobileCustomSideQuest({ sessionToken, id: customEditingQuestId ?? undefined, title: name, summary, config, lifecycle, visibility });
       await Promise.resolve(onAccountUpdated());
-      Alert.alert(lifecycle === "draft" ? "Custom Side Quest draft saved" : visibility === "public" ? "Community Side Quest published" : "Custom Side Quest saved", lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : visibility === "public" ? `${name} is now public in Community Discover.` : `${name} is ready in your private Side Quest Library.`);
+      Alert.alert(customEditingQuestId ? "Custom Side Quest updated" : lifecycle === "draft" ? "Custom Side Quest draft saved" : visibility === "public" ? "Community Side Quest published" : "Custom Side Quest saved", customEditingQuestId ? `${name} now has the latest name, rules, and visibility.` : lifecycle === "draft" ? `${name} is saved as a private draft. Publish it when the rules are ready.` : visibility === "public" ? `${name} is now public in Community Discover.` : `${name} is ready in your private Side Quest Library.`);
       setCustomCreateOpen(false);
+      setCustomEditingQuestId(null);
     } catch (caught) {
       Alert.alert(lifecycle === "published" ? "Could not publish Side Quest" : "Could not save draft", caught instanceof Error ? caught.message : "Try again in a moment.");
     }
@@ -3952,7 +4051,7 @@ function QuestBoardDashboard({
                   <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? communityCreatorFilter ? "That creator shelf is empty." : "No matches yet." : "No public Community Side Quests yet."}</Text>
                   <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator shelf, search text, or filter. Nothing private is shown from guessed creator context." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Library. Public quests will appear here as the catalog grows."}</Text>
                   <View style={compactStyles.actionRowTight}>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => setCustomCreateOpen(true)}>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
                       <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
                     </Pressable>
                     <Pressable accessibilityRole="button" accessibilityLabel="View my Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityView("mine")}>
@@ -3966,12 +4065,12 @@ function QuestBoardDashboard({
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
                 <Text style={compactStyles.freshSectionTitle}>My Custom Library</Text>
-                <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => setCustomCreateOpen(true)}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => openCustomEditor()}>
                   <Text style={compactStyles.sectionAction}>+ Create</Text>
                 </Pressable>
               </View>
               {visibleCustomDrafts.length ? null : (
-                <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => setCustomCreateOpen(true)}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => openCustomEditor()}>
                   <View style={compactStyles.currentQuestRow}>
                     <View style={compactStyles.coatMarker}>
                       <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
@@ -4040,6 +4139,10 @@ function QuestBoardDashboard({
           await startCustomSideQuest(questId);
           setCustomDetailId(null);
         }}
+        onEdit={customDetailOwned ? (quest) => {
+          openCustomEditor(quest);
+          setCustomDetailId(null);
+        } : undefined}
         onDuplicate={async (quest) => {
           if (!authBridge.isSignedIn) return Alert.alert("Sign in required", "Sign in to duplicate saved custom Side Quests.");
           const sessionToken = await authBridge.getSessionToken();
@@ -4077,11 +4180,11 @@ function QuestBoardDashboard({
 
       <HelpSupportModal key={communityReportMessage || "community-report"} visible={communityReportOpen} onClose={() => setCommunityReportOpen(false)} signedIn={signedIn} authBridge={authBridge} initialMessage={communityReportMessage} />
 
-      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCustomCreateOpen(false)}>
+      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => { setCustomCreateOpen(false); setCustomEditingQuestId(null); }}>
         <SafeAreaView style={compactStyles.detailScreen}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={() => setCustomCreateOpen(false)}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={() => { setCustomCreateOpen(false); setCustomEditingQuestId(null); }}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
@@ -4089,8 +4192,8 @@ function QuestBoardDashboard({
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
-              <Text style={compactStyles.detailTitle}>Build your Side Quest.</Text>
-              <Text style={compactStyles.detailGoal}>Choose what should happen in a real game. SQC will check it after you play.</Text>
+              <Text style={compactStyles.detailTitle}>{customEditingQuestId ? "Edit your Side Quest." : "Build your Side Quest."}</Text>
+              <Text style={compactStyles.detailGoal}>{customEditingQuestId ? "Update the name, rules, and publish state without rebuilding from scratch." : "Choose what should happen in a real game. SQC will check it after you play."}</Text>
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={styles.inputLabel}>Side Quest name</Text>
@@ -4360,10 +4463,10 @@ function QuestBoardDashboard({
                 })}
               </View>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" accessibilityState={{ disabled: !canPublishCustomQuest }} style={[compactStyles.detailPrimaryButton, !canPublishCustomQuest && compactStyles.detailPrimaryButtonDisabled]} disabled={!canPublishCustomQuest} onPress={() => void saveCustomDraft("published")}>
-                <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? (customPublishVisibility === "public" ? "Publish to Community" : "Publish Private Side Quest") : "Add Condition to Publish"}</Text>
+                <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? customEditingQuestId ? "Save Side Quest Updates" : (customPublishVisibility === "public" ? "Publish to Community" : "Publish Private Side Quest") : "Add Condition to Publish"}</Text>
               </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest draft" style={compactStyles.detailSecondaryButton} onPress={() => void saveCustomDraft("draft")}>
-                <Text style={compactStyles.detailSecondaryButtonText}>Save Draft</Text>
+                <Text style={compactStyles.detailSecondaryButtonText}>{customEditingQuestId ? "Save as Draft" : "Save Draft"}</Text>
               </Pressable>
             </View>
           </ScrollHintedScrollView>
@@ -6471,6 +6574,7 @@ function CustomSideQuestDetailModal({
   completedAt,
   onClose,
   onStart,
+  onEdit,
   onDuplicate,
   onDelete,
   onSaveState,
@@ -6485,6 +6589,7 @@ function CustomSideQuestDetailModal({
   completedAt: string | null;
   onClose: () => void;
   onStart: (questId: string) => Promise<void> | void;
+  onEdit?: (quest: CustomLibraryQuest) => void;
   onDuplicate?: (quest: CustomLibraryQuest) => Promise<void> | void;
   onDelete?: (questId: string) => Promise<void> | void;
   onSaveState?: (quest: CustomLibraryQuest, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) => Promise<void> | void;
@@ -6648,6 +6753,11 @@ function CustomSideQuestDetailModal({
           {onReport ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Report Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => onReport(quest)}>
               <Text style={compactStyles.detailSecondaryButtonText}>Report this Side Quest</Text>
+            </Pressable>
+          ) : null}
+          {onEdit ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Edit custom Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => onEdit(quest)}>
+              <Text style={compactStyles.detailSecondaryButtonText}>Edit name & rules</Text>
             </Pressable>
           ) : null}
           {onDuplicate ? (
