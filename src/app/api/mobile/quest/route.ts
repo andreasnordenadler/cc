@@ -3,7 +3,33 @@ import { NextResponse } from "next/server";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestChallengeForProvider, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import {
+  verifyChessComDrawAnyGameAttempt,
+  verifyChessComDrawAsBlackAttempt,
+  verifyChessComDrawAsWhiteAttempt,
+  verifyChessComFinishAnyGameAttempt,
+  verifyChessComFinishAsBlackAttempt,
+  verifyChessComFinishAsWhiteAttempt,
+  verifyChessComLoseAnyGameAttempt,
+  verifyChessComLoseAsBlackAttempt,
+  verifyChessComLoseAsWhiteAttempt,
+  verifyChessComWinAsBlackAttempt,
+  verifyChessComWinAsWhiteAttempt,
+} from "@/lib/chesscom";
 import { checkLatestCustomSideQuestForProvider, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
+import {
+  verifyDrawAnyGameAttempt,
+  verifyDrawAsBlackAttempt,
+  verifyDrawAsWhiteAttempt,
+  verifyFinishAnyGameAttempt,
+  verifyFinishAsBlackAttempt,
+  verifyFinishAsWhiteAttempt,
+  verifyLoseAnyGameAttempt,
+  verifyLoseAsBlackAttempt,
+  verifyLoseAsWhiteAttempt,
+  verifyWinAsBlackAttempt,
+  verifyWinAsWhiteAttempt,
+} from "@/lib/lichess";
 import {
   buildChallengeProgressRecord,
   compactChallengeAttempts,
@@ -118,16 +144,19 @@ export async function POST(request: Request) {
     }
 
     if (action === "submit") {
-      return NextResponse.json(
-        {
-          apiVersion: 1,
-          authenticated: true,
-          ok: false,
-          action,
-          message: "Manual proof submission is web-only for this beta. Use latest-game checks in the mobile app.",
-        },
-        { status: 400 },
-      );
+      const challengeId = typeof record.challengeId === "string" ? record.challengeId : "";
+      const gameId = typeof record.gameId === "string" ? record.gameId : "";
+      readMetadata = await withPublicCustomSideQuest(client, readMetadata, challengeId);
+      const result = await submitMobileChallengeAttempt(userId, metadata, readMetadata, challengeId, gameId);
+
+      return NextResponse.json({
+        apiVersion: 1,
+        authenticated: true,
+        ok: true,
+        action,
+        challengeId: result.challengeId,
+        message: result.completed ? "Quest completed from submitted game." : "Submitted game checked.",
+      });
     }
 
     return NextResponse.json(
@@ -303,6 +332,146 @@ async function checkMobileActiveChallenge(userId: string, metadata: UserMetadata
   });
 
   return { challengeId: questId, completed: Boolean(passedCheck) };
+}
+
+async function submitMobileChallengeAttempt(userId: string, metadata: UserMetadataRecord, readMetadata: UserMetadataRecord, challengeId: string, rawGameId: string) {
+  const challenge = getChallengeById(challengeId);
+  const customQuest = challenge ? null : getCustomSideQuestById(readMetadata, challengeId);
+
+  if (!challenge && !customQuest) {
+    throw new Error("Unknown quest.");
+  }
+  if (!rawGameId.trim()) {
+    throw new Error("Paste a Lichess game ID or Chess.com game URL first.");
+  }
+  if (customQuest) {
+    throw new Error("Specific-game custom Side Quest proof is not available yet. Use latest-game check for this custom Side Quest.");
+  }
+
+  const questId = challenge!.id;
+  const now = new Date().toISOString();
+  const existingAttempts = getExistingAttempts(metadata);
+  const activeChallenge = metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+    ? (metadata.activeChallenge as { id?: string; startedAt?: string })
+    : null;
+  const activatedAfter = activeChallenge?.id === questId ? activeChallenge.startedAt ?? now : now;
+  const submittedGame = normalizeSubmittedGameReference(rawGameId);
+  const verdict = await verifySubmittedChallengeAttempt(questId, submittedGame, readMetadata);
+  const checkedVerification = buildLatestGameCheckPayload(verdict, challenge!.title, activatedAfter);
+  const progress = getChallengeProgress(metadata);
+  const completed = checkedVerification.status === "passed";
+  const completedChallengeIds = completed && !progress.completedChallengeIds.includes(questId)
+    ? [...progress.completedChallengeIds, questId]
+    : progress.completedChallengeIds;
+
+  await updateUserPublicMetadata(userId, metadata, {
+    activeChallenge: {
+      id: questId,
+      status: completed ? "verified" : checkedVerification.status,
+      startedAt: activatedAfter,
+      verifiedAt: completed ? now : undefined,
+    },
+    challengeAttempts: compactChallengeAttempts([
+      ...existingAttempts,
+      buildAttempt(questId, { ...checkedVerification, provider: submittedGame.provider }, `${questId}:${submittedGame.provider}:submitted:${now}`, now),
+    ]),
+    challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
+  });
+
+  return { challengeId: questId, completed };
+}
+
+function normalizeSubmittedGameReference(rawGameId: string): { provider: "lichess" | "chess.com"; gameId: string } {
+  const trimmed = rawGameId.trim();
+  const chessComMatch = trimmed.match(/^https?:\/\/(www\.)?chess\.com\/game\//i);
+
+  if (chessComMatch) {
+    return { provider: "chess.com", gameId: trimmed };
+  }
+
+  const lichessGameId = trimmed
+    .replace(/^https?:\/\/lichess\.org\//i, "")
+    .replace(/[#?].*$/, "")
+    .replace(/\/.*$/, "")
+    .trim();
+
+  return { provider: "lichess", gameId: lichessGameId };
+}
+
+async function verifySubmittedChallengeAttempt(challengeId: string, submittedGame: { provider: "lichess" | "chess.com"; gameId: string }, metadata: UserMetadataRecord): Promise<LatestChallengeVerdict> {
+  if (submittedGame.provider === "chess.com") {
+    const chessComUsername = getChessComUsername(metadata);
+    if (!chessComUsername) {
+      return {
+        status: "pending",
+        gameId: submittedGame.gameId,
+        summary: "Add your Chess.com username before submitting Chess.com proof.",
+      };
+    }
+
+    return verifySubmittedChessComAttempt(challengeId, submittedGame.gameId, chessComUsername);
+  }
+
+  const lichessUsername = getLichessUsername(metadata);
+  if (!lichessUsername) {
+    return {
+      status: "pending",
+      gameId: submittedGame.gameId,
+      summary: "Add your Lichess username before submitting Lichess proof.",
+    };
+  }
+
+  return verifySubmittedLichessAttempt(challengeId, submittedGame.gameId, lichessUsername);
+}
+
+type SubmittedVerificationVerdict = Omit<LatestChallengeVerdict, "gameId"> & { gameId?: string };
+
+function withSubmittedGameId(verdict: SubmittedVerificationVerdict, gameId: string): LatestChallengeVerdict {
+  return { ...verdict, gameId: verdict.gameId ?? gameId };
+}
+
+async function verifySubmittedLichessAttempt(challengeId: string, gameId: string, lichessUsername: string): Promise<LatestChallengeVerdict> {
+  switch (challengeId) {
+    case "finish-any-game": return withSubmittedGameId(await verifyFinishAnyGameAttempt({ gameId, lichessUsername }), gameId);
+    case "finish-as-white": return withSubmittedGameId(await verifyFinishAsWhiteAttempt({ gameId, lichessUsername }), gameId);
+    case "finish-as-black": return withSubmittedGameId(await verifyFinishAsBlackAttempt({ gameId, lichessUsername }), gameId);
+    case "win-as-white": return withSubmittedGameId(await verifyWinAsWhiteAttempt({ gameId, lichessUsername }), gameId);
+    case "win-as-black": return withSubmittedGameId(await verifyWinAsBlackAttempt({ gameId, lichessUsername }), gameId);
+    case "draw-any-game": return withSubmittedGameId(await verifyDrawAnyGameAttempt({ gameId, lichessUsername }), gameId);
+    case "draw-as-white": return withSubmittedGameId(await verifyDrawAsWhiteAttempt({ gameId, lichessUsername }), gameId);
+    case "draw-as-black": return withSubmittedGameId(await verifyDrawAsBlackAttempt({ gameId, lichessUsername }), gameId);
+    case "lose-any-game": return withSubmittedGameId(await verifyLoseAnyGameAttempt({ gameId, lichessUsername }), gameId);
+    case "lose-as-white": return withSubmittedGameId(await verifyLoseAsWhiteAttempt({ gameId, lichessUsername }), gameId);
+    case "lose-as-black": return withSubmittedGameId(await verifyLoseAsBlackAttempt({ gameId, lichessUsername }), gameId);
+    default:
+      return {
+        status: "pending",
+        gameId,
+        summary: `Submitted ${gameId} for ${lichessUsername}. Automated specific-game verification is not active for this Side Quest yet.`,
+      };
+  }
+}
+
+async function verifySubmittedChessComAttempt(challengeId: string, gameUrl: string, chessComUsername: string): Promise<LatestChallengeVerdict> {
+  switch (challengeId) {
+    case "finish-any-game": return withSubmittedGameId(await verifyChessComFinishAnyGameAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "finish-as-white": return withSubmittedGameId(await verifyChessComFinishAsWhiteAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "finish-as-black": return withSubmittedGameId(await verifyChessComFinishAsBlackAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "win-as-white": return withSubmittedGameId(await verifyChessComWinAsWhiteAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "win-as-black": return withSubmittedGameId(await verifyChessComWinAsBlackAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "draw-any-game": return withSubmittedGameId(await verifyChessComDrawAnyGameAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "draw-as-white": return withSubmittedGameId(await verifyChessComDrawAsWhiteAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "draw-as-black": return withSubmittedGameId(await verifyChessComDrawAsBlackAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "lose-any-game": return withSubmittedGameId(await verifyChessComLoseAnyGameAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "lose-as-white": return withSubmittedGameId(await verifyChessComLoseAsWhiteAttempt({ gameUrl, chessComUsername }), gameUrl);
+    case "lose-as-black": return withSubmittedGameId(await verifyChessComLoseAsBlackAttempt({ gameUrl, chessComUsername }), gameUrl);
+    default:
+      return {
+        status: "pending",
+        gameId: gameUrl,
+        summary: `Submitted ${gameUrl} for ${chessComUsername}. Automated specific-game verification is not active for this Side Quest yet.`,
+      };
+  }
 }
 
 async function deactivateMobileActiveChallenge(userId: string, metadata: UserMetadataRecord, challengeId: string) {

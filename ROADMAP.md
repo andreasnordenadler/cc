@@ -2206,15 +2206,19 @@ Screenshot review workflow - 2026-05-14:
   - source: Andreas asked whether failed checks can report what move broke a condition, shifting focus from binary pass/fail to WHY and WHEN users fail.
   - Acceptance: latest-game verifier payloads can include structured failure diagnostics such as failing condition id/label, move/ply number, SAN/UCI when available, FEN/position-at-break when reconstructable, provider game URL/deep link when available, and user-facing explanation; mobile/web check UI can show the first actionable break point and ideally render a small board for that position without changing completed-proof semantics.
 
-- [ ] SQC Mobile parity queue: complete explicit game/link proof submission.
+- [x] SQC Mobile parity queue: complete explicit game/link proof submission.
   - added_at: 2026-05-14 08:52 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: mobile feature parity matrix; next solo quest-loop gap after native start/check.
   - Acceptance: mobile can submit a specific Lichess game id or Chess.com URL to the active/selected quest and refresh the resulting proof receipt/account state.
+  - proof: added real `submit` handling to `/api/mobile/quest` for mobile specific-game proof. Mobile now normalizes Lichess IDs/URLs and Chess.com game URLs, reuses the same official-quest verifiers as the website for supported Lichess/Chess.com proof submissions, records the submitted attempt in account metadata, and updates active/completed account state; custom specific-game submissions stay safely guarded until a custom specific-game verifier exists. Verification passed: `pnpm --dir apps/mobile typecheck`, targeted ESLint for `apps/mobile/App.tsx`, `apps/mobile/src/api/sqc.ts`, and `src/app/api/mobile/quest/route.ts`, and full `pnpm mobile:release:check`.
 
-- [ ] SQC Mobile parity queue: submit specific game/link.
+- [x] SQC Mobile parity queue: submit specific game/link.
   - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: mobile feature parity matrix.
   - Acceptance: mobile can submit a Lichess game id or Chess.com URL against the active/selected quest and receive the same passed/failed/pending account state as website proof submission.
+  - proof: closed with the explicit game/link proof submission item above; `/api/mobile/quest` now handles `action=submit` for supported official Side Quest verifiers and updates the mobile account receipt/progress state. Verification passed: `pnpm --dir apps/mobile typecheck`, targeted ESLint, and full `pnpm mobile:release:check`.
 
 - [ ] SQC Mobile parity queue: reset/deactivate quest controls.
   - added_at: 2026-05-14 08:38 Europe/Stockholm
