@@ -10,8 +10,27 @@ Current API contracts:
 
 - `GET https://sidequestchess.com/api/mobile/bootstrap`
 - `GET https://sidequestchess.com/api/mobile/account`
+- `PATCH https://sidequestchess.com/api/mobile/profile`
+- `POST https://sidequestchess.com/api/mobile/quest`
+- `POST https://sidequestchess.com/api/mobile/support`
+- `POST https://sidequestchess.com/api/mobile/multiplayer`
 
 Bootstrap returns the live quest catalog and mobile compatibility metadata from the web backend. Account returns signed-out JSON when unauthenticated and backend-owned user/profile/progress/status/proof data when a Clerk session is present.
+
+## Distribution status
+
+Current public/internal distribution is GitHub Releases APK-only. There is no verified Play Store, App Store, TestFlight, or EAS Update production channel yet.
+
+Use the latest `mobile-v*` GitHub Release as the install candidate until a store track is explicitly cut. For each release candidate, verify and record:
+
+- GitHub release tag, APK filename, version name, and Android version code.
+- APK SHA256.
+- `application-debuggable` is absent/false.
+- Install + launch succeeds on a real signed Android device, not only an emulator.
+- Native Google sign-in succeeds through Clerk with `sidequestchess://sso-callback` configured.
+- Account sync, Solo start/check/explicit proof/reset, Custom Side Quest create/edit/lifecycle, Multiplayer create/join/leave/refresh/proof, support form, proof share/copy, and logout all work on device.
+
+Do not commit APKs, exported `dist-*` directories, or generated release artifacts.
 
 ## Local commands
 
@@ -50,23 +69,20 @@ The app also displays that redirect in the auth card so an on-device tester can 
 
 ## Current scope
 
-This is the Android preview shell, not the finished app. It currently:
+This is the Android launch-candidate shell. It currently:
 
 - loads the live web-backed quest catalog;
-- renders a mobile quest board, first-run tour, quest detail screen, and reward preview;
-- includes app-side state/screen shells for Catalog, Quest Detail, Account, Status, and Proof;
-- fetches the read-only account/status/proof API and renders signed-out or authenticated state;
-- installs the Clerk Expo provider foundation and safely waits for `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` before enabling mobile sessions;
-- attaches a Clerk bearer token to account refreshes when a signed-in Expo session is available;
-- includes explicit Android SSO redirect configuration and an on-device bearer-auth acceptance/rejection signal;
-- shows a Clerk readiness card so testers can tell public-browse mode from native Google SSO mode;
-- documents the anti-drift rule in-app;
+- renders native Home, Solo Side Quests, Multiplayer Side Quests, Account, Support, and Coat of Arms surfaces;
+- supports signed-out browsing and authenticated Clerk-backed account state;
+- supports chess username, runner display name, and brag-line profile editing;
+- supports Solo quest start, latest-game check, explicit game/link proof submission, reset, proof viewing, proof-link copy, and native proof sharing;
+- supports Custom/Community Solo browse, safe rule summaries, creator context, public-link sharing, report/support handoff, active proof controls, and saved-rule editing;
+- supports Multiplayer discovery, details, host context, create/join/leave/refresh/proof flows, report/support handoff, podium trophies, and shareable public links;
+- keeps raw custom quest config and private account metadata hidden from public/mobile display;
 - includes root EAS profiles for an internal Android APK preview.
 
 Next app milestones:
 
-1. Run the Android app/APK with `EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY` configured and `sidequestchess://sso-callback` allowed in Clerk; confirm whether `/api/mobile/account` accepts the Expo bearer token directly or needs a dedicated server-side Clerk request-auth helper.
-2. Add chess username connection/update flow.
-3. Add start/check/reset quest actions.
-4. Add proof image viewer and native share sheet.
-5. Run the first internal Android APK build once EAS auth/signing choices are ready.
+1. Run the latest GitHub Release APK on a real signed Android device and complete the full launch smoke checklist above.
+2. Decide and document the first store/public distribution channel beyond GitHub Releases APKs.
+3. Keep closing standalone parity gaps only when they directly affect app-first launch readiness.
