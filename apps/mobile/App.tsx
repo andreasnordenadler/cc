@@ -3007,6 +3007,16 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
     }
   }
 
+  async function openLegalPage(path: "/support" | "/terms", label: string) {
+    const url = new URL(path, getApiBaseUrl()).toString();
+
+    try {
+      await WebBrowser.openBrowserAsync(url);
+    } catch {
+      Alert.alert(`Could not open ${label}`, `Open ${url} in your browser.`);
+    }
+  }
+
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
       <SafeAreaView style={compactStyles.detailScreen}>
@@ -3035,6 +3045,19 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             <HelpSupportRow title="Connecting chess accounts" body={HELP_TOPICS.accounts.body} />
             <HelpSupportRow title="Multiplayer Side Quests" body={HELP_TOPICS.multiplayer.body} />
             <HelpSupportRow title="Coat of Arms" body={HELP_TOPICS.coat.body} />
+          </View>
+
+          <View style={compactStyles.multiplayerNativeCard}>
+            <Text style={compactStyles.multiplayerCardEyebrow}>Legal & privacy</Text>
+            <Text style={compactStyles.detailPanelCopy}>Open the same support/privacy notes and Terms of Use from the app. SQC only asks for public chess usernames and never chess-site passwords.</Text>
+            <View style={styles.buttonRow}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open SQC support and privacy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/support", "support and privacy")}>
+                <Text style={compactStyles.detailQuietButtonText}>Support & privacy</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open SQC Terms of Use" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/terms", "Terms of Use")}>
+                <Text style={compactStyles.detailQuietButtonText}>Terms of Use</Text>
+              </Pressable>
+            </View>
           </View>
 
           <View style={compactStyles.multiplayerNativeCard}>
