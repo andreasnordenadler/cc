@@ -7057,6 +7057,17 @@ function CompletedQuestProofCard({
     setShareStatus("Proof link copied.");
   }
 
+  async function openProofLink() {
+    if (!proofHref) return;
+
+    try {
+      await WebBrowser.openBrowserAsync(proofHref);
+      setShareStatus("Proof link opened.");
+    } catch {
+      setShareStatus("Could not open the proof link here.");
+    }
+  }
+
   function confirmReset() {
     Alert.alert(
       "Reset this completed Side Quest?",
@@ -7121,9 +7132,14 @@ function CompletedQuestProofCard({
         <Text style={compactStyles.detailSecondaryButtonText}>{proofHref ? "Share proof link" : "Share proof"}</Text>
       </Pressable>
       {proofHref ? (
-        <Pressable accessibilityRole="button" accessibilityLabel="Copy proof link" style={compactStyles.detailQuietButton} onPress={() => void copyProofLink()}>
-          <Text style={compactStyles.detailQuietButtonText}>Copy proof link</Text>
-        </Pressable>
+        <>
+          <Pressable accessibilityRole="button" accessibilityLabel="Open proof link" style={compactStyles.detailSecondaryButton} onPress={() => void openProofLink()}>
+            <Text style={compactStyles.detailSecondaryButtonText}>Open proof link</Text>
+          </Pressable>
+          <Pressable accessibilityRole="button" accessibilityLabel="Copy proof link" style={compactStyles.detailQuietButton} onPress={() => void copyProofLink()}>
+            <Text style={compactStyles.detailQuietButtonText}>Copy proof link</Text>
+          </Pressable>
+        </>
       ) : null}
       {shareStatus ? <Text style={compactStyles.inlineSuccess}>{shareStatus}</Text> : null}
 
