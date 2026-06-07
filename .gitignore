@@ -63,3 +63,9 @@ apps/mobile/android/
 apps/mobile/dist*/
 public/downloads/*.apk
 public/downloads/*.apk.sha256
+
+# local OpenClaw/session state and generated experiment leftovers
+/memory/
+/state/
+app.json
+tmp-seals.jpg
