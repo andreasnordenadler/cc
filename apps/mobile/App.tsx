@@ -7038,6 +7038,7 @@ function CompletedQuestProofCard({
 }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
   const proofHref = completedQuest.proofHref?.trim() || null;
+  const proofDetailLines = buildCompletedProofDetailLines(completedQuest, proofHref);
   const shareCopy = `I completed “${challenge.title}” in the Side Quest Chess app. ${completedQuest.badgeName} unlocked.${proofHref ? ` ${proofHref}` : ""}`;
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [shareStatus, setShareStatus] = useState<string | null>(null);
@@ -7125,7 +7126,17 @@ function CompletedQuestProofCard({
 
       <VictoryProofBoard proof={completedQuest} />
 
-      <Pressable accessibilityRole="button" accessibilityLabel="View proof details" style={compactStyles.detailPrimaryButton} onPress={() => Alert.alert("Proof details", `${challenge.title} is confirmed in the app. ${completedQuest.badgeName} unlocked.`)}>
+      <View style={compactStyles.proofScrollCard}>
+        <Text style={compactStyles.proofScrollEyebrow}>Receipt details</Text>
+        <Text style={compactStyles.proofScrollTitle}>Latest verified proof</Text>
+        <Text style={compactStyles.proofScrollCopy}>The app keeps the same proof receipt data as your SQC account: provider, game reference, final move, completion time, and canonical proof link when available.</Text>
+        <DetailRow label="Game" value={proofDetailLines.game} />
+        <DetailRow label="Final move" value={proofDetailLines.move} />
+        <DetailRow label="Completed" value={proofDetailLines.completed} />
+        <DetailRow label="Public proof" value={proofDetailLines.link} tone={proofHref ? "good" : "default"} />
+      </View>
+
+      <Pressable accessibilityRole="button" accessibilityLabel="View proof details" style={compactStyles.detailPrimaryButton} onPress={() => Alert.alert("Proof details", proofDetailLines.alert)}>
         <Text style={compactStyles.detailPrimaryButtonText}>Proof details</Text>
       </Pressable>
       <Pressable accessibilityRole="button" accessibilityLabel="Share proof" style={compactStyles.detailSecondaryButton} onPress={() => void shareProof()}>
@@ -7150,6 +7161,32 @@ function CompletedQuestProofCard({
       {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
     </View>
   );
+}
+
+function buildCompletedProofDetailLines(
+  completedQuest: MobileAccountState["completedQuests"][number],
+  proofHref: string | null,
+) {
+  const provider = completedQuest.provider?.trim() || "SQC verifier";
+  const game = completedQuest.gameId?.trim() ? `${provider} · ${completedQuest.gameId.trim()}` : provider;
+  const move = completedQuest.lastMoveSan?.trim() || completedQuest.lastMoveUci?.trim() || "Final move not attached";
+  const completed = formatLatestCheckTime(completedQuest.completedAt);
+  const link = proofHref ? "Canonical proof link available" : "No public proof link attached";
+
+  return {
+    game,
+    move,
+    completed,
+    link,
+    alert: [
+      `Quest: ${completedQuest.title}`,
+      `Coat of Arms: ${completedQuest.badgeName}`,
+      `Game: ${game}`,
+      `Final move: ${move}`,
+      `Completed: ${completed}`,
+      proofHref ? `Proof link: ${proofHref}` : "Proof link: not attached",
+    ].join("\n"),
+  };
 }
 
 function getCustomCoatPreviewUrl(_requirements: Array<Omit<CustomRuleRequirement, "id">>, _seed: string) {
