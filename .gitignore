@@ -59,5 +59,7 @@ apps/mobile/android/
 /tmp/
 /.worktrees/
 /artifacts/
+/dist/
+apps/mobile/dist*/
 public/downloads/*.apk
 public/downloads/*.apk.sha256
