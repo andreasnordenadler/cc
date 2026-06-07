@@ -218,6 +218,19 @@ function getReceiptFailureText(receipt?: MobileAccountState["latestReceipt"] | n
   return text.replace(/latest game checked\s*[—-]\s*side quest not completed\.?/i, "That game did not match this Side Quest goal.");
 }
 
+function normalizeProofGameReference(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const lichessMatch = trimmed.match(/lichess\.org\/(?:game\/)?([A-Za-z0-9]{8,12})/i);
+  if (lichessMatch?.[1]) return lichessMatch[1];
+
+  const chessComMatch = trimmed.match(/chess\.com\/game\/(?:live|daily)\/(\d+)/i);
+  if (chessComMatch?.[1]) return trimmed;
+
+  return trimmed;
+}
+
 function isGenericBoardDiagnostic(text: string) {
   return /final board from the same latest game/i.test(text) || /verified board attached to the completed quest/i.test(text);
 }
@@ -4185,10 +4198,10 @@ function QuestBoardDashboard({
           }
           setCustomDetailId(null);
         } : undefined}
-        onCheck={async (questId) => {
+        onCheck={async (questId, gameId) => {
           if (!authBridge.isSignedIn) throw new Error("Sign in first to check custom Side Quest proof.");
           const sessionToken = await authBridge.getSessionToken();
-          await runMobileQuestAction({ sessionToken, action: "check", challengeId: questId });
+          await runMobileQuestAction({ sessionToken, action: gameId ? "submit" : "check", challengeId: questId, gameId });
           const nextAccount = await Promise.resolve(onAccountUpdated());
           const coercedAccount = coerceAccountResponse(nextAccount);
           const refreshedReceipt = isAuthenticatedAccount(coercedAccount) && coercedAccount.latestReceipt?.challengeId === questId ? coercedAccount.latestReceipt : null;
@@ -5377,10 +5390,10 @@ function SideQuestsScreen({
           await startCustomSideQuest(questId);
           setCustomDetailId(null);
         }}
-        onCheck={async (questId) => {
+        onCheck={async (questId, gameId) => {
           if (!authBridge.isSignedIn) throw new Error("Sign in first to check custom Side Quest proof.");
           const sessionToken = await authBridge.getSessionToken();
-          await runMobileQuestAction({ sessionToken, action: "check", challengeId: questId });
+          await runMobileQuestAction({ sessionToken, action: gameId ? "submit" : "check", challengeId: questId, gameId });
           const nextAccount = await Promise.resolve(onAccountUpdated());
           const coercedAccount = coerceAccountResponse(nextAccount);
           const refreshedReceipt = isAuthenticatedAccount(coercedAccount) && coercedAccount.latestReceipt?.challengeId === questId ? coercedAccount.latestReceipt : null;
@@ -6535,6 +6548,7 @@ function SelectedQuestDetailCard({
 }) {
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [shareStatus, setShareStatus] = useState<string | null>(null);
+  const [proofGameReference, setProofGameReference] = useState("");
   const authenticated = isAuthenticatedAccount(account);
   const completed = authenticated ? account.progress.completedChallengeIds.includes(challenge.id) : false;
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
@@ -6546,20 +6560,26 @@ function SelectedQuestDetailCard({
     ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
     : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
 
-  async function runAction(action: "start" | "check" | "deactivate" | "reset") {
+  async function runAction(action: "start" | "check" | "submit" | "deactivate" | "reset") {
     if (!authenticated || !authBridge.isSignedIn) {
       setActionState({ busy: false, message: null, error: "Sign in first to save quest progress." });
+      return;
+    }
+
+    const explicitGameId = normalizeProofGameReference(proofGameReference);
+    if (action === "submit" && !explicitGameId) {
+      setActionState({ busy: false, message: null, error: "Paste a Lichess game ID or Chess.com game URL first." });
       return;
     }
 
     setActionState({ busy: true, message: null, error: null });
     try {
       const sessionToken = await authBridge.getSessionToken();
-      const result = await runMobileQuestAction({ sessionToken, action, challengeId: challenge.id });
+      const result = await runMobileQuestAction({ sessionToken, action, challengeId: challenge.id, gameId: action === "submit" ? explicitGameId : undefined });
       const nextAccount = await Promise.resolve(onAccountUpdated());
       const coercedAccount = coerceAccountResponse(nextAccount);
       const refreshedReceipt = isAuthenticatedAccount(coercedAccount) && coercedAccount.latestReceipt?.challengeId === challenge.id ? coercedAccount.latestReceipt : null;
-      setActionState({ busy: false, message: action === "check" ? getCheckActionMessage(refreshedReceipt) : result.message, error: null });
+      setActionState({ busy: false, message: action === "check" || action === "submit" ? getCheckActionMessage(refreshedReceipt) : result.message, error: null });
       if (action === "start") {
         onSelectTab("home");
       }
@@ -6610,11 +6630,21 @@ function SelectedQuestDetailCard({
         <View style={styles.proofActionCard}>
           <Text style={styles.proofActionTitle}>{actionTitle}</Text>
           <Text style={styles.proofActionBody}>{actionBody}</Text>
+          {activeQuest ? (
+            <View style={styles.inputStack}>
+              <Text style={styles.inputLabel}>Specific proof game</Text>
+              <TextInput value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
+              <Text style={styles.microcopy}>Optional: paste a finished public game to check that exact proof instead of only the latest game.</Text>
+            </View>
+          ) : null}
           <View style={[styles.buttonRow, activeQuest ? null : styles.centeredButtonRow]}>
             {activeQuest ? (
               <>
                 <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
                   <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking..." : "Check latest game"}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("submit")}>
+                  <Text style={styles.secondaryButtonText}>Submit game/link</Text>
                 </Pressable>
                 <Pressable accessibilityRole="button" accessibilityLabel="Reset quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("reset")}>
                   <Text style={styles.secondaryButtonText}>Reset quest</Text>
@@ -6666,7 +6696,7 @@ function CustomSideQuestDetailModal({
   latestReceipt?: MobileAccountState["latestReceipt"] | null;
   onClose: () => void;
   onStart: (questId: string) => Promise<void> | void;
-  onCheck?: (questId: string) => Promise<string | void> | string | void;
+  onCheck?: (questId: string, gameId?: string) => Promise<string | void> | string | void;
   onReset?: (questId: string) => Promise<string | void> | string | void;
   onEdit?: (quest: CustomLibraryQuest) => void;
   onDuplicate?: (quest: CustomLibraryQuest) => Promise<void> | void;
@@ -6678,9 +6708,10 @@ function CustomSideQuestDetailModal({
   onUseInMultiplayer?: (quest: CustomLibraryQuest) => void;
 }) {
   const [busy, setBusy] = useState(false);
-  const [proofBusy, setProofBusy] = useState<"check" | "reset" | null>(null);
+  const [proofBusy, setProofBusy] = useState<"check" | "submit" | "reset" | null>(null);
   const [proofMessage, setProofMessage] = useState<string | null>(null);
   const [proofError, setProofError] = useState<string | null>(null);
+  const [proofGameReference, setProofGameReference] = useState("");
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   if (!quest) return null;
@@ -6700,18 +6731,24 @@ function CustomSideQuestDetailModal({
     }
   }
 
-  async function handleProofAction(action: "check" | "reset") {
+  async function handleProofAction(action: "check" | "submit" | "reset") {
     if (!quest || proofBusy) return;
-    const handler = action === "check" ? onCheck : onReset;
+    const handler = action === "reset" ? onReset : onCheck;
     if (!handler) return;
+    const explicitGameId = normalizeProofGameReference(proofGameReference);
+    if (action === "submit" && !explicitGameId) {
+      setProofMessage(null);
+      setProofError("Paste a Lichess game ID or Chess.com game URL first.");
+      return;
+    }
     setProofBusy(action);
     setProofMessage(null);
     setProofError(null);
     try {
-      const message = await handler(quest.id);
-      setProofMessage(message || (action === "check" ? "Proof check finished." : "Custom Side Quest reset."));
+      const message = action === "reset" ? await handler(quest.id) : await handler(quest.id, action === "submit" ? explicitGameId : undefined);
+      setProofMessage(message || (action === "reset" ? "Custom Side Quest reset." : "Proof check finished."));
     } catch (caught) {
-      setProofError(caught instanceof Error ? caught.message : action === "check" ? "Could not check this custom Side Quest." : "Could not reset this custom Side Quest.");
+      setProofError(caught instanceof Error ? caught.message : action === "reset" ? "Could not reset this custom Side Quest." : "Could not check this custom Side Quest.");
     } finally {
       setProofBusy(null);
     }
@@ -6854,10 +6891,20 @@ function CustomSideQuestDetailModal({
             <View style={styles.proofActionCard}>
               <Text style={styles.proofActionTitle}>{quest.name} is active.</Text>
               <Text style={styles.proofActionBody}>Play one new eligible public game after picking this custom Side Quest, then check your latest game for proof.</Text>
+              <View style={styles.inputStack}>
+                <Text style={styles.inputLabel}>Specific proof game</Text>
+                <TextInput value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
+                <Text style={styles.microcopy}>Optional: paste a finished public game to check this exact custom Side Quest proof.</Text>
+              </View>
               <View style={styles.buttonRow}>
                 {onCheck ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Check latest game for custom Side Quest" style={styles.primaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("check")}>
                     <Text style={styles.primaryButtonText}>{proofBusy === "check" ? "Checking..." : "Check latest game"}</Text>
+                  </Pressable>
+                ) : null}
+                {onCheck ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof for custom Side Quest" style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("submit")}>
+                    <Text style={styles.secondaryButtonText}>{proofBusy === "submit" ? "Checking..." : "Submit game/link"}</Text>
                   </Pressable>
                 ) : null}
                 {onReset ? (
