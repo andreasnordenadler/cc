@@ -2248,17 +2248,21 @@ Screenshot review workflow - 2026-05-14:
   - Acceptance: define and start native mobile support for public multiplayer list, create/join, room state, leaderboard, and proof states without changing frozen website features.
   - proof: native Multiplayer now has backend-shaped public/joined/hosted room lists, create/join/leave/refresh/update/remove actions, room detail rules, included quest rows, proof-state controls, and live leaderboard payloads from `/api/mobile/account`; this pass removed the final hard-coded modal leaderboard fallback so empty rooms show an honest live-data empty state instead of fake player rows. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and full `pnpm mobile:release:check`.
 
-- [ ] SQC mobile launch blocker: make Multiplayer Side Quest join/leave/refresh real.
+- [x] SQC mobile launch blocker: make Multiplayer Side Quest join/leave/refresh real.
   - added_at: 2026-05-24 20:12 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: Andreas asked for a full launch-readiness review, then told Sam to start executing the findings.
   - scope: replace placeholder native Multiplayer modal actions with real mobile-backed join, leave, and proof-refresh behavior; refresh account state after each action; preserve website freeze.
   - acceptance: native public room `Join quest`, joined room `Leave quest`, and pull-to-refresh all hit real mobile API routes, update persisted multiplayer membership/progress, and re-render the room/account state in the app.
+  - proof: closed by the current mobile Multiplayer implementation: native public/joined/official room sheets call `runMobileGroupQuestAction` for `join`, `leave`, and `refresh`, refresh the authenticated account mirror after each mutation, show per-room success/error state, and keep pull-to-refresh wired to live bootstrap/account reloads. Verification evidence from the related shipped commits passed `pnpm --dir apps/mobile typecheck`, targeted mobile ESLint, and full `pnpm mobile:release:check`.
 
-- [ ] SQC mobile launch blocker: replace preview/demo multiplayer room content with live room payloads.
+- [x] SQC mobile launch blocker: replace preview/demo multiplayer room content with live room payloads.
   - added_at: 2026-05-24 20:12 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: launch-readiness findings from emulator review.
   - scope: mobile account payload should deliver truthful included quests, verified counts, points, rules, and leaderboard rows for joined/public official rooms instead of fallback/demo-only room shaping.
   - acceptance: joined/public official Multiplayer room modals render from backend room data and stay coherent after join/leave/refresh.
+  - proof: closed by the current backend-driven Multiplayer payload work: mobile account/bootstrap data now supplies joined/hosted/public/official room lanes, included quest rows, rules, proof states, standings, and live leaderboard rows; the hard-coded modal leaderboard fallback was removed so empty rooms render an honest live-data empty state instead of fake player rows. Verification evidence from the related shipped commits passed `pnpm --dir apps/mobile typecheck`, targeted mobile ESLint, and full `pnpm mobile:release:check`.
 
 ## Approved UI polish — Quest Hub order — 2026-05-09
 
