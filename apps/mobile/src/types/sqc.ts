@@ -38,6 +38,21 @@ export type MobileChallenge = {
   };
 };
 
+export type MobileDiscoveryChoice = {
+  id: string;
+  label: string;
+  copy: string;
+  cta: string;
+  challengeId: string;
+};
+
+export type MobileDiscoveryGroup = {
+  id: string;
+  title: string;
+  copy: string;
+  challengeIds: string[];
+};
+
 export type MobileBootstrap = {
   apiVersion: number;
   generatedAt: string;
@@ -50,6 +65,11 @@ export type MobileBootstrap = {
   mobile: {
     minimumSupportedApiVersion: number;
     recommendedUpdatePolicy: string;
+  };
+  discovery?: {
+    suggestedPath?: MobileDiscoveryChoice[];
+    randomPoolIds?: string[];
+    questHubGroups?: MobileDiscoveryGroup[];
   };
   challenges: MobileChallenge[];
 };

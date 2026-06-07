@@ -2234,10 +2234,12 @@ Screenshot review workflow - 2026-05-14:
   - Acceptance: mobile can display latest proof/receipt with coat art, open proof URL, and share native text/link/image where supported.
   - proof: completed proof cards already showed coat art, proof board, native share, open-link, and copy-link actions; this pass added an in-app receipt-details panel and expanded proof details to show provider/game reference, final move, completion time, and canonical proof-link availability without exposing private account data. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and full `pnpm mobile:release:check`.
 
-- [ ] SQC Mobile parity queue: discovery/path/random parity.
+- [x] SQC Mobile parity queue: discovery/path/random parity.
   - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: mobile feature parity matrix.
   - Acceptance: mobile supports website-equivalent suggested path, random quest, and Quest Hub grouping/filter context using backend-driven quest data.
+  - proof: added backend-driven mobile discovery metadata to `/api/mobile/bootstrap` (`suggestedPath`, `randomPoolIds`, and `questHubGroups`) and wired the native app to use it for Home suggested-path choices, random Solo Side Quest selection, and a Quest Hub context lane on the Solo Side Quest deck. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx apps/mobile/src/types/sqc.ts src/app/api/mobile/bootstrap/route.ts`, and full `pnpm mobile:release:check`. No APK release was created in this run; the change is ready for the next mobile version cut.
 
 - [ ] SQC Mobile parity queue: Multiplayer Side Quest parity plan and first native read slice.
   - added_at: 2026-05-14 08:38 Europe/Stockholm

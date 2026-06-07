@@ -4901,39 +4901,47 @@ function HomeScreen({
   const signedInAccount = isAuthenticatedAccount(account) ? account : null;
   const isSignedIn = Boolean(signedInAccount);
   const completedChallengeIds = new Set(signedInAccount?.progress.completedChallengeIds ?? []);
-  const randomChallengePool = bootstrap.challenges.filter((challenge) => challenge.id !== signedInAccount?.activeQuest?.id && !completedChallengeIds.has(challenge.id));
-  const randomFallbackPool = randomChallengePool.length > 0 ? randomChallengePool : bootstrap.challenges;
+  const backendRandomIds = bootstrap.discovery?.randomPoolIds ?? [];
+  const backendRandomIdSet = new Set(backendRandomIds);
+  const backendRandomPool = backendRandomIds.length ? bootstrap.challenges.filter((challenge) => backendRandomIdSet.has(challenge.id)) : bootstrap.challenges;
+  const randomChallengePool = backendRandomPool.filter((challenge) => challenge.id !== signedInAccount?.activeQuest?.id && !completedChallengeIds.has(challenge.id));
+  const randomFallbackPool = randomChallengePool.length > 0 ? randomChallengePool : backendRandomPool;
   const handleRandomSoloQuest = () => {
     if (randomFallbackPool.length === 0) return;
 
     const challenge = randomFallbackPool[Math.floor(Math.random() * randomFallbackPool.length)];
     onSelectChallenge(challenge.id, "sideQuests");
   };
-  const heroismChoices = [
+  const fallbackSuggestedPath = [
     {
+      id: "cautiously-heroic",
       label: "Cautiously heroic",
       copy: "I want chaos, but survivable.",
       cta: "Start with Knights Before Coffee",
       challengeId: "knights-before-coffee",
     },
     {
+      id: "recklessly-meaningful",
       label: "Recklessly meaningful",
       copy: "I can handle one objectively bad idea.",
       cta: "Try No Castle Club",
       challengeId: "no-castle-club",
     },
     {
+      id: "historically-unwise",
       label: "Historically unwise",
       copy: "I am here to become a cautionary tale.",
       cta: "Lose the queen, win anyway",
       challengeId: "queen-never-heard-of-her",
     },
-  ]
+  ];
+  const suggestedPath = bootstrap.discovery?.suggestedPath?.length ? bootstrap.discovery.suggestedPath : fallbackSuggestedPath;
+  const heroismChoices = suggestedPath
     .map((option) => {
       const challenge = bootstrap.challenges.find((candidate) => candidate.id === option.challengeId);
       return challenge ? { ...option, challenge } : null;
     })
-    .filter((entry): entry is { label: string; copy: string; cta: string; challengeId: string; challenge: MobileChallenge } => Boolean(entry));
+    .filter((entry): entry is { id: string; label: string; copy: string; cta: string; challengeId: string; challenge: MobileChallenge } => Boolean(entry));
 
   return (
     <View style={styles.screenStack}>
@@ -5196,6 +5204,7 @@ function SideQuestsScreen({
   const activeQuestId = signedInAccount?.activeQuest && !signedInAccount.activeQuest.completed ? signedInAccount.activeQuest.id : null;
   const availableCount = bootstrap.challenges.length;
   const completedCount = completedIds.size;
+  const questHubGroups = bootstrap.discovery?.questHubGroups ?? [];
   const [customCreateOpen, setCustomCreateOpen] = useState(false);
   const [customDetailId, setCustomDetailId] = useState<string | null>(null);
   const [sideQuestCatalogTab, setSideQuestCatalogTab] = useState<"official" | "community">("official");
@@ -5411,6 +5420,32 @@ function SideQuestsScreen({
         <Text style={styles.sectionTitle}>Solo Side Quest deck</Text>
         <Text style={styles.sectionBody}>Tap a Coat of Arms to review the rule, then start the Side Quest you want SQC to judge next.</Text>
       </View>
+
+      {questHubGroups.length ? (
+        <View style={compactStyles.multiplayerNativeCard}>
+          <Text style={compactStyles.multiplayerCardEyebrow}>Quest Hub context</Text>
+          <Text style={compactStyles.multiplayerCardTitle}>Browse by path, lane, or proof loop.</Text>
+          <Text style={styles.sectionBody}>These mobile lanes come from the SQC backend, so the app can follow website-equivalent Quest Hub grouping without a native update.</Text>
+          <View style={compactStyles.appRows}>
+            {questHubGroups.map((group) => {
+              const firstChallenge = bootstrap.challenges.find((challenge) => challenge.id === group.challengeIds[0]);
+              if (!firstChallenge) return null;
+
+              return (
+                <AppRow
+                  key={group.id}
+                  title={group.title}
+                  meta={`${group.copy} · ${group.challengeIds.length} quest${group.challengeIds.length === 1 ? "" : "s"}`}
+                  status="Open"
+                  imageSource={getChallengeCoatImageSource(firstChallenge)}
+                  onPress={() => onSelectChallenge(firstChallenge.id, "sideQuests")}
+                />
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
+
       <AvailableQuestGrid challenges={bootstrap.challenges} completedIds={completedIds} activeQuestId={activeQuestId} onSelectChallenge={onSelectChallenge} />
 
       <CustomSideQuestDetailModal

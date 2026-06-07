@@ -3,6 +3,21 @@ import { CHALLENGES } from "@/lib/challenges";
 
 export const runtime = "edge";
 
+type MobileDiscoveryChoice = {
+  id: string;
+  label: string;
+  copy: string;
+  cta: string;
+  challengeId: string;
+};
+
+type MobileDiscoveryGroup = {
+  id: string;
+  title: string;
+  copy: string;
+  challengeIds: string[];
+};
+
 type MobileChallengeCard = {
   id: string;
   title: string;
@@ -45,6 +60,12 @@ type MobileChallengeCard = {
 
 export async function GET(request: Request) {
   const baseUrl = new URL(request.url).origin;
+  const challengeIds = new Set(CHALLENGES.map((challenge) => challenge.id));
+  const suggestedPath = buildSuggestedPath(challengeIds);
+  const randomPoolIds = CHALLENGES
+    .filter((challenge) => !challenge.id.includes("coming-soon"))
+    .map((challenge) => challenge.id);
+  const questHubGroups = buildQuestHubGroups(challengeIds);
 
   return NextResponse.json({
     apiVersion: 1,
@@ -58,6 +79,11 @@ export async function GET(request: Request) {
     mobile: {
       minimumSupportedApiVersion: 1,
       recommendedUpdatePolicy: "app follows backend quest/catalog/proof state; app update only required for native shell or contract changes",
+    },
+    discovery: {
+      suggestedPath,
+      randomPoolIds,
+      questHubGroups,
     },
     challenges: CHALLENGES.map((challenge): MobileChallengeCard => ({
       id: challenge.id,
@@ -85,4 +111,56 @@ export async function GET(request: Request) {
       },
     })),
   });
+}
+
+
+function buildSuggestedPath(challengeIds: Set<string>): MobileDiscoveryChoice[] {
+  return [
+    {
+      id: "cautiously-heroic",
+      label: "Cautiously heroic",
+      copy: "I want chaos, but survivable.",
+      cta: "Start with Knights Before Coffee",
+      challengeId: "knights-before-coffee",
+    },
+    {
+      id: "recklessly-meaningful",
+      label: "Recklessly meaningful",
+      copy: "I can handle one objectively bad idea.",
+      cta: "Try No Castle Club",
+      challengeId: "no-castle-club",
+    },
+    {
+      id: "historically-unwise",
+      label: "Historically unwise",
+      copy: "I am here to become a cautionary tale.",
+      cta: "Lose the queen, win anyway",
+      challengeId: "queen-never-heard-of-her",
+    },
+  ].filter((choice) => challengeIds.has(choice.challengeId));
+}
+
+function buildQuestHubGroups(challengeIds: Set<string>): MobileDiscoveryGroup[] {
+  return [
+    {
+      id: "recommended-start",
+      title: "Recommended starting path",
+      copy: "Start here when you want SQC to pick a sensible first bad idea.",
+      challengeIds: ["knights-before-coffee", "no-castle-club", "finish-any-game"],
+    },
+    {
+      id: "streamer-hard",
+      title: "Streamer-hard lane",
+      copy: "Harder quests built for clip-worthy attempts, not quiet dignity.",
+      challengeIds: ["queen-never-heard-of-her", "knightmare-mode", "rookless-rampage"],
+    },
+    {
+      id: "quick-proof",
+      title: "Quick proof loop",
+      copy: "Good candidates when you want to test pick, play, prove, collect quickly.",
+      challengeIds: ["finish-any-game", "knights-before-coffee"],
+    },
+  ]
+    .map((group) => ({ ...group, challengeIds: group.challengeIds.filter((id) => challengeIds.has(id)) }))
+    .filter((group) => group.challengeIds.length > 0);
 }
