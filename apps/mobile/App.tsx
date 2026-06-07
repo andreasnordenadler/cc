@@ -4208,9 +4208,9 @@ function QuestBoardDashboard({
           return getCheckActionMessage(refreshedReceipt);
         }}
         onReset={async (questId) => {
-          if (!authBridge.isSignedIn) throw new Error("Sign in first to reset this custom Side Quest.");
+          if (!authBridge.isSignedIn) throw new Error("Sign in first to deactivate this custom Side Quest.");
           const sessionToken = await authBridge.getSessionToken();
-          const result = await runMobileQuestAction({ sessionToken, action: "reset", challengeId: questId });
+          const result = await runMobileQuestAction({ sessionToken, action: "deactivate", challengeId: questId });
           await Promise.resolve(onAccountUpdated());
           return result.message;
         }}
@@ -5412,9 +5412,9 @@ function SideQuestsScreen({
           return getCheckActionMessage(refreshedReceipt);
         }}
         onReset={async (questId) => {
-          if (!authBridge.isSignedIn) throw new Error("Sign in first to reset this custom Side Quest.");
+          if (!authBridge.isSignedIn) throw new Error("Sign in first to deactivate this custom Side Quest.");
           const sessionToken = await authBridge.getSessionToken();
-          const result = await runMobileQuestAction({ sessionToken, action: "reset", challengeId: questId });
+          const result = await runMobileQuestAction({ sessionToken, action: "deactivate", challengeId: questId });
           await Promise.resolve(onAccountUpdated());
           return result.message;
         }}
@@ -6572,6 +6572,19 @@ function SelectedQuestDetailCard({
     ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
     : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
 
+  function confirmLifecycleAction(action: "deactivate" | "reset") {
+    Alert.alert(
+      action === "deactivate" ? "Deactivate this Side Quest?" : "Reset this completed Side Quest?",
+      action === "deactivate"
+        ? "This clears the active run, but keeps any completed proof and coats you already earned."
+        : "This removes the completed proof, receipt attempts, and coat unlock for this Side Quest so you can run it again.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: action === "deactivate" ? "Deactivate" : "Reset", style: action === "reset" ? "destructive" : "default", onPress: () => void runAction(action) },
+      ],
+    );
+  }
+
   async function runAction(action: "start" | "check" | "submit" | "deactivate" | "reset") {
     if (!authenticated || !authBridge.isSignedIn) {
       setActionState({ busy: false, message: null, error: "Sign in first to save quest progress." });
@@ -6658,8 +6671,8 @@ function SelectedQuestDetailCard({
                 <Pressable accessibilityRole="button" accessibilityLabel="Submit specific game proof" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("submit")}>
                   <Text style={styles.secondaryButtonText}>Submit game/link</Text>
                 </Pressable>
-                <Pressable accessibilityRole="button" accessibilityLabel="Reset quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => void runAction("reset")}>
-                  <Text style={styles.secondaryButtonText}>Reset quest</Text>
+                <Pressable accessibilityRole="button" accessibilityLabel="Deactivate quest" style={styles.secondaryButton} disabled={actionState.busy} onPress={() => confirmLifecycleAction("deactivate")}>
+                  <Text style={styles.secondaryButtonText}>Deactivate quest</Text>
                 </Pressable>
               </>
             ) : (
@@ -6743,6 +6756,18 @@ function CustomSideQuestDetailModal({
     }
   }
 
+  function confirmProofReset() {
+    if (!quest || proofBusy) return;
+    Alert.alert(
+      "Deactivate this custom Side Quest?",
+      "This clears the active run and latest active receipt, but keeps any completed proof and custom quest recipe.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Deactivate", onPress: () => void handleProofAction("reset") },
+      ],
+    );
+  }
+
   async function handleProofAction(action: "check" | "submit" | "reset") {
     if (!quest || proofBusy) return;
     const handler = action === "reset" ? onReset : onCheck;
@@ -6758,9 +6783,9 @@ function CustomSideQuestDetailModal({
     setProofError(null);
     try {
       const message = action === "reset" ? await handler(quest.id) : await handler(quest.id, action === "submit" ? explicitGameId : undefined);
-      setProofMessage(message || (action === "reset" ? "Custom Side Quest reset." : "Proof check finished."));
+      setProofMessage(message || (action === "reset" ? "Custom Side Quest deactivated." : "Proof check finished."));
     } catch (caught) {
-      setProofError(caught instanceof Error ? caught.message : action === "reset" ? "Could not reset this custom Side Quest." : "Could not check this custom Side Quest.");
+      setProofError(caught instanceof Error ? caught.message : action === "reset" ? "Could not deactivate this custom Side Quest." : "Could not check this custom Side Quest.");
     } finally {
       setProofBusy(null);
     }
@@ -6920,8 +6945,8 @@ function CustomSideQuestDetailModal({
                   </Pressable>
                 ) : null}
                 {onReset ? (
-                  <Pressable accessibilityRole="button" accessibilityLabel="Reset custom Side Quest" style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("reset")}>
-                    <Text style={styles.secondaryButtonText}>{proofBusy === "reset" ? "Resetting..." : "Reset quest"}</Text>
+                  <Pressable accessibilityRole="button" accessibilityLabel="Deactivate custom Side Quest" style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={confirmProofReset}>
+                    <Text style={styles.secondaryButtonText}>{proofBusy === "reset" ? "Deactivating..." : "Deactivate quest"}</Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -7032,6 +7057,17 @@ function CompletedQuestProofCard({
     setShareStatus("Proof link copied.");
   }
 
+  function confirmReset() {
+    Alert.alert(
+      "Reset this completed Side Quest?",
+      "This removes the completed proof, receipt attempts, and coat unlock for this Side Quest so you can run it again.",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Reset", style: "destructive", onPress: () => void runReset() },
+      ],
+    );
+  }
+
   async function runReset() {
     if (!authBridge.isSignedIn) {
       setActionState({ busy: false, message: null, error: "Sign in first to reset this Side Quest." });
@@ -7091,7 +7127,7 @@ function CompletedQuestProofCard({
       ) : null}
       {shareStatus ? <Text style={compactStyles.inlineSuccess}>{shareStatus}</Text> : null}
 
-      <Pressable accessibilityRole="button" accessibilityLabel="Reset Side Quest" style={compactStyles.detailQuietButton} disabled={actionState.busy} onPress={() => void runReset()}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Reset Side Quest" style={compactStyles.detailQuietButton} disabled={actionState.busy} onPress={confirmReset}>
         <Text style={compactStyles.detailQuietButtonText}>{actionState.busy ? "Resetting..." : "Reset Side Quest"}</Text>
       </Pressable>
       {actionState.message ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}

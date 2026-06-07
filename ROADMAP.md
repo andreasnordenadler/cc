@@ -2220,10 +2220,12 @@ Screenshot review workflow - 2026-05-14:
   - Acceptance: mobile can submit a Lichess game id or Chess.com URL against the active/selected quest and receive the same passed/failed/pending account state as website proof submission.
   - proof: closed with the explicit game/link proof submission item above; `/api/mobile/quest` now handles `action=submit` for supported official Side Quest verifiers and updates the mobile account receipt/progress state. Verification passed: `pnpm --dir apps/mobile typecheck`, targeted ESLint, and full `pnpm mobile:release:check`.
 
-- [ ] SQC Mobile parity queue: reset/deactivate quest controls.
+- [x] SQC Mobile parity queue: reset/deactivate quest controls.
   - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: mobile feature parity matrix.
   - Acceptance: mobile can safely deactivate active quests and reset completed quests with confirmation, matching website semantics and data-risk protections.
+  - proof: official Solo active details now use the existing backend `deactivate` action behind a confirmation dialog, Custom/Community Solo active details deactivate instead of destructive-resetting active runs, and completed proof reset remains available behind destructive confirmation copy that warns it removes proof/receipt/coat unlock state. Verification passed: `pnpm --dir apps/mobile typecheck`, targeted ESLint for `apps/mobile/App.tsx`, `apps/mobile/src/api/sqc.ts`, and `src/app/api/mobile/quest/route.ts`, and full `pnpm mobile:release:check`. No APK release was created in this run; the change is ready for the next mobile version cut.
 
 - [ ] SQC Mobile parity queue: proof viewer and native share sheet.
   - added_at: 2026-05-14 08:38 Europe/Stockholm
