@@ -2,6 +2,19 @@
 
 Use this checklist before calling an APK launch-ready. Emulator-only smoke is useful, but it does **not** close the signed-device launch gate.
 
+## Distribution rule
+
+Until a store/TestFlight/Play track is explicitly cut, the launch candidate is the latest non-draft `mobile-v*` GitHub Release APK. Do not install from a local `dist-*` directory for the real-device gate.
+
+Current candidate to smoke:
+
+- GitHub Release tag: `mobile-v248`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v248>
+- APK filename: `sqc-mobile-android-v248-2026-06-07.apk`
+- Version name: `0.1.248`
+- Android version code: `248`
+- APK SHA256: `79c37cd9d97c24d9caea466991415debf96096bbe22ca7087a45558e1ddbe8a3`
+
 ## Candidate identity
 
 - GitHub Release tag:
