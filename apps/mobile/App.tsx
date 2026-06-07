@@ -3706,6 +3706,7 @@ function QuestBoardDashboard({
     .sort((a, b) => getCustomQuestUpdatedMs(b) - getCustomQuestUpdatedMs(a));
   const customDetailDraft = customDetailId ? [...visibleCustomDrafts, ...publicCommunityQuests].find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedIn ? signedIn.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
+  const customDetailLatestReceipt = customDetailDraft && signedIn?.latestReceipt?.challengeId === customDetailDraft.id ? signedIn.latestReceipt : null;
   const customDetailActive = Boolean(customDetailDraft && activeId === customDetailDraft.id);
   const customDetailOwned = Boolean(customDetailDraft && visibleCustomDrafts.some((draft) => draft.id === customDetailDraft.id));
   const currentCustomRequirement = {
@@ -4157,6 +4158,7 @@ function QuestBoardDashboard({
         active={customDetailActive}
         completed={Boolean(customDetailCompletedQuest)}
         completedAt={customDetailCompletedQuest?.completedAt ?? null}
+        latestReceipt={customDetailLatestReceipt}
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
@@ -4183,6 +4185,22 @@ function QuestBoardDashboard({
           }
           setCustomDetailId(null);
         } : undefined}
+        onCheck={async (questId) => {
+          if (!authBridge.isSignedIn) throw new Error("Sign in first to check custom Side Quest proof.");
+          const sessionToken = await authBridge.getSessionToken();
+          await runMobileQuestAction({ sessionToken, action: "check", challengeId: questId });
+          const nextAccount = await Promise.resolve(onAccountUpdated());
+          const coercedAccount = coerceAccountResponse(nextAccount);
+          const refreshedReceipt = isAuthenticatedAccount(coercedAccount) && coercedAccount.latestReceipt?.challengeId === questId ? coercedAccount.latestReceipt : null;
+          return getCheckActionMessage(refreshedReceipt);
+        }}
+        onReset={async (questId) => {
+          if (!authBridge.isSignedIn) throw new Error("Sign in first to reset this custom Side Quest.");
+          const sessionToken = await authBridge.getSessionToken();
+          const result = await runMobileQuestAction({ sessionToken, action: "reset", challengeId: questId });
+          await Promise.resolve(onAccountUpdated());
+          return result.message;
+        }}
         onSaveState={customDetailOwned ? async (quest, next) => {
           if (!authBridge.isSignedIn) {
             setCustomDrafts((current) => current.map((draft) => draft.id === quest.id ? { ...draft, lifecycle: next.lifecycle ?? draft.lifecycle, visibility: next.visibility ?? draft.visibility } : draft));
@@ -5157,6 +5175,7 @@ function SideQuestsScreen({
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
   const customDetailDraft = customDetailId ? visibleCustomDrafts.find((draft) => draft.id === customDetailId) ?? null : null;
   const customDetailCompletedQuest = customDetailDraft && signedInAccount ? signedInAccount.completedQuests.find((quest) => quest.id === customDetailDraft.id) ?? null : null;
+  const customDetailLatestReceipt = customDetailDraft && signedInAccount?.latestReceipt?.challengeId === customDetailDraft.id ? signedInAccount.latestReceipt : null;
   const customDetailActive = Boolean(customDetailDraft && activeQuestId === customDetailDraft.id);
   const currentCustomRequirement = {
     piece: customRulePiece,
@@ -5352,10 +5371,27 @@ function SideQuestsScreen({
         active={customDetailActive}
         completed={Boolean(customDetailCompletedQuest)}
         completedAt={customDetailCompletedQuest?.completedAt ?? null}
+        latestReceipt={customDetailLatestReceipt}
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
           setCustomDetailId(null);
+        }}
+        onCheck={async (questId) => {
+          if (!authBridge.isSignedIn) throw new Error("Sign in first to check custom Side Quest proof.");
+          const sessionToken = await authBridge.getSessionToken();
+          await runMobileQuestAction({ sessionToken, action: "check", challengeId: questId });
+          const nextAccount = await Promise.resolve(onAccountUpdated());
+          const coercedAccount = coerceAccountResponse(nextAccount);
+          const refreshedReceipt = isAuthenticatedAccount(coercedAccount) && coercedAccount.latestReceipt?.challengeId === questId ? coercedAccount.latestReceipt : null;
+          return getCheckActionMessage(refreshedReceipt);
+        }}
+        onReset={async (questId) => {
+          if (!authBridge.isSignedIn) throw new Error("Sign in first to reset this custom Side Quest.");
+          const sessionToken = await authBridge.getSessionToken();
+          const result = await runMobileQuestAction({ sessionToken, action: "reset", challengeId: questId });
+          await Promise.resolve(onAccountUpdated());
+          return result.message;
         }}
         onDuplicate={async (quest) => {
           if (!authBridge.isSignedIn) return Alert.alert("Sign in required", "Sign in to duplicate saved custom Side Quests.");
@@ -6608,8 +6644,11 @@ function CustomSideQuestDetailModal({
   active,
   completed,
   completedAt,
+  latestReceipt,
   onClose,
   onStart,
+  onCheck,
+  onReset,
   onEdit,
   onDuplicate,
   onDelete,
@@ -6624,8 +6663,11 @@ function CustomSideQuestDetailModal({
   active: boolean;
   completed: boolean;
   completedAt: string | null;
+  latestReceipt?: MobileAccountState["latestReceipt"] | null;
   onClose: () => void;
   onStart: (questId: string) => Promise<void> | void;
+  onCheck?: (questId: string) => Promise<string | void> | string | void;
+  onReset?: (questId: string) => Promise<string | void> | string | void;
   onEdit?: (quest: CustomLibraryQuest) => void;
   onDuplicate?: (quest: CustomLibraryQuest) => Promise<void> | void;
   onDelete?: (questId: string) => Promise<void> | void;
@@ -6636,6 +6678,9 @@ function CustomSideQuestDetailModal({
   onUseInMultiplayer?: (quest: CustomLibraryQuest) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [proofBusy, setProofBusy] = useState<"check" | "reset" | null>(null);
+  const [proofMessage, setProofMessage] = useState<string | null>(null);
+  const [proofError, setProofError] = useState<string | null>(null);
   const [manageBusy, setManageBusy] = useState<"duplicate" | "delete" | "state" | null>(null);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   if (!quest) return null;
@@ -6652,6 +6697,23 @@ function CustomSideQuestDetailModal({
       await onStart(quest.id);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function handleProofAction(action: "check" | "reset") {
+    if (!quest || proofBusy) return;
+    const handler = action === "check" ? onCheck : onReset;
+    if (!handler) return;
+    setProofBusy(action);
+    setProofMessage(null);
+    setProofError(null);
+    try {
+      const message = await handler(quest.id);
+      setProofMessage(message || (action === "check" ? "Proof check finished." : "Custom Side Quest reset."));
+    } catch (caught) {
+      setProofError(caught instanceof Error ? caught.message : action === "check" ? "Could not check this custom Side Quest." : "Could not reset this custom Side Quest.");
+    } finally {
+      setProofBusy(null);
     }
   }
 
@@ -6788,13 +6850,35 @@ function CustomSideQuestDetailModal({
             </View>
           ) : null}
 
-          {completed && onViewResult ? (
+          {active && !completed ? (
+            <View style={styles.proofActionCard}>
+              <Text style={styles.proofActionTitle}>{quest.name} is active.</Text>
+              <Text style={styles.proofActionBody}>Play one new eligible public game after picking this custom Side Quest, then check your latest game for proof.</Text>
+              <View style={styles.buttonRow}>
+                {onCheck ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Check latest game for custom Side Quest" style={styles.primaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("check")}>
+                    <Text style={styles.primaryButtonText}>{proofBusy === "check" ? "Checking..." : "Check latest game"}</Text>
+                  </Pressable>
+                ) : null}
+                {onReset ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Reset custom Side Quest" style={styles.secondaryButton} disabled={Boolean(proofBusy)} onPress={() => void handleProofAction("reset")}>
+                    <Text style={styles.secondaryButtonText}>{proofBusy === "reset" ? "Resetting..." : "Reset quest"}</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              {latestReceipt ? <Text style={isFailedReceipt(latestReceipt) ? styles.errorCopy : styles.successCopy}>{normalizeCheckHeadline(latestReceipt.headline)} · {getReceiptFailureText(latestReceipt) ?? latestReceipt.detail}</Text> : null}
+              {latestReceipt && isFailedReceipt(latestReceipt) ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
+              {latestReceipt && isPendingReceipt(latestReceipt) ? <ActiveQuestNoGameSummary /> : null}
+              {proofMessage ? <Text style={proofMessage.toLowerCase().includes("not completed") ? styles.errorCopy : styles.successCopy}>{proofMessage}</Text> : null}
+              {proofError ? <Text style={styles.errorCopy}>{proofError}</Text> : null}
+            </View>
+          ) : completed && onViewResult ? (
             <Pressable accessibilityRole="button" accessibilityLabel="View custom Side Quest result" style={compactStyles.detailPrimaryButton} onPress={onViewResult}>
               <Text style={compactStyles.detailPrimaryButtonText}>View result</Text>
             </Pressable>
           ) : (
-            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (active || busy || !canStart) ? compactStyles.disabledAction : null]} disabled={active || busy || !canStart} onPress={() => void handleStart()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : active ? "Already active" : !canStart ? "Publish to play" : "Pick this Side Quest"}</Text>
+            <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (busy || !canStart) ? compactStyles.disabledAction : null]} disabled={busy || !canStart} onPress={() => void handleStart()}>
+              <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Picking..." : !canStart ? "Publish to play" : "Pick this Side Quest"}</Text>
             </Pressable>
           )}
           <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest detail" style={compactStyles.detailQuietButton} onPress={onClose}>

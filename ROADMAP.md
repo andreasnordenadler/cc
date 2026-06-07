@@ -110,11 +110,12 @@ Status: SQC-mobile-focus / website-feature-freeze
   - scope: compared Custom/Community Solo detail parity and closed the next concrete mobile standalone gap: after mobile could edit saved rule blocks, the detail sheet still collapsed saved Custom Side Quest rules into one long summary instead of showing a readable condition-by-condition rule breakdown like the website safe-rule model.
   - proof: added native Custom/Community Solo rule-detail cards that parse saved rule config into `Complete every condition` / `Complete any one condition` sections, list each safe condition summary, and explicitly keep raw custom quest config hidden. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and full `pnpm mobile:release:check`. No APK release was created in this run; the release check passed without APK build and the change is ready for the next mobile version cut.
 
-- [ ] Audit and close the next concrete website/mobile parity gap.
+- [x] Audit and close the next concrete website/mobile parity gap.
   - added_at: 2026-06-07
+  - completed_at: 2026-06-07
   - source: continue Andreas's equal-functionality model after closing mobile Custom/Community Solo rule-detail parity, mobile Custom Side Quest rule editing, mobile multiplayer trophy payloads, proof-link sharing, account profile editing, official/community public sharing, Community reports, mobile creator/host context, and Trophy Cabinet multiplayer scroll parity.
-  - scope: compare remaining Custom Side Quest lifecycle parity, start/check/prove/collect flows, account readiness, and community safety/discovery affordances; pick the highest-impact missing capability and implement it on the weaker surface.
-  - proof_needed: updated parity note, code implementation, targeted lint/typecheck/build, deploy or mobile release if user-visible.
+  - scope: compared Custom Side Quest start/check/prove lifecycle parity and closed the next concrete mobile standalone gap: official mobile detail sheets let an active Side Quest check the latest game, show receipt diagnostics, and reset directly, while Custom/Community Solo active details only disabled the pick action as `Already active` and forced users to leave the detail sheet to prove/reset.
+  - proof: added native active Custom/Community Solo proof controls to the detail sheet: `Check latest game`, `Reset quest`, latest receipt status, failure diagnostics, and no-game pending guidance, wired through the existing mobile quest action API for both current Side Quest surfaces. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and full `pnpm mobile:release:check`. No APK release was created in this run; the change is ready for the next mobile version cut.
 
 - [x] Align mobile Community Solo / Multiplayer language with shared IA.
   - added_at: 2026-06-04 16:48 Europe/Stockholm
