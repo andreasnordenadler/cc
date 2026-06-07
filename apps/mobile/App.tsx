@@ -833,6 +833,21 @@ function parseCustomRuleRequirements(config: string): { logic: CustomRuleLogic; 
   }
 }
 
+function getCustomRuleDetailLines(config: string, fallbackSummary: string) {
+  const parsed = parseCustomRuleRequirements(config);
+  if (parsed?.requirements.length) {
+    return {
+      logicLabel: parsed.logic === "all" ? "Complete every condition" : "Complete any one condition",
+      lines: parsed.requirements.map((requirement) => cleanCustomRuleSummaryText(buildCustomPieceRuleSummary(requirement))),
+    };
+  }
+
+  return {
+    logicLabel: "Rule summary",
+    lines: [cleanCustomRuleSummaryText(fallbackSummary)],
+  };
+}
+
 function getInviteModeOptionCopy(mode: "public" | "private-key") {
   return mode === "public"
     ? { title: "Public", helper: "Visible in Browse" }
@@ -6605,6 +6620,7 @@ function CustomSideQuestDetailModal({
   const lifecycle = quest.lifecycle ?? "published";
   const canStart = lifecycle === "published";
   const statusLabel = getCustomLifecycleStatus(quest, active ? quest.id : null, completed);
+  const ruleDetails = getCustomRuleDetailLines(quest.config, quest.summary);
 
   async function handleStart() {
     if (!quest || busy || active || completed || !canStart) return;
@@ -6699,6 +6715,28 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollCopy}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
             <View style={compactStyles.proofScrollRule} />
             <Text style={compactStyles.proofScrollMeta}>Play a new public game after picking this Side Quest.</Text>
+          </View>
+
+          <View style={compactStyles.proofScrollCard}>
+            <Text style={compactStyles.proofScrollEyebrow}>Rule details</Text>
+            <Text style={compactStyles.proofScrollTitle}>{ruleDetails.logicLabel}</Text>
+            <View style={compactStyles.appRows}>
+              {ruleDetails.lines.map((line, index) => (
+                <View key={`${quest.id}-rule-${index}`} style={compactStyles.customConditionListRow}>
+                  <View style={compactStyles.currentQuestRow}>
+                    <View style={compactStyles.coatMarker}>
+                      <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                    </View>
+                    <View style={compactStyles.currentQuestText}>
+                      <Text style={compactStyles.currentQuestTitle}>{getCustomConditionLabel(index)}</Text>
+                      <Text style={compactStyles.currentQuestMeta}>{line}</Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
+            <View style={compactStyles.proofScrollRule} />
+            <Text style={compactStyles.proofScrollMeta}>Only safe rule summaries are shown; raw custom quest config stays hidden.</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
