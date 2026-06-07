@@ -2241,10 +2241,12 @@ Screenshot review workflow - 2026-05-14:
   - Acceptance: mobile supports website-equivalent suggested path, random quest, and Quest Hub grouping/filter context using backend-driven quest data.
   - proof: added backend-driven mobile discovery metadata to `/api/mobile/bootstrap` (`suggestedPath`, `randomPoolIds`, and `questHubGroups`) and wired the native app to use it for Home suggested-path choices, random Solo Side Quest selection, and a Quest Hub context lane on the Solo Side Quest deck. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx apps/mobile/src/types/sqc.ts src/app/api/mobile/bootstrap/route.ts`, and full `pnpm mobile:release:check`. No APK release was created in this run; the change is ready for the next mobile version cut.
 
-- [ ] SQC Mobile parity queue: Multiplayer Side Quest parity plan and first native read slice.
+- [x] SQC Mobile parity queue: Multiplayer Side Quest parity plan and first native read slice.
   - added_at: 2026-05-14 08:38 Europe/Stockholm
+  - completed_at: 2026-06-07
   - source: mobile feature parity matrix.
   - Acceptance: define and start native mobile support for public multiplayer list, create/join, room state, leaderboard, and proof states without changing frozen website features.
+  - proof: native Multiplayer now has backend-shaped public/joined/hosted room lists, create/join/leave/refresh/update/remove actions, room detail rules, included quest rows, proof-state controls, and live leaderboard payloads from `/api/mobile/account`; this pass removed the final hard-coded modal leaderboard fallback so empty rooms show an honest live-data empty state instead of fake player rows. Verification passed: `pnpm --dir apps/mobile typecheck`, `pnpm lint -- apps/mobile/App.tsx`, and full `pnpm mobile:release:check`.
 
 - [ ] SQC mobile launch blocker: make Multiplayer Side Quest join/leave/refresh real.
   - added_at: 2026-05-24 20:12 Europe/Stockholm

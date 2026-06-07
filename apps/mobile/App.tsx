@@ -2113,7 +2113,6 @@ function JoinedMultiplayerQuestModal({
   const timeLeft = quest.timeLeftLabel ?? metaParts[1] ?? "Window open";
   const position = quest.positionLabel ?? metaParts[2] ?? (mode === "joined" ? "Rank pending" : "Join to place");
   const verified = quest.verifiedLabel ?? "0 / 4";
-  const verifiedCompact = `${verified.replace(" / ", "/")} verified`;
   const questInputs = (quest.questIds?.length ? quest.questIds.map((questId, index) => ({ questId, title: quest.questTitles?.[index] ?? questId })) : (quest.questTitles ?? []).map((title) => ({ title })));
   const completedQuestTitles = new Set((quest.completedQuestTitles ?? []).map((title) => title.toLowerCase()));
   const ruleRows = [
@@ -2126,10 +2125,7 @@ function JoinedMultiplayerQuestModal({
       { label: "Winner", value: "First to complete all included Side Quests wins; otherwise best completion progress at the deadline wins." },
     ]),
   ];
-  const leaderboardRows = quest.leaderboardRows ?? [
-    { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "0/4", verified: "0/4 verified", note: "Joined this Multiplayer Side Quest" },
-    { rank: position, name: "Andreas", provider: "lichess · and72nor", points: verified.replace(" / ", "/"), verified: verifiedCompact, note: "You" },
-  ];
+  const leaderboardRows = quest.leaderboardRows ?? [];
   const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges, quest.customQuestSummaries));
   const adminQuestChoices = getMultiplayerQuestChoices(challenges, customQuests, quest.customQuestSummaries);
   const selectedRuleQuest = selectedRuleQuestTitle ? questRows.find((row) => row.title === selectedRuleQuestTitle) ?? null : null;
@@ -2299,9 +2295,11 @@ function JoinedMultiplayerQuestModal({
                 <Text style={compactStyles.multiplayerCardEyebrow}>Leaderboard</Text>
                 <Text style={compactStyles.multiplayerCardTitle}>How you’re doing vs everyone else.</Text>
                 <View style={compactStyles.appRows}>
-                  {leaderboardRows.map((row) => (
+                  {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} />
-                  ))}
+                  )) : (
+                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from SQC." status="Live data" imageSource={getMultiplayerSealSource(quest)} variant="seal" onPress={() => undefined} />
+                  )}
                 </View>
               </View>
 
@@ -2344,9 +2342,11 @@ function JoinedMultiplayerQuestModal({
                 <Text style={compactStyles.multiplayerCardEyebrow}>Leaderboard</Text>
                 <Text style={compactStyles.multiplayerCardTitle}>{mode === "joined" ? "Current Multiplayer Side Quest standings." : "Who is in so far."}</Text>
                 <View style={compactStyles.appRows}>
-                  {leaderboardRows.map((row) => (
+                  {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} compact />
-                  ))}
+                  )) : (
+                    <AppRow title="No leaderboard rows yet" meta="SQC will show real joined players here after the room has live participant data." status="Live data" imageSource={getMultiplayerSealSource(quest)} variant="seal" onPress={() => undefined} />
+                  )}
                 </View>
               </View>
 
