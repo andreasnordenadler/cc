@@ -15,12 +15,12 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v248`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v248>
-- APK filename: `sqc-mobile-android-v248-2026-06-07.apk`
-- Version name: `0.1.248`
-- Android version code: `248`
-- APK SHA256: `79c37cd9d97c24d9caea466991415debf96096bbe22ca7087a45558e1ddbe8a3`
+- GitHub Release tag: `mobile-v249`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v249>
+- APK filename: `sqc-mobile-android-v249-2026-06-08.apk`
+- Version name: `0.1.249`
+- Android version code: `249`
+- APK SHA256: `9bf187fbd858df9deb0e31af711d5dbb6d647e8860a2b3b1743eeb43ca901d8c`
 
 ## Candidate identity
 
