@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -41,14 +42,21 @@ const versionCode = Number.parseInt(release.tagName.replace("mobile-v", ""), 10)
 const apkAsset = release.assets.find((asset) => asset.name.endsWith(".apk"));
 const shaAsset = release.assets.find((asset) => asset.name === `${apkAsset?.name}.sha256` || asset.name.endsWith(".apk.sha256"));
 const versionMatch = release.body.match(/Version:\s*([^\n]+)/i);
+const versionCodeMatch = release.body.match(/Version code:\s*(\d+)/i);
 const shaMatch = release.body.match(/SHA256:\s*([a-f0-9]{64})/i);
 
 assert(!release.isDraft, `${release.tagName} is still a draft release.`);
 assert(apkAsset, `${release.tagName} has no APK asset.`);
 assert(shaAsset, `${release.tagName} has no APK SHA256 sidecar asset.`);
 assert(versionMatch, `${release.tagName} release notes are missing Version.`);
+assert(versionCodeMatch, `${release.tagName} release notes are missing Version code.`);
 assert(shaMatch, `${release.tagName} release notes are missing SHA256.`);
 assert(apkAsset.name.includes(`v${versionCode}`), `APK asset name ${apkAsset.name} does not include v${versionCode}.`);
+assert(versionCodeMatch[1] === String(versionCode), `${release.tagName} release notes version code ${versionCodeMatch[1]} does not match tag ${versionCode}.`);
+assert(
+  !apkAsset.digest || apkAsset.digest === `sha256:${shaMatch[1]}`,
+  `${release.tagName} APK asset digest ${apkAsset.digest} does not match release-note SHA256 ${shaMatch[1]}.`,
+);
 
 const appConfig = JSON.parse(readFileSync(appJsonPath, "utf8"));
 const appVersion = appConfig.expo?.version;
@@ -70,6 +78,20 @@ assert(smokeFilename === `\`${apkAsset.name}\``, `REAL_DEVICE_SMOKE APK filename
 assert(smokeVersionName === `\`${appVersion}\``, `REAL_DEVICE_SMOKE version name ${smokeVersionName ?? "missing"} does not match ${appVersion}.`);
 assert(smokeVersionCode === `\`${versionCode}\``, `REAL_DEVICE_SMOKE version code ${smokeVersionCode ?? "missing"} does not match ${versionCode}.`);
 assert(smokeSha === `\`${shaMatch[1]}\``, "REAL_DEVICE_SMOKE APK SHA256 does not match latest release notes.");
+
+const tmpDir = mkdtempSync(path.join(os.tmpdir(), "sqc-mobile-candidate-"));
+try {
+  execFileSync("gh", ["release", "download", release.tagName, "--pattern", shaAsset.name, "--dir", tmpDir, "--clobber"], {
+    cwd: repoRoot,
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+  const shaSidecarText = readFileSync(path.join(tmpDir, shaAsset.name), "utf8").trim();
+  const sidecarSha = shaSidecarText.match(/[a-f0-9]{64}/i)?.[0]?.toLowerCase();
+  assert(sidecarSha === shaMatch[1], `${release.tagName} SHA256 sidecar ${sidecarSha ?? "missing"} does not match release-note SHA256 ${shaMatch[1]}.`);
+} finally {
+  rmSync(tmpDir, { recursive: true, force: true });
+}
 
 console.log(`✅ Latest mobile candidate is consistent: ${release.tagName}`);
 console.log(`   APK: ${apkAsset.name}`);
