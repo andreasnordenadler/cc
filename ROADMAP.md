@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Harden malformed backslash routes for mobile launch readiness.
+  - added_at: 2026-06-08 09:03 Europe/Stockholm
+  - completed_at: 2026-06-08 09:22 Europe/Stockholm
+  - source: autonomy run known launch blocker: direct `/support%5C` and `/terms%5C` repros returned 500, keeping the website/ops lane yellow for mobile launch readiness.
+  - scope: added a narrow Next middleware normalizer for literal or percent-encoded backslashes in pathnames, redirecting malformed variants such as `/support%5C` and `/terms%5C` to their canonical routes while preserving query strings and avoiding feature work.
+  - proof: local production build/start smoke confirmed `/support%5C`, `/terms%5C`, `/support\\`, and `/terms\\` now return `308` redirects to `/support` and `/terms` instead of hitting a 500 path. Verification passed: `pnpm lint -- middleware.ts` and full `pnpm mobile:release:check`.
+
 - [x] Correct SQC one-or-the-other surface model.
   - added_at: 2026-06-05
   - completed_at: 2026-06-05
