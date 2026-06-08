@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Clarify SQC Mobile real-device distribution gate.
+  - added_at: 2026-06-08 10:23 Europe/Stockholm
+  - completed_at: 2026-06-08 10:32 Europe/Stockholm
+  - source: autonomy run known launch blocker: distribution was still described as GitHub Releases/APK-oriented, with no store/public channel cut verified.
+  - scope: made the mobile real-device smoke checklist explicit that the current launch candidate source of truth is the latest non-draft `mobile-v*` GitHub Release APK, no public/store channel is cut yet, store/TestFlight/Play rollout remains a separate Andreas approval after the device checklist passes, and local `dist-*` builds must not be used for the launch gate.
+  - proof: updated `apps/mobile/REAL_DEVICE_SMOKE.md` distribution status for `mobile-v248`; verification passed: `pnpm --dir apps/mobile typecheck`.
+
 - [x] Harden malformed backslash routes for mobile launch readiness.
   - added_at: 2026-06-08 09:03 Europe/Stockholm
   - completed_at: 2026-06-08 09:22 Europe/Stockholm

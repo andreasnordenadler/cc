@@ -6,6 +6,13 @@ Use this checklist before calling an APK launch-ready. Emulator-only smoke is us
 
 Until a store/TestFlight/Play track is explicitly cut, the launch candidate is the latest non-draft `mobile-v*` GitHub Release APK. Do not install from a local `dist-*` directory for the real-device gate.
 
+Distribution status for this gate:
+
+- Public/store channel: **not cut yet**.
+- Real-device smoke source of truth: **GitHub Release APK only**.
+- Store/TestFlight/Play rollout decision: **separate Andreas approval after this checklist passes**.
+- If a newer `mobile-v*` release exists, update this section before testing so the recorded device evidence matches the actual candidate.
+
 Current candidate to smoke:
 
 - GitHub Release tag: `mobile-v248`
