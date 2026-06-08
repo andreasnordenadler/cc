@@ -2,32 +2,19 @@ import { clerkMiddleware } from "@clerk/nextjs/server";
 import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const BACKSLASH_TOKEN_PATTERN = /(?:\\|%5c)/i;
-
-function normalizeBackslashPath(pathname: string) {
-  if (!BACKSLASH_TOKEN_PATTERN.test(pathname)) {
-    return null;
-  }
-
-  const normalizedPathname = pathname
-    .replace(/%5c/gi, "/")
-    .replace(/\\/g, "/")
-    .replace(/\/+/g, "/")
-    .replace(/\/$/, "");
-
-  return normalizedPathname || "/";
-}
+const encodedBackslashPattern = /%5c/gi;
+const decodedBackslashPattern = /\\+/g;
 
 const clerkProxy = clerkMiddleware();
 
-export default function proxy(request: NextRequest, event: NextFetchEvent) {
-  const normalizedPathname = normalizeBackslashPath(request.nextUrl.pathname);
+export function proxy(request: NextRequest, event: NextFetchEvent) {
+  const { pathname } = request.nextUrl;
+  const normalizedPathname = normalizeBackslashPathname(pathname);
 
-  if (normalizedPathname) {
-    const destination = request.nextUrl.clone();
-    destination.pathname = normalizedPathname;
-
-    return NextResponse.redirect(destination, 308);
+  if (normalizedPathname !== pathname) {
+    const url = request.nextUrl.clone();
+    url.pathname = normalizedPathname;
+    return NextResponse.redirect(url, 308);
   }
 
   return clerkProxy(request, event);
@@ -36,3 +23,10 @@ export default function proxy(request: NextRequest, event: NextFetchEvent) {
 export const config = {
   matcher: ["/api/mobile/(.*)", "/api/analytics", "/api/groupquests/(.*)", "/api/groupquests", "/((?!_next|.*\\..*|_vercel|api|trpc).*)"],
 };
+
+function normalizeBackslashPathname(pathname: string) {
+  const decodedBackslashes = pathname.replace(encodedBackslashPattern, "\\");
+  const asForwardSlashes = decodedBackslashes.replace(decodedBackslashPattern, "/");
+  const withoutDuplicateSlashes = asForwardSlashes.replace(/\/{2,}/g, "/");
+  return withoutDuplicateSlashes === "" ? "/" : withoutDuplicateSlashes;
+}
