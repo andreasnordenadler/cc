@@ -1,0 +1,3 @@
+# Expo may generate this default icon name during local export/prebuild flows.
+# The app uses app-icon-light-blue.png and app-icon-foreground.png from app.json.
+/assets/icon.png
