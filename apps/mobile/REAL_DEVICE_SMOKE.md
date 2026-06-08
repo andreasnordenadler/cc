@@ -34,10 +34,10 @@ Current candidate to smoke:
 
 ## Install and launch
 
-- [ ] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, and latest GitHub Release metadata all name the same APK.
+- [ ] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, release notes, SHA256 sidecar, downloaded GitHub Release APK, and APK manifest all describe the same non-debuggable candidate.
 - [ ] Download the APK from the GitHub Release, not a local `dist-*` directory.
-- [ ] Verify SHA256 matches the release note.
-- [ ] Confirm the APK is not debuggable (`application-debuggable` absent/false).
+- [ ] Verify SHA256 matches the release note if recording proof manually.
+- [ ] Confirm the APK is not debuggable (`application-debuggable` absent/false) if recording proof manually.
 - [ ] Install on a real signed Android device.
 - [ ] Launch `com.sidequestchess.app` and confirm Home loads without a crash.
 
@@ -84,6 +84,6 @@ Current candidate to smoke:
 
 ## Evidence to record
 
-- APK SHA256 and non-debuggable proof.
+- `pnpm mobile:release:candidate-check` output, including APK SHA256 and `debuggable=false` manifest proof.
 - Screenshots or short clips for launch, signed-in Account, Solo proof, Custom edit, Multiplayer create/join, Support, Trophy Cabinet, and logout.
 - Any failed step with device, timestamp, app version, and exact observed text.
