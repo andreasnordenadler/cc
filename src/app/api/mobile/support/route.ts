@@ -12,7 +12,7 @@ type SupportMessage = {
 };
 
 const MAX_SUPPORT_MESSAGES = 30;
-const MAX_MESSAGE_LENGTH = 1200;
+const MAX_MESSAGE_LENGTH = 2400;
 
 export async function POST(request: Request) {
   const userId = await getMobileRequestUserId(request);
