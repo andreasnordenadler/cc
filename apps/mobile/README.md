@@ -13,13 +13,15 @@ Current API contracts:
 - `PATCH https://sidequestchess.com/api/mobile/profile`
 - `POST https://sidequestchess.com/api/mobile/quest`
 - `POST https://sidequestchess.com/api/mobile/support`
-- `POST https://sidequestchess.com/api/mobile/multiplayer`
+- `POST https://sidequestchess.com/api/mobile/groupquests/{id}`
 
 Bootstrap returns the live quest catalog and mobile compatibility metadata from the web backend. Account returns signed-out JSON when unauthenticated and backend-owned user/profile/progress/status/proof data when a Clerk session is present.
 
 ## Distribution status
 
 Current public/internal distribution is GitHub Releases APK-only. There is no verified Play Store, App Store, TestFlight, or EAS Update production channel yet.
+
+Launch-channel rule: until Andreas explicitly cuts a store/test-track channel, the latest GitHub Release APK is the only supported mobile install candidate. Treat EAS, local APK builds, emulator installs, and Expo dev-client sessions as QA tools only; they are not distribution channels for testers or launch users.
 
 Use the latest `mobile-v*` GitHub Release as the install candidate until a store track is explicitly cut. For each release candidate, verify and record:
 
