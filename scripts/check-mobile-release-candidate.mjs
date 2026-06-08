@@ -116,6 +116,11 @@ try {
   assert(manifestVersionName === appVersion, `${release.tagName} APK versionName ${manifestVersionName} does not match app.json ${appVersion}.`);
   assert(manifestVersionCode === String(versionCode), `${release.tagName} APK versionCode ${manifestVersionCode} does not match tag ${versionCode}.`);
   assert(debuggable === "false", `${release.tagName} APK debuggable must be false, got ${debuggable}.`);
+
+  const apksigner = path.join(androidToolEnv.ANDROID_HOME, "build-tools/36.0.0/apksigner");
+  const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", apkPath]);
+  assert(!signerOutput.includes("CN=Android Debug"), `${release.tagName} APK is signed with the Android Debug certificate.`);
+  assert(!signerOutput.includes("OU=Android"), `${release.tagName} APK signer still looks like the default Android debug identity.`);
 } finally {
   rmSync(tmpDir, { recursive: true, force: true });
 }
@@ -125,4 +130,5 @@ console.log(`   APK: ${apkAsset.name}`);
 console.log(`   Version: ${appVersion} (${versionCode})`);
 console.log(`   SHA256: ${shaMatch[1]}`);
 console.log("   APK manifest: version identity matches and debuggable=false");
+console.log("   APK signer: verified release certificate is not the Android debug identity");
 console.log("   Real-device launch gate still requires installing this GitHub Release APK on a signed device.");
