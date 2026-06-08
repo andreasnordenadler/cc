@@ -1909,7 +1909,7 @@ function TodayDashboard({
 
         <View style={compactStyles.activeMultiplayerList}>
           {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
-            <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Your room" : "Joined"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+            <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Hosted" : "Joined"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
           )) : (
             <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />
           )}
@@ -2348,7 +2348,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} compact />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="SQC will show real joined players here after the room has live participant data." status="Live data" imageSource={getMultiplayerSealSource(quest)} variant="seal" onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="SQC will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={getMultiplayerSealSource(quest)} variant="seal" onPress={() => undefined} />
                   )}
                 </View>
               </View>
