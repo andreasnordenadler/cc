@@ -28,5 +28,8 @@ function normalizeBackslashPathname(pathname: string) {
   const decodedBackslashes = pathname.replace(encodedBackslashPattern, "\\");
   const asForwardSlashes = decodedBackslashes.replace(decodedBackslashPattern, "/");
   const withoutDuplicateSlashes = asForwardSlashes.replace(/\/{2,}/g, "/");
-  return withoutDuplicateSlashes === "" ? "/" : withoutDuplicateSlashes;
+  const withoutTrailingSlash = withoutDuplicateSlashes.length > 1
+    ? withoutDuplicateSlashes.replace(/\/+$/g, "")
+    : withoutDuplicateSlashes;
+  return withoutTrailingSlash === "" ? "/" : withoutTrailingSlash;
 }
