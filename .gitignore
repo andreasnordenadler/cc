@@ -55,9 +55,10 @@ apps/mobile/credentials/
 apps/mobile/.expo/
 apps/mobile/android/
 
-# local QA/release artifacts
+# local QA/release artifacts and agent notes
 /tmp/
 /.worktrees/
+/.learnings/
 /artifacts/
 /dist/
 apps/mobile/dist*/
