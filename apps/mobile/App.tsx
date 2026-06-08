@@ -2966,11 +2966,16 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
 const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { versionCode?: number } } };
 
-function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
+function getMobileCandidateIdentity() {
   const appVersion = MOBILE_APP_CONFIG.expo?.version ?? "unknown";
   const androidVersionCode = MOBILE_APP_CONFIG.expo?.android?.versionCode;
-
   const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
+
+  return { appVersion, androidVersionCode, releaseCandidate };
+}
+
+function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
+  const { appVersion, androidVersionCode, releaseCandidate } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
@@ -2992,6 +2997,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   const [supportMessage, setSupportMessage] = useState(initialMessage);
   const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const candidateIdentity = getMobileCandidateIdentity();
   const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 
@@ -3058,6 +3064,12 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
           <View style={compactStyles.detailPanelStrong}>
             <Text style={compactStyles.detailPanelTitle}>Quick answers</Text>
             <Text style={compactStyles.detailPanelCopy}>SQC checks public chess games after you pick or join a Side Quest. If something looks wrong, refresh proof after the game has fully finished.</Text>
+          </View>
+
+          <View style={compactStyles.multiplayerNativeCard}>
+            <Text style={compactStyles.multiplayerCardEyebrow}>Installed candidate</Text>
+            <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
+            <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. For real-device launch smoke, this should match the GitHub Release APK named in the checklist.</Text>
           </View>
 
           <View style={compactStyles.appRows}>
