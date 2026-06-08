@@ -1,4 +1,5 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 const BACKSLASH_TOKEN_PATTERN = /(?:\\|%5c)/i;
@@ -17,18 +18,20 @@ function normalizeBackslashPath(pathname: string) {
   return normalizedPathname || "/";
 }
 
-export default clerkMiddleware((_auth, request) => {
+const clerkProxy = clerkMiddleware();
+
+export default function proxy(request: NextRequest, event: NextFetchEvent) {
   const normalizedPathname = normalizeBackslashPath(request.nextUrl.pathname);
 
-  if (!normalizedPathname) {
-    return NextResponse.next();
+  if (normalizedPathname) {
+    const destination = request.nextUrl.clone();
+    destination.pathname = normalizedPathname;
+
+    return NextResponse.redirect(destination, 308);
   }
 
-  const destination = request.nextUrl.clone();
-  destination.pathname = normalizedPathname;
-
-  return NextResponse.redirect(destination, 308);
-});
+  return clerkProxy(request, event);
+}
 
 export const config = {
   matcher: ["/api/mobile/(.*)", "/api/analytics", "/api/groupquests/(.*)", "/api/groupquests", "/((?!_next|.*\\..*|_vercel|api|trpc).*)"],
