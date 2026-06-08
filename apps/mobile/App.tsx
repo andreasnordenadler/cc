@@ -2961,11 +2961,16 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 }
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { versionCode?: number } } };
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
+  const appVersion = MOBILE_APP_CONFIG.expo?.version ?? "unknown";
+  const androidVersionCode = MOBILE_APP_CONFIG.expo?.android?.versionCode;
+
   return [
     "Side Quest Chess mobile diagnostics",
-    `Platform: ${Platform.OS}`,
+    `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
+    `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
     `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
     `Lichess: ${signedIn?.chessAccounts.lichessUsername ?? "not connected"}`,
@@ -3072,7 +3077,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
-            <Text style={compactStyles.detailPanelCopy}>Something not working. Send a short note here and we can reply in this conversation if we need more details.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Something not working. Send a short note here and we can reply in this conversation if we need more details. Support notes include app version and device diagnostics so real-device launch smoke failures are easier to trace.</Text>
             <View style={compactStyles.helpSupportThread}>
               <Text style={compactStyles.appRowTitle}>Conversation</Text>
               {supportThread.length ? supportThread.map((entry) => (
