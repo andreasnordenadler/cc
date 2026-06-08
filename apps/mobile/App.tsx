@@ -3571,7 +3571,7 @@ function getLeaderboardProgressPercent(verified: string) {
 }
 
 function getChallengeCoatGlowSource(challengeId: string): ImageSourcePropType {
-  return CHALLENGE_COAT_GLOW_ASSETS[challengeId] ?? CHALLENGE_COAT_GLOW_ASSETS["finish-any-game"];
+  return CHALLENGE_COAT_GLOW_ASSETS[challengeId] ?? CHALLENGE_COAT_IMAGE_ASSETS[challengeId] ?? CHALLENGE_COAT_GLOW_ASSETS["finish-any-game"];
 }
 
 function getBrowseStatusTone(status: string): "green" | "gold" | "orange" | "danger" | "absurd" | null {
