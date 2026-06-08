@@ -12,6 +12,7 @@
     "deploy:prod": "pnpm deploy:prod:guard && vercel --prod --yes",
     "mobile:release": "node scripts/mobile-release.mjs",
     "mobile:release:check": "node scripts/mobile-release.mjs --no-bump --skip-build",
+    "mobile:release:candidate-check": "node scripts/check-mobile-release-candidate.mjs",
     "mobile:release:github": "node scripts/mobile-release.mjs --github-release",
     "qa:multiplayer:local": "node scripts/multiplayer-qa-local.cjs",
     "qa:launch:local": "node scripts/launch-qa-local.cjs",

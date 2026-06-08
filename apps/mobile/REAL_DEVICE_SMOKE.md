@@ -34,6 +34,7 @@ Current candidate to smoke:
 
 ## Install and launch
 
+- [ ] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, and latest GitHub Release metadata all name the same APK.
 - [ ] Download the APK from the GitHub Release, not a local `dist-*` directory.
 - [ ] Verify SHA256 matches the release note.
 - [ ] Confirm the APK is not debuggable (`application-debuggable` absent/false).
