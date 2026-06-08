@@ -2970,9 +2970,12 @@ function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
   const appVersion = MOBILE_APP_CONFIG.expo?.version ?? "unknown";
   const androidVersionCode = MOBILE_APP_CONFIG.expo?.android?.versionCode;
 
+  const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
+
   return [
     "Side Quest Chess mobile diagnostics",
     `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
+    `Release candidate: ${releaseCandidate} GitHub Release APK`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
     `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
