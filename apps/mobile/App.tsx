@@ -979,6 +979,9 @@ const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "queen-never-heard-of-her": require("./assets/badges/v4/queen-never-heard-of-her.png"),
   "no-castle-club": require("./assets/badges/v4/no-castle-club-badge.png"),
   "the-blunder-gambit": require("./assets/badges/v4/the-blunder-gambit-badge.png"),
+  "pawn-storm-maniac": require("./assets/badges/v4/pawn-storm-maniac-badge.png"),
+  "rookless-rampage": require("./assets/badges/v4/rookless-rampage-badge.png"),
+  "one-bishop-to-rule-them-all": require("./assets/badges/v4/one-bishop-to-rule-them-all-badge.png"),
   "knightmare-mode": require("./assets/badges/v4/knightmare-mode-badge.png"),
 };
 
@@ -3202,8 +3205,11 @@ function getMultiplayerQuestCoatSource(title: string): ImageSourcePropType {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes("queen")) return CHALLENGE_COAT_IMAGE_ASSETS["queen-never-heard-of-her"];
   if (lowerTitle.includes("knightmare")) return CHALLENGE_COAT_IMAGE_ASSETS["knightmare-mode"];
+  if (lowerTitle.includes("rookless") || lowerTitle.includes("rookless rampage")) return CHALLENGE_COAT_IMAGE_ASSETS["rookless-rampage"];
   if (lowerTitle.includes("rook")) return require("./assets/badges/v7/coming-soon-clean/rook-lift-internship-badge.png");
+  if (lowerTitle.includes("one bishop")) return CHALLENGE_COAT_IMAGE_ASSETS["one-bishop-to-rule-them-all"];
   if (lowerTitle.includes("bishop")) return CHALLENGE_COAT_IMAGE_ASSETS["bishop-field-trip"];
+  if (lowerTitle.includes("pawn storm")) return CHALLENGE_COAT_IMAGE_ASSETS["pawn-storm-maniac"];
   return SQC_COAT_OF_ARMS_ASSET;
 }
 
