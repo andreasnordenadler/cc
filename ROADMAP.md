@@ -10,6 +10,13 @@ Status: SQC-mobile-focus / website-feature-freeze
 
 ## Active queue update — 2026-06-02
 
+- [x] Harden SQC dare OG image rendering for launch readiness.
+  - added_at: 2026-06-08 10:43 Europe/Stockholm
+  - completed_at: 2026-06-08 10:49 Europe/Stockholm
+  - source: autonomy run known launch blocker: Vercel production logs had unsupported `z-index` render warnings for `/api/og/dare/knights-before-coffee` and `/api/og/dare/no-castle-club`, keeping the website/ops lane yellow for mobile launch readiness.
+  - scope: confirmed commit `af87b9f` removed unsupported OG `zIndex` styles from the dare image route and replaced chess-symbol motifs with OG-safe text fallbacks so social-preview generation does not depend on unsupported Satori stacking/font behavior.
+  - proof: verification passed: `pnpm lint -- 'src/app/api/og/dare/[id]/route.tsx'`.
+
 - [x] Clarify SQC Mobile real-device distribution gate.
   - added_at: 2026-06-08 10:23 Europe/Stockholm
   - completed_at: 2026-06-08 10:32 Europe/Stockholm
