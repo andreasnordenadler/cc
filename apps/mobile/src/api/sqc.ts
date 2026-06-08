@@ -12,7 +12,13 @@ const DEFAULT_API_BASE_URL = "https://sidequestchess.com";
 const DEFAULT_REQUEST_TIMEOUT_MS = 12000;
 
 export function getApiBaseUrl() {
-  return process.env.EXPO_PUBLIC_SQC_API_BASE_URL?.replace(/\/$/, "") || DEFAULT_API_BASE_URL;
+  const configuredBaseUrl = process.env.EXPO_PUBLIC_SQC_API_BASE_URL?.trim() || DEFAULT_API_BASE_URL;
+  return configuredBaseUrl.replace(/[\\/]+$/, "") || DEFAULT_API_BASE_URL;
+}
+
+export function buildMobileUrl(path: string) {
+  const safePath = path.replace(/\\+/g, "/");
+  return new URL(safePath.startsWith("/") ? safePath : `/${safePath}`, `${getApiBaseUrl()}/`).toString();
 }
 
 async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS) {
@@ -36,7 +42,7 @@ async function fetchWithTimeout(url: string, init: RequestInit = {}, timeoutMs =
 }
 
 export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/bootstrap`, {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/bootstrap"), {
     headers: {
       Accept: "application/json",
     },
@@ -50,7 +56,7 @@ export async function fetchMobileBootstrap(): Promise<MobileBootstrap> {
 }
 
 export async function fetchMobileAccountState(sessionToken?: string | null): Promise<MobileAccountResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/account`, {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/account"), {
     headers: buildMobileAuthHeaders(sessionToken),
   });
 
@@ -78,7 +84,7 @@ export async function updateMobileChessUsernames({
   lichessUsername: string;
   chessComUsername: string;
 }): Promise<MobileProfileUpdateResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/profile`, {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/profile"), {
     method: "PATCH",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ runnerDisplayName, runnerBio, lichessUsername, chessComUsername }),
@@ -99,7 +105,7 @@ export async function submitMobileSupportMessage({
   sessionToken?: string | null;
   message: string;
 }): Promise<MobileSupportMessageResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/support`, {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/support"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ message }),
@@ -131,7 +137,7 @@ export async function saveMobileCustomSideQuest({
   lifecycle?: "draft" | "published" | "archived";
   visibility?: "private" | "public";
 }): Promise<MobileCustomQuestSaveResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/custom-quests`, {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/custom-quests"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ id, title, summary, config, lifecycle, visibility }),
@@ -152,7 +158,7 @@ export async function deleteMobileCustomSideQuest({
   sessionToken?: string | null;
   id: string;
 }): Promise<MobileCustomQuestSaveResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/custom-quests?id=${encodeURIComponent(id)}`, {
+  const response = await fetchWithTimeout(buildMobileUrl(`/api/mobile/custom-quests?id=${encodeURIComponent(id)}`), {
     method: "DELETE",
     headers: buildMobileAuthHeaders(sessionToken),
   }, 20000);
@@ -176,7 +182,7 @@ export async function runMobileQuestAction({
   challengeId?: string;
   gameId?: string;
 }): Promise<MobileQuestActionResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/quest`, {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/quest"), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ action, challengeId, gameId }),
@@ -201,7 +207,7 @@ export async function runMobileGroupQuestAction({
   action: "join" | "leave" | "refresh" | "create" | "update" | "remove-participant";
   payload?: Record<string, unknown>;
 }): Promise<MobileGroupQuestActionResponse> {
-  const response = await fetchWithTimeout(`${getApiBaseUrl()}/api/mobile/groupquests/${groupQuestId}`, {
+  const response = await fetchWithTimeout(buildMobileUrl(`/api/mobile/groupquests/${groupQuestId}`), {
     method: "POST",
     headers: buildMobileAuthHeaders(sessionToken),
     body: JSON.stringify({ action, ...(payload ?? {}) }),

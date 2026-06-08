@@ -31,7 +31,7 @@ import {
   type ScrollViewProps,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
@@ -3023,7 +3023,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   }
 
   async function openLegalPage(path: "/support" | "/terms", label: string) {
-    const url = new URL(path, getApiBaseUrl()).toString();
+    const url = buildMobileUrl(path);
 
     try {
       await WebBrowser.openBrowserAsync(url);
@@ -8037,7 +8037,7 @@ function getChallengeCoatImageUrl(challenge: MobileChallenge) {
 
 function absoluteAssetUrl(url: string) {
   if (url.startsWith("http")) return url;
-  return `${getApiBaseUrl()}${url.startsWith("/") ? url : `/${url}`}`;
+  return buildMobileUrl(url);
 }
 
 function formatComingSoonDate(value: string) {
