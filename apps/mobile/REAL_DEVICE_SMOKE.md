@@ -15,14 +15,14 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v250`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v250>
-- APK filename: `sqc-mobile-android-v250-2026-06-08.apk`
+- GitHub Release tag: `mobile-v251`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v251>
+- APK filename: `sqc-mobile-android-v251-2026-06-09.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.250`
-- Android version code: `250`
-- APK SHA256: `c4e10a8607d3fd79d493f7f236fcb21185ce617d5147331648acbb4541c2313a`
-- Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, and a release certificate that is not the Android debug identity.
+- Version name: `0.1.251`
+- Android version code: `251`
+- APK SHA256: `7bca052393d9edad8ce021524122bcf488dc0ceab710a7ef4cda53b85ebf8fb7`
+- Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
 
 ## Candidate identity
 
@@ -89,6 +89,6 @@ Current candidate to smoke:
 
 ## Evidence to record
 
-- `pnpm mobile:release:candidate-check` output, including package ID, APK SHA256, `debuggable=false` manifest proof, and release-signer proof.
+- `pnpm mobile:release:candidate-check` output, including package ID, APK SHA256, `debuggable=false`, `allowBackup=false` manifest proof, and release-signer proof.
 - Screenshots or short clips for launch, signed-in Account, Solo proof, Custom edit, Multiplayer create/join, Support, Trophy Cabinet, and logout.
 - Any failed step with device, timestamp, app version, and exact observed text.

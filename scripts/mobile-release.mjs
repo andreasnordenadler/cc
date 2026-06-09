@@ -9,6 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
 const appJsonPath = path.join(repoRoot, "apps/mobile/app.json");
 const androidDir = path.join(repoRoot, "apps/mobile/android");
+const androidManifestPath = path.join(androidDir, "app/src/main/AndroidManifest.xml");
 const apkSource = path.join(androidDir, "app/build/outputs/apk/release/app-release.apk");
 const artifactDir = path.join(repoRoot, "artifacts/mobile-releases");
 
@@ -67,7 +68,21 @@ function nextPatchVersion(version) {
   return parts.join(".");
 }
 
+function disableAndroidBackup() {
+  const manifest = readFileSync(androidManifestPath, "utf8");
+  const hardened = manifest.replace(/android:allowBackup="true"/, 'android:allowBackup="false"');
+  if (!hardened.includes('android:allowBackup="false"')) {
+    throw new Error('AndroidManifest.xml must set android:allowBackup="false" for release candidates.');
+  }
+  if (hardened !== manifest) {
+    writeFileSync(androidManifestPath, hardened);
+    console.log('Hardened AndroidManifest.xml: android:allowBackup="false"');
+  }
+}
+
 const appConfig = JSON.parse(readFileSync(appJsonPath, "utf8"));
+const previousAllowBackup = appConfig.expo.android.allowBackup;
+appConfig.expo.android.allowBackup = false;
 const currentVersionName = appConfig.expo.version;
 const currentVersionCode = appConfig.expo.android.versionCode;
 const versionName = explicitVersionName ?? (shouldNoBump ? currentVersionName : nextPatchVersion(currentVersionName));
@@ -82,9 +97,14 @@ if (!shouldNoBump || explicitVersionName || explicitVersionCode) {
   appConfig.expo.android.versionCode = versionCode;
   writeFileSync(appJsonPath, `${JSON.stringify(appConfig, null, 2)}\n`);
   console.log(`Updated apps/mobile/app.json: version=${versionName}, versionCode=${versionCode}`);
+} else if (previousAllowBackup !== false) {
+  writeFileSync(appJsonPath, `${JSON.stringify(appConfig, null, 2)}\n`);
+  console.log('Updated apps/mobile/app.json: android.allowBackup=false');
 } else {
   console.log(`Using existing apps/mobile/app.json: version=${versionName}, versionCode=${versionCode}`);
 }
+
+disableAndroidBackup();
 
 run("pnpm", ["audit", "--prod", "--audit-level", "high"]);
 run("pnpm", ["--dir", "apps/mobile", "typecheck"]);
@@ -115,9 +135,11 @@ writeFileSync(shaPath, `${sha256}  ${artifactBaseName}\n`);
 const manifestVersionName = capture("apkanalyzer", ["manifest", "version-name", artifactPath]);
 const manifestVersionCode = capture("apkanalyzer", ["manifest", "version-code", artifactPath]);
 const debuggable = capture("apkanalyzer", ["manifest", "debuggable", artifactPath]);
+const manifestPrint = capture("apkanalyzer", ["manifest", "print", artifactPath]);
 if (manifestVersionName !== versionName) throw new Error(`APK versionName mismatch: expected ${versionName}, got ${manifestVersionName}`);
 if (manifestVersionCode !== String(versionCode)) throw new Error(`APK versionCode mismatch: expected ${versionCode}, got ${manifestVersionCode}`);
 if (debuggable !== "false") throw new Error(`APK debuggable mismatch: expected false, got ${debuggable}`);
+if (!manifestPrint.includes('android:allowBackup="false"')) throw new Error('APK manifest must set android:allowBackup="false".');
 
 const apksigner = path.join(process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools", "build-tools/36.0.0/apksigner");
 const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", artifactPath]);
@@ -128,6 +150,7 @@ console.log(`\n✅ APK verified: ${artifactPath}`);
 console.log(`   versionName=${manifestVersionName}`);
 console.log(`   versionCode=${manifestVersionCode}`);
 console.log(`   debuggable=${debuggable}`);
+console.log("   allowBackup=false");
 console.log(`   sha256=${sha256}`);
 
 if (shouldPublishGithub) {

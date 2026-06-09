@@ -79,9 +79,11 @@ const appConfig = JSON.parse(readFileSync(appJsonPath, "utf8"));
 const appVersion = appConfig.expo?.version;
 const appVersionCode = appConfig.expo?.android?.versionCode;
 const appPackage = appConfig.expo?.android?.package;
+const appAllowBackup = appConfig.expo?.android?.allowBackup;
 assert(appVersion === versionMatch[1].trim(), `apps/mobile/app.json version ${appVersion} does not match latest release ${versionMatch[1].trim()}.`);
 assert(appVersionCode === versionCode, `apps/mobile/app.json versionCode ${appVersionCode} does not match latest release ${versionCode}.`);
 assert(typeof appPackage === "string" && appPackage.length > 0, "apps/mobile/app.json is missing expo.android.package.");
+assert(appAllowBackup === false, "apps/mobile/app.json must set expo.android.allowBackup=false for launch candidates.");
 
 const smokeText = readFileSync(smokePath, "utf8");
 const smokeTag = extractSmokeValue("GitHub Release tag", smokeText);
@@ -118,10 +120,12 @@ try {
   const manifestVersionCode = capture("apkanalyzer", ["manifest", "version-code", apkPath]);
   const manifestPackage = capture("apkanalyzer", ["manifest", "application-id", apkPath]);
   const debuggable = capture("apkanalyzer", ["manifest", "debuggable", apkPath]);
+  const manifestPrint = capture("apkanalyzer", ["manifest", "print", apkPath]);
   assert(manifestVersionName === appVersion, `${release.tagName} APK versionName ${manifestVersionName} does not match app.json ${appVersion}.`);
   assert(manifestVersionCode === String(versionCode), `${release.tagName} APK versionCode ${manifestVersionCode} does not match tag ${versionCode}.`);
   assert(manifestPackage === appPackage, `${release.tagName} APK package ${manifestPackage} does not match app.json ${appPackage}.`);
   assert(debuggable === "false", `${release.tagName} APK debuggable must be false, got ${debuggable}.`);
+  assert(manifestPrint.includes('android:allowBackup="false"'), `${release.tagName} APK manifest must set android:allowBackup="false".`);
 
   const apksigner = path.join(androidToolEnv.ANDROID_HOME, "build-tools/36.0.0/apksigner");
   const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", apkPath]);
@@ -135,6 +139,6 @@ console.log(`✅ Latest mobile candidate is consistent: ${release.tagName}`);
 console.log(`   APK: ${apkAsset.name}`);
 console.log(`   Version: ${appVersion} (${versionCode})`);
 console.log(`   SHA256: ${shaMatch[1]}`);
-console.log(`   APK manifest: package ${appPackage}, version identity matches, debuggable=false`);
+console.log(`   APK manifest: package ${appPackage}, version identity matches, debuggable=false, allowBackup=false`);
 console.log("   APK signer: verified release certificate is not the Android debug identity");
 console.log("   Real-device launch gate still requires installing this GitHub Release APK on a signed device.");
