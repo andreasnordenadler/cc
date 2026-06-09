@@ -120,7 +120,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Website creator</span>
               <h2>{editingQuest ? "Edit a Custom Solo Side Quest." : "Create a Custom Solo Side Quest."}</h2>
               <p>
-                Match the mobile app&apos;s safest starter recipes: one clear proof condition, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
+                Match the mobile app&apos;s safest starter recipes: one or two clear proof conditions, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
               </p>
             </div>
             <span className="badge gold">{editingQuest ? "Editing" : "New"}</span>
@@ -139,6 +139,13 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <textarea name="summary" maxLength={220} rows={3} placeholder="Tell runners what strange chess habit this quest rewards." defaultValue={builderDefaults.summary} required />
             </label>
             <div className="grid side-quest-mode-grid">
+              <label>
+                Condition logic
+                <select name="logic" defaultValue="all" disabled={preservesComplexRule}>
+                  <option value="all">Complete every condition</option>
+                  <option value="any">Complete any one condition</option>
+                </select>
+              </label>
               <label>
                 Proof condition
                 <select name="conditionType" defaultValue={builderDefaults.conditionType}>
@@ -186,6 +193,53 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 <input name="targetSquare" maxLength={2} placeholder="e4" defaultValue={builderDefaults.targetSquare} />
               </label>
               <label>
+                Optional second condition
+                <select name="conditionType2" defaultValue="none" disabled={preservesComplexRule}>
+                  <option value="none">No second condition</option>
+                  <option value="gameResult">Game result</option>
+                  <option value="openingSequence">Opening pattern from move 1</option>
+                  <option value="moveSequence">Move pattern</option>
+                  <option value="pieceState">Piece state</option>
+                </select>
+              </label>
+              <label>
+                Second result target
+                <select name="result2" defaultValue="win" disabled={preservesComplexRule}>
+                  <option value="win">Win the game</option>
+                  <option value="draw">Draw the game</option>
+                  <option value="lose">Lose the game</option>
+                </select>
+              </label>
+              <label>
+                Second move / opening pattern
+                <input name="sequence2" placeholder="e4 e5 Nf3 or O-O" disabled={preservesComplexRule} />
+              </label>
+              <label>
+                Second piece rule
+                <select name="piece2" defaultValue="queen" disabled={preservesComplexRule}>
+                  <option value="king">My king</option>
+                  <option value="queen">My queen</option>
+                  <option value="rook">My rook</option>
+                  <option value="bishop">My bishop</option>
+                  <option value="knight">My knight</option>
+                  <option value="pawn">My pawn</option>
+                </select>
+              </label>
+              <label>
+                Second piece condition
+                <select name="pieceCondition2" defaultValue="moved" disabled={preservesComplexRule}>
+                  <option value="moved">moved</option>
+                  <option value="gone">gone</option>
+                  <option value="still on board">still on board</option>
+                  <option value="captured">captured</option>
+                  <option value="on square">on square</option>
+                </select>
+              </label>
+              <label>
+                Second target square
+                <input name="targetSquare2" maxLength={2} placeholder="e4" disabled={preservesComplexRule} />
+              </label>
+              <label>
                 Save state
                 <select name="lifecycle" defaultValue={builderDefaults.lifecycleChoice}>
                   <option value="draft">Private draft</option>
@@ -194,7 +248,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 </select>
               </label>
             </div>
-            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, the result fields are ignored.</p>
+            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, result fields are ignored. Existing mobile recipes with more than two conditions are preserved safely.</p>
             <div className="button-row">
               <button className="button primary" type="submit">{editingQuest ? "Save edits" : "Save Custom Side Quest"}</button>
               {editingQuest ? <Link className="button secondary" href="/account/custom-side-quests#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/challenges/community">See public examples</Link>}
@@ -460,27 +514,35 @@ async function setCustomSideQuestLifecycleFromWeb(formData: FormData) {
 }
 
 function buildWebCustomRuleConfig(formData: FormData): CustomSideQuestRuleConfig {
-  const conditionType = String(formData.get("conditionType") ?? "gameResult");
+  const primary = buildWebCustomRuleBlock(formData, "");
+  const secondType = String(formData.get("conditionType2") ?? "none");
+  const second = secondType === "none" ? null : buildWebCustomRuleBlock(formData, "2");
+  return { version: 2, logic: formData.get("logic") === "any" ? "any" : "all", blocks: second ? [primary, second] : [primary] };
+}
+
+function buildWebCustomRuleBlock(formData: FormData, suffix: "" | "2"): CustomSideQuestRuleConfig["blocks"][number] {
+  const conditionType = String(formData.get(`conditionType${suffix}`) ?? "gameResult");
   if (conditionType === "openingSequence") {
-    return { version: 2, logic: "all", blocks: [{ type: "openingSequence", raw: cleanText(formData.get("sequence"), 120), moves: splitMoveTokens(formData.get("sequence")), anchor: "gameStart" }] };
+    return { type: "openingSequence", raw: cleanText(formData.get(`sequence${suffix}`), 120), moves: splitMoveTokens(formData.get(`sequence${suffix}`)), anchor: "gameStart" };
   }
   if (conditionType === "moveSequence") {
-    return { version: 2, logic: "all", blocks: [{ type: "moveSequence", sequence: cleanText(formData.get("sequence"), 120) }] };
+    return { type: "moveSequence", sequence: cleanText(formData.get(`sequence${suffix}`), 120) };
   }
   if (conditionType === "pieceState") {
-    const condition = cleanPieceCondition(formData.get("pieceCondition"));
-    return { version: 2, logic: "all", blocks: [{ type: "pieceState", owner: "my", piece: cleanPiece(formData.get("piece")), condition, targetSquare: condition === "on square" ? cleanText(formData.get("targetSquare"), 2).toLowerCase() : null, timing: { atGameEnd: true } }] };
+    const condition = cleanPieceCondition(formData.get(`pieceCondition${suffix}`));
+    return { type: "pieceState", owner: "my", piece: cleanPiece(formData.get(`piece${suffix}`)), condition, targetSquare: condition === "on square" ? cleanText(formData.get(`targetSquare${suffix}`), 2).toLowerCase() : null, timing: { atGameEnd: true } };
   }
-  return { version: 2, logic: "all", blocks: [{ type: "gameResult", result: cleanResult(formData.get("result")) }] };
+  return { type: "gameResult", result: cleanResult(formData.get(`result${suffix}`)) };
 }
 
 function validateConfig(config: CustomSideQuestRuleConfig) {
   const parsed = parseCustomRuleConfig(JSON.stringify(config));
   if (!parsed?.blocks.length) return "Add at least one saved condition before saving.";
-  const [block] = parsed.blocks;
-  if (block.type === "openingSequence" && !block.moves.length) return "Opening sequence conditions need moves from move 1.";
-  if (block.type === "moveSequence" && !block.sequence.trim()) return "Move sequence conditions need moves.";
-  if (block.type === "pieceState" && block.condition === "on square" && !/^[a-h][1-8]$/.test(block.targetSquare ?? "")) return "Use real board squares like e4 or h8.";
+  for (const block of parsed.blocks) {
+    if (block.type === "openingSequence" && !block.moves.length) return "Opening sequence conditions need moves from move 1.";
+    if (block.type === "moveSequence" && !block.sequence.trim()) return "Move sequence conditions need moves.";
+    if (block.type === "pieceState" && block.condition === "on square" && !/^[a-h][1-8]$/.test(block.targetSquare ?? "")) return "Use real board squares like e4 or h8.";
+  }
   return null;
 }
 
