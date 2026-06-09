@@ -18,7 +18,7 @@ import {
   getPreferredRunnerName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
-import { listUserRelatedGroupQuests } from "@/lib/groupquests";
+import { listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 
 function deriveGroupQuestStatus(startAt: string, endAt: string) {
   const now = Date.now();
@@ -56,18 +56,9 @@ export default async function MyQuestLogPage() {
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
   const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
-  const multiplayerVictories: Array<{
-    placement: string;
-    title: string;
-    completedAt: string;
-    href: string;
-    seal: string;
-    copy: string;
-    defeated: string;
-  }> = [];
-
   const client = await clerkClient();
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, user.id);
+  const multiplayerVictories = buildMultiplayerVictories(relatedGroupQuests, user.id);
   const activeGroupQuests = relatedGroupQuests
     .filter((quest) => quest.hostUserId === user.id || quest.participants.some((participant) => participant.userId === user.id))
     .map((quest) => {
@@ -161,9 +152,9 @@ export default async function MyQuestLogPage() {
         <section className="mission-card quest-log-collection-card awkward-trophy-case">
           <div className="section-head trophy-case-head">
             <div>
-              <h2>{completedChallenges.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
+              <h2>{completedChallenges.length || multiplayerVictories.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
               <p>
-                {completedChallenges.length
+                {completedChallenges.length || multiplayerVictories.length
                   ? "Officially impressive. Socially complicated. Please admire responsibly."
                   : "No tiny heraldic paperwork yet. The shame is currently very organized."}
               </p>
@@ -224,7 +215,7 @@ export default async function MyQuestLogPage() {
                     </div>
                   </div>
                   <div className="multiplayer-victory-grid">
-                    {multiplayerVictories.map((victory) => (
+                    {multiplayerVictories.length ? multiplayerVictories.map((victory) => (
                       <Link href={victory.href} className="multiplayer-victory-card" key={`${victory.title}-${victory.placement}`}>
                         <span className="multiplayer-victory-scroll-thumb" aria-hidden="true">
                           <Image src="/scrolls/sqc-victory-scroll-template.png" alt="" width={78} height={116} />
@@ -239,7 +230,12 @@ export default async function MyQuestLogPage() {
                           <Image src={victory.seal} alt="" width={58} height={58} />
                         </span>
                       </Link>
-                    ))}
+                    )) : (
+                      <div className="empty-collection-state trophy-empty-state">
+                        <p>No Multiplayer podium scrolls yet. Finish top-three in a completed table and the scroll lands here.</p>
+                        <Link href="/groupquests" className="button primary">Open Multiplayer Side Quests</Link>
+                      </div>
+                    )}
                   </div>
                 </section>
               </div>
@@ -304,6 +300,55 @@ function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: strin
   return getChallengeAttempts(metadata, challengeId)
     .filter((attempt) => attempt.status === "passed")
     .at(-1) ?? null;
+}
+
+function buildMultiplayerVictories(groupQuests: ServerGroupQuest[], userId: string) {
+  return groupQuests
+    .filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished")
+    .map((quest) => {
+      const ranked = [...quest.participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      const index = ranked.findIndex((participant) => participant.userId === userId);
+      const participant = index >= 0 ? ranked[index] : null;
+
+      if (!participant || index > 2 || (participant.score ?? 0) <= 0) return null;
+
+      const placement = index === 0 ? "Gold" : index === 1 ? "Silver" : "Bronze";
+      const finishedAtValues = Object.values(participant.questFinishedAt ?? {}).filter(Boolean);
+      const completedAt = participant.lastProofAt ?? finishedAtValues.at(-1) ?? quest.endAt;
+      const completedCount = participant.completedQuestIds?.length ?? 0;
+      const otherPlayers = Math.max(quest.participants.length - 1, 0);
+
+      return {
+        placement,
+        title: quest.name,
+        completedAt: formatTrophyDate(completedAt),
+        href: `/groupquests/${quest.id}?accepted=1`,
+        seal: sealForPlacement(placement),
+        copy: `${ordinal(index + 1)} place · ${completedCount}/${quest.questIds.length} quests verified`,
+        defeated: otherPlayers ? `${otherPlayers} rival${otherPlayers === 1 ? "" : "s"} witnessed this` : "Solo podium paperwork, somehow",
+      };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+    .slice(0, 12);
+}
+
+function sealForPlacement(placement: "Gold" | "Silver" | "Bronze") {
+  if (placement === "Gold") return "/stamps/side_quest_chess_seal_gold_transparent.png";
+  if (placement === "Silver") return "/stamps/side_quest_chess_seal_silver_transparent.png";
+  return "/stamps/side_quest_chess_seal_bronze_transparent.png";
+}
+
+function ordinal(value: number) {
+  if (value === 1) return "1st";
+  if (value === 2) return "2nd";
+  if (value === 3) return "3rd";
+  return `${value}th`;
+}
+
+function formatTrophyDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Finished";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
 function getAwkwardTrophyCopy(index: number) {
