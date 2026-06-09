@@ -115,13 +115,33 @@ const expectedVersionCode = versionCodeMatch[1];
 
 const devices = listAuthorizedDevices();
 assert(devices.length > 0, "No authorized Android device found. Connect and unlock a real signed device with USB debugging authorized.");
-assert(devices.length === 1, `Expected exactly one authorized Android device, found ${devices.length}: ${devices.map((device) => device.serial).join(", ")}.`);
 
-const serial = devices[0].serial;
-const isEmulator = serial.startsWith("emulator-") || getDeviceProp(serial, "ro.kernel.qemu") === "1";
-assert(!isEmulator, `Refusing to satisfy the real-device gate with an emulator (${serial}).`);
-const model = getDeviceProp(serial, "ro.product.model") || "unknown model";
-const osVersion = getDeviceProp(serial, "ro.build.version.release") || "unknown Android";
+const deviceCandidates = devices.map((device) => {
+  const isEmulator = device.serial.startsWith("emulator-") || getDeviceProp(device.serial, "ro.kernel.qemu") === "1";
+  return {
+    ...device,
+    isEmulator,
+    model: getDeviceProp(device.serial, "ro.product.model") || "unknown model",
+    osVersion: getDeviceProp(device.serial, "ro.build.version.release") || "unknown Android",
+  };
+});
+const physicalDevices = deviceCandidates.filter((device) => !device.isEmulator);
+const ignoredEmulators = deviceCandidates.filter((device) => device.isEmulator).map((device) => device.serial);
+
+assert(
+  physicalDevices.length > 0,
+  `No authorized physical Android device found. ${ignoredEmulators.length ? `Ignoring emulator(s): ${ignoredEmulators.join(", ")}. ` : ""}Connect and unlock a real signed device with USB debugging authorized.`,
+);
+assert(
+  physicalDevices.length === 1,
+  `Expected exactly one authorized physical Android device, found ${physicalDevices.length}: ${physicalDevices.map((device) => device.serial).join(", ")}.`,
+);
+
+if (ignoredEmulators.length > 0) {
+  console.log(`Ignoring emulator(s) for the real-device gate: ${ignoredEmulators.join(", ")}`);
+}
+
+const { serial, model, osVersion } = physicalDevices[0];
 
 const tmpDir = mkdtempSync(path.join(os.tmpdir(), "sqc-mobile-device-install-"));
 try {
