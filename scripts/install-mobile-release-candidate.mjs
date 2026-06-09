@@ -73,6 +73,10 @@ function assertInstalledVersion(serial, packageId, expectedVersionName, expected
   );
 }
 
+function sleep(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
 function getForegroundPackage(serial) {
   const activityDump = adb(["-s", serial, "shell", "dumpsys", "activity", "activities"]);
   const resumedMatch = activityDump.match(/mResumedActivity:.*?\s([a-zA-Z0-9_.]+)\//);
@@ -84,6 +88,19 @@ function getForegroundPackage(serial) {
   const windowDump = adb(["-s", serial, "shell", "dumpsys", "window", "windows"]);
   const currentFocusMatch = windowDump.match(/mCurrentFocus=.*?\s([a-zA-Z0-9_.]+)\//);
   return currentFocusMatch?.[1] ?? null;
+}
+
+function waitForForegroundPackage(serial, packageId) {
+  const attempts = 10;
+  let foregroundPackage = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    foregroundPackage = getForegroundPackage(serial);
+    if (foregroundPackage === packageId) return foregroundPackage;
+    sleep(1000);
+  }
+
+  return foregroundPackage;
 }
 
 console.log("Checking GitHub Release candidate identity before device install...");
@@ -155,10 +172,10 @@ try {
   adb(["-s", serial, "install", "-r", apkPath], { stdio: "inherit" });
   assertInstalledVersion(serial, packageId, expectedVersionName, expectedVersionCode);
 
-  console.log(`Launching ${packageId}...`);
+  console.log(`Launching ${packageId} and waiting for it to foreground...`);
   adb(["-s", serial, "shell", "monkey", "-p", packageId, "-c", "android.intent.category.LAUNCHER", "1"], { stdio: "inherit" });
-  const foregroundPackage = getForegroundPackage(serial);
-  assert(foregroundPackage === packageId, `Expected ${packageId} to be foreground after launch, got ${foregroundPackage ?? "unknown"}.`);
+  const foregroundPackage = waitForForegroundPackage(serial, packageId);
+  assert(foregroundPackage === packageId, `Expected ${packageId} to be foreground within 10 seconds after launch, got ${foregroundPackage ?? "unknown"}.`);
 
   console.log(`✅ Installed ${release.tagName} (${expectedVersionName}, code ${expectedVersionCode}) and launched it on real device ${model} (${serial}, Android ${osVersion}).`);
   console.log("Continue REAL_DEVICE_SMOKE.md from the Auth and account sync section and record screenshots/clips.");
