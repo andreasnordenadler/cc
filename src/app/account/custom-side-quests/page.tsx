@@ -15,6 +15,20 @@ export const metadata = {
   description: "Manage your Side Quest Chess custom Side Quest library.",
 };
 
+const WEB_CUSTOM_RULE_BLOCK_LIMIT = 6;
+const WEB_CUSTOM_RULE_SUFFIXES = ["", "2", "3", "4", "5", "6"] as const;
+type WebCustomRuleSuffix = (typeof WEB_CUSTOM_RULE_SUFFIXES)[number];
+type WebCustomRuleConditionType = "none" | "gameResult" | "openingSequence" | "moveSequence" | "pieceState";
+type WebCustomRuleBlockDefaults = {
+  suffix: WebCustomRuleSuffix;
+  conditionType: WebCustomRuleConditionType;
+  result: "win" | "draw" | "lose";
+  sequence: string;
+  piece: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
+  pieceCondition: "gone" | "still on board" | "moved" | "captured" | "on square";
+  targetSquare: string;
+};
+
 export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; deleted?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; deactivated?: string; reset?: string; error?: string }> }) {
   noStore();
   const params = searchParams ? await searchParams : {};
@@ -41,7 +55,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
   const archivedCount = customQuests.filter((quest) => quest.lifecycle === "archived").length;
   const editingQuest = params.edit ? customQuests.find((quest) => quest.id === params.edit) ?? null : null;
   const editingRuleBlockCount = editingQuest ? parseCustomRuleConfig(editingQuest.config)?.blocks.length ?? 0 : 0;
-  const preservesComplexRule = editingRuleBlockCount > 1;
+  const preservesComplexRule = editingRuleBlockCount > WEB_CUSTOM_RULE_BLOCK_LIMIT;
   const builderDefaults = getCustomQuestBuilderDefaults(editingQuest);
 
   return (
@@ -120,7 +134,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Website creator</span>
               <h2>{editingQuest ? "Edit a Custom Solo Side Quest." : "Create a Custom Solo Side Quest."}</h2>
               <p>
-                Match the mobile app&apos;s safest starter recipes: one or two clear proof conditions, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
+                Match the mobile app&apos;s safest starter recipes: up to six clear proof conditions, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
               </p>
             </div>
             <span className="badge gold">{editingQuest ? "Editing" : "New"}</span>
@@ -146,99 +160,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                   <option value="any">Complete any one condition</option>
                 </select>
               </label>
-              <label>
-                Proof condition
-                <select name="conditionType" defaultValue={builderDefaults.conditionType}>
-                  <option value="gameResult">Game result</option>
-                  <option value="openingSequence">Opening pattern from move 1</option>
-                  <option value="moveSequence">Move pattern</option>
-                  <option value="pieceState">Piece state</option>
-                </select>
-              </label>
-              <label>
-                Result target
-                <select name="result" defaultValue={builderDefaults.result}>
-                  <option value="win">Win the game</option>
-                  <option value="draw">Draw the game</option>
-                  <option value="lose">Lose the game</option>
-                </select>
-              </label>
-              <label>
-                Move / opening pattern
-                <input name="sequence" placeholder="e4 e5 Nf3 or O-O" defaultValue={builderDefaults.sequence} />
-              </label>
-              <label>
-                Piece rule
-                <select name="piece" defaultValue={builderDefaults.piece}>
-                  <option value="king">My king</option>
-                  <option value="queen">My queen</option>
-                  <option value="rook">My rook</option>
-                  <option value="bishop">My bishop</option>
-                  <option value="knight">My knight</option>
-                  <option value="pawn">My pawn</option>
-                </select>
-              </label>
-              <label>
-                Piece condition
-                <select name="pieceCondition" defaultValue={builderDefaults.pieceCondition}>
-                  <option value="moved">moved</option>
-                  <option value="gone">gone</option>
-                  <option value="still on board">still on board</option>
-                  <option value="captured">captured</option>
-                  <option value="on square">on square</option>
-                </select>
-              </label>
-              <label>
-                Target square (only for on-square rules)
-                <input name="targetSquare" maxLength={2} placeholder="e4" defaultValue={builderDefaults.targetSquare} />
-              </label>
-              <label>
-                Optional second condition
-                <select name="conditionType2" defaultValue="none" disabled={preservesComplexRule}>
-                  <option value="none">No second condition</option>
-                  <option value="gameResult">Game result</option>
-                  <option value="openingSequence">Opening pattern from move 1</option>
-                  <option value="moveSequence">Move pattern</option>
-                  <option value="pieceState">Piece state</option>
-                </select>
-              </label>
-              <label>
-                Second result target
-                <select name="result2" defaultValue="win" disabled={preservesComplexRule}>
-                  <option value="win">Win the game</option>
-                  <option value="draw">Draw the game</option>
-                  <option value="lose">Lose the game</option>
-                </select>
-              </label>
-              <label>
-                Second move / opening pattern
-                <input name="sequence2" placeholder="e4 e5 Nf3 or O-O" disabled={preservesComplexRule} />
-              </label>
-              <label>
-                Second piece rule
-                <select name="piece2" defaultValue="queen" disabled={preservesComplexRule}>
-                  <option value="king">My king</option>
-                  <option value="queen">My queen</option>
-                  <option value="rook">My rook</option>
-                  <option value="bishop">My bishop</option>
-                  <option value="knight">My knight</option>
-                  <option value="pawn">My pawn</option>
-                </select>
-              </label>
-              <label>
-                Second piece condition
-                <select name="pieceCondition2" defaultValue="moved" disabled={preservesComplexRule}>
-                  <option value="moved">moved</option>
-                  <option value="gone">gone</option>
-                  <option value="still on board">still on board</option>
-                  <option value="captured">captured</option>
-                  <option value="on square">on square</option>
-                </select>
-              </label>
-              <label>
-                Second target square
-                <input name="targetSquare2" maxLength={2} placeholder="e4" disabled={preservesComplexRule} />
-              </label>
+              {builderDefaults.blocks.map((block, index) => (
+                <CustomConditionFields key={block.suffix || "primary"} block={block} index={index} disabled={preservesComplexRule} />
+              ))}
               <label>
                 Save state
                 <select name="lifecycle" defaultValue={builderDefaults.lifecycleChoice}>
@@ -248,7 +172,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 </select>
               </label>
             </div>
-            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, result fields are ignored. Existing mobile recipes with more than two conditions are preserved safely.</p>
+            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, result fields are ignored. Leave optional condition slots set to “No condition”. Existing mobile recipes with more than six conditions are preserved safely.</p>
             <div className="button-row">
               <button className="button primary" type="submit">{editingQuest ? "Save edits" : "Save Custom Side Quest"}</button>
               {editingQuest ? <Link className="button secondary" href="/account/custom-side-quests#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/challenges/community">See public examples</Link>}
@@ -267,6 +191,62 @@ function StatCard({ copy, label, value }: { copy: string; label: string; value: 
       <h2>{value}</h2>
       <p>{copy}</p>
     </article>
+  );
+}
+
+function CustomConditionFields({ block, disabled, index }: { block: WebCustomRuleBlockDefaults; disabled: boolean; index: number }) {
+  const prefix = index === 0 ? "" : `${index + 1} `;
+  const suffix = block.suffix;
+  return (
+    <>
+      <label>
+        {index === 0 ? "Proof condition" : `Optional condition ${index + 1}`}
+        <select name={`conditionType${suffix}`} defaultValue={block.conditionType} disabled={disabled}>
+          {index > 0 ? <option value="none">No condition</option> : null}
+          <option value="gameResult">Game result</option>
+          <option value="openingSequence">Opening pattern from move 1</option>
+          <option value="moveSequence">Move pattern</option>
+          <option value="pieceState">Piece state</option>
+        </select>
+      </label>
+      <label>
+        {prefix}Result target
+        <select name={`result${suffix}`} defaultValue={block.result} disabled={disabled}>
+          <option value="win">Win the game</option>
+          <option value="draw">Draw the game</option>
+          <option value="lose">Lose the game</option>
+        </select>
+      </label>
+      <label>
+        {prefix}Move / opening pattern
+        <input name={`sequence${suffix}`} placeholder="e4 e5 Nf3 or O-O" defaultValue={block.sequence} disabled={disabled} />
+      </label>
+      <label>
+        {prefix}Piece rule
+        <select name={`piece${suffix}`} defaultValue={block.piece} disabled={disabled}>
+          <option value="king">My king</option>
+          <option value="queen">My queen</option>
+          <option value="rook">My rook</option>
+          <option value="bishop">My bishop</option>
+          <option value="knight">My knight</option>
+          <option value="pawn">My pawn</option>
+        </select>
+      </label>
+      <label>
+        {prefix}Piece condition
+        <select name={`pieceCondition${suffix}`} defaultValue={block.pieceCondition} disabled={disabled}>
+          <option value="moved">moved</option>
+          <option value="gone">gone</option>
+          <option value="still on board">still on board</option>
+          <option value="captured">captured</option>
+          <option value="on square">on square</option>
+        </select>
+      </label>
+      <label>
+        {prefix}Target square
+        <input name={`targetSquare${suffix}`} maxLength={2} placeholder="e4" defaultValue={block.targetSquare} disabled={disabled} />
+      </label>
+    </>
   );
 }
 
@@ -412,7 +392,7 @@ async function saveCustomSideQuestFromWeb(formData: FormData) {
   }
 
   const existingConfig = editingQuest ? parseCustomRuleConfig(editingQuest.config) : null;
-  const shouldPreserveExistingConfig = Boolean(existingConfig && existingConfig.blocks.length > 1);
+  const shouldPreserveExistingConfig = Boolean(existingConfig && existingConfig.blocks.length > WEB_CUSTOM_RULE_BLOCK_LIMIT);
   const config = shouldPreserveExistingConfig ? existingConfig as CustomSideQuestRuleConfig : submittedConfig;
   const validation = lifecycle === "published" ? validateConfig(config) : null;
   if (validation) redirect(`/account/custom-side-quests?error=${encodeURIComponent(validation)}#custom-side-quest-builder`);
@@ -514,13 +494,15 @@ async function setCustomSideQuestLifecycleFromWeb(formData: FormData) {
 }
 
 function buildWebCustomRuleConfig(formData: FormData): CustomSideQuestRuleConfig {
-  const primary = buildWebCustomRuleBlock(formData, "");
-  const secondType = String(formData.get("conditionType2") ?? "none");
-  const second = secondType === "none" ? null : buildWebCustomRuleBlock(formData, "2");
-  return { version: 2, logic: formData.get("logic") === "any" ? "any" : "all", blocks: second ? [primary, second] : [primary] };
+  const blocks = WEB_CUSTOM_RULE_SUFFIXES.flatMap((suffix, index) => {
+    const conditionType = String(formData.get(`conditionType${suffix}`) ?? (index === 0 ? "gameResult" : "none"));
+    if (index > 0 && conditionType === "none") return [];
+    return [buildWebCustomRuleBlock(formData, suffix)];
+  });
+  return { version: 2, logic: formData.get("logic") === "any" ? "any" : "all", blocks: blocks.slice(0, WEB_CUSTOM_RULE_BLOCK_LIMIT) };
 }
 
-function buildWebCustomRuleBlock(formData: FormData, suffix: "" | "2"): CustomSideQuestRuleConfig["blocks"][number] {
+function buildWebCustomRuleBlock(formData: FormData, suffix: WebCustomRuleSuffix): CustomSideQuestRuleConfig["blocks"][number] {
   const conditionType = String(formData.get(`conditionType${suffix}`) ?? "gameResult");
   if (conditionType === "openingSequence") {
     return { type: "openingSequence", raw: cleanText(formData.get(`sequence${suffix}`), 120), moves: splitMoveTokens(formData.get(`sequence${suffix}`)), anchor: "gameStart" };
@@ -571,39 +553,45 @@ function compactCustomSideQuest(quest: CustomSideQuest): CustomSideQuest {
 }
 
 function getCustomQuestBuilderDefaults(quest: CustomSideQuest | null) {
-  const defaults = {
-    title: quest?.title ?? "",
-    summary: quest?.summary ?? "",
-    conditionType: "gameResult",
+  const blocks = WEB_CUSTOM_RULE_SUFFIXES.map((suffix, index): WebCustomRuleBlockDefaults => ({
+    suffix,
+    conditionType: index === 0 ? "gameResult" : "none",
     result: "win",
     sequence: "",
     piece: "queen",
     pieceCondition: "moved",
     targetSquare: "",
+  }));
+  const defaults = {
+    title: quest?.title ?? "",
+    summary: quest?.summary ?? "",
+    blocks,
     lifecycleChoice: "draft",
   };
 
   if (!quest) return defaults;
 
   defaults.lifecycleChoice = quest.lifecycle === "draft" ? "draft" : quest.visibility === "public" && quest.lifecycle === "published" ? "published-public" : "published-private";
-  const block = parseCustomRuleConfig(quest.config)?.blocks[0];
-  if (!block) return defaults;
-
-  if (block.type === "gameResult") {
-    defaults.conditionType = "gameResult";
-    defaults.result = block.result;
-  } else if (block.type === "openingSequence") {
-    defaults.conditionType = "openingSequence";
-    defaults.sequence = block.raw || block.moves.join(" ");
-  } else if (block.type === "moveSequence") {
-    defaults.conditionType = "moveSequence";
-    defaults.sequence = block.sequence;
-  } else if (block.type === "pieceState") {
-    defaults.conditionType = "pieceState";
-    defaults.piece = block.piece;
-    defaults.pieceCondition = block.condition;
-    defaults.targetSquare = block.targetSquare ?? "";
-  }
+  const savedBlocks = parseCustomRuleConfig(quest.config)?.blocks.slice(0, WEB_CUSTOM_RULE_BLOCK_LIMIT) ?? [];
+  savedBlocks.forEach((block, index) => {
+    const target = defaults.blocks[index];
+    if (!target) return;
+    if (block.type === "gameResult") {
+      target.conditionType = "gameResult";
+      target.result = block.result;
+    } else if (block.type === "openingSequence") {
+      target.conditionType = "openingSequence";
+      target.sequence = block.raw || block.moves.join(" ");
+    } else if (block.type === "moveSequence") {
+      target.conditionType = "moveSequence";
+      target.sequence = block.sequence;
+    } else if (block.type === "pieceState") {
+      target.conditionType = "pieceState";
+      target.piece = block.piece;
+      target.pieceCondition = block.condition;
+      target.targetSquare = block.targetSquare ?? "";
+    }
+  });
 
   return defaults;
 }

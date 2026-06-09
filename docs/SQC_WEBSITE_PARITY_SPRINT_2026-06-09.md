@@ -75,6 +75,8 @@ Each sprint run should:
 
 - 2026-06-10 00:05–00:10 Europe/Stockholm — Continued Custom Solo creator parity by expanding the website builder from one starter proof condition to a safe two-condition recipe model: website-created recipes can now use `Complete every condition` or `Complete any one condition` across two result/opening/move/piece-state blocks, while existing mobile-created recipes with more than two blocks remain protected from accidental collapse. Verification: `pnpm lint -- src/app/account/custom-side-quests/page.tsx`; `pnpm build`; commit `a031d53`; production deploy `https://cc-8yhzew92l-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`; live smoke returned `307` to `/sign-in` for signed-out `/account/custom-side-quests?twoConditionSmoke=20260610` and `200` for `/challenges/community?twoConditionSmoke=20260610` with Community Solo content.
 
+- 2026-06-10 00:16–00:23 Europe/Stockholm — Continued the same Custom Solo creator parity slice by raising the website builder from two proof conditions to the mobile-v251 six-condition cap. The website now renders optional condition slots 2–6 using the existing form grid, supports all/any logic across the full rule stack, prefills saved recipes up to six blocks during edits, and still preserves larger/future mobile-created stacks instead of collapsing them during metadata/state edits. Verification: `pnpm lint -- src/app/account/custom-side-quests/page.tsx`; `pnpm build`. Proof doc: `docs/SQC_WEB_CUSTOM_SIX_CONDITION_BUILDER_2026-06-10.md`.
+
 ## Final report requirements
 
 At deadline, report: shipped website features, commits/deploys, verification evidence, remaining gaps, and recommended next sprint priorities.
