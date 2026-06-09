@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { Challenge } from "@/lib/challenges";
 import type { GroupQuestInviteMode, GroupQuestProviderMode, ServerGroupQuest } from "@/lib/groupquests";
+
+type EditableQuest = {
+  id: string;
+  title: string;
+  objective: string;
+  reward: number;
+  difficulty: string;
+  source?: "official" | "custom" | "snapshot";
+};
 
 const providerModes: Array<{ id: GroupQuestProviderMode; label: string }> = [
   { id: "both", label: "Lichess or Chess.com" },
@@ -43,7 +51,7 @@ function cleanInviteKey(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
 }
 
-export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest, quests }: { canMarkOfficial?: boolean; groupQuest: ServerGroupQuest; quests: Challenge[] }) {
+export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest, quests }: { canMarkOfficial?: boolean; groupQuest: ServerGroupQuest; quests: EditableQuest[] }) {
   const [name, setName] = useState(groupQuest.name);
   const [inviteCopy, setInviteCopy] = useState(groupQuest.inviteCopy);
   const [inviteMode, setInviteMode] = useState<GroupQuestInviteMode>(groupQuest.inviteMode);
@@ -191,7 +199,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                         <input checked={checked} onChange={() => toggleQuest(quest.id)} type="checkbox" />
                         <span>
                           <strong>{quest.title}</strong>
-                          <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small>{quest.source === "custom" ? "Your Custom Solo" : quest.source === "snapshot" ? "Saved custom snapshot" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
                         </span>
                       </label>
                     );

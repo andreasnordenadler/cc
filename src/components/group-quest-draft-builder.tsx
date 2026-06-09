@@ -8,6 +8,7 @@ type BuilderQuest = {
   objective: string;
   reward: number;
   difficulty: string;
+  source?: "official" | "custom" | "snapshot";
 };
 
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
@@ -256,7 +257,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
         <div className="groupquests-builder-form">
           <div className="groupquests-quickstart-note" role="note">
             <strong>Quick start</strong>
-            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof.</span>
+            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo recipes from your library can join the stack too.</span>
           </div>
 
           <label>
@@ -311,7 +312,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
                         />
                         <span>
                           <strong>{quest.title}</strong>
-                          <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small>{quest.source === "custom" ? "Your Custom Solo" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
                         </span>
                       </label>
                     );

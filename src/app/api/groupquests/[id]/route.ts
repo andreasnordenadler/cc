@@ -1,6 +1,8 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore, isAdminAnalyticsViewer } from "@/lib/analytics";
+import { getChallengeById } from "@/lib/challenges";
+import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { findGroupQuestById, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -18,8 +20,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const host = await client.users.getUser(record.userId);
   const signedInUser = await client.users.getUser(userId);
+  const questSelection = buildGroupQuestSelection((payload as Record<string, unknown>).questIds, signedInUser.privateMetadata, record.groupQuest);
+  if (questSelection.error) {
+    return NextResponse.json({ ok: false, error: questSelection.error }, { status: 400 });
+  }
   const canSetOfficial = isAdminAnalyticsViewer(signedInUser);
-  const updatedQuest = patchGroupQuest(record.groupQuest, payload as Record<string, unknown>, canSetOfficial);
+  const updatedQuest = patchGroupQuest(record.groupQuest, payload as Record<string, unknown>, canSetOfficial, questSelection);
   await client.users.updateUserMetadata(record.userId, {
     privateMetadata: {
       ...(host.privateMetadata ?? {}),
@@ -31,7 +37,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return NextResponse.json({ ok: true, href: `/groupquests/${id}${updatedQuest.participants.some((participant) => participant.userId === userId) ? "?accepted=1" : ""}` });
 }
 
-function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean): ServerGroupQuest {
+function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean, questSelection: ReturnType<typeof buildGroupQuestSelection>): ServerGroupQuest {
   const providerMode = normalizeProviderMode(payload.providerMode);
   return {
     ...current,
@@ -39,9 +45,8 @@ function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unkn
     inviteCopy: cleanText(payload.inviteCopy, 280) ?? current.inviteCopy,
     inviteMode: payload.inviteMode === "private-key" ? "private-key" : payload.inviteMode === "unlisted-link" ? "unlisted-link" : "public",
     inviteKey: cleanText(payload.inviteKey, 40) ?? current.inviteKey,
-    questIds: Array.isArray(payload.questIds)
-      ? payload.questIds.filter((id): id is string => typeof id === "string" && id.length > 0).slice(0, 8)
-      : current.questIds,
+    questIds: questSelection.questIds ?? current.questIds,
+    customQuestSnapshots: questSelection.customQuestSnapshots ?? current.customQuestSnapshots,
     providerMode,
     providerLabel: cleanText(payload.providerLabel, 80) ?? providerLabelFor(providerMode),
     official: canSetOfficial && typeof payload.official === "boolean" ? payload.official : current.official,
@@ -49,6 +54,50 @@ function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unkn
     startAt: normalizeDateTimeValue(payload.startAt) ?? current.startAt,
     endAt: normalizeDateTimeValue(payload.endAt) ?? current.endAt,
     rules: normalizeRules(payload.rules, current.rules),
+  };
+}
+
+function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown, current: ServerGroupQuest) {
+  if (!Array.isArray(rawQuestIds)) return {};
+  const requestedIds = Array.from(new Set(rawQuestIds.filter((questId): questId is string => typeof questId === "string" && questId.length > 0))).slice(0, 8);
+  if (!requestedIds.length) return { error: "Choose at least one Side Quest for this Multiplayer lineup." };
+
+  const metadata = privateMetadata && typeof privateMetadata === "object" ? privateMetadata as Record<string, unknown> : {};
+  const ownedCustomQuests = new Map(getCustomSideQuests(metadata).map((quest) => [quest.id, quest]));
+  const currentSnapshots = new Map((current.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));
+  const customQuestSnapshots = [];
+
+  for (const questId of requestedIds) {
+    if (getChallengeById(questId)) continue;
+
+    const customQuest = ownedCustomQuests.get(questId);
+    if (customQuest) {
+      if ((customQuest.lifecycle ?? "published") !== "published") return { error: `${customQuest.title} must be published before it can be used in multiplayer.` };
+      if (!parseCustomRuleConfig(customQuest.config)?.blocks.length) return { error: `${customQuest.title} needs a launch-ready custom rule before it can be used in multiplayer.` };
+      customQuestSnapshots.push(buildCustomSnapshot(customQuest));
+      continue;
+    }
+
+    const existingSnapshot = currentSnapshots.get(questId);
+    if (existingSnapshot) {
+      customQuestSnapshots.push(existingSnapshot);
+      continue;
+    }
+
+    return { error: "Only official Side Quests, saved custom snapshots, or your own published custom Side Quests can be added to multiplayer." };
+  }
+
+  return { questIds: requestedIds, customQuestSnapshots };
+}
+
+function buildCustomSnapshot(customQuest: CustomSideQuest) {
+  return {
+    id: customQuest.id,
+    title: customQuest.title,
+    summary: customQuest.summary,
+    config: customQuest.config,
+    badgeImageUrl: customQuest.badgeImageUrl ?? null,
+    reward: 100,
   };
 }
 

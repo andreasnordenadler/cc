@@ -4,6 +4,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestEditForm from "@/components/group-quest-edit-form";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCustomSideQuests, parseCustomRuleConfig } from "@/lib/custom-side-quests";
 import { isAdminAnalyticsViewer } from "@/lib/analytics";
 import { findGroupQuestById } from "@/lib/groupquests";
 
@@ -23,6 +24,27 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
   if (record.groupQuest.hostUserId !== userId) redirect(`/groupquests/${id}`);
   const signedInUser = await client.users.getUser(userId);
   const canMarkOfficial = isAdminAnalyticsViewer(signedInUser);
+  const customQuests = getCustomSideQuests(signedInUser.privateMetadata && typeof signedInUser.privateMetadata === "object" ? signedInUser.privateMetadata as Record<string, unknown> : {})
+    .filter((quest) => (quest.lifecycle ?? "published") === "published" && parseCustomRuleConfig(quest.config)?.blocks.length)
+    .map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      objective: quest.summary,
+      reward: 100,
+      difficulty: "Custom Solo",
+      source: "custom" as const,
+    }));
+  const snapshotQuests = (record.groupQuest.customQuestSnapshots ?? [])
+    .filter((snapshot) => !customQuests.some((quest) => quest.id === snapshot.id))
+    .map((snapshot) => ({
+      id: snapshot.id,
+      title: snapshot.title,
+      objective: snapshot.summary,
+      reward: snapshot.reward ?? 100,
+      difficulty: "Saved custom snapshot",
+      source: "snapshot" as const,
+    }));
+  const officialQuests = CHALLENGES.map((challenge) => ({ ...challenge, source: "official" as const }));
 
   return (
     <main className="site-shell groupquests-page">
@@ -37,7 +59,7 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
           </div>
         </section>
 
-        <GroupQuestEditForm canMarkOfficial={canMarkOfficial} groupQuest={record.groupQuest} quests={CHALLENGES} />
+        <GroupQuestEditForm canMarkOfficial={canMarkOfficial} groupQuest={record.groupQuest} quests={[...officialQuests, ...customQuests, ...snapshotQuests]} />
       </div>
     </main>
   );

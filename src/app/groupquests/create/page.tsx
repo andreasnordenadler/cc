@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestDraftBuilder from "@/components/group-quest-draft-builder";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCustomSideQuests, parseCustomRuleConfig } from "@/lib/custom-side-quests";
 
 export const metadata = {
   title: "Create Multiplayer Side Quest · Side Quest Chess",
@@ -16,12 +17,26 @@ export default async function CreateGroupQuestPage() {
     redirect("/sign-in?redirect_url=%2Fgroupquests%2Fcreate");
   }
 
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const customQuests = getCustomSideQuests(user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata as Record<string, unknown> : {})
+    .filter((quest) => (quest.lifecycle ?? "published") === "published" && parseCustomRuleConfig(quest.config)?.blocks.length)
+    .map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      objective: quest.summary,
+      reward: 100,
+      difficulty: "Custom Solo",
+      source: "custom" as const,
+    }));
+
   const builderQuests = CHALLENGES.map((challenge) => ({
     id: challenge.id,
     title: challenge.title,
     objective: challenge.objective,
     reward: challenge.reward,
     difficulty: challenge.difficulty,
+    source: "official" as const,
   }));
 
   return (
@@ -37,7 +52,7 @@ export default async function CreateGroupQuestPage() {
         </section>
 
         <section className="mission-card groupquests-create-card" aria-label="Multiplayer Side Quest draft builder">
-          <GroupQuestDraftBuilder quests={builderQuests} />
+          <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests]} />
         </section>
       </div>
     </main>
