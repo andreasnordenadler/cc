@@ -15,7 +15,7 @@ export const metadata = {
   description: "Manage your Side Quest Chess custom Side Quest library.",
 };
 
-export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; deactivated?: string; reset?: string; error?: string }> }) {
+export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; deactivated?: string; reset?: string; error?: string }> }) {
   noStore();
   const params = searchParams ? await searchParams : {};
   const authUser = await currentUser();
@@ -66,6 +66,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
 
         {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your website shelf is now in sync.</p> : null}
         {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same recipe is still on your website shelf.</p> : null}
+        {params.duplicated ? <p className="form-status success" role="status">Custom Side Quest duplicated. The copy is ready on your website shelf.</p> : null}
         {params.started ? <p className="form-status success" role="status">Custom Side Quest started. Play a public game, then check the latest result here.</p> : null}
         {params.checked ? <p className="form-status success" role="status">Latest-game proof check saved. See the receipt on the active card below.</p> : null}
         {params.deactivated ? <p className="form-status success" role="status">Custom Side Quest deactivated. Your recipe stays saved.</p> : null}
@@ -278,6 +279,10 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
             </form>
           ) : null}
           {lifecycle !== "archived" ? <Link className="button ghost" href="/groupquests/create">Use in Multiplayer</Link> : null}
+          <form action={duplicateCustomSideQuestFromWeb}>
+            <input type="hidden" name="id" value={quest.id} />
+            <button className="button ghost" type="submit">Duplicate</button>
+          </form>
           <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit on website</Link>
           <form action={setCustomSideQuestLifecycleFromWeb}>
             <input type="hidden" name="id" value={quest.id} />
@@ -370,6 +375,34 @@ async function saveCustomSideQuestFromWeb(formData: FormData) {
   revalidatePath("/challenges/community");
   if (quest.visibility === "public" && quest.lifecycle === "published") revalidatePath(`/challenges/community/${quest.id}`);
   redirect(`/account/custom-side-quests?${editingQuest ? "updated" : "saved"}=1#custom-side-quest-builder`);
+}
+
+async function duplicateCustomSideQuestFromWeb(formData: FormData) {
+  "use server";
+  const authUser = await currentUser();
+  if (!authUser) redirect("/sign-in");
+  const id = String(formData.get("id") ?? "");
+  if (!id.startsWith("custom-")) redirect("/account/custom-side-quests?error=Unknown%20custom%20Side%20Quest.");
+  const client = await clerkClient();
+  const user = await client.users.getUser(authUser.id);
+  const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata as UserMetadataRecord : {};
+  const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? user.publicMetadata as UserMetadataRecord : {};
+  const existing = getCustomSideQuestStore(privateMetadata, publicMetadata);
+  const source = existing.find((quest) => quest.id === id);
+  if (!source) redirect("/account/custom-side-quests?error=Unknown%20custom%20Side%20Quest.");
+  const now = new Date().toISOString();
+  const copy = compactCustomSideQuest({
+    ...source,
+    id: `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    title: `${source.title} Copy`.slice(0, 80),
+    createdAt: now,
+    updatedAt: now,
+  });
+  await saveCustomQuestStore(client, authUser.id, [copy, ...existing.map(compactCustomSideQuest)].slice(0, 8));
+  revalidatePath("/account/custom-side-quests");
+  revalidatePath("/challenges/community");
+  if (copy.visibility === "public" && copy.lifecycle === "published") revalidatePath(`/challenges/community/${copy.id}`);
+  redirect("/account/custom-side-quests?duplicated=1");
 }
 
 async function setCustomSideQuestLifecycleFromWeb(formData: FormData) {
