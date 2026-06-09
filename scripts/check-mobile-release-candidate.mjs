@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,6 +38,21 @@ function capture(command, commandArgs) {
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
+}
+
+function findAndroidBuildTool(toolName) {
+  const buildToolsDir = path.join(androidToolEnv.ANDROID_HOME, "build-tools");
+  if (!existsSync(buildToolsDir)) {
+    throw new Error(`Android build-tools directory not found: ${buildToolsDir}`);
+  }
+
+  const candidates = readdirSync(buildToolsDir)
+    .map((version) => path.join(buildToolsDir, version, toolName))
+    .filter((toolPath) => existsSync(toolPath))
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+
+  assert(candidates.length > 0, `Could not find ${toolName} under ${buildToolsDir}.`);
+  return candidates[0];
 }
 
 function extractSmokeValue(label, smokeText) {
@@ -133,7 +148,7 @@ try {
   assert(debuggable === "false", `${release.tagName} APK debuggable must be false, got ${debuggable}.`);
   assert(manifestPrint.includes('android:allowBackup="false"'), `${release.tagName} APK manifest must set android:allowBackup="false".`);
 
-  const apksigner = path.join(androidToolEnv.ANDROID_HOME, "build-tools/36.0.0/apksigner");
+  const apksigner = findAndroidBuildTool("apksigner");
   const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", apkPath]);
   assert(!signerOutput.includes("CN=Android Debug"), `${release.tagName} APK is signed with the Android Debug certificate.`);
   assert(!signerOutput.includes("OU=Android"), `${release.tagName} APK signer still looks like the default Android debug identity.`);

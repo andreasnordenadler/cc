@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -57,6 +57,25 @@ function capture(command, commandArgs, options = {}) {
       PATH: `${process.env.JAVA_HOME ?? "/opt/homebrew/Cellar/openjdk@17/17.0.19/libexec/openjdk.jdk/Contents/Home"}/bin:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/platform-tools:${process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools"}/cmdline-tools/latest/bin:${process.env.PATH}`,
     },
   }).trim();
+}
+
+function findAndroidBuildTool(toolName) {
+  const androidHome = process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools";
+  const buildToolsDir = path.join(androidHome, "build-tools");
+  if (!existsSync(buildToolsDir)) {
+    throw new Error(`Android build-tools directory not found: ${buildToolsDir}`);
+  }
+
+  const candidates = readdirSync(buildToolsDir)
+    .map((version) => path.join(buildToolsDir, version, toolName))
+    .filter((toolPath) => existsSync(toolPath))
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+
+  if (candidates.length === 0) {
+    throw new Error(`Could not find ${toolName} under ${buildToolsDir}.`);
+  }
+
+  return candidates[0];
 }
 
 function nextPatchVersion(version) {
@@ -141,7 +160,7 @@ if (manifestVersionCode !== String(versionCode)) throw new Error(`APK versionCod
 if (debuggable !== "false") throw new Error(`APK debuggable mismatch: expected false, got ${debuggable}`);
 if (!manifestPrint.includes('android:allowBackup="false"')) throw new Error('APK manifest must set android:allowBackup="false".');
 
-const apksigner = path.join(process.env.ANDROID_HOME ?? "/opt/homebrew/share/android-commandlinetools", "build-tools/36.0.0/apksigner");
+const apksigner = findAndroidBuildTool("apksigner");
 const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", artifactPath]);
 if (signerOutput.includes("CN=Android Debug") || signerOutput.includes("OU=Android")) {
   throw new Error("Release APK is still signed with Android Debug certificate");
