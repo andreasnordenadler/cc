@@ -20,6 +20,12 @@ Sprint: SQC website parity sprint, 2026-06-09 17:35 → 2026-06-10 17:35 Europe/
 
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx src/lib/custom-side-quests.ts src/lib/community-side-quests.ts`
 - `pnpm build`
+- Commit/push: `7c9fcaa` (`Add web custom quest detailed rule controls`)
+- Production deploy: `https://cc-3pvuuvb09-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke:
+  - signed-out `/account/custom-side-quests?ruleDetailSmoke=20260610` returned `307` to `/sign-in`
+  - `/challenges/community?ruleDetailSmoke=20260610` returned `200` with Community Solo content
+  - `/challenges/community/seed-opening-hipster-32-1?ruleDetailSmoke=20260610` returned `200` with creator/rule content
 
 ## Notes
 
