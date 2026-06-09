@@ -10,13 +10,28 @@ export const metadata = {
   description: "Public Side Quest Chess Multiplayer Side Quests open for players to inspect and join.",
 };
 
-export default async function PublicGroupQuestsPage() {
+export default async function PublicGroupQuestsPage({ searchParams }: { searchParams?: Promise<{ host?: string; q?: string; status?: string }> }) {
   const { userId } = await auth();
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const selectedHost = typeof resolvedSearchParams.host === "string" ? decodeURIComponent(resolvedSearchParams.host) : null;
+  const searchQuery = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : "";
+  const selectedStatus = resolvedSearchParams.status === "finished" ? "finished" : resolvedSearchParams.status === "all" ? "all" : "open";
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
   const displayablePublicQuests = savedPublicQuests.filter(isDisplayablePublicQuest);
-  const officialQuests = displayablePublicQuests.filter((quest) => quest.official).map(toPublicQuestCard);
-  const communityQuests = displayablePublicQuests.filter((quest) => !quest.official).map(toPublicQuestCard);
+  const filteredPublicQuests = displayablePublicQuests.filter((quest) => {
+    const status = getQuestStatus(quest.startAt, quest.endAt);
+    const text = `${quest.name} ${quest.inviteCopy} ${quest.hostName} ${quest.providerLabel}`.toLowerCase();
+    if (selectedHost && getHostKey(quest.hostName) !== selectedHost) return false;
+    if (searchQuery && !text.includes(searchQuery.toLowerCase())) return false;
+    if (selectedStatus === "open" && status === "Finished") return false;
+    if (selectedStatus === "finished" && status !== "Finished") return false;
+    return true;
+  });
+  const selectedHostQuest = selectedHost ? displayablePublicQuests.find((quest) => getHostKey(quest.hostName) === selectedHost) : null;
+  const showOfficialLane = !selectedHost && !searchQuery && selectedStatus !== "finished";
+  const officialQuests = showOfficialLane ? displayablePublicQuests.filter((quest) => quest.official).map(toPublicQuestCard) : [];
+  const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map(toPublicQuestCard);
   const totalQuests = officialQuests.length + communityQuests.length;
 
   return (
@@ -28,7 +43,7 @@ export default async function PublicGroupQuestsPage() {
           <span className="eyebrow">Public Multiplayer Side Quests</span>
           <h1>Join a public bad idea.</h1>
           <p className="hero-copy">
-            Browse public Multiplayer Side Quest listings, inspect the rules, proof window, and join conditions before committing your next real chess game to the bit.
+            Browse public Multiplayer Side Quest listings, filter by host or status, inspect the rules, proof window, and join conditions before committing your next real chess game to the bit.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/groupquests">Back to Multiplayer Side Quests</Link>
@@ -41,9 +56,24 @@ export default async function PublicGroupQuestsPage() {
             <div>
               <span className="eyebrow">Open listings</span>
               <h2>Pick a table before the nonsense starts.</h2>
-              <p>Public Multiplayer Side Quests collect open tables anyone can inspect before joining.</p>
+              <p>{selectedHostQuest ? `Showing public Community Multiplayer tables hosted by ${selectedHostQuest.hostName}. Private invite-only tables and account details stay hidden.` : "Public Multiplayer Side Quests collect open tables anyone can inspect before joining."}</p>
             </div>
+            <span className="badge gold">{totalQuests}</span>
           </div>
+          <form className="groupquest-empty-state" action="/groupquests/public" aria-label="Filter public Multiplayer Side Quests">
+            <p><strong>Discovery filters.</strong> Search public tables, open a host shelf, or include finished events without exposing private invites.</p>
+            <div className="button-row">
+              <input className="text-input" type="search" name="q" defaultValue={searchQuery} placeholder="Search title, host, provider" aria-label="Search public Multiplayer Side Quests" />
+              {selectedHost ? <input type="hidden" name="host" value={selectedHost} /> : null}
+              <select className="text-input" name="status" defaultValue={selectedStatus} aria-label="Filter by Multiplayer status">
+                <option value="open">Open / starting</option>
+                <option value="all">All public</option>
+                <option value="finished">Finished</option>
+              </select>
+              <button className="button primary" type="submit">Apply filters</button>
+              {(selectedHost || searchQuery || selectedStatus !== "open") ? <Link className="button secondary" href="/groupquests/public">Show all public</Link> : null}
+            </div>
+          </form>
           {totalQuests ? (
             <div className="public-groupquests-list-stack">
               {officialQuests.length ? (
@@ -82,6 +112,7 @@ function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuest
     rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
     copy: quest.inviteCopy,
     href: `/groupquests/${quest.id}`,
+    hostName: quest.hostName,
     official: Boolean(quest.official),
     officialLabel: quest.officialLabel ?? "Official SQC Multiplayer Side Quest",
   };
@@ -99,24 +130,35 @@ function PublicQuestSection({ copy, quests, title }: { copy: string; quests: Ret
       </div>
       <div className="public-groupquests-list">
         {quests.map((quest) => (
-          <Link className={quest.official ? "public-groupquest-row official" : "public-groupquest-row"} href={quest.href} key={quest.title}>
+          <article className={quest.official ? "public-groupquest-row official" : "public-groupquest-row"} key={quest.title}>
             <div>
               <span>{quest.status}</span>
               {quest.official ? <small className="official-sqc-badge">{quest.officialLabel}</small> : null}
-              <strong>{quest.title}</strong>
+              <strong><Link href={quest.href}>{quest.title}</Link></strong>
               <p>{quest.copy}</p>
             </div>
             <div className="public-groupquest-meta">
               <small>{quest.players}</small>
               <small>{quest.window}</small>
               <small>{quest.rules}</small>
+              {!quest.official ? <small>Hosted by {quest.hostName}</small> : null}
             </div>
-            <em>Inspect and join</em>
-          </Link>
+            <div className="button-row">
+              <Link className="button secondary" href={quest.href}>Inspect and join</Link>
+              {!quest.official ? <Link className="button ghost" href={`/groupquests/public?host=${encodeURIComponent(getHostKey(quest.hostName))}`}>More by host</Link> : null}
+            </div>
+          </article>
         ))}
       </div>
     </section>
   );
+}
+
+function getHostKey(hostName: string) {
+  return hostName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "sqc-host";
 }
 
 function isDisplayablePublicQuest(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number]) {

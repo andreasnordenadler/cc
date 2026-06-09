@@ -9,7 +9,7 @@ import GroupQuestProofControls from "@/components/group-quest-proof-controls";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
-import { findGroupQuestById } from "@/lib/groupquests";
+import { findGroupQuestById, listPublicGroupQuests } from "@/lib/groupquests";
 import {
   getChessComUsername,
   getLichessUsername,
@@ -49,6 +49,7 @@ export default async function GroupQuestByIdPage({
   const client = await clerkClient();
   const savedRecord = await findGroupQuestById(client, id);
   const savedQuest = savedRecord?.groupQuest;
+  const publicGroupQuests = savedQuest && !savedQuest.official ? await listPublicGroupQuests(client) : [];
   const signedInUser = userId ? await client.users.getUser(userId) : null;
   const signedInMetadata = (signedInUser?.publicMetadata as UserMetadataRecord | undefined) ?? {};
   const signedInLichessUsername = getLichessUsername(signedInMetadata);
@@ -96,6 +97,13 @@ export default async function GroupQuestByIdPage({
     : [];
   const participantCount = rankedParticipants.length;
   const currentParticipantRank = serverParticipant ? rankedParticipants.findIndex((participant) => participant.userId === userId) + 1 : null;
+  const hostKey = savedQuest ? getHostKey(savedQuest.hostName) : "sqc-host";
+  const moreByHost = savedQuest && !savedQuest.official
+    ? publicGroupQuests
+      .filter((quest) => quest.id !== id && !quest.official && getHostKey(quest.hostName) === hostKey)
+      .slice(0, 3)
+    : [];
+  const reportHref = `/support?topic=community-multiplayer&quest=${encodeURIComponent(id)}${savedQuest?.hostName ? `&host=${encodeURIComponent(savedQuest.hostName)}` : ""}`;
 
   if (!hasAcceptedInvite) {
     return (
@@ -123,6 +131,7 @@ export default async function GroupQuestByIdPage({
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+              {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
               {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
@@ -240,6 +249,8 @@ export default async function GroupQuestByIdPage({
               inviteKey={inviteKey}
             />
           </section>
+
+          {savedQuest && !savedQuest.official ? <HostContextCard hostName={savedQuest.hostName} hostKey={hostKey} moreByHost={moreByHost} reportHref={reportHref} /> : null}
         </div>
       </main>
     );
@@ -262,6 +273,7 @@ export default async function GroupQuestByIdPage({
               Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+            {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
             {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 
           </div>
@@ -367,10 +379,55 @@ export default async function GroupQuestByIdPage({
           </ul>
         </section>
 
+        {savedQuest && !savedQuest.official ? <HostContextCard hostName={savedQuest.hostName} hostKey={hostKey} moreByHost={moreByHost} reportHref={reportHref} /> : null}
+
         <GroupQuestLeaveAction id={id} />
       </div>
     </main>
   );
+}
+
+function HostContextCard({
+  hostKey,
+  hostName,
+  moreByHost,
+  reportHref,
+}: {
+  hostKey: string;
+  hostName: string;
+  moreByHost: Awaited<ReturnType<typeof listPublicGroupQuests>>;
+  reportHref: string;
+}) {
+  return (
+    <section className="mission-card groupquests-host-panel" aria-label="Community Multiplayer host context">
+      <span className="eyebrow">Host context</span>
+      <h2>Hosted by {hostName}.</h2>
+      <p>
+        Open a public host shelf to browse other Community Multiplayer Side Quests from this host. Private invite-only tables, participant emails, and account details stay hidden.
+      </p>
+      <div className="button-row">
+        <Link className="button secondary" href={`/groupquests/public?host=${encodeURIComponent(hostKey)}`}>More by host</Link>
+        <Link className="button ghost" href={reportHref}>Report Side Quest</Link>
+      </div>
+      {moreByHost.length ? (
+        <div className="groupquests-host-control-list" aria-label={`More public Multiplayer Side Quests by ${hostName}`}>
+          {moreByHost.map((quest) => (
+            <div key={quest.id}>
+              <strong><Link href={`/groupquests/${quest.id}`}>{quest.name}</Link></strong>
+              <p>{quest.inviteCopy}</p>
+            </div>
+          ))}
+        </div>
+      ) : <p>No other public tables by this host are visible right now.</p>}
+    </section>
+  );
+}
+
+function getHostKey(hostName: string) {
+  return hostName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "sqc-host";
 }
 
 function formatDateTime(value: string) {
