@@ -85,23 +85,37 @@ const HOME_SQUARES: Record<string, Record<string, Record<string, string>>> = {
 };
 
 
-const CUSTOM_COAT_VARIANTS = {
-  winKing: "/badges/custom/custom-win-king.png",
-  winQueen: "/badges/custom/custom-win-queen.png",
-  winKnight: "/badges/custom/custom-win-knight.png",
-  winPawn: "/badges/custom/custom-win-pawn.png",
-  drawBishop: "/badges/custom/custom-draw-bishop.png",
-  drawRook: "/badges/custom/custom-draw-rook.png",
-  loseKing: "/badges/custom/custom-lose-king.png",
-  loseQueen: "/badges/custom/custom-lose-queen.png",
-  opening: "/badges/custom/custom-opening-scroll.png",
-  sequence: "/badges/custom/custom-sequence-scroll.png",
-  square: "/badges/custom/custom-square-star.png",
-  wild: "/badges/custom/custom-side-quest-crest.png",
-} as const;
+export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
+  "/badges/custom/custom-win-king.png",
+  "/badges/custom/custom-win-queen.png",
+  "/badges/custom/custom-win-knight.png",
+  "/badges/custom/custom-win-pawn.png",
+  "/badges/custom/custom-draw-bishop.png",
+  "/badges/custom/custom-draw-rook.png",
+  "/badges/custom/custom-lose-king.png",
+  "/badges/custom/custom-lose-queen.png",
+  "/badges/custom/custom-opening-scroll.png",
+  "/badges/custom/custom-sequence-scroll.png",
+  "/badges/custom/custom-square-star.png",
+  "/badges/custom/custom-wild-card.png",
+  "/badges/custom/custom-side-quest-crest.png",
+  "/badges/custom/random/custom-coat-02.png",
+  "/badges/custom/random/custom-coat-05.png",
+  "/badges/custom/random/custom-coat-06.png",
+  "/badges/custom/random/custom-coat-07.png",
+  "/badges/custom/random/custom-coat-08.png",
+  "/badges/custom/random/custom-coat-09.png",
+  "/badges/custom/random/custom-coat-10.png",
+  "/badges/custom/random/custom-coat-11.png",
+  "/badges/custom/random/custom-coat-12.png",
+  "/badges/custom/random/custom-coat-13.png",
+  "/badges/custom/random/custom-coat-15.png",
+  "/badges/custom/random/custom-coat-16.png",
+  "/badges/custom/random/custom-coat-17.png",
+] as const;
 
 export function chooseCustomSideQuestBadge() {
-  return CUSTOM_COAT_VARIANTS.wild;
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[Math.floor(Math.random() * CUSTOM_SIDE_QUEST_BADGE_POOL.length)] ?? "/badges/custom/custom-side-quest-crest.png";
 }
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {

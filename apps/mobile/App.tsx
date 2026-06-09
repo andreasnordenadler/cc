@@ -3414,7 +3414,6 @@ function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePr
 
 function getSingleCustomQuestBadgePath(badgeImageUrl?: string | null) {
   if (!badgeImageUrl) return CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH;
-  if (badgeImageUrl.includes("/badges/custom/") && !badgeImageUrl.includes("custom-side-quest-crest.png")) return CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH;
   return badgeImageUrl;
 }
 
