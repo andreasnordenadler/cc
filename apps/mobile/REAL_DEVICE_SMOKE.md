@@ -18,26 +18,31 @@ Current candidate to smoke:
 - GitHub Release tag: `mobile-v250`
 - Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v250>
 - APK filename: `sqc-mobile-android-v250-2026-06-08.apk`
+- Package ID: `com.sidequestchess.app`
 - Version name: `0.1.250`
 - Android version code: `250`
 - APK SHA256: `c4e10a8607d3fd79d493f7f236fcb21185ce617d5147331648acbb4541c2313a`
+- Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, and a release certificate that is not the Android debug identity.
 
 ## Candidate identity
 
 - GitHub Release tag:
 - APK filename:
+- Package ID:
 - Version name:
 - Android version code:
 - APK SHA256:
+- Manifest/signer proof:
 - Tester/device/OS:
 - Test time:
 
 ## Install and launch
 
-- [ ] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, release notes, SHA256 sidecar, downloaded GitHub Release APK, and APK manifest all describe the same non-debuggable candidate.
+- [ ] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, release notes, SHA256 sidecar, downloaded GitHub Release APK, APK manifest, package ID, and signer all describe the same non-debuggable release candidate.
 - [ ] Download the APK from the GitHub Release, not a local `dist-*` directory.
 - [ ] Verify SHA256 matches the release note if recording proof manually.
 - [ ] Confirm the APK is not debuggable (`application-debuggable` absent/false) if recording proof manually.
+- [ ] Confirm the APK signer is a release certificate, not the Android debug identity, if recording proof manually.
 - [ ] Install on a real signed Android device.
 - [ ] Launch `com.sidequestchess.app` and confirm Home loads without a crash.
 
@@ -84,6 +89,6 @@ Current candidate to smoke:
 
 ## Evidence to record
 
-- `pnpm mobile:release:candidate-check` output, including APK SHA256 and `debuggable=false` manifest proof.
+- `pnpm mobile:release:candidate-check` output, including package ID, APK SHA256, `debuggable=false` manifest proof, and release-signer proof.
 - Screenshots or short clips for launch, signed-in Account, Solo proof, Custom edit, Multiplayer create/join, Support, Trophy Cabinet, and logout.
 - Any failed step with device, timestamp, app version, and exact observed text.
