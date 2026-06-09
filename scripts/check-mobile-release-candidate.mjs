@@ -56,14 +56,20 @@ assert(mobileReleases.length > 0, "No non-draft mobile-v* GitHub releases found.
 const latest = mobileReleases[0];
 const release = ghJson(["release", "view", latest.tagName, "--json", "tagName,isDraft,isPrerelease,publishedAt,assets,body,url"]);
 const versionCode = Number.parseInt(release.tagName.replace("mobile-v", ""), 10);
-const apkAsset = release.assets.find((asset) => asset.name.endsWith(".apk"));
-const shaAsset = release.assets.find((asset) => asset.name === `${apkAsset?.name}.sha256` || asset.name.endsWith(".apk.sha256"));
+const apkAssets = release.assets.filter((asset) => asset.name.endsWith(".apk"));
+const apkAsset = apkAssets[0];
+const shaAssets = apkAsset
+  ? release.assets.filter((asset) => asset.name === `${apkAsset.name}.sha256`)
+  : [];
+const shaAsset = shaAssets[0];
 const versionMatch = release.body.match(/Version:\s*([^\n]+)/i);
 const versionCodeMatch = release.body.match(/Version code:\s*(\d+)/i);
 const shaMatch = release.body.match(/SHA256:\s*([a-f0-9]{64})/i);
 
 assert(!release.isDraft, `${release.tagName} is still a draft release.`);
+assert(apkAssets.length === 1, `${release.tagName} must have exactly one APK asset, found ${apkAssets.length}.`);
 assert(apkAsset, `${release.tagName} has no APK asset.`);
+assert(shaAssets.length === 1, `${release.tagName} must have exactly one SHA256 sidecar named ${apkAsset.name}.sha256, found ${shaAssets.length}.`);
 assert(shaAsset, `${release.tagName} has no APK SHA256 sidecar asset.`);
 assert(versionMatch, `${release.tagName} release notes are missing Version.`);
 assert(versionCodeMatch, `${release.tagName} release notes are missing Version code.`);

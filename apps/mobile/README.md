@@ -27,7 +27,7 @@ Use the latest `mobile-v*` GitHub Release as the install candidate until a store
 
 - GitHub release tag, APK filename, version name, and Android version code.
 - APK SHA256.
-- `pnpm mobile:release:candidate-check` passes, confirming `REAL_DEVICE_SMOKE.md`, `apps/mobile/app.json`, latest non-draft `mobile-v*` GitHub Release metadata, release-note SHA256, SHA256 sidecar, downloaded APK hash, and APK manifest all describe the same candidate.
+- `pnpm mobile:release:candidate-check` passes, confirming `REAL_DEVICE_SMOKE.md`, `apps/mobile/app.json`, latest non-draft `mobile-v*` GitHub Release metadata, exactly one APK asset plus matching `.apk.sha256` sidecar, release-note SHA256, downloaded APK hash, and APK manifest all describe the same candidate.
 - `application-debuggable` is absent/false (the candidate check verifies `debuggable=false` from the downloaded APK manifest).
 - Install + launch succeeds on a real signed Android device, not only an emulator.
 - Native Google sign-in succeeds through Clerk with `sidequestchess://sso-callback` configured.
