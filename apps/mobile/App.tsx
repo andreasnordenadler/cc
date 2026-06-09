@@ -2964,23 +2964,28 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
 }
 
 const MOBILE_SUPPORT_NOTE_MAX_LENGTH = 900;
-const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { versionCode?: number } } };
+const MOBILE_RELEASE_BASE_URL = "https://github.com/andreasnordenadler/cc/releases/tag";
+const MOBILE_APP_CONFIG = require("./app.json") as { expo?: { version?: string; android?: { package?: string; versionCode?: number } } };
 
 function getMobileCandidateIdentity() {
   const appVersion = MOBILE_APP_CONFIG.expo?.version ?? "unknown";
+  const androidPackage = MOBILE_APP_CONFIG.expo?.android?.package ?? "unknown";
   const androidVersionCode = MOBILE_APP_CONFIG.expo?.android?.versionCode;
   const releaseCandidate = androidVersionCode ? `mobile-v${androidVersionCode}` : "unknown";
+  const releaseUrl = androidVersionCode ? `${MOBILE_RELEASE_BASE_URL}/${releaseCandidate}` : null;
 
-  return { appVersion, androidVersionCode, releaseCandidate };
+  return { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl };
 }
 
 function buildMobileSupportDiagnostics(signedIn: MobileAccountState | null) {
-  const { appVersion, androidVersionCode, releaseCandidate } = getMobileCandidateIdentity();
+  const { appVersion, androidPackage, androidVersionCode, releaseCandidate, releaseUrl } = getMobileCandidateIdentity();
 
   return [
     "Side Quest Chess mobile diagnostics",
     `App version: ${appVersion}${androidVersionCode ? ` (${androidVersionCode})` : ""}`,
+    `Package ID: ${androidPackage}`,
     `Release candidate: ${releaseCandidate} GitHub Release APK`,
+    `Release URL: ${releaseUrl ?? "unknown"}`,
     `Platform: ${Platform.OS} ${Platform.Version}`,
     `API base: ${getApiBaseUrl()}`,
     `Account: ${signedIn ? signedIn.profile.displayName ? `signed in as ${signedIn.profile.displayName}` : "signed in" : "not signed in"}`,
@@ -3069,7 +3074,8 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Installed candidate</Text>
             <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-            <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. For real-device launch smoke, this should match the GitHub Release APK named in the checklist.</Text>
+            <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}. For real-device launch smoke, this should match the GitHub Release APK named in the checklist.</Text>
+            {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
           </View>
 
           <View style={compactStyles.appRows}>
