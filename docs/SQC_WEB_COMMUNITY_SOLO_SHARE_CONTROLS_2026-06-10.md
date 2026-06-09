@@ -21,4 +21,9 @@ Mobile exposes public Community Solo share actions, while the website Community 
 
 ## Production smoke
 
-Pending deploy in this slice until committed and production release gate runs.
+- Commit: `fd1b3b5`
+- Deploy: `https://cc-155zz02sc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- `https://sidequestchess.com/challenges/community/seed-opening-hipster-32-1?shareControlsSmoke=20260610` returned 200 and included `Share public link`, `Copy public quest link`, and `Send this public recipe`.
+- `https://sidequestchess.com/challenges/community?shareControlsSmoke=20260610` returned 200 with Community Solo content.
+- Signed-out `https://sidequestchess.com/account/custom-side-quests?shareControlsSmoke=20260610` resolved to `/sign-in`.
+- Seeded detail smoke checked that raw/private markers (`privateMetadata`, `publicMetadata`, `customSideQuests`, `creatorUserId`, `blocks`, `pieceState`, `openingSequence`) were absent from the HTML.
