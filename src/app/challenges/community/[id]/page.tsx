@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { CommunitySoloAnalytics, CommunitySoloAnalyticsLink } from "@/components/analytics/community-solo-analytics";
+import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
 
@@ -69,8 +70,27 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_check">Start/check in account</CommunitySoloAnalyticsLink>
             <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
             <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_creator">More by {quest.creatorName}</CommunitySoloAnalyticsLink>
+            <a className="button ghost" href="#share-community-side-quest">Share public link</a>
             <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report weird quest</CommunitySoloAnalyticsLink>
           </div>
+        </section>
+
+        <section className="mission-card quest-detail-section" id="share-community-side-quest" aria-label="Share Community Side Quest">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Share link</span>
+              <h2>Send this public recipe without exposing private shelf data.</h2>
+              <p>Copy the canonical Community Solo URL or share it through the same website social controls used for proof receipts. Drafts, archived recipes, and raw custom configs stay private.</p>
+            </div>
+          </div>
+          <ShareProofActions
+            challengeTitle={quest.title}
+            copy={`Try “${quest.title}” on Side Quest Chess — a Community Solo Side Quest by ${quest.creatorName}.`}
+            sharePath={quest.detailPath}
+            shareLabel="Copy public quest link"
+            copiedCopy="Public Community Solo link copied."
+            socialCopy={`Try “${quest.title}” on Side Quest Chess — a Community Solo Side Quest by ${quest.creatorName}.`}
+          />
         </section>
 
         <section className="mission-card quest-detail-section" aria-label="Community Side Quest creator context">

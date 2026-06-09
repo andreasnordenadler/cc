@@ -8,6 +8,8 @@ type ShareProofActionsProps = {
   sharePath?: string;
   shareLabel?: string;
   idleCopy?: string;
+  copiedCopy?: string;
+  socialCopy?: string;
   imagePath?: string;
   imageFileName?: string;
 };
@@ -22,6 +24,9 @@ export default function ShareProofActions({
   copy,
   challengeTitle,
   sharePath = "/result",
+  shareLabel = "Copy proof link",
+  copiedCopy = "Proof link copied.",
+  socialCopy: socialCopyOverride,
   imagePath,
   imageFileName = "side-quest-chess-proof.png",
 }: ShareProofActionsProps) {
@@ -42,8 +47,8 @@ export default function ShareProofActions({
   }, [imagePath]);
   const shareText = useMemo(() => `${copy}\n${shareUrl}`, [copy, shareUrl]);
   const socialCopy = useMemo(
-    () => `I completed “${challengeTitle}” on Side Quest Chess. Proof + coat of arms unlocked.`,
-    [challengeTitle],
+    () => socialCopyOverride || `I completed “${challengeTitle}” on Side Quest Chess. Proof + coat of arms unlocked.`,
+    [challengeTitle, socialCopyOverride],
   );
   const socialTargets = useMemo<ShareTarget[]>(() => {
     const encodedUrl = encodeURIComponent(shareUrl);
@@ -155,14 +160,14 @@ ${shareUrl}`);
         ))}
       </div>
       <div className="button-row proof-share-utility-row">
-        <button type="button" className="button secondary" onClick={copyProofLink}>Copy proof link</button>
+        <button type="button" className="button secondary" onClick={copyProofLink}>{shareLabel}</button>
         {imageUrl ? <button type="button" className="button secondary" onClick={copyImageLink}>Copy image link</button> : null}
         {imageUrl ? <button type="button" className="button secondary" onClick={downloadImage}>Download image</button> : null}
       </div>
       {status === "idle" ? null : (
         <p className="microcopy">
           {status === "copied"
-            ? "Proof link copied."
+            ? copiedCopy
             : status === "imageCopied"
               ? "Direct proof image link copied."
               : status === "downloaded"

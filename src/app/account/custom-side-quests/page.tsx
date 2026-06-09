@@ -4,6 +4,7 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
 import { describeCustomSideQuestRule, describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
@@ -353,6 +354,16 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
             </div>
           ))}
         </div>
+        {isPublic ? (
+          <ShareProofActions
+            challengeTitle={quest.title}
+            copy={`Try “${quest.title}” on Side Quest Chess — a public Custom Solo Side Quest.`}
+            sharePath={`/challenges/community/${encodeURIComponent(quest.id)}`}
+            shareLabel="Copy public quest link"
+            copiedCopy="Public Custom Solo link copied."
+            socialCopy={`Try “${quest.title}” on Side Quest Chess — a public Custom Solo Side Quest.`}
+          />
+        ) : null}
         <div className="button-row">
           <span className={statusTone ? `badge ${statusTone}` : "badge"}>{statusLabel}</span>
           {isPublic ? <Link className="button secondary" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>Open public page</Link> : null}
