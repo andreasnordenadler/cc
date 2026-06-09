@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { CommunitySoloAnalytics, CommunitySoloAnalyticsLink } from "@/components/analytics/community-solo-analytics";
 import SiteNav from "@/components/site-nav";
 import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
 
@@ -41,6 +42,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
 
   return (
     <main className="site-shell">
+      <CommunitySoloAnalytics type="community_solo_detail" questId={quest.id} status="detail_view" onceKey={`community-solo-detail:${quest.id}`} />
       <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
 
       <div className="content-wrap quest-detail-wrap">
@@ -64,10 +66,10 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             </div>
           </div>
           <div className="button-row hero-actions quest-detail-actions">
-            <Link className="button primary" href="/account">Start/check in account</Link>
+            <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_check">Start/check in account</CommunitySoloAnalyticsLink>
             <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
-            <Link className="button secondary" href={quest.creatorBrowsePath}>More by {quest.creatorName}</Link>
-            <Link className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
+            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_creator">More by {quest.creatorName}</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report weird quest</CommunitySoloAnalyticsLink>
           </div>
         </section>
 
@@ -78,7 +80,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <h2>Made public by {quest.creatorName}.</h2>
               <p>This link opens the public Community Solo board filtered to recipes from the same creator label. If that creator has no other public recipes, the page safely falls back without exposing private profile data.</p>
             </div>
-            <Link className="button secondary" href={quest.creatorBrowsePath}>Open creator context</Link>
+            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">Open creator context</CommunitySoloAnalyticsLink>
           </div>
         </section>
 
@@ -89,7 +91,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <h2>Player-created, publicly labeled, easy to flag.</h2>
               <p>This is not an official SQC quest. It is a public recipe from {quest.creatorName}. If the rule looks abusive, confusing, spammy, or broken, report it with the quest title so it can be reviewed.</p>
             </div>
-            <Link className="button secondary" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`}>Report weird quest</Link>
+            <CommunitySoloAnalyticsLink className="button secondary" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="trust_card_report">Report weird quest</CommunitySoloAnalyticsLink>
           </div>
         </section>
 
@@ -122,7 +124,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <span className="eyebrow">App-first players</span>
             <h2>Use the native community view.</h2>
             <p>The mobile app supports Community Solo as a complete compact surface: browse, inspect, start, check, prove, report, and collect the reward moment without needing the website for normal play.</p>
-            <Link className="button primary" href="/account">Open your SQC account</Link>
+            <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_account_card">Open your SQC account</CommunitySoloAnalyticsLink>
           </article>
         </section>
       </div>

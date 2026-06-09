@@ -4,7 +4,12 @@ export type SQCAnalyticsEventType =
   | "quest_started"
   | "quest_completed"
   | "quest_failed"
-  | "quest_pending";
+  | "quest_pending"
+  | "community_solo_browse"
+  | "community_solo_detail"
+  | "community_solo_creator_filter"
+  | "community_solo_report_click"
+  | "community_solo_account_handoff";
 
 export type SQCAnalyticsDeviceType = "mobile" | "tablet" | "desktop" | "bot" | "unknown";
 
@@ -235,6 +240,11 @@ function isKnownEventType(type: string): type is SQCAnalyticsEventType {
     "quest_completed",
     "quest_failed",
     "quest_pending",
+    "community_solo_browse",
+    "community_solo_detail",
+    "community_solo_creator_filter",
+    "community_solo_report_click",
+    "community_solo_account_handoff",
   ].includes(type);
 }
 
