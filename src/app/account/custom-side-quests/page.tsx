@@ -24,9 +24,16 @@ type WebCustomRuleBlockDefaults = {
   conditionType: WebCustomRuleConditionType;
   result: "win" | "draw" | "lose";
   sequence: string;
+  owner: "my" | "opponent";
   piece: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
-  pieceCondition: "gone" | "still on board" | "moved" | "captured" | "on square";
+  pieceCondition: "gone" | "still on board" | "moved" | "not moved" | "captured" | "on square";
+  timing: "byMove" | "atMove" | "atGameEnd";
+  moveNumber: number;
+  quantifier: "any one" | "at least" | "exactly" | "all";
+  count: number;
+  identity: string;
   targetSquare: string;
+  negated: boolean;
 };
 
 export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; deleted?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; deactivated?: string; reset?: string; error?: string }> }) {
@@ -134,7 +141,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Website creator</span>
               <h2>{editingQuest ? "Edit a Custom Solo Side Quest." : "Create a Custom Solo Side Quest."}</h2>
               <p>
-                Match the mobile app&apos;s safest starter recipes: up to six clear proof conditions, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
+                Match the mobile app&apos;s safest starter recipes: up to six clear proof conditions, piece ownership/timing/count controls, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
               </p>
             </div>
             <span className="badge gold">{editingQuest ? "Editing" : "New"}</span>
@@ -172,7 +179,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 </select>
               </label>
             </div>
-            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, result fields are ignored. Leave optional condition slots set to “No condition”. Existing mobile recipes with more than six conditions are preserved safely.</p>
+            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, result fields are ignored; owner, timing, count, identity, square, and inversion fields are saved in the same custom-rule model as mobile. Leave optional condition slots set to “No condition”. Existing mobile recipes with more than six conditions are preserved safely.</p>
             <div className="button-row">
               <button className="button primary" type="submit">{editingQuest ? "Save edits" : "Save Custom Side Quest"}</button>
               {editingQuest ? <Link className="button secondary" href="/account/custom-side-quests#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/challenges/community">See public examples</Link>}
@@ -233,9 +240,17 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
+        {prefix}Piece owner
+        <select name={`owner${suffix}`} defaultValue={block.owner} disabled={disabled}>
+          <option value="my">My pieces</option>
+          <option value="opponent">Opponent pieces</option>
+        </select>
+      </label>
+      <label>
         {prefix}Piece condition
         <select name={`pieceCondition${suffix}`} defaultValue={block.pieceCondition} disabled={disabled}>
           <option value="moved">moved</option>
+          <option value="not moved">not moved</option>
           <option value="gone">gone</option>
           <option value="still on board">still on board</option>
           <option value="captured">captured</option>
@@ -243,8 +258,57 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
+        {prefix}Timing
+        <select name={`timing${suffix}`} defaultValue={block.timing} disabled={disabled}>
+          <option value="byMove">By move</option>
+          <option value="atMove">At move</option>
+          <option value="atGameEnd">At game end</option>
+        </select>
+      </label>
+      <label>
+        {prefix}Move number
+        <input name={`moveNumber${suffix}`} type="number" min={1} max={80} defaultValue={block.moveNumber} disabled={disabled} />
+      </label>
+      <label>
+        {prefix}How many pieces
+        <select name={`quantifier${suffix}`} defaultValue={block.quantifier} disabled={disabled}>
+          <option value="any one">Any one</option>
+          <option value="at least">At least</option>
+          <option value="exactly">Exactly</option>
+          <option value="all">All starting pieces</option>
+        </select>
+      </label>
+      <label>
+        {prefix}Piece count
+        <input name={`count${suffix}`} type="number" min={1} max={8} defaultValue={block.count} disabled={disabled} />
+      </label>
+      <label>
+        {prefix}Specific starting piece
+        <select name={`identity${suffix}`} defaultValue={block.identity} disabled={disabled}>
+          <option value="any">Any matching piece</option>
+          <option value="original">Original king/queen</option>
+          <option value="queenside">Queenside rook/bishop/knight</option>
+          <option value="kingside">Kingside rook/bishop/knight</option>
+          <option value="a">a-pawn</option>
+          <option value="b">b-pawn</option>
+          <option value="c">c-pawn</option>
+          <option value="d">d-pawn</option>
+          <option value="e">e-pawn</option>
+          <option value="f">f-pawn</option>
+          <option value="g">g-pawn</option>
+          <option value="h">h-pawn</option>
+        </select>
+      </label>
+      <label>
         {prefix}Target square
         <input name={`targetSquare${suffix}`} maxLength={2} placeholder="e4" defaultValue={block.targetSquare} disabled={disabled} />
+      </label>
+      <label>
+        {prefix}Invert condition
+        <select name={`negated${suffix}`} defaultValue={block.negated ? "yes" : "no"} disabled={disabled}>
+          <option value="no">Must happen</option>
+          <option value="yes">Must NOT happen</option>
+        </select>
       </label>
     </>
   );
@@ -505,16 +569,32 @@ function buildWebCustomRuleConfig(formData: FormData): CustomSideQuestRuleConfig
 function buildWebCustomRuleBlock(formData: FormData, suffix: WebCustomRuleSuffix): CustomSideQuestRuleConfig["blocks"][number] {
   const conditionType = String(formData.get(`conditionType${suffix}`) ?? "gameResult");
   if (conditionType === "openingSequence") {
-    return { type: "openingSequence", raw: cleanText(formData.get(`sequence${suffix}`), 120), moves: splitMoveTokens(formData.get(`sequence${suffix}`)), anchor: "gameStart" };
+    return { type: "openingSequence", raw: cleanText(formData.get(`sequence${suffix}`), 120), moves: splitMoveTokens(formData.get(`sequence${suffix}`)), anchor: "gameStart", negate: formData.get(`negated${suffix}`) === "yes" };
   }
   if (conditionType === "moveSequence") {
-    return { type: "moveSequence", sequence: cleanText(formData.get(`sequence${suffix}`), 120) };
+    return { type: "moveSequence", sequence: cleanText(formData.get(`sequence${suffix}`), 120), timing: buildTiming(formData, suffix), negate: formData.get(`negated${suffix}`) === "yes" };
   }
   if (conditionType === "pieceState") {
     const condition = cleanPieceCondition(formData.get(`pieceCondition${suffix}`));
-    return { type: "pieceState", owner: "my", piece: cleanPiece(formData.get(`piece${suffix}`)), condition, targetSquare: condition === "on square" ? cleanText(formData.get(`targetSquare${suffix}`), 2).toLowerCase() : null, timing: { atGameEnd: true } };
+    const piece = cleanPiece(formData.get(`piece${suffix}`));
+    const quantifier = cleanQuantifier(formData.get(`quantifier${suffix}`));
+    return {
+      type: "pieceState",
+      owner: formData.get(`owner${suffix}`) === "opponent" ? "opponent" : "my",
+      piece,
+      selector: {
+        quantifier,
+        count: quantifier === "all" ? getPieceMaxCount(piece) : normalizeCount(formData.get(`count${suffix}`), piece),
+        maxAvailable: getPieceMaxCount(piece),
+        identity: cleanIdentity(formData.get(`identity${suffix}`), piece),
+      },
+      condition,
+      targetSquare: condition === "on square" ? cleanText(formData.get(`targetSquare${suffix}`), 2).toLowerCase() : null,
+      timing: buildTiming(formData, suffix),
+      negate: formData.get(`negated${suffix}`) === "yes",
+    };
   }
-  return { type: "gameResult", result: cleanResult(formData.get(`result${suffix}`)) };
+  return { type: "gameResult", result: cleanResult(formData.get(`result${suffix}`)), negate: formData.get(`negated${suffix}`) === "yes" };
 }
 
 function validateConfig(config: CustomSideQuestRuleConfig) {
@@ -558,9 +638,16 @@ function getCustomQuestBuilderDefaults(quest: CustomSideQuest | null) {
     conditionType: index === 0 ? "gameResult" : "none",
     result: "win",
     sequence: "",
+    owner: "my",
     piece: "queen",
     pieceCondition: "moved",
+    timing: "byMove",
+    moveNumber: 15,
+    quantifier: "any one",
+    count: 1,
+    identity: "original",
     targetSquare: "",
+    negated: false,
   }));
   const defaults = {
     title: quest?.title ?? "",
@@ -579,17 +666,27 @@ function getCustomQuestBuilderDefaults(quest: CustomSideQuest | null) {
     if (block.type === "gameResult") {
       target.conditionType = "gameResult";
       target.result = block.result;
+      target.negated = block.negate === true;
     } else if (block.type === "openingSequence") {
       target.conditionType = "openingSequence";
       target.sequence = block.raw || block.moves.join(" ");
+      target.negated = block.negate === true;
     } else if (block.type === "moveSequence") {
       target.conditionType = "moveSequence";
       target.sequence = block.sequence;
+      applyTimingDefaults(target, block.timing);
+      target.negated = block.negate === true;
     } else if (block.type === "pieceState") {
       target.conditionType = "pieceState";
+      target.owner = block.owner === "opponent" ? "opponent" : "my";
       target.piece = block.piece;
       target.pieceCondition = block.condition;
+      applyTimingDefaults(target, block.timing);
+      target.quantifier = cleanQuantifier(block.selector?.quantifier ?? null);
+      target.count = normalizeCount(block.selector?.count ?? null, block.piece);
+      target.identity = cleanIdentity(block.selector?.identity ?? null, block.piece);
       target.targetSquare = block.targetSquare ?? "";
+      target.negated = block.negate === true;
     }
   });
 
@@ -600,7 +697,34 @@ function splitMoveTokens(value: FormDataEntryValue | null) { return cleanText(va
 function cleanText(value: unknown, max: number) { return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
 function cleanResult(value: FormDataEntryValue | null): "win" | "draw" | "lose" { return value === "draw" || value === "lose" ? value : "win"; }
 function cleanPiece(value: FormDataEntryValue | null): "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" { return value === "king" || value === "rook" || value === "bishop" || value === "knight" || value === "pawn" ? value : "queen"; }
-function cleanPieceCondition(value: FormDataEntryValue | null): "gone" | "still on board" | "moved" | "captured" | "on square" { return value === "gone" || value === "still on board" || value === "captured" || value === "on square" ? value : "moved"; }
+function cleanPieceCondition(value: FormDataEntryValue | null): "gone" | "still on board" | "moved" | "not moved" | "captured" | "on square" { return value === "gone" || value === "still on board" || value === "not moved" || value === "captured" || value === "on square" ? value : "moved"; }
+function cleanQuantifier(value: unknown): "any one" | "at least" | "exactly" | "all" { return value === "at least" || value === "exactly" || value === "all" ? value : "any one"; }
+function getPieceMaxCount(piece: ReturnType<typeof cleanPiece>) { return piece === "pawn" ? 8 : piece === "king" || piece === "queen" ? 1 : 2; }
+function normalizeCount(value: unknown, piece: ReturnType<typeof cleanPiece>) { const parsed = Number(value); return Math.min(Math.max(Number.isFinite(parsed) ? Math.floor(parsed) : 1, 1), getPieceMaxCount(piece)); }
+function cleanIdentity(value: unknown, piece: ReturnType<typeof cleanPiece>) {
+  const text = typeof value === "string" ? value : "any";
+  if (piece === "pawn") return /^[a-h]$/.test(text) ? text : "any";
+  if (piece === "rook" || piece === "bishop" || piece === "knight") return text === "queenside" || text === "kingside" ? text : "any";
+  return text === "original" ? "original" : "any";
+}
+function buildTiming(formData: FormData, suffix: WebCustomRuleSuffix) {
+  const moveNumber = Math.min(Math.max(Number(formData.get(`moveNumber${suffix}`)) || 15, 1), 80);
+  const timing = formData.get(`timing${suffix}`);
+  if (timing === "atMove") return { atMove: moveNumber };
+  if (timing === "atGameEnd") return { atGameEnd: true as const };
+  return { byMove: moveNumber };
+}
+function applyTimingDefaults(target: WebCustomRuleBlockDefaults, timing: unknown) {
+  if (timing && typeof timing === "object" && "atMove" in timing && typeof timing.atMove === "number") {
+    target.timing = "atMove";
+    target.moveNumber = timing.atMove;
+  } else if (timing && typeof timing === "object" && "byMove" in timing && typeof timing.byMove === "number") {
+    target.timing = "byMove";
+    target.moveNumber = timing.byMove;
+  } else {
+    target.timing = "atGameEnd";
+  }
+}
 
 function formatDate(value: string) {
   const date = new Date(value);

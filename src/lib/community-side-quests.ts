@@ -100,9 +100,12 @@ export function describeCustomSideQuestRuleDetails(config: string) {
     if (block.type === "openingSequence") return `Play the opening pattern ${block.moves.join(" ")}.`;
     if (block.type === "moveSequence") return block.negate ? `Avoid the move pattern ${block.sequence}.` : `Play the move pattern ${block.sequence}.`;
     if (block.type === "pieceState") {
-      const timing = block.timing?.byMove ? ` by move ${block.timing.byMove}` : block.timing?.atGameEnd ? " by game end" : "";
+      const timing = block.timing?.byMove ? ` by move ${block.timing.byMove}` : block.timing?.atMove ? ` at move ${block.timing.atMove}` : block.timing?.atGameEnd ? " by game end" : "";
+      const selector = block.selector?.quantifier === "all" ? "all starting" : block.selector?.quantifier ? `${block.selector.quantifier} ${block.selector.count ?? 1}` : "any";
+      const identity = block.selector?.identity && block.selector.identity !== "any" ? ` (${block.selector.identity})` : "";
       const target = block.targetSquare ? ` on ${block.targetSquare}` : "";
-      return `${capitalize(block.owner)} ${block.piece} must be ${block.condition}${target}${timing}.`;
+      const line = `${capitalize(block.owner)} ${selector} ${block.piece}${identity} must be ${block.condition}${target}${timing}.`;
+      return block.negate ? `Avoid: ${line}` : line;
     }
     return "Custom rule";
   });

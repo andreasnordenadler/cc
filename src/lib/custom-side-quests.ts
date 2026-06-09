@@ -13,7 +13,7 @@ export type CustomSideQuestRuleBlock =
       piece: "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
       owner: "my" | "opponent" | "either";
       selector?: { quantifier?: "any one" | "at least" | "exactly" | "all"; count?: number; identity?: string; maxAvailable?: number };
-      condition: "gone" | "still on board" | "moved" | "captured" | "on square";
+      condition: "gone" | "still on board" | "moved" | "not moved" | "captured" | "on square";
       targetSquare?: string | null;
       timing?: { byMove?: number; atMove?: number; atGameEnd?: true };
       negate?: boolean;
@@ -297,4 +297,4 @@ function evalPieceStateAtSnapshot(block: Extract<CustomSideQuestRuleBlock, { typ
   return { passed, label: "Piece condition", explanation: passed ? `Matched ${count} piece${count === 1 ? "" : "s"}.` : `Matched ${count}, but needed ${quantifier === "exactly" ? "exactly" : "at least"} ${required}.`, ply: snapshot?.ply, moveNumber: snapshot?.moveNumber, san: snapshot?.san, uci: snapshot?.uci, fenAtBreak: snapshot?.fen };
 }
 function candidateOrigins(piece: string, color: "white" | "black", identity: string) { const entries = HOME_SQUARES[color][piece] ?? {}; if (identity !== "any" && entries[identity]) return [entries[identity]]; return Object.values(entries); }
-function conditionMatches(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, square: string | null, piece: { moved: boolean } | null) { if (block.condition === "gone" || block.condition === "captured") return !piece; if (!piece || !square) return false; if (block.condition === "moved") return piece.moved; if (block.condition === "on square") return square === block.targetSquare; return true; }
+function conditionMatches(block: Extract<CustomSideQuestRuleBlock, { type: "pieceState" }>, square: string | null, piece: { moved: boolean } | null) { if (block.condition === "gone" || block.condition === "captured") return !piece; if (!piece || !square) return false; if (block.condition === "moved") return piece.moved; if (block.condition === "not moved") return !piece.moved; if (block.condition === "on square") return square === block.targetSquare; return true; }
