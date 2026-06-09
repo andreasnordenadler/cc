@@ -13,6 +13,7 @@ const providerModes: Array<{ id: GroupQuestProviderMode; label: string }> = [
 const inviteModes: Array<{ id: GroupQuestInviteMode; label: string; copy: string }> = [
   { id: "public", label: "Public listing", copy: "Anyone can find it on the public Multiplayer Side Quest list and join." },
   { id: "unlisted-link", label: "Unlisted link", copy: "Anyone with the Multiplayer Side Quest link can join." },
+  { id: "private-key", label: "Private host code", copy: "Only players with the host code can join. The table stays out of public discovery." },
 ];
 
 const gameRuleGroups = [
@@ -33,10 +34,20 @@ function toIsoFromDateTimeLocal(value: string) {
   return Number.isNaN(date.getTime()) ? value : date.toISOString();
 }
 
+function makeInviteKey(name: string) {
+  const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "sqc";
+  return `${safe}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function cleanInviteKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
+}
+
 export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest, quests }: { canMarkOfficial?: boolean; groupQuest: ServerGroupQuest; quests: Challenge[] }) {
   const [name, setName] = useState(groupQuest.name);
   const [inviteCopy, setInviteCopy] = useState(groupQuest.inviteCopy);
   const [inviteMode, setInviteMode] = useState<GroupQuestInviteMode>(groupQuest.inviteMode);
+  const [inviteKey, setInviteKey] = useState(groupQuest.inviteKey ?? makeInviteKey(groupQuest.name));
   const [providerMode, setProviderMode] = useState<GroupQuestProviderMode>(groupQuest.providerMode);
   const [official, setOfficial] = useState(Boolean(groupQuest.official));
   const [officialLabel, setOfficialLabel] = useState(groupQuest.officialLabel ?? "Official SQC Multiplayer Side Quest");
@@ -67,6 +78,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
         name,
         inviteCopy,
         inviteMode,
+        inviteKey: inviteMode === "private-key" ? inviteKey : undefined,
         questIds: selectedQuestIds,
         providerMode,
         providerLabel: selectedProvider.label,
@@ -111,6 +123,19 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
               ))}
             </div>
           </div>
+
+          {inviteMode === "private-key" ? (
+            <label>
+              <span>Private host code</span>
+              <input
+                value={inviteKey}
+                onChange={(event) => setInviteKey(cleanInviteKey(event.target.value))}
+                onBlur={() => setInviteKey((current) => current || makeInviteKey(name))}
+                maxLength={40}
+              />
+              <small>Share this code or the private invite link from the quest page. Players without it cannot join.</small>
+            </label>
+          ) : null}
 
 
           {canMarkOfficial ? (
@@ -216,7 +241,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
           </div>
           <div className="groupquests-preview-link">
             <strong>Share URL</strong>
-            <span>{`https://sidequestchess.com/groupquests/${groupQuest.id}`}</span>
+            <span>{inviteMode === "private-key" ? `https://sidequestchess.com/groupquests/${groupQuest.id}?inviteKey=${inviteKey}` : `https://sidequestchess.com/groupquests/${groupQuest.id}`}</span>
           </div>
         </aside>
       </div>

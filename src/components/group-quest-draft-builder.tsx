@@ -31,6 +31,11 @@ const inviteModes = [
     label: "Unlisted link",
     copy: "Anyone with the Multiplayer Side Quest link can join while sharing is open.",
   },
+  {
+    id: "private-key",
+    label: "Private host code",
+    copy: "Only players with the host code can join. The table stays out of public discovery.",
+  },
 ];
 
 function toDateTimeLocal(date: Date) {
@@ -107,12 +112,22 @@ function publicIdFromName(name: string) {
   return String(10000 + hash).slice(0, 5);
 }
 
+function makeInviteKey(name: string) {
+  const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "sqc";
+  return `${safe}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function cleanInviteKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
+}
+
 export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQuest[] }) {
   const [name, setName] = useState("No Castle Night");
   const initialQuestId = quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "";
   const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(initialQuestId ? [initialQuestId] : []);
   const [questPickerOpen, setQuestPickerOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
+  const [inviteKey, setInviteKey] = useState(() => makeInviteKey("No Castle Night"));
   const [inviteCopy, setInviteCopy] = useState(defaultInviteCopy);
   const [providerMode, setProviderMode] = useState(providerModes[0].id);
   const [startAt, setStartAt] = useState(defaultStartAt);
@@ -201,6 +216,7 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
           name,
           inviteCopy,
           inviteMode,
+          inviteKey: inviteMode === "private-key" ? inviteKey : undefined,
           questIds: selectedQuestIds,
           providerMode,
           providerLabel: selectedProviderMode.label,
@@ -326,6 +342,19 @@ export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQues
               ))}
             </div>
           </div>
+
+          {inviteMode === "private-key" ? (
+            <label>
+              <span>Private host code</span>
+              <input
+                value={inviteKey}
+                onChange={(event) => setInviteKey(cleanInviteKey(event.target.value))}
+                onBlur={() => setInviteKey((current) => current || makeInviteKey(name))}
+                maxLength={40}
+              />
+              <small>Share this code or the private invite link from the quest page. Players without it cannot join.</small>
+            </label>
+          ) : null}
 
           <div className="groupquests-rule-builder compact" aria-label="Multiplayer Side Quest schedule">
             <div>

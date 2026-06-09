@@ -81,7 +81,10 @@ export default async function GroupQuestByIdPage({
   const officialLabel = savedQuest?.officialLabel ?? "Official SQC Multiplayer Side Quest";
   const groupQuestSealSrc = savedQuest?.official ? "/stamps/SQCBLACK%20SEAL.png" : "/stamps/sqc-multiplayer-seal.png";
   const groupQuestSealAlt = savedQuest?.official ? "Official SQC Multiplayer Side Quest seal" : "Multiplayer Side Quest seal";
-  const shareUrl = `https://sidequestchess.com/groupquests/${id}`;
+  const hostPrivateInviteKey = isHost && savedQuest?.inviteMode === "private-key" ? savedQuest.inviteKey : undefined;
+  const shareUrl = hostPrivateInviteKey
+    ? `https://sidequestchess.com/groupquests/${id}?inviteKey=${encodeURIComponent(hostPrivateInviteKey)}`
+    : `https://sidequestchess.com/groupquests/${id}`;
   const quests = activeQuestIds
     .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
     .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
@@ -131,6 +134,7 @@ export default async function GroupQuestByIdPage({
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+              {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code.</p> : null}
               {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
               {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
@@ -273,6 +277,7 @@ export default async function GroupQuestByIdPage({
               Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
+            {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code.</p> : null}
             {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
             {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 
