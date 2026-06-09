@@ -40,11 +40,12 @@ export default async function GroupQuestByIdPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ accepted?: string }>;
+  searchParams?: Promise<{ accepted?: string; inviteKey?: string }>;
 }) {
   const { userId } = await auth();
   const { id } = await params;
-  await searchParams;
+  const resolvedSearchParams = await searchParams;
+  const inviteKey = typeof resolvedSearchParams?.inviteKey === "string" ? resolvedSearchParams.inviteKey : undefined;
   const client = await clerkClient();
   const savedRecord = await findGroupQuestById(client, id);
   const savedQuest = savedRecord?.groupQuest;
@@ -74,7 +75,7 @@ export default async function GroupQuestByIdPage({
   const endsAt = savedQuest?.endAt ?? new Date().toISOString();
   const startsAtLabel = formatDateTime(startsAt);
   const endsAtLabel = formatDateTime(endsAt);
-  const visibilityLabel = savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : "Public listing";
+  const visibilityLabel = savedQuest?.inviteMode === "private-key" ? "Private invite" : savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : "Public listing";
   const providerLabel = savedQuest?.providerLabel ?? "Lichess or Chess.com";
   const officialLabel = savedQuest?.officialLabel ?? "Official SQC Multiplayer Side Quest";
   const groupQuestSealSrc = savedQuest?.official ? "/stamps/SQCBLACK%20SEAL.png" : "/stamps/sqc-multiplayer-seal.png";
@@ -117,6 +118,7 @@ export default async function GroupQuestByIdPage({
                   defaultUsername={acceptUsername}
                   defaultLeaderboardName={acceptLeaderboardName}
                   canAutoJoin={canAutoAccept}
+                  inviteKey={inviteKey}
                 />
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
@@ -157,6 +159,7 @@ export default async function GroupQuestByIdPage({
                       defaultUsername={acceptUsername}
                       defaultLeaderboardName={acceptLeaderboardName}
                       canAutoJoin={canAutoAccept}
+                      inviteKey={inviteKey}
                       buttonClassName="groupquest-onboarding-step primary-step groupquest-onboarding-step-button"
                       key={step.title}
                     >
@@ -234,6 +237,7 @@ export default async function GroupQuestByIdPage({
               defaultUsername={acceptUsername}
               defaultLeaderboardName={acceptLeaderboardName}
               canAutoJoin={canAutoAccept}
+              inviteKey={inviteKey}
             />
           </section>
         </div>

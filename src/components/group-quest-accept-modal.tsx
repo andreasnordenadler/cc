@@ -16,6 +16,7 @@ export default function GroupQuestAcceptModal({
   canAutoJoin = false,
   buttonClassName = "button primary",
   buttonLabel,
+  inviteKey,
   children,
 }: {
   id: string;
@@ -27,6 +28,7 @@ export default function GroupQuestAcceptModal({
   canAutoJoin?: boolean;
   buttonClassName?: string;
   buttonLabel?: string;
+  inviteKey?: string;
   children?: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -71,6 +73,7 @@ export default function GroupQuestAcceptModal({
         wantsEmailUpdates: wantsEmail,
         email: wantsEmail ? email.trim() : "",
         location: location.trim(),
+        inviteKey,
       }),
     });
     const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;

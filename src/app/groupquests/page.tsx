@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import GroupQuestInviteKeyJoin from "@/components/group-quest-invite-key-join";
 import SiteNav from "@/components/site-nav";
 import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
 
@@ -58,8 +59,10 @@ function deriveQuestState(startAt: string, endAt: string) {
   return { status: "Live", tone: "green", next: "Open" };
 }
 
-export default async function GroupQuestsPage() {
+export default async function GroupQuestsPage({ searchParams }: { searchParams?: Promise<{ inviteKey?: string }> }) {
   const { userId } = await auth();
+  const resolvedSearchParams = await searchParams;
+  const inviteKey = typeof resolvedSearchParams?.inviteKey === "string" ? resolvedSearchParams.inviteKey : "";
   let activeRooms: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
   let officialRooms: typeof activeRooms = [];
   let publicRooms: typeof activeRooms = [];
@@ -181,6 +184,17 @@ export default async function GroupQuestsPage() {
               <div className="groupquests-create-cta-row">
                 <Link className="button primary" href="/groupquests/create">Create New Multiplayer Side Quest</Link>
               </div>
+            </section>
+
+            <section className="mission-card groupquests-private-invite-card" aria-label="Join private Multiplayer Side Quest by invite code">
+              <div className="section-head compact">
+                <div>
+                  <span className="eyebrow">Private invite</span>
+                  <h2>Join by host code.</h2>
+                  <p>Mobile players can paste a private Multiplayer Side Quest code; website players can do the same here without exposing private tables in public discovery.</p>
+                </div>
+              </div>
+              <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
             </section>
 
             <section className="mission-card groupquests-user-overview" aria-label="Your Multiplayer Side Quests overview">
@@ -314,6 +328,17 @@ export default async function GroupQuestsPage() {
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
                 <Image alt="Noble men and women comically arguing around a chess table during a Multiplayer Side Quest" className="groupquests-knight-competition-art" height={1024} priority={false} src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png" width={1024} />
               </div>
+            </section>
+
+            <section className="mission-card groupquests-private-invite-card" aria-label="Join private Multiplayer Side Quest by invite code">
+              <div className="section-head compact">
+                <div>
+                  <span className="eyebrow">Private invite</span>
+                  <h2>Have a host code?</h2>
+                  <p>Paste a private Multiplayer Side Quest code after signing in. Public Multiplayer Side Quests stay open to browse.</p>
+                </div>
+              </div>
+              <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
             </section>
 
             <section className="grid groupquests-logged-out-actions" aria-label="Start or join Multiplayer Side Quests">

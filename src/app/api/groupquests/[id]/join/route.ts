@@ -36,6 +36,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ ok: false, error: "groupquest_finished" }, { status: 400 });
   }
 
+  if (found.groupQuest.inviteMode === "private-key" && !sameInviteKey((payload as Record<string, unknown>).inviteKey, found.groupQuest.inviteKey)) {
+    return NextResponse.json({ ok: false, error: "invite_key_required" }, { status: 403 });
+  }
+
   const host = await client.users.getUser(found.userId);
   const joined = joinGroupQuest(found.groupQuest, participant);
   await client.users.updateUserMetadata(found.userId, {
@@ -52,4 +56,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 function isGroupQuestFinished(groupQuest: { endAt: string }) {
   const end = Date.parse(groupQuest.endAt);
   return Number.isFinite(end) && end < Date.now();
+}
+
+function sameInviteKey(input: unknown, expected: unknown) {
+  if (typeof input !== "string" || typeof expected !== "string") return false;
+  return input.trim().toLowerCase() === expected.trim().toLowerCase();
 }
