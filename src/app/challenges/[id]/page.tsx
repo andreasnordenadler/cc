@@ -11,7 +11,7 @@ import ResetQuestControl from "@/components/reset-quest-control";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
-import { checkActiveChallenge } from "@/app/actions";
+import { checkActiveChallenge, submitChallengeAttempt } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
 import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
@@ -240,8 +240,21 @@ export default async function ChallengeDetailPage({
               </small>
             </article>
             {isCompleted ? null : (
-              <form action={checkActiveChallenge} className="quest-status-refresh">
-                <button type="submit" className="button primary">Refresh</button>
+              <div className="quest-status-refresh button-row">
+                <form action={checkActiveChallenge}>
+                  <button type="submit" className="button primary">Refresh latest game</button>
+                </form>
+              </div>
+            )}
+            {isCompleted ? null : (
+              <form action={submitChallengeAttempt} className="profile-form quest-submitted-proof-form" aria-label="Submit a specific game for proof">
+                <input type="hidden" name="challengeId" value={challenge.id} />
+                <label>
+                  Submit a specific game
+                  <input name="gameId" placeholder="Lichess game ID or Chess.com game URL" required />
+                </label>
+                <p className="microcopy">Use this when the mobile-style latest-game checker should judge a particular public game instead. Lichess IDs and Chess.com game links use the same real verifier paths as the app.</p>
+                <button type="submit" className="button secondary">Check submitted game</button>
               </form>
             )}
           </section>
