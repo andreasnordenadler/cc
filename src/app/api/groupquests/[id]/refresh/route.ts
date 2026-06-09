@@ -24,6 +24,8 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ ok: false, error: "not_joined" }, { status: 403 });
   }
 
+  const customSnapshotsById = new Map((found.groupQuest.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));
+
   const checks = await Promise.all(
     found.groupQuest.questIds.map(async (questId) => ({
       questId,
@@ -34,6 +36,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         username: participant.username,
         startAt: found.groupQuest.startAt,
         endAt: found.groupQuest.endAt,
+        customQuest: customSnapshotsById.get(questId) ?? null,
       }),
     })),
   );
@@ -44,7 +47,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       .filter((entry) => entry.result.status === "passed")
       .map((entry) => [entry.questId, entry.result.gameTime ?? new Date().toISOString()]),
   );
-  const score = completedQuestIds.reduce((sum, questId) => sum + (getChallengeById(questId)?.reward ?? 0), 0);
+  const score = completedQuestIds.reduce((sum, questId) => sum + (getChallengeById(questId)?.reward ?? customSnapshotsById.get(questId)?.reward ?? 0), 0);
   const lastCheck = checks[checks.length - 1]?.result;
 
   const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {

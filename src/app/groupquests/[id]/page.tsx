@@ -85,9 +85,37 @@ export default async function GroupQuestByIdPage({
   const shareUrl = hostPrivateInviteKey
     ? `https://sidequestchess.com/groupquests/${id}?inviteKey=${encodeURIComponent(hostPrivateInviteKey)}`
     : `https://sidequestchess.com/groupquests/${id}`;
+  const customSnapshotsById = new Map((savedQuest?.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));
   const quests = activeQuestIds
-    .map((questId) => CHALLENGES.find((challenge) => challenge.id === questId))
-    .filter((challenge): challenge is (typeof CHALLENGES)[number] => Boolean(challenge));
+    .map((questId) => {
+      const challenge = CHALLENGES.find((entry) => entry.id === questId);
+      if (challenge) {
+        return {
+          id: challenge.id,
+          title: challenge.title,
+          summary: challenge.objective,
+          reward: challenge.reward,
+          href: `/challenges/${challenge.id}`,
+          badgeImage: challenge.badgeIdentity.image,
+          badgeName: challenge.badgeIdentity.name,
+          source: "official" as const,
+        };
+      }
+
+      const snapshot = customSnapshotsById.get(questId);
+      if (!snapshot) return null;
+      return {
+        id: snapshot.id,
+        title: snapshot.title,
+        summary: snapshot.summary || "Saved Custom Solo Side Quest snapshot.",
+        reward: snapshot.reward ?? 100,
+        href: null,
+        badgeImage: snapshot.badgeImageUrl ?? "/assets/custom-side-quests/custom-side-quest-crest.png",
+        badgeName: "Custom Solo Side Quest crest",
+        source: "custom" as const,
+      };
+    })
+    .filter((quest): quest is NonNullable<typeof quest> => Boolean(quest));
   const totalReward = quests.reduce((sum, quest) => sum + quest.reward, 0);
   const rankedParticipants = savedQuest?.participants
     ? [...savedQuest.participants].sort((a, b) => {
@@ -191,16 +219,24 @@ export default async function GroupQuestByIdPage({
               <span className="eyebrow">What are the side quests?</span>
               <h2>The quests you are accepting.</h2>
               <div className="groupquest-badge-stack">
-                {quests.map((quest) => (
-                  <Link className="groupquest-badge-row" href={`/challenges/${quest.id}`} key={quest.id}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={quest.badgeIdentity.image} alt="" />
-                    <div>
-                      <strong>{quest.title}</strong>
-                      <span>View full quest</span>
-                    </div>
-                  </Link>
-                ))}
+                {quests.map((quest) => {
+                  const content = (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={quest.badgeImage} alt="" />
+                      <div>
+                        <strong>{quest.title}</strong>
+                        <span>{quest.source === "custom" ? "Custom Solo snapshot · rule details stay safely summarized here" : "View full quest"}</span>
+                      </div>
+                    </>
+                  );
+
+                  return quest.href ? (
+                    <Link className="groupquest-badge-row" href={quest.href} key={quest.id}>{content}</Link>
+                  ) : (
+                    <div className="groupquest-badge-row" key={quest.id}>{content}</div>
+                  );
+                })}
               </div>
             </article>
           </section>
@@ -339,16 +375,24 @@ export default async function GroupQuestByIdPage({
             <span className="badge gold">{quests.length} Side Quests</span>
           </div>
           <div className="groupquest-top-quest-list">
-            {quests.map((quest) => (
-              <Link className="groupquest-top-quest-row" href={`/challenges/${quest.id}`} key={quest.id}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={quest.badgeIdentity.image} alt="" />
-                <span>
-                  <strong>{quest.title}</strong>
+            {quests.map((quest) => {
+              const content = (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={quest.badgeImage} alt="" />
+                  <span>
+                    <strong>{quest.title}</strong>
+                    {quest.source === "custom" ? <small>Custom Solo snapshot · {quest.reward} pts</small> : null}
+                  </span>
+                </>
+              );
 
-                </span>
-              </Link>
-            ))}
+              return quest.href ? (
+                <Link className="groupquest-top-quest-row" href={quest.href} key={quest.id}>{content}</Link>
+              ) : (
+                <div className="groupquest-top-quest-row" key={quest.id}>{content}</div>
+              );
+            })}
           </div>
         </section>
 
@@ -358,8 +402,8 @@ export default async function GroupQuestByIdPage({
           quests={quests.map((quest) => ({
             id: quest.id,
             title: quest.title,
-            badgeImage: quest.badgeIdentity.image,
-            badgeName: quest.badgeIdentity.name,
+            badgeImage: quest.badgeImage,
+            badgeName: quest.badgeName,
           }))}
           participants={savedQuest?.participants}
           currentUserId={userId}
