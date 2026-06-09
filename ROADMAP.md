@@ -3,10 +3,21 @@
 
 Last updated: 2026-05-15 09:23 Europe/Stockholm
 Owner: Sam  
-Status: SQC-mobile-focus / website-feature-freeze
+Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
 
+
+## Active queue update — 2026-06-09
+
+- [ ] 24h SQC website parity sprint: close missing website functionality compared to mobile app while preserving current website look and feel.
+  - added_at: 2026-06-09 17:35 Europe/Stockholm
+  - deadline: 2026-06-10 17:35 Europe/Stockholm
+  - source: Andreas explicitly removed the website feature freeze for a 24h autonomous silent sprint.
+  - scope: audit mobile-v251 and website capabilities, then implement missing website-side functionality such as custom/solo Side Quest creation, chessboard/game proof submission, explicit proof controls, completed proof receipts/share links, custom quest lifecycle, multiplayer parity, discovery/creator/report/support/Trophy Cabinet/account readiness gaps.
+  - constraints: do not change overall website look and feel; do not redesign; no external marketing/spend; no destructive production data changes; live/pickable quest releases still require real verifier paths and `pnpm quest:release-gate`.
+  - sprint_brief: `docs/SQC_WEBSITE_PARITY_SPRINT_2026-06-09.md`
+  - proof_required: focused commits, checks/build, production deploy/smoke for live claims, final sprint report.
 
 ## Active queue update — 2026-06-02
 
