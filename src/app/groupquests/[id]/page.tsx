@@ -363,6 +363,7 @@ export default async function GroupQuestByIdPage({
           }))}
           participants={savedQuest?.participants}
           currentUserId={userId}
+          canManageParticipants={isHost}
         />
 
         <section className="mission-card groupquests-live-card" aria-label="Rules">

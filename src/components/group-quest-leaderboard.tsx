@@ -22,6 +22,7 @@ type Player = {
   tone: string;
   questFinishedAt: Record<string, string>;
   isCurrentParticipant?: boolean;
+  userId: string;
 };
 
 type StoredParticipant = {
@@ -95,7 +96,19 @@ function readCurrentParticipant(id: string) {
   }
 }
 
-export default function GroupQuestLeaderboard({ id, quests, participants, currentUserId }: { id: string; quests: QuestSummary[]; participants?: ServerParticipant[]; currentUserId?: string | null }) {
+export default function GroupQuestLeaderboard({
+  id,
+  quests,
+  participants,
+  currentUserId,
+  canManageParticipants = false,
+}: {
+  id: string;
+  quests: QuestSummary[];
+  participants?: ServerParticipant[];
+  currentUserId?: string | null;
+  canManageParticipants?: boolean;
+}) {
   const [currentParticipant] = useState(() => readCurrentParticipant(id));
   const orderedParticipants = participants
     ? [...participants].sort((a, b) => {
@@ -116,6 +129,7 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
     last: participant.lastProofSummary ?? "Joined this Multiplayer Side Quest",
     tone: index === 0 ? "green" : "muted",
     isCurrentParticipant: participant.userId === currentUserId,
+    userId: participant.userId,
     questFinishedAt: participant.questFinishedAt ?? {},
   }));
   const players = serverPlayers.map((player) => {
@@ -127,11 +141,49 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
   const [selectedScroll, setSelectedScroll] = useState<Player | null>(null);
   const [selectedSealPreview, setSelectedSealPreview] = useState<Player | null>(null);
+  const [removeBusyUserId, setRemoveBusyUserId] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
   const selectedSeal = selectedScroll ? rankSealByPlacement[selectedScroll.rank] : null;
   const previewSeal = selectedSealPreview ? rankSealByPlacement[selectedSealPreview.rank] : null;
   const selectedCompletedQuests = selectedScroll ? completedQuestsFor(selectedScroll, quests) : [];
   const selectedFinishedAt = selectedScroll ? finalCompletionTimeFor(selectedScroll, quests) : "";
   const bestedPlayers = selectedScroll ? players.filter((player) => player.rank > selectedScroll.rank).map((player) => player.name) : [];
+
+  async function removeParticipant(player: Player) {
+    if (!canManageParticipants || player.userId === currentUserId || removeBusyUserId) return;
+
+    const confirmed = window.confirm(
+      `Remove ${player.name} from this Multiplayer Side Quest? Their leaderboard entry and Multiplayer proof progress for this table will be removed, but they can rejoin later if the quest is still open.`
+    );
+    if (!confirmed) return;
+
+    setRemoveBusyUserId(player.userId);
+    setRemoveError(null);
+
+    try {
+      const response = await fetch(`/api/groupquests/${id}/remove-participant`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participantUserId: player.userId }),
+      });
+      const payload = await response.json().catch(() => null) as { href?: string; error?: string } | null;
+
+      if (!response.ok) {
+        setRemoveError(payload?.error === "cannot_remove_self"
+          ? "Hosts cannot remove themselves here. Use Leave this Multiplayer Side Quest instead."
+          : payload?.error === "host_only"
+            ? "Only the host can remove players from this table."
+            : "Could not remove that player right now.");
+        return;
+      }
+
+      window.location.assign(payload?.href ?? `/groupquests/${id}`);
+    } catch {
+      setRemoveError("Could not remove that player right now.");
+    } finally {
+      setRemoveBusyUserId(null);
+    }
+  }
 
   return (
     <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
@@ -165,6 +217,10 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
           <p>No participants have joined this Multiplayer Side Quest yet.</p>
         </div>
       ) : null}
+      {canManageParticipants ? (
+        <p className="microcopy">Host controls are available inside each player row. Removing a player only affects this Multiplayer table.</p>
+      ) : null}
+      {removeError ? <p className="form-error" role="alert">{removeError}</p> : null}
       <div className="groupquest-leaderboard-list">
         {players.map((player) => (
           <details id={leaderboardAnchorFor(player)} className={`groupquest-leaderboard-row ${player.tone}`} key={`${player.rank}-${player.name}`}>
@@ -242,6 +298,19 @@ export default function GroupQuestLeaderboard({ id, quests, participants, curren
                   </div>
                 );
               })}
+              {canManageParticipants && !player.isCurrentParticipant ? (
+                <div className="groupquest-host-player-control">
+                  <span>Host control</span>
+                  <button
+                    className="groupquest-leave-button"
+                    type="button"
+                    onClick={() => void removeParticipant(player)}
+                    disabled={removeBusyUserId === player.userId}
+                  >
+                    {removeBusyUserId === player.userId ? "Removing…" : "Remove player"}
+                  </button>
+                </div>
+              ) : null}
             </div>
           </details>
         ))}
