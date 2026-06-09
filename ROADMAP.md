@@ -18,6 +18,7 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
   - constraints: do not change overall website look and feel; do not redesign; no external marketing/spend; no destructive production data changes; live/pickable quest releases still require real verifier paths and `pnpm quest:release-gate`.
   - sprint_brief: `docs/SQC_WEBSITE_PARITY_SPRINT_2026-06-09.md`
   - proof_required: focused commits, checks/build, production deploy/smoke for live claims, final sprint report.
+  - 2026-06-09 slice: shipped website Custom Solo creation and reversible lifecycle management on `/account/custom-side-quests` using existing site cards/forms: starter proof conditions for result/opening/move/piece-state rules, private draft/private published/public publishing states, archive/restore controls, safe rule summaries, and Community Solo revalidation. Proof: `pnpm lint -- src/app/account/custom-side-quests/page.tsx`; `pnpm build`.
 
 ## Active queue update — 2026-06-02
 

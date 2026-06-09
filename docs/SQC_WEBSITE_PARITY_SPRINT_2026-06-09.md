@@ -41,6 +41,10 @@ Each sprint run should:
 - Commit/push focused changes with proof docs/roadmap updates.
 - Stay silent unless a genuine blocker/risk appears.
 
+## Sprint log
+
+- 2026-06-09 17:38–17:56 Europe/Stockholm — Closed the first website-first Custom Solo gap without changing the site language/layout: `/account/custom-side-quests` now includes a signed-in website creator for starter Custom Solo Side Quests, supporting game-result, opening-sequence, move-sequence, and piece-state proof conditions; private draft, private published, and public Community Solo save states; and reversible archive/restore lifecycle controls from the existing library cards. The implementation reuses the shared custom quest metadata model and safe rule summaries, keeps raw configs hidden, avoids destructive delete, and revalidates Community Solo discovery after public lifecycle changes. Verification: `pnpm lint -- src/app/account/custom-side-quests/page.tsx` and `pnpm build` passed.
+
 ## Final report requirements
 
 At deadline, report: shipped website features, commits/deploys, verification evidence, remaining gaps, and recommended next sprint priorities.
