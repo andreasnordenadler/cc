@@ -7,14 +7,15 @@ import { redirect } from "next/navigation";
 import SiteNav from "@/components/site-nav";
 import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
 import { describeCustomSideQuestRule, describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
-import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getActiveChallenge, getChallengeProgress, getLatestChallengeAttempt, getPreferredRunnerName, buildAttemptSummary, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
+import { POST as runQuestAction } from "@/app/api/mobile/quest/route";
 
 export const metadata = {
   title: "My Custom Side Quests · Side Quest Chess",
   description: "Manage your Side Quest Chess custom Side Quest library.",
 };
 
-export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; archived?: string; restored?: string; error?: string }> }) {
+export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; archived?: string; restored?: string; started?: string; checked?: string; deactivated?: string; reset?: string; error?: string }> }) {
   noStore();
   const params = searchParams ? await searchParams : {};
   const authUser = await currentUser();
@@ -25,6 +26,8 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
   const publicMetadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
   const customQuests = getCustomSideQuests(privateMetadata).length ? getCustomSideQuests(privateMetadata) : getCustomSideQuests(publicMetadata);
+  const activeChallenge = getActiveChallenge(publicMetadata);
+  const completedSet = new Set(getChallengeProgress(publicMetadata).completedChallengeIds);
   const runnerDisplayName = getPreferredRunnerName(publicMetadata, {
     firstName: user.firstName,
     lastName: user.lastName,
@@ -58,6 +61,10 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
         </section>
 
         {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your website shelf is now in sync.</p> : null}
+        {params.started ? <p className="form-status success" role="status">Custom Side Quest started. Play a public game, then check the latest result here.</p> : null}
+        {params.checked ? <p className="form-status success" role="status">Latest-game proof check saved. See the receipt on the active card below.</p> : null}
+        {params.deactivated ? <p className="form-status success" role="status">Custom Side Quest deactivated. Your recipe stays saved.</p> : null}
+        {params.reset ? <p className="form-status success" role="status">Custom Side Quest proof reset. You can run it again.</p> : null}
         {params.archived ? <p className="form-status success" role="status">Custom Side Quest archived. It is hidden from public discovery.</p> : null}
         {params.restored ? <p className="form-status success" role="status">Custom Side Quest restored as a private draft.</p> : null}
         {params.error ? <p className="form-status error" role="alert">{decodeURIComponent(params.error)}</p> : null}
@@ -82,7 +89,15 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
 
           {customQuests.length ? (
             <div className="big-grid starter-route-grid">
-              {customQuests.map((quest) => <CustomQuestCard key={quest.id} quest={quest} />)}
+              {customQuests.map((quest) => (
+                <CustomQuestCard
+                  key={quest.id}
+                  quest={quest}
+                  active={activeChallenge?.id === quest.id}
+                  completed={completedSet.has(quest.id)}
+                  latestAttempt={getLatestChallengeAttempt(publicMetadata, quest.id)}
+                />
+              ))}
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
@@ -191,12 +206,13 @@ function StatCard({ copy, label, value }: { copy: string; label: string; value: 
   );
 }
 
-function CustomQuestCard({ quest }: { quest: CustomSideQuest }) {
+function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: boolean; completed: boolean; latestAttempt: ChallengeAttempt | null; quest: CustomSideQuest }) {
   const isPublic = quest.visibility === "public" && quest.lifecycle === "published";
   const lifecycle = quest.lifecycle ?? "published";
   const statusLabel = isPublic ? "Public" : lifecycle === "draft" ? "Draft" : lifecycle === "archived" ? "Archived" : "Private";
   const statusTone = isPublic ? "green" : lifecycle === "archived" ? "" : "gold";
   const ruleDetails = describeCustomSideQuestRuleDetails(quest.config).slice(0, 3);
+  const receipt = buildAttemptSummary(latestAttempt);
 
   return (
     <article className="challenge-card community-side-quest-card">
@@ -210,7 +226,17 @@ function CustomQuestCard({ quest }: { quest: CustomSideQuest }) {
         <div className="public-groupquest-meta">
           <small>{describeCustomSideQuestRule(quest.config)}</small>
           <small>Updated {formatDate(quest.updatedAt)}</small>
+          {active ? <small>Active now</small> : null}
+          {completed ? <small>Completed proof saved</small> : null}
         </div>
+        {active || latestAttempt ? (
+          <div className="groupquest-onboarding-steps" aria-label={`${quest.title} proof receipt`}>
+            <div className="groupquest-onboarding-step">
+              <em>{active ? "!" : "✓"}</em>
+              <span><strong>{receipt.headline}</strong><small>{receipt.detail}</small><small>{receipt.meta}</small></span>
+            </div>
+          </div>
+        ) : null}
         <div className="groupquest-onboarding-steps">
           {ruleDetails.map((line, index) => (
             <div className="groupquest-onboarding-step" key={`${quest.id}-${index}`}>
@@ -222,6 +248,27 @@ function CustomQuestCard({ quest }: { quest: CustomSideQuest }) {
         <div className="button-row">
           <span className={statusTone ? `badge ${statusTone}` : "badge"}>{statusLabel}</span>
           {isPublic ? <Link className="button secondary" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>Open public page</Link> : null}
+          {lifecycle === "published" ? (
+            <form action={runCustomQuestProofActionFromWeb}>
+              <input type="hidden" name="id" value={quest.id} />
+              <input type="hidden" name="action" value={active ? "check" : "start"} />
+              <button className={active ? "button primary" : "button secondary"} type="submit">{active ? "Check latest game" : "Start solo run"}</button>
+            </form>
+          ) : null}
+          {active ? (
+            <form action={runCustomQuestProofActionFromWeb}>
+              <input type="hidden" name="id" value={quest.id} />
+              <input type="hidden" name="action" value="deactivate" />
+              <button className="button ghost" type="submit">Deactivate</button>
+            </form>
+          ) : null}
+          {completed ? (
+            <form action={runCustomQuestProofActionFromWeb}>
+              <input type="hidden" name="id" value={quest.id} />
+              <input type="hidden" name="action" value="reset" />
+              <button className="button ghost" type="submit">Reset proof</button>
+            </form>
+          ) : null}
           {lifecycle !== "archived" ? <Link className="button ghost" href="/groupquests/create">Use in Multiplayer</Link> : null}
           <form action={setCustomSideQuestLifecycleFromWeb}>
             <input type="hidden" name="id" value={quest.id} />
@@ -232,6 +279,34 @@ function CustomQuestCard({ quest }: { quest: CustomSideQuest }) {
       </div>
     </article>
   );
+}
+
+async function runCustomQuestProofActionFromWeb(formData: FormData) {
+  "use server";
+  const authUser = await currentUser();
+  if (!authUser) redirect("/sign-in");
+
+  const id = String(formData.get("id") ?? "");
+  const requestedAction = String(formData.get("action") ?? "");
+  const action = requestedAction === "check" || requestedAction === "deactivate" || requestedAction === "reset" ? requestedAction : "start";
+  if (!id.startsWith("custom-")) redirect("/account/custom-side-quests?error=Unknown%20custom%20Side%20Quest.");
+
+  const response = await runQuestAction(new Request("https://sidequestchess.local/api/mobile/quest", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action, challengeId: id }),
+  }));
+  const payload = await response.json() as { ok?: boolean; message?: string };
+
+  revalidatePath("/account");
+  revalidatePath("/account/custom-side-quests");
+
+  if (!response.ok || !payload.ok) {
+    redirect(`/account/custom-side-quests?error=${encodeURIComponent(payload.message || "Custom Side Quest proof action failed.")}`);
+  }
+
+  const flag = action === "check" ? "checked" : action === "deactivate" ? "deactivated" : action === "reset" ? "reset" : "started";
+  redirect(`/account/custom-side-quests?${flag}=1`);
 }
 
 async function saveCustomSideQuestFromWeb(formData: FormData) {
