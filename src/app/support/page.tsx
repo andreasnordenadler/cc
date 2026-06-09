@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import SupportContactForm from "@/components/support-contact-form";
+import { getSupportMessages } from "@/lib/analytics";
 
 export const metadata: Metadata = {
   title: "Support & privacy — Side Quest Chess",
@@ -57,8 +58,11 @@ const privacyNotes = [
   },
 ];
 
-export default async function SupportPage() {
+export default async function SupportPage({ searchParams }: { searchParams?: Promise<{ topic?: string; quest?: string; host?: string }> }) {
   const { userId } = await auth();
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const supportContext = buildSupportContext(resolvedSearchParams);
+  const supportMessages = userId ? getSupportMessages((await (await clerkClient()).users.getUser(userId)).privateMetadata) : [];
 
   return (
     <main className="site-shell">
@@ -94,7 +98,7 @@ export default async function SupportPage() {
           <p>
             Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. For deletion requests, include the account email or profile details needed to identify your SQC account. A screenshot helps if the issue is visual.
           </p>
-          <SupportContactForm />
+          <SupportContactForm isSignedIn={Boolean(userId)} initialMessages={supportMessages} initialContext={supportContext} />
         </section>
 
         <section className="mission-card support-simple-card">
@@ -114,6 +118,22 @@ export default async function SupportPage() {
       </div>
     </main>
   );
+}
+
+function buildSupportContext(searchParams: { topic?: string; quest?: string; host?: string }) {
+  const topic = typeof searchParams.topic === "string" ? searchParams.topic : "";
+  const quest = typeof searchParams.quest === "string" ? searchParams.quest : "";
+  const host = typeof searchParams.host === "string" ? searchParams.host : "";
+
+  if (!topic && !quest && !host) return "";
+
+  const lines = [
+    topic === "community-multiplayer" ? "Report Community Multiplayer Side Quest" : topic === "community-side-quest" ? "Report Community Solo Side Quest" : "Side Quest Chess support request",
+  ];
+  if (quest) lines.push(`Quest ID: ${quest}`);
+  if (host) lines.push(`Host / creator context: ${host}`);
+  lines.push("", "What happened:");
+  return lines.join("\n");
 }
 
 function Fact({ label, value, copy }: { label: string; value: string; copy: string }) {
