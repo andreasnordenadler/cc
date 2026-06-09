@@ -60,6 +60,32 @@ function getDeviceProp(serial, propName) {
   return adb(["-s", serial, "shell", "getprop", propName]).trim();
 }
 
+function getInstalledPackageDump(serial, packageId) {
+  return adb(["-s", serial, "shell", "dumpsys", "package", packageId]);
+}
+
+function assertInstalledVersion(serial, packageId, expectedVersionName, expectedVersionCode) {
+  const packageDump = getInstalledPackageDump(serial, packageId);
+  assert(packageDump.includes(`versionName=${expectedVersionName}`), `${packageId} installed versionName does not match ${expectedVersionName}.`);
+  assert(
+    packageDump.includes(`versionCode=${expectedVersionCode}`) || packageDump.includes(`longVersionCode=${expectedVersionCode}`),
+    `${packageId} installed versionCode does not match ${expectedVersionCode}.`,
+  );
+}
+
+function getForegroundPackage(serial) {
+  const activityDump = adb(["-s", serial, "shell", "dumpsys", "activity", "activities"]);
+  const resumedMatch = activityDump.match(/mResumedActivity:.*?\s([a-zA-Z0-9_.]+)\//);
+  if (resumedMatch?.[1]) return resumedMatch[1];
+
+  const focusedMatch = activityDump.match(/mFocusedWindow=.*?\s([a-zA-Z0-9_.]+)\//);
+  if (focusedMatch?.[1]) return focusedMatch[1];
+
+  const windowDump = adb(["-s", serial, "shell", "dumpsys", "window", "windows"]);
+  const currentFocusMatch = windowDump.match(/mCurrentFocus=.*?\s([a-zA-Z0-9_.]+)\//);
+  return currentFocusMatch?.[1] ?? null;
+}
+
 console.log("Checking GitHub Release candidate identity before device install...");
 run("pnpm", ["mobile:release:candidate-check"], { stdio: "inherit" });
 
@@ -78,8 +104,14 @@ const apkAssets = release.assets.filter((asset) => asset.name.endsWith(".apk"));
 assert(apkAssets.length === 1, `${release.tagName} must have exactly one APK asset, found ${apkAssets.length}.`);
 const apkAsset = apkAssets[0];
 const shaMatch = release.body.match(/SHA256:\s*([a-f0-9]{64})/i);
+const versionMatch = release.body.match(/Version:\s*([^\n]+)/i);
+const versionCodeMatch = release.body.match(/Version code:\s*(\d+)/i);
 assert(shaMatch, `${release.tagName} release notes are missing SHA256.`);
+assert(versionMatch, `${release.tagName} release notes are missing Version.`);
+assert(versionCodeMatch, `${release.tagName} release notes are missing Version code.`);
 const expectedSha = shaMatch[1].toLowerCase();
+const expectedVersionName = versionMatch[1].trim();
+const expectedVersionCode = versionCodeMatch[1];
 
 const devices = listAuthorizedDevices();
 assert(devices.length > 0, "No authorized Android device found. Connect and unlock a real signed device with USB debugging authorized.");
@@ -101,11 +133,14 @@ try {
 
   console.log(`Installing ${apkAsset.name} on ${model} (${serial}, Android ${osVersion})...`);
   adb(["-s", serial, "install", "-r", apkPath], { stdio: "inherit" });
+  assertInstalledVersion(serial, packageId, expectedVersionName, expectedVersionCode);
 
   console.log(`Launching ${packageId}...`);
   adb(["-s", serial, "shell", "monkey", "-p", packageId, "-c", "android.intent.category.LAUNCHER", "1"], { stdio: "inherit" });
+  const foregroundPackage = getForegroundPackage(serial);
+  assert(foregroundPackage === packageId, `Expected ${packageId} to be foreground after launch, got ${foregroundPackage ?? "unknown"}.`);
 
-  console.log(`✅ Installed and launched ${release.tagName} on real device ${model} (${serial}, Android ${osVersion}).`);
+  console.log(`✅ Installed ${release.tagName} (${expectedVersionName}, code ${expectedVersionCode}) and launched it on real device ${model} (${serial}, Android ${osVersion}).`);
   console.log("Continue REAL_DEVICE_SMOKE.md from the Auth and account sync section and record screenshots/clips.");
 } finally {
   rmSync(tmpDir, { recursive: true, force: true });
