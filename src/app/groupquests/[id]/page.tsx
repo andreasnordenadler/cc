@@ -5,6 +5,7 @@ import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
 import GroupQuestLeaveAction from "@/components/group-quest-leave-action";
 import GroupQuestParticipantSummary from "@/components/group-quest-participant-summary";
+import GroupQuestProofControls from "@/components/group-quest-proof-controls";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
@@ -278,6 +279,16 @@ export default async function GroupQuestByIdPage({
           } : undefined}
         />
 
+        <GroupQuestProofControls
+          id={id}
+          quests={quests.map((quest) => ({ id: quest.id, title: quest.title, reward: quest.reward }))}
+          initialState={{
+            score: serverParticipant?.score ?? 0,
+            completedQuestIds: serverParticipant?.completedQuestIds ?? [],
+            lastProofSummary: serverParticipant?.lastProofSummary,
+            lastProofAt: serverParticipant?.lastProofAt,
+          }}
+        />
 
         <section className="groupquest-score-strip" aria-label="Your competition standing">
           <div>
