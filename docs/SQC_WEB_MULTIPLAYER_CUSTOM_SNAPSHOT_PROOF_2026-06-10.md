@@ -16,7 +16,7 @@ Closed the website gap left after custom Multiplayer lineups could be created/ed
 
 - `pnpm lint -- 'src/app/groupquests/[id]/page.tsx' 'src/app/api/groupquests/[id]/refresh/route.ts'`
 - `pnpm build`
-- Commit/push: `2771b1c` (`Support custom Multiplayer proof snapshots on web`)
+- Commit/push: `3beb693` (`Support custom Multiplayer proof snapshots on web`)
 - Production deploy: `https://cc-5i43z4pk8-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
 - Live smoke:
   - `https://sidequestchess.com/groupquests/seed-public-sqcseed11-11?customSnapshotSmoke=20260610` returned 200 with Multiplayer detail content.
