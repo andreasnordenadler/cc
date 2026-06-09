@@ -2,11 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
+import ShareProofActions from "@/components/share-proof-actions";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import SiteNav from "@/components/site-nav";
 import { redirect } from "next/navigation";
 import { CHALLENGES } from "@/lib/challenges";
+import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
   getActiveChallenge,
   getChallengeAttempts,
@@ -79,6 +81,21 @@ export default async function MyQuestLogPage() {
       };
     })
     .filter((quest) => quest.status !== "Finished");
+  const completedQuestReceipts = await Promise.all(completedChallenges.map(async (challenge, index) => {
+    const latestProof = getLatestPassedAttempt(metadata, challenge.id);
+    const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
+    const trophyCopy = getAwkwardTrophyCopy(index);
+    const proofPath = await buildPublicProofPath({ attempt: latestProof, challenge, runnerName: runnerDisplayName });
+
+    return {
+      challenge,
+      finishedAt,
+      proofPath,
+      proofImagePath: publicProofImagePath(proofPath.split("/proof/")[1] ?? ""),
+      shareCopy: `${runnerDisplayName} completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.`,
+      trophyCopy,
+    };
+  }));
 
   return (
     <main className="site-shell">
@@ -165,26 +182,29 @@ export default async function MyQuestLogPage() {
                   </div>
                   {completedChallenges.length ? (
                     <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
-                      {completedChallenges.map((challenge, index) => {
-                        const latestProof = getLatestPassedAttempt(metadata, challenge.id);
-                        const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
-                        const trophyCopy = getAwkwardTrophyCopy(index);
-
+                      {completedQuestReceipts.map(({ challenge, finishedAt, proofImagePath, proofPath, shareCopy, trophyCopy }) => {
                         return (
-                          <Link href={`/challenges/${challenge.id}`} className="completed-quest-list-item trophy-card" key={challenge.id}>
+                          <article className="completed-quest-list-item trophy-card" key={challenge.id}>
                             <span className="trophy-card-shine" aria-hidden="true" />
-                            <span className="trophy-card-badge">
+                            <Link href={`/challenges/${challenge.id}`} className="trophy-card-badge" aria-label={`Open ${challenge.title}`}>
                               <ChallengeBadge challenge={challenge} presentation="art" earned />
-                            </span>
-                            <span className="trophy-card-copy">
-                              <strong>{challenge.title}</strong>
+                            </Link>
+                            <div className="trophy-card-copy">
+                              <Link href={`/challenges/${challenge.id}`}><strong>{challenge.title}</strong></Link>
                               <em>{trophyCopy.line}</em>
                               <span>{finishedAt ? <>Ceremonially logged <ProofTime value={finishedAt} /></> : "Completed, allegedly."}</span>
-                            </span>
+                              <Link href={proofPath} className="button secondary">Open proof receipt</Link>
+                              <ShareProofActions
+                                challengeTitle={challenge.title}
+                                copy={shareCopy}
+                                imagePath={proofImagePath}
+                                sharePath={proofPath}
+                              />
+                            </div>
                             <span className="won-card-seal solo" aria-hidden="true">
                               <Image src="/stamps/sqc-wax-seal-canonical.png" alt="" width={58} height={58} />
                             </span>
-                          </Link>
+                          </article>
                         );
                       })}
                     </div>
