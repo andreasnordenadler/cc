@@ -57,6 +57,20 @@ function defaultEndAt() {
   return toDateTimeLocal(date);
 }
 
+const quickDurationOptions = [
+  { label: "24h", days: 1 },
+  { label: "3 days", days: 3 },
+  { label: "7 days", days: 7 },
+  { label: "14 days", days: 14 },
+];
+
+function endAtFromStart(startValue: string, days: number) {
+  const start = new Date(startValue);
+  const date = Number.isNaN(start.getTime()) ? new Date() : start;
+  date.setDate(date.getDate() + days);
+  return toDateTimeLocal(date);
+}
+
 
 function toIsoFromDateTimeLocal(value: string) {
   const date = new Date(value);
@@ -191,6 +205,10 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
       document.removeEventListener("click", warnBeforeInternalNavigation, true);
     };
   }, []);
+
+  function applyQuickDuration(days: number) {
+    setEndAt(endAtFromStart(startAt, days));
+  }
 
   async function saveMultiplayerSideQuest() {
     setSaving(true);
@@ -372,6 +390,17 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                 <span>Closes</span>
                 <input type="datetime-local" value={endAt} onChange={(event) => setEndAt(event.target.value)} />
               </label>
+            </div>
+            <div className="groupquests-duration-chips" aria-label="Quick duration">
+              <span>Quick duration</span>
+              <div>
+                {quickDurationOptions.map((option) => (
+                  <button key={option.label} type="button" onClick={() => applyQuickDuration(option.days)}>
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <small>Matches the mobile shortcut: choose a common proof window without typing a closing date.</small>
             </div>
           </div>
 

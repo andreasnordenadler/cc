@@ -42,6 +42,20 @@ function toIsoFromDateTimeLocal(value: string) {
   return Number.isNaN(date.getTime()) ? value : date.toISOString();
 }
 
+const quickDurationOptions = [
+  { label: "24h", days: 1 },
+  { label: "3 days", days: 3 },
+  { label: "7 days", days: 7 },
+  { label: "14 days", days: 14 },
+];
+
+function endAtFromStart(startValue: string, days: number) {
+  const start = new Date(startValue);
+  const date = Number.isNaN(start.getTime()) ? new Date() : start;
+  date.setDate(date.getDate() + days);
+  return toDateTimeLocal(date.toISOString());
+}
+
 function makeInviteKey(name: string) {
   const safe = name.toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 8) || "sqc";
   return `${safe}-${Math.random().toString(36).slice(2, 8)}`;
@@ -74,6 +88,10 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
       if (current.includes(questId)) return current.length > 1 ? current.filter((id) => id !== questId) : current;
       return [...current, questId];
     });
+  }
+
+  function applyQuickDuration(days: number) {
+    setEndAt(endAtFromStart(startAt, days));
   }
 
   async function save() {
@@ -177,6 +195,17 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                 <span>Closes</span>
                 <input type="datetime-local" value={endAt} onChange={(event) => setEndAt(event.target.value)} />
               </label>
+            </div>
+            <div className="groupquests-duration-chips" aria-label="Quick duration">
+              <span>Quick duration</span>
+              <div>
+                {quickDurationOptions.map((option) => (
+                  <button key={option.label} type="button" onClick={() => applyQuickDuration(option.days)}>
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <small>Use the same common proof-window shortcuts as mobile while preserving exact date editing.</small>
             </div>
           </div>
 

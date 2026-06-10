@@ -1041,6 +1041,12 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-rule-title { display: block; color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
 .groupquests-rule-builder p { margin-top: 4px; font-size: .86rem; }
 .groupquests-rule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.groupquests-duration-chips { display: grid; gap: 7px; }
+.groupquests-duration-chips > span { color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquests-duration-chips > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.groupquests-duration-chips button { border: 1px solid rgba(245,200,106,.24); border-radius: 999px; background: rgba(245,200,106,.09); color: var(--ink); padding: 8px 11px; font: inherit; font-size: .78rem; font-weight: 950; cursor: pointer; }
+.groupquests-duration-chips button:hover, .groupquests-duration-chips button:focus-visible { border-color: rgba(245,200,106,.52); background: rgba(245,200,106,.15); outline: none; }
+.groupquests-duration-chips small { color: var(--muted); font-size: .78rem; font-weight: 800; line-height: 1.35; }
 .groupquests-rules-preview { display: grid; gap: 7px; padding: 10px; border-radius: 15px; background: rgba(96,240,175,.08); border: 1px solid rgba(96,240,175,.18); }
 .groupquests-rules-preview strong { color: var(--green); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
 .groupquests-rules-preview div { display: flex; flex-wrap: wrap; gap: 6px; }
