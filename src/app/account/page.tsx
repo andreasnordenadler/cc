@@ -18,7 +18,9 @@ import {
   getPreferredRunnerName,
   getRunnerBio,
   getRunnerDisplayName,
+  shouldPreselectDefaultStarterQuest,
   type UserMetadataRecord,
+  withDefaultStarterQuest,
 } from "@/lib/user-metadata";
 import { listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
@@ -40,7 +42,12 @@ export default async function MyQuestLogPage() {
     redirect("/sign-in");
   }
 
-  const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const client = await clerkClient();
+  let metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  if (shouldPreselectDefaultStarterQuest(metadata)) {
+    metadata = withDefaultStarterQuest(metadata);
+    await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
+  }
   const privateMetadata = user.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
@@ -65,7 +72,6 @@ export default async function MyQuestLogPage() {
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
   const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
   const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
-  const client = await clerkClient();
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, user.id);
   const multiplayerVictories = buildMultiplayerVictories(relatedGroupQuests, user.id);
   const activeGroupQuests = relatedGroupQuests

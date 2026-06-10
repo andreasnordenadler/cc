@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeDeckBrowser, { ChallengeCard } from "@/components/challenge-deck-browser";
 import RandomSoloQuestLink from "@/components/random-solo-quest-link";
 import SiteNav from "@/components/site-nav";
@@ -7,7 +7,9 @@ import { CHALLENGES } from "@/lib/challenges";
 import {
   getActiveChallenge,
   getChallengeProgress,
+  shouldPreselectDefaultStarterQuest,
   type UserMetadataRecord,
+  withDefaultStarterQuest,
 } from "@/lib/user-metadata";
 
 const suggestedPathChoices = [
@@ -43,7 +45,12 @@ const quickProofQuestIds = ["finish-any-game", "knights-before-coffee"];
 export default async function ChallengesPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
-  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  let metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  if (user && shouldPreselectDefaultStarterQuest(metadata)) {
+    metadata = withDefaultStarterQuest(metadata);
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
+  }
   const activeChallenge = getActiveChallenge(metadata);
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);

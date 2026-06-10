@@ -16,8 +16,10 @@ import {
   getLichessUsername,
   getPreferredRunnerName,
   getRunnerBio,
+  shouldPreselectDefaultStarterQuest,
   type ChallengeAttempt,
   type UserMetadataRecord,
+  withDefaultStarterQuest,
 } from "@/lib/user-metadata";
 
 export async function GET(request: Request) {
@@ -40,7 +42,11 @@ export async function GET(request: Request) {
   if (!userResult.ok) return userResult.response;
   const user = userResult.user;
   const baseUrl = new URL(request.url).origin;
-  const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  let metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  if (shouldPreselectDefaultStarterQuest(metadata)) {
+    metadata = withDefaultStarterQuest(metadata);
+    await client.users.updateUserMetadata(userId, { publicMetadata: metadata });
+  }
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
   const progress = getChallengeProgress(metadata);
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);

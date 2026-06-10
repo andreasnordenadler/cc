@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofPositionBoard from "@/components/proof-position-board";
@@ -25,8 +25,10 @@ import {
   getLichessUsername,
   isSyntheticLatestGameReceipt,
   sanitizeAttemptSummary,
+  shouldPreselectDefaultStarterQuest,
   type ChallengeAttempt,
   type UserMetadataRecord,
+  withDefaultStarterQuest,
 } from "@/lib/user-metadata";
 
 export function generateStaticParams() {
@@ -87,7 +89,12 @@ export default async function ChallengeDetailPage({
 
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
-  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  let metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  if (user && shouldPreselectDefaultStarterQuest(metadata)) {
+    metadata = withDefaultStarterQuest(metadata);
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
+  }
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);

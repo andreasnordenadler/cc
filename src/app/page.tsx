@@ -15,7 +15,9 @@ import {
   getChessComUsername,
   getLatestChallengeAttempt,
   getLichessUsername,
+  shouldPreselectDefaultStarterQuest,
   type UserMetadataRecord,
+  withDefaultStarterQuest,
 } from "@/lib/user-metadata";
 import {
   listPublicGroupQuests,
@@ -82,9 +84,14 @@ export default async function Home() {
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
   const user = isSignedIn ? await currentUser() : null;
-  const metadata = user?.publicMetadata
+  let metadata = user?.publicMetadata
     ? (user.publicMetadata as UserMetadataRecord)
     : {};
+  if (user && shouldPreselectDefaultStarterQuest(metadata)) {
+    metadata = withDefaultStarterQuest(metadata);
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
+  }
   const privateMetadata = user?.privateMetadata
     ? (user.privateMetadata as UserMetadataRecord)
     : {};

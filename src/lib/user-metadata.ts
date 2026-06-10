@@ -121,6 +121,35 @@ export function getActiveChallenge(metadata: UserMetadataRecord): ActiveChalleng
   return null;
 }
 
+
+export const DEFAULT_STARTER_CHALLENGE_ID = "finish-any-game";
+
+export function buildDefaultStarterActiveChallenge(now = new Date()): ActiveChallenge {
+  return {
+    id: DEFAULT_STARTER_CHALLENGE_ID,
+    status: "accepted",
+    startedAt: now.toISOString(),
+  };
+}
+
+export function shouldPreselectDefaultStarterQuest(metadata: UserMetadataRecord): boolean {
+  if (getActiveChallenge(metadata)) return false;
+
+  const progress = getChallengeProgress(metadata);
+  if (progress.completedChallengeIds.length > 0) return false;
+
+  return getChallengeAttempts(metadata).length === 0;
+}
+
+export function withDefaultStarterQuest(metadata: UserMetadataRecord, now = new Date()): UserMetadataRecord {
+  if (!shouldPreselectDefaultStarterQuest(metadata)) return metadata;
+
+  return {
+    ...metadata,
+    activeChallenge: buildDefaultStarterActiveChallenge(now),
+  };
+}
+
 export function getChallengeAttempts(
   metadata: UserMetadataRecord,
   challengeId?: string,
