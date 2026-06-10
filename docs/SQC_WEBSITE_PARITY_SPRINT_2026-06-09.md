@@ -123,6 +123,8 @@ Each sprint run should:
 
 - 2026-06-10 10:51 Europe/Stockholm — Closed a small Coat of Arms progress parity gap versus mobile-v251: website `/badges` now includes a `Trophy Cabinet status` panel with earned live coats, passed proof receipt count, total SQC points, and a direct account Trophy Cabinet path for signed-in users, while signed-out visitors see safe sign-in copy. Existing roster/heraldry cards and visual language stay unchanged. Verification: `pnpm lint -- src/app/badges/page.tsx`; `pnpm build`; commit `d5aa51e`; production deploy `https://cc-92407xywk-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`; live smoke returned 200 for production/deploy `/badges?badgesProgressSmoke=20260610` with `Trophy Cabinet status`, `Earned coats`, and `Proof receipts`; proof doc `docs/SQC_WEB_BADGES_PROGRESS_SUMMARY_2026-06-10.md`.
 
+- 2026-06-10 11:19–11:34 Europe/Stockholm — Closed a small website home parity gap versus mobile-v251: signed-in `/` now includes a `Trophy Cabinet` summary card like the mobile home lane, showing the latest five safe official Solo coats, completed Custom Solo receipts, and Multiplayer podium scrolls with direct receipt/account links. The lane reuses existing mission/room-row styling and hides private emails, raw custom configs, invite codes, and participant metadata. Verification: `pnpm lint -- src/app/page.tsx`; `pnpm build`; proof doc `docs/SQC_WEB_HOME_TROPHY_CABINET_LANE_2026-06-10.md`.
+
 ## Final report requirements
 
 At deadline, report: shipped website features, commits/deploys, verification evidence, remaining gaps, and recommended next sprint priorities.
