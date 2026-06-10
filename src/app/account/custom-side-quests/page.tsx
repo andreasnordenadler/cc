@@ -206,7 +206,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 <div>
                   <span className="eyebrow">Proof rules</span>
                   <h3>Choose what a public chess game must prove.</h3>
-                  <p className="microcopy">Open one condition card at a time. Result and move-pattern cards ignore piece-detail fields; piece-state cards use the detailed controls.</p>
+                  <p className="microcopy">Open one condition card at a time. The selected rule shape is highlighted below; dimmed sections stay as safe defaults.</p>
                 </div>
                 <label className="custom-builder-logic-card">
                 <span>Condition logic</span>
@@ -301,7 +301,7 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
       <div className="custom-condition-grid">
         <div className="custom-condition-type-guide" aria-label={`${summaryTitle} rule type guide`}>
           <span>Pick the rule shape first</span>
-          <p>Only the matching section below is used for the selected proof condition. The other sections can stay as safe defaults.</p>
+          <p>Pick the rule shape, then fill the highlighted section. Dimmed sections stay saved as harmless defaults.</p>
           <div>
             <small>Result: win, draw, or lose</small>
             <small>Pattern: opening or move sequence</small>
