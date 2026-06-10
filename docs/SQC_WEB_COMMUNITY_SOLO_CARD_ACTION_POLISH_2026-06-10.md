@@ -19,5 +19,5 @@ Continued the 24h SQC website UX parity review with visible Community Solo brows
 - `pnpm lint -- src/app/challenges/community/page.tsx src/app/globals.css` passed; CSS emitted the existing ignored-file warning only.
 - `pnpm build` passed.
 - `pnpm deploy:prod` passed, including `pnpm quest:release-gate`.
-- Production deploy: `https://cc-krbguze4a-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`.
-- Live smoke: production and deploy `/challenges/community?cardPolishSmoke=20260610` include `community-quest-actions`, `Start from account`, and `Report quest`, with old card copy `Start/check in account` absent.
+- Production deploy: `https://cc-p2aali53y-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`.
+- Live smoke: production and deploy `/challenges/community?cardPolishSmoke=20260610b` include `community-quest-actions`, `Start from account`, and `Report quest`, with old card copy `Start/check in account` absent.
