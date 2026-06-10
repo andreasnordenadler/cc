@@ -3,11 +3,14 @@ import Link from "next/link";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import SiteNav from "@/components/site-nav";
+import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
 import {
+  buildAttemptSummary,
   getActiveChallenge,
   getChallengeProgress,
   getChessComUsername,
+  getLatestChallengeAttempt,
   getLichessUsername,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
@@ -62,6 +65,8 @@ export default async function Home() {
   const activeQuestRecord = activeQuest?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
+  const latestActiveAttempt = activeQuestRecord ? getLatestChallengeAttempt(metadata, activeQuestRecord.id) : null;
+  const latestActiveAttemptSummary = latestActiveAttempt ? buildAttemptSummary(latestActiveAttempt) : null;
   const connectedIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" / ");
   let activeMultiplayerSideQuests: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
   let officialMultiplayerSideQuests: typeof activeMultiplayerSideQuests = [];
@@ -226,10 +231,9 @@ export default async function Home() {
 
         {isSignedIn ? (
           <>
-            <Link
-              href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"}
+            <section
               className="card mission-card home-status-card compact-run-card active-quest-home-card"
-              aria-label={activeQuestRecord ? `Open active quest: ${activeQuestRecord.title}` : "Choose an active quest"}
+              aria-label={activeQuestRecord ? `Active quest: ${activeQuestRecord.title}` : "Choose an active quest"}
             >
               {activeQuestRecord ? (
                 <span className="active-quest-card-coat" aria-hidden="true">
@@ -247,10 +251,29 @@ export default async function Home() {
               </div>
               <p>
                 {activeQuestRecord
-                  ? "Open the active quest page for rules, badge details, and the next weird chess side quest."
+                  ? "Check the latest public game from here, or open the active quest page for rules, exact-game proof, badge details, and receipts."
                   : "Choose one solo quest first so My Side Quests knows which weird rule to judge after your next public game."}
               </p>
-            </Link>
+              {latestActiveAttempt && latestActiveAttemptSummary ? (
+                <p className="microcopy">
+                  Latest check: {latestActiveAttemptSummary.headline} · {latestActiveAttemptSummary.detail}
+                </p>
+              ) : null}
+              <div className="button-row hero-actions active-quest-home-actions">
+                {activeQuestRecord && connectedIdentity ? (
+                  <form action={checkActiveChallenge}>
+                    <button type="submit" className="button primary">Check latest game</button>
+                  </form>
+                ) : activeQuestRecord ? (
+                  <Link href="/connect" className="button primary">Add chess username</Link>
+                ) : (
+                  <Link href="/challenges" className="button primary">Choose a quest</Link>
+                )}
+                <Link href={activeQuestRecord ? `/challenges/${activeQuestRecord.id}` : "/challenges"} className="button secondary">
+                  {activeQuestRecord ? "Open quest details" : "Browse Solo Side Quests"}
+                </Link>
+              </div>
+            </section>
 
             <section className="mission-card groupquests-user-overview home-multiplayer-command-card" aria-label="Multiplayer Side Quests">
               <div className="section-head groupquests-command-head">
