@@ -21,6 +21,30 @@ type ProofCheck = {
   status: string;
   summary?: string | null;
   gameId?: string | null;
+  finalPositionFen?: string | null;
+  lastMoveUci?: string | null;
+  lastMoveSan?: string | null;
+};
+
+type BoardSquare = {
+  square: string;
+  piece?: string;
+  highlight?: boolean;
+};
+
+const PIECES: Record<string, string> = {
+  K: "♔",
+  Q: "♕",
+  R: "♖",
+  B: "♗",
+  N: "♘",
+  P: "♙",
+  k: "♚",
+  q: "♛",
+  r: "♜",
+  b: "♝",
+  n: "♞",
+  p: "♟",
 };
 
 type RefreshResponse = {
@@ -50,6 +74,66 @@ function friendlyError(error?: string) {
   if (error === "not_joined") return "Join this Multiplayer Side Quest before checking proof.";
   if (error === "not_found") return "This Multiplayer Side Quest could not be found.";
   return "Could not refresh Multiplayer proof right now.";
+}
+
+function parseFenBoard(fen?: string | null, lastMoveUci?: string | null): BoardSquare[] | null {
+  const placement = fen?.trim().split(/\s+/)[0];
+  if (!placement) return null;
+  const ranks = placement.split("/");
+  if (ranks.length !== 8) return null;
+
+  const highlightSquares = new Set<string>();
+  if (lastMoveUci && /^[a-h][1-8][a-h][1-8]/.test(lastMoveUci)) {
+    highlightSquares.add(lastMoveUci.slice(0, 2));
+    highlightSquares.add(lastMoveUci.slice(2, 4));
+  }
+
+  const board: BoardSquare[] = [];
+  for (const [rankIndex, rank] of ranks.entries()) {
+    let fileIndex = 0;
+    for (const token of rank) {
+      if (/\d/.test(token)) {
+        for (let offset = 0; offset < Number(token); offset += 1) {
+          const square = `${String.fromCharCode(97 + fileIndex)}${8 - rankIndex}`;
+          board.push({ square, highlight: highlightSquares.has(square) });
+          fileIndex += 1;
+        }
+        continue;
+      }
+
+      if (!PIECES[token]) return null;
+      const square = `${String.fromCharCode(97 + fileIndex)}${8 - rankIndex}`;
+      board.push({ square, piece: token, highlight: highlightSquares.has(square) });
+      fileIndex += 1;
+    }
+  }
+
+  return board.length === 64 ? board : null;
+}
+
+function MultiplayerProofBoard({ check }: { check: ProofCheck }) {
+  const board = parseFenBoard(check.finalPositionFen, check.lastMoveUci);
+  if (!board) return null;
+
+  return (
+    <div className="groupquest-proof-board" aria-label="Multiplayer proof board">
+      <span className="eyebrow">Proof board</span>
+      <div className="proof-board-wrap" data-board-state="ready">
+        <div className="proof-board" role="img" aria-label="Chess position with last move highlighted">
+          {board.map((square) => (
+            <span
+              key={square.square}
+              className={`proof-board-square ${square.highlight ? "highlight" : ""}`}
+              aria-label={`${square.square}${square.piece ? ` ${square.piece}` : " empty"}`}
+            >
+              {square.piece ? PIECES[square.piece] : null}
+            </span>
+          ))}
+        </div>
+      </div>
+      {check.lastMoveSan || check.lastMoveUci ? <small>Last move: {check.lastMoveSan ?? check.lastMoveUci}</small> : null}
+    </div>
+  );
 }
 
 export default function GroupQuestProofControls({ id, quests, initialState }: { id: string; quests: QuestSummary[]; initialState: InitialProofState }) {
@@ -134,6 +218,7 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
               <span className="badge green">{isComplete ? "Verified" : check?.status === "failed" ? "Needs another game" : "Open"}</span>
               <strong>{quest.title}</strong>
               <small>{check?.summary ?? (isComplete ? "Already counted for this Multiplayer Side Quest." : `${quest.reward} pts available inside this run.`)}</small>
+              {check ? <MultiplayerProofBoard check={check} /> : null}
             </article>
           );
         })}

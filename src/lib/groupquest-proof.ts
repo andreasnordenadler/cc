@@ -7,6 +7,9 @@ export type GroupQuestCheckResult = {
   gameId: string;
   summary: string;
   gameTime?: string;
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
 };
 
 function resolveVerdictTime(verdict: { completedGameAt?: string; startedGameAt?: string }) {
@@ -15,7 +18,17 @@ function resolveVerdictTime(verdict: { completedGameAt?: string; startedGameAt?:
 
 function buildWindowedResult(
   challengeId: string,
-  verdict: { status: "passed" | "failed" | "pending"; gameId: string; summary: string; evidence?: string[]; completedGameAt?: string; startedGameAt?: string },
+  verdict: {
+    status: "passed" | "failed" | "pending";
+    gameId: string;
+    summary: string;
+    evidence?: string[];
+    completedGameAt?: string;
+    startedGameAt?: string;
+    finalPositionFen?: string;
+    lastMoveUci?: string;
+    lastMoveSan?: string;
+  },
   startAt?: string,
   endAt?: string,
 ): GroupQuestCheckResult {
@@ -48,6 +61,9 @@ function buildWindowedResult(
     gameId: verdict.gameId,
     summary: `${verdict.summary} ${verdict.evidence?.join(" ") ?? ""}`.trim(),
     gameTime,
+    finalPositionFen: verdict.finalPositionFen,
+    lastMoveUci: verdict.lastMoveUci,
+    lastMoveSan: verdict.lastMoveSan,
   };
 }
 

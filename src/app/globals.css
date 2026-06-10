@@ -1357,6 +1357,11 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-proof-check.passed { border-color: rgba(96,240,175,.28); background: linear-gradient(135deg, rgba(96,240,175,.12), rgba(255,255,255,.045)); }
 .groupquest-proof-check strong { color: var(--ink); font-weight: 950; line-height: 1.12; }
 .groupquest-proof-check small { color: var(--muted); font-weight: 800; line-height: 1.35; }
+.groupquest-proof-board { display: grid; gap: 6px; margin-top: 4px; }
+.groupquest-proof-board .proof-board-wrap { width: min(168px, 100%); }
+.groupquest-proof-board .proof-board { border-radius: 14px; }
+.groupquest-proof-board .proof-board-square { font-size: clamp(.72rem, 1.8vw, 1.12rem); }
+.groupquest-proof-board .eyebrow { color: var(--green); }
 .groupquest-proof-message, .groupquest-proof-error { margin: 0; padding: 10px 12px; border-radius: 14px; font-size: .84rem; font-weight: 900; }
 .groupquest-proof-message { color: var(--green); background: rgba(96,240,175,.1); border: 1px solid rgba(96,240,175,.22); }
 .groupquest-proof-error { color: #ffb4a8; background: rgba(255,120,96,.1); border: 1px solid rgba(255,120,96,.24); }

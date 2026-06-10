@@ -88,6 +88,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       status: entry.result.status,
       summary: entry.result.summary,
       gameId: entry.result.gameId,
+      finalPositionFen: entry.result.finalPositionFen,
+      lastMoveUci: entry.result.lastMoveUci,
+      lastMoveSan: entry.result.lastMoveSan,
     })),
   });
 }
@@ -115,6 +118,9 @@ async function mergeWebMultiplayerCompletions(
     summary: `Multiplayer proof verified: ${entry.result.summary}`,
     checkedAt: now,
     completedGameAt: entry.result.gameTime,
+    finalPositionFen: entry.result.finalPositionFen,
+    lastMoveUci: entry.result.lastMoveUci,
+    lastMoveSan: entry.result.lastMoveSan,
   }));
 
   await client.users.updateUserMetadata(userId, {
