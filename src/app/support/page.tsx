@@ -4,6 +4,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
 import SupportContactForm from "@/components/support-contact-form";
 import { getSupportMessages } from "@/lib/analytics";
+import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, getRunnerDisplayName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
   title: "Support & privacy — Side Quest Chess",
@@ -62,7 +63,10 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
   const { userId } = await auth();
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const supportContext = buildSupportContext(resolvedSearchParams);
-  const supportMessages = userId ? getSupportMessages((await (await clerkClient()).users.getUser(userId)).privateMetadata) : [];
+  const signedInUser = userId ? await (await clerkClient()).users.getUser(userId) : null;
+  const userMetadata = (signedInUser?.privateMetadata ?? {}) as UserMetadataRecord;
+  const supportMessages = signedInUser ? getSupportMessages(signedInUser.privateMetadata) : [];
+  const supportDiagnostics = signedInUser ? buildSupportDiagnostics(userMetadata) : "";
 
   return (
     <main className="site-shell">
@@ -98,7 +102,7 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
           <p>
             Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. For deletion requests, include the account email or profile details needed to identify your SQC account. A screenshot helps if the issue is visual.
           </p>
-          <SupportContactForm isSignedIn={Boolean(userId)} initialMessages={supportMessages} initialContext={supportContext} />
+          <SupportContactForm isSignedIn={Boolean(userId)} initialMessages={supportMessages} initialContext={supportContext} supportDiagnostics={supportDiagnostics} />
         </section>
 
         <section className="mission-card support-simple-card">
@@ -118,6 +122,26 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
       </div>
     </main>
   );
+}
+
+function buildSupportDiagnostics(metadata: UserMetadataRecord) {
+  const progress = getChallengeProgress(metadata);
+  const activeChallenge = getActiveChallenge(metadata);
+  const attempts = getChallengeAttempts(metadata);
+  const supportMessages = getSupportMessages(metadata);
+  const lines = [
+    `Surface: website`,
+    `Runner display name saved: ${getRunnerDisplayName(metadata) ? "yes" : "no"}`,
+    `Lichess username saved: ${getLichessUsername(metadata) ? "yes" : "no"}`,
+    `Chess.com username saved: ${getChessComUsername(metadata) ? "yes" : "no"}`,
+    `Active solo quest: ${activeChallenge?.id ?? "none"}`,
+    `Completed solo quests: ${progress.totalCompletedChallenges}`,
+    `Reward points: ${progress.totalRewardPoints}`,
+    `Stored proof attempts: ${attempts.length}`,
+    `Support thread messages: ${supportMessages.length}`,
+  ];
+
+  return lines.join("\n");
 }
 
 function buildSupportContext(searchParams: { topic?: string; quest?: string; host?: string }) {

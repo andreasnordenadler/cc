@@ -9,15 +9,34 @@ type SupportContactFormProps = {
   isSignedIn?: boolean;
   initialMessages?: SQCSupportMessage[];
   initialContext?: string;
+  supportDiagnostics?: string;
 };
 
-export default function SupportContactForm({ isSignedIn = false, initialMessages = [], initialContext = "" }: SupportContactFormProps) {
+export default function SupportContactForm({ isSignedIn = false, initialMessages = [], initialContext = "", supportDiagnostics = "" }: SupportContactFormProps) {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState(initialMessages);
   const [message, setMessage] = useState(initialContext);
   const [busy, setBusy] = useState(false);
   const visibleMessages = useMemo(() => [...messages].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 8), [messages]);
+
+  async function copySupportDetails() {
+    const supportPacket = [
+      "Side Quest Chess website support details",
+      supportDiagnostics.trim() || "No signed-in account diagnostics available.",
+      `Page: ${window.location.pathname}${window.location.search}`,
+      `Browser: ${navigator.userAgent}`,
+      `Captured: ${new Date().toISOString()}`,
+    ].filter(Boolean).join("\n");
+
+    try {
+      await navigator.clipboard.writeText(supportPacket);
+      setStatus("Support details copied. Paste them into the message and add what went wrong.");
+      setError(null);
+    } catch {
+      setError("Could not copy support details. You can still send the message without them.");
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,6 +96,9 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
           <span className="eyebrow">Signed-in support thread</span>
           <h3>Messages stay with your SQC account.</h3>
           <p>Website support now uses the same account-attached support thread as the mobile app. Reports can include quest context without exposing private player data.</p>
+          <div className="button-row">
+            <button className="button secondary" type="button" onClick={() => void copySupportDetails()}>Copy support details</button>
+          </div>
           {visibleMessages.length ? (
             <div className="support-thread-list" aria-label="Recent support messages">
               {visibleMessages.map((entry) => (
