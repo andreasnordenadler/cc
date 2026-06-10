@@ -33,4 +33,7 @@ Both web and mobile assets are `1024x1024 RGBA` PNGs with alpha extrema `(0, 255
 - `pnpm quest:release-gate` passed.
 
 ## Deployment
-Pending at time of doc creation.
+- Commit: `965c5c5` (`Make Any Game Counts badge more ornate`).
+- Production deploy: `https://cc-djfmf8ot6-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`.
+- Live smoke passed for `/challenges/finish-any-game`, `/badges`, and `/badges/v6/proof-loop-test-badge.png`.
+- Live image proof: `200 image/png`, `1024x1024 RGBA`, alpha extrema `(0, 255)`, outside corner samples `[0, 0, 0, 0, 0, 0]`, transparent pixels `49.27%`.
