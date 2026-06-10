@@ -237,6 +237,14 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
             </section>
 
+            <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Multiplayer Side Quest completion rules">
+              <span className="eyebrow">Proof rule</span>
+              <h2>Personal proof and multiplayer proof are different ledgers.</h2>
+              <p>
+                Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.
+              </p>
+            </section>
+
             <section className="mission-card groupquests-user-overview" aria-label="Your Multiplayer Side Quests overview">
               <div className="section-head groupquests-command-head">
                 <div>
@@ -362,6 +370,11 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                       <p>Open public Multiplayer Side Quests anyone can inspect and join.</p>
                     </div>
                     <span className="badge gold">{publicRooms.length}</span>
+                  </div>
+                  <div className="button-row">
+                    <Link className="button secondary" href="/groupquests/public">Open discovery filters</Link>
+                    <Link className="button ghost" href="/groupquests/public?status=joined">Joined by me</Link>
+                    <Link className="button ghost" href="/groupquests/public?status=hosted">Hosted by me</Link>
                   </div>
 
                   {publicRooms.length ? (
