@@ -14,3 +14,5 @@ Closed a website Trophy Cabinet parity gap versus mobile-v251: the signed-in web
 
 - `pnpm lint -- src/app/account/page.tsx`
 - `pnpm build`
+- Production deploy: `https://cc-rm2zpho07-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: signed-out production and deploy `/account?customTrophySmoke=20260610` resolved to sign-in content, production `/challenges?customTrophySmoke=20260610` returned 200 Side Quest content, and `/account/custom-side-quests?customTrophySmoke=20260610` resolved to sign-in content.
