@@ -13,3 +13,6 @@ Closed a small Coat of Arms parity gap versus mobile-v251: the mobile Coat of Ar
 
 - `pnpm lint -- src/app/badges/page.tsx`
 - `pnpm build`
+- Commit: `d5aa51e`
+- Production deploy: `https://cc-92407xywk-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: production and deploy `/badges?badgesProgressSmoke=20260610` returned 200 and included `Trophy Cabinet status`, `Earned coats`, and `Proof receipts`.
