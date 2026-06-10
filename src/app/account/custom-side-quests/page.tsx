@@ -169,7 +169,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           )}
         </section>
 
-        <section className="mission-card" id="custom-side-quest-builder" aria-label="Create Custom Side Quest on website">
+        <section className="mission-card" id="custom-side-quest-builder" aria-label="Create Custom Solo Side Quest">
           <div className="section-head">
             <div>
               <span className="eyebrow">Custom Solo builder</span>
@@ -540,7 +540,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
             <input type="hidden" name="id" value={quest.id} />
             <button className="button ghost" type="submit">Duplicate</button>
           </form>
-          <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit on website</Link>
+          <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit recipe</Link>
           <form action={setCustomSideQuestLifecycleFromWeb}>
             <input type="hidden" name="id" value={quest.id} />
             <input type="hidden" name="nextLifecycle" value={lifecycle === "archived" ? "draft" : "archived"} />

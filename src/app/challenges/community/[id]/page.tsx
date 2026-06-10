@@ -59,8 +59,8 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <span className="eyebrow">Player-created by {quest.creatorName}</span>
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
-              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect, share, report, start, check, and prove it on website or app — same product, different layout.</p>
-              <p className="quest-detail-flavor">Creator context is intentionally small: public quest name, public creator label, and more public recipes by the same creator when available. No private account profile is exposed here.</p>
+              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect the target, share it with a rival, report anything off, then start and prove it from your SQC account.</p>
+              <p className="quest-detail-flavor">Creator context stays intentionally small: public quest name, public creator label, and more public recipes by the same player when available. Private account details stay private.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
               <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
@@ -80,7 +80,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <div>
               <span className="eyebrow">Share link</span>
               <h2>Send this public recipe without exposing private shelf data.</h2>
-              <p>Copy the canonical Community Solo URL or share it through the same website social controls used for proof receipts. Drafts, archived recipes, and raw custom configs stay private.</p>
+              <p>Copy the canonical Community Solo URL or use the same SQC share actions used for proof receipts. Drafts, archived recipes, and raw custom configs stay private.</p>
             </div>
           </div>
           <ShareProofActions
@@ -100,7 +100,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <div>
               <span className="eyebrow">Creator context</span>
               <h2>Made public by {quest.creatorName}.</h2>
-              <p>This link opens the public Community Solo board filtered to recipes from the same creator label. If that creator has no other public recipes, the page safely falls back without exposing private profile data.</p>
+              <p>This opens the public Community Solo board filtered to recipes from the same public creator label. If there are no other public recipes, the page safely falls back without exposing private profile data.</p>
             </div>
             <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">Open creator context</CommunitySoloAnalyticsLink>
           </div>
@@ -137,15 +137,15 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
 
         <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Website-first players</span>
-            <h2>Use the wide community view.</h2>
-            <p>The website supports Community Solo as a complete surface with creator context, rule explanation, public URLs, report/trust affordances, and account actions. You should not need the app to understand or manage the quest.</p>
+            <span className="eyebrow">Roomy web view</span>
+            <h2>Review the recipe before you run it.</h2>
+            <p>Use this wide view for creator context, rule explanation, public links, report/trust affordances, and account actions. Everything here is phrased for players, not internal tooling.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">App-first players</span>
-            <h2>Use the native community view.</h2>
-            <p>The mobile app supports Community Solo as a complete compact surface: browse, inspect, start, check, prove, report, and collect the reward moment without needing the website for normal play.</p>
+            <span className="eyebrow">Compact mobile flow</span>
+            <h2>Keep the same quest in your pocket.</h2>
+            <p>The mobile flow keeps the same Community Solo loop compact: browse, inspect, start, check, prove, report, and collect the reward moment with the same account state.</p>
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_account_card">Open your SQC account</CommunitySoloAnalyticsLink>
           </article>
         </section>
