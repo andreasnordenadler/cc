@@ -13,5 +13,5 @@ Closed a small Multiplayer command-center parity gap versus mobile-v251: signed-
 - `pnpm lint -- src/app/groupquests/page.tsx`
 - `pnpm build`
 - Commit: `30e5d56`
-- Production deploy: `https://cc-ciov64ez6-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
-- Live smoke: 200 for `/groupquests?commandCenterLinksSmoke=20260610` with Multiplayer/Public/Proof rule content; 200 for production and deploy `/groupquests/public?commandCenterLinksSmoke=20260610`
+- Production deploy: `https://cc-pt4lsgedh-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: 200 for `/groupquests?commandCenterLinksSmoke=20260610b` with Multiplayer/Public/Proof rule content; 200 for production and deploy `/groupquests/public?commandCenterLinksSmoke=20260610b`
