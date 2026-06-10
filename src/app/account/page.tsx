@@ -16,9 +16,12 @@ import {
   getChessComUsername,
   getLichessUsername,
   getPreferredRunnerName,
+  getRunnerBio,
+  getRunnerDisplayName,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 import { listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
+import { getCustomSideQuests } from "@/lib/custom-side-quests";
 
 function deriveGroupQuestStatus(startAt: string, endAt: string) {
   const now = Date.now();
@@ -38,8 +41,11 @@ export default async function MyQuestLogPage() {
   }
 
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
+  const savedRunnerDisplayName = getRunnerDisplayName(metadata);
+  const runnerBio = getRunnerBio(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const runnerDisplayName = getPreferredRunnerName(metadata, {
     firstName: user.firstName,
@@ -49,6 +55,8 @@ export default async function MyQuestLogPage() {
   }) || "SQC player";
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
+  const proofReceiptCount = getChallengeAttempts(metadata).filter((attempt) => attempt.status === "passed").length;
+  const customSideQuests = getCustomSideQuests(privateMetadata).length ? getCustomSideQuests(privateMetadata) : getCustomSideQuests(metadata);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
@@ -72,6 +80,22 @@ export default async function MyQuestLogPage() {
       };
     })
     .filter((quest) => quest.status !== "Finished");
+  const hostedActiveGroupQuestCount = activeGroupQuests.filter((quest) => quest.copy.startsWith("Hosting")).length;
+  const joinedActiveGroupQuestCount = activeGroupQuests.length - hostedActiveGroupQuestCount;
+  const publishedCustomSideQuestCount = customSideQuests.filter((quest) => quest.lifecycle !== "archived" && quest.lifecycle !== "draft").length;
+  const draftCustomSideQuestCount = customSideQuests.filter((quest) => quest.lifecycle === "draft").length;
+  const readinessItems = [
+    { label: "Profile", value: savedRunnerDisplayName ? savedRunnerDisplayName : "Add display name", ready: Boolean(savedRunnerDisplayName), href: "/profile" },
+    { label: "Brag line", value: runnerBio ? "Saved" : "Add short bio", ready: Boolean(runnerBio), href: "/profile" },
+    { label: "Lichess", value: lichessUsername || "Add username", ready: Boolean(lichessUsername), href: "/connect" },
+    { label: "Chess.com", value: chessComUsername || "Add username", ready: Boolean(chessComUsername), href: "/connect" },
+  ];
+  const progressItems = [
+    { label: "Completed", value: completedChallenges.length.toString(), href: "/account" },
+    { label: "Proofs", value: proofReceiptCount.toString(), href: "/account" },
+    { label: "Custom", value: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Create", href: "/account/custom-side-quests" },
+    { label: "Multiplayer", value: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Open", href: "/groupquests" },
+  ];
   const completedQuestReceipts = await Promise.all(completedChallenges.map(async (challenge, index) => {
     const latestProof = getLatestPassedAttempt(metadata, challenge.id);
     const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
@@ -111,6 +135,28 @@ export default async function MyQuestLogPage() {
               {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
               <Link href="/profile" className="button secondary">Edit profile</Link>
               <Link href="/account/custom-side-quests" className="button secondary">My Custom Side Quests</Link>
+            </div>
+            <div className="account-readiness-panel" aria-label="Account readiness and progress">
+              <div className="account-readiness-head">
+                <span className="eyebrow">Account readiness</span>
+                <p>Website support sees the same readiness basics as mobile: profile, chess usernames, Solo proof history, Custom Side Quests, and Multiplayer activity.</p>
+              </div>
+              <div className="account-readiness-grid" aria-label="Profile readiness">
+                {readinessItems.map((item) => (
+                  <Link className={`account-readiness-chip ${item.ready ? "ready" : "missing"}`} href={item.href} key={item.label}>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </Link>
+                ))}
+              </div>
+              <div className="account-progress-grid" aria-label="Account progress summary">
+                {progressItems.map((item) => (
+                  <Link className="account-progress-chip" href={item.href} key={item.label}>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </Link>
+                ))}
+              </div>
             </div>
             <div className="current-mission-multiplayer" aria-label="Active multiplayer side quests">
               <span className="eyebrow">Active Multiplayer Side Quests</span>
