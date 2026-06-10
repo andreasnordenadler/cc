@@ -22,3 +22,5 @@ Closed a small website home parity gap versus mobile-v251: the signed-in website
 
 - `pnpm lint -- src/app/page.tsx`
 - `pnpm build`
+- `pnpm deploy:prod` → `https://cc-qtwbsmgaz-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: production and deploy `/ ?homeCustomActiveSmoke=20260610` returned 200; signed-out `/account/custom-side-quests?homeCustomActiveSmoke=20260610` resolved to sign-in.
