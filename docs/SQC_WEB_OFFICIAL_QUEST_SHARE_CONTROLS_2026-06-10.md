@@ -13,3 +13,6 @@ Closed a website/mobile parity gap where mobile-v251 official Solo detail cards 
 
 - `pnpm lint -- src/components/share-proof-actions.tsx 'src/app/challenges/[id]/page.tsx' 'src/app/challenges/community/[id]/page.tsx' src/app/account/custom-side-quests/page.tsx`
 - `pnpm build`
+- Commit `b5ab737` pushed to `main`.
+- Production deploy `https://cc-1q37rgqpp-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke returned 200/share content for production and deploy `/challenges/finish-any-game?officialShareSmoke=20260610` plus production Community detail.
