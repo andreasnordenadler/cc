@@ -206,16 +206,17 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
         <p>{quest.summary}</p>
         <div className="public-groupquest-meta">
-          <small>{quest.ruleLabel}</small>
+          <small className="community-quest-rule">{quest.ruleLabel}</small>
           <small>{formatCommunityStats(quest)}</small>
           <small>Updated {formatDate(quest.updatedAt)}</small>
-          <small><Link href={quest.creatorBrowsePath}>More from {quest.creatorName}</Link></small>
         </div>
-        <div className="button-row">
+        <div className="community-quest-actions">
           <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink className="button ghost" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink className="button ghost" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start/check in account</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report weird quest</CommunitySoloAnalyticsLink>
+          <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
+        </div>
+        <div className="community-quest-secondary-actions" aria-label={`${quest.title} secondary actions`}>
+          <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
+          <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report quest</CommunitySoloAnalyticsLink>
         </div>
       </div>
     </article>

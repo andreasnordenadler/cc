@@ -1265,8 +1265,16 @@ p { color: var(--muted); line-height: 1.5; }
 .support-thread-bubble p { margin: 0; color: var(--ink); font-size: .94rem; line-height: 1.4; }
 .public-groupquest-meta { display: grid; gap: 6px; }
 .public-groupquest-meta small { color: var(--muted); font-size: .78rem; font-weight: 850; }
+.community-side-quest-card .public-groupquest-meta { gap: 8px; margin-top: 2px; }
+.community-side-quest-card .public-groupquest-meta small { display: inline-flex; align-items: center; width: fit-content; max-width: 100%; }
+.community-quest-rule { padding: 7px 9px; border: 1px solid rgba(245,200,106,.18); border-radius: 999px; background: rgba(245,200,106,.1); color: var(--ink) !important; }
+.community-quest-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.community-quest-actions .button { justify-content: center; }
+.community-quest-secondary-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 2px; color: var(--muted); font-size: .82rem; font-weight: 900; }
+.community-quest-secondary-actions a { color: var(--muted); text-decoration: none; }
+.community-quest-secondary-actions a:hover, .community-quest-secondary-actions a:focus-visible { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
 .public-groupquest-row em { color: var(--gold); font-size: .84rem; font-style: normal; font-weight: 950; text-align: right; white-space: nowrap; }
-@media (max-width: 760px) { .public-groupquest-row { grid-template-columns: 1fr; } .public-groupquest-row em, .support-thread-head em { text-align: left; } .support-thread-head { display: grid; } .support-thread-bubble { max-width: 100%; } }
+@media (max-width: 760px) { .public-groupquest-row { grid-template-columns: 1fr; } .public-groupquest-row em, .support-thread-head em { text-align: left; } .support-thread-head { display: grid; } .support-thread-bubble { max-width: 100%; } .community-quest-actions { grid-template-columns: 1fr; } }
 
 .groupquests-create-minihero {
   display: grid;
