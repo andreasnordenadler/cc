@@ -8,3 +8,9 @@ Verification:
 
 - `pnpm lint -- src/app/page.tsx`
 - `pnpm build`
+
+Deployment/smoke:
+
+- Commit: `8173683`
+- Production deploy: `https://cc-6f1d1jj0c-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: 200 for production and deploy `/` with SQC home content; 200 for `/badges?homeTrophySmoke=20260610` with Trophy Cabinet content.
