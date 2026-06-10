@@ -14,3 +14,6 @@ Closed a small website discovery parity gap versus mobile-v251: mobile Community
 
 - `pnpm lint -- src/lib/community-side-quests.ts src/app/challenges/community/page.tsx`
 - `pnpm build`
+- Commit: `d146bd3` (`Add Community Solo discovery filters`)
+- Production deploy: `https://cc-h9xva0tu3-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: 200 for production `/challenges/community?communityFiltersSmoke=20260610&q=rule&filter=popular&sort=az`, production `/challenges/community?communityFiltersSmoke=20260610&filter=new`, and deploy `/challenges/community?communityFiltersSmoke=20260610&filter=popular`, each containing the Community Solo discovery/filter UI.
