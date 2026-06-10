@@ -1360,6 +1360,12 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-proof-message, .groupquest-proof-error { margin: 0; padding: 10px 12px; border-radius: 14px; font-size: .84rem; font-weight: 900; }
 .groupquest-proof-message { color: var(--green); background: rgba(96,240,175,.1); border: 1px solid rgba(96,240,175,.22); }
 .groupquest-proof-error { color: #ffb4a8; background: rgba(255,120,96,.1); border: 1px solid rgba(255,120,96,.24); }
+.custom-proof-submit-form { flex: 1 1 min(100%, 360px); display: grid; gap: 8px; padding: 10px; border: 1px solid rgba(245,200,106,.18); border-radius: 18px; background: rgba(0,0,0,.14); }
+.custom-proof-submit-form label { display: grid; gap: 5px; color: var(--muted); font-size: .74rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.custom-proof-submit-form input { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 13px; padding: 10px 11px; background: rgba(0,0,0,.22); color: var(--ink); font: inherit; font-size: .9rem; font-weight: 850; letter-spacing: normal; text-transform: none; }
+.custom-proof-submit-form input:focus { outline: 2px solid rgba(245,200,106,.5); outline-offset: 2px; }
+.custom-proof-submit-form small { color: var(--muted); font-size: .74rem; font-weight: 800; line-height: 1.35; }
+.custom-proof-submit-form .button { justify-self: start; }
 @media (max-width: 980px) { .groupquest-proof-strip, .groupquest-proof-checks { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .groupquest-proof-strip, .groupquest-proof-checks { grid-template-columns: 1fr; } }
 .groupquest-leaderboard-card { background: radial-gradient(circle at 94% 0%, rgba(96,240,175,.13), transparent 36%), rgba(255,255,255,.075); }

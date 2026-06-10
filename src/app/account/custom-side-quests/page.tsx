@@ -37,7 +37,7 @@ type WebCustomRuleBlockDefaults = {
   negated: boolean;
 };
 
-export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; deleted?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; deactivated?: string; reset?: string; error?: string }> }) {
+export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; deleted?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; submitted?: string; deactivated?: string; reset?: string; error?: string }> }) {
   noStore();
   const params = searchParams ? await searchParams : {};
   const authUser = await currentUser();
@@ -92,6 +92,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
         {params.deleted ? <p className="form-status success" role="status">Custom Side Quest deleted from your website shelf.</p> : null}
         {params.started ? <p className="form-status success" role="status">Custom Side Quest started. Play a public game, then check the latest result here.</p> : null}
         {params.checked ? <p className="form-status success" role="status">Latest-game proof check saved. See the receipt on the active card below.</p> : null}
+        {params.submitted ? <p className="form-status success" role="status">Submitted proof game checked. See the receipt on the active card below.</p> : null}
         {params.deactivated ? <p className="form-status success" role="status">Custom Side Quest deactivated. Your recipe stays saved.</p> : null}
         {params.reset ? <p className="form-status success" role="status">Custom Side Quest proof reset. You can run it again.</p> : null}
         {params.archived ? <p className="form-status success" role="status">Custom Side Quest archived. It is hidden from public discovery.</p> : null}
@@ -375,6 +376,18 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
             </form>
           ) : null}
           {active ? (
+            <form action={runCustomQuestProofActionFromWeb} className="custom-proof-submit-form" aria-label={`Submit a specific proof game for ${quest.title}`}>
+              <input type="hidden" name="id" value={quest.id} />
+              <input type="hidden" name="action" value="submit" />
+              <label>
+                <span>Specific proof game</span>
+                <input name="gameId" type="text" inputMode="url" placeholder="Lichess game ID or Chess.com URL" />
+              </label>
+              <small>Optional: check one finished public game instead of only the latest game. Custom Solo exact-game proof uses the same verifier gate as mobile.</small>
+              <button className="button secondary" type="submit">Submit game/link</button>
+            </form>
+          ) : null}
+          {active ? (
             <form action={runCustomQuestProofActionFromWeb}>
               <input type="hidden" name="id" value={quest.id} />
               <input type="hidden" name="action" value="deactivate" />
@@ -420,13 +433,15 @@ async function runCustomQuestProofActionFromWeb(formData: FormData) {
 
   const id = String(formData.get("id") ?? "");
   const requestedAction = String(formData.get("action") ?? "");
-  const action = requestedAction === "check" || requestedAction === "deactivate" || requestedAction === "reset" ? requestedAction : "start";
+  const action = requestedAction === "check" || requestedAction === "submit" || requestedAction === "deactivate" || requestedAction === "reset" ? requestedAction : "start";
+  const gameId = String(formData.get("gameId") ?? "").trim();
   if (!id.startsWith("custom-")) redirect("/account/custom-side-quests?error=Unknown%20custom%20Side%20Quest.");
+  if (action === "submit" && !gameId) redirect("/account/custom-side-quests?error=Paste%20a%20Lichess%20game%20ID%20or%20Chess.com%20game%20URL%20first.");
 
   const response = await runQuestAction(new Request("https://sidequestchess.local/api/mobile/quest", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ action, challengeId: id }),
+    body: JSON.stringify({ action, challengeId: id, gameId: action === "submit" ? gameId : undefined }),
   }));
   const payload = await response.json() as { ok?: boolean; message?: string };
 
@@ -437,7 +452,7 @@ async function runCustomQuestProofActionFromWeb(formData: FormData) {
     redirect(`/account/custom-side-quests?error=${encodeURIComponent(payload.message || "Custom Side Quest proof action failed.")}`);
   }
 
-  const flag = action === "check" ? "checked" : action === "deactivate" ? "deactivated" : action === "reset" ? "reset" : "started";
+  const flag = action === "check" ? "checked" : action === "submit" ? "submitted" : action === "deactivate" ? "deactivated" : action === "reset" ? "reset" : "started";
   redirect(`/account/custom-side-quests?${flag}=1`);
 }
 
