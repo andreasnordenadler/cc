@@ -10,6 +10,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import {
   buildAttemptSummary,
   getActiveChallenge,
+  getChallengeAttempts,
   getChallengeProgress,
   getChessComUsername,
   getLatestChallengeAttempt,
@@ -22,10 +23,17 @@ import {
   type ServerGroupQuest,
 } from "@/lib/groupquests";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
+import { buildPublicProofPath } from "@/lib/proof-share";
 
 function toTimestamp(value: string) {
   const ts = Date.parse(value);
   return Number.isFinite(ts) ? ts : 0;
+}
+
+function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string) {
+  return getChallengeAttempts(metadata, challengeId)
+    .filter((attempt) => attempt.status === "passed")
+    .at(-1) ?? null;
 }
 
 function deriveQuestState(startAt: string, endAt: string) {
@@ -233,16 +241,25 @@ export default async function Home() {
         action: "Results",
       }));
 
-    const officialTrophies = CHALLENGES.filter((challenge) =>
+    const officialTrophies = await Promise.all(CHALLENGES.filter((challenge) =>
       completedSet.has(challenge.id),
-    ).map((challenge) => ({
-      title: challenge.title,
-      meta: `Unlocked ${challenge.badgeIdentity.name} · +${challenge.reward} points`,
-      href: `/challenges/${challenge.id}`,
-      kind: "Solo" as const,
-      image:
-        challenge.badgeIdentity.image ?? "/badges/proof-loop-test-badge.png",
-      officialChallenge: challenge,
+    ).map(async (challenge) => {
+      const latestProof = getLatestPassedAttempt(metadata, challenge.id);
+      const proofPath = await buildPublicProofPath({
+        attempt: latestProof,
+        challenge,
+        runnerName: user?.firstName || user?.username || "SQC player",
+      });
+
+      return {
+        title: challenge.title,
+        meta: `Unlocked ${challenge.badgeIdentity.name} · +${challenge.reward} points`,
+        href: proofPath,
+        kind: "Solo" as const,
+        image:
+          challenge.badgeIdentity.image ?? "/badges/proof-loop-test-badge.png",
+        officialChallenge: challenge,
+      };
     }));
     const customTrophies = customSideQuests
       .filter((quest) => completedSet.has(quest.id))
