@@ -15,6 +15,14 @@ Continued Andreas's Custom Solo builder UX parity sprint by reducing the visible
 
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx src/app/globals.css` (CSS ignored-file warning only)
 - `pnpm build`
+- Commit: `1e74b51` (`Polish Custom Solo rule focus`)
+- Production deploy: `https://cc-oskdhldra-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Deploy gate: `pnpm deploy:prod` including `pnpm quest:release-gate`
+- Live smoke:
+  - `https://sidequestchess.com/account/custom-side-quests?ruleFocusSmoke=20260611` returned expected signed-out `307` to `/sign-in` with SQC sign-in content.
+  - Deploy URL `/account/custom-side-quests?ruleFocusSmoke=20260611` returned the same signed-out protection.
+  - `https://sidequestchess.com/challenges/community?ruleFocusSmoke=20260611` returned `200` with Community Solo content.
+  - `https://sidequestchess.com/groupquests/public?ruleFocusSmoke=20260611` returned `200` with Public Multiplayer content.
 
 ## Safety / privacy notes
 
