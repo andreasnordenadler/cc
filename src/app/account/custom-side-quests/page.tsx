@@ -206,7 +206,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 <div>
                   <span className="eyebrow">Proof rules</span>
                   <h3>Choose what a public chess game must prove.</h3>
-                  <p className="microcopy">Open one condition card at a time. The selected rule shape is highlighted below; dimmed sections stay as safe defaults.</p>
+                  <p className="microcopy">Open one condition card at a time. Pick the rule shape first; only the matching controls appear so the builder stays focused.</p>
                 </div>
                 <label className="custom-builder-logic-card">
                 <span>Condition logic</span>
@@ -301,7 +301,7 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
       <div className="custom-condition-grid">
         <div className="custom-condition-type-guide" aria-label={`${summaryTitle} rule type guide`}>
           <span>Pick the rule shape first</span>
-          <p>Pick the rule shape, then fill the highlighted section. Dimmed sections stay saved as harmless defaults.</p>
+          <p>Pick the rule shape, then fill the matching section. Unused rule details stay tucked away as safe defaults.</p>
           <div>
             <small>Result: win, draw, or lose</small>
             <small>Pattern: opening or move sequence</small>
@@ -319,6 +319,11 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
             <option value="pieceState">Piece state</option>
           </select>
         </label>
+
+        <div className="custom-condition-no-rule" aria-hidden="true">
+          <strong>No extra rule here</strong>
+          <p>Leave this optional slot closed unless the Side Quest needs another proof target.</p>
+        </div>
 
         <fieldset className="custom-condition-field-group custom-condition-field-group-result">
           <legend>Result rule</legend>
