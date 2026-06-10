@@ -19,3 +19,6 @@ Closed a website parity gap left after official proof boards shipped: Multiplaye
 
 - `pnpm lint -- src/lib/groupquest-proof.ts 'src/app/api/groupquests/[id]/refresh/route.ts' src/components/group-quest-proof-controls.tsx`
 - `pnpm build`
+- Commit: `1488eaf` (`Add web Multiplayer proof boards`)
+- Production deploy: `https://cc-laxh24u8i-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: 200 for `/groupquests/seed-public-sqcseed11-11?multiBoardSmoke=20260610`, 200 for `/groupquests/public?multiBoardSmoke=20260610`, and 401 `sign_in_required` for signed-out `POST /api/groupquests/seed-public-sqcseed11-11/refresh`
