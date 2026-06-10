@@ -4,6 +4,7 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import ProofPositionBoard from "@/components/proof-position-board";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
@@ -347,6 +348,7 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
             </div>
           </div>
         ) : null}
+        {latestAttempt ? <ProofPositionBoard attempt={latestAttempt} variant="receipt" /> : null}
         <div className="groupquest-onboarding-steps">
           {ruleDetails.map((line, index) => (
             <div className="groupquest-onboarding-step" key={`${quest.id}-${index}`}>

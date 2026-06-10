@@ -26,7 +26,7 @@ type BoardSquare = {
 
 type ProofPositionBoardProps = {
   attempt: ChallengeAttempt | null;
-  challenge: Challenge;
+  challenge?: Challenge;
   variant?: "completed" | "receipt";
 };
 
@@ -43,12 +43,12 @@ export default function ProofPositionBoard({
   const proofSummary = sanitizeAttemptSummary(attempt?.summary);
   const diagnosticCopy = sanitizeAttemptSummary(diagnostic?.explanation);
   const receiptCopy = isFailedReceipt && diagnosticCopy ? diagnosticCopy : proofSummary;
-  const achievementCopy = buildAchievementCopy(challenge, attempt);
+  const achievementCopy = challenge ? buildAchievementCopy(challenge, attempt) : null;
   const scrollDate = attempt?.completedGameAt ?? attempt?.checkedAt;
   const moveLabel = diagnostic?.moveNumber ? `Move ${diagnostic.moveNumber}` : diagnostic?.ply ? `Ply ${diagnostic.ply}` : "Breaker position";
   const moveText = isFailedReceipt ? diagnostic?.san ?? diagnostic?.uci ?? attempt?.lastMoveSan ?? attempt?.lastMoveUci : attempt?.lastMoveSan ?? attempt?.lastMoveUci;
 
-  if (!board && variant === "receipt" && !isFailedReceipt) {
+  if (!board && (variant === "receipt" || !challenge) && !isFailedReceipt) {
     return null;
   }
 
@@ -95,14 +95,16 @@ export default function ProofPositionBoard({
         </div>
       ) : (
         <div className="proof-board-wrap" data-board-state="scroll">
-          <VictoryScroll
-            challenge={challenge}
-            achievementCopy={achievementCopy}
-            proofLine={<>Proof accepted: <strong>{challenge.title}</strong> — {proofSummary}</>}
-            dateLabel={<ProofTime value={scrollDate} />}
-            reward={challenge.reward}
-            className="proof-victory-scroll"
-          />
+          {challenge && achievementCopy ? (
+            <VictoryScroll
+              challenge={challenge}
+              achievementCopy={achievementCopy}
+              proofLine={<>Proof accepted: <strong>{challenge.title}</strong> — {proofSummary}</>}
+              dateLabel={<ProofTime value={scrollDate} />}
+              reward={challenge.reward}
+              className="proof-victory-scroll"
+            />
+          ) : null}
         </div>
       )}
     </article>
