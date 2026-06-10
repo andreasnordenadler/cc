@@ -35,12 +35,20 @@ export default function ProofPositionBoard({
   challenge,
   variant = "completed",
 }: ProofPositionBoardProps) {
-  const board = attempt?.finalPositionFen ? parseFenBoard(attempt.finalPositionFen, attempt.lastMoveUci) : null;
+  const diagnostic = attempt?.failureDiagnostic;
+  const isFailedReceipt = attempt?.status === "failed";
+  const boardFen = isFailedReceipt ? diagnostic?.fenAtBreak ?? attempt?.finalPositionFen : attempt?.finalPositionFen;
+  const boardMove = isFailedReceipt ? diagnostic?.uci ?? attempt?.lastMoveUci : attempt?.lastMoveUci;
+  const board = boardFen ? parseFenBoard(boardFen, boardMove) : null;
   const proofSummary = sanitizeAttemptSummary(attempt?.summary);
+  const diagnosticCopy = sanitizeAttemptSummary(diagnostic?.explanation);
+  const receiptCopy = isFailedReceipt && diagnosticCopy ? diagnosticCopy : proofSummary;
   const achievementCopy = buildAchievementCopy(challenge, attempt);
   const scrollDate = attempt?.completedGameAt ?? attempt?.checkedAt;
+  const moveLabel = diagnostic?.moveNumber ? `Move ${diagnostic.moveNumber}` : diagnostic?.ply ? `Ply ${diagnostic.ply}` : "Breaker position";
+  const moveText = isFailedReceipt ? diagnostic?.san ?? diagnostic?.uci ?? attempt?.lastMoveSan ?? attempt?.lastMoveUci : attempt?.lastMoveSan ?? attempt?.lastMoveUci;
 
-  if (!board && variant === "receipt") {
+  if (!board && variant === "receipt" && !isFailedReceipt) {
     return null;
   }
 
@@ -50,15 +58,15 @@ export default function ProofPositionBoard({
         <div className="proof-position-layout">
           <div className="proof-position-copy">
             <span className="eyebrow">{variant === "completed" ? "SQC proof board" : "SQC referee board"}</span>
-            <h3>{variant === "completed" ? "Verified position attached." : "Latest checked position."}</h3>
-            <p>{proofSummary}</p>
+            <h3>{isFailedReceipt ? `${moveLabel}${moveText ? ` · ${moveText}` : ""}` : variant === "completed" ? "Verified position attached." : "Latest checked position."}</h3>
+            <p>{receiptCopy}</p>
             <small>
-              {attempt?.lastMoveSan || attempt?.lastMoveUci ? <>Last move: {attempt.lastMoveSan ?? attempt.lastMoveUci} · </> : null}
+              {moveText ? <>{isFailedReceipt ? "Breaker move" : "Last move"}: {moveText} · </> : null}
               <ProofTime value={scrollDate} />
             </small>
           </div>
           <div className="proof-board-wrap" data-board-state="ready">
-            <div className="proof-board" role="img" aria-label="Chess position with last move highlighted">
+            <div className="proof-board" role="img" aria-label={isFailedReceipt ? "Chess position with breaker move highlighted" : "Chess position with last move highlighted"}>
               {board.map((square) => (
                 <span
                   key={square.square}
@@ -68,6 +76,20 @@ export default function ProofPositionBoard({
                   {square.piece ? PIECES[square.piece] : null}
                 </span>
               ))}
+            </div>
+          </div>
+        </div>
+      ) : isFailedReceipt ? (
+        <div className="proof-position-layout">
+          <div className="proof-position-copy">
+            <span className="eyebrow">SQC referee board</span>
+            <h3>Board position unavailable.</h3>
+            <p>{receiptCopy ?? "SQC checked the latest game and kept the failed proof reason, but the provider did not return a usable board position for this receipt."}</p>
+            <small><ProofTime value={scrollDate} /></small>
+          </div>
+          <div className="proof-board-wrap proof-board-empty" data-board-state="ready" aria-hidden="true">
+            <div className="proof-board">
+              {Array.from({ length: 64 }, (_, index) => <span key={index} className="proof-board-square" />)}
             </div>
           </div>
         </div>
