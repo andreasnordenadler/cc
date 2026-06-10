@@ -13,6 +13,8 @@ Closed a small Public Multiplayer discovery parity gap versus mobile-v251: websi
 
 - `pnpm lint -- src/app/groupquests/public/page.tsx`
 - `pnpm build`
+- Production deploy: `https://cc-h202vqmvj-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: production `/groupquests/public?sort=players&publicSortSmoke=20260610` returned sort/discovery content; deploy `/groupquests/public?sort=newest&publicSortSmoke=20260610` returned sort/discovery content.
 
 ## Safety
 
