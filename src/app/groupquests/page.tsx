@@ -3,7 +3,7 @@ import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestInviteKeyJoin from "@/components/group-quest-invite-key-join";
 import SiteNav from "@/components/site-nav";
-import { listPublicGroupQuests, listUserRelatedGroupQuests } from "@/lib/groupquests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 
 const overviewSteps = [
   {
@@ -59,6 +59,33 @@ function deriveQuestState(startAt: string, endAt: string) {
   return { status: "Live", tone: "green", next: "Open" };
 }
 
+function buildOfficialWeeks(quests: ServerGroupQuest[]) {
+  const weekMap = new Map<string, { id: string; label: string; rangeLabel: string; rooms: Array<{ title: string; meta: string; href: string; action: string }> }>();
+
+  quests.forEach((quest) => {
+    const date = new Date(quest.endAt || quest.startAt || Date.now());
+    const weekStart = new Date(date);
+    const day = weekStart.getUTCDay() || 7;
+    weekStart.setUTCDate(weekStart.getUTCDate() - day + 1);
+    weekStart.setUTCHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+    const id = weekStart.toISOString().slice(0, 10);
+    const label = `Week of ${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    const rangeLabel = `${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}–${weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    const existing = weekMap.get(id) ?? { id, label, rangeLabel, rooms: [] };
+    existing.rooms.push({
+      title: quest.name,
+      meta: `${quest.officialLabel ?? "Official SQC"} · Final · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+      href: `/groupquests/${quest.id}`,
+      action: "Results",
+    });
+    weekMap.set(id, existing);
+  });
+
+  return Array.from(weekMap.values()).sort((a, b) => b.id.localeCompare(a.id));
+}
+
 export default async function GroupQuestsPage({ searchParams }: { searchParams?: Promise<{ inviteKey?: string }> }) {
   const { userId } = await auth();
   const resolvedSearchParams = await searchParams;
@@ -67,6 +94,8 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
   let officialRooms: typeof activeRooms = [];
   let publicRooms: typeof activeRooms = [];
   let finishedRooms: Array<{ title: string; meta: string; href: string; action: string }> = [];
+  let previousOfficialRooms: Array<{ title: string; meta: string; href: string; action: string }> = [];
+  let officialWeeks: Array<{ id: string; label: string; rangeLabel: string; rooms: Array<{ title: string; meta: string; href: string; action: string }> }> = [];
 
   if (userId) {
     const client = await clerkClient();
@@ -107,6 +136,17 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
       .sort((a, b) => Number(Boolean(b.official)) - Number(Boolean(a.official)) || toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
       .slice(0, 12);
+    const finishedOfficialQuests = publicQuests
+      .filter((quest) => quest.official && deriveQuestState(quest.startAt, quest.endAt).status === "Finished")
+      .sort((a, b) => toTimestamp(b.endAt) - toTimestamp(a.endAt));
+
+    previousOfficialRooms = finishedOfficialQuests.slice(0, 3).map((quest) => ({
+      title: quest.name,
+      meta: `${quest.officialLabel ?? "Official SQC"} · Final · ${quest.providerLabel} · ${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`,
+      href: `/groupquests/${quest.id}`,
+      action: "Results",
+    }));
+    officialWeeks = buildOfficialWeeks(finishedOfficialQuests);
 
     officialRooms = openPublicQuests.filter((quest) => quest.official).map((quest) => {
         const isHost = quest.hostUserId === userId;
@@ -259,6 +299,60 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                       ))}
                     </div>
                   ) : <p>No official SQC Multiplayer Side Quests available right now.</p>}
+                </section>
+
+                <section className="groupquests-list-section official finished" aria-label="Previous official Multiplayer Side Quest results">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Previous official results</h3>
+                      <p>Final official SQC leaderboards stay inspectable from the website, matching the mobile official results lane.</p>
+                    </div>
+                    <span className="badge gold">{previousOfficialRooms.length}</span>
+                  </div>
+
+                  {previousOfficialRooms.length ? (
+                    <div className="groupquests-finished-list">
+                      {previousOfficialRooms.map((room) => (
+                        <Link className="groupquests-finished-row" href={room.href} key={room.href}>
+                          <div>
+                            <small className="official-sqc-badge">Official SQC</small>
+                            <strong>{room.title}</strong>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.action}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>Final official results will appear here after the next weekly set closes.</p>}
+                </section>
+
+                <section className="groupquests-list-section official finished" aria-label="Official Multiplayer Side Quest weekly archive">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Official weekly archive</h3>
+                      <p>Browse older official weeks by date range, with each final leaderboard one click away.</p>
+                    </div>
+                    <span className="badge gold">{officialWeeks.length}</span>
+                  </div>
+
+                  {officialWeeks.length ? (
+                    <div className="groupquests-finished-list">
+                      {officialWeeks.map((week) => (
+                        <div className="groupquests-finished-row" id={`official-week-${week.id}`} key={week.id}>
+                          <div>
+                            <strong>{week.label}</strong>
+                            <p>{week.rangeLabel} · {week.rooms.length} official result{week.rooms.length === 1 ? "" : "s"}</p>
+                            <div className="button-row">
+                              {week.rooms.map((room) => (
+                                <Link className="button ghost" href={room.href} key={room.href}>{room.title}</Link>
+                              ))}
+                            </div>
+                          </div>
+                          <span>Archive</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : <p>Older official weeks will appear here after finished official events accumulate.</p>}
                 </section>
 
                 <section className="groupquests-list-section" aria-label="Public Multiplayer Side Quests">
