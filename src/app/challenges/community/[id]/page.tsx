@@ -66,12 +66,16 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
             </div>
           </div>
-          <div className="button-row hero-actions quest-detail-actions">
-            <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_check">Start/check in account</CommunitySoloAnalyticsLink>
-            <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
-            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_creator">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
-            <a className="button ghost" href="#share-community-side-quest">Share public link</a>
-            <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report weird quest</CommunitySoloAnalyticsLink>
+          <div className="community-detail-action-panel" aria-label="Community Solo actions">
+            <div className="community-detail-primary-actions">
+              <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_from_account">Start from account</CommunitySoloAnalyticsLink>
+              <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
+            </div>
+            <div className="community-detail-secondary-actions" aria-label="Secondary Community Solo actions">
+              <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_player">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
+              <a href="#share-community-side-quest">Share public link</a>
+              <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report quest</CommunitySoloAnalyticsLink>
+            </div>
           </div>
         </section>
 
@@ -113,7 +117,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <h2>Player-created, publicly labeled, easy to flag.</h2>
               <p>This is not an official SQC quest. It is a public Side Quest from {quest.creatorName}. If the rule looks abusive, confusing, spammy, or broken, report it with the quest title so it can be reviewed.</p>
             </div>
-            <CommunitySoloAnalyticsLink className="button secondary" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="trust_card_report">Report weird quest</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink className="button secondary" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="trust_card_report">Report quest</CommunitySoloAnalyticsLink>
           </div>
         </section>
 

@@ -76,7 +76,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show public player names and custom rule summaries so you know whose bad idea you are borrowing." />
             <InfoCard title="Ready when the rule hooks you" copy="Community Solo keeps discovery, inspection, starting, proof, reporting, and rewards in one SQC account path, so a strange public Side Quest can become your next run without losing context." />
-            <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
+            <InfoCard title="Report quest issues" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>
 
