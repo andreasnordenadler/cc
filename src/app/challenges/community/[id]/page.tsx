@@ -68,7 +68,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           </div>
           <div className="button-row hero-actions quest-detail-actions">
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_check">Start/check in account</CommunitySoloAnalyticsLink>
-            <Link className="button secondary" href="/groupquests/create">Use in Multiplayer</Link>
+            <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
             <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_creator">More by {quest.creatorName}</CommunitySoloAnalyticsLink>
             <a className="button ghost" href="#share-community-side-quest">Share public link</a>
             <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report weird quest</CommunitySoloAnalyticsLink>

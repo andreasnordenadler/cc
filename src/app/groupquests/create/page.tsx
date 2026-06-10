@@ -10,8 +10,11 @@ export const metadata = {
   description: "Create a Side Quest Chess Multiplayer Side Quest with invite rules, proof windows, and mandatory game settings.",
 };
 
-export default async function CreateGroupQuestPage() {
+export default async function CreateGroupQuestPage({ searchParams }: { searchParams?: Promise<{ quest?: string | string[] }> }) {
   const { userId } = await auth();
+  const resolvedSearchParams = await searchParams;
+  const rawRequestedQuestId = Array.isArray(resolvedSearchParams?.quest) ? resolvedSearchParams?.quest[0] : resolvedSearchParams?.quest;
+  const requestedQuestId = rawRequestedQuestId ? decodeURIComponent(rawRequestedQuestId) : undefined;
 
   if (!userId) {
     redirect("/sign-in?redirect_url=%2Fgroupquests%2Fcreate");
@@ -52,7 +55,7 @@ export default async function CreateGroupQuestPage() {
         </section>
 
         <section className="mission-card groupquests-create-card" aria-label="Multiplayer Side Quest draft builder">
-          <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests]} />
+          <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests]} initialQuestId={requestedQuestId} />
         </section>
       </div>
     </main>

@@ -405,7 +405,7 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
               <button className="button ghost" type="submit">Reset proof</button>
             </form>
           ) : null}
-          {lifecycle !== "archived" ? <Link className="button ghost" href="/groupquests/create">Use in Multiplayer</Link> : null}
+          {lifecycle !== "archived" ? <Link className="button ghost" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link> : null}
           <form action={duplicateCustomSideQuestFromWeb}>
             <input type="hidden" name="id" value={quest.id} />
             <button className="button ghost" type="submit">Duplicate</button>

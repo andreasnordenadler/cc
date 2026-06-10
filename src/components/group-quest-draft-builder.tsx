@@ -122,10 +122,11 @@ function cleanInviteKey(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
 }
 
-export default function GroupQuestDraftBuilder({ quests }: { quests: BuilderQuest[] }) {
+export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { quests: BuilderQuest[]; initialQuestId?: string }) {
   const [name, setName] = useState("No Castle Night");
-  const initialQuestId = quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "";
-  const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(initialQuestId ? [initialQuestId] : []);
+  const defaultQuestId = quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "";
+  const preselectedQuestId = initialQuestId && quests.some((quest) => quest.id === initialQuestId) ? initialQuestId : defaultQuestId;
+  const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(preselectedQuestId ? [preselectedQuestId] : []);
   const [questPickerOpen, setQuestPickerOpen] = useState(false);
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
   const [inviteKey, setInviteKey] = useState(() => makeInviteKey("No Castle Night"));
