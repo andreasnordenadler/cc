@@ -18,3 +18,6 @@ Continued the 24h website UX parity review by tightening player-facing language 
 - `grep -RIn "recipe" src/app/account/custom-side-quests/page.tsx src/app/challenges/community src/components/group-quest-draft-builder.tsx` → no matches.
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx src/app/challenges/community/page.tsx 'src/app/challenges/community/[id]/page.tsx' 'src/app/challenges/community/[id]/not-found.tsx' src/components/group-quest-draft-builder.tsx`
 - `pnpm build`
+- `pnpm deploy:prod` including `pnpm quest:release-gate`
+- Production deploy: `https://cc-58c273xfu-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: production `/challenges/community?questLanguageSmoke=20260610` and seeded Community Solo detail returned 200 with `Public Side Quests`, `Inspect quest`, and `Community Solo by`; signed-out `/account/custom-side-quests?questLanguageSmoke=20260610` returned sign-in content; deploy URL Community Solo returned matching 200 content; all smoked pages had no lowercase `recipe` matches.
