@@ -363,6 +363,8 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
             shareLabel="Copy public quest link"
             copiedCopy="Public Custom Solo link copied."
             socialCopy={`Try “${quest.title}” on Side Quest Chess — a public Custom Solo Side Quest.`}
+            socialTitle={`Try ${quest.title} on Side Quest Chess`}
+            shareAriaLabel="Share public Custom Solo Side Quest on social media"
           />
         ) : null}
         <div className="button-row">

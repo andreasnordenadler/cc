@@ -163,6 +163,22 @@ export default async function ChallengeDetailPage({
           ) : null}
         </section>
 
+        <section className="mission-card quest-detail-section proof-details-section" id="share-official-side-quest" aria-label="Share official Side Quest">
+          <span className="eyebrow">Share link</span>
+          <h2>Send this public Side Quest.</h2>
+          <p className="proof-details-line">Copy the canonical quest link or share it through the same website controls used for public receipts.</p>
+          <ShareProofActions
+            copy={buildOfficialQuestShareCopy(challenge)}
+            challengeTitle={challenge.title}
+            sharePath={`/challenges/${challenge.id}`}
+            shareLabel="Copy public quest link"
+            copiedCopy="Public Side Quest link copied."
+            socialCopy={buildOfficialQuestShareCopy(challenge)}
+            socialTitle={`Try ${challenge.title} on Side Quest Chess`}
+            shareAriaLabel="Share official Side Quest on social media"
+          />
+        </section>
+
         {isSignedIn && !hasChessIdentity && !isCompleted ? (
           <section className="mission-card quest-detail-section">
             <span className="eyebrow">Username required</span>
@@ -411,6 +427,10 @@ function getDifficultyTone(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return "orange";
   if (difficulty === "Absurd") return "absurd";
   return "danger";
+}
+
+function buildOfficialQuestShareCopy(challenge: Challenge) {
+  return `Try “${challenge.title}” on Side Quest Chess. ${challenge.objective}`;
 }
 
 function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAttempt | null) {

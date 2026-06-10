@@ -10,6 +10,8 @@ type ShareProofActionsProps = {
   idleCopy?: string;
   copiedCopy?: string;
   socialCopy?: string;
+  socialTitle?: string;
+  shareAriaLabel?: string;
   imagePath?: string;
   imageFileName?: string;
 };
@@ -27,6 +29,8 @@ export default function ShareProofActions({
   shareLabel = "Copy proof link",
   copiedCopy = "Proof link copied.",
   socialCopy: socialCopyOverride,
+  socialTitle,
+  shareAriaLabel = "Share proof on social media",
   imagePath,
   imageFileName = "side-quest-chess-proof.png",
 }: ShareProofActionsProps) {
@@ -53,8 +57,8 @@ export default function ShareProofActions({
   const socialTargets = useMemo<ShareTarget[]>(() => {
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedSocialCopy = encodeURIComponent(socialCopy);
-    const encodedTitle = encodeURIComponent(`Side Quest Chess: ${challengeTitle}`);
-    const encodedRedditTitle = encodeURIComponent(`${challengeTitle} completed on Side Quest Chess`);
+    const encodedTitle = encodeURIComponent(socialTitle ?? `Side Quest Chess: ${challengeTitle}`);
+    const encodedRedditTitle = encodeURIComponent(socialTitle ?? `${challengeTitle} completed on Side Quest Chess`);
     const encodedSocialText = encodeURIComponent(`${socialCopy}\n${shareUrl}`);
 
     return [
@@ -66,7 +70,7 @@ export default function ShareProofActions({
       { label: "Telegram", tone: "telegram", href: `https://t.me/share/url?url=${encodedUrl}&text=${encodedSocialCopy}` },
       { label: "LinkedIn", tone: "linkedin", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}&title=${encodedTitle}` },
     ];
-  }, [challengeTitle, shareUrl, socialCopy]);
+  }, [challengeTitle, shareUrl, socialCopy, socialTitle]);
 
   async function copyProofLink() {
     try {
@@ -129,7 +133,7 @@ ${shareUrl}`);
 
   return (
     <div className="share-actions social-share-actions" aria-live="polite">
-      <div className="social-share-grid" aria-label="Share proof on social media">
+      <div className="social-share-grid" aria-label={shareAriaLabel}>
         {socialTargets.map((target) => (
           target.tone === "instagram" ? (
             <button

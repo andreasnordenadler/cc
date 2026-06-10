@@ -90,6 +90,8 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             shareLabel="Copy public quest link"
             copiedCopy="Public Community Solo link copied."
             socialCopy={`Try “${quest.title}” on Side Quest Chess — a Community Solo Side Quest by ${quest.creatorName}.`}
+            socialTitle={`Try ${quest.title} on Side Quest Chess`}
+            shareAriaLabel="Share Community Solo Side Quest on social media"
           />
         </section>
 
