@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import ChallengeBadge from "@/components/challenge-badge";
 import RandomSoloQuestLink from "@/components/random-solo-quest-link";
 import SiteNav from "@/components/site-nav";
-import { checkActiveChallenge } from "@/app/actions";
+import { POST as runQuestAction } from "@/app/api/mobile/quest/route";
 import { CHALLENGES } from "@/lib/challenges";
 import {
   buildAttemptSummary,
@@ -84,9 +85,38 @@ export default async function Home() {
   const completedSet = new Set(progress.completedChallengeIds);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
+  const customSideQuests = user
+    ? getCustomSideQuests(privateMetadata).length
+      ? getCustomSideQuests(privateMetadata)
+      : getCustomSideQuests(metadata)
+    : [];
   const activeQuestRecord = activeQuest?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
+  const activeCustomQuestRecord = activeQuest?.id
+    ? customSideQuests.find((quest) => quest.id === activeQuest.id) ?? null
+    : null;
+  const activeSoloQuest = activeQuestRecord
+    ? {
+        id: activeQuestRecord.id,
+        title: activeQuestRecord.title,
+        href: `/challenges/${activeQuestRecord.id}`,
+        kind: "official" as const,
+        completed: completedSet.has(activeQuestRecord.id),
+        badgeImageUrl: activeQuestRecord.badgeIdentity.image,
+        challenge: activeQuestRecord,
+      }
+    : activeCustomQuestRecord
+      ? {
+          id: activeCustomQuestRecord.id,
+          title: activeCustomQuestRecord.title,
+          href: "/account/custom-side-quests",
+          kind: "custom" as const,
+          completed: completedSet.has(activeCustomQuestRecord.id),
+          badgeImageUrl: activeCustomQuestRecord.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png",
+          challenge: null,
+        }
+      : null;
   const activeIncompleteChallengeId =
     activeQuestRecord && !completedSet.has(activeQuestRecord.id)
       ? activeQuestRecord.id
@@ -94,8 +124,8 @@ export default async function Home() {
   const randomSoloQuestIds = CHALLENGES.filter(
     (challenge) => !challenge.id.includes("coming-soon"),
   ).map((challenge) => challenge.id);
-  const latestActiveAttempt = activeQuestRecord
-    ? getLatestChallengeAttempt(metadata, activeQuestRecord.id)
+  const latestActiveAttempt = activeSoloQuest
+    ? getLatestChallengeAttempt(metadata, activeSoloQuest.id)
     : null;
   const latestActiveAttemptSummary = latestActiveAttempt
     ? buildAttemptSummary(latestActiveAttempt)
@@ -203,9 +233,6 @@ export default async function Home() {
         action: "Results",
       }));
 
-    const customSideQuests = getCustomSideQuests(privateMetadata).length
-      ? getCustomSideQuests(privateMetadata)
-      : getCustomSideQuests(metadata);
     const officialTrophies = CHALLENGES.filter((challenge) =>
       completedSet.has(challenge.id),
     ).map((challenge) => ({
@@ -422,26 +449,35 @@ export default async function Home() {
             <section
               className="card mission-card home-status-card compact-run-card active-quest-home-card"
               aria-label={
-                activeQuestRecord
-                  ? `Active quest: ${activeQuestRecord.title}`
+                activeSoloQuest
+                  ? `Active quest: ${activeSoloQuest.title}`
                   : "Choose an active quest"
               }
             >
-              {activeQuestRecord ? (
+              {activeSoloQuest ? (
                 <span className="active-quest-card-coat" aria-hidden="true">
-                  <ChallengeBadge
-                    challenge={activeQuestRecord}
-                    presentation="art"
-                    earned={completedSet.has(activeQuestRecord.id)}
-                  />
+                  {activeSoloQuest.challenge ? (
+                    <ChallengeBadge
+                      challenge={activeSoloQuest.challenge}
+                      presentation="art"
+                      earned={activeSoloQuest.completed}
+                    />
+                  ) : (
+                    <Image
+                      src={activeSoloQuest.badgeImageUrl}
+                      alt=""
+                      width={128}
+                      height={128}
+                    />
+                  )}
                 </span>
               ) : null}
               <div className="section-head">
                 <div>
                   <span className="eyebrow">Active Solo Side Quest</span>
                   <h2>
-                    {activeQuestRecord
-                      ? activeQuestRecord.title
+                    {activeSoloQuest
+                      ? activeSoloQuest.title
                       : "No active solo quest yet."}
                   </h2>
                 </div>
@@ -453,8 +489,10 @@ export default async function Home() {
                 />
               </div>
               <p>
-                {activeQuestRecord
-                  ? "Check the latest public game from here, or open the active quest page for rules, exact-game proof, badge details, and receipts."
+                {activeSoloQuest
+                  ? activeSoloQuest.kind === "custom"
+                    ? "Check the latest public game from here, or open My Custom Side Quests for exact-game proof, lifecycle controls, rule summaries, and receipts."
+                    : "Check the latest public game from here, or open the active quest page for rules, exact-game proof, badge details, and receipts."
                   : "Choose one solo quest first so My Side Quests knows which weird rule to judge after your next public game."}
               </p>
               {latestActiveAttempt && latestActiveAttemptSummary ? (
@@ -464,13 +502,13 @@ export default async function Home() {
                 </p>
               ) : null}
               <div className="button-row hero-actions active-quest-home-actions">
-                {activeQuestRecord && connectedIdentity ? (
-                  <form action={checkActiveChallenge}>
+                {activeSoloQuest && connectedIdentity ? (
+                  <form action={checkActiveSoloQuestFromHome}>
                     <button type="submit" className="button primary">
                       Check latest game
                     </button>
                   </form>
-                ) : activeQuestRecord ? (
+                ) : activeSoloQuest ? (
                   <Link href="/connect" className="button primary">
                     Add chess username
                   </Link>
@@ -480,15 +518,13 @@ export default async function Home() {
                   </Link>
                 )}
                 <Link
-                  href={
-                    activeQuestRecord
-                      ? `/challenges/${activeQuestRecord.id}`
-                      : "/challenges"
-                  }
+                  href={activeSoloQuest ? activeSoloQuest.href : "/challenges"}
                   className="button secondary"
                 >
-                  {activeQuestRecord
-                    ? "Open quest details"
+                  {activeSoloQuest
+                    ? activeSoloQuest.kind === "custom"
+                      ? "Open custom controls"
+                      : "Open quest details"
                     : "Browse Solo Side Quests"}
                 </Link>
               </div>
@@ -814,6 +850,23 @@ export default async function Home() {
       </div>
     </main>
   );
+}
+
+async function checkActiveSoloQuestFromHome() {
+  "use server";
+
+  const response = await runQuestAction(new Request("https://sidequestchess.local/api/mobile/quest", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "check" }),
+  }));
+  const payload = await response.json() as { ok?: boolean };
+
+  if (!response.ok || !payload.ok) {
+    redirect("/account/custom-side-quests?error=Latest%20game%20check%20failed.");
+  }
+
+  redirect("/?activeSoloChecked=1");
 }
 
 function Fact({ label, value }: { label: string; value: string }) {
