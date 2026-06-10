@@ -16,3 +16,6 @@ Closed a small website Official Leaderboards parity gap versus mobile-v251: the 
 
 - `pnpm lint -- src/app/scoreboard/page.tsx`
 - `pnpm build`
+- Commit: `0b533f3`
+- Production deploy: `https://cc-r5t7bghbq-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: production and deploy `/scoreboard?joinContextSmoke=20260610` returned 200 with `Official Leaderboards`, `Current week`, and signed-out join/compare context.
