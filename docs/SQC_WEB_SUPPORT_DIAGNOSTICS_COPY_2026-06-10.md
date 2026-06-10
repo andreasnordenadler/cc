@@ -8,3 +8,9 @@ Verification:
 
 - `pnpm lint -- src/app/support/page.tsx src/components/support-contact-form.tsx`
 - `pnpm build`
+
+Deploy/smoke:
+
+- Commit: `797f2fe`
+- Production: `https://cc-iz70b5iyw-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: production and deploy `/support?supportDiagnosticsSmoke=20260610` returned 200 with Support/contact content; signed-out `POST /api/support` returned 401 JSON.
