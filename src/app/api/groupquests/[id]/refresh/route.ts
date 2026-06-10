@@ -4,6 +4,13 @@ import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import { findGroupQuestById, updateParticipantProgress, upsertHostGroupQuest } from "@/lib/groupquests";
+import {
+  buildChallengeProgressRecord,
+  compactChallengeAttempts,
+  getChallengeAttempts,
+  getChallengeProgress,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -67,6 +74,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     },
   });
 
+  if (completedQuestIds.length) {
+    const participantUser = await client.users.getUser(userId);
+    await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks);
+  }
+
   return NextResponse.json({
     ok: true,
     completedQuestIds,
@@ -77,5 +89,39 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       summary: entry.result.summary,
       gameId: entry.result.gameId,
     })),
+  });
+}
+
+async function mergeWebMultiplayerCompletions(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  userId: string,
+  metadata: UserMetadataRecord,
+  participant: { provider: "lichess" | "chesscom"; username: string },
+  checks: Array<{ questId: string; result: Awaited<ReturnType<typeof checkLatestGroupQuestChallenge>> }>,
+) {
+  const passedChecks = checks.filter((entry) => entry.result.status === "passed");
+  if (!passedChecks.length) return;
+
+  const progress = getChallengeProgress(metadata);
+  const completedChallengeIds = Array.from(new Set([...progress.completedChallengeIds, ...passedChecks.map((entry) => entry.questId)]));
+  const existingAttempts = getChallengeAttempts(metadata);
+  const now = new Date().toISOString();
+  const newAttempts = passedChecks.map((entry) => ({
+    id: `${entry.questId}:multiplayer:${participant.provider}:${entry.result.gameId}:${now}`,
+    challengeId: entry.questId,
+    gameId: entry.result.gameId,
+    provider: participant.provider === "chesscom" ? "chess.com" as const : "lichess" as const,
+    status: "passed",
+    summary: `Multiplayer proof verified: ${entry.result.summary}`,
+    checkedAt: now,
+    completedGameAt: entry.result.gameTime,
+  }));
+
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      ...metadata,
+      challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
+      challengeAttempts: compactChallengeAttempts([...existingAttempts, ...newAttempts]),
+    },
   });
 }
