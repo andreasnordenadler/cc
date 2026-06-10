@@ -21,8 +21,8 @@ Closed a website parity gap where mobile-v251 had an `Official Leaderboards` sur
 
 ## Production smoke
 
-Production deploy: `https://cc-42s3rjsiv-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`.
+Production deploy: `https://cc-qsichusqi-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`.
 
-- `https://sidequestchess.com/scoreboard?officialScoreboardSmoke=20260610` returned 200 with `Official Leaderboards`, `Current week`, `Previous week`, and `Archive`.
-- `https://cc-42s3rjsiv-andreas-nordenadlers-projects.vercel.app/scoreboard?officialScoreboardSmoke=20260610` returned 200 with the same official leaderboard sections.
-- `https://sidequestchess.com/groupquests/public?status=finished&officialScoreboardSmoke=20260610` returned 200 with `Official SQC Multiplayer archive`.
+- `https://sidequestchess.com/scoreboard?officialScoreboardSmoke=20260610b` returned 200 with `Official Leaderboards`, `Current week`, `Previous week`, and `Archive`.
+- `https://cc-qsichusqi-andreas-nordenadlers-projects.vercel.app/scoreboard?officialScoreboardSmoke=20260610b` returned 200 with the same official leaderboard sections.
+- `https://sidequestchess.com/groupquests/public?status=finished&officialScoreboardSmoke=20260610b` returned 200 with `Official SQC Multiplayer archive`.
