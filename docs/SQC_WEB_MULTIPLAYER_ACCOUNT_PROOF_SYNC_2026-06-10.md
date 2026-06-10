@@ -15,3 +15,6 @@ Closed the website parity gap where Multiplayer proof checks updated the table/l
 
 - `pnpm lint -- 'src/app/api/groupquests/[id]/refresh/route.ts'`
 - `pnpm build`
+- Commit/push: `5bd91ca`
+- Production deploy: `https://cc-ho9eo9vmg-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: seeded Multiplayer detail 200, public Multiplayer browse 200, signed-out `POST /api/groupquests/seed-public-sqcseed11-11/refresh` returned 401 `sign_in_required`
