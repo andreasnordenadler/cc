@@ -133,7 +133,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Library</span>
               <h2>{customQuests.length ? "Your saved bad ideas." : "No saved custom Side Quests yet."}</h2>
               <p>
-                Create a starter rule here, search and filter saved Side Quests, publish them to Community Solo when ready, archive old ideas, or restore an archived quest as a private draft. Raw custom configs stay hidden.
+                Create a starter rule here, search and filter saved Side Quests, publish them to Community Solo when ready, archive old ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
               </p>
             </div>
             <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
@@ -157,7 +157,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               </div>
             ) : (
               <div className="groupquest-empty-state" role="status">
-                <p>No saved Custom Solo Side Quests match this shelf view. Clear the search or switch back to All; private drafts, raw configs, and archived quests stay protected.</p>
+                <p>No saved Custom Solo Side Quests match this view. Clear the search or switch back to All; private drafts, private rule data, and archived quests stay protected.</p>
                 <Link className="button primary" href="/account/custom-side-quests">Show all saved Side Quests</Link>
               </div>
             )
@@ -481,7 +481,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
           <div className="note-card" aria-label={`${quest.title} completed proof receipt share controls`}>
             <span className="eyebrow">Completed proof receipt</span>
             <h4>Share your Custom Solo proof.</h4>
-            <p className="microcopy">Public receipt link with safe provider/game/board evidence only — raw custom rule config and private library state stay hidden.</p>
+            <p className="microcopy">Public receipt link with provider, game, and board evidence only — private rule details and library state stay hidden.</p>
             <div className="button-row">
               <Link className="button secondary" href={proofPath}>Open proof receipt</Link>
             </div>

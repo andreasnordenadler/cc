@@ -60,7 +60,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
               <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect the target, share it with a rival, report anything off, then start and prove it from your SQC account.</p>
-              <p className="quest-detail-flavor">The player shelf stays intentionally small: this public quest, this public player label, and more public Side Quests by the same player when available. Private account details stay private.</p>
+              <p className="quest-detail-flavor">The public player view stays intentionally small: this quest, this player label, and more published Side Quests by the same player when available. Private account details stay private.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
               <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
@@ -80,7 +80,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <div>
               <span className="eyebrow">Share link</span>
               <h2>Send this public Side Quest without exposing private shelf data.</h2>
-              <p>Copy the canonical Community Solo URL or use the same SQC share actions used for proof receipts. Drafts, archived quests, and raw custom configs stay private.</p>
+              <p>Copy the canonical Community Solo URL or use the same SQC share actions used for proof receipts. Drafts, archived quests, and private rule data stay private.</p>
             </div>
           </div>
           <ShareProofActions
@@ -95,14 +95,14 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           />
         </section>
 
-        <section className="mission-card quest-detail-section" aria-label="Community Side Quest player shelf">
+        <section className="mission-card quest-detail-section" aria-label="More Community Side Quests from this player">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Player shelf</span>
-              <h2>More public Side Quests from {quest.creatorName}.</h2>
-              <p>This opens the public Community Solo board filtered to Side Quests from the same public player label. If there are no other public quests, the page safely falls back without exposing private profile data.</p>
+              <span className="eyebrow">More from this player</span>
+              <h2>Browse {quest.creatorName}&apos;s published Side Quests.</h2>
+              <p>This opens the public Community Solo board filtered to Side Quests from the same public player label. If there are no other public quests, the page falls back cleanly without exposing private profile data.</p>
             </div>
-            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">Open player shelf</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">See more from player</CommunitySoloAnalyticsLink>
           </div>
         </section>
 
@@ -120,8 +120,8 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
         <section className="mission-card quest-detail-section" aria-label="Community Side Quest rule summary">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Safe rule summary</span>
-              <h2>The public rule, without leaking private shelf clutter.</h2>
+              <span className="eyebrow">Public rule summary</span>
+              <h2>The rule runners need, without private account clutter.</h2>
               <p>Only the published rule summary is shown here. Draft, private, archived, and malformed custom quests stay out of public browse.</p>
             </div>
           </div>
@@ -143,8 +143,8 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Account handoff</span>
-            <h2>Start it from your SQC account.</h2>
+            <span className="eyebrow">Start from account</span>
+            <h2>Run it from your SQC account.</h2>
             <p>Your account keeps the Community Solo loop together: start the quest, check a game, prove the run, report problems, and collect the reward moment without losing context.</p>
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_account_card">Open your SQC account</CommunitySoloAnalyticsLink>
           </article>

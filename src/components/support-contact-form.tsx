@@ -94,7 +94,7 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
       <div className="support-thread-card">
         <span className="eyebrow">Support details</span>
         <h3>{isSignedIn ? "Messages stay with your SQC account." : "Copy a safe troubleshooting packet."}</h3>
-        <p>{isSignedIn ? "Support uses your account-attached thread. Reports can include quest context without exposing private player data." : "Copy safe page and browser details for support without exposing chess-site passwords, private invite codes, or raw custom quest configs."}</p>
+        <p>{isSignedIn ? "Support uses your account-attached thread. Reports can include quest context without exposing private player data." : "Copy safe page and browser details for support without exposing chess-site passwords, private invite codes, or private custom quest rules."}</p>
         <div className="button-row">
           <button className="button secondary" type="button" onClick={() => void copySupportDetails()}>Copy support details</button>
         </div>

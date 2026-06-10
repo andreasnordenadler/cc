@@ -101,12 +101,12 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
 
           {selectedCreatorQuest ? (
             <div className="groupquest-empty-state" id={`creator-${selectedCreatorQuest.creatorKey}`}>
-              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo Side Quest{visibleQuests.length === 1 ? "" : "s"} on the public board. This is a player shelf, not a public profile; private account details stay private.</p>
-              <CommunitySoloAnalyticsLink className="button secondary" href="/challenges/community" type="community_solo_browse" status="clear_creator_filter">Show all players</CommunitySoloAnalyticsLink>
+              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo Side Quest{visibleQuests.length === 1 ? "" : "s"} on the public board. This view only shows published quests from that public player label; private account details stay private.</p>
+              <CommunitySoloAnalyticsLink className="button secondary" href="/challenges/community" type="community_solo_browse" status="clear_creator_filter">Show everyone</CommunitySoloAnalyticsLink>
             </div>
           ) : selectedCreator ? (
             <div className="groupquest-empty-state" role="status">
-              <p><strong>That player shelf is empty.</strong> The link may be stale, the Side Quest may have been unpublished, or the public label may have changed. Nothing private is shown just because a URL guessed at it.</p>
+              <p><strong>No public quests for that player right now.</strong> The link may be stale, the Side Quest may have been unpublished, or the public label may have changed. Nothing private is shown just because a URL guessed at it.</p>
               <div className="button-row">
                 <CommunitySoloAnalyticsLink className="button primary" href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo</CommunitySoloAnalyticsLink>
                 <CommunitySoloAnalyticsLink className="button secondary" href="/support?topic=community-side-quest" type="community_solo_report_click" status="creator_filter_miss_support">Ask Support</CommunitySoloAnalyticsLink>
@@ -120,7 +120,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible on that player shelf. The Side Quest may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
+              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible for that player right now. The Side Quest may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
               <CommunitySoloAnalyticsLink className="button primary" href={selectedCreator ? "/challenges/community" : "/account"} type={selectedCreator ? "community_solo_browse" : "community_solo_account_handoff"} status={selectedCreator ? "empty_creator_clear" : "empty_account_handoff"}>{selectedCreator ? "Show all Community Solo" : "Open account"}</CommunitySoloAnalyticsLink>
             </div>
           )}
@@ -213,7 +213,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         </div>
         <div className="button-row">
           <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink className="button ghost" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">Player shelf</CommunitySoloAnalyticsLink>
+          <CommunitySoloAnalyticsLink className="button ghost" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>
           <CommunitySoloAnalyticsLink className="button ghost" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start/check in account</CommunitySoloAnalyticsLink>
           <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report weird quest</CommunitySoloAnalyticsLink>
         </div>
