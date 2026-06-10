@@ -6,6 +6,16 @@ Owner: Sam
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
+## Active queue update — 2026-06-10 UX parity review
+
+- [ ] 24h SQC website UX parity review: make newly added website functions feel app-quality from a user perspective.
+  - added_at: 2026-06-10 20:18 Europe/Stockholm
+  - deadline: 2026-06-11 20:18 Europe/Stockholm
+  - source: Andreas flagged the web Custom Solo builder screenshot as visually poor and objected to internal/product-hostile wording such as “website creator”.
+  - cadence: isolated OpenClaw job `sqc-website-ux-parity-review-24h` every 30 minutes, final report job at deadline.
+  - scope: deeply review website-first flows against the app experience; prioritize product-language cleanup, visual hierarchy, form ergonomics, mobile/responsive polish, and clear user journeys for Custom Solo builder, Community Solo, proof checks/submissions, lifecycle controls, Trophy Cabinet, Multiplayer, account readiness, support/report, creator/host context.
+  - constraints: preserve the established SQC visual identity; do not redesign unrelated areas; do not touch other projects; no destructive production data changes; live/pickable quest releases still require real verifier paths and `pnpm quest:release-gate`.
+  - proof_required: focused commits, checks/build, production deploy/smoke for live claims, screenshots or clear visual proof where useful, final sprint report.
 
 
 ## Active queue update — 2026-06-09
