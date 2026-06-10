@@ -15,6 +15,11 @@ Closed the website parity gap where mobile-v251 exposed a signed-in Official Lea
 
 - `pnpm lint -- src/app/groupquests/page.tsx`
 - `pnpm build`
+- Commit/push: `6b7a5f9` (`Add official Multiplayer weekly archive`)
+- Production deploy: `https://cc-eanev1k6c-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke:
+  - `https://sidequestchess.com/groupquests?weeklyArchiveSmoke=20260610` returned 200 with Multiplayer/flow content.
+  - `https://sidequestchess.com/groupquests/public?status=finished&weeklyArchiveSmoke=20260610` returned 200 with `Official SQC Multiplayer archive`.
 
 ## Notes
 
