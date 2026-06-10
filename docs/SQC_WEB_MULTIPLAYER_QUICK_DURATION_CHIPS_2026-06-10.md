@@ -13,3 +13,5 @@ Closed a small Multiplayer create/manage parity gap versus mobile-v251: the mobi
 
 - `pnpm lint -- src/components/group-quest-draft-builder.tsx src/components/group-quest-edit-form.tsx src/app/globals.css` — passed (CSS file emitted the existing ESLint ignored-file warning only).
 - `pnpm build` — passed.
+- Production deploy `https://cc-2scuif1uc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke: signed-out production and deploy `/groupquests/create?quickDurationSmoke=20260610` returned `307` sign-in protection; production `/groupquests/public?quickDurationSmoke=20260610` returned 200 with Multiplayer content; production seeded detail `/groupquests/seed-public-sqcseed11-11?quickDurationSmoke=20260610` returned 200 with Side Quest content.
