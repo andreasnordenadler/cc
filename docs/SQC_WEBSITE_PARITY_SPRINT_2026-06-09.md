@@ -127,6 +127,8 @@ Each sprint run should:
 
 - 2026-06-10 11:49–12:00 Europe/Stockholm — Closed a small website home discovery parity gap versus mobile-v251: the website home `Where to begin` card now includes the existing `Surprise me with a random Solo Side Quest` action, using the same random-pool behavior as `/challenges` while preserving the fixed heroism choices and current home styling. Verification: `pnpm lint -- src/app/page.tsx src/components/random-solo-quest-link.tsx`; `pnpm build`; commit `40a2609`; production deploy `https://cc-8qhkyt5bl-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`; live smoke returned 200 for production/deploy `/` with the random Solo shortcut and heroism content, and 200 for production `/challenges?homeRandomSmoke=20260610`; proof doc `docs/SQC_WEB_HOME_RANDOM_SOLO_SHORTCUT_2026-06-10.md`.
 
+- 2026-06-10 12:19–12:29 Europe/Stockholm — Closed a small Community Solo discovery parity gap versus mobile-v251: website `/challenges/community` now supports safe title/creator/rule/goal search, All/Popular/New/Completed-by-me filters, Top/Newest/A–Z sorting, creator-context preservation, and public stats labels for Solo completions, active runners, and Multiplayer lineup usage. Private drafts/account metadata remain hidden and signed-out completed filtering safely shows a sign-in hint. Verification: `pnpm lint -- src/lib/community-side-quests.ts src/app/challenges/community/page.tsx`; `pnpm build`; proof doc `docs/SQC_WEB_COMMUNITY_SOLO_DISCOVERY_FILTERS_2026-06-10.md`.
+
 ## Final report requirements
 
 At deadline, report: shipped website features, commits/deploys, verification evidence, remaining gaps, and recommended next sprint priorities.

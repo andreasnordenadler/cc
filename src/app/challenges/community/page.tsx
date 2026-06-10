@@ -4,6 +4,8 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { CommunitySoloAnalytics, CommunitySoloAnalyticsLink } from "@/components/analytics/community-solo-analytics";
 import SiteNav from "@/components/site-nav";
 import { listPublicCommunitySideQuests, type PublicCommunitySideQuest } from "@/lib/community-side-quests";
+import { listPublicGroupQuests } from "@/lib/groupquests";
+import { getChallengeProgress, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -12,22 +14,38 @@ export const metadata = {
   description: "Browse public player-created Solo Side Quests for Side Quest Chess.",
 };
 
-export default async function CommunitySideQuestsPage({ searchParams }: { searchParams?: Promise<{ creator?: string }> }) {
+type CommunitySearchParams = {
+  creator?: string;
+  q?: string;
+  filter?: string;
+  sort?: string;
+};
+
+export default async function CommunitySideQuestsPage({ searchParams }: { searchParams?: Promise<CommunitySearchParams> }) {
   const { userId } = await auth();
-  const resolvedSearchParams: { creator?: string } = searchParams ? await searchParams : {};
+  const resolvedSearchParams: CommunitySearchParams = searchParams ? await searchParams : {};
   const { creator } = resolvedSearchParams;
+  const communityQuery = cleanCommunityQuery(resolvedSearchParams.q);
+  const communityFilter = cleanCommunityFilter(resolvedSearchParams.filter);
+  const communitySort = cleanCommunitySort(resolvedSearchParams.sort, communityFilter);
   const client = await clerkClient();
-  const quests = await listPublicCommunitySideQuests(client, { limit: 80 });
+  const publicGroupQuests = await listPublicGroupQuests(client);
+  const completedIds = await getSignedInCompletedIds(client, userId);
+  const quests = await listPublicCommunitySideQuests(client, { limit: 80, groupQuests: publicGroupQuests });
   const selectedCreator = typeof creator === "string" ? decodeURIComponent(creator) : null;
-  const visibleQuests = selectedCreator ? quests.filter((quest) => quest.creatorKey === selectedCreator) : quests;
+  const visibleQuests = sortCommunityQuests(
+    quests.filter((quest) => matchesCommunityFilters(quest, { selectedCreator, communityQuery, communityFilter, completedIds })),
+    communitySort,
+  );
   const selectedCreatorQuest = selectedCreator ? quests.find((quest) => quest.creatorKey === selectedCreator) : null;
+  const activeFilterCount = [selectedCreator, communityQuery, communityFilter !== "all" ? communityFilter : null].filter(Boolean).length;
 
   return (
     <main className="site-shell">
       <CommunitySoloAnalytics
         type={selectedCreator ? "community_solo_creator_filter" : "community_solo_browse"}
-        status={selectedCreator ? "creator_filter" : "all"}
-        onceKey={`community-solo:${selectedCreator ?? "all"}:${visibleQuests.length}`}
+        status={selectedCreator ? "creator_filter" : communityFilter}
+        onceKey={`community-solo:${selectedCreator ?? "all"}:${communityFilter}:${communitySort}:${communityQuery}:${visibleQuests.length}`}
       />
       <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
 
@@ -67,10 +85,19 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             <div>
               <span className="eyebrow">Open community recipes</span>
               <h2>Pick someone else’s strange rule.</h2>
-              <p>{quests.length ? `${visibleQuests.length} public Community Solo Side Quest${visibleQuests.length === 1 ? "" : "s"}${selectedCreatorQuest ? ` by ${selectedCreatorQuest.creatorName}` : " available right now"}.` : "No public Community Solo Side Quests are available yet."}</p>
+              <p>{quests.length ? `${visibleQuests.length} of ${quests.length} public Community Solo Side Quest${quests.length === 1 ? "" : "s"}${selectedCreatorQuest ? ` by ${selectedCreatorQuest.creatorName}` : " available right now"}.` : "No public Community Solo Side Quests are available yet."}</p>
             </div>
-            <span className="badge gold">{visibleQuests.length}</span>
+            <span className="badge gold">{visibleQuests.length}/{quests.length}</span>
           </div>
+
+          <CommunityDiscoveryControls
+            query={communityQuery}
+            filter={communityFilter}
+            sort={communitySort}
+            creator={selectedCreator}
+            activeFilterCount={activeFilterCount}
+            completedAvailable={Boolean(userId)}
+          />
 
           {selectedCreatorQuest ? (
             <div className="groupquest-empty-state" id={`creator-${selectedCreatorQuest.creatorKey}`}>
@@ -93,13 +120,68 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>{selectedCreator ? "No public Community Solo Side Quests are visible for that creator context. The recipe may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
+              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, creator, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible for that creator context. The recipe may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
               <CommunitySoloAnalyticsLink className="button primary" href={selectedCreator ? "/challenges/community" : "/account"} type={selectedCreator ? "community_solo_browse" : "community_solo_account_handoff"} status={selectedCreator ? "empty_creator_clear" : "empty_account_handoff"}>{selectedCreator ? "Show all Community Solo" : "Open account"}</CommunitySoloAnalyticsLink>
             </div>
           )}
         </section>
       </div>
     </main>
+  );
+}
+
+function CommunityDiscoveryControls({
+  activeFilterCount,
+  completedAvailable,
+  creator,
+  filter,
+  query,
+  sort,
+}: {
+  activeFilterCount: number;
+  completedAvailable: boolean;
+  creator: string | null;
+  filter: CommunityBrowseFilter;
+  query: string;
+  sort: CommunitySort;
+}) {
+  const preserveCreator = creator ? <input type="hidden" name="creator" value={creator} /> : null;
+  return (
+    <div className="groupquest-empty-state" role="search" aria-label="Community Solo discovery filters">
+      <form action="/challenges/community" className="support-form">
+        {preserveCreator}
+        <label htmlFor="community-search">Search public recipes</label>
+        <div className="form-row compact-form-row">
+          <input id="community-search" name="q" defaultValue={query} placeholder="Search by title, creator, rule, or goal" />
+          <button className="button secondary" type="submit">Search</button>
+        </div>
+        <div className="form-row compact-form-row">
+          <label>
+            Filter
+            <select name="filter" defaultValue={filter}>
+              <option value="all">All</option>
+              <option value="popular">Popular</option>
+              <option value="new">New</option>
+              <option value="completed">Completed by me{completedAvailable ? "" : " (sign in)"}</option>
+            </select>
+          </label>
+          <label>
+            Sort
+            <select name="sort" defaultValue={sort}>
+              <option value="popular">Top</option>
+              <option value="newest">Newest</option>
+              <option value="az">A–Z</option>
+            </select>
+          </label>
+        </div>
+      </form>
+      <div className="button-row">
+        {COMMUNITY_FILTERS.map((item) => (
+          <Link key={item.value} className={`button ${filter === item.value ? "primary" : "ghost"}`} href={buildCommunityFilterHref({ creator, query, filter: item.value, sort })}>{item.label}</Link>
+        ))}
+        {activeFilterCount ? <Link className="button secondary" href="/challenges/community">Clear filters</Link> : null}
+      </div>
+    </div>
   );
 }
 
@@ -125,6 +207,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         <p>{quest.summary}</p>
         <div className="public-groupquest-meta">
           <small>{quest.ruleLabel}</small>
+          <small>{formatCommunityStats(quest)}</small>
           <small>Updated {formatDate(quest.updatedAt)}</small>
           <small><Link href={quest.creatorBrowsePath}>More by {quest.creatorName}</Link></small>
         </div>
@@ -139,8 +222,88 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
   );
 }
 
+type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
+type CommunitySort = "popular" | "newest" | "az";
+
+const COMMUNITY_FILTERS: Array<{ value: CommunityBrowseFilter; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "popular", label: "Popular" },
+  { value: "new", label: "New" },
+  { value: "completed", label: "Completed" },
+];
+
 function formatDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "recently";
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "Europe/Stockholm" }).format(date);
+}
+
+function formatCommunityStats(quest: PublicCommunitySideQuest) {
+  const parts = [
+    quest.stats.soloCompletions ? `${quest.stats.soloCompletions} Solo completion${quest.stats.soloCompletions === 1 ? "" : "s"}` : null,
+    quest.stats.soloSelections ? `${quest.stats.soloSelections} active runner${quest.stats.soloSelections === 1 ? "" : "s"}` : null,
+    quest.stats.multiplayerLineups ? `${quest.stats.multiplayerLineups} Multiplayer lineup${quest.stats.multiplayerLineups === 1 ? "" : "s"}` : null,
+  ].filter(Boolean);
+  return parts.join(" · ") || "Fresh community recipe";
+}
+
+function cleanCommunityQuery(value: unknown) {
+  return typeof value === "string" ? value.trim().slice(0, 80) : "";
+}
+
+function cleanCommunityFilter(value: unknown): CommunityBrowseFilter {
+  return value === "popular" || value === "new" || value === "completed" ? value : "all";
+}
+
+function cleanCommunitySort(value: unknown, filter: CommunityBrowseFilter): CommunitySort {
+  if (value === "newest" || value === "az" || value === "popular") return value;
+  return filter === "new" ? "newest" : filter === "popular" ? "popular" : "newest";
+}
+
+function matchesCommunityFilters(
+  quest: PublicCommunitySideQuest,
+  {
+    communityFilter,
+    communityQuery,
+    completedIds,
+    selectedCreator,
+  }: { communityFilter: CommunityBrowseFilter; communityQuery: string; completedIds: Set<string>; selectedCreator: string | null },
+) {
+  if (selectedCreator && quest.creatorKey !== selectedCreator) return false;
+  if (communityFilter === "completed" && !completedIds.has(quest.id)) return false;
+  if (communityFilter === "popular" && quest.popularityScore <= 0) return false;
+  if (communityFilter === "new" && Date.now() - quest.updatedAtMs > 1000 * 60 * 60 * 24 * 30) return false;
+  if (!communityQuery) return true;
+  const haystack = `${quest.title} ${quest.summary} ${quest.creatorName} ${quest.ruleLabel} ${quest.ruleDetails.join(" ")}`.toLowerCase();
+  return communityQuery.toLowerCase().split(/\s+/).every((term) => haystack.includes(term));
+}
+
+function sortCommunityQuests(quests: PublicCommunitySideQuest[], sort: CommunitySort) {
+  return [...quests].sort((a, b) => {
+    if (sort === "az") return a.title.localeCompare(b.title);
+    if (sort === "popular" && a.popularityScore !== b.popularityScore) return b.popularityScore - a.popularityScore;
+    return b.updatedAtMs - a.updatedAtMs;
+  });
+}
+
+function buildCommunityFilterHref({ creator, filter, query, sort }: { creator: string | null; filter: CommunityBrowseFilter; query: string; sort: CommunitySort }) {
+  const params = new URLSearchParams();
+  if (creator) params.set("creator", creator);
+  if (query) params.set("q", query);
+  if (filter !== "all") params.set("filter", filter);
+  if (sort !== cleanCommunitySort(undefined, filter)) params.set("sort", sort);
+  const suffix = params.toString();
+  return suffix ? `/challenges/community?${suffix}` : "/challenges/community";
+}
+
+async function getSignedInCompletedIds(client: Awaited<ReturnType<typeof clerkClient>>, userId: string | null) {
+  if (!userId) return new Set<string>();
+  try {
+    const user = await client.users.getUser(userId);
+    const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? user.publicMetadata as UserMetadataRecord : {};
+    return new Set(getChallengeProgress(publicMetadata).completedChallengeIds);
+  } catch (error) {
+    console.warn("community completed filter unavailable", { userId, reason: error instanceof Error ? error.message : "unknown" });
+    return new Set<string>();
+  }
 }

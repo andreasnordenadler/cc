@@ -1,5 +1,6 @@
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
-import { getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { type ServerGroupQuest } from "@/lib/groupquests";
+import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export type PublicCommunitySideQuest = CustomSideQuest & {
   creatorName: string;
@@ -10,6 +11,15 @@ export type PublicCommunitySideQuest = CustomSideQuest & {
   ruleLabel: string;
   ruleDetails: string[];
   updatedAtMs: number;
+  stats: {
+    soloAttempts: number;
+    soloSelections: number;
+    soloCompletions: number;
+    multiplayerLineups: number;
+    multiplayerAttempts: number;
+    multiplayerFulfillments: number;
+  };
+  popularityScore: number;
 };
 
 type ClerkUserListClient = {
@@ -28,9 +38,10 @@ type ClerkUserListClient = {
   };
 };
 
-export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number } = {}) {
+export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number; groupQuests?: ServerGroupQuest[] } = {}) {
   const users = await fetchAllUsers(client);
   const seen = new Set<string>();
+  const userPublicMetadata = users.map((user) => asMetadata(user.publicMetadata));
   const quests = users.flatMap((user) => {
     const publicMetadata = asMetadata(user.publicMetadata);
     const privateMetadata = asMetadata(user.privateMetadata);
@@ -45,17 +56,22 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
 
     return records
       .filter((quest) => quest.lifecycle === "published" && quest.visibility === "public")
-      .map((quest) => ({
-        ...quest,
-        creatorName,
-        creatorKey,
-        creatorUserId: user.id,
-        creatorBrowsePath: `/challenges/community?creator=${encodeURIComponent(creatorKey)}#creator-${creatorKey}`,
-        detailPath: `/challenges/community/${encodeURIComponent(quest.id)}`,
-        ruleLabel: describeCustomSideQuestRule(quest.config),
-        ruleDetails: describeCustomSideQuestRuleDetails(quest.config),
-        updatedAtMs: Date.parse(quest.updatedAt) || Date.parse(quest.createdAt) || 0,
-      }));
+      .map((quest) => {
+        const stats = buildPublicCommunityStats(quest.id, userPublicMetadata, options.groupQuests ?? []);
+        return {
+          ...quest,
+          creatorName,
+          creatorKey,
+          creatorUserId: user.id,
+          creatorBrowsePath: `/challenges/community?creator=${encodeURIComponent(creatorKey)}#creator-${creatorKey}`,
+          detailPath: `/challenges/community/${encodeURIComponent(quest.id)}`,
+          ruleLabel: describeCustomSideQuestRule(quest.config),
+          ruleDetails: describeCustomSideQuestRuleDetails(quest.config),
+          updatedAtMs: Date.parse(quest.updatedAt) || Date.parse(quest.createdAt) || 0,
+          stats,
+          popularityScore: getCommunityPopularityScore(stats),
+        };
+      });
   });
 
   return quests
@@ -110,6 +126,22 @@ export function describeCustomSideQuestRuleDetails(config: string) {
     return "Custom rule";
   });
   return parsed.logic === "any" && lines.length > 1 ? ["Complete any one of these rules.", ...lines] : lines;
+}
+
+export function getCommunityPopularityScore(stats: PublicCommunitySideQuest["stats"]) {
+  return stats.soloSelections + stats.soloCompletions * 3 + stats.multiplayerLineups * 2 + stats.multiplayerFulfillments * 4;
+}
+
+function buildPublicCommunityStats(questId: string, userMetadata: UserMetadataRecord[], groupQuests: ServerGroupQuest[]): PublicCommunitySideQuest["stats"] {
+  const lineups = groupQuests.filter((quest) => quest.questIds.includes(questId));
+  return {
+    soloAttempts: userMetadata.reduce((total, metadata) => total + getChallengeAttempts(metadata, questId).length, 0),
+    soloSelections: userMetadata.filter((metadata) => getActiveChallenge(metadata)?.id === questId).length,
+    soloCompletions: userMetadata.filter((metadata) => getChallengeProgress(metadata).completedChallengeIds.includes(questId)).length,
+    multiplayerLineups: lineups.length,
+    multiplayerAttempts: lineups.reduce((total, quest) => total + quest.participants.length, 0),
+    multiplayerFulfillments: lineups.reduce((total, quest) => total + quest.participants.filter((participant) => participant.completedQuestIds?.includes(questId)).length, 0),
+  };
 }
 
 function isDisplayableCommunitySideQuest(quest: PublicCommunitySideQuest) {
