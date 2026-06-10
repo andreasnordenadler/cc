@@ -13,3 +13,6 @@ Sprint: SQC website parity sprint 2026-06-09 → 2026-06-10.
 
 - `pnpm lint -- src/app/profile/page.tsx`
 - `pnpm build`
+- Commit: `566e468`
+- Production deploy: `https://cc-6r07401xq-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: 200 for production/deploy `/profile?profileReadinessSmoke=20260610` with signed-out profile/sign-in content; 200 for production `/challenges?profileReadinessSmoke=20260610`.
