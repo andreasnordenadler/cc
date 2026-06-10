@@ -20,3 +20,6 @@ Sprint: SQC website parity sprint (2026-06-09 17:35 → 2026-06-10 17:35 Europe/
 
 - `pnpm lint -- src/components/proof-position-board.tsx src/lib/proof-share.ts 'src/app/challenges/[id]/page.tsx' 'src/app/proof/[token]/page.tsx'`
 - `pnpm build`
+- Commit: `e530892` (`Add web proof board receipts`)
+- Production deploy: `https://cc-qscm807mm-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: `/proof/preview-finish-any-game?proofBoardSmoke=20260610` returned 200 with `Proof board`, `SQC proof board`, `Verified position attached`, and highlighted chess squares; `/challenges/finish-any-game?proofBoardSmoke=20260610` returned 200; `/challenges?proofBoardSmoke=20260610` returned 200.
