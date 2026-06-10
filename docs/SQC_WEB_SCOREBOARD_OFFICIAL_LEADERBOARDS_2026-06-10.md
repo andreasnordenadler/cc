@@ -21,7 +21,8 @@ Closed a website parity gap where mobile-v251 had an `Official Leaderboards` sur
 
 ## Production smoke
 
-To run after deploy:
+Production deploy: `https://cc-42s3rjsiv-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`.
 
-- `/scoreboard?officialScoreboardSmoke=20260610` should show `Official Leaderboards`, `Current week`, `Previous week`, and `Archive`.
-- `/groupquests/public?status=finished&officialScoreboardSmoke=20260610` should still expose final official Multiplayer archive rows.
+- `https://sidequestchess.com/scoreboard?officialScoreboardSmoke=20260610` returned 200 with `Official Leaderboards`, `Current week`, `Previous week`, and `Archive`.
+- `https://cc-42s3rjsiv-andreas-nordenadlers-projects.vercel.app/scoreboard?officialScoreboardSmoke=20260610` returned 200 with the same official leaderboard sections.
+- `https://sidequestchess.com/groupquests/public?status=finished&officialScoreboardSmoke=20260610` returned 200 with `Official SQC Multiplayer archive`.
