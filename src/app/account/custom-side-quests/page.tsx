@@ -299,111 +299,142 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         <em>{summaryHint}</em>
       </summary>
       <div className="custom-condition-grid">
-      <label>
-        <span>{index === 0 ? "Proof condition" : `Optional condition ${index + 1}`}</span>
-        <select name={`conditionType${suffix}`} defaultValue={block.conditionType} disabled={disabled}>
-          {index > 0 ? <option value="none">No condition</option> : null}
-          <option value="gameResult">Game result</option>
-          <option value="openingSequence">Opening pattern from move 1</option>
-          <option value="moveSequence">Move pattern</option>
-          <option value="pieceState">Piece state</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Result target</span>
-        <select name={`result${suffix}`} defaultValue={block.result} disabled={disabled}>
-          <option value="win">Win the game</option>
-          <option value="draw">Draw the game</option>
-          <option value="lose">Lose the game</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Move / opening pattern</span>
-        <input name={`sequence${suffix}`} placeholder="e4 e5 Nf3 or O-O" defaultValue={block.sequence} disabled={disabled} />
-      </label>
-      <div className="custom-condition-section-label">Piece-state details</div>
-      <label>
-        <span>{prefix}Piece</span>
-        <select name={`piece${suffix}`} defaultValue={block.piece} disabled={disabled}>
-          <option value="king">King</option>
-          <option value="queen">Queen</option>
-          <option value="rook">Rook</option>
-          <option value="bishop">Bishop</option>
-          <option value="knight">Knight</option>
-          <option value="pawn">Pawn</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Owner</span>
-        <select name={`owner${suffix}`} defaultValue={block.owner} disabled={disabled}>
-          <option value="my">My pieces</option>
-          <option value="opponent">Opponent pieces</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Condition</span>
-        <select name={`pieceCondition${suffix}`} defaultValue={block.pieceCondition} disabled={disabled}>
-          <option value="moved">moved</option>
-          <option value="not moved">not moved</option>
-          <option value="gone">gone</option>
-          <option value="still on board">still on board</option>
-          <option value="captured">captured</option>
-          <option value="on square">on square</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Timing</span>
-        <select name={`timing${suffix}`} defaultValue={block.timing} disabled={disabled}>
-          <option value="byMove">By move</option>
-          <option value="atMove">At move</option>
-          <option value="atGameEnd">At game end</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Move number</span>
-        <input name={`moveNumber${suffix}`} type="number" min={1} max={80} defaultValue={block.moveNumber} disabled={disabled} />
-      </label>
-      <label>
-        <span>{prefix}How many pieces</span>
-        <select name={`quantifier${suffix}`} defaultValue={block.quantifier} disabled={disabled}>
-          <option value="any one">Any one</option>
-          <option value="at least">At least</option>
-          <option value="exactly">Exactly</option>
-          <option value="all">All starting pieces</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Piece count</span>
-        <input name={`count${suffix}`} type="number" min={1} max={8} defaultValue={block.count} disabled={disabled} />
-      </label>
-      <label>
-        <span>{prefix}Starting piece</span>
-        <select name={`identity${suffix}`} defaultValue={block.identity} disabled={disabled}>
-          <option value="any">Any matching piece</option>
-          <option value="original">Original king/queen</option>
-          <option value="queenside">Queenside rook/bishop/knight</option>
-          <option value="kingside">Kingside rook/bishop/knight</option>
-          <option value="a">a-pawn</option>
-          <option value="b">b-pawn</option>
-          <option value="c">c-pawn</option>
-          <option value="d">d-pawn</option>
-          <option value="e">e-pawn</option>
-          <option value="f">f-pawn</option>
-          <option value="g">g-pawn</option>
-          <option value="h">h-pawn</option>
-        </select>
-      </label>
-      <label>
-        <span>{prefix}Target square</span>
-        <input name={`targetSquare${suffix}`} maxLength={2} placeholder="e4" defaultValue={block.targetSquare} disabled={disabled} />
-      </label>
-      <label>
-        <span>{prefix}Invert condition</span>
-        <select name={`negated${suffix}`} defaultValue={block.negated ? "yes" : "no"} disabled={disabled}>
-          <option value="no">Must happen</option>
-          <option value="yes">Must NOT happen</option>
-        </select>
-      </label>
+        <div className="custom-condition-type-guide" aria-label={`${summaryTitle} rule type guide`}>
+          <span>Pick the rule shape first</span>
+          <p>Only the matching section below is used for the selected proof condition. The other sections can stay as safe defaults.</p>
+          <div>
+            <small>Result: win, draw, or lose</small>
+            <small>Pattern: opening or move sequence</small>
+            <small>Piece state: moved, captured, on square, and timing</small>
+          </div>
+        </div>
+
+        <label className="custom-condition-type-select">
+          <span>{index === 0 ? "Proof condition" : `Optional condition ${index + 1}`}</span>
+          <select name={`conditionType${suffix}`} defaultValue={block.conditionType} disabled={disabled}>
+            {index > 0 ? <option value="none">No condition</option> : null}
+            <option value="gameResult">Game result</option>
+            <option value="openingSequence">Opening pattern from move 1</option>
+            <option value="moveSequence">Move pattern</option>
+            <option value="pieceState">Piece state</option>
+          </select>
+        </label>
+
+        <fieldset className="custom-condition-field-group custom-condition-field-group-result">
+          <legend>Result rule</legend>
+          <p>Used when the proof condition is Game result.</p>
+          <label>
+            <span>{prefix}Result target</span>
+            <select name={`result${suffix}`} defaultValue={block.result} disabled={disabled}>
+              <option value="win">Win the game</option>
+              <option value="draw">Draw the game</option>
+              <option value="lose">Lose the game</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset className="custom-condition-field-group custom-condition-field-group-pattern">
+          <legend>Pattern rule</legend>
+          <p>Used for opening and move-pattern proof. Write the moves in normal chess notation.</p>
+          <label>
+            <span>{prefix}Move / opening pattern</span>
+            <input name={`sequence${suffix}`} placeholder="e4 e5 Nf3 or O-O" defaultValue={block.sequence} disabled={disabled} />
+          </label>
+        </fieldset>
+
+        <fieldset className="custom-condition-field-group custom-condition-field-group-piece">
+          <legend>Piece-state rule</legend>
+          <p>Used when the proof condition is Piece state.</p>
+          <div className="custom-condition-field-grid">
+            <label>
+              <span>{prefix}Piece</span>
+              <select name={`piece${suffix}`} defaultValue={block.piece} disabled={disabled}>
+                <option value="king">King</option>
+                <option value="queen">Queen</option>
+                <option value="rook">Rook</option>
+                <option value="bishop">Bishop</option>
+                <option value="knight">Knight</option>
+                <option value="pawn">Pawn</option>
+              </select>
+            </label>
+            <label>
+              <span>{prefix}Owner</span>
+              <select name={`owner${suffix}`} defaultValue={block.owner} disabled={disabled}>
+                <option value="my">My pieces</option>
+                <option value="opponent">Opponent pieces</option>
+              </select>
+            </label>
+            <label>
+              <span>{prefix}Condition</span>
+              <select name={`pieceCondition${suffix}`} defaultValue={block.pieceCondition} disabled={disabled}>
+                <option value="moved">moved</option>
+                <option value="not moved">not moved</option>
+                <option value="gone">gone</option>
+                <option value="still on board">still on board</option>
+                <option value="captured">captured</option>
+                <option value="on square">on square</option>
+              </select>
+            </label>
+            <label>
+              <span>{prefix}Timing</span>
+              <select name={`timing${suffix}`} defaultValue={block.timing} disabled={disabled}>
+                <option value="byMove">By move</option>
+                <option value="atMove">At move</option>
+                <option value="atGameEnd">At game end</option>
+              </select>
+            </label>
+            <label>
+              <span>{prefix}Move number</span>
+              <input name={`moveNumber${suffix}`} type="number" min={1} max={80} defaultValue={block.moveNumber} disabled={disabled} />
+            </label>
+            <label>
+              <span>{prefix}How many pieces</span>
+              <select name={`quantifier${suffix}`} defaultValue={block.quantifier} disabled={disabled}>
+                <option value="any one">Any one</option>
+                <option value="at least">At least</option>
+                <option value="exactly">Exactly</option>
+                <option value="all">All starting pieces</option>
+              </select>
+            </label>
+            <label>
+              <span>{prefix}Piece count</span>
+              <input name={`count${suffix}`} type="number" min={1} max={8} defaultValue={block.count} disabled={disabled} />
+            </label>
+            <label>
+              <span>{prefix}Starting piece</span>
+              <select name={`identity${suffix}`} defaultValue={block.identity} disabled={disabled}>
+                <option value="any">Any matching piece</option>
+                <option value="original">Original king/queen</option>
+                <option value="queenside">Queenside rook/bishop/knight</option>
+                <option value="kingside">Kingside rook/bishop/knight</option>
+                <option value="a">a-pawn</option>
+                <option value="b">b-pawn</option>
+                <option value="c">c-pawn</option>
+                <option value="d">d-pawn</option>
+                <option value="e">e-pawn</option>
+                <option value="f">f-pawn</option>
+                <option value="g">g-pawn</option>
+                <option value="h">h-pawn</option>
+              </select>
+            </label>
+            <label>
+              <span>{prefix}Target square</span>
+              <input name={`targetSquare${suffix}`} maxLength={2} placeholder="e4" defaultValue={block.targetSquare} disabled={disabled} />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="custom-condition-field-group custom-condition-field-group-advanced">
+          <legend>Advanced twist</legend>
+          <p>Optional. Use only when the quest is about avoiding something.</p>
+          <label>
+            <span>{prefix}Invert condition</span>
+            <select name={`negated${suffix}`} defaultValue={block.negated ? "yes" : "no"} disabled={disabled}>
+              <option value="no">Must happen</option>
+              <option value="yes">Must NOT happen</option>
+            </select>
+          </label>
+        </fieldset>
       </div>
     </details>
   );

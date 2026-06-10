@@ -1067,6 +1067,18 @@ p { color: var(--muted); line-height: 1.5; }
 .custom-condition-card summary em { flex: 0 0 auto; border-radius: 999px; padding: 7px 9px; background: rgba(245,200,106,.14); color: var(--gold); font-size: .72rem; font-style: normal; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
 .custom-condition-card[open] { border-color: rgba(245,200,106,.28); background: radial-gradient(circle at 95% 0%, rgba(245,200,106,.12), transparent 34%), rgba(255,255,255,.065); }
 .custom-condition-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 0 14px 14px; }
+.custom-condition-type-guide, .custom-condition-field-group { border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.13); }
+.custom-condition-type-guide { grid-column: 1 / -1; display: grid; gap: 8px; padding: 12px; }
+.custom-condition-type-guide span, .custom-condition-field-group legend { color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.custom-condition-type-guide p, .custom-condition-field-group p { margin: 0; color: var(--muted); font-size: .82rem; font-weight: 800; line-height: 1.45; }
+.custom-condition-type-guide div { display: flex; flex-wrap: wrap; gap: 7px; }
+.custom-condition-type-guide small { border-radius: 999px; padding: 6px 8px; background: rgba(245,200,106,.1); color: var(--ink); font-weight: 900; }
+.custom-condition-type-select { grid-column: 1 / -1; padding: 12px; border: 1px solid rgba(245,200,106,.18); border-radius: 18px; background: rgba(245,200,106,.08); }
+.custom-condition-field-group { display: grid; gap: 10px; min-width: 0; margin: 0; padding: 12px; }
+.custom-condition-field-group legend { padding: 0 4px; }
+.custom-condition-field-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.custom-condition-field-group-piece { grid-column: 1 / -1; }
+.custom-condition-field-group-advanced { grid-column: 1 / -1; }
 .custom-condition-section-label { grid-column: 1 / -1; padding-top: 4px; color: var(--muted); }
 .custom-builder-save-card { grid-template-columns: minmax(220px, .48fr) minmax(0, 1fr); align-items: center; }
 .groupquests-duration-chips { display: grid; gap: 7px; }
@@ -1087,7 +1099,8 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-local-drafts > .section-head h3 { font-size: clamp(1.25rem, 2.4vw, 1.8rem); }
 
 @media (max-width: 620px) {
-  .groupquests-rule-grid, .custom-builder-guide, .custom-builder-identity-grid, .custom-builder-rule-head, .custom-condition-grid, .custom-builder-save-card { grid-template-columns: 1fr; }
+  .groupquests-rule-grid, .custom-builder-guide, .custom-builder-identity-grid, .custom-builder-rule-head, .custom-condition-grid, .custom-condition-field-grid, .custom-builder-save-card { grid-template-columns: 1fr; }
+  .custom-condition-field-group, .custom-condition-field-group-piece, .custom-condition-field-group-advanced, .custom-condition-type-select { grid-column: 1; }
   .custom-condition-card summary { align-items: flex-start; flex-direction: column; }
 }
 
