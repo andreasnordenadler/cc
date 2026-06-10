@@ -19,4 +19,7 @@ Generated checker/magenta/black previews in `artifacts/badge-fix-2026-06-10/` an
 - `pnpm quest:release-gate` passed.
 
 ## Deployment
-Pending at time of doc creation.
+- Commit: `88e28d8` (`Fix Any Game Counts badge transparency`).
+- Production deploy: `https://cc-iltevfrl2-andreas-nordenadlers-projects.vercel.app`, aliased to `https://sidequestchess.com`.
+- Live smoke passed for `/challenges/finish-any-game`, `/badges`, and `/badges/v6/proof-loop-test-badge.png`.
+- Live image proof: `200 image/png`, `1024x1024 RGBA`, alpha extrema `(0, 255)`, transparent corners `[0, 0, 0, 0, 0, 0]`, transparent pixels `47.63%`.
