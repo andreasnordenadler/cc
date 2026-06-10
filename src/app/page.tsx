@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import RandomSoloQuestLink from "@/components/random-solo-quest-link";
 import SiteNav from "@/components/site-nav";
 import { checkActiveChallenge } from "@/app/actions";
 import { CHALLENGES } from "@/lib/challenges";
@@ -86,6 +87,13 @@ export default async function Home() {
   const activeQuestRecord = activeQuest?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeQuest.id)
     : null;
+  const activeIncompleteChallengeId =
+    activeQuestRecord && !completedSet.has(activeQuestRecord.id)
+      ? activeQuestRecord.id
+      : undefined;
+  const randomSoloQuestIds = CHALLENGES.filter(
+    (challenge) => !challenge.id.includes("coming-soon"),
+  ).map((challenge) => challenge.id);
   const latestActiveAttempt = activeQuestRecord
     ? getLatestChallengeAttempt(metadata, activeQuestRecord.id)
     : null;
@@ -333,9 +341,16 @@ export default async function Home() {
                 );
               })}
             </div>
-            <p className="heroism-custom-path">
-              Or go <Link href="/challenges">find your own path</Link>.
-            </p>
+            <div className="heroism-custom-path home-random-solo-path">
+              <RandomSoloQuestLink
+                challengeIds={randomSoloQuestIds}
+                activeChallengeId={activeIncompleteChallengeId}
+                completedChallengeIds={progress.completedChallengeIds}
+              />
+              <p>
+                Or go <Link href="/challenges">find your own path</Link>.
+              </p>
+            </div>
           </aside>
         </section>
 
