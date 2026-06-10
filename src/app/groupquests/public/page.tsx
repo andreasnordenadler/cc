@@ -18,7 +18,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
   const selectedStatus = resolvedSearchParams.status === "finished" ? "finished" : resolvedSearchParams.status === "all" ? "all" : "open";
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
-  const displayablePublicQuests = savedPublicQuests.filter(isDisplayablePublicQuest);
+  const displayablePublicQuests = savedPublicQuests.filter((quest) => isDisplayablePublicQuest(quest, { includeFinished: selectedStatus !== "open" }));
   const filteredPublicQuests = displayablePublicQuests.filter((quest) => {
     const status = getQuestStatus(quest.startAt, quest.endAt);
     const text = `${quest.name} ${quest.inviteCopy} ${quest.hostName} ${quest.providerLabel}`.toLowerCase();
@@ -29,8 +29,8 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
     return true;
   });
   const selectedHostQuest = selectedHost ? displayablePublicQuests.find((quest) => getHostKey(quest.hostName) === selectedHost) : null;
-  const showOfficialLane = !selectedHost && !searchQuery && selectedStatus !== "finished";
-  const officialQuests = showOfficialLane ? displayablePublicQuests.filter((quest) => quest.official).map(toPublicQuestCard) : [];
+  const showOfficialLane = !selectedHost && !searchQuery;
+  const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map(toPublicQuestCard) : [];
   const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map(toPublicQuestCard);
   const totalQuests = officialQuests.length + communityQuests.length;
 
@@ -78,8 +78,8 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
             <div className="public-groupquests-list-stack">
               {officialQuests.length ? (
                 <PublicQuestSection
-                  title="Official SQC Multiplayer Side Quests"
-                  copy="Curated SQC events, highlighted first for players who want the cleanest public table to join."
+                  title={selectedStatus === "finished" ? "Official SQC Multiplayer archive" : "Official SQC Multiplayer Side Quests"}
+                  copy={selectedStatus === "finished" ? "Final official SQC leaderboards and podium receipts stay inspectable after the event window closes." : "Curated SQC events, highlighted first for players who want the cleanest public table to join."}
                   quests={officialQuests}
                 />
               ) : null}
@@ -161,10 +161,10 @@ function getHostKey(hostName: string) {
     .replace(/^-+|-+$/g, "") || "sqc-host";
 }
 
-function isDisplayablePublicQuest(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number]) {
+function isDisplayablePublicQuest(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number], { includeFinished = false }: { includeFinished?: boolean } = {}) {
   const text = `${quest.name} ${quest.inviteCopy}`.toLowerCase();
   const end = Date.parse(quest.endAt);
-  if (Number.isFinite(end) && end < Date.now()) return false;
+  if (!includeFinished && Number.isFinite(end) && end < Date.now()) return false;
   if (/(cokok|asdf|test test|lorem|dummy|prototype)/i.test(text)) return false;
   if (quest.name.trim().length < 4 || quest.inviteCopy.trim().length < 24) return false;
   return true;
