@@ -16,3 +16,9 @@ Continued website parity for mobile-v251 Official Leaderboards by adding visible
 
 - `pnpm lint -- src/app/scoreboard/page.tsx`
 - `pnpm build`
+- Commit: `9bc0335` (`Add scoreboard podium context`)
+- Production deploy: `https://cc-339ucu581-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke:
+  - `https://sidequestchess.com/scoreboard?podiumContextSmoke=20260610` returned 200 and contained `Official Leaderboards`, `Gold`, and `verified`.
+  - `https://cc-339ucu581-andreas-nordenadlers-projects.vercel.app/scoreboard?podiumContextSmoke=20260610` returned 200 and contained `Official Leaderboards`, `Gold`, and `verified`.
+  - `https://sidequestchess.com/groupquests/public?podiumContextSmoke=20260610` returned 200 as a neighboring public Multiplayer smoke.
