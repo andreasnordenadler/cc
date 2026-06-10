@@ -13,3 +13,6 @@ Sprint: SQC website parity sprint (2026-06-09 17:35 → 2026-06-10 17:35 Europe/
 
 - `pnpm lint -- src/app/groupquests/public/page.tsx`
 - `pnpm build`
+- Commit: `97a4b9f` (`Add official multiplayer archive lane`)
+- Production deploy: `https://cc-8xb4y2lnq-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: `/groupquests/public?status=finished&archiveSmoke=20260610` returned 200 with `Official SQC Multiplayer archive`, 18 official finished rows, final leaderboard/detail links, and community finished rows; `/groupquests/public?status=all&archiveSmoke=20260610` returned 200 with official + community all-status rows; `/groupquests/public?archiveSmoke=20260610` returned 200.
