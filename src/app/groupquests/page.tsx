@@ -231,7 +231,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                 <div>
                   <span className="eyebrow">Private invite</span>
                   <h2>Join by host code.</h2>
-                  <p>Mobile players can paste a private Multiplayer Side Quest code; website players can do the same here without exposing private tables in public discovery.</p>
+                  <p>Paste a private Multiplayer Side Quest code here without exposing private tables in public discovery.</p>
                 </div>
               </div>
               <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
@@ -313,7 +313,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                   <div className="groupquests-list-heading">
                     <div>
                       <h3>Previous official results</h3>
-                      <p>Final official SQC leaderboards stay inspectable from the website, matching the mobile official results lane.</p>
+                      <p>Final official SQC leaderboards stay inspectable here, matching the official results lane players expect.</p>
                     </div>
                     <span className="badge gold">{previousOfficialRooms.length}</span>
                   </div>

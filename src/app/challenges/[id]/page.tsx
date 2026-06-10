@@ -166,7 +166,7 @@ export default async function ChallengeDetailPage({
         <section className="mission-card quest-detail-section proof-details-section" id="share-official-side-quest" aria-label="Share official Side Quest">
           <span className="eyebrow">Share link</span>
           <h2>Send this public Side Quest.</h2>
-          <p className="proof-details-line">Copy the canonical quest link or share it through the same website controls used for public receipts.</p>
+          <p className="proof-details-line">Copy the canonical quest link or share it through the same SQC controls used for public receipts.</p>
           <ShareProofActions
             copy={buildOfficialQuestShareCopy(challenge)}
             challengeTitle={challenge.title}

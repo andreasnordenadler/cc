@@ -140,7 +140,7 @@ function buildSupportDiagnostics(metadata: UserMetadataRecord) {
   const attempts = getChallengeAttempts(metadata);
   const supportMessages = getSupportMessages(metadata);
   const lines = [
-    `Surface: website`,
+    `Surface: SQC web`,
     `Runner display name saved: ${getRunnerDisplayName(metadata) ? "yes" : "no"}`,
     `Lichess username saved: ${getLichessUsername(metadata) ? "yes" : "no"}`,
     `Chess.com username saved: ${getChessComUsername(metadata) ? "yes" : "no"}`,
@@ -165,7 +165,7 @@ function buildSupportContext(searchParams: { topic?: string; quest?: string; hos
     topic === "community-multiplayer" ? "Report Community Multiplayer Side Quest" : topic === "community-side-quest" ? "Report Community Solo Side Quest" : "Side Quest Chess support request",
   ];
   if (quest) lines.push(`Quest ID: ${quest}`);
-  if (host) lines.push(`Host / creator context: ${host}`);
+  if (host) lines.push(`Host / public player context: ${host}`);
   lines.push("", "What happened:");
   return lines.join("\n");
 }

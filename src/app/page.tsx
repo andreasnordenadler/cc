@@ -556,9 +556,8 @@ export default async function Home() {
                   <span className="eyebrow">Trophy Cabinet</span>
                   <h2>Your latest unlocked coats and podium scrolls.</h2>
                   <p>
-                    Mobile shows Trophy Cabinet progress on the home screen;
-                    website-first players can now jump back into the same
-                    receipts from here.
+                    Your latest Trophy Cabinet progress lives here too, so you
+                    can jump back into the same receipts from the home screen.
                   </p>
                 </div>
                 <Image

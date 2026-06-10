@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const quest = await findPublicCommunitySideQuestById(client, decodeURIComponent(id));
   if (!quest) return { title: "Community Solo Side Quest · Side Quest Chess" };
   const title = `${quest.title} · Community Solo Side Quest · Side Quest Chess`;
-  const description = `${quest.summary} Public player-created Side Quest by ${quest.creatorName}.`;
+  const description = `${quest.summary} Public Community Solo Side Quest by ${quest.creatorName}.`;
   return {
     title,
     description,
@@ -56,11 +56,11 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           </div>
           <div className="detail-hero-grid quest-detail-hero-grid">
             <div className="quest-detail-copy">
-              <span className="eyebrow">Player-created by {quest.creatorName}</span>
+              <span className="eyebrow">Community recipe by {quest.creatorName}</span>
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
               <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect the target, share it with a rival, report anything off, then start and prove it from your SQC account.</p>
-              <p className="quest-detail-flavor">Creator context stays intentionally small: public quest name, public creator label, and more public recipes by the same player when available. Private account details stay private.</p>
+              <p className="quest-detail-flavor">The player shelf stays intentionally small: this public quest, this public player label, and more public recipes by the same player when available. Private account details stay private.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
               <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
@@ -69,7 +69,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="button-row hero-actions quest-detail-actions">
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_check">Start/check in account</CommunitySoloAnalyticsLink>
             <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
-            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_creator">More by {quest.creatorName}</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_creator">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
             <a className="button ghost" href="#share-community-side-quest">Share public link</a>
             <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report weird quest</CommunitySoloAnalyticsLink>
           </div>
@@ -95,14 +95,14 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           />
         </section>
 
-        <section className="mission-card quest-detail-section" aria-label="Community Side Quest creator context">
+        <section className="mission-card quest-detail-section" aria-label="Community Side Quest player shelf">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Creator context</span>
-              <h2>Made public by {quest.creatorName}.</h2>
-              <p>This opens the public Community Solo board filtered to recipes from the same public creator label. If there are no other public recipes, the page safely falls back without exposing private profile data.</p>
+              <span className="eyebrow">Player shelf</span>
+              <h2>More public recipes from {quest.creatorName}.</h2>
+              <p>This opens the public Community Solo board filtered to recipes from the same public player label. If there are no other public recipes, the page safely falls back without exposing private profile data.</p>
             </div>
-            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">Open creator context</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">Open player shelf</CommunitySoloAnalyticsLink>
           </div>
         </section>
 
@@ -139,7 +139,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Roomy web view</span>
             <h2>Review the recipe before you run it.</h2>
-            <p>Use this wide view for creator context, rule explanation, public links, report/trust affordances, and account actions. Everything here is phrased for players, not internal tooling.</p>
+            <p>Use this wide view for player context, rule explanation, public links, report/trust affordances, and account actions. Everything here is phrased for players, not internal tooling.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">

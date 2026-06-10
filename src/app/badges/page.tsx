@@ -39,7 +39,7 @@ export default async function CoatOfArmsPage() {
               <h2>{userId ? "Your Coat of Arms progress" : "Unlock your first Coat of Arms"}</h2>
               <p>
                 {userId
-                  ? "The website now shows the same earned-vs-live badge progress the mobile Coat of Arms shelf uses, with quick paths back to receipts and account trophies."
+                  ? "Your earned-vs-live Coat of Arms progress is ready here, with quick paths back to receipts and account trophies."
                   : "Sign in when you want SQC to remember earned coats, proof receipts, Custom Solo trophies, and Multiplayer podium scrolls."}
               </p>
             </div>

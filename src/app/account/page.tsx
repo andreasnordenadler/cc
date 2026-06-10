@@ -154,7 +154,7 @@ export default async function MyQuestLogPage() {
             <div className="account-readiness-panel" aria-label="Account readiness and progress">
               <div className="account-readiness-head">
                 <span className="eyebrow">Account readiness</span>
-                <p>Website support sees the same readiness basics as mobile: profile, chess usernames, Solo proof history, Custom Side Quests, and Multiplayer activity.</p>
+                <p>Support can see the readiness basics needed to help: profile, chess usernames, Solo proof history, Custom Side Quests, and Multiplayer activity.</p>
               </div>
               <div className="account-readiness-grid" aria-label="Profile readiness">
                 {readinessItems.map((item) => (

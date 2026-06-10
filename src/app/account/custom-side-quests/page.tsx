@@ -163,7 +163,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             )
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No custom recipes yet. Create one on the website or browse public examples first; the app and website share the same saved shelf.</p>
+              <p>No custom recipes yet. Create one here or browse public examples first; your SQC account keeps the same saved shelf everywhere you play.</p>
               <Link className="button primary" href="/challenges/community">Browse public examples</Link>
             </div>
           )}

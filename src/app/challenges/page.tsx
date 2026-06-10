@@ -180,7 +180,7 @@ export default async function ChallengesPage() {
             </div>
           </div>
           <p>
-            Good candidates when you want to test the whole Side Quest loop from the website: choose a quest, play one public game, come back for proof, then open the receipt.
+            Good candidates when you want to test the whole Side Quest loop quickly: choose a quest, play one public game, come back for proof, then open the receipt.
           </p>
           <div className="big-grid starter-route-grid">
             {quickProofQuests.map((challenge) => (

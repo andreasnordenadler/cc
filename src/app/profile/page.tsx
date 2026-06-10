@@ -50,7 +50,7 @@ export default async function ProfilePage() {
             <span className="eyebrow">Profile details</span>
             <h2>{hasChessIdentity ? "Your profile can verify Side Quests." : "Add one chess username to unlock proof checks."}</h2>
             <p>
-              Website and mobile share the same profile readiness basics: public SQC identity, brag line, and at least one public chess username for proof verification.
+              Your SQC profile uses the same readiness basics everywhere: public SQC identity, brag line, and at least one public chess username for proof verification.
             </p>
             <div className="account-readiness-panel" aria-label="Profile readiness">
               <div className="account-readiness-grid">
