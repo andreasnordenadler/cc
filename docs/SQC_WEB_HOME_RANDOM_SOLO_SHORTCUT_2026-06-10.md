@@ -12,3 +12,6 @@ Closed a small website home discovery parity gap versus mobile-v251: the mobile 
 
 - `pnpm lint -- src/app/page.tsx src/components/random-solo-quest-link.tsx`
 - `pnpm build`
+- Commit: `40a2609`
+- Production deploy: `https://cc-8qhkyt5bl-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: production and deploy `/` returned 200 with `Surprise me with a random Solo Side Quest` and `How heroic are you feeling today?`; production `/challenges?homeRandomSmoke=20260610` still returned 200 with the random Solo action.
