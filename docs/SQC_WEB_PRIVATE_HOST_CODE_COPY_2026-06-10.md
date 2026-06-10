@@ -19,3 +19,6 @@ Closed a small Multiplayer host-management parity gap versus mobile-v251: privat
 
 - `pnpm lint -- 'src/app/groupquests/[id]/page.tsx' src/components/group-quest-share-button.tsx`
 - `pnpm build`
+- Commit: `e4a5caa`
+- Production deploy: `https://cc-dxgh459u6-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: 200 for production and deploy seeded Multiplayer detail, plus 200 for production `/groupquests/public?hostCodeCopySmoke=20260610`
