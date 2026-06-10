@@ -21,3 +21,6 @@ Continued Andreas's Custom Solo builder UX-polish thread by making each proof-co
 
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx src/app/globals.css` (passes with the existing CSS ignored-file warning only)
 - `pnpm build`
+- `pnpm deploy:prod` including `pnpm quest:release-gate`
+- Production deploy `https://cc-eju18j2w5-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke returned signed-out sign-in content for production/deploy `/account/custom-side-quests?ruleGroupSmoke=20260610` and 200 Community Solo content for `/challenges/community?ruleGroupSmoke=20260610`
