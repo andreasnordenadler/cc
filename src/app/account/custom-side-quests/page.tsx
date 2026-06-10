@@ -99,19 +99,19 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <span className="eyebrow">My Custom Side Quests</span>
           <h1>{runnerDisplayName}&apos;s suspicious recipe shelf.</h1>
           <p className="hero-copy">
-            This is the website view of your Custom Side Quest library: drafts, private experiments, published public recipes, and archived ideas that probably deserved it.
+            Build, tune, prove, and share your own Solo Side Quests: drafts, private experiments, published public recipes, and archived ideas that probably deserved it.
           </p>
           <div className="hero-actions button-row">
-            <a className="button primary" href="#custom-side-quest-builder">Create on website</a>
+            <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo</a>
             <Link className="button primary" href="/challenges/community">Browse Community Solo</Link>
             <Link className="button secondary" href="/groupquests/create">Use one in Multiplayer</Link>
           </div>
         </section>
 
-        {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your website shelf is now in sync.</p> : null}
-        {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same recipe is still on your website shelf.</p> : null}
-        {params.duplicated ? <p className="form-status success" role="status">Custom Side Quest duplicated. The copy is ready on your website shelf.</p> : null}
-        {params.deleted ? <p className="form-status success" role="status">Custom Side Quest deleted from your website shelf.</p> : null}
+        {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your library is now in sync.</p> : null}
+        {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same recipe stays in your library.</p> : null}
+        {params.duplicated ? <p className="form-status success" role="status">Custom Side Quest duplicated. The copy is ready in your library.</p> : null}
+        {params.deleted ? <p className="form-status success" role="status">Custom Side Quest deleted from your library.</p> : null}
         {params.started ? <p className="form-status success" role="status">Custom Side Quest started. Play a public game, then check the latest result here.</p> : null}
         {params.checked ? <p className="form-status success" role="status">Latest-game proof check saved. See the receipt on the active card below.</p> : null}
         {params.submitted ? <p className="form-status success" role="status">Submitted proof game checked. See the receipt on the active card below.</p> : null}
@@ -172,48 +172,66 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
         <section className="mission-card" id="custom-side-quest-builder" aria-label="Create Custom Side Quest on website">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Website creator</span>
+              <span className="eyebrow">Custom Solo builder</span>
               <h2>{editingQuest ? "Edit a Custom Solo Side Quest." : "Create a Custom Solo Side Quest."}</h2>
               <p>
-                Match the mobile app&apos;s safest starter recipes: up to six clear proof conditions, piece ownership/timing/count controls, private draft by default, optional public publishing for Community Solo discovery, and safe edits for existing saved recipes.
+                Start with one clear proof condition, then open optional slots only when your recipe needs them. Draft privately first, test proof checks, and publish to Community Solo when it feels ready.
               </p>
             </div>
             <span className="badge gold">{editingQuest ? "Editing" : "New"}</span>
           </div>
 
-          <form action={saveCustomSideQuestFromWeb} className="profile-form">
+          <div className="custom-builder-guide" aria-label="Custom Solo builder flow">
+            <div><strong>1</strong><span>Name the quest</span><small>Give runners a clear tavern-card promise.</small></div>
+            <div><strong>2</strong><span>Set proof rules</span><small>Keep it simple; optional slots stay tucked away.</small></div>
+            <div><strong>3</strong><span>Save safely</span><small>Private draft by default, public only when ready.</small></div>
+          </div>
+
+          <form action={saveCustomSideQuestFromWeb} className="custom-solo-builder">
             <input type="hidden" name="editId" value={editingQuest?.id ?? ""} />
             {editingQuest ? <p className="microcopy">Editing <strong>{editingQuest.title}</strong>. Save keeps the same Side Quest ID, badge, proof history, and public URL.</p> : null}
-            {preservesComplexRule ? <p className="microcopy">This recipe has {editingRuleBlockCount} conditions, so the website editor preserves its existing rule stack and only updates title, summary, and save state.</p> : null}
+            {preservesComplexRule ? <p className="microcopy">This recipe has {editingRuleBlockCount} conditions, so this editor preserves its existing rule stack and only updates title, summary, and save state.</p> : null}
+            <div className="custom-builder-identity-grid">
             <label>
-              Side Quest title
+              <span>Side Quest title</span>
               <input name="title" maxLength={80} placeholder="Win after moving every knight" defaultValue={builderDefaults.title} required />
             </label>
             <label>
-              Tavern-wall summary
+              <span>Tavern-wall summary</span>
               <textarea name="summary" maxLength={220} rows={3} placeholder="Tell runners what strange chess habit this quest rewards." defaultValue={builderDefaults.summary} required />
             </label>
-            <div className="grid side-quest-mode-grid">
-              <label>
-                Condition logic
+            </div>
+            <div className="custom-builder-rule-shell">
+              <div className="custom-builder-rule-head">
+                <div>
+                  <span className="eyebrow">Proof recipe</span>
+                  <h3>Choose what a public chess game must prove.</h3>
+                  <p className="microcopy">Open one condition card at a time. Result and move-pattern cards ignore piece-detail fields; piece-state cards use the detailed controls.</p>
+                </div>
+                <label className="custom-builder-logic-card">
+                <span>Condition logic</span>
                 <select name="logic" defaultValue="all" disabled={preservesComplexRule}>
                   <option value="all">Complete every condition</option>
                   <option value="any">Complete any one condition</option>
                 </select>
               </label>
+              </div>
               {builderDefaults.blocks.map((block, index) => (
                 <CustomConditionFields key={block.suffix || "primary"} block={block} index={index} disabled={preservesComplexRule} />
               ))}
+            </div>
+            <div className="custom-builder-save-card">
               <label>
-                Save state
+                <span>Save state</span>
                 <select name="lifecycle" defaultValue={builderDefaults.lifecycleChoice}>
                   <option value="draft">Private draft</option>
                   <option value="published-private">Private published</option>
                   <option value="published-public">Publish publicly</option>
                 </select>
               </label>
+              <p className="microcopy">Private drafts stay in your account. Public recipes can appear in Community Solo discovery and can be used by other runners.</p>
             </div>
-            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. For piece-state rules, result fields are ignored; owner, timing, count, identity, square, and inversion fields are saved in the same custom-rule model as mobile. Leave optional condition slots set to “No condition”. Existing mobile recipes with more than six conditions are preserved safely.</p>
+            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing mobile recipes with more than six conditions are preserved safely.</p>
             <div className="button-row">
               <button className="button primary" type="submit">{editingQuest ? "Save edits" : "Save Custom Side Quest"}</button>
               {editingQuest ? <Link className="button secondary" href="/account/custom-side-quests#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/challenges/community">See public examples</Link>}
@@ -268,10 +286,21 @@ function CustomLibraryFilters({ activeFilter, query }: { activeFilter: CustomLib
 function CustomConditionFields({ block, disabled, index }: { block: WebCustomRuleBlockDefaults; disabled: boolean; index: number }) {
   const prefix = index === 0 ? "" : `${index + 1} `;
   const suffix = block.suffix;
+  const isOptional = index > 0;
+  const summaryTitle = index === 0 ? "Main proof condition" : `Optional condition ${index + 1}`;
+  const summaryHint = block.conditionType === "none" ? "No condition" : describeConditionType(block.conditionType);
   return (
-    <>
+    <details className="custom-condition-card" open={!isOptional || block.conditionType !== "none"}>
+      <summary>
+        <span>
+          <strong>{summaryTitle}</strong>
+          <small>{isOptional ? "Add another rule only if it makes the quest better." : "Every Custom Solo Side Quest needs one clear proof target."}</small>
+        </span>
+        <em>{summaryHint}</em>
+      </summary>
+      <div className="custom-condition-grid">
       <label>
-        {index === 0 ? "Proof condition" : `Optional condition ${index + 1}`}
+        <span>{index === 0 ? "Proof condition" : `Optional condition ${index + 1}`}</span>
         <select name={`conditionType${suffix}`} defaultValue={block.conditionType} disabled={disabled}>
           {index > 0 ? <option value="none">No condition</option> : null}
           <option value="gameResult">Game result</option>
@@ -281,7 +310,7 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
-        {prefix}Result target
+        <span>{prefix}Result target</span>
         <select name={`result${suffix}`} defaultValue={block.result} disabled={disabled}>
           <option value="win">Win the game</option>
           <option value="draw">Draw the game</option>
@@ -289,29 +318,30 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
-        {prefix}Move / opening pattern
+        <span>{prefix}Move / opening pattern</span>
         <input name={`sequence${suffix}`} placeholder="e4 e5 Nf3 or O-O" defaultValue={block.sequence} disabled={disabled} />
       </label>
+      <div className="custom-condition-section-label">Piece-state details</div>
       <label>
-        {prefix}Piece rule
+        <span>{prefix}Piece</span>
         <select name={`piece${suffix}`} defaultValue={block.piece} disabled={disabled}>
-          <option value="king">My king</option>
-          <option value="queen">My queen</option>
-          <option value="rook">My rook</option>
-          <option value="bishop">My bishop</option>
-          <option value="knight">My knight</option>
-          <option value="pawn">My pawn</option>
+          <option value="king">King</option>
+          <option value="queen">Queen</option>
+          <option value="rook">Rook</option>
+          <option value="bishop">Bishop</option>
+          <option value="knight">Knight</option>
+          <option value="pawn">Pawn</option>
         </select>
       </label>
       <label>
-        {prefix}Piece owner
+        <span>{prefix}Owner</span>
         <select name={`owner${suffix}`} defaultValue={block.owner} disabled={disabled}>
           <option value="my">My pieces</option>
           <option value="opponent">Opponent pieces</option>
         </select>
       </label>
       <label>
-        {prefix}Piece condition
+        <span>{prefix}Condition</span>
         <select name={`pieceCondition${suffix}`} defaultValue={block.pieceCondition} disabled={disabled}>
           <option value="moved">moved</option>
           <option value="not moved">not moved</option>
@@ -322,7 +352,7 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
-        {prefix}Timing
+        <span>{prefix}Timing</span>
         <select name={`timing${suffix}`} defaultValue={block.timing} disabled={disabled}>
           <option value="byMove">By move</option>
           <option value="atMove">At move</option>
@@ -330,11 +360,11 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
-        {prefix}Move number
+        <span>{prefix}Move number</span>
         <input name={`moveNumber${suffix}`} type="number" min={1} max={80} defaultValue={block.moveNumber} disabled={disabled} />
       </label>
       <label>
-        {prefix}How many pieces
+        <span>{prefix}How many pieces</span>
         <select name={`quantifier${suffix}`} defaultValue={block.quantifier} disabled={disabled}>
           <option value="any one">Any one</option>
           <option value="at least">At least</option>
@@ -343,11 +373,11 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
-        {prefix}Piece count
+        <span>{prefix}Piece count</span>
         <input name={`count${suffix}`} type="number" min={1} max={8} defaultValue={block.count} disabled={disabled} />
       </label>
       <label>
-        {prefix}Specific starting piece
+        <span>{prefix}Starting piece</span>
         <select name={`identity${suffix}`} defaultValue={block.identity} disabled={disabled}>
           <option value="any">Any matching piece</option>
           <option value="original">Original king/queen</option>
@@ -364,18 +394,34 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
         </select>
       </label>
       <label>
-        {prefix}Target square
+        <span>{prefix}Target square</span>
         <input name={`targetSquare${suffix}`} maxLength={2} placeholder="e4" defaultValue={block.targetSquare} disabled={disabled} />
       </label>
       <label>
-        {prefix}Invert condition
+        <span>{prefix}Invert condition</span>
         <select name={`negated${suffix}`} defaultValue={block.negated ? "yes" : "no"} disabled={disabled}>
           <option value="no">Must happen</option>
           <option value="yes">Must NOT happen</option>
         </select>
       </label>
-    </>
+      </div>
+    </details>
   );
+}
+
+function describeConditionType(conditionType: WebCustomRuleConditionType) {
+  switch (conditionType) {
+    case "gameResult":
+      return "Game result";
+    case "openingSequence":
+      return "Opening pattern";
+    case "moveSequence":
+      return "Move pattern";
+    case "pieceState":
+      return "Piece state";
+    default:
+      return "No condition";
+  }
 }
 
 function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }: { active: boolean; completed: boolean; latestAttempt: ChallengeAttempt | null; proofPath: string | null; quest: CustomSideQuest }) {
