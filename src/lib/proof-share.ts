@@ -13,6 +13,9 @@ export type PublicProofPayload = {
   completedGameAt?: string;
   gameId?: string;
   provider?: ChallengeAttempt["provider"];
+  finalPositionFen?: string;
+  lastMoveUci?: string;
+  lastMoveSan?: string;
   runnerName?: string;
 };
 
@@ -42,6 +45,9 @@ export async function buildPublicProofPath({
     completedGameAt: attempt?.completedGameAt,
     gameId: attempt?.gameId,
     provider: attempt?.provider,
+    finalPositionFen: attempt?.finalPositionFen,
+    lastMoveUci: attempt?.lastMoveUci,
+    lastMoveSan: attempt?.lastMoveSan,
     runnerName: normalizeRunnerName(runnerName),
   };
 
@@ -95,6 +101,9 @@ function decodePreviewProof(token: string): DecodedPublicProof | null {
       completedGameAt: "2026-05-24T10:24:00.000Z",
       gameId: "preview-proof-game",
       provider: "lichess",
+      finalPositionFen: "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 2 3",
+      lastMoveUci: "f1c4",
+      lastMoveSan: "Bc4",
       runnerName: "Andreas",
     },
   };

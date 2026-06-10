@@ -27,33 +27,52 @@ type BoardSquare = {
 type ProofPositionBoardProps = {
   attempt: ChallengeAttempt | null;
   challenge: Challenge;
+  variant?: "completed" | "receipt";
 };
 
 export default function ProofPositionBoard({
   attempt,
   challenge,
+  variant = "completed",
 }: ProofPositionBoardProps) {
   const board = attempt?.finalPositionFen ? parseFenBoard(attempt.finalPositionFen, attempt.lastMoveUci) : null;
   const proofSummary = sanitizeAttemptSummary(attempt?.summary);
   const achievementCopy = buildAchievementCopy(challenge, attempt);
   const scrollDate = attempt?.completedGameAt ?? attempt?.checkedAt;
 
+  if (!board && variant === "receipt") {
+    return null;
+  }
+
   return (
-    <article className="note-card proof-position-card proof-position-visual-card" aria-label="Victory proof receipt">
-      <div className="proof-board-wrap" data-board-state={board ? "ready" : "scroll"}>
-        {board ? (
-          <div className="proof-board" role="img" aria-label="Final chess position with last move highlighted">
-            {board.map((square) => (
-              <span
-                key={square.square}
-                className={`proof-board-square ${square.highlight ? "highlight" : ""}`}
-                aria-label={`${square.square}${square.piece ? ` ${square.piece}` : " empty"}`}
-              >
-                {square.piece ? PIECES[square.piece] : null}
-              </span>
-            ))}
+    <article className="note-card proof-position-card proof-position-visual-card" aria-label={variant === "completed" ? "Victory proof board" : "Latest verifier board"}>
+      {board ? (
+        <div className="proof-position-layout">
+          <div className="proof-position-copy">
+            <span className="eyebrow">{variant === "completed" ? "SQC proof board" : "SQC referee board"}</span>
+            <h3>{variant === "completed" ? "Verified position attached." : "Latest checked position."}</h3>
+            <p>{proofSummary}</p>
+            <small>
+              {attempt?.lastMoveSan || attempt?.lastMoveUci ? <>Last move: {attempt.lastMoveSan ?? attempt.lastMoveUci} · </> : null}
+              <ProofTime value={scrollDate} />
+            </small>
           </div>
-        ) : (
+          <div className="proof-board-wrap" data-board-state="ready">
+            <div className="proof-board" role="img" aria-label="Chess position with last move highlighted">
+              {board.map((square) => (
+                <span
+                  key={square.square}
+                  className={`proof-board-square ${square.highlight ? "highlight" : ""}`}
+                  aria-label={`${square.square}${square.piece ? ` ${square.piece}` : " empty"}`}
+                >
+                  {square.piece ? PIECES[square.piece] : null}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="proof-board-wrap" data-board-state="scroll">
           <VictoryScroll
             challenge={challenge}
             achievementCopy={achievementCopy}
@@ -62,8 +81,8 @@ export default function ProofPositionBoard({
             reward={challenge.reward}
             className="proof-victory-scroll"
           />
-        )}
-      </div>
+        </div>
+      )}
     </article>
   );
 }

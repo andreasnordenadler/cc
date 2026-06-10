@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProofImage from "@/components/proof-image";
+import ProofPositionBoard from "@/components/proof-position-board";
 import ProofTime from "@/components/proof-time";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
@@ -56,7 +57,20 @@ export default async function PublicProofPage({
     notFound();
   }
 
-  const { payload } = decoded;
+  const { payload, challenge } = decoded;
+  const proofAttempt = payload.finalPositionFen
+    ? {
+        status: "passed" as const,
+        checkedAt: payload.checkedAt,
+        completedGameAt: payload.completedGameAt,
+        gameId: payload.gameId,
+        provider: payload.provider,
+        summary: payload.summary,
+        finalPositionFen: payload.finalPositionFen,
+        lastMoveUci: payload.lastMoveUci,
+        lastMoveSan: payload.lastMoveSan,
+      }
+    : null;
   const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked. +${payload.reward} points.`;
 
   return (
@@ -83,6 +97,14 @@ export default async function PublicProofPage({
             className="proof-generated-image public-proof-image"
           />
         </section>
+
+        {proofAttempt && challenge ? (
+          <section className="mission-card proof-details-section" aria-label="Verified proof board">
+            <span className="eyebrow">Proof board</span>
+            <h2>Verified final position.</h2>
+            <ProofPositionBoard challenge={challenge} attempt={proofAttempt} />
+          </section>
+        ) : null}
 
         <section className="mission-card proof-details-section">
           <span className="eyebrow">Share this proof</span>
