@@ -18,4 +18,8 @@ Closed a small account-readiness parity gap versus mobile-v251 on the signed-in 
 
 ## Live smoke
 
-Pending production deploy in the sprint log.
+- Commit: `29d9f34`
+- Production deploy: `https://cc-n3oxzqu4d-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Signed-out `/account?accountReadinessSmoke=20260610` returned `307` to `/sign-in` on production and deploy URL.
+- Production `/challenges?accountReadinessSmoke=20260610` returned `200` with Solo discovery content.
+- Production `/groupquests?accountReadinessSmoke=20260610` returned `200` with Multiplayer content.
