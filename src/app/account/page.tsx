@@ -58,6 +58,7 @@ export default async function MyQuestLogPage() {
   const proofReceiptCount = getChallengeAttempts(metadata).filter((attempt) => attempt.status === "passed").length;
   const customSideQuests = getCustomSideQuests(privateMetadata).length ? getCustomSideQuests(privateMetadata) : getCustomSideQuests(metadata);
   const completedChallenges = CHALLENGES.filter((challenge) => completedSet.has(challenge.id));
+  const completedCustomSideQuests = customSideQuests.filter((quest) => completedSet.has(quest.id));
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
@@ -111,6 +112,20 @@ export default async function MyQuestLogPage() {
       trophyCopy,
     };
   }));
+  const completedCustomQuestReceipts = completedCustomSideQuests.map((quest, index) => {
+    const latestProof = getLatestPassedAttempt(metadata, quest.id);
+    const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
+    const providerLabel = latestProof?.provider === "chess.com" ? "Chess.com" : latestProof?.provider === "lichess" ? "Lichess" : "Public chess";
+
+    return {
+      quest,
+      finishedAt,
+      providerLabel,
+      proofSummary: latestProof?.summary,
+      gameId: latestProof?.gameId,
+      trophyCopy: getAwkwardTrophyCopy(completedChallenges.length + index),
+    };
+  });
 
   return (
     <main className="site-shell">
@@ -198,16 +213,16 @@ export default async function MyQuestLogPage() {
         <section className="mission-card quest-log-collection-card awkward-trophy-case">
           <div className="section-head trophy-case-head">
             <div>
-              <h2>{completedChallenges.length || multiplayerVictories.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
+              <h2>{completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
               <p>
-                {completedChallenges.length || multiplayerVictories.length
+                {completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length
                   ? "Officially impressive. Socially complicated. Please admire responsibly."
                   : "No tiny heraldic paperwork yet. The shame is currently very organized."}
               </p>
             </div>
           </div>
 
-          {completedChallenges.length || multiplayerVictories.length ? (
+          {completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length ? (
             <>
               <div className="quest-achievement-sections">
                 <section className="quest-achievement-lane" aria-label="Completed solo Side Quests">
@@ -217,7 +232,7 @@ export default async function MyQuestLogPage() {
                       <h3>Completed Side Quests</h3>
                     </div>
                   </div>
-                  {completedChallenges.length ? (
+                  {completedChallenges.length || completedCustomQuestReceipts.length ? (
                     <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
                       {completedQuestReceipts.map(({ challenge, finishedAt, proofImagePath, proofPath, shareCopy, trophyCopy }) => {
                         return (
@@ -244,6 +259,26 @@ export default async function MyQuestLogPage() {
                           </article>
                         );
                       })}
+                      {completedCustomQuestReceipts.map(({ quest, finishedAt, providerLabel, proofSummary, gameId, trophyCopy }) => (
+                        <article className="completed-quest-list-item trophy-card" key={quest.id}>
+                          <span className="trophy-card-shine" aria-hidden="true" />
+                          <Link href="/account/custom-side-quests" className="trophy-card-badge" aria-label={`Open ${quest.title} custom Side Quest`}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" />
+                          </Link>
+                          <div className="trophy-card-copy">
+                            <Link href="/account/custom-side-quests"><strong>{quest.title}</strong></Link>
+                            <em>{trophyCopy.line}</em>
+                            <span>{finishedAt ? <>Custom Solo proof logged <ProofTime value={finishedAt} /></> : "Custom Solo completed, allegedly."}</span>
+                            <span>{providerLabel}{gameId ? ` · ${gameId}` : ""}</span>
+                            <small>{proofSummary || "Custom proof receipt saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
+                            <Link href="/account/custom-side-quests" className="button secondary">Open Custom Solo receipt</Link>
+                          </div>
+                          <span className="won-card-seal solo" aria-hidden="true">
+                            <Image src="/stamps/sqc-wax-seal-canonical.png" alt="" width={58} height={58} />
+                          </span>
+                        </article>
+                      ))}
                     </div>
                   ) : (
                     <div className="empty-collection-state trophy-empty-state">
