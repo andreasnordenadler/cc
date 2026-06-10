@@ -31,7 +31,7 @@ export default async function ScoreboardPage() {
           <span className="eyebrow">Official Leaderboards</span>
           <h1>Track the official SQC race.</h1>
           <p className="hero-copy">
-            Three official Multiplayer Side Quests run in weekly sets. Follow the live tables, open final podium receipts, and browse the weekly archive without needing the mobile app.
+            Three official Multiplayer Side Quests run in weekly sets. Follow the live tables, open final podium receipts, and browse the weekly archive from the SQC leaderboard hall.
           </p>
           <div className="hero-actions button-row">
             <Link className="button primary" href="/groupquests/public">Browse all public tables</Link>

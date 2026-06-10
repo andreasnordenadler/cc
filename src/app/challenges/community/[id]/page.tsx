@@ -137,15 +137,15 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
 
         <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Roomy web view</span>
-            <h2>Review the recipe before you run it.</h2>
-            <p>Use this wide view for player context, rule explanation, public links, report/trust affordances, and account actions. Everything here is phrased for players, not internal tooling.</p>
+            <span className="eyebrow">Recipe review</span>
+            <h2>Read the rule before you run it.</h2>
+            <p>Check the player label, rule explanation, public link, and report path before adding someone else’s strange idea to your own Side Quest run.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Compact mobile flow</span>
-            <h2>Keep the same quest in your pocket.</h2>
-            <p>The mobile flow keeps the same Community Solo loop compact: browse, inspect, start, check, prove, report, and collect the reward moment with the same account state.</p>
+            <span className="eyebrow">Account handoff</span>
+            <h2>Start it from your SQC account.</h2>
+            <p>Your account keeps the Community Solo loop together: start the recipe, check a game, prove the run, report problems, and collect the reward moment without losing context.</p>
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_account_card">Open your SQC account</CommunitySoloAnalyticsLink>
           </article>
         </section>

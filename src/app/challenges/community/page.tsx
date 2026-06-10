@@ -75,7 +75,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <div className="grid side-quest-mode-grid">
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show public player names and custom rule summaries so you know whose bad idea you are borrowing." />
-            <InfoCard title="Ready wherever you play" copy="Community Solo supports discovery, inspection, starting, proof, reporting, and rewards across SQC. Use the roomy web view or the compact mobile flow without losing context." />
+            <InfoCard title="Ready when the rule hooks you" copy="Community Solo keeps discovery, inspection, starting, proof, reporting, and rewards in one SQC account path, so a strange public recipe can become your next run without losing context." />
             <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>
