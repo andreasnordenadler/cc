@@ -1,35 +1,26 @@
-import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import SiteNav from "@/components/site-nav";
+import { listPublicGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 
-const PREVIEW_LISTS = [
-  {
-    title: "Top all-time users",
-    rows: ["ChaosGrandmaster", "QueenlessHero", "KnightBeforeCoffee", "RooklessRunner"],
-  },
-  {
-    title: "Most popular quests",
-    rows: ["No Castle Club", "Queen? Never Heard of Her", "Knights Before Coffee", "The Blunder Gambit"],
-  },
-  {
-    title: "Today’s most completed quests",
-    rows: ["Bishop Field Trip", "Early King Walk", "Pawn Storm Maniac", "Rookless Rampage"],
-  },
-  {
-    title: "Hardest quests cleared",
-    rows: ["Certified Queenless Maniac", "No Castle Survivor", "Blunder Gambit Escapee", "Knightmare Mode"],
-  },
-  {
-    title: "Friend challenge streaks",
-    rows: ["3 receipts in a row", "2 brutal clears", "5 proof cards shared", "7-day quest streak"],
-  },
-  {
-    title: "Fastest verified proofs",
-    rows: ["Fresh receipt · 2 min", "Quick chaos · 4 min", "One-game wonder · 6 min", "Instant regret · 8 min"],
-  },
-];
+export const dynamic = "force-dynamic";
+
+export const metadata = {
+  title: "Official Leaderboards · Side Quest Chess",
+  description: "Live and final official Side Quest Chess Multiplayer leaderboards with weekly archive links.",
+};
 
 export default async function ScoreboardPage() {
   const { userId } = await auth();
+  const client = await clerkClient();
+  const publicQuests = await listPublicGroupQuests(client);
+  const officialQuests = publicQuests
+    .filter((quest) => quest.official && isDisplayableOfficialQuest(quest))
+    .sort((a, b) => Date.parse(b.startAt) - Date.parse(a.startAt));
+  const currentOfficial = officialQuests.filter((quest) => getQuestStatus(quest.startAt, quest.endAt) !== "Finished").slice(0, 3);
+  const finishedOfficial = officialQuests.filter((quest) => getQuestStatus(quest.startAt, quest.endAt) === "Finished");
+  const latestFinished = finishedOfficial.slice(0, 3);
+  const weeklyArchive = buildOfficialWeeks(finishedOfficial.slice(3));
 
   return (
     <main className="site-shell">
@@ -37,29 +28,162 @@ export default async function ScoreboardPage() {
 
       <div className="content-wrap leaderboard-coming-soon-page">
         <section className="hero-card leaderboard-coming-soon-hero">
-          <h1>Leaderboard is coming soon.</h1>
+          <span className="eyebrow">Official Leaderboards</span>
+          <h1>Track the official SQC race.</h1>
           <p className="hero-copy">
-            We are keeping this simple for now: Side Quest Chess will rank real, verified proof receipts only. No fake launch numbers, no manual claims — just completed quests, popular challenges, streaks, and receipt-backed bragging rights once enough games are flowing.
+            Three official Multiplayer Side Quests run in weekly sets. Follow the live tables, open final podium receipts, and browse the weekly archive without needing the mobile app.
           </p>
+          <div className="hero-actions button-row">
+            <Link className="button primary" href="/groupquests/public">Browse all public tables</Link>
+            <Link className="button secondary" href="/groupquests">Open Multiplayer Side Quests</Link>
+          </div>
         </section>
 
-        <section className="leaderboard-preview-grid" aria-label="Coming leaderboard previews">
-          {PREVIEW_LISTS.map((list) => (
-            <article className="mission-card leaderboard-blur-card" key={list.title}>
-              <h2>{list.title}</h2>
-              <div className="leaderboard-blurred-list" aria-hidden="true">
-                {list.rows.map((row, index) => (
-                  <div className="leaderboard-preview-row" key={row}>
-                    <strong>#{index + 1}</strong>
-                    <span>{row}</span>
-                    <em>{["980", "740", "610", "420"][index]} pts</em>
+        <section className="mission-card" aria-label="Current official Multiplayer leaderboards">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Current week</span>
+              <h2>Active official leaderboards.</h2>
+              <p>Join while the window is open, refresh real proof, and climb the table before the deadline.</p>
+            </div>
+            <span className="badge gold">{currentOfficial.length}</span>
+          </div>
+          {currentOfficial.length ? (
+            <div className="official-scoreboard-list">
+              {currentOfficial.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} />)}
+            </div>
+          ) : (
+            <div className="groupquest-empty-state" role="status">
+              <p>No official leaderboards are active right now.</p>
+              <Link className="button secondary" href="/groupquests/public?status=all">Check public Multiplayer tables</Link>
+            </div>
+          )}
+        </section>
+
+        <section className="mission-card" aria-label="Previous official Multiplayer results">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Previous week</span>
+              <h2>Latest final results.</h2>
+              <p>Finished official tables stay inspectable with final leaderboard rows and detail links.</p>
+            </div>
+            <span className="badge gold">{latestFinished.length}</span>
+          </div>
+          {latestFinished.length ? (
+            <div className="official-scoreboard-list">
+              {latestFinished.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} final />)}
+            </div>
+          ) : (
+            <div className="groupquest-empty-state" role="status">
+              <p>Final results will appear here after the first official weekly set closes.</p>
+            </div>
+          )}
+        </section>
+
+        <section className="mission-card" aria-label="Official weekly archive">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Archive</span>
+              <h2>Browse older official weeks.</h2>
+              <p>Each archive row links back to the final Multiplayer leaderboard so proofs and podiums remain visible.</p>
+            </div>
+            <span className="badge gold">{weeklyArchive.length}</span>
+          </div>
+          {weeklyArchive.length ? (
+            <div className="leaderboard-preview-grid">
+              {weeklyArchive.map((week) => (
+                <article className="mission-card leaderboard-blur-card" key={week.id}>
+                  <h3>{week.label}</h3>
+                  <p>{week.rangeLabel} · {week.quests.length} official result{week.quests.length === 1 ? "" : "s"}</p>
+                  <div className="official-scoreboard-list">
+                    {week.quests.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} compact final />)}
                   </div>
-                ))}
-              </div>
-            </article>
-          ))}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="groupquest-empty-state" role="status">
+              <p>Older weekly official sets will be listed here once they exist.</p>
+            </div>
+          )}
         </section>
       </div>
     </main>
   );
+}
+
+function OfficialQuestRow({ compact = false, final = false, quest }: { compact?: boolean; final?: boolean; quest: ServerGroupQuest }) {
+  const status = getQuestStatus(quest.startAt, quest.endAt);
+  const winner = getWinner(quest);
+  const players = `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`;
+  const completedCount = quest.participants.reduce((total, participant) => total + (participant.completedQuestIds?.length ?? 0), 0);
+  return (
+    <article className="leaderboard-preview-row official-scoreboard-row">
+      <strong>{final ? "Final" : status}</strong>
+      <span>
+        <Link href={`/groupquests/${quest.id}`}>{quest.name}</Link>
+        <small>{compact ? players : `${players} · ${completedCount} verified quest${completedCount === 1 ? "" : "s"}`}</small>
+      </span>
+      <em>{winner ? `Winner: ${winner.leaderboardName}` : formatWindow(quest.startAt, quest.endAt)}</em>
+    </article>
+  );
+}
+
+function getWinner(quest: ServerGroupQuest) {
+  return [...quest.participants]
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0) || Date.parse(a.lastProofAt ?? a.joinedAt) - Date.parse(b.lastProofAt ?? b.joinedAt))
+    .find((participant) => (participant.score ?? 0) > 0 || (participant.completedQuestIds?.length ?? 0) > 0) ?? null;
+}
+
+function buildOfficialWeeks(quests: ServerGroupQuest[]) {
+  const weeks = new Map<string, { id: string; label: string; rangeLabel: string; quests: ServerGroupQuest[] }>();
+  for (const quest of quests) {
+    const start = new Date(quest.startAt);
+    const weekStart = getWeekStart(start);
+    const id = weekStart.toISOString().slice(0, 10);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekEnd.getUTCDate() + 6);
+    const existing = weeks.get(id) ?? {
+      id,
+      label: `Week of ${formatDate(weekStart)}`,
+      rangeLabel: `${formatDate(weekStart)} – ${formatDate(weekEnd)}`,
+      quests: [],
+    };
+    existing.quests.push(quest);
+    weeks.set(id, existing);
+  }
+  return [...weeks.values()].slice(0, 8);
+}
+
+function getWeekStart(date: Date) {
+  const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
+  const result = new Date(Date.UTC(safeDate.getUTCFullYear(), safeDate.getUTCMonth(), safeDate.getUTCDate()));
+  const day = result.getUTCDay() || 7;
+  result.setUTCDate(result.getUTCDate() - day + 1);
+  return result;
+}
+
+function isDisplayableOfficialQuest(quest: ServerGroupQuest) {
+  const text = `${quest.name} ${quest.inviteCopy}`.toLowerCase();
+  if (/(cokok|asdf|test test|lorem|dummy|prototype)/i.test(text)) return false;
+  return quest.name.trim().length >= 4;
+}
+
+function getQuestStatus(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = Date.parse(startAt);
+  const end = Date.parse(endAt);
+  if (Number.isFinite(end) && now > end) return "Finished";
+  if (Number.isFinite(start) && now < start) return "Starting soon";
+  return "Open now";
+}
+
+function formatWindow(startAt: string, endAt: string) {
+  return `${formatDate(startAt)} → ${formatDate(endAt)}`;
+}
+
+function formatDate(value: string | Date) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return typeof value === "string" ? value : "Date pending";
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "Europe/Stockholm" }).format(date);
 }
