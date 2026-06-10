@@ -31,4 +31,11 @@ Continued Andreas's UX parity sprint by cleaning remaining visible web-vs-app/in
 
 ## Deployment / smoke
 
-Pending production deploy and live smoke for this slice.
+- `pnpm deploy:prod` (includes `pnpm quest:release-gate`)
+- Production deploy: `https://cc-6gxhyqcx5-andreas-nordenadlers-projects.vercel.app`
+- Aliased to: `https://sidequestchess.com`
+- Live smoke:
+  - `/challenges/community?languageSweepSmoke=20260610` contained `Player shelf` / public-player language.
+  - `/challenges/community/seed-opening-hipster-32-1?languageSweepSmoke=20260610` contained `Player shelf` / `More public recipes from`.
+  - `/support?languageSweepSmoke=20260610&topic=community-side-quest&quest=seed-opening-hipster-32-1` returned Support details copy.
+  - `/account/custom-side-quests?languageSweepSmoke=20260610` returned the expected signed-out sign-in/SQC content.
