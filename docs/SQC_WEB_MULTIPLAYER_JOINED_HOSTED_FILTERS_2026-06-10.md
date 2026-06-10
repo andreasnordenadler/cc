@@ -13,3 +13,6 @@ Closed a small website discovery parity gap versus mobile-v251: mobile Public Mu
 
 - `pnpm lint -- src/app/groupquests/public/page.tsx`
 - `pnpm build`
+- Commit: `7faf318`
+- Production deploy: `https://cc-s1uftytcr-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: signed-out production `/groupquests/public?status=joined&joinedHostedSmoke=20260610` and `/groupquests/public?status=hosted&joinedHostedSmoke=20260610` returned 200 and fell back to the public-safe filter set; deploy URL `/groupquests/public?joinedHostedSmoke=20260610` returned 200 with Public Multiplayer content.
