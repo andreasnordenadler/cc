@@ -50,7 +50,7 @@ export default async function ScoreboardPage() {
           </div>
           {currentOfficial.length ? (
             <div className="official-scoreboard-list">
-              {currentOfficial.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} />)}
+              {currentOfficial.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} viewerUserId={userId} />)}
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
@@ -71,7 +71,7 @@ export default async function ScoreboardPage() {
           </div>
           {latestFinished.length ? (
             <div className="official-scoreboard-list">
-              {latestFinished.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} final />)}
+              {latestFinished.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} viewerUserId={userId} final />)}
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
@@ -96,7 +96,7 @@ export default async function ScoreboardPage() {
                   <h3>{week.label}</h3>
                   <p>{week.rangeLabel} · {week.quests.length} official result{week.quests.length === 1 ? "" : "s"}</p>
                   <div className="official-scoreboard-list">
-                    {week.quests.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} compact final />)}
+                    {week.quests.map((quest) => <OfficialQuestRow key={quest.id} quest={quest} viewerUserId={userId} compact final />)}
                   </div>
                 </article>
               ))}
@@ -112,21 +112,38 @@ export default async function ScoreboardPage() {
   );
 }
 
-function OfficialQuestRow({ compact = false, final = false, quest }: { compact?: boolean; final?: boolean; quest: ServerGroupQuest }) {
+function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId }: { compact?: boolean; final?: boolean; quest: ServerGroupQuest; viewerUserId?: string | null }) {
   const status = getQuestStatus(quest.startAt, quest.endAt);
   const winner = getWinner(quest);
   const players = `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"}`;
   const completedCount = quest.participants.reduce((total, participant) => total + (participant.completedQuestIds?.length ?? 0), 0);
+  const viewerParticipant = viewerUserId ? quest.participants.find((participant) => participant.userId === viewerUserId) ?? null : null;
+  const viewerIsHost = Boolean(viewerUserId && quest.hostUserId === viewerUserId);
+  const viewerCompletedCount = viewerParticipant?.completedQuestIds?.length ?? 0;
+  const viewerContext = getViewerOfficialContext({ final, status, viewerCompletedCount, viewerIsHost, viewerJoined: Boolean(viewerParticipant), viewerUserId });
   return (
     <article className="leaderboard-preview-row official-scoreboard-row">
       <strong>{final ? "Final" : status}</strong>
       <span>
         <Link href={`/groupquests/${quest.id}`}>{quest.name}</Link>
         <small>{compact ? players : `${players} · ${completedCount} verified quest${completedCount === 1 ? "" : "s"}`}</small>
+        {viewerContext ? <small>{viewerContext}</small> : null}
       </span>
       <em>{winner ? `Winner: ${winner.leaderboardName}` : formatWindow(quest.startAt, quest.endAt)}</em>
     </article>
   );
+}
+
+function getViewerOfficialContext({ final, status, viewerCompletedCount, viewerIsHost, viewerJoined, viewerUserId }: { final: boolean; status: string; viewerCompletedCount: number; viewerIsHost: boolean; viewerJoined: boolean; viewerUserId?: string | null }) {
+  if (!viewerUserId) return status === "Finished" ? "Sign in to compare this final table with your account." : "Sign in to join from the detail page.";
+  if (viewerIsHost) return "Hosted by you · open the detail page to manage the table.";
+  if (viewerJoined) {
+    const proofCopy = `${viewerCompletedCount} verified quest${viewerCompletedCount === 1 ? "" : "s"}`;
+    if (final) return `You joined · final result saved · ${proofCopy}.`;
+    return `Joined by you · open to check latest proof · ${proofCopy}.`;
+  }
+  if (status === "Finished") return "You did not join this finished official table.";
+  return "Not joined yet · open the detail page to join.";
 }
 
 function getWinner(quest: ServerGroupQuest) {
