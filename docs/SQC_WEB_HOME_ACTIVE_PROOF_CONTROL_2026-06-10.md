@@ -20,3 +20,6 @@ Closed a small website parity gap versus mobile-v251: the mobile home screen let
 
 - `pnpm lint -- src/app/page.tsx`
 - `pnpm build`
+- Commit: `0d6a512` (`Add home active proof controls`)
+- Production deploy: `https://cc-73s7fl7e3-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: 200 for production and deploy `/` with signed-out home content; 200 for production `/challenges?homeProofSmoke=20260610`
