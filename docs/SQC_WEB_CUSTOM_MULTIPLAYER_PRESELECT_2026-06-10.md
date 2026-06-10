@@ -19,3 +19,5 @@ Closed a small website parity gap versus mobile-v251: mobile's `Use in Multiplay
 
 - `pnpm lint -- src/app/groupquests/create/page.tsx src/components/group-quest-draft-builder.tsx src/app/account/custom-side-quests/page.tsx 'src/app/challenges/community/[id]/page.tsx'`
 - `pnpm build`
+- `pnpm deploy:prod` → `https://cc-fh6wrm5xl-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: signed-out `/groupquests/create?quest=custom-preselect-smoke-20260610` resolved to sign-in content, signed-out `/account/custom-side-quests?preselectSmoke=20260610` resolved to sign-in content, seeded Community Solo detail returned 200 with `Use in Multiplayer` and `/groupquests/create?quest=...`, and `/groupquests/public?preselectSmoke=20260610` returned 200.
