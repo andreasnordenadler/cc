@@ -18,3 +18,6 @@ Closed a small website Help & Support parity gap versus mobile-v251: the mobile 
 
 - `pnpm lint -- src/app/support/page.tsx src/components/support-contact-form.tsx`
 - `pnpm build`
+- Commit: `b183177`
+- Production deploy: `https://cc-3rolzafyo-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: `/support?supportHelpSmoke=20260610` returned 200 content with mobile-aligned help topics and `Copy support details`; signed-out `POST /api/support` returned 401 JSON.
