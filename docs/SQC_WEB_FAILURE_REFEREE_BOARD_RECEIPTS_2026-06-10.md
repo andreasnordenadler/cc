@@ -13,3 +13,6 @@ Closed a website proof-visual parity gap versus mobile-v251: failed latest-game 
 
 - `pnpm lint -- src/components/proof-position-board.tsx`
 - `pnpm build`
+- Commit `429066c` pushed to `main`.
+- Production deploy `https://cc-acgr5b089-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke returned 200/content for production and deploy `/challenges/finish-any-game?failureBoardSmoke=20260610` plus production `/proof/preview-finish-any-game?failureBoardSmoke=20260610`.
