@@ -121,6 +121,7 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
   const viewerIsHost = Boolean(viewerUserId && quest.hostUserId === viewerUserId);
   const viewerCompletedCount = viewerParticipant?.completedQuestIds?.length ?? 0;
   const viewerContext = getViewerOfficialContext({ final, status, viewerCompletedCount, viewerIsHost, viewerJoined: Boolean(viewerParticipant), viewerUserId });
+  const podiumRows = getPodiumRows(quest);
   return (
     <article className="leaderboard-preview-row official-scoreboard-row">
       <strong>{final ? "Final" : status}</strong>
@@ -128,10 +129,35 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
         <Link href={`/groupquests/${quest.id}`}>{quest.name}</Link>
         <small>{compact ? players : `${players} · ${completedCount} verified quest${completedCount === 1 ? "" : "s"}`}</small>
         {viewerContext ? <small>{viewerContext}</small> : null}
+        {podiumRows.length ? (
+          <ol className="official-scoreboard-podium" aria-label={`${quest.name} top leaderboard rows`}>
+            {podiumRows.map((row) => (
+              <li key={row.userId}>
+                <b>{row.rankLabel}</b>
+                <span>{row.leaderboardName}</span>
+                <small>{row.score} point{row.score === 1 ? "" : "s"} · {row.verifiedCount} verified</small>
+              </li>
+            ))}
+          </ol>
+        ) : null}
       </span>
       <em>{winner ? `Winner: ${winner.leaderboardName}` : formatWindow(quest.startAt, quest.endAt)}</em>
     </article>
   );
+}
+
+function getPodiumRows(quest: ServerGroupQuest) {
+  return [...quest.participants]
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0) || Date.parse(a.lastProofAt ?? a.joinedAt) - Date.parse(b.lastProofAt ?? b.joinedAt))
+    .slice(0, 3)
+    .map((participant, index) => ({
+      userId: participant.userId,
+      rankLabel: index === 0 ? "Gold" : index === 1 ? "Silver" : "Bronze",
+      leaderboardName: participant.leaderboardName,
+      score: participant.score ?? 0,
+      verifiedCount: participant.completedQuestIds?.length ?? 0,
+    }))
+    .filter((participant) => participant.score > 0 || participant.verifiedCount > 0);
 }
 
 function getViewerOfficialContext({ final, status, viewerCompletedCount, viewerIsHost, viewerJoined, viewerUserId }: { final: boolean; status: string; viewerCompletedCount: number; viewerIsHost: boolean; viewerJoined: boolean; viewerUserId?: string | null }) {
