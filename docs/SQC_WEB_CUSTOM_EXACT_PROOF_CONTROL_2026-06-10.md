@@ -16,3 +16,5 @@ Continued the SQC website parity sprint by adding the mobile-v251 Custom Solo `S
 
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx`
 - `pnpm build`
+- Production deploy: `https://cc-lfnosto6x-andreas-nordenadlers-projects.vercel.app` → `https://sidequestchess.com`
+- Live smoke: signed-out `/account/custom-side-quests?customExactProofSmoke=20260610` returned 307 to `/sign-in`; `/challenges/community?customExactProofSmoke=20260610` returned Community Solo/creator content; `/groupquests?customExactProofSmoke=20260610` returned Multiplayer content.
