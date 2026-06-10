@@ -20,3 +20,6 @@ Closed a website discovery parity gap versus mobile-v251: the mobile home screen
 
 - `pnpm lint -- src/app/challenges/page.tsx src/components/random-solo-quest-link.tsx`
 - `pnpm build`
+- Commit: `da66c1d`
+- Production deploy: `https://cc-axhcsoe0c-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- Live smoke: 200 for `/challenges?soloDiscoverySmoke=20260610` on production and deploy URLs with `How heroic are you feeling today?`, `Surprise me with a random Solo Side Quest`, `Cautiously heroic`, and `Quick proof loop`.
