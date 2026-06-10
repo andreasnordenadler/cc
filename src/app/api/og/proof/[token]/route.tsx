@@ -23,7 +23,8 @@ export async function GET(
   const { payload, challenge } = decoded;
   const timeZone = safeTimeZone(new URL(request.url).searchParams.get("tz"));
   const dateLabel = formatScrollDate(payload.completedGameAt ?? payload.checkedAt, timeZone);
-  const badgeImage = challenge?.badgeIdentity.image ? new URL(challenge.badgeIdentity.image, request.url).toString() : null;
+  const badgeImageSource = payload.badgeImageUrl || challenge?.badgeIdentity.image;
+  const badgeImage = badgeImageSource ? new URL(badgeImageSource, request.url).toString() : null;
   const sealImage = new URL("/stamps/sqc-wax-seal-canonical.png", request.url).toString();
   const scrollTemplateImage = new URL("/scrolls/sqc-victory-scroll-template-og.jpg", request.url).toString();
   const achievementCopy = payload.challengeId === "finish-any-game"

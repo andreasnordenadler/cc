@@ -53,7 +53,7 @@ export default async function PublicProofPage({
   const { token } = await params;
   const decoded = await decodePublicProof(token);
 
-  if (!decoded?.challenge) {
+  if (!decoded) {
     notFound();
   }
 
@@ -72,6 +72,7 @@ export default async function PublicProofPage({
       }
     : null;
   const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked. +${payload.reward} points.`;
+  const browseHref = challenge ? "/challenges" : "/challenges/community";
 
   return (
     <main className="site-shell">
@@ -85,7 +86,7 @@ export default async function PublicProofPage({
             {payload.runnerName ? `${payload.runnerName} completed` : "A player completed"} this quest on Side Quest Chess and unlocked {payload.badgeName}. This link is the shareable proof receipt.
           </p>
           <div className="button-row">
-            <Link href="/challenges" className="button primary">Browse Side Quests</Link>
+            <Link href={browseHref} className="button primary">Browse Side Quests</Link>
             <Link href={publicProofImagePath(token)} className="button secondary">Open proof image</Link>
           </div>
         </section>
@@ -98,11 +99,11 @@ export default async function PublicProofPage({
           />
         </section>
 
-        {proofAttempt && challenge ? (
+        {proofAttempt ? (
           <section className="mission-card proof-details-section" aria-label="Verified proof board">
             <span className="eyebrow">Proof board</span>
             <h2>Verified final position.</h2>
-            <ProofPositionBoard challenge={challenge} attempt={proofAttempt} />
+            <ProofPositionBoard challenge={challenge ?? undefined} attempt={proofAttempt} />
           </section>
         ) : null}
 
@@ -122,4 +123,3 @@ export default async function PublicProofPage({
     </main>
   );
 }
-

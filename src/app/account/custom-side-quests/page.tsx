@@ -9,6 +9,7 @@ import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
 import { describeCustomSideQuestRule, describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
+import { buildCustomPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import { getActiveChallenge, getChallengeProgress, getLatestChallengeAttempt, getPreferredRunnerName, buildAttemptSummary, type ChallengeAttempt, type UserMetadataRecord } from "@/lib/user-metadata";
 import { POST as runQuestAction } from "@/app/api/mobile/quest/route";
 
@@ -71,6 +72,21 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
   const editingRuleBlockCount = editingQuest ? parseCustomRuleConfig(editingQuest.config)?.blocks.length ?? 0 : 0;
   const preservesComplexRule = editingRuleBlockCount > WEB_CUSTOM_RULE_BLOCK_LIMIT;
   const builderDefaults = getCustomQuestBuilderDefaults(editingQuest);
+  const customQuestCards = await Promise.all(filteredCustomQuests.map(async (quest) => {
+    const latestAttempt = getLatestChallengeAttempt(publicMetadata, quest.id);
+    const completed = completedSet.has(quest.id);
+    const proofPath = completed && latestAttempt?.status === "passed"
+      ? await buildCustomPublicProofPath({ attempt: latestAttempt, quest, runnerName: runnerDisplayName })
+      : null;
+
+    return {
+      quest,
+      active: activeChallenge?.id === quest.id,
+      completed,
+      latestAttempt,
+      proofPath,
+    };
+  }));
 
   return (
     <main className="site-shell">
@@ -128,13 +144,14 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           {customQuests.length ? (
             filteredCustomQuests.length ? (
               <div className="big-grid starter-route-grid">
-                {filteredCustomQuests.map((quest) => (
+                {customQuestCards.map((entry) => (
                   <CustomQuestCard
-                    key={quest.id}
-                    quest={quest}
-                    active={activeChallenge?.id === quest.id}
-                    completed={completedSet.has(quest.id)}
-                    latestAttempt={getLatestChallengeAttempt(publicMetadata, quest.id)}
+                    key={entry.quest.id}
+                    quest={entry.quest}
+                    active={entry.active}
+                    completed={entry.completed}
+                    latestAttempt={entry.latestAttempt}
+                    proofPath={entry.proofPath}
                   />
                 ))}
               </div>
@@ -361,13 +378,14 @@ function CustomConditionFields({ block, disabled, index }: { block: WebCustomRul
   );
 }
 
-function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: boolean; completed: boolean; latestAttempt: ChallengeAttempt | null; quest: CustomSideQuest }) {
+function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }: { active: boolean; completed: boolean; latestAttempt: ChallengeAttempt | null; proofPath: string | null; quest: CustomSideQuest }) {
   const isPublic = quest.visibility === "public" && quest.lifecycle === "published";
   const lifecycle = quest.lifecycle ?? "published";
   const statusLabel = isPublic ? "Public" : lifecycle === "draft" ? "Draft" : lifecycle === "archived" ? "Archived" : "Private";
   const statusTone = isPublic ? "green" : lifecycle === "archived" ? "" : "gold";
   const ruleDetails = describeCustomSideQuestRuleDetails(quest.config).slice(0, 3);
   const receipt = buildAttemptSummary(latestAttempt);
+  const proofToken = proofPath?.startsWith("/proof/") ? proofPath.slice("/proof/".length) : null;
 
   return (
     <article className="challenge-card community-side-quest-card">
@@ -412,6 +430,28 @@ function CustomQuestCard({ active, completed, latestAttempt, quest }: { active: 
             socialTitle={`Try ${quest.title} on Side Quest Chess`}
             shareAriaLabel="Share public Custom Solo Side Quest on social media"
           />
+        ) : null}
+        {proofPath ? (
+          <div className="note-card" aria-label={`${quest.title} completed proof receipt share controls`}>
+            <span className="eyebrow">Completed proof receipt</span>
+            <h4>Share your Custom Solo proof.</h4>
+            <p className="microcopy">Public receipt link with safe provider/game/board evidence only — raw custom rule config and private library state stay hidden.</p>
+            <div className="button-row">
+              <Link className="button secondary" href={proofPath}>Open proof receipt</Link>
+            </div>
+            <ShareProofActions
+              challengeTitle={quest.title}
+              copy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo proof accepted. +100 points.`}
+              sharePath={proofPath}
+              shareLabel="Copy proof link"
+              copiedCopy="Custom Solo proof link copied."
+              socialCopy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo proof accepted. +100 points.`}
+              socialTitle={`${quest.title} completed on Side Quest Chess`}
+              shareAriaLabel="Share Custom Solo proof on social media"
+              imagePath={proofToken ? publicProofImagePath(proofToken) : undefined}
+              imageFileName="side-quest-chess-custom-solo-proof.png"
+            />
+          </div>
         ) : null}
         <div className="button-row">
           <span className={statusTone ? `badge ${statusTone}` : "badge"}>{statusLabel}</span>

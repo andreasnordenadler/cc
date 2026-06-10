@@ -1,4 +1,5 @@
 import { getChallengeById, type Challenge } from "@/lib/challenges";
+import type { CustomSideQuest } from "@/lib/custom-side-quests";
 import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
 
 export type PublicProofPayload = {
@@ -7,6 +8,7 @@ export type PublicProofPayload = {
   challengeTitle: string;
   badgeName: string;
   badgeMotif: string;
+  badgeImageUrl?: string;
   reward: number;
   summary: string;
   checkedAt?: string;
@@ -39,7 +41,39 @@ export async function buildPublicProofPath({
     challengeTitle: challenge.title,
     badgeName: challenge.badgeIdentity.name,
     badgeMotif: challenge.badgeIdentity.motif,
+    badgeImageUrl: challenge.badgeIdentity.image,
     reward: challenge.reward,
+    summary: sanitizeAttemptSummary(attempt?.summary),
+    checkedAt: attempt?.checkedAt,
+    completedGameAt: attempt?.completedGameAt,
+    gameId: attempt?.gameId,
+    provider: attempt?.provider,
+    finalPositionFen: attempt?.finalPositionFen,
+    lastMoveUci: attempt?.lastMoveUci,
+    lastMoveSan: attempt?.lastMoveSan,
+    runnerName: normalizeRunnerName(runnerName),
+  };
+
+  return `/proof/${await encodePublicProof(payload)}`;
+}
+
+export async function buildCustomPublicProofPath({
+  attempt,
+  quest,
+  runnerName,
+}: {
+  attempt: ChallengeAttempt | null;
+  quest: CustomSideQuest;
+  runnerName?: string;
+}) {
+  const payload: PublicProofPayload = {
+    v: 1,
+    challengeId: quest.id,
+    challengeTitle: quest.title,
+    badgeName: "Custom Solo Side Quest crest",
+    badgeMotif: "SQC",
+    badgeImageUrl: quest.badgeImageUrl ?? undefined,
+    reward: 100,
     summary: sanitizeAttemptSummary(attempt?.summary),
     checkedAt: attempt?.checkedAt,
     completedGameAt: attempt?.completedGameAt,
