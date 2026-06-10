@@ -20,19 +20,29 @@ export const metadata: Metadata = {
 
 const supportTopics = [
   {
-    label: "Proof receipts",
-    value: "Passed, failed, or pending",
-    copy: "If a receipt looks wrong, include the quest name, chess site, public username, game link, and what result you expected.",
+    label: "How Side Quests work",
+    value: "Pick, play, prove",
+    copy: "Choose one Solo Side Quest at a time, play a new public game on your connected Lichess or Chess.com account, then come back and check proof.",
   },
   {
-    label: "Account setup",
+    label: "Why proof may not verify",
+    value: "Public, finished, matching",
+    copy: "If a game does not verify, make sure it is public, finished, on the connected username, played after you picked the quest, and matches the Side Quest rule.",
+  },
+  {
+    label: "Connecting chess accounts",
     value: "Public username only",
-    copy: "Side Quest Chess only needs your public Lichess or Chess.com username to check recent public games.",
+    copy: "Add your public Lichess or Chess.com username so SQC knows which games to check. SQC only reads public game records.",
   },
   {
-    label: "Quest rules",
-    value: "One weird rule at a time",
-    copy: "Every quest page explains the exact condition. If a rule feels unclear, send the quest name and the confusing line.",
+    label: "Multiplayer Side Quests",
+    value: "Separate scored tables",
+    copy: "Browse shared Multiplayer Side Quests, create your own, or join official tables. Multiplayer progress is scored separately from your Solo Side Quest.",
+  },
+  {
+    label: "Coat of Arms",
+    value: "Trophy Cabinet unlocks",
+    copy: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and can be opened from the Trophy Cabinet.",
   },
 ];
 

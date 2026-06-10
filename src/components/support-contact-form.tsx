@@ -91,14 +91,18 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
 
   return (
     <div className="support-contact-stack">
+      <div className="support-thread-card">
+        <span className="eyebrow">Support details</span>
+        <h3>{isSignedIn ? "Messages stay with your SQC account." : "Copy a safe troubleshooting packet."}</h3>
+        <p>{isSignedIn ? "Website support uses the same account-attached support thread as the mobile app. Reports can include quest context without exposing private player data." : "Like the mobile Help & Support screen, the website can copy page and browser details for support without exposing chess-site passwords, private invite codes, or raw custom quest configs."}</p>
+        <div className="button-row">
+          <button className="button secondary" type="button" onClick={() => void copySupportDetails()}>Copy support details</button>
+        </div>
+      </div>
+
       {isSignedIn ? (
         <div className="support-thread-card">
           <span className="eyebrow">Signed-in support thread</span>
-          <h3>Messages stay with your SQC account.</h3>
-          <p>Website support now uses the same account-attached support thread as the mobile app. Reports can include quest context without exposing private player data.</p>
-          <div className="button-row">
-            <button className="button secondary" type="button" onClick={() => void copySupportDetails()}>Copy support details</button>
-          </div>
           {visibleMessages.length ? (
             <div className="support-thread-list" aria-label="Recent support messages">
               {visibleMessages.map((entry) => (
