@@ -21,3 +21,5 @@ Continued the SQC website UX parity sprint after Andreas flagged the Custom Solo
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx src/app/globals.css` passed with the expected ignored-file warning for CSS.
 - `pnpm build` passed.
 - Local signed-out smoke for `/account/custom-side-quests?uxBuilderSmoke=20260610` returned the expected Clerk-protected `307` to `/sign-in`.
+- Production deploy passed after pushing the focused commit: `https://cc-ccu5j9zmi-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke returned expected signed-out `307` for `/account/custom-side-quests?uxBuilderSmoke=20260610`, plus 200 Community Solo content on production and deploy URLs.
