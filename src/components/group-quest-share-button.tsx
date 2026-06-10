@@ -2,13 +2,36 @@
 
 import { useState } from "react";
 
-export default function GroupQuestShareButton({ questName, shareUrl, buttonLabel = "Share quest" }: { questName: string; shareUrl: string; buttonLabel?: string }) {
-  const [status, setStatus] = useState<"idle" | "copied" | "shared" | "failed">("idle");
+type ShareStatus = "idle" | "copied" | "code-copied" | "shared" | "failed";
+
+export default function GroupQuestShareButton({
+  questName,
+  shareUrl,
+  buttonLabel = "Share quest",
+  inviteKey,
+}: {
+  questName: string;
+  shareUrl: string;
+  buttonLabel?: string;
+  inviteKey?: string;
+}) {
+  const [status, setStatus] = useState<ShareStatus>("idle");
 
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setStatus("copied");
+    } catch {
+      setStatus("failed");
+    }
+  }
+
+  async function copyInviteKey() {
+    if (!inviteKey) return;
+
+    try {
+      await navigator.clipboard.writeText(inviteKey);
+      setStatus("code-copied");
     } catch {
       setStatus("failed");
     }
@@ -43,15 +66,22 @@ export default function GroupQuestShareButton({ questName, shareUrl, buttonLabel
         <button className="button secondary" onClick={copyLink} type="button">
           {status === "copied" ? "Link copied" : "Copy link"}
         </button>
+        {inviteKey ? (
+          <button className="button secondary" onClick={copyInviteKey} type="button">
+            {status === "code-copied" ? "Host code copied" : "Copy host code"}
+          </button>
+        ) : null}
       </div>
       <small>
         {status === "shared"
           ? "Quest share sheet opened."
           : status === "copied"
             ? "Quest link copied to clipboard."
-            : status === "failed"
-              ? "Could not copy the quest link."
-              : shareUrl}
+            : status === "code-copied"
+              ? "Private host code copied to clipboard."
+              : status === "failed"
+                ? "Could not copy the quest link or host code."
+                : shareUrl}
       </small>
     </div>
   );

@@ -161,8 +161,8 @@ export default async function GroupQuestByIdPage({
                 />
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
-              <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
-              {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code.</p> : null}
+              <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
+              {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for mobile-style joining.</p> : null}
               {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
               {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
@@ -312,8 +312,8 @@ export default async function GroupQuestByIdPage({
             <p className="hero-copy">
               Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
-            <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" />
-            {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code.</p> : null}
+            <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
+            {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for mobile-style joining.</p> : null}
             {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
             {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 
