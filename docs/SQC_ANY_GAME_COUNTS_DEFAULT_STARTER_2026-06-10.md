@@ -35,3 +35,10 @@ Existing users with an active quest, completed quest history, or proof attempts 
 - `pnpm quest:release-gate`
 
 All checks passed locally before commit/deploy.
+
+## Ship proof
+
+- Commit: `5341509` (`Default new users to Any Game Counts`)
+- Production deploy: `https://cc-mku0r6fse-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+- Live smoke: 200 for `/`, `/challenges`, `/challenges/finish-any-game`, and the deploy URL `/challenges/finish-any-game`, with expected `Any Game Counts` / SQC content.
