@@ -97,9 +97,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
 
         <section className="hero-card side-quests-hub-hero">
           <span className="eyebrow">My Custom Side Quests</span>
-          <h1>{runnerDisplayName}&apos;s suspicious recipe shelf.</h1>
+          <h1>{runnerDisplayName}&apos;s suspicious Side Quest shelf.</h1>
           <p className="hero-copy">
-            Build, tune, prove, and share your own Solo Side Quests: drafts, private experiments, published public recipes, and archived ideas that probably deserved it.
+            Build, tune, prove, and share your own Solo Side Quests: drafts, private experiments, public releases, and archived ideas that probably deserved it.
           </p>
           <div className="hero-actions button-row">
             <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo</a>
@@ -109,13 +109,13 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
         </section>
 
         {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your library is now in sync.</p> : null}
-        {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same recipe stays in your library.</p> : null}
+        {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same quest stays in your library.</p> : null}
         {params.duplicated ? <p className="form-status success" role="status">Custom Side Quest duplicated. The copy is ready in your library.</p> : null}
         {params.deleted ? <p className="form-status success" role="status">Custom Side Quest deleted from your library.</p> : null}
         {params.started ? <p className="form-status success" role="status">Custom Side Quest started. Play a public game, then check the latest result here.</p> : null}
         {params.checked ? <p className="form-status success" role="status">Latest-game proof check saved. See the receipt on the active card below.</p> : null}
         {params.submitted ? <p className="form-status success" role="status">Submitted proof game checked. See the receipt on the active card below.</p> : null}
-        {params.deactivated ? <p className="form-status success" role="status">Custom Side Quest deactivated. Your recipe stays saved.</p> : null}
+        {params.deactivated ? <p className="form-status success" role="status">Custom Side Quest deactivated. Your quest stays saved.</p> : null}
         {params.reset ? <p className="form-status success" role="status">Custom Side Quest proof reset. You can run it again.</p> : null}
         {params.archived ? <p className="form-status success" role="status">Custom Side Quest archived. It is hidden from public discovery.</p> : null}
         {params.restored ? <p className="form-status success" role="status">Custom Side Quest restored as a private draft.</p> : null}
@@ -133,7 +133,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Library</span>
               <h2>{customQuests.length ? "Your saved bad ideas." : "No saved custom Side Quests yet."}</h2>
               <p>
-                Create a starter rule here, search/filter saved recipes, publish them to Community Solo when ready, archive old ideas, or restore an archived recipe as a private draft. Raw custom configs stay hidden.
+                Create a starter rule here, search and filter saved Side Quests, publish them to Community Solo when ready, archive old ideas, or restore an archived quest as a private draft. Raw custom configs stay hidden.
               </p>
             </div>
             <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
@@ -157,13 +157,13 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               </div>
             ) : (
               <div className="groupquest-empty-state" role="status">
-                <p>No saved Custom Solo Side Quests match this shelf view. Clear the search or switch back to All; private drafts, raw configs, and archived recipes stay protected.</p>
-                <Link className="button primary" href="/account/custom-side-quests">Show all saved recipes</Link>
+                <p>No saved Custom Solo Side Quests match this shelf view. Clear the search or switch back to All; private drafts, raw configs, and archived quests stay protected.</p>
+                <Link className="button primary" href="/account/custom-side-quests">Show all saved Side Quests</Link>
               </div>
             )
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No custom recipes yet. Create one here or browse public examples first; your SQC account keeps the same saved shelf everywhere you play.</p>
+              <p>No custom Side Quests yet. Create one here or browse public examples first; your SQC account keeps the same saved shelf everywhere you play.</p>
               <Link className="button primary" href="/challenges/community">Browse public examples</Link>
             </div>
           )}
@@ -175,7 +175,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Custom Solo builder</span>
               <h2>{editingQuest ? "Edit a Custom Solo Side Quest." : "Create a Custom Solo Side Quest."}</h2>
               <p>
-                Start with one clear proof condition, then open optional slots only when your recipe needs them. Draft privately first, test proof checks, and publish to Community Solo when it feels ready.
+                Start with one clear proof condition, then open optional slots only when the quest needs them. Draft privately first, test proof checks, and publish to Community Solo when it feels ready.
               </p>
             </div>
             <span className="badge gold">{editingQuest ? "Editing" : "New"}</span>
@@ -190,7 +190,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <form action={saveCustomSideQuestFromWeb} className="custom-solo-builder">
             <input type="hidden" name="editId" value={editingQuest?.id ?? ""} />
             {editingQuest ? <p className="microcopy">Editing <strong>{editingQuest.title}</strong>. Save keeps the same Side Quest ID, badge, proof history, and public URL.</p> : null}
-            {preservesComplexRule ? <p className="microcopy">This recipe has {editingRuleBlockCount} conditions, so this editor preserves its existing rule stack and only updates title, summary, and save state.</p> : null}
+            {preservesComplexRule ? <p className="microcopy">This saved quest has {editingRuleBlockCount} conditions, so this editor preserves its existing rule stack and only updates title, summary, and save state.</p> : null}
             <div className="custom-builder-identity-grid">
             <label>
               <span>Side Quest title</span>
@@ -204,7 +204,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             <div className="custom-builder-rule-shell">
               <div className="custom-builder-rule-head">
                 <div>
-                  <span className="eyebrow">Proof recipe</span>
+                  <span className="eyebrow">Proof rules</span>
                   <h3>Choose what a public chess game must prove.</h3>
                   <p className="microcopy">Open one condition card at a time. Result and move-pattern cards ignore piece-detail fields; piece-state cards use the detailed controls.</p>
                 </div>
@@ -229,9 +229,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                   <option value="published-public">Publish publicly</option>
                 </select>
               </label>
-              <p className="microcopy">Private drafts stay in your account. Public recipes can appear in Community Solo discovery and can be used by other runners.</p>
+              <p className="microcopy">Private drafts stay in your account. Public Side Quests can appear in Community Solo discovery and can be used by other runners.</p>
             </div>
-            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing mobile recipes with more than six conditions are preserved safely.</p>
+            <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing saved quests with more than six conditions are preserved safely.</p>
             <div className="button-row">
               <button className="button primary" type="submit">{editingQuest ? "Save edits" : "Save Custom Side Quest"}</button>
               {editingQuest ? <Link className="button secondary" href="/account/custom-side-quests#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/challenges/community">See public examples</Link>}
@@ -278,7 +278,7 @@ function CustomLibraryFilters({ activeFilter, query }: { activeFilter: CustomLib
           return <Link key={filter.value} className={activeFilter === filter.value ? "badge gold" : "badge"} href={href}>{filter.label}</Link>;
         })}
       </div>
-      <p className="microcopy">Matches the mobile library shelf filters while keeping private recipes and raw rule config inside your account.</p>
+      <p className="microcopy">Matches the full library shelf filters while keeping private Side Quests and raw rule config inside your account.</p>
     </div>
   );
 }
@@ -540,7 +540,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
             <input type="hidden" name="id" value={quest.id} />
             <button className="button ghost" type="submit">Duplicate</button>
           </form>
-          <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit recipe</Link>
+          <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit quest</Link>
           <form action={setCustomSideQuestLifecycleFromWeb}>
             <input type="hidden" name="id" value={quest.id} />
             <input type="hidden" name="nextLifecycle" value={lifecycle === "archived" ? "draft" : "archived"} />

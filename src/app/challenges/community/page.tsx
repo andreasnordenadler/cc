@@ -66,7 +66,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <div className="section-head">
             <div>
               <span className="eyebrow">How community works</span>
-              <h2>Public recipes, private chaos control.</h2>
+              <h2>Public Side Quests, private chaos control.</h2>
               <p>
                 Community Side Quests are player-created rules published for other players to inspect and try. SQC Official quests stay separate; Community is where the weird experiments live.
               </p>
@@ -75,7 +75,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           <div className="grid side-quest-mode-grid">
             <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
             <InfoCard title="Community stays labeled" copy="Player-created quests show public player names and custom rule summaries so you know whose bad idea you are borrowing." />
-            <InfoCard title="Ready when the rule hooks you" copy="Community Solo keeps discovery, inspection, starting, proof, reporting, and rewards in one SQC account path, so a strange public recipe can become your next run without losing context." />
+            <InfoCard title="Ready when the rule hooks you" copy="Community Solo keeps discovery, inspection, starting, proof, reporting, and rewards in one SQC account path, so a strange public Side Quest can become your next run without losing context." />
             <InfoCard title="Report weird quests" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
           </div>
         </section>
@@ -83,7 +83,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
         <section className="mission-card" aria-label="Public Community Solo Side Quest listings">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Open community recipes</span>
+              <span className="eyebrow">Open Community Solo</span>
               <h2>Pick someone else’s strange rule.</h2>
               <p>{quests.length ? `${visibleQuests.length} of ${quests.length} public Community Solo Side Quest${quests.length === 1 ? "" : "s"}${selectedCreatorQuest ? ` by ${selectedCreatorQuest.creatorName}` : " available right now"}.` : "No public Community Solo Side Quests are available yet."}</p>
             </div>
@@ -101,12 +101,12 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
 
           {selectedCreatorQuest ? (
             <div className="groupquest-empty-state" id={`creator-${selectedCreatorQuest.creatorKey}`}>
-              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo recipe{visibleQuests.length === 1 ? "" : "s"} on the public board. This is a player shelf, not a public profile; private account details stay private.</p>
+              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo Side Quest{visibleQuests.length === 1 ? "" : "s"} on the public board. This is a player shelf, not a public profile; private account details stay private.</p>
               <CommunitySoloAnalyticsLink className="button secondary" href="/challenges/community" type="community_solo_browse" status="clear_creator_filter">Show all players</CommunitySoloAnalyticsLink>
             </div>
           ) : selectedCreator ? (
             <div className="groupquest-empty-state" role="status">
-              <p><strong>That player shelf is empty.</strong> The link may be stale, the recipe may have been unpublished, or the public label may have changed. Nothing private is shown just because a URL guessed at it.</p>
+              <p><strong>That player shelf is empty.</strong> The link may be stale, the Side Quest may have been unpublished, or the public label may have changed. Nothing private is shown just because a URL guessed at it.</p>
               <div className="button-row">
                 <CommunitySoloAnalyticsLink className="button primary" href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo</CommunitySoloAnalyticsLink>
                 <CommunitySoloAnalyticsLink className="button secondary" href="/support?topic=community-side-quest" type="community_solo_report_click" status="creator_filter_miss_support">Ask Support</CommunitySoloAnalyticsLink>
@@ -120,7 +120,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible on that player shelf. The recipe may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
+              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible on that player shelf. The Side Quest may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
               <CommunitySoloAnalyticsLink className="button primary" href={selectedCreator ? "/challenges/community" : "/account"} type={selectedCreator ? "community_solo_browse" : "community_solo_account_handoff"} status={selectedCreator ? "empty_creator_clear" : "empty_account_handoff"}>{selectedCreator ? "Show all Community Solo" : "Open account"}</CommunitySoloAnalyticsLink>
             </div>
           )}
@@ -150,7 +150,7 @@ function CommunityDiscoveryControls({
     <div className="groupquest-empty-state" role="search" aria-label="Community Solo discovery filters">
       <form action="/challenges/community" className="support-form">
         {preserveCreator}
-        <label htmlFor="community-search">Search public recipes</label>
+        <label htmlFor="community-search">Search Community Solo</label>
         <div className="form-row compact-form-row">
           <input id="community-search" name="q" defaultValue={query} placeholder="Search by title, player, rule, or goal" />
           <button className="button secondary" type="submit">Search</button>
@@ -212,7 +212,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
           <small><Link href={quest.creatorBrowsePath}>More from {quest.creatorName}</Link></small>
         </div>
         <div className="button-row">
-          <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect recipe</CommunitySoloAnalyticsLink>
+          <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
           <CommunitySoloAnalyticsLink className="button ghost" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">Player shelf</CommunitySoloAnalyticsLink>
           <CommunitySoloAnalyticsLink className="button ghost" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start/check in account</CommunitySoloAnalyticsLink>
           <CommunitySoloAnalyticsLink className="button ghost" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report weird quest</CommunitySoloAnalyticsLink>
@@ -244,7 +244,7 @@ function formatCommunityStats(quest: PublicCommunitySideQuest) {
     quest.stats.soloSelections ? `${quest.stats.soloSelections} active runner${quest.stats.soloSelections === 1 ? "" : "s"}` : null,
     quest.stats.multiplayerLineups ? `${quest.stats.multiplayerLineups} Multiplayer lineup${quest.stats.multiplayerLineups === 1 ? "" : "s"}` : null,
   ].filter(Boolean);
-  return parts.join(" · ") || "Fresh community recipe";
+  return parts.join(" · ") || "Fresh Community Solo quest";
 }
 
 function cleanCommunityQuery(value: unknown) {

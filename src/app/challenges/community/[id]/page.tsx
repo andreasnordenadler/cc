@@ -56,11 +56,11 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           </div>
           <div className="detail-hero-grid quest-detail-hero-grid">
             <div className="quest-detail-copy">
-              <span className="eyebrow">Community recipe by {quest.creatorName}</span>
+              <span className="eyebrow">Community Solo by {quest.creatorName}</span>
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
               <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect the target, share it with a rival, report anything off, then start and prove it from your SQC account.</p>
-              <p className="quest-detail-flavor">The player shelf stays intentionally small: this public quest, this public player label, and more public recipes by the same player when available. Private account details stay private.</p>
+              <p className="quest-detail-flavor">The player shelf stays intentionally small: this public quest, this public player label, and more public Side Quests by the same player when available. Private account details stay private.</p>
             </div>
             <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
               <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
@@ -79,8 +79,8 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="section-head">
             <div>
               <span className="eyebrow">Share link</span>
-              <h2>Send this public recipe without exposing private shelf data.</h2>
-              <p>Copy the canonical Community Solo URL or use the same SQC share actions used for proof receipts. Drafts, archived recipes, and raw custom configs stay private.</p>
+              <h2>Send this public Side Quest without exposing private shelf data.</h2>
+              <p>Copy the canonical Community Solo URL or use the same SQC share actions used for proof receipts. Drafts, archived quests, and raw custom configs stay private.</p>
             </div>
           </div>
           <ShareProofActions
@@ -99,8 +99,8 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="section-head">
             <div>
               <span className="eyebrow">Player shelf</span>
-              <h2>More public recipes from {quest.creatorName}.</h2>
-              <p>This opens the public Community Solo board filtered to recipes from the same public player label. If there are no other public recipes, the page safely falls back without exposing private profile data.</p>
+              <h2>More public Side Quests from {quest.creatorName}.</h2>
+              <p>This opens the public Community Solo board filtered to Side Quests from the same public player label. If there are no other public quests, the page safely falls back without exposing private profile data.</p>
             </div>
             <CommunitySoloAnalyticsLink className="button secondary" href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="creator_context_card">Open player shelf</CommunitySoloAnalyticsLink>
           </div>
@@ -111,7 +111,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <div>
               <span className="eyebrow">Community trust</span>
               <h2>Player-created, publicly labeled, easy to flag.</h2>
-              <p>This is not an official SQC quest. It is a public recipe from {quest.creatorName}. If the rule looks abusive, confusing, spammy, or broken, report it with the quest title so it can be reviewed.</p>
+              <p>This is not an official SQC quest. It is a public Side Quest from {quest.creatorName}. If the rule looks abusive, confusing, spammy, or broken, report it with the quest title so it can be reviewed.</p>
             </div>
             <CommunitySoloAnalyticsLink className="button secondary" href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="trust_card_report">Report weird quest</CommunitySoloAnalyticsLink>
           </div>
@@ -121,7 +121,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="section-head">
             <div>
               <span className="eyebrow">Safe rule summary</span>
-              <h2>The public recipe, without leaking private workspace clutter.</h2>
+              <h2>The public rule, without leaking private shelf clutter.</h2>
               <p>Only the published rule summary is shown here. Draft, private, archived, and malformed custom quests stay out of public browse.</p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
 
         <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
           <article className="mission-card groupquests-live-card">
-            <span className="eyebrow">Recipe review</span>
+            <span className="eyebrow">Quest review</span>
             <h2>Read the rule before you run it.</h2>
             <p>Check the player label, rule explanation, public link, and report path before adding someone else’s strange idea to your own Side Quest run.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
@@ -145,7 +145,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Account handoff</span>
             <h2>Start it from your SQC account.</h2>
-            <p>Your account keeps the Community Solo loop together: start the recipe, check a game, prove the run, report problems, and collect the reward moment without losing context.</p>
+            <p>Your account keeps the Community Solo loop together: start the quest, check a game, prove the run, report problems, and collect the reward moment without losing context.</p>
             <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_account_card">Open your SQC account</CommunitySoloAnalyticsLink>
           </article>
         </section>

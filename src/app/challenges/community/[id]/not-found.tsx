@@ -8,7 +8,7 @@ export default function CommunitySideQuestNotFound() {
       <div className="content-wrap quest-detail-wrap">
         <section className="hero-card detail-hero quest-detail-hero community-side-quest-detail-hero">
           <span className="eyebrow">Community Solo Side Quest</span>
-          <h1>This recipe slipped off the tavern wall.</h1>
+          <h1>This Side Quest slipped off the tavern wall.</h1>
           <p className="hero-copy">
             The Community Solo link may be malformed, unpublished, archived, or cleaned up. Draft and private custom Side Quests stay hidden, even if someone guesses a URL.
           </p>

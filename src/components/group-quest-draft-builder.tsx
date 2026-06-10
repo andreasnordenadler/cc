@@ -276,7 +276,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
         <div className="groupquests-builder-form">
           <div className="groupquests-quickstart-note" role="note">
             <strong>Quick start</strong>
-            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo recipes from your library can join the stack too.</span>
+            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo Side Quests from your library can join the stack too.</span>
           </div>
 
           <label>
