@@ -19,4 +19,4 @@ Closed a small Custom Solo management parity gap versus mobile-v251: the website
 
 ## Deployment
 
-Pending production deploy/smoke after the focused code/doc commit.
+Production deploy `https://cc-6l5v7ja1h-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`. Live smoke returned sign-in content for signed-out production `/account/custom-side-quests?filter=archived&q=knight&libraryFilterSmoke=20260610`, sign-in content for deploy `/account/custom-side-quests?filter=public&libraryFilterSmoke=20260610`, and 200 Community Solo content for `/challenges/community?libraryFilterSmoke=20260610`.
