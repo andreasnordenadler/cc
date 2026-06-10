@@ -10,12 +10,14 @@ export const metadata = {
   description: "Public Side Quest Chess Multiplayer Side Quests open for players to inspect and join.",
 };
 
+type PublicGroupQuestStatusFilter = "open" | "all" | "finished" | "joined" | "hosted";
+
 export default async function PublicGroupQuestsPage({ searchParams }: { searchParams?: Promise<{ host?: string; q?: string; status?: string }> }) {
   const { userId } = await auth();
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const selectedHost = typeof resolvedSearchParams.host === "string" ? decodeURIComponent(resolvedSearchParams.host) : null;
   const searchQuery = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : "";
-  const selectedStatus = resolvedSearchParams.status === "finished" ? "finished" : resolvedSearchParams.status === "all" ? "all" : "open";
+  const selectedStatus = getSelectedStatusFilter(resolvedSearchParams.status, Boolean(userId));
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
   const displayablePublicQuests = savedPublicQuests.filter((quest) => isDisplayablePublicQuest(quest, { includeFinished: selectedStatus !== "open" }));
@@ -26,12 +28,14 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
     if (searchQuery && !text.includes(searchQuery.toLowerCase())) return false;
     if (selectedStatus === "open" && status === "Finished") return false;
     if (selectedStatus === "finished" && status !== "Finished") return false;
+    if (selectedStatus === "joined" && (!userId || quest.hostUserId === userId || !quest.participants.some((participant) => participant.userId === userId))) return false;
+    if (selectedStatus === "hosted" && (!userId || quest.hostUserId !== userId)) return false;
     return true;
   });
   const selectedHostQuest = selectedHost ? displayablePublicQuests.find((quest) => getHostKey(quest.hostName) === selectedHost) : null;
   const showOfficialLane = !selectedHost && !searchQuery;
-  const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map(toPublicQuestCard) : [];
-  const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map(toPublicQuestCard);
+  const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map((quest) => toPublicQuestCard(quest, userId)) : [];
+  const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map((quest) => toPublicQuestCard(quest, userId));
   const totalQuests = officialQuests.length + communityQuests.length;
 
   return (
@@ -68,6 +72,8 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
               <select className="text-input" name="status" defaultValue={selectedStatus} aria-label="Filter by Multiplayer status">
                 <option value="open">Open / starting</option>
                 <option value="all">All public</option>
+                {userId ? <option value="joined">Joined by me</option> : null}
+                {userId ? <option value="hosted">Hosted by me</option> : null}
                 <option value="finished">Finished</option>
               </select>
               <button className="button primary" type="submit">Apply filters</button>
@@ -103,7 +109,9 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
   );
 }
 
-function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number]) {
+function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number], userId: string | null) {
+  const isHost = Boolean(userId && quest.hostUserId === userId);
+  const isJoined = Boolean(userId && quest.participants.some((participant) => participant.userId === userId));
   return {
     title: quest.name,
     status: getQuestStatus(quest.startAt, quest.endAt),
@@ -113,6 +121,8 @@ function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuest
     copy: quest.inviteCopy,
     href: `/groupquests/${quest.id}`,
     hostName: quest.hostName,
+    isHost,
+    isJoined,
     official: Boolean(quest.official),
     officialLabel: quest.officialLabel ?? "Official SQC Multiplayer Side Quest",
   };
@@ -134,6 +144,7 @@ function PublicQuestSection({ copy, quests, title }: { copy: string; quests: Ret
             <div>
               <span>{quest.status}</span>
               {quest.official ? <small className="official-sqc-badge">{quest.officialLabel}</small> : null}
+              {quest.isHost ? <small className="official-sqc-badge">Hosted by you</small> : quest.isJoined ? <small className="official-sqc-badge">Joined by you</small> : null}
               <strong><Link href={quest.href}>{quest.title}</Link></strong>
               <p>{quest.copy}</p>
             </div>
@@ -159,6 +170,14 @@ function getHostKey(hostName: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "") || "sqc-host";
+}
+
+function getSelectedStatusFilter(value: string | undefined, signedIn: boolean): PublicGroupQuestStatusFilter {
+  if (value === "finished") return "finished";
+  if (value === "all") return "all";
+  if (signedIn && value === "joined") return "joined";
+  if (signedIn && value === "hosted") return "hosted";
+  return "open";
 }
 
 function isDisplayablePublicQuest(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number], { includeFinished = false }: { includeFinished?: boolean } = {}) {
