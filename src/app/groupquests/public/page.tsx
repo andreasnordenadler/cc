@@ -11,13 +11,15 @@ export const metadata = {
 };
 
 type PublicGroupQuestStatusFilter = "open" | "all" | "finished" | "joined" | "hosted";
+type PublicGroupQuestSort = "closing" | "newest" | "players";
 
-export default async function PublicGroupQuestsPage({ searchParams }: { searchParams?: Promise<{ host?: string; q?: string; status?: string }> }) {
+export default async function PublicGroupQuestsPage({ searchParams }: { searchParams?: Promise<{ host?: string; q?: string; status?: string; sort?: string }> }) {
   const { userId } = await auth();
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const selectedHost = typeof resolvedSearchParams.host === "string" ? decodeURIComponent(resolvedSearchParams.host) : null;
   const searchQuery = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q.trim() : "";
   const selectedStatus = getSelectedStatusFilter(resolvedSearchParams.status, Boolean(userId));
+  const selectedSort = getSelectedSort(resolvedSearchParams.sort);
   const client = await clerkClient();
   const savedPublicQuests = await listPublicGroupQuests(client);
   const displayablePublicQuests = savedPublicQuests.filter((quest) => isDisplayablePublicQuest(quest, { includeFinished: selectedStatus !== "open" }));
@@ -31,7 +33,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
     if (selectedStatus === "joined" && (!userId || quest.hostUserId === userId || !quest.participants.some((participant) => participant.userId === userId))) return false;
     if (selectedStatus === "hosted" && (!userId || quest.hostUserId !== userId)) return false;
     return true;
-  });
+  }).sort((a, b) => sortPublicGroupQuests(a, b, selectedSort));
   const selectedHostQuest = selectedHost ? displayablePublicQuests.find((quest) => getHostKey(quest.hostName) === selectedHost) : null;
   const showOfficialLane = !selectedHost && !searchQuery;
   const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map((quest) => toPublicQuestCard(quest, userId)) : [];
@@ -76,8 +78,13 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
                 {userId ? <option value="hosted">Hosted by me</option> : null}
                 <option value="finished">Finished</option>
               </select>
+              <select className="text-input" name="sort" defaultValue={selectedSort} aria-label="Sort public Multiplayer Side Quests">
+                <option value="closing">Sort: closing soon</option>
+                <option value="newest">Sort: newest</option>
+                <option value="players">Sort: most players</option>
+              </select>
               <button className="button primary" type="submit">Apply filters</button>
-              {(selectedHost || searchQuery || selectedStatus !== "open") ? <Link className="button secondary" href="/groupquests/public">Show all public</Link> : null}
+              {(selectedHost || searchQuery || selectedStatus !== "open" || selectedSort !== "closing") ? <Link className="button secondary" href="/groupquests/public">Show all public</Link> : null}
             </div>
           </form>
           {totalQuests ? (
@@ -178,6 +185,38 @@ function getSelectedStatusFilter(value: string | undefined, signedIn: boolean): 
   if (signedIn && value === "joined") return "joined";
   if (signedIn && value === "hosted") return "hosted";
   return "open";
+}
+
+function getSelectedSort(value: string | undefined): PublicGroupQuestSort {
+  if (value === "newest") return "newest";
+  if (value === "players") return "players";
+  return "closing";
+}
+
+function sortPublicGroupQuests(
+  a: Awaited<ReturnType<typeof listPublicGroupQuests>>[number],
+  b: Awaited<ReturnType<typeof listPublicGroupQuests>>[number],
+  sort: PublicGroupQuestSort,
+) {
+  if (sort === "players") return b.participants.length - a.participants.length || newestFirst(a, b);
+  if (sort === "newest") return newestFirst(a, b);
+
+  const aEnd = safeTimestamp(a.endAt);
+  const bEnd = safeTimestamp(b.endAt);
+  const now = Date.now();
+  const aIsFinished = aEnd < now;
+  const bIsFinished = bEnd < now;
+  if (aIsFinished !== bIsFinished) return aIsFinished ? 1 : -1;
+  return aIsFinished ? bEnd - aEnd : aEnd - bEnd;
+}
+
+function newestFirst(a: { createdAt?: string; startAt: string }, b: { createdAt?: string; startAt: string }) {
+  return safeTimestamp(b.createdAt ?? b.startAt) - safeTimestamp(a.createdAt ?? a.startAt);
+}
+
+function safeTimestamp(value: string) {
+  const ts = Date.parse(value);
+  return Number.isFinite(ts) ? ts : 0;
 }
 
 function isDisplayablePublicQuest(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number], { includeFinished = false }: { includeFinished?: boolean } = {}) {
