@@ -38,7 +38,9 @@ type WebCustomRuleBlockDefaults = {
   negated: boolean;
 };
 
-export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; deleted?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; submitted?: string; deactivated?: string; reset?: string; error?: string }> }) {
+type CustomLibraryFilter = "all" | "published" | "drafts" | "public" | "archived";
+
+export default async function MyCustomSideQuestsPage({ searchParams }: { searchParams?: Promise<{ saved?: string; updated?: string; duplicated?: string; deleted?: string; edit?: string; archived?: string; restored?: string; started?: string; checked?: string; submitted?: string; deactivated?: string; reset?: string; error?: string; filter?: string; q?: string }> }) {
   noStore();
   const params = searchParams ? await searchParams : {};
   const authUser = await currentUser();
@@ -62,6 +64,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
   const privateCount = customQuests.filter((quest) => quest.visibility !== "public").length;
   const draftCount = customQuests.filter((quest) => quest.lifecycle === "draft").length;
   const archivedCount = customQuests.filter((quest) => quest.lifecycle === "archived").length;
+  const libraryFilter = cleanLibraryFilter(params.filter);
+  const libraryQuery = cleanText(params.q, 80);
+  const filteredCustomQuests = customQuests.filter((quest) => matchesCustomLibraryFilter(quest, libraryFilter, libraryQuery));
   const editingQuest = params.edit ? customQuests.find((quest) => quest.id === params.edit) ?? null : null;
   const editingRuleBlockCount = editingQuest ? parseCustomRuleConfig(editingQuest.config)?.blocks.length ?? 0 : 0;
   const preservesComplexRule = editingRuleBlockCount > WEB_CUSTOM_RULE_BLOCK_LIMIT;
@@ -112,27 +117,36 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Library</span>
               <h2>{customQuests.length ? "Your saved bad ideas." : "No saved custom Side Quests yet."}</h2>
               <p>
-                Create a starter rule here, edit saved recipes, publish them to Community Solo when ready, archive old ideas, or restore an archived recipe as a private draft. Raw custom configs stay hidden.
+                Create a starter rule here, search/filter saved recipes, publish them to Community Solo when ready, archive old ideas, or restore an archived recipe as a private draft. Raw custom configs stay hidden.
               </p>
             </div>
-            <span className="badge gold">{customQuests.length}</span>
+            <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
           </div>
 
+          {customQuests.length ? <CustomLibraryFilters activeFilter={libraryFilter} query={libraryQuery} /> : null}
+
           {customQuests.length ? (
-            <div className="big-grid starter-route-grid">
-              {customQuests.map((quest) => (
-                <CustomQuestCard
-                  key={quest.id}
-                  quest={quest}
-                  active={activeChallenge?.id === quest.id}
-                  completed={completedSet.has(quest.id)}
-                  latestAttempt={getLatestChallengeAttempt(publicMetadata, quest.id)}
-                />
-              ))}
-            </div>
+            filteredCustomQuests.length ? (
+              <div className="big-grid starter-route-grid">
+                {filteredCustomQuests.map((quest) => (
+                  <CustomQuestCard
+                    key={quest.id}
+                    quest={quest}
+                    active={activeChallenge?.id === quest.id}
+                    completed={completedSet.has(quest.id)}
+                    latestAttempt={getLatestChallengeAttempt(publicMetadata, quest.id)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="groupquest-empty-state" role="status">
+                <p>No saved Custom Solo Side Quests match this shelf view. Clear the search or switch back to All; private drafts, raw configs, and archived recipes stay protected.</p>
+                <Link className="button primary" href="/account/custom-side-quests">Show all saved recipes</Link>
+              </div>
+            )
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No custom recipes yet. Use the mobile app to create one, then come back here when the shelf starts looking dangerous.</p>
+              <p>No custom recipes yet. Create one on the website or browse public examples first; the app and website share the same saved shelf.</p>
               <Link className="button primary" href="/challenges/community">Browse public examples</Link>
             </div>
           )}
@@ -201,6 +215,36 @@ function StatCard({ copy, label, value }: { copy: string; label: string; value: 
       <h2>{value}</h2>
       <p>{copy}</p>
     </article>
+  );
+}
+
+function CustomLibraryFilters({ activeFilter, query }: { activeFilter: CustomLibraryFilter; query: string }) {
+  const filters: { label: string; value: CustomLibraryFilter }[] = [
+    { label: "All", value: "all" },
+    { label: "Published", value: "published" },
+    { label: "Drafts", value: "drafts" },
+    { label: "Public", value: "public" },
+    { label: "Archived", value: "archived" },
+  ];
+  return (
+    <div className="quest-filter-panel" aria-label="Custom Side Quest library filters">
+      <form className="quest-filter-grid" action="/account/custom-side-quests">
+        <label className="input-card">
+          <span>Search your Custom Solo shelf</span>
+          <input name="q" type="search" placeholder="Title, summary, or safe rule text" defaultValue={query} />
+        </label>
+        <input type="hidden" name="filter" value={activeFilter} />
+        <button className="button secondary" type="submit">Search shelf</button>
+        {query ? <Link className="button ghost" href={`/account/custom-side-quests?filter=${activeFilter}`}>Clear search</Link> : null}
+      </form>
+      <div className="chip-row" aria-label="Saved Custom Solo filters">
+        {filters.map((filter) => {
+          const href = `/account/custom-side-quests?filter=${filter.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`;
+          return <Link key={filter.value} className={activeFilter === filter.value ? "badge gold" : "badge"} href={href}>{filter.label}</Link>;
+        })}
+      </div>
+      <p className="microcopy">Matches the mobile library shelf filters while keeping private recipes and raw rule config inside your account.</p>
+    </div>
   );
 }
 
@@ -725,6 +769,22 @@ function getCustomQuestBuilderDefaults(quest: CustomSideQuest | null) {
 
 function splitMoveTokens(value: FormDataEntryValue | null) { return cleanText(value, 120).split(/\s+/).filter(Boolean).slice(0, 12); }
 function cleanText(value: unknown, max: number) { return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
+function cleanLibraryFilter(value: unknown): CustomLibraryFilter {
+  return value === "published" || value === "drafts" || value === "public" || value === "archived" ? value : "all";
+}
+function matchesCustomLibraryFilter(quest: CustomSideQuest, filter: CustomLibraryFilter, query: string) {
+  const lifecycle = quest.lifecycle ?? "published";
+  const isPublic = quest.visibility === "public" && lifecycle === "published";
+  const statusMatch = filter === "all"
+    || (filter === "published" && lifecycle === "published")
+    || (filter === "drafts" && lifecycle === "draft")
+    || (filter === "public" && isPublic)
+    || (filter === "archived" && lifecycle === "archived");
+  if (!statusMatch) return false;
+  if (!query) return true;
+  const haystack = [quest.title, quest.summary, describeCustomSideQuestRule(quest.config), ...describeCustomSideQuestRuleDetails(quest.config)].join(" ").toLowerCase();
+  return haystack.includes(query.toLowerCase());
+}
 function cleanResult(value: FormDataEntryValue | null): "win" | "draw" | "lose" { return value === "draw" || value === "lose" ? value : "win"; }
 function cleanPiece(value: FormDataEntryValue | null): "king" | "queen" | "rook" | "bishop" | "knight" | "pawn" { return value === "king" || value === "rook" || value === "bishop" || value === "knight" || value === "pawn" ? value : "queen"; }
 function cleanPieceCondition(value: FormDataEntryValue | null): "gone" | "still on board" | "moved" | "not moved" | "captured" | "on square" { return value === "gone" || value === "still on board" || value === "not moved" || value === "captured" || value === "on square" ? value : "moved"; }
