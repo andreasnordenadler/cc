@@ -103,6 +103,26 @@ export default async function MyQuestLogPage() {
     { label: "Custom", value: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Create", href: "/account/custom-side-quests" },
     { label: "Multiplayer", value: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Open", href: "/groupquests" },
   ];
+  const runChecklistItems = [
+    {
+      label: "1. Identity",
+      value: savedRunnerDisplayName ? `${runnerDisplayName} is ready` : "Choose the name SQC should show on receipts.",
+      href: "/profile",
+      ready: Boolean(savedRunnerDisplayName),
+    },
+    {
+      label: "2. Chess account",
+      value: hasChessIdentity ? connectedChessLabel(lichessUsername, chessComUsername) : "Add Lichess or Chess.com so proof checks can run.",
+      href: "/connect",
+      ready: hasChessIdentity,
+    },
+    {
+      label: "3. Next quest",
+      value: activeChallengeRecord ? `${activeChallengeRecord.title}${activeQuestCompleted ? " is complete" : " is active"}` : "Pick a Solo Side Quest to judge next.",
+      href: activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/challenges",
+      ready: Boolean(activeChallengeRecord),
+    },
+  ];
   const completedQuestReceipts = await Promise.all(completedChallenges.map(async (challenge, index) => {
     const latestProof = getLatestPassedAttempt(metadata, challenge.id);
     const finishedAt = latestProof?.completedGameAt ?? latestProof?.checkedAt;
@@ -160,7 +180,15 @@ export default async function MyQuestLogPage() {
             <div className="account-readiness-panel" aria-label="Account readiness and progress">
               <div className="account-readiness-head">
                 <span className="eyebrow">Account readiness</span>
-                <p>Support can see the readiness basics needed to help: profile, chess usernames, Solo proof history, Custom Side Quests, and Multiplayer activity.</p>
+                <p>Your run setup at a glance: public SQC identity, chess username for proof checks, active Solo quest, saved proof receipts, Custom Solo, and Multiplayer activity.</p>
+              </div>
+              <div className="account-run-checklist" aria-label="Ready to run checklist">
+                {runChecklistItems.map((item) => (
+                  <Link className={`account-run-checklist-row ${item.ready ? "ready" : "missing"}`} href={item.href} key={item.label}>
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </Link>
+                ))}
               </div>
               <div className="account-readiness-grid" aria-label="Profile readiness">
                 {readinessItems.map((item) => (
@@ -387,6 +415,12 @@ function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: strin
   return getChallengeAttempts(metadata, challengeId)
     .filter((attempt) => attempt.status === "passed")
     .at(-1) ?? null;
+}
+
+function connectedChessLabel(lichessUsername: string, chessComUsername: string) {
+  return [lichessUsername ? `Lichess ${lichessUsername}` : null, chessComUsername ? `Chess.com ${chessComUsername}` : null]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function buildMultiplayerVictories(groupQuests: ServerGroupQuest[], userId: string) {
