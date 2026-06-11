@@ -23,4 +23,13 @@ Sprint: `sqc-website-ux-parity-review-24h`
 
 ## Production
 
-- Pending focused commit/deploy at the time this proof doc was written.
+- Commit: `d0aa1a8` (`Upgrade community custom coat pool`)
+- Production deploy: `https://cc-gjezm8gn8-andreas-nordenadlers-projects.vercel.app`
+- Alias: `https://sidequestchess.com`
+
+## Smoke
+
+- `https://sidequestchess.com/challenges/community?communityCoatPoolSmoke=20260611` → 200 with SQC / Community Solo content.
+- `https://sidequestchess.com/account/custom-side-quests?communityCoatPoolSmoke=20260611` → 200 signed-in or sign-in SQC account content.
+- `https://sidequestchess.com/badges/custom/community/community-coat-01.png` → 200 image/png.
+- `https://cc-gjezm8gn8-andreas-nordenadlers-projects.vercel.app/badges/custom/community/community-coat-48.png` → 200 image/png.
