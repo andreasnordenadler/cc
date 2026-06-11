@@ -84,7 +84,11 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
       return isDisplayableCommunitySideQuest(quest);
     })
     .sort((a, b) => b.updatedAtMs - a.updatedAtMs)
-    .slice(0, options.limit ?? 80);
+    .slice(0, options.limit ?? 80)
+    .map((quest, index) => ({
+      ...quest,
+      badgeImageUrl: getCommunityPoolBadgeByListIndex(index),
+    }));
 }
 
 export async function findPublicCommunitySideQuestById(client: ClerkUserListClient, id: string) {
@@ -158,6 +162,10 @@ function normalizeCommunityBadgeImageUrl(value: string | null | undefined, quest
   if (value && (CUSTOM_SIDE_QUEST_BADGE_POOL as readonly string[]).includes(value)) return value;
   const hash = Array.from(questId).reduce((total, char) => total + char.charCodeAt(0), 0);
   return CUSTOM_SIDE_QUEST_BADGE_POOL[hash % CUSTOM_SIDE_QUEST_BADGE_POOL.length] ?? "/badges/custom/clean/custom-coat-knight-gold.png";
+}
+
+function getCommunityPoolBadgeByListIndex(index: number) {
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[index % CUSTOM_SIDE_QUEST_BADGE_POOL.length] ?? "/badges/custom/community/community-coat-01.png";
 }
 
 function capitalize(value: string) {
