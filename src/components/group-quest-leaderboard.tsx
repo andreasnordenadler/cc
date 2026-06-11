@@ -98,12 +98,14 @@ function readCurrentParticipant(id: string) {
 
 export default function GroupQuestLeaderboard({
   id,
+  questName,
   quests,
   participants,
   currentUserId,
   canManageParticipants = false,
 }: {
   id: string;
+  questName: string;
   quests: QuestSummary[];
   participants?: ServerParticipant[];
   currentUserId?: string | null;
@@ -136,6 +138,10 @@ export default function GroupQuestLeaderboard({
     if (!player.isCurrentParticipant || !currentParticipant) return player;
     return { ...player, name: currentParticipant.name, handle: currentParticipant.handle };
   });
+  const questCount = Math.max(quests.length, 1);
+  const leader = players[0] ?? null;
+  const fullyVerifiedCount = players.filter((player) => player.completed >= quests.length && quests.length > 0).length;
+  const currentPlayer = players.find((player) => player.isCurrentParticipant) ?? null;
 
   const podiumPlayer = players.find((player) => player.isCurrentParticipant && rankSealByPlacement[player.rank] && player.completed >= quests.length);
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
@@ -207,10 +213,28 @@ export default function GroupQuestLeaderboard({
       ) : null}
       <div className="section-head groupquest-leaderboard-head">
         <div>
-          <span className="eyebrow">Competition leaderboard</span>
-          <h2>How you’re doing vs everyone else.</h2>
+          <span className="eyebrow">Leaderboard and proof receipts</span>
+          <h2>See the table, then open any player’s receipt.</h2>
+          <p>Rows start compact for scanning. Open a row for the Side Quest-by-Side Quest proof trail, final time, and host controls when you manage the table.</p>
         </div>
         <GroupQuestRefreshButton id={id} />
+      </div>
+      <div className="groupquest-leaderboard-summary" aria-label="Leaderboard summary">
+        <div>
+          <span>Current leader</span>
+          <strong>{leader ? leader.name : "No leader yet"}</strong>
+          <small>{leader ? `${leader.score.toLocaleString()} pts · ${leader.completed}/${quests.length} verified` : "First verified proof starts the table."}</small>
+        </div>
+        <div>
+          <span>Your run</span>
+          <strong>{currentPlayer ? `#${currentPlayer.rank}` : "Join to rank"}</strong>
+          <small>{currentPlayer ? `${currentPlayer.score.toLocaleString()} pts · ${currentPlayer.completed}/${quests.length} verified` : "Accept the invite, then run a proof check."}</small>
+        </div>
+        <div>
+          <span>Full clears</span>
+          <strong>{fullyVerifiedCount}</strong>
+          <small>{fullyVerifiedCount === 1 ? "player has completed every Side Quest." : "players have completed every Side Quest."}</small>
+        </div>
       </div>
       {players.length === 0 ? (
         <div className="groupquest-empty-state" role="status">
@@ -281,14 +305,18 @@ export default function GroupQuestLeaderboard({
                 <small>{player.handle}</small>
               </div>
               <div className="groupquest-progress-bar" aria-label={`${player.completed} of ${quests.length} Side Quests verified`}>
-                <span style={{ width: `${Math.round((player.completed / quests.length) * 100)}%` }} />
+                <span style={{ width: `${Math.round((player.completed / questCount) * 100)}%` }} />
               </div>
               <div>
                 <strong>{player.score.toLocaleString()} pts</strong>
                 <small>{player.proof} · {player.last}</small>
               </div>
             </summary>
-            <div className="groupquest-finished-detail" aria-label={`${player.name} quest finish times`}>
+            <div className="groupquest-finished-detail" aria-label={`${player.name} proof receipt`}>
+              <div className="groupquest-player-receipt-summary">
+                <span>Player receipt</span>
+                <strong>{player.completed}/{quests.length} verified · final clear: {finalCompletionTimeFor(player, quests)}</strong>
+              </div>
               {quests.map((quest) => {
                 const finishedAt = player.questFinishedAt[quest.id];
                 return (
@@ -351,7 +379,7 @@ export default function GroupQuestLeaderboard({
                 <text x="512" y="438" textAnchor="middle" className="scroll-kicker">OFFICIAL SIDE QUEST CHESS SCROLL</text>
                 <text x="512" y="486" textAnchor="middle" className="scroll-title">{selectedSeal.label.toUpperCase()} AWARDED</text>
                 <text x="512" y="532" textAnchor="middle" className="scroll-name">{shortenScrollText(selectedScroll.name, 28)}</text>
-                <text x="512" y="586" textAnchor="middle" className="scroll-body">completed every Side Quest in No Castle Night</text>
+                <text x="512" y="586" textAnchor="middle" className="scroll-body">completed every Side Quest in {shortenScrollText(questName, 30)}</text>
                 <text x="512" y="612" textAnchor="middle" className="scroll-body">and claimed {selectedSeal.label.toLowerCase()} by public-game proof.</text>
                 <text x="512" y="666" textAnchor="middle" className="scroll-meta">Completed: {selectedFinishedAt}</text>
                 <text x="512" y="694" textAnchor="middle" className="scroll-meta">Placement: #{selectedScroll.rank} · Proof: {selectedScroll.proof}</text>

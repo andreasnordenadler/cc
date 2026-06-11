@@ -1586,9 +1586,16 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-leaderboard-card { background: radial-gradient(circle at 94% 0%, rgba(96,240,175,.13), transparent 36%), rgba(255,255,255,.075); }
 
 .groupquest-leaderboard-head { align-items: center; }
+.groupquest-leaderboard-head p { max-width: 720px; margin: 6px 0 0; color: var(--muted); font-size: .88rem; font-weight: 850; line-height: 1.45; }
 .groupquest-refresh-button { padding: 8px 11px; font-size: .76rem; white-space: nowrap; }
 @media (max-width: 620px) { .groupquest-leaderboard-head { align-items: stretch; grid-template-columns: 1fr; } .groupquest-refresh-button { width: 100%; justify-content: center; } }
 
+.groupquest-leaderboard-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 14px; }
+.groupquest-leaderboard-summary div { padding: 12px; border: 1px solid rgba(245,200,106,.16); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.16)); }
+.groupquest-leaderboard-summary span { display: block; color: var(--gold); font-size: .7rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquest-leaderboard-summary strong { display: block; margin-top: 5px; color: var(--ink); font-size: clamp(1rem, 2vw, 1.22rem); font-weight: 1000; line-height: 1.12; }
+.groupquest-leaderboard-summary small { display: block; margin-top: 5px; color: var(--muted); font-size: .78rem; font-weight: 850; line-height: 1.32; }
+@media (max-width: 760px) { .groupquest-leaderboard-summary { grid-template-columns: 1fr; } }
 
 .groupquest-podium-scroll { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-bottom: 14px; padding: 14px; border: 1px solid rgba(245,200,106,.3); border-radius: 22px; background: radial-gradient(circle at 6% 8%, rgba(245,200,106,.22), transparent 36%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(0,0,0,.18)); }
 .groupquest-podium-scroll img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 12px 20px rgba(0,0,0,.36)); }
@@ -1639,7 +1646,9 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-leaderboard-row small { display: block; margin-top: 3px; color: var(--muted); font-size: .77rem; font-weight: 850; line-height: 1.3; }
 .groupquest-finished-detail { display: grid; gap: 7px; padding-top: 10px; border-top: 1px solid rgba(236,228,204,.12); }
 .groupquest-finished-detail div { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.groupquest-finished-detail .groupquest-player-receipt-summary { padding: 10px 12px; border: 1px solid rgba(96,240,175,.18); border-radius: 15px; background: rgba(96,240,175,.07); }
 .groupquest-finished-detail span { color: var(--muted); font-size: .8rem; font-weight: 900; }
+.groupquest-finished-detail .groupquest-player-receipt-summary span { color: var(--gold); letter-spacing: .08em; text-transform: uppercase; }
 .groupquest-finished-detail strong { color: var(--ink); font-size: .82rem; text-align: right; }
 .groupquest-progress-bar { height: 13px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.1); }
 .groupquest-progress-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--green), var(--gold)); }

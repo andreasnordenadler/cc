@@ -399,6 +399,7 @@ export default async function GroupQuestByIdPage({
 
         <GroupQuestLeaderboard
           id={id}
+          questName={questName}
           quests={quests.map((quest) => ({
             id: quest.id,
             title: quest.title,
