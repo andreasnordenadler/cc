@@ -203,7 +203,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
   return (
     <article className="challenge-card community-side-quest-card">
       <div className="challenge-card-art custom-side-quest-art" aria-hidden="true">
-        <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={96} height={96} />
+        <Image src={quest.badgeImageUrl || "/badges/custom/random/custom-coat-02.png"} alt="" width={96} height={96} />
       </div>
       <div className="challenge-card-body">
         <span className="eyebrow">Community · by {quest.creatorName}</span>

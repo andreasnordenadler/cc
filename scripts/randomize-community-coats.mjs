@@ -4,6 +4,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const APPLY = process.argv.includes("--apply");
+const REROLL_ALL = process.argv.includes("--reroll-all");
 const ROOT = process.cwd();
 const ENV_PATH = path.join(ROOT, ".env.local");
 const QUALITY_APPROVED_COAT_POOL = [
@@ -29,30 +30,30 @@ const users = await fetchAllUsers();
 const backup = [];
 const updates = [];
 for (const user of users) {
-  const privateMetadata = asObject(user.private_metadata);
-  const publicMetadata = asObject(user.public_metadata);
-  const privateQuests = getQuestArray(privateMetadata);
-  const publicQuests = privateQuests.length ? [] : getQuestArray(publicMetadata);
-  const targetMetadataKey = privateQuests.length ? "private_metadata" : publicQuests.length ? "public_metadata" : null;
-  const quests = privateQuests.length ? privateQuests : publicQuests;
-  if (!targetMetadataKey || !quests.length) continue;
+  const metadataPairs = [
+    { targetMetadataKey: "private_metadata", metadata: asObject(user.private_metadata) },
+    { targetMetadataKey: "public_metadata", metadata: asObject(user.public_metadata) },
+  ];
 
-  const nextQuests = quests.map((quest, index) => {
-    if (!isPublicPublishedQuest(quest)) return quest;
-    return {
-      ...quest,
-      badgeImageUrl: pickDifferentCoat(quest.badgeImageUrl, `${user.id}:${quest.id}:${index}`),
-    };
-  });
-  const changedQuests = nextQuests.filter((quest, index) => quest !== quests[index]);
-  if (!changedQuests.length) continue;
+  for (const { targetMetadataKey, metadata } of metadataPairs) {
+    const quests = getQuestArray(metadata);
+    if (!quests.length) continue;
 
-  const nextMetadata = {
-    ...(targetMetadataKey === "private_metadata" ? privateMetadata : publicMetadata),
-    customSideQuests: nextQuests,
-  };
-  backup.push({ userId: user.id, targetMetadataKey, customSideQuests: quests });
-  updates.push({ userId: user.id, targetMetadataKey, nextMetadata, changedQuests });
+    const nextQuests = quests.map((quest, index) => {
+      if (!isPublicPublishedQuest(quest)) return quest;
+      if (!REROLL_ALL && QUALITY_APPROVED_COAT_POOL.includes(quest.badgeImageUrl)) return quest;
+      return {
+        ...quest,
+        badgeImageUrl: pickDifferentCoat(quest.badgeImageUrl, `${user.id}:${targetMetadataKey}:${quest.id}:${index}`),
+      };
+    });
+    const changedQuests = nextQuests.filter((quest, index) => quest !== quests[index]);
+    if (!changedQuests.length) continue;
+
+    const nextMetadata = { ...metadata, customSideQuests: nextQuests };
+    backup.push({ userId: user.id, targetMetadataKey, customSideQuests: quests });
+    updates.push({ userId: user.id, targetMetadataKey, nextMetadata, changedQuests });
+  }
 }
 
 const backupDir = path.join(ROOT, "artifacts", "metadata-backups");
@@ -60,7 +61,7 @@ await mkdir(backupDir, { recursive: true });
 const backupFile = path.join(backupDir, `community-coats-before-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
 await writeFile(backupFile, JSON.stringify({ createdAt: new Date().toISOString(), apply: APPLY, updates: backup }, null, 2));
 
-console.log(JSON.stringify({ mode: APPLY ? "apply" : "dry-run", usersScanned: users.length, usersToUpdate: updates.length, questsToUpdate: updates.reduce((sum, update) => sum + update.changedQuests.length, 0), backupFile, poolSize: QUALITY_APPROVED_COAT_POOL.length }, null, 2));
+console.log(JSON.stringify({ mode: APPLY ? "apply" : "dry-run", rerollAll: REROLL_ALL, usersScanned: users.length, usersToUpdate: updates.length, questsToUpdate: updates.reduce((sum, update) => sum + update.changedQuests.length, 0), backupFile, poolSize: QUALITY_APPROVED_COAT_POOL.length }, null, 2));
 
 if (APPLY) {
   for (const update of updates) {

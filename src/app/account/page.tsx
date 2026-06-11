@@ -311,7 +311,7 @@ export default async function MyQuestLogPage() {
                           <span className="trophy-card-shine" aria-hidden="true" />
                           <Link href="/account/custom-side-quests" className="trophy-card-badge" aria-label={`Open ${quest.title} custom Side Quest`}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" />
+                            <img src={quest.badgeImageUrl || "/badges/custom/random/custom-coat-02.png"} alt="" />
                           </Link>
                           <div className="trophy-card-copy">
                             <Link href="/account/custom-side-quests"><strong>{quest.title}</strong></Link>

@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { type ServerGroupQuest } from "@/lib/groupquests";
 import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -39,6 +40,7 @@ type ClerkUserListClient = {
 };
 
 export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number; groupQuests?: ServerGroupQuest[] } = {}) {
+  noStore();
   const users = await fetchAllUsers(client);
   const seen = new Set<string>();
   const userPublicMetadata = users.map((user) => asMetadata(user.publicMetadata));

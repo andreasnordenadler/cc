@@ -110,7 +110,7 @@ export default async function GroupQuestByIdPage({
         summary: snapshot.summary || "Saved Custom Solo Side Quest snapshot.",
         reward: snapshot.reward ?? 100,
         href: null,
-        badgeImage: snapshot.badgeImageUrl ?? "/assets/custom-side-quests/custom-side-quest-crest.png",
+        badgeImage: snapshot.badgeImageUrl ?? "/badges/custom/random/custom-coat-02.png",
         badgeName: "Custom Solo Side Quest crest",
         source: "custom" as const,
       };
