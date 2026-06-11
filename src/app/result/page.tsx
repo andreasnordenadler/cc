@@ -70,8 +70,8 @@ export default async function ResultPage({
   const receiptNextStep = isPassed
     ? {
         label: "Passed",
-        title: "The celebration is the proof.",
-        copy: "The passed state should feel like a small victory poster: unlocked coat of arms first, quest proof second, points and share actions immediately obvious.",
+        title: "Share the coat, then pick the next run.",
+        copy: "Your coat of arms, quest proof, points, and share link are ready. Send the receipt as-is or jump straight into another Solo Side Quest.",
         action: "Share victory proof",
         href: "/result",
       }
@@ -79,14 +79,14 @@ export default async function ResultPage({
       ? {
           label: "Pending",
           title: "Play one eligible public game.",
-          copy: "Pending usually means SQC has not found a recent public Lichess or Chess.com game that matches this quest yet. Keep the quest active, play normally, then run the latest-game check again.",
+          copy: "SQC has not found a recent public Lichess or Chess.com game that matches this quest yet. Keep the quest active, play normally, then run the latest-game check again.",
           action: "Open My Side Quests",
           href: "/account",
         }
       : {
           label: "Failed",
-          title: "The receipt should explain why.",
-          copy: "A failed receipt is still useful: it should point back to the exact quest rule that did not land, then make the next attempt feel obvious instead of mysterious.",
+          title: "Use the miss as your next-run clue.",
+          copy: "The receipt shows which quest rule did not land. Review the rule, play another eligible game, and check again when the run is ready.",
           action: "Review quest rule",
           href: `/challenges/${challenge.id}`,
         };
@@ -118,12 +118,12 @@ export default async function ResultPage({
           </article>
 
           <aside className={isPassed ? "mission-card completion-share-panel" : "mission-card"}>
-            <span className="eyebrow">{isPassed ? "Shareable celebration" : "Live proof card"}</span>
-            <h2>{isPassed ? "The coat of arms is the headline." : "The result now follows your latest check."}</h2>
+            <span className="eyebrow">{isPassed ? "Victory receipt" : "Proof receipt"}</span>
+            <h2>{isPassed ? "Your coat of arms is ready to show." : "Your latest check is saved here."}</h2>
             <p>
               {isPassed
-                ? "When a quest completes, the result should lead with the unlocked coat of arms and package it with the proof, points, and one-tap sharing."
-                : "This screen turns the latest saved quest check into the product’s core ritual: honest status, clear next action, badge progress, and share copy when the proof lands."}
+                ? "The receipt keeps the unlocked coat, proof summary, points, and sharing tools together so your win is easy to keep or send."
+                : "Use this receipt to see the current quest status, the game SQC checked, and the next action to take before trying again."}
             </p>
             <div className="button-row">
               <Link href="/account" className="button primary">Open My Side Quests</Link>
@@ -230,13 +230,13 @@ export default async function ResultPage({
         <section className="mission-card beta-template-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Quest path</span>
-              <h2>From receipt to next quest in one screen.</h2>
+              <span className="eyebrow">Receipt guide</span>
+              <h2>Turn this check into the next good move.</h2>
             </div>
             <Link href="/share-kit" className="button secondary">Share a quest</Link>
           </div>
           <p>
-            The result page now points every state toward the next useful step: passed receipts become shareable proof, failed receipts explain the rule miss, and pending receipts send players back to a clean latest-game check.
+            Every proof receipt has a clear next step: share the win when it lands, retry from the rule clue when it misses, or play one more eligible public game when SQC is still waiting.
           </p>
           <div className="checker-flow" aria-label="Receipt to next quest path">
             <div className="flow-step ready">
@@ -245,16 +245,16 @@ export default async function ResultPage({
             </div>
             <div className="flow-step hot">
               <strong>Retry</strong>
-              <p>Use failed or pending receipts as the next-attempt guide.</p>
+              <p>Use failed or pending receipts as the next-run guide.</p>
             </div>
             <div className="flow-step ready">
               <strong>Continue</strong>
-              <p>Pick another quest from the full hub or choose a different level of chaos.</p>
+              <p>Pick another Solo Side Quest or find a shared Multiplayer table.</p>
             </div>
           </div>
           <div className="button-row">
-            <Link href="/challenges" className="button primary">Browse quests</Link>
-            <Link href="/challenges" className="button secondary">Browse quests</Link>
+            <Link href="/challenges" className="button primary">Browse Solo Side Quests</Link>
+            <Link href="/groupquests/public" className="button secondary">Find Multiplayer tables</Link>
           </div>
         </section>
       </div>
