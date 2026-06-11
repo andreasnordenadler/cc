@@ -26,4 +26,12 @@ Continued the SQC website UX parity review on the Custom Solo surface Andreas fl
 
 ## Production proof
 
-Pending deploy/smoke in this slice.
+- Committed/pushed: `37a6674` (`Polish custom solo library actions`).
+- `pnpm deploy:prod` — passed, including `pnpm quest:release-gate` and production guard.
+- Production deploy: `https://cc-mp0t6thk6-andreas-nordenadlers-projects.vercel.app`
+- Aliased production: `https://sidequestchess.com`
+- Live smoke:
+  - `https://sidequestchess.com/account/custom-side-quests?actionPanelSmoke=20260611` resolved to signed-out sign-in content.
+  - Deploy URL `/account/custom-side-quests?actionPanelSmoke=20260611` resolved to signed-out sign-in content.
+  - `https://sidequestchess.com/challenges/community?actionPanelSmoke=20260611` returned 200 Community Solo content.
+  - `https://sidequestchess.com/groupquests/public?actionPanelSmoke=20260611` returned 200 Public Multiplayer content.
