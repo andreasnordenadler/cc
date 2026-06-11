@@ -19,6 +19,7 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
   const [message, setMessage] = useState(initialContext);
   const [busy, setBusy] = useState(false);
   const visibleMessages = useMemo(() => [...messages].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 8), [messages]);
+  const hasReportContext = initialContext.trim().length > 0;
 
   async function copySupportDetails() {
     const supportPacket = [
@@ -91,10 +92,22 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
 
   return (
     <div className="support-contact-stack">
-      <div className="support-thread-card">
+      <div className="support-thread-card support-guide-card">
         <span className="eyebrow">Support details</span>
         <h3>{isSignedIn ? "Messages stay with your SQC account." : "Copy a safe troubleshooting packet."}</h3>
         <p>{isSignedIn ? "Support uses your account-attached thread. Reports can include quest context without exposing private player data." : "Copy safe page and browser details for support without exposing chess-site passwords, private invite codes, or private custom quest rules."}</p>
+        {hasReportContext ? (
+          <div className="support-context-note" role="note">
+            <strong>Report context added</strong>
+            <span>The message box is already seeded with the quest or host details from the page you came from. Add what happened before sending.</span>
+          </div>
+        ) : null}
+        <div className="support-guide-list" aria-label="Support message checklist">
+          <span>Quest or table</span>
+          <span>Chess username</span>
+          <span>Game/proof link</span>
+          <span>Expected result</span>
+        </div>
         <div className="button-row">
           <button className="button secondary" type="button" onClick={() => void copySupportDetails()}>Copy support details</button>
         </div>

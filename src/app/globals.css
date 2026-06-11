@@ -248,6 +248,11 @@ p { color: var(--muted); line-height: 1.5; }
 .support-launch-hero h1 { max-width: 900px; margin-inline: auto; }
 .support-launch-hero .hero-copy { margin-inline: auto; }
 .support-simple-card { display: grid; gap: 16px; }
+.support-report-card { overflow: hidden; }
+.support-report-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.support-report-step { display: grid; gap: 6px; padding: 14px; border: 1px solid rgba(245,200,106,.16); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.12)); }
+.support-report-step strong { color: var(--gold); font-size: .84rem; font-weight: 950; letter-spacing: .04em; text-transform: uppercase; }
+.support-report-step p { margin: 0; color: var(--muted); font-size: .94rem; line-height: 1.45; }
 .terms-hero { display: grid; justify-items: center; text-align: center; }
 .terms-hero h1 { max-width: 900px; margin-inline: auto; }
 .terms-hero .hero-copy { margin-inline: auto; }
@@ -266,6 +271,12 @@ p { color: var(--muted); line-height: 1.5; }
 .support-contact-error { color: var(--red); font-weight: 900; }
 .support-thread-card { display: grid; gap: 10px; padding: 16px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.055); }
 .support-thread-card h3 { margin: 0; font-size: clamp(1.1rem, 2vw, 1.35rem); }
+.support-guide-card { border-color: rgba(245,200,106,.18); background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(255,255,255,.045)); }
+.support-context-note { display: grid; gap: 4px; padding: 12px; border: 1px solid rgba(96,240,175,.24); border-radius: 16px; background: rgba(96,240,175,.09); }
+.support-context-note strong { color: var(--green); font-size: .78rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.support-context-note span { color: var(--ink); font-size: .94rem; line-height: 1.4; }
+.support-guide-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.support-guide-list span { padding: 7px 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 999px; color: var(--gold); background: rgba(0,0,0,.16); font-size: .76rem; font-weight: 950; letter-spacing: .06em; text-transform: uppercase; }
 .support-thread-list { display: grid; gap: 10px; }
 .support-thread-message { display: grid; gap: 5px; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(0,0,0,.16); }
 .support-thread-message strong { color: var(--gold); }
@@ -1816,3 +1827,5 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-official-toggle input { margin-top: 3px; }
 .groupquests-official-toggle span { display: grid; gap: 3px; }
 .groupquests-official-toggle small { color: var(--muted); line-height: 1.35; }
+
+@media (max-width: 760px) { .support-report-grid { grid-template-columns: 1fr; } }

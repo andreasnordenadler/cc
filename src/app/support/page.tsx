@@ -46,6 +46,22 @@ const supportTopics = [
   },
 ];
 
+
+const reportChecklist = [
+  {
+    label: "Proof result",
+    copy: "Tell us which Side Quest, chess site, username, and game or proof link you expected SQC to check.",
+  },
+  {
+    label: "What felt wrong",
+    copy: "Describe the result you saw, the result you expected, and whether the game was public and finished.",
+  },
+  {
+    label: "Community report",
+    copy: "For Community Solo or Multiplayer, include the quest/table link and the public player or host name shown on SQC.",
+  },
+];
+
 const privacyNotes = [
   {
     label: "Reads",
@@ -102,16 +118,25 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
           ))}
         </section>
 
-        <section className="mission-card support-simple-card">
+        <section className="mission-card support-simple-card support-report-card">
           <div className="section-head">
             <div>
               <span className="eyebrow">Contact us</span>
               <h2>Send the smallest useful proof packet.</h2>
             </div>
+            <span className="badge gold">safe report</span>
           </div>
           <p>
-            Include the quest name, chess site, public username, game link if relevant, the receipt result you saw, and what you expected instead. For deletion requests, include the account email or profile details needed to identify your SQC account. A screenshot helps if the issue is visual.
+            Keep it focused: quest name, chess site, public username, game or proof link if relevant, what SQC showed, and what you expected instead. A screenshot helps if the issue is visual. For deletion requests, include the account email or profile details needed to identify your SQC account.
           </p>
+          <div className="support-report-grid" aria-label="What to include in a support report">
+            {reportChecklist.map((item) => (
+              <article key={item.label} className="support-report-step">
+                <strong>{item.label}</strong>
+                <p>{item.copy}</p>
+              </article>
+            ))}
+          </div>
           <SupportContactForm isSignedIn={Boolean(userId)} initialMessages={supportMessages} initialContext={supportContext} supportDiagnostics={supportDiagnostics} />
         </section>
 
