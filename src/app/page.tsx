@@ -128,7 +128,7 @@ export default async function Home() {
           href: "/account/custom-side-quests",
           kind: "custom" as const,
           completed: completedSet.has(activeCustomQuestRecord.id),
-          badgeImageUrl: activeCustomQuestRecord.badgeImageUrl || "/badges/custom/random/custom-coat-02.png",
+          badgeImageUrl: activeCustomQuestRecord.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png",
           challenge: null,
         }
       : null;
@@ -276,7 +276,7 @@ export default async function Home() {
         href: "/account/custom-side-quests",
         kind: "Custom" as const,
         image:
-          quest.badgeImageUrl || "/badges/custom/random/custom-coat-02.png",
+          quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png",
       }));
 
     homeTrophyCabinetItems = [

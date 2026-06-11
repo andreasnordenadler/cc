@@ -63,7 +63,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             </div>
             <div className="community-detail-badge-panel">
               <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
-                <Image src={quest.badgeImageUrl || "/badges/custom/random/custom-coat-02.png"} alt="" width={180} height={180} priority />
+                <Image src={quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png"} alt="" width={180} height={180} priority />
               </div>
               <div className="community-detail-fact-stack" aria-label={`${quest.title} quick facts`}>
                 <span>{quest.ruleLabel}</span>

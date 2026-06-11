@@ -8,18 +8,16 @@ const REROLL_ALL = process.argv.includes("--reroll-all");
 const ROOT = process.cwd();
 const ENV_PATH = path.join(ROOT, ".env.local");
 const QUALITY_APPROVED_COAT_POOL = [
-  "/badges/custom/random/custom-coat-02.png",
-  "/badges/custom/random/custom-coat-05.png",
-  "/badges/custom/random/custom-coat-06.png",
-  "/badges/custom/random/custom-coat-07.png",
-  "/badges/custom/random/custom-coat-08.png",
-  "/badges/custom/random/custom-coat-09.png",
-  "/badges/custom/random/custom-coat-10.png",
-  "/badges/custom/random/custom-coat-12.png",
-  "/badges/custom/random/custom-coat-13.png",
-  "/badges/custom/random/custom-coat-15.png",
-  "/badges/custom/random/custom-coat-16.png",
-  "/badges/custom/random/custom-coat-17.png",
+  "/badges/custom/clean/custom-coat-knight-gold.png",
+  "/badges/custom/clean/custom-coat-knight-silver.png",
+  "/badges/custom/clean/custom-coat-knight-red.png",
+  "/badges/custom/clean/custom-coat-knight-black.png",
+  "/badges/custom/clean/custom-coat-rook-gold.png",
+  "/badges/custom/clean/custom-coat-rook-silver.png",
+  "/badges/custom/clean/custom-coat-bishop-gold.png",
+  "/badges/custom/clean/custom-coat-bishop-red.png",
+  "/badges/custom/clean/custom-coat-bishop-silver.png",
+  "/badges/custom/clean/custom-coat-rook-bronze.png",
 ];
 
 await loadDotEnv(ENV_PATH);

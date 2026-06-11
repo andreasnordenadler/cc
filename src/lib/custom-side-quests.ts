@@ -87,22 +87,20 @@ const HOME_SQUARES: Record<string, Record<string, Record<string, string>>> = {
 
 
 export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
-  "/badges/custom/random/custom-coat-02.png",
-  "/badges/custom/random/custom-coat-05.png",
-  "/badges/custom/random/custom-coat-06.png",
-  "/badges/custom/random/custom-coat-07.png",
-  "/badges/custom/random/custom-coat-08.png",
-  "/badges/custom/random/custom-coat-09.png",
-  "/badges/custom/random/custom-coat-10.png",
-  "/badges/custom/random/custom-coat-12.png",
-  "/badges/custom/random/custom-coat-13.png",
-  "/badges/custom/random/custom-coat-15.png",
-  "/badges/custom/random/custom-coat-16.png",
-  "/badges/custom/random/custom-coat-17.png",
+  "/badges/custom/clean/custom-coat-knight-gold.png",
+  "/badges/custom/clean/custom-coat-knight-silver.png",
+  "/badges/custom/clean/custom-coat-knight-red.png",
+  "/badges/custom/clean/custom-coat-knight-black.png",
+  "/badges/custom/clean/custom-coat-rook-gold.png",
+  "/badges/custom/clean/custom-coat-rook-silver.png",
+  "/badges/custom/clean/custom-coat-bishop-gold.png",
+  "/badges/custom/clean/custom-coat-bishop-red.png",
+  "/badges/custom/clean/custom-coat-bishop-silver.png",
+  "/badges/custom/clean/custom-coat-rook-bronze.png",
 ] as const;
 
 const CUSTOM_SIDE_QUEST_BADGE_SET = new Set<string>(CUSTOM_SIDE_QUEST_BADGE_POOL);
-const DEFAULT_CUSTOM_SIDE_QUEST_BADGE = "/badges/custom/random/custom-coat-02.png";
+const DEFAULT_CUSTOM_SIDE_QUEST_BADGE = "/badges/custom/clean/custom-coat-knight-gold.png";
 
 function hashCustomSideQuestId(id: string) {
   return Array.from(id).reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) | 0, 0);
