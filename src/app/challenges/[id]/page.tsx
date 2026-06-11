@@ -257,22 +257,27 @@ export default async function ChallengeDetailPage({
             </article>
             <ProofPositionBoard challenge={challenge} attempt={displayAttempt} variant="receipt" />
             {isCompleted ? null : (
-              <div className="quest-status-refresh button-row">
-                <form action={checkActiveChallenge}>
-                  <button type="submit" className="button primary">Refresh latest game</button>
+              <div className="proof-check-actions" aria-label="Proof check choices">
+                <article className="proof-check-card proof-check-card-primary">
+                  <span className="eyebrow">Fastest check</span>
+                  <h3>Judge my latest public game.</h3>
+                  <p>SQC will look at your newest Lichess or Chess.com game, then write the receipt here with the board position when proof is available.</p>
+                  <form action={checkActiveChallenge}>
+                    <button type="submit" className="button primary">Check latest game</button>
+                  </form>
+                </article>
+                <form action={submitChallengeAttempt} className="profile-form quest-submitted-proof-form proof-check-card" aria-label="Submit a specific game for proof">
+                  <input type="hidden" name="challengeId" value={challenge.id} />
+                  <span className="eyebrow">Specific game</span>
+                  <h3>Judge a game link or ID.</h3>
+                  <label>
+                    Lichess ID or Chess.com game URL
+                    <input name="gameId" placeholder="Example: abc123 or chess.com/game/live/…" required />
+                  </label>
+                  <p className="microcopy">Use this when you already know the exact public game that should count. It follows the same SQC verifier path as the latest-game check.</p>
+                  <button type="submit" className="button secondary">Check this game</button>
                 </form>
               </div>
-            )}
-            {isCompleted ? null : (
-              <form action={submitChallengeAttempt} className="profile-form quest-submitted-proof-form" aria-label="Submit a specific game for proof">
-                <input type="hidden" name="challengeId" value={challenge.id} />
-                <label>
-                  Submit a specific game
-                  <input name="gameId" placeholder="Lichess game ID or Chess.com game URL" required />
-                </label>
-                <p className="microcopy">Use this when the mobile-style latest-game checker should judge a particular public game instead. Lichess IDs and Chess.com game links use the same real verifier paths as the app.</p>
-                <button type="submit" className="button secondary">Check submitted game</button>
-              </form>
             )}
           </section>
         ) : null}
