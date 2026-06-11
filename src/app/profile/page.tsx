@@ -25,11 +25,29 @@ export default async function ProfilePage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const hasChessIdentity = Boolean(lichessUsername || chessComUsername);
+  const hasRunnerIdentity = Boolean(runnerDisplayName || runnerBio);
   const readinessItems = [
-    { label: "Display name", value: runnerDisplayName || "Add", ready: Boolean(runnerDisplayName) },
-    { label: "Brag line", value: runnerBio || "Add", ready: Boolean(runnerBio) },
+    { label: "Runner name", value: runnerDisplayName || "Add", ready: Boolean(runnerDisplayName) },
+    { label: "Runner line", value: runnerBio || "Add", ready: Boolean(runnerBio) },
     { label: "Lichess", value: lichessUsername || "Not connected", ready: Boolean(lichessUsername) },
     { label: "Chess.com", value: chessComUsername || "Not connected", ready: Boolean(chessComUsername) },
+  ];
+  const setupSteps = [
+    {
+      label: "Public runner card",
+      value: hasRunnerIdentity ? "Ready for receipts and leaderboards" : "Add the name friends should see",
+      ready: hasRunnerIdentity,
+    },
+    {
+      label: "Proof source",
+      value: hasChessIdentity ? "SQC can check public games" : "Connect Lichess or Chess.com",
+      ready: hasChessIdentity,
+    },
+    {
+      label: "Next run",
+      value: hasChessIdentity ? "Start a Solo or Multiplayer Side Quest" : "Save once, then pick a Side Quest",
+      ready: hasChessIdentity,
+    },
   ];
 
   return (
@@ -37,22 +55,26 @@ export default async function ProfilePage() {
       <SiteNav isSignedIn={Boolean(user)} active="profile" />
       <div className="content-wrap">
         <section className="hero-card">
-          <span className="eyebrow">Step 2 · activate quest verification</span>
-          <h1>{user ? "Add a chess username to unlock quests." : "Sign in to save your profile."}</h1>
+          <span className="eyebrow">Runner profile</span>
+          <h1>{user ? "Set up your proof checks." : "Sign in to set up your runner profile."}</h1>
           <p className="hero-copy">
-            Your public Lichess or Chess.com username is the key piece. SQC uses it to check public games, verify quests, and save proof receipts.
+            Add the public chess usernames SQC is allowed to check. No passwords, no private games — just the public accounts used for Side Quest proof receipts.
           </p>
           {!user ? <Link href="/sign-in" className="button primary">Sign in to edit profile</Link> : null}
         </section>
 
         {user ? (
           <section className="mission-card">
-            <span className="eyebrow">Profile details</span>
-            <h2>{hasChessIdentity ? "Your profile can verify Side Quests." : "Add one chess username to unlock proof checks."}</h2>
+            <span className="eyebrow">Proof readiness</span>
+            <h2>{hasChessIdentity ? "Your profile is ready for verified runs." : "Connect one public chess account."}</h2>
             <p>
-              Your SQC profile uses the same readiness basics everywhere: public SQC identity, brag line, and at least one public chess username for proof verification.
+              This is the account setup room for SQC: choose the name shown on receipts, add a short runner line, and connect at least one public chess username for proof checks.
             </p>
             <div className="account-readiness-panel" aria-label="Profile readiness">
+              <div className="account-readiness-head">
+                <span className="eyebrow">Ready to run</span>
+                <p>Save these basics once, then SQC can use the same profile across Solo Side Quests, Multiplayer tables, proof receipts, and leaderboards.</p>
+              </div>
               <div className="account-readiness-grid">
                 {readinessItems.map((item) => (
                   <div className={`account-readiness-chip ${item.ready ? "ready" : "missing"}`} key={item.label}>
@@ -61,14 +83,22 @@ export default async function ProfilePage() {
                   </div>
                 ))}
               </div>
+              <div className="account-run-checklist" aria-label="Runner setup steps">
+                {setupSteps.map((step) => (
+                  <div className={`account-run-checklist-row ${step.ready ? "ready" : "missing"}`} key={step.label}>
+                    <span>{step.label}</span>
+                    <strong>{step.value}</strong>
+                  </div>
+                ))}
+              </div>
             </div>
             <form action={saveRunnerProfile} className="form-grid wide-form">
               <label className="input-card">
-                <span>Display name</span>
+                <span>Runner name</span>
                 <input type="text" name="runnerDisplayName" defaultValue={runnerDisplayName} placeholder="e.g. Andreas" maxLength={60} />
               </label>
               <label className="input-card">
-                <span>Brag line</span>
+                <span>Runner line</span>
                 <textarea name="runnerBio" defaultValue={runnerBio} placeholder="e.g. Trying to win while doing deeply unreasonable things." maxLength={180} rows={4} />
               </label>
               <label className="input-card">
@@ -79,18 +109,31 @@ export default async function ProfilePage() {
                 <span>Chess.com username</span>
                 <input type="text" name="chessComUsername" defaultValue={chessComUsername} placeholder="e.g. and72nor" />
               </label>
-              <p className="form-helper-copy">Add at least one. Public username only — never a chess-site password.</p>
+              <p className="form-helper-copy">Add at least one chess username. Use the public account name only — never a chess-site password.</p>
               <div className="button-row">
-                <button type="submit" className="button primary">Save profile</button>
+                <button type="submit" className="button primary">Save runner profile</button>
                 <Link href="/account" className="button secondary">Back to My Side Quests</Link>
               </div>
             </form>
           </section>
         ) : (
           <section className="mission-card">
-            <span className="eyebrow">Getting started</span>
-            <h2>Login first, then this page becomes editable.</h2>
-            <p>After sign-in, add at least one public Lichess or Chess.com username first. That unlocks quest starting, latest-game checks, and proof cards.</p>
+            <span className="eyebrow">Before your first run</span>
+            <h2>Sign in, save a public chess username, then pick a Side Quest.</h2>
+            <div className="account-run-checklist" aria-label="Signed-out profile setup steps">
+              <Link href="/sign-in" className="account-run-checklist-row missing">
+                <span>Step 1</span>
+                <strong>Sign in to unlock your editable runner profile.</strong>
+              </Link>
+              <div className="account-run-checklist-row missing">
+                <span>Step 2</span>
+                <strong>Add Lichess or Chess.com so SQC can check public games.</strong>
+              </div>
+              <Link href="/challenges" className="account-run-checklist-row ready">
+                <span>Step 3</span>
+                <strong>Browse Solo Side Quests once your profile is saved.</strong>
+              </Link>
+            </div>
           </section>
         )}
       </div>
