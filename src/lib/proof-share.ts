@@ -1,5 +1,5 @@
 import { getChallengeById, type Challenge } from "@/lib/challenges";
-import type { CustomSideQuest } from "@/lib/custom-side-quests";
+import { getCustomSideQuestBadgeUrl, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { sanitizeAttemptSummary, type ChallengeAttempt } from "@/lib/user-metadata";
 
 export type PublicProofPayload = {
@@ -72,7 +72,7 @@ export async function buildCustomPublicProofPath({
     challengeTitle: quest.title,
     badgeName: "Custom Solo Side Quest crest",
     badgeMotif: "SQC",
-    badgeImageUrl: quest.badgeImageUrl ?? undefined,
+    badgeImageUrl: getCustomSideQuestBadgeUrl(quest),
     reward: 100,
     summary: sanitizeAttemptSummary(attempt?.summary),
     checkedAt: attempt?.checkedAt,

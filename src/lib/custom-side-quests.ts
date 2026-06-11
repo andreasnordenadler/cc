@@ -58,6 +58,7 @@ export function normalizeCustomSideQuestLifecycle(quest: CustomSideQuest): Custo
     ...quest,
     visibility: quest.visibility === "public" ? "public" : "private",
     lifecycle: quest.lifecycle === "draft" || quest.lifecycle === "archived" ? quest.lifecycle : "published",
+    badgeImageUrl: getCustomSideQuestBadgeUrl(quest),
   };
 }
 
@@ -100,8 +101,21 @@ export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
   "/badges/custom/random/custom-coat-17.png",
 ] as const;
 
+const CUSTOM_SIDE_QUEST_BADGE_SET = new Set<string>(CUSTOM_SIDE_QUEST_BADGE_POOL);
+const DEFAULT_CUSTOM_SIDE_QUEST_BADGE = "/badges/custom/random/custom-coat-02.png";
+
+function hashCustomSideQuestId(id: string) {
+  return Array.from(id).reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) | 0, 0);
+}
+
 export function chooseCustomSideQuestBadge() {
-  return CUSTOM_SIDE_QUEST_BADGE_POOL[Math.floor(Math.random() * CUSTOM_SIDE_QUEST_BADGE_POOL.length)] ?? "/badges/custom/random/custom-coat-02.png";
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[Math.floor(Math.random() * CUSTOM_SIDE_QUEST_BADGE_POOL.length)] ?? DEFAULT_CUSTOM_SIDE_QUEST_BADGE;
+}
+
+export function getCustomSideQuestBadgeUrl(quest: Pick<CustomSideQuest, "id" | "badgeImageUrl">) {
+  if (quest.badgeImageUrl && CUSTOM_SIDE_QUEST_BADGE_SET.has(quest.badgeImageUrl)) return quest.badgeImageUrl;
+  const index = Math.abs(hashCustomSideQuestId(quest.id)) % CUSTOM_SIDE_QUEST_BADGE_POOL.length;
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[index] ?? DEFAULT_CUSTOM_SIDE_QUEST_BADGE;
 }
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {

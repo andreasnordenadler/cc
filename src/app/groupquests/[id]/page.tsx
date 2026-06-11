@@ -9,6 +9,7 @@ import GroupQuestProofControls from "@/components/group-quest-proof-controls";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCustomSideQuestBadgeUrl } from "@/lib/custom-side-quests";
 import { findGroupQuestById, listPublicGroupQuests } from "@/lib/groupquests";
 import {
   getChessComUsername,
@@ -110,7 +111,7 @@ export default async function GroupQuestByIdPage({
         summary: snapshot.summary || "Saved Custom Solo Side Quest snapshot.",
         reward: snapshot.reward ?? 100,
         href: null,
-        badgeImage: snapshot.badgeImageUrl ?? "/badges/custom/random/custom-coat-02.png",
+        badgeImage: getCustomSideQuestBadgeUrl(snapshot),
         badgeName: "Custom Solo Side Quest crest",
         source: "custom" as const,
       };
