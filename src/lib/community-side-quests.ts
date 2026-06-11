@@ -1,5 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
-import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { CUSTOM_SIDE_QUEST_BADGE_POOL, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { type ServerGroupQuest } from "@/lib/groupquests";
 import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -62,6 +62,7 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
         const stats = buildPublicCommunityStats(quest.id, userPublicMetadata, options.groupQuests ?? []);
         return {
           ...quest,
+          badgeImageUrl: normalizeCommunityBadgeImageUrl(quest.badgeImageUrl, quest.id),
           creatorName,
           creatorKey,
           creatorUserId: user.id,
@@ -151,6 +152,12 @@ function isDisplayableCommunitySideQuest(quest: PublicCommunitySideQuest) {
   if (/(cokok|asdf|test test|lorem|dummy|prototype)/i.test(text)) return false;
   if (quest.title.trim().length < 4 || quest.summary.trim().length < 16) return false;
   return true;
+}
+
+function normalizeCommunityBadgeImageUrl(value: string | null | undefined, questId: string) {
+  if (value && (CUSTOM_SIDE_QUEST_BADGE_POOL as readonly string[]).includes(value)) return value;
+  const hash = Array.from(questId).reduce((total, char) => total + char.charCodeAt(0), 0);
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[hash % CUSTOM_SIDE_QUEST_BADGE_POOL.length] ?? "/badges/custom/random/custom-coat-02.png";
 }
 
 function capitalize(value: string) {
