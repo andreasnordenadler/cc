@@ -100,7 +100,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <div>
               <span className="eyebrow">Run checklist</span>
               <h2>Three checks before borrowing this rule.</h2>
-              <p>Community Solo should feel strange but readable: a clear public rule, a normal SQC account handoff, and a fast report path if the recipe looks wrong.</p>
+              <p>Community Solo should feel strange but readable: a clear public rule, a normal SQC account start path, and a fast report path if the quest looks wrong.</p>
             </div>
           </div>
           <div className="community-detail-checklist">

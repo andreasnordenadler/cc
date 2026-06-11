@@ -48,7 +48,7 @@ const hostPrepCards = [
   {
     step: "2",
     title: "Pick the run",
-    copy: "Stack official quests or launch-ready Custom Solo recipes.",
+    copy: "Stack official quests or launch-ready Custom Solo Side Quests.",
   },
   {
     step: "3",
@@ -294,7 +294,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
         <div className="groupquests-builder-form">
           <div className="groupquests-quickstart-note" role="note">
             <strong>Host setup</strong>
-            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo recipes from your library can join the stack too.</span>
+            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo Side Quests from your library can join the stack too.</span>
           </div>
 
           <div className="groupquests-builder-guide" aria-label="Multiplayer Side Quest setup guide">

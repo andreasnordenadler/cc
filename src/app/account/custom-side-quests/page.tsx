@@ -99,7 +99,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <span className="eyebrow">My Custom Side Quests</span>
           <h1>{runnerDisplayName}&apos;s Custom Solo shelf.</h1>
           <p className="hero-copy">
-            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable recipes, Community Solo releases, and retired ideas kept neatly on your shelf.
+            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable quests, Community Solo releases, and retired ideas kept neatly on your shelf.
           </p>
           <div className="hero-actions button-row">
             <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo</a>
@@ -131,9 +131,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <div className="section-head">
             <div>
               <span className="eyebrow">Library</span>
-              <h2>{customQuests.length ? "Your saved Custom Solo recipes." : "No saved Custom Solo recipes yet."}</h2>
+              <h2>{customQuests.length ? "Your saved Custom Solo Side Quests." : "No saved Custom Solo Side Quests yet."}</h2>
               <p>
-                Create a clear starter rule here, search and filter saved recipes, publish polished ones to Community Solo, archive retired ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
+                Create a clear starter rule here, search and filter saved quests, publish polished ones to Community Solo, archive retired ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
               </p>
             </div>
             <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
@@ -184,12 +184,12 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <div className="custom-builder-guide" aria-label="Custom Solo builder flow">
             <div><strong>1</strong><span>Name the quest</span><small>Give runners a clear tavern-card promise.</small></div>
             <div><strong>2</strong><span>Set proof rules</span><small>Keep it simple; optional slots stay tucked away.</small></div>
-            <div><strong>3</strong><span>Save safely</span><small>Draft first, then release when the recipe reads cleanly.</small></div>
+            <div><strong>3</strong><span>Save safely</span><small>Draft first, then release when the quest reads cleanly.</small></div>
           </div>
 
           <div className="custom-builder-quality-strip" aria-label="Custom Solo quality checklist">
             <div>
-              <span className="eyebrow">Good recipe check</span>
+              <span className="eyebrow">Good quest check</span>
               <strong>Would a runner understand it in ten seconds?</strong>
               <small>Use the title for the promise and the summary for the mood. Leave verifier details to the rule cards.</small>
             </div>
@@ -200,9 +200,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             </div>
           </div>
 
-          <div className="custom-builder-starter-recipes" aria-label="Custom Solo recipe examples">
+          <div className="custom-builder-starter-patterns" aria-label="Custom Solo starter examples">
             <div className="custom-builder-starter-head">
-              <span className="eyebrow">Recipe starters</span>
+              <span className="eyebrow">Quest starters</span>
               <strong>Pick the vibe before you touch the controls.</strong>
               <small>These are plain-language patterns for shaping a polished quest; the form below still keeps the final saved rules explicit.</small>
             </div>
@@ -267,7 +267,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                   <option value="published-public">Publish to Community Solo</option>
                 </select>
               </label>
-              <p className="microcopy">Drafts stay quiet in your account. Playable private recipes can be used by you. Community Solo releases can appear in discovery and be played by other runners.</p>
+              <p className="microcopy">Drafts stay quiet in your account. Playable private Side Quests can be used by you. Community Solo releases can appear in discovery and be played by other runners.</p>
             </div>
             <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing saved quests with more than six conditions are preserved safely.</p>
             <div className="button-row">
@@ -629,13 +629,13 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
           ) : null}
 
           <details className="custom-library-manage-details">
-            <summary>Manage recipe</summary>
+            <summary>Manage Side Quest</summary>
             <div className="button-row">
               <form action={duplicateCustomSideQuestFromWeb}>
                 <input type="hidden" name="id" value={quest.id} />
                 <button className="button ghost" type="submit">Duplicate</button>
               </form>
-              <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit recipe</Link>
+              <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit quest</Link>
               <form action={setCustomSideQuestLifecycleFromWeb}>
                 <input type="hidden" name="id" value={quest.id} />
                 <input type="hidden" name="nextLifecycle" value={lifecycle === "archived" ? "draft" : "archived"} />
