@@ -512,13 +512,45 @@ export default async function Home() {
                   value={connectedIdentity || "Add Lichess or Chess.com"}
                 />
               </div>
-              <p>
-                {activeSoloQuest
-                  ? activeSoloQuest.kind === "custom"
-                    ? "Check the latest public game from here, or open My Custom Side Quests for exact-game proof, lifecycle controls, rule summaries, and receipts."
-                    : "Check the latest public game from here, or open the active quest page for rules, exact-game proof, badge details, and receipts."
-                  : "Choose one solo quest first so My Side Quests knows which weird rule to judge after your next public game."}
-              </p>
+              <div
+                className="home-active-run-panel"
+                aria-label="Active Solo Side Quest next steps"
+              >
+                <div className="home-active-run-card primary">
+                  <span>Fastest check</span>
+                  <strong>
+                    {activeSoloQuest
+                      ? connectedIdentity
+                        ? "Judge my latest public game"
+                        : "Connect a chess username"
+                      : "Choose a Solo Side Quest"}
+                  </strong>
+                  <p>
+                    {activeSoloQuest
+                      ? connectedIdentity
+                        ? "SQC will inspect your newest public Lichess or Chess.com game against this active Solo Side Quest."
+                        : "Add a public Lichess or Chess.com username once, then return here for one-tap proof checks."
+                      : "Pick the rule first, then play a normal public chess game when you are ready."}
+                  </p>
+                </div>
+                <div className="home-active-run-card">
+                  <span>{activeSoloQuest ? "Run details" : "Good first step"}</span>
+                  <strong>
+                    {activeSoloQuest
+                      ? activeSoloQuest.kind === "custom"
+                        ? "Custom controls and receipts"
+                        : "Rules, exact game, and receipt"
+                      : "Any Game Counts is already friendly"}
+                  </strong>
+                  <p>
+                    {activeSoloQuest
+                      ? activeSoloQuest.kind === "custom"
+                        ? "Open My Custom Side Quests for exact-game proof, pause/reset controls, rule summaries, and saved receipts."
+                        : "Open the quest page when you want the full rule card, exact-game proof, badge details, or public receipt."
+                      : "Start simple, then browse stranger official or Community Solo quests once the loop feels familiar."}
+                  </p>
+                </div>
+              </div>
               {latestActiveAttempt && latestActiveAttemptSummary ? (
                 <p className="microcopy">
                   Latest check: {latestActiveAttemptSummary.headline} ·{" "}
