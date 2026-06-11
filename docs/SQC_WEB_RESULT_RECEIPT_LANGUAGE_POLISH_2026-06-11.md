@@ -19,4 +19,8 @@ Continued the 24h SQC website UX parity review with the signed-in `/result` proo
 
 ## Deployment / smoke
 
-- Pending commit/deploy for this slice.
+- Committed/pushed `d7a656f` (`Polish result receipt language`).
+- `pnpm deploy:prod` passed `pnpm quest:release-gate` and production guard.
+- Production deploy `https://cc-51jwsv5ed-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke returned 200 for production and deploy `/result?resultReceiptSmoke=20260611` with `Receipt guide`, `Browse Solo Side Quests`, and `Find Multiplayer tables`, and without the old internal/duplicate-copy phrases.
+- Live smoke returned 200 for `/groupquests/public?resultReceiptSmoke=20260611` to confirm the new Multiplayer next-step destination remains healthy.
