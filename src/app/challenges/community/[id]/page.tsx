@@ -59,23 +59,54 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <span className="eyebrow">Community Solo by {quest.creatorName}</span>
               <h1>{quest.title}</h1>
               <p className="hero-copy">{quest.summary}</p>
-              <p className="quest-detail-flavor">A public custom rule from the community notice board. Inspect the target, share it with a rival, report anything off, then start and prove it from your SQC account.</p>
-              <p className="quest-detail-flavor">The public player view stays intentionally small: this quest, this player label, and more published Side Quests by the same player when available. Private account details stay private.</p>
+              <p className="quest-detail-flavor">A public custom rule from the community notice board. Read the promise, check the rule shape, then choose whether it belongs in your next SQC run.</p>
             </div>
-            <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
-              <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
+            <div className="community-detail-badge-panel">
+              <div className="challenge-badge hero-badge community-detail-badge" aria-label={`${quest.title} custom crest`}>
+                <Image src={quest.badgeImageUrl || "/badges/custom/custom-side-quest-crest.png"} alt="" width={180} height={180} priority />
+              </div>
+              <div className="community-detail-fact-stack" aria-label={`${quest.title} quick facts`}>
+                <span>{quest.ruleLabel}</span>
+                <span>{formatCommunityStats(quest)}</span>
+                <span>Updated {formatDate(quest.updatedAt)}</span>
+              </div>
             </div>
           </div>
-          <div className="community-detail-action-panel" aria-label="Community Solo actions">
-            <div className="community-detail-primary-actions">
-              <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_from_account">Start from account</CommunitySoloAnalyticsLink>
-              <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
+          <div className="community-detail-run-panel" aria-label="Community Solo run plan">
+            <div className="community-detail-rule-card">
+              <span className="eyebrow">Rule preview</span>
+              <h2>Know the dare before you start.</h2>
+              <ul>
+                {quest.ruleDetails.slice(0, 4).map((line, index) => <li key={`${line}-${index}`}>{line}</li>)}
+              </ul>
             </div>
-            <div className="community-detail-secondary-actions" aria-label="Secondary Community Solo actions">
-              <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_player">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
-              <a href="#share-community-side-quest">Share public link</a>
-              <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report quest</CommunitySoloAnalyticsLink>
+            <div className="community-detail-action-panel" aria-label="Community Solo actions">
+              <span className="eyebrow">Next step</span>
+              <div className="community-detail-primary-actions">
+                <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_from_account">Start from account</CommunitySoloAnalyticsLink>
+                <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
+              </div>
+              <div className="community-detail-secondary-actions" aria-label="Secondary Community Solo actions">
+                <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_player">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
+                <a href="#share-community-side-quest">Share public link</a>
+                <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="detail_report">Report quest</CommunitySoloAnalyticsLink>
+              </div>
             </div>
+          </div>
+        </section>
+
+        <section className="mission-card quest-detail-section community-detail-guide" aria-label="Community Side Quest rule summary">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Run checklist</span>
+              <h2>Three checks before borrowing this rule.</h2>
+              <p>Community Solo should feel strange but readable: a clear public rule, a normal SQC account handoff, and a fast report path if the recipe looks wrong.</p>
+            </div>
+          </div>
+          <div className="community-detail-checklist">
+            <div><strong>1. Read the promise</strong><span>{quest.summary}</span></div>
+            <div><strong>2. Confirm the verifier rule</strong><span>{quest.ruleLabel}: {quest.ruleDetails[0]}</span></div>
+            <div><strong>3. Start from your account</strong><span>Your SQC account keeps proof checks, receipts, rewards, and reporting together.</span></div>
           </div>
         </section>
 
@@ -121,29 +152,11 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           </div>
         </section>
 
-        <section className="mission-card quest-detail-section" aria-label="Community Side Quest rule summary">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Public rule summary</span>
-              <h2>The rule runners need, without private account clutter.</h2>
-              <p>Only the published rule summary is shown here. Draft, private, archived, and malformed custom quests stay out of public browse.</p>
-            </div>
-          </div>
-          <div className="groupquest-onboarding-steps">
-            {quest.ruleDetails.map((line, index) => (
-              <div className="groupquest-onboarding-step" key={`${line}-${index}`}>
-                <em>{index + 1}</em>
-                <span><strong>{index === 0 ? quest.ruleLabel : "Additional condition"}</strong><small>{line}</small></span>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section className="grid groupquests-dashboard-grid" aria-label="Community Side Quest next actions">
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Quest review</span>
             <h2>Read the rule before you run it.</h2>
-            <p>Check the player label, rule explanation, public link, and report path before adding someone else’s strange idea to your own Side Quest run.</p>
+            <p>Check the player label, rule preview, public link, and report path before adding someone else’s strange idea to your own Side Quest run.</p>
             <Link className="button secondary" href="/challenges/community">Browse more Community Solo</Link>
           </article>
           <article className="mission-card groupquests-live-card">
@@ -156,4 +169,19 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
       </div>
     </main>
   );
+}
+
+function formatDate(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "recently";
+  return new Intl.DateTimeFormat("en", { month: "short", day: "numeric", timeZone: "Europe/Stockholm" }).format(date);
+}
+
+function formatCommunityStats(quest: NonNullable<Awaited<ReturnType<typeof findPublicCommunitySideQuestById>>>) {
+  const parts = [
+    quest.stats.soloCompletions ? `${quest.stats.soloCompletions} Solo completion${quest.stats.soloCompletions === 1 ? "" : "s"}` : null,
+    quest.stats.soloSelections ? `${quest.stats.soloSelections} active runner${quest.stats.soloSelections === 1 ? "" : "s"}` : null,
+    quest.stats.multiplayerLineups ? `${quest.stats.multiplayerLineups} Multiplayer lineup${quest.stats.multiplayerLineups === 1 ? "" : "s"}` : null,
+  ].filter(Boolean);
+  return parts.join(" · ") || "Fresh Community Solo quest";
 }
