@@ -200,6 +200,31 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             </div>
           </div>
 
+          <div className="custom-builder-starter-recipes" aria-label="Custom Solo recipe examples">
+            <div className="custom-builder-starter-head">
+              <span className="eyebrow">Recipe starters</span>
+              <strong>Pick the vibe before you touch the controls.</strong>
+              <small>These are plain-language patterns for shaping a polished quest; the form below still keeps the final saved rules explicit.</small>
+            </div>
+            <div className="custom-builder-starter-grid">
+              <article>
+                <span>Clean finish</span>
+                <strong>Win, draw, or survive on purpose.</strong>
+                <small>Best with one Game result rule and a title that tells runners exactly what ending matters.</small>
+              </article>
+              <article>
+                <span>Opening dare</span>
+                <strong>Ask for a recognizable first-move pattern.</strong>
+                <small>Use Opening pattern when the fun is in the setup, not in a long full-game checklist.</small>
+              </article>
+              <article>
+                <span>Piece story</span>
+                <strong>Make one piece behave strangely.</strong>
+                <small>Use Piece state for moved, captured, saved, or target-square goals; add timing only when it makes the story clearer.</small>
+              </article>
+            </div>
+          </div>
+
           <form action={saveCustomSideQuestFromWeb} className="custom-solo-builder">
             <input type="hidden" name="editId" value={editingQuest?.id ?? ""} />
             {editingQuest ? <p className="microcopy">Editing <strong>{editingQuest.title}</strong>. Save keeps the same Side Quest ID, badge, proof history, and public URL.</p> : null}
