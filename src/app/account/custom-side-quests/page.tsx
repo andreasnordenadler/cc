@@ -97,9 +97,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
 
         <section className="hero-card side-quests-hub-hero">
           <span className="eyebrow">My Custom Side Quests</span>
-          <h1>{runnerDisplayName}&apos;s suspicious Side Quest shelf.</h1>
+          <h1>{runnerDisplayName}&apos;s Custom Solo shelf.</h1>
           <p className="hero-copy">
-            Build, tune, prove, and share your own Solo Side Quests: drafts, private experiments, public releases, and archived ideas that probably deserved it.
+            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable recipes, Community Solo releases, and retired ideas kept neatly on your shelf.
           </p>
           <div className="hero-actions button-row">
             <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo</a>
@@ -131,9 +131,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <div className="section-head">
             <div>
               <span className="eyebrow">Library</span>
-              <h2>{customQuests.length ? "Your saved bad ideas." : "No saved custom Side Quests yet."}</h2>
+              <h2>{customQuests.length ? "Your saved Custom Solo recipes." : "No saved Custom Solo recipes yet."}</h2>
               <p>
-                Create a starter rule here, search and filter saved Side Quests, publish them to Community Solo when ready, archive old ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
+                Create a clear starter rule here, search and filter saved recipes, publish polished ones to Community Solo, archive retired ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
               </p>
             </div>
             <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
@@ -184,7 +184,20 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <div className="custom-builder-guide" aria-label="Custom Solo builder flow">
             <div><strong>1</strong><span>Name the quest</span><small>Give runners a clear tavern-card promise.</small></div>
             <div><strong>2</strong><span>Set proof rules</span><small>Keep it simple; optional slots stay tucked away.</small></div>
-            <div><strong>3</strong><span>Save safely</span><small>Private draft by default, public only when ready.</small></div>
+            <div><strong>3</strong><span>Save safely</span><small>Draft first, then release when the recipe reads cleanly.</small></div>
+          </div>
+
+          <div className="custom-builder-quality-strip" aria-label="Custom Solo quality checklist">
+            <div>
+              <span className="eyebrow">Good recipe check</span>
+              <strong>Would a runner understand it in ten seconds?</strong>
+              <small>Use the title for the promise and the summary for the mood. Leave verifier details to the rule cards.</small>
+            </div>
+            <div>
+              <span className="eyebrow">Proof comfort</span>
+              <strong>One strong rule beats six noisy ones.</strong>
+              <small>Add optional conditions only when they make the quest more fun, not just more complicated.</small>
+            </div>
           </div>
 
           <form action={saveCustomSideQuestFromWeb} className="custom-solo-builder">
@@ -224,12 +237,12 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <label>
                 <span>Save state</span>
                 <select name="lifecycle" defaultValue={builderDefaults.lifecycleChoice}>
-                  <option value="draft">Private draft</option>
-                  <option value="published-private">Private published</option>
-                  <option value="published-public">Publish publicly</option>
+                  <option value="draft">Draft (private)</option>
+                  <option value="published-private">Playable privately</option>
+                  <option value="published-public">Publish to Community Solo</option>
                 </select>
               </label>
-              <p className="microcopy">Private drafts stay in your account. Public Side Quests can appear in Community Solo discovery and can be used by other runners.</p>
+              <p className="microcopy">Drafts stay quiet in your account. Playable private recipes can be used by you. Community Solo releases can appear in discovery and be played by other runners.</p>
             </div>
             <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing saved quests with more than six conditions are preserved safely.</p>
             <div className="button-row">
