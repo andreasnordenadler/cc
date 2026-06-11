@@ -6,11 +6,11 @@ import { CHALLENGES, getDailyChallenge } from "@/lib/challenges";
 
 export const metadata: Metadata = {
   title: "Random quest machine — Side Quest Chess",
-  description: "Spin up a random Side Quest Chess quest, accept the bad idea, and send the exact friend-quest link.",
+  description: "Spin up a random Solo Side Quest, preview the proof rules, and share the exact friend-quest link.",
   alternates: { canonical: "/random" },
   openGraph: {
     title: "Random quest machine — Side Quest Chess",
-    description: "Spin up a random chess side quest, accept the bad idea, and send it to a friend to do the same cursed thing.",
+    description: "Spin up a random chess Side Quest, preview the proof rules, and send it to a friend with the same reward and receipt path.",
     url: "/random",
     siteName: "Side Quest Chess",
     type: "website",
@@ -37,14 +37,14 @@ export default async function RandomDarePage() {
 
         <section className="grid" aria-label="Why random works">
           <article className="stat-card mission-card">
-            <span className="eyebrow">One-click premise</span>
-            <h3>Spin first, justify later.</h3>
-            <p>The page makes the quest choice feel like a ritual, not a settings screen.</p>
+            <span className="eyebrow">One-click run</span>
+            <h3>Spin, inspect, start.</h3>
+            <p>The page gives each random Solo Side Quest a clear proof preview and a deliberate next step.</p>
           </article>
           <article className="stat-card mission-card">
             <span className="eyebrow">Exact links</span>
             <h3>Every result has a friend-quest URL.</h3>
-            <p>The CTA points recipients straight at the same quest, badge, reward, and rules.</p>
+            <p>The share path points recipients straight at the same quest, coat, reward, and rules.</p>
           </article>
           <article className="stat-card mission-card">
             <span className="eyebrow">Still verifiable</span>

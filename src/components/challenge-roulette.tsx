@@ -47,14 +47,18 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
           <h1>{selectedChallenge.title}</h1>
           <p className="hero-copy">{selectedChallenge.objective}</p>
           <p>{selectedChallenge.flavor}</p>
-          <div className="button-row hero-actions">
-            <button type="button" className="button pink" onClick={spinNextDare}>Spin another bad idea</button>
-            <Link href={`/challenges/${selectedChallenge.id}`} className="button primary">Accept this quest</Link>
-            <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Open friend quest</Link>
+          <div className="roulette-next-step-panel" aria-label="Random quest next step">
+            <div>
+              <span className="eyebrow">Next step</span>
+              <h2>Pick the run or spin again.</h2>
+              <p>{remainingCount} other Side Quests remain in the deck. {verifierStatus.summary}: {verifierLabel.promise}</p>
+            </div>
+            <div className="button-row hero-actions">
+              <button type="button" className="button pink" onClick={spinNextDare}>Spin another quest</button>
+              <Link href={`/challenges/${selectedChallenge.id}`} className="button primary">Start this Solo quest</Link>
+              <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Share as friend quest</Link>
+            </div>
           </div>
-          <p className="microcopy roulette-count">
-            {remainingCount} other cursed options remain in the quest deck. {verifierStatus.summary}: {verifierLabel.promise}
-          </p>
         </div>
         <ChallengeBadge challenge={selectedChallenge} size="hero" />
       </div>
@@ -71,9 +75,11 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
         </article>
 
         <article className="mission-card share-card">
-          <span className="eyebrow">Send the bit</span>
-          <h2>Send one quest before you overthink it.</h2>
-          <p>{selectedChallenge.openingHint}</p>
+          <span className="eyebrow">Rule preview</span>
+          <h2>Know the proof before you send it.</h2>
+          <ul className="roulette-rule-list">
+            {selectedChallenge.rules.slice(0, 3).map((rule) => <li key={rule}>{rule}</li>)}
+          </ul>
           <p><strong>Proof promise:</strong> {verifierStatus.evidence}</p>
           <ChallengeInviteActions
             challengeTitle={selectedChallenge.title}
