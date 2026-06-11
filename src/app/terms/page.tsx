@@ -84,6 +84,30 @@ export default async function TermsPage() {
           </div>
         </section>
 
+        <section className="mission-card terms-guide-card" aria-label="Terms quick guide">
+          <div>
+            <span className="eyebrow">Before you run</span>
+            <h2>Keep the quest fair, public, and easy to fix.</h2>
+            <p>
+              The short version: play on your own public chess account, let SQC check only the public game record, and ask for help when a receipt or report needs review.
+            </p>
+          </div>
+          <div className="terms-guide-steps" aria-label="Terms highlights">
+            <div>
+              <strong>1. Connect a real proof source</strong>
+              <span>Lichess or Chess.com usernames power the verifier checks.</span>
+            </div>
+            <div>
+              <strong>2. Share only receipts you want public</strong>
+              <span>Proof links can show quest, reward, timestamp, and game context.</span>
+            </div>
+            <div>
+              <strong>3. Report messy results</strong>
+              <span>Support can review unclear checks, account requests, or community issues.</span>
+            </div>
+          </div>
+        </section>
+
         <section className="terms-section-list" aria-label="Terms of Use sections">
           {sections.map((section) => (
             <article className="mission-card terms-section-card" key={section.title}>
@@ -94,9 +118,12 @@ export default async function TermsPage() {
         </section>
 
         <section className="note-card terms-note-card">
-          <strong>Questions?</strong>
-          <p>Use the support page if a proof receipt, account setup step, or privacy point looks unclear.</p>
-          <Link href="/support" className="button secondary">Open support</Link>
+          <strong>Need a human review?</strong>
+          <p>Use support for proof receipts, account data requests, community reports, or privacy questions.</p>
+          <div className="button-row">
+            <Link href="/support" className="button primary">Open support</Link>
+            <Link href="/verifiers" className="button secondary">Verifier board</Link>
+          </div>
         </section>
       </div>
     </main>
