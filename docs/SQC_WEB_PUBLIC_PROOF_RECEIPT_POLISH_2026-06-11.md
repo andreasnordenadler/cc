@@ -23,4 +23,9 @@ Continued the 24h SQC website UX parity review with the public proof receipt pag
 
 ## Deployment / smoke
 
-Pending production deploy and live smoke for this slice.
+- Committed/pushed `5f27788` (`Polish public proof receipts`).
+- `pnpm deploy:prod` passed `pnpm quest:release-gate` and production guard.
+- Production deploy `https://cc-okpoe5724-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`.
+- Live smoke returned 200 for production and deploy `/proof/preview-finish-any-game?publicProofReceiptSmoke=20260611` with `Runner`, `Proof source`, `Next step`, `Share receipt`, and `Run another quest` receipt copy.
+- Live smoke returned 200 image/png for `/api/og/proof/preview-finish-any-game?publicProofReceiptSmoke=20260611`.
+- Live smoke returned 200 for `/groupquests/public?publicProofReceiptSmoke=20260611` to confirm the receipt's Multiplayer browse destination remains healthy.
