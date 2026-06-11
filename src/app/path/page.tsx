@@ -149,7 +149,7 @@ export default async function QuestPicksPage() {
             <span className="badge green">v1 onboarding</span>
           </div>
           <p>
-            The product should feel like a smart chess friend offering three levels of bad decision, not a curriculum. These picks let new players decide whether they want safe weirdness, real trouble, or immediate legend mode.
+            Think of it as a smart chess friend offering three levels of bad decision, not a curriculum. These picks let new players decide whether they want safe weirdness, real trouble, or immediate legend mode.
           </p>
         </section>
       </div>

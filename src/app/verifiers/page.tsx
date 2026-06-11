@@ -40,12 +40,12 @@ export default async function VerifiersPage() {
           <span className="eyebrow">Verifier board</span>
           <h1>Every weird quest needs an honest receipt.</h1>
           <p className="hero-copy">
-            This board separates what Side Quest Chess can verify live from what is still a public rule contract. No fake glory, no manual uploads, no engine-dashboard drift.
+            This board shows which Side Quests can be checked from real public games, what SQC looks for, and where to open the next run. No fake glory, no manual uploads, no engine-dashboard drift.
           </p>
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Open My Side Quests</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
-            <Link href="/account" className="button secondary">Open My Side Quests</Link>
+            <Link href="/challenges" className="button secondary">Browse Solo Side Quests</Link>
           </div>
         </section>
 
@@ -53,6 +53,30 @@ export default async function VerifiersPage() {
           <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every current quest now has an automated latest-game verifier instead of a fake-success or upload-your-PGN workaround." />
           <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="Every current quest can read either Lichess UCI evidence or Chess.com PGN evidence today." />
           <Fact label={parityLabel} value={parityValue} copy={parityCopy} />
+        </section>
+
+        <section className="mission-card" aria-label="How to use the verifier board">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">How to use this board</span>
+              <h2>Check the promise before you choose the run.</h2>
+            </div>
+            <span className="badge blue">real-game proof</span>
+          </div>
+          <div className="checker-flow">
+            <div className="flow-step ready">
+              <strong>1. Pick a Side Quest</strong>
+              <p>Open a quest with a live verifier and make sure the rule sounds fun enough to play now.</p>
+            </div>
+            <div className="flow-step ready">
+              <strong>2. Play on Lichess or Chess.com</strong>
+              <p>Use a public standard game so SQC can read the moves without asking for passwords or uploads.</p>
+            </div>
+            <div className="flow-step hot">
+              <strong>3. Keep the receipt</strong>
+              <p>Return for the check, then share the proof board when the run passes.</p>
+            </div>
+          </div>
         </section>
 
         <section className="big-grid" aria-label="Quest deck verifier statuses">
@@ -78,14 +102,17 @@ function VerifierCard({ challenge }: { challenge: Challenge }) {
       <h2>{challenge.title}</h2>
       <p>{challenge.objective}</p>
       <div className="proof-line">{status.summary}</div>
-      <p>{status.evidence}</p>
+      <div className="note-card">
+        <strong>What SQC checks</strong>
+        <p>{status.evidence}</p>
+      </div>
       <div className="note-card">
         <strong>{challenge.proofCallout}</strong>
         <p>{state.promise}</p>
       </div>
       <div className="card-footer">
         <strong>+{challenge.reward} pts</strong>
-        <Link href={`/challenges/${challenge.id}`}>Open rules</Link>
+        <Link href={`/challenges/${challenge.id}`}>Open quest</Link>
       </div>
     </article>
   );

@@ -37,19 +37,19 @@ const proofSteps = [
 
 const verifierStatuses = [
   {
-    label: "Automated now",
-    title: "Queen? Never Heard of Her",
-    copy: "The canonical quest already has a deterministic rule checker plus Lichess latest-game normalization for queen loss before move 15, opponent queen present, legal time classes, and a win.",
+    label: "Fastest check",
+    title: "Latest public game",
+    copy: "Use this when you just finished a run. SQC checks your connected Lichess or Chess.com username and returns the clearest pass, fail, or pending receipt it can prove.",
   },
   {
-    label: "Next verifier shape",
-    title: "No Castle Club",
-    copy: "The next adapter should prove a win with no castling from provider move data. Same pattern: narrow game shape first, provider adapter second.",
+    label: "Specific game",
+    title: "Known game link or ID",
+    copy: "Use this when the run you want judged is not your newest game. Paste the Lichess game ID or Chess.com game URL on supported Solo Side Quest pages.",
   },
   {
-    label: "Product contract",
+    label: "Honest receipt",
     title: "No fake glory",
-    copy: "If the evidence is missing or the game fails the rules, SQC should say so. Failed side quests are still funny receipts, not hidden errors.",
+    copy: "If the evidence is missing or the game fails the rules, SQC says so. Failed Side Quests can still be useful receipts, not hidden errors.",
   },
 ];
 
@@ -96,8 +96,8 @@ export default async function RulesPage() {
         <section className="mission-card">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Verifier roadmap</span>
-              <h2>What counts as proof?</h2>
+              <span className="eyebrow">Proof choices</span>
+              <h2>Pick the check that matches your run.</h2>
             </div>
             <span className="badge gold">no manual uploads</span>
           </div>
@@ -119,7 +119,7 @@ export default async function RulesPage() {
               <h2>What Side Quest Chess is not</h2>
             </div>
           </div>
-          <div className="chip-row" aria-label="Product anti-goals">
+          <div className="chip-row" aria-label="Proof guardrails">
             <span className="chip">not engine analysis</span>
             <span className="chip">not PGN upload chores</span>
             <span className="chip">not a training dashboard</span>
