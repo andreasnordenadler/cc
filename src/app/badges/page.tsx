@@ -54,6 +54,35 @@ export default async function CoatOfArmsPage() {
           </div>
         </section>
 
+        <section className="mission-card badge-vault-guide" aria-label="Coat room guide">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Coat room guide</span>
+              <h2>Pick a crest, run the quest, keep the receipt.</h2>
+              <p>
+                Each coat below now reads like a small quest card: what it asks for, how hard it is, and whether it is already in your Trophy Cabinet.
+              </p>
+            </div>
+            <Link href="/challenges" className="button secondary">
+              Browse Solo Side Quests
+            </Link>
+          </div>
+          <div className="badge-guide-steps" aria-label="How coats unlock">
+            <div>
+              <strong>1. Choose the crest</strong>
+              <span>Open any coat to inspect the matching Solo Side Quest.</span>
+            </div>
+            <div>
+              <strong>2. Play a public game</strong>
+              <span>SQC checks Lichess or Chess.com proof after the quest starts.</span>
+            </div>
+            <div>
+              <strong>3. Save the proof</strong>
+              <span>Passed runs become receipt links and Trophy Cabinet entries.</span>
+            </div>
+          </div>
+        </section>
+
         <section className="badge-vault-section" aria-label="Live quest coat of arms meanings">
           <div className="badge-description-grid">
             {CHALLENGES.map((challenge) => (
@@ -82,7 +111,14 @@ function BadgeMeaningCard({ challenge, earned }: { challenge: Challenge; earned:
         <ChallengeBadge challenge={challenge} presentation="art" earned={earned} />
       </span>
       <span className="badge-meaning-copy">
+        <span className={earned ? "badge-meaning-status earned" : "badge-meaning-status"}>{earned ? "In your Trophy Cabinet" : "Ready to earn"}</span>
         <h2>{challenge.badgeIdentity.name}</h2>
+        <span className="badge-run-preview" aria-label={`${challenge.title} run preview`}>
+          <span>{challenge.difficulty}</span>
+          <span>{challenge.reward} pts</span>
+          <span>{challenge.category}</span>
+        </span>
+        <p>{challenge.objective}</p>
         <dl>
           <div>
             <dt>Shield</dt>
@@ -93,8 +129,8 @@ function BadgeMeaningCard({ challenge, earned }: { challenge: Challenge; earned:
             <dd>{challenge.badgeIdentity.heraldry.meaning}</dd>
           </div>
           <div>
-            <dt>Quest</dt>
-            <dd>{challenge.title}</dd>
+            <dt>Next step</dt>
+            <dd>Open {challenge.title} to start the run or check proof.</dd>
           </div>
         </dl>
       </span>
