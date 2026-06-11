@@ -182,12 +182,25 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
       <div className="section-head compact">
         <div>
           <span className="eyebrow">Proof controls</span>
-          <h2>Refresh your Multiplayer proof.</h2>
-          <p>Check your latest public game against this Multiplayer Side Quest window. Solo Coat of Arms proof stays separate.</p>
+          <h2>Check the table without leaving the page.</h2>
+          <p>SQC judges your newest eligible public game for every quest in this Multiplayer run, then writes the receipts below.</p>
         </div>
-        <button className="button primary" type="button" onClick={refreshProof} disabled={submitting}>
-          {submitting ? "Checking…" : "Check latest game"}
-        </button>
+      </div>
+
+      <div className="proof-check-actions groupquest-proof-actions" aria-label="Multiplayer proof check choices">
+        <article className="proof-check-card proof-check-card-primary">
+          <span className="eyebrow">Fastest check</span>
+          <h3>Judge my latest table game.</h3>
+          <p>Use this after you finish a fresh Lichess or Chess.com game inside this Multiplayer window. One check updates your points, receipts, boards, and leaderboard progress.</p>
+          <button className="button primary" type="button" onClick={refreshProof} disabled={submitting}>
+            {submitting ? "Checking…" : "Check latest game"}
+          </button>
+        </article>
+        <article className="proof-check-card">
+          <span className="eyebrow">What SQC checks</span>
+          <h3>Same rules, same receipt.</h3>
+          <p>The verifier checks the quest objective, provider, finished-game status, and table time window. Passed checks can also add safe proof to your account Trophy Cabinet.</p>
+        </article>
       </div>
 
       <div className="groupquest-score-strip groupquest-proof-strip" aria-label="Your proof receipt summary">

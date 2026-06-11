@@ -24,7 +24,7 @@ const defaultInviteCopy = "A friend invited you to a chess side quest. Try to wi
 const onboardingSteps = [
   { label: "1", title: "Accept the Side Quest", copy: "Join this Multiplayer Side Quest so your games can count for this leaderboard." },
   { label: "2", title: "Play real chess elsewhere", copy: "Use the allowed chess provider shown below. No uploads, no private passwords, just public game proof." },
-  { label: "3", title: "Proof gets checked", copy: "Paste a game link or check latest games. The verifier reads the public game proof." },
+  { label: "3", title: "Proof gets checked", copy: "Run the latest-game check after a fresh public game. The verifier reads the public proof and writes a table receipt." },
   { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
 ];
 
@@ -415,7 +415,7 @@ export default async function GroupQuestByIdPage({
             <div>
               <span className="eyebrow">Competition rules</span>
               <h2>Everyone plays under the same receipt.</h2>
-              <p>Automatic checks enforce the quest objective, public provider, and event window. Extra host settings are shown for clarity while verifier coverage expands.</p>
+              <p>Automatic checks enforce the quest objective, public provider, and event window, then keep the leaderboard and proof receipts aligned.</p>
             </div>
           </div>
           <ul className="groupquest-summary-list groupquest-rules-list groupquest-accepted-rules-list" aria-label="Multiplayer Side Quest settings">

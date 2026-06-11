@@ -1501,6 +1501,8 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-proof-controls .section-head p { margin: 6px 0 0; max-width: 680px; color: var(--muted); font-weight: 780; line-height: 1.5; }
 .groupquest-proof-strip { grid-template-columns: 1.1fr 1fr 1.25fr minmax(0, 1.9fr); }
 .groupquest-proof-strip strong { font-size: clamp(1rem, 2vw, 1.45rem); overflow-wrap: anywhere; }
+.groupquest-proof-actions { margin: 12px 0 14px; }
+.groupquest-proof-actions .button { justify-self: start; }
 .groupquest-proof-checks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .groupquest-proof-check { display: grid; gap: 7px; padding: 13px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(255,255,255,.055); }
 .groupquest-proof-check.passed { border-color: rgba(96,240,175,.28); background: linear-gradient(135deg, rgba(96,240,175,.12), rgba(255,255,255,.045)); }
