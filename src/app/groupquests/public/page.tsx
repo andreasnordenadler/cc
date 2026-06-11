@@ -66,9 +66,13 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
             </div>
             <span className="badge gold">{totalQuests}</span>
           </div>
-          <form className="groupquest-empty-state" action="/groupquests/public" aria-label="Filter public Multiplayer Side Quests">
-            <p><strong>Discovery filters.</strong> Search public tables, view more from a host, or include finished events without exposing private invites.</p>
-            <div className="button-row">
+          <form className="groupquest-empty-state public-multiplayer-discovery-panel" action="/groupquests/public" aria-label="Filter public Multiplayer Side Quests">
+            <div className="community-discovery-intro">
+              <span className="eyebrow">Find a table</span>
+              <h3>Choose a Multiplayer run with the rules in view.</h3>
+              <p>Search by title, host, or provider, then inspect the proof window before joining. Private invite codes and account details stay hidden.</p>
+            </div>
+            <div className="button-row public-multiplayer-filter-row">
               <input className="text-input" type="search" name="q" defaultValue={searchQuery} placeholder="Search title, host, provider" aria-label="Search public Multiplayer Side Quests" />
               {selectedHost ? <input type="hidden" name="host" value={selectedHost} /> : null}
               <select className="text-input" name="status" defaultValue={selectedStatus} aria-label="Filter by Multiplayer status">
@@ -125,6 +129,11 @@ function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuest
     players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
     window: `${formatDateTime(quest.startAt)} → ${formatDateTime(quest.endAt)}`,
     rules: `${quest.providerLabel} · ${quest.rules.timeControl}`,
+    rulePreview: [
+      `Games allowed: ${quest.providerLabel}`,
+      `Clock: ${quest.rules.timeControl}`,
+      `Window: ${formatDateTime(quest.startAt)} to ${formatDateTime(quest.endAt)}`,
+    ],
     copy: quest.inviteCopy,
     href: `/groupquests/${quest.id}`,
     hostName: quest.hostName,
@@ -148,22 +157,25 @@ function PublicQuestSection({ copy, quests, title }: { copy: string; quests: Ret
       <div className="public-groupquests-list">
         {quests.map((quest) => (
           <article className={quest.official ? "public-groupquest-row official" : "public-groupquest-row"} key={quest.title}>
-            <div>
+            <div className="public-groupquest-main">
               <span>{quest.status}</span>
               {quest.official ? <small className="official-sqc-badge">{quest.officialLabel}</small> : null}
               {quest.isHost ? <small className="official-sqc-badge">Hosted by you</small> : quest.isJoined ? <small className="official-sqc-badge">Joined by you</small> : null}
               <strong><Link href={quest.href}>{quest.title}</Link></strong>
               <p>{quest.copy}</p>
             </div>
-            <div className="public-groupquest-meta">
+            <div className="public-groupquest-meta public-multiplayer-rule-preview" aria-label={`${quest.title} rule preview`}>
+              <span>Rule preview</span>
+              {quest.rulePreview.map((rule) => <small key={rule}>{rule}</small>)}
               <small>{quest.players}</small>
-              <small>{quest.window}</small>
-              <small>{quest.rules}</small>
               {!quest.official ? <small>Hosted by {quest.hostName}</small> : null}
             </div>
-            <div className="button-row">
-              <Link className="button secondary" href={quest.href}>Inspect and join</Link>
-              {!quest.official ? <Link className="button ghost" href={`/groupquests/public?host=${encodeURIComponent(getHostKey(quest.hostName))}`}>More by host</Link> : null}
+            <div className="public-multiplayer-action-panel">
+              <span>Next step</span>
+              <div className="button-row">
+                <Link className="button secondary" href={quest.href}>Inspect and join</Link>
+                {!quest.official ? <Link className="button ghost" href={`/groupquests/public?host=${encodeURIComponent(getHostKey(quest.hostName))}`}>More by host</Link> : null}
+              </div>
             </div>
           </article>
         ))}

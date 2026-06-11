@@ -1316,12 +1316,23 @@ p { color: var(--muted); line-height: 1.5; }
 .home-multiplayer-quests-footer { display: flex; justify-content: flex-end; margin-top: 2px; }
 
 .public-groupquests-list-card { display: grid; gap: 16px; background: radial-gradient(circle at 86% 0%, rgba(96,240,175,.14), transparent 34%), rgba(255,255,255,.075); }
+.public-multiplayer-discovery-panel { align-items: stretch; gap: 14px; background: radial-gradient(circle at 92% 0%, rgba(96,240,175,.11), transparent 32%), rgba(0,0,0,.16); }
+.public-multiplayer-discovery-panel h3 { margin: 0; color: var(--ink); font-size: 1.05rem; line-height: 1.05; }
+.public-multiplayer-filter-row { margin-top: 0; padding: 12px; border: 1px solid rgba(255,255,255,.11); border-radius: 18px; background: rgba(255,255,255,.045); }
+.public-multiplayer-filter-row .text-input { flex: 1 1 170px; }
 .public-groupquests-list { display: grid; gap: 12px; }
-.public-groupquest-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, .62fr) auto; gap: 14px; align-items: center; padding: 15px; border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: rgba(0,0,0,.16); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.public-groupquest-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(245px, .72fr) minmax(190px, .42fr); gap: 14px; align-items: stretch; padding: 15px; border: 1px solid rgba(255,255,255,.13); border-radius: 22px; background: rgba(0,0,0,.16); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .public-groupquest-row:hover, .public-groupquest-row:focus-visible { transform: translateY(-2px); border-color: rgba(96,240,175,.42); background: rgba(255,255,255,.08); outline: none; }
 .public-groupquest-row span { display: inline-block; margin-bottom: 6px; color: var(--green); font-size: .74rem; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
 .public-groupquest-row strong { display: block; color: var(--ink); font-size: clamp(1.2rem, 2.3vw, 1.75rem); line-height: 1; font-weight: 950; letter-spacing: -.04em; }
 .public-groupquest-row p { margin-top: 6px; font-size: .9rem; }
+.public-groupquest-main { align-self: center; }
+.public-multiplayer-rule-preview { padding: 11px 12px; border: 1px solid rgba(96,240,175,.18); border-radius: 18px; background: rgba(96,240,175,.07); }
+.public-multiplayer-rule-preview span { color: var(--green); }
+.public-multiplayer-action-panel { display: grid; align-content: center; gap: 8px; padding: 10px; border: 1px solid rgba(245,200,106,.16); border-radius: 20px; background: rgba(0,0,0,.14); }
+.public-multiplayer-action-panel span { color: var(--gold); }
+.public-multiplayer-action-panel .button-row { display: grid; gap: 8px; margin-top: 0; }
+.public-multiplayer-action-panel .button { justify-content: center; }
 .support-reply-form { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; background: rgba(255,255,255,.055); }
 .support-reply-form label { display: grid; gap: 7px; color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
 .support-reply-form textarea { width: 100%; min-height: 86px; resize: vertical; border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 10px 12px; color: var(--ink); background: rgba(0,0,0,.22); font: inherit; font-size: .92rem; line-height: 1.35; text-transform: none; letter-spacing: 0; }
