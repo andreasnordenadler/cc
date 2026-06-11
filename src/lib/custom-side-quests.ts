@@ -89,12 +89,10 @@ const HOME_SQUARES: Record<string, Record<string, Record<string, string>>> = {
 export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
   "/badges/custom/clean/custom-coat-knight-gold.png",
   "/badges/custom/clean/custom-coat-knight-silver.png",
-  "/badges/custom/clean/custom-coat-knight-red.png",
   "/badges/custom/clean/custom-coat-knight-black.png",
   "/badges/custom/clean/custom-coat-rook-gold.png",
   "/badges/custom/clean/custom-coat-rook-silver.png",
   "/badges/custom/clean/custom-coat-bishop-gold.png",
-  "/badges/custom/clean/custom-coat-bishop-red.png",
   "/badges/custom/clean/custom-coat-bishop-silver.png",
   "/badges/custom/clean/custom-coat-rook-bronze.png",
 ] as const;
