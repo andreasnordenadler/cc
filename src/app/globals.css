@@ -1465,6 +1465,18 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-proof-message, .groupquest-proof-error { margin: 0; padding: 10px 12px; border-radius: 14px; font-size: .84rem; font-weight: 900; }
 .groupquest-proof-message { color: var(--green); background: rgba(96,240,175,.1); border: 1px solid rgba(96,240,175,.22); }
 .groupquest-proof-error { color: #ffb4a8; background: rgba(255,120,96,.1); border: 1px solid rgba(255,120,96,.24); }
+.custom-library-action-panel { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border: 1px solid rgba(245,200,106,.18); border-radius: 20px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.14)); }
+.custom-library-action-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.custom-library-action-head small { color: var(--muted); font-size: .78rem; font-weight: 900; }
+.custom-library-action-group { display: grid; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.1); }
+.custom-library-action-group > span, .custom-library-manage-details > summary { color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.custom-library-action-group-primary .button-row, .custom-library-action-group-proof .button-row { gap: 8px; }
+.custom-library-manage-details { border-top: 1px solid rgba(255,255,255,.1); padding-top: 10px; }
+.custom-library-manage-details > summary { cursor: pointer; list-style: none; width: fit-content; }
+.custom-library-manage-details > summary::-webkit-details-marker { display: none; }
+.custom-library-manage-details > summary::after { content: " +"; color: var(--muted); }
+.custom-library-manage-details[open] > summary::after { content: " –"; }
+.custom-library-manage-details .button-row { margin-top: 8px; }
 .custom-proof-submit-form { flex: 1 1 min(100%, 360px); display: grid; gap: 8px; padding: 10px; border: 1px solid rgba(245,200,106,.18); border-radius: 18px; background: rgba(0,0,0,.14); }
 .custom-proof-submit-form label { display: grid; gap: 5px; color: var(--muted); font-size: .74rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
 .custom-proof-submit-form input { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 13px; padding: 10px 11px; background: rgba(0,0,0,.22); color: var(--ink); font: inherit; font-size: .9rem; font-weight: 850; letter-spacing: normal; text-transform: none; }

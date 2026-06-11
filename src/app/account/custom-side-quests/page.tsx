@@ -535,60 +535,83 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
             />
           </div>
         ) : null}
-        <div className="button-row">
-          <span className={statusTone ? `badge ${statusTone}` : "badge"}>{statusLabel}</span>
-          {isPublic ? <Link className="button secondary" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>Open public page</Link> : null}
-          {lifecycle === "published" ? (
-            <form action={runCustomQuestProofActionFromWeb}>
-              <input type="hidden" name="id" value={quest.id} />
-              <input type="hidden" name="action" value={active ? "check" : "start"} />
-              <button className={active ? "button primary" : "button secondary"} type="submit">{active ? "Check latest game" : "Start solo run"}</button>
-            </form>
+        <div className="custom-library-action-panel" aria-label={`${quest.title} actions`}>
+          <div className="custom-library-action-head">
+            <span className={statusTone ? `badge ${statusTone}` : "badge"}>{statusLabel}</span>
+            <small>{active ? "Running now" : completed ? "Proof saved" : lifecycle === "published" ? "Ready to run" : lifecycle === "archived" ? "Resting in the archive" : "Safe in your private shelf"}</small>
+          </div>
+
+          <div className="custom-library-action-group custom-library-action-group-primary">
+            <span>Play</span>
+            <div className="button-row">
+              {isPublic ? <Link className="button secondary" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>Open public page</Link> : null}
+              {lifecycle === "published" ? (
+                <form action={runCustomQuestProofActionFromWeb}>
+                  <input type="hidden" name="id" value={quest.id} />
+                  <input type="hidden" name="action" value={active ? "check" : "start"} />
+                  <button className={active ? "button primary" : "button secondary"} type="submit">{active ? "Check latest game" : "Start solo run"}</button>
+                </form>
+              ) : null}
+              {lifecycle !== "archived" ? <Link className="button ghost" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link> : null}
+            </div>
+          </div>
+
+          {active || completed ? (
+            <div className="custom-library-action-group custom-library-action-group-proof">
+              <span>Proof tools</span>
+              <div className="button-row">
+                {active ? (
+                  <form action={runCustomQuestProofActionFromWeb} className="custom-proof-submit-form" aria-label={`Submit a specific proof game for ${quest.title}`}>
+                    <input type="hidden" name="id" value={quest.id} />
+                    <input type="hidden" name="action" value="submit" />
+                    <label>
+                      <span>Specific proof game</span>
+                      <input name="gameId" type="text" inputMode="url" placeholder="Lichess game ID or Chess.com URL" />
+                    </label>
+                    <small>Optional: check one finished public game instead of only the latest game. Custom Solo exact-game proof uses the same verifier gate as mobile.</small>
+                    <button className="button secondary" type="submit">Submit game/link</button>
+                  </form>
+                ) : null}
+                {active ? (
+                  <form action={runCustomQuestProofActionFromWeb}>
+                    <input type="hidden" name="id" value={quest.id} />
+                    <input type="hidden" name="action" value="deactivate" />
+                    <button className="button ghost" type="submit">Deactivate</button>
+                  </form>
+                ) : null}
+                {completed ? (
+                  <form action={runCustomQuestProofActionFromWeb}>
+                    <input type="hidden" name="id" value={quest.id} />
+                    <input type="hidden" name="action" value="reset" />
+                    <button className="button ghost" type="submit">Reset proof</button>
+                  </form>
+                ) : null}
+              </div>
+            </div>
           ) : null}
-          {active ? (
-            <form action={runCustomQuestProofActionFromWeb} className="custom-proof-submit-form" aria-label={`Submit a specific proof game for ${quest.title}`}>
-              <input type="hidden" name="id" value={quest.id} />
-              <input type="hidden" name="action" value="submit" />
-              <label>
-                <span>Specific proof game</span>
-                <input name="gameId" type="text" inputMode="url" placeholder="Lichess game ID or Chess.com URL" />
-              </label>
-              <small>Optional: check one finished public game instead of only the latest game. Custom Solo exact-game proof uses the same verifier gate as mobile.</small>
-              <button className="button secondary" type="submit">Submit game/link</button>
-            </form>
-          ) : null}
-          {active ? (
-            <form action={runCustomQuestProofActionFromWeb}>
-              <input type="hidden" name="id" value={quest.id} />
-              <input type="hidden" name="action" value="deactivate" />
-              <button className="button ghost" type="submit">Deactivate</button>
-            </form>
-          ) : null}
-          {completed ? (
-            <form action={runCustomQuestProofActionFromWeb}>
-              <input type="hidden" name="id" value={quest.id} />
-              <input type="hidden" name="action" value="reset" />
-              <button className="button ghost" type="submit">Reset proof</button>
-            </form>
-          ) : null}
-          {lifecycle !== "archived" ? <Link className="button ghost" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link> : null}
-          <form action={duplicateCustomSideQuestFromWeb}>
-            <input type="hidden" name="id" value={quest.id} />
-            <button className="button ghost" type="submit">Duplicate</button>
-          </form>
-          <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit quest</Link>
-          <form action={setCustomSideQuestLifecycleFromWeb}>
-            <input type="hidden" name="id" value={quest.id} />
-            <input type="hidden" name="nextLifecycle" value={lifecycle === "archived" ? "draft" : "archived"} />
-            <button className="button ghost" type="submit">{lifecycle === "archived" ? "Restore draft" : "Archive"}</button>
-          </form>
-          <details className="custom-delete-disclosure">
-            <summary className="button ghost">Delete…</summary>
-            <form action={deleteCustomSideQuestFromWeb}>
-              <input type="hidden" name="id" value={quest.id} />
-              <p className="microcopy">Permanent. Existing Multiplayer lineups keep their safe snapshot.</p>
-              <button className="button ghost" type="submit">Confirm delete</button>
-            </form>
+
+          <details className="custom-library-manage-details">
+            <summary>Manage recipe</summary>
+            <div className="button-row">
+              <form action={duplicateCustomSideQuestFromWeb}>
+                <input type="hidden" name="id" value={quest.id} />
+                <button className="button ghost" type="submit">Duplicate</button>
+              </form>
+              <Link className="button ghost" href={`/account/custom-side-quests?edit=${encodeURIComponent(quest.id)}#custom-side-quest-builder`}>Edit recipe</Link>
+              <form action={setCustomSideQuestLifecycleFromWeb}>
+                <input type="hidden" name="id" value={quest.id} />
+                <input type="hidden" name="nextLifecycle" value={lifecycle === "archived" ? "draft" : "archived"} />
+                <button className="button ghost" type="submit">{lifecycle === "archived" ? "Restore draft" : "Archive"}</button>
+              </form>
+              <details className="custom-delete-disclosure">
+                <summary className="button ghost">Delete…</summary>
+                <form action={deleteCustomSideQuestFromWeb}>
+                  <input type="hidden" name="id" value={quest.id} />
+                  <p className="microcopy">Permanent. Existing Multiplayer lineups keep their safe snapshot.</p>
+                  <button className="button ghost" type="submit">Confirm delete</button>
+                </form>
+              </details>
+            </div>
           </details>
         </div>
       </div>
