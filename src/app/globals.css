@@ -1582,7 +1582,9 @@ p { color: var(--muted); line-height: 1.5; }
 .custom-library-manage-details > summary::after { content: " +"; color: var(--muted); }
 .custom-library-manage-details[open] > summary::after { content: " –"; }
 .custom-library-manage-details .button-row { margin-top: 8px; }
-.custom-proof-submit-form { flex: 1 1 min(100%, 360px); display: grid; gap: 8px; padding: 10px; border: 1px solid rgba(245,200,106,.18); border-radius: 18px; background: rgba(0,0,0,.14); }
+.custom-proof-check-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.custom-proof-run-controls { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,.08); }
+.custom-proof-submit-form:not(.proof-check-card) { flex: 1 1 min(100%, 360px); display: grid; gap: 8px; padding: 10px; border: 1px solid rgba(245,200,106,.18); border-radius: 18px; background: rgba(0,0,0,.14); }
 .custom-proof-submit-form label { display: grid; gap: 5px; color: var(--muted); font-size: .74rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
 .custom-proof-submit-form input { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 13px; padding: 10px 11px; background: rgba(0,0,0,.22); color: var(--ink); font: inherit; font-size: .9rem; font-weight: 850; letter-spacing: normal; text-transform: none; }
 .custom-proof-submit-form input:focus { outline: 2px solid rgba(245,200,106,.5); outline-offset: 2px; }

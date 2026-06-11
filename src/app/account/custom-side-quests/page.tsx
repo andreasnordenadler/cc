@@ -583,11 +583,11 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
             <span>Play</span>
             <div className="button-row">
               {isPublic ? <Link className="button secondary" href={`/challenges/community/${encodeURIComponent(quest.id)}`}>Open public page</Link> : null}
-              {lifecycle === "published" ? (
+              {lifecycle === "published" && !active ? (
                 <form action={runCustomQuestProofActionFromWeb}>
                   <input type="hidden" name="id" value={quest.id} />
-                  <input type="hidden" name="action" value={active ? "check" : "start"} />
-                  <button className={active ? "button primary" : "button secondary"} type="submit">{active ? "Check latest game" : "Start solo run"}</button>
+                  <input type="hidden" name="action" value="start" />
+                  <button className="button secondary" type="submit">Start solo run</button>
                 </form>
               ) : null}
               {lifecycle !== "archived" ? <Link className="button ghost" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link> : null}
@@ -597,24 +597,38 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
           {active || completed ? (
             <div className="custom-library-action-group custom-library-action-group-proof">
               <span>Proof tools</span>
-              <div className="button-row">
-                {active ? (
-                  <form action={runCustomQuestProofActionFromWeb} className="custom-proof-submit-form" aria-label={`Submit a specific proof game for ${quest.title}`}>
+              {active ? (
+                <div className="proof-check-actions custom-proof-check-actions" aria-label={`${quest.title} proof check choices`}>
+                  <article className="proof-check-card proof-check-card-primary">
+                    <span className="eyebrow">Fastest check</span>
+                    <h3>Judge my latest public game.</h3>
+                    <p>SQC checks your newest Lichess or Chess.com game against this Custom Solo rule and writes the receipt here when proof is available.</p>
+                    <form action={runCustomQuestProofActionFromWeb}>
+                      <input type="hidden" name="id" value={quest.id} />
+                      <input type="hidden" name="action" value="check" />
+                      <button className="button primary" type="submit">Check latest game</button>
+                    </form>
+                  </article>
+                  <form action={runCustomQuestProofActionFromWeb} className="custom-proof-submit-form proof-check-card" aria-label={`Submit a specific proof game for ${quest.title}`}>
                     <input type="hidden" name="id" value={quest.id} />
                     <input type="hidden" name="action" value="submit" />
+                    <span className="eyebrow">Specific game</span>
+                    <h3>Judge a game link or ID.</h3>
                     <label>
-                      <span>Specific proof game</span>
-                      <input name="gameId" type="text" inputMode="url" placeholder="Lichess game ID or Chess.com URL" />
+                      Lichess ID or Chess.com game URL
+                      <input name="gameId" type="text" inputMode="url" placeholder="Example: abc123 or chess.com/game/live/…" />
                     </label>
-                    <small>Optional: check one finished public game instead of only the latest game. Custom Solo exact-game proof uses the same verifier safety gate as latest-game checks.</small>
-                    <button className="button secondary" type="submit">Submit game/link</button>
+                    <p className="microcopy">Use this when you already know the exact public game that should count. It follows the same SQC verifier path as the latest-game check.</p>
+                    <button className="button secondary" type="submit">Check this game</button>
                   </form>
-                ) : null}
+                </div>
+              ) : null}
+              <div className="custom-proof-run-controls" aria-label={`${quest.title} run controls`}>
                 {active ? (
                   <form action={runCustomQuestProofActionFromWeb}>
                     <input type="hidden" name="id" value={quest.id} />
                     <input type="hidden" name="action" value="deactivate" />
-                    <button className="button ghost" type="submit">Deactivate</button>
+                    <button className="button ghost" type="submit">Pause this run</button>
                   </form>
                 ) : null}
                 {completed ? (
