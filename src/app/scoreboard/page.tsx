@@ -39,6 +39,30 @@ export default async function ScoreboardPage() {
           </div>
         </section>
 
+        <section className="mission-card official-scoreboard-guide" aria-label="Official leaderboard guide">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">How the hall works</span>
+              <h2>Pick a table, prove games, keep the receipt.</h2>
+              <p>Official leaderboards use the same verifier-backed Multiplayer flow as regular SQC tables, with final rows kept open after the window closes.</p>
+            </div>
+          </div>
+          <div className="official-scoreboard-guide-steps">
+            <div>
+              <strong>1. Join the open table</strong>
+              <span>Open an active official Multiplayer Side Quest before the run window ends.</span>
+            </div>
+            <div>
+              <strong>2. Check real games</strong>
+              <span>SQC reads your public Lichess or Chess.com games and records verified clears.</span>
+            </div>
+            <div>
+              <strong>3. Review the receipt</strong>
+              <span>Final podiums link back to the table so proof trails and reward context stay inspectable.</span>
+            </div>
+          </div>
+        </section>
+
         <section className="mission-card" aria-label="Current official Multiplayer leaderboards">
           <div className="section-head">
             <div>
@@ -124,10 +148,17 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
   const podiumRows = getPodiumRows(quest);
   return (
     <article className="leaderboard-preview-row official-scoreboard-row">
-      <strong>{final ? "Final" : status}</strong>
-      <span>
+      <div className="official-scoreboard-status">
+        <strong>{final ? "Final" : status}</strong>
+        <small>{winner ? "Podium ready" : "Run window"}</small>
+      </div>
+      <div className="official-scoreboard-main">
         <Link href={`/groupquests/${quest.id}`}>{quest.name}</Link>
-        <small>{compact ? players : `${players} · ${completedCount} verified quest${completedCount === 1 ? "" : "s"}`}</small>
+        <div className="official-scoreboard-facts" aria-label={`${quest.name} leaderboard facts`}>
+          <span>{players}</span>
+          <span>{completedCount} verified quest{completedCount === 1 ? "" : "s"}</span>
+          <span>{formatWindow(quest.startAt, quest.endAt)}</span>
+        </div>
         {viewerContext ? <small>{viewerContext}</small> : null}
         {podiumRows.length ? (
           <ol className="official-scoreboard-podium" aria-label={`${quest.name} top leaderboard rows`}>
@@ -140,8 +171,11 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
             ))}
           </ol>
         ) : null}
-      </span>
-      <em>{winner ? `Winner: ${winner.leaderboardName}` : formatWindow(quest.startAt, quest.endAt)}</em>
+      </div>
+      <div className="official-scoreboard-next-step">
+        <span>{winner ? `Winner: ${winner.leaderboardName}` : compact ? status : "Open table"}</span>
+        <Link className="button secondary compact-button" href={`/groupquests/${quest.id}`}>{final ? "View final receipt" : "Open leaderboard"}</Link>
+      </div>
     </article>
   );
 }
