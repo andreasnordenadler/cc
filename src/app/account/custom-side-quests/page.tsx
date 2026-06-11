@@ -606,7 +606,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
                       <span>Specific proof game</span>
                       <input name="gameId" type="text" inputMode="url" placeholder="Lichess game ID or Chess.com URL" />
                     </label>
-                    <small>Optional: check one finished public game instead of only the latest game. Custom Solo exact-game proof uses the same verifier gate as mobile.</small>
+                    <small>Optional: check one finished public game instead of only the latest game. Custom Solo exact-game proof uses the same verifier safety gate as latest-game checks.</small>
                     <button className="button secondary" type="submit">Submit game/link</button>
                   </form>
                 ) : null}

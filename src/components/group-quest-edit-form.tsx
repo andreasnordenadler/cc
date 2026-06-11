@@ -49,11 +49,41 @@ const quickDurationOptions = [
   { label: "14 days", days: 14 },
 ];
 
+const editPrepCards = [
+  {
+    step: "1",
+    title: "Tune the invite",
+    copy: "Keep the table name and message clear before more players join.",
+  },
+  {
+    step: "2",
+    title: "Confirm the run",
+    copy: "Review the quest stack, provider, and proof window together.",
+  },
+  {
+    step: "3",
+    title: "Save deliberately",
+    copy: "Changes affect future checks; existing leaderboard receipts stay intact.",
+  },
+];
+
 function endAtFromStart(startValue: string, days: number) {
   const start = new Date(startValue);
   const date = Number.isNaN(start.getTime()) ? new Date() : start;
   date.setDate(date.getDate() + days);
   return toDateTimeLocal(date.toISOString());
+}
+
+function formatDateTimeLabel(value: string) {
+  if (!value) return "Not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not set";
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function makeInviteKey(name: string) {
@@ -82,6 +112,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
 
   const selectedProvider = providerModes.find((mode) => mode.id === providerMode) ?? providerModes[0];
   const selectedQuests = quests.filter((quest) => selectedQuestIds.includes(quest.id));
+  const scheduleLabel = `${formatDateTimeLabel(startAt)} → ${formatDateTimeLabel(endAt)}`;
 
   function toggleQuest(questId: string) {
     setSelectedQuestIds((current) => {
@@ -128,6 +159,16 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
     <div className="groupquests-builder-shell">
       <div className="groupquests-builder" aria-label="Edit Multiplayer Side Quest">
         <div className="groupquests-builder-form">
+          <div className="groupquests-builder-guide" aria-label="Host edit guide">
+            {editPrepCards.map((card) => (
+              <article key={card.step}>
+                <strong>{card.step}</strong>
+                <span>{card.title}</span>
+                <small>{card.copy}</small>
+              </article>
+            ))}
+          </div>
+
           <label>
             <span>Name</span>
             <input value={name} onChange={(event) => setName(event.target.value)} maxLength={54} />
@@ -205,18 +246,19 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                   </button>
                 ))}
               </div>
-              <small>Use the same common proof-window shortcuts as mobile while preserving exact date editing.</small>
+              <small>Use a common proof-window preset, or keep the exact dates above for a custom table.</small>
             </div>
           </div>
 
           <details className="groupquests-advanced-settings" open>
-            <summary>Quests and proof settings <span>host only</span></summary>
+            <summary>Quest stack and proof settings <span>host only</span></summary>
 
             <section className="groupquests-quest-picker" aria-label="Choose side quests">
               <div className="groupquests-picker-head">
                 <div>
-                  <span>Side quests</span>
+                  <span>Quest stack</span>
                   <strong>{selectedQuests.length} selected</strong>
+                  <small>Checked quests remain on the table. Add or remove future objectives without exposing private account details.</small>
                 </div>
               </div>
               <div className="groupquests-picker-panel-wrap">
@@ -227,8 +269,9 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                       <label className={checked ? "active" : undefined} key={quest.id}>
                         <input checked={checked} onChange={() => toggleQuest(quest.id)} type="checkbox" />
                         <span>
+                          <em>{quest.source === "custom" ? "Custom Solo" : quest.source === "snapshot" ? "Saved custom" : "Official Solo"}</em>
                           <strong>{quest.title}</strong>
-                          <small>{quest.source === "custom" ? "Your Custom Solo" : quest.source === "snapshot" ? "Saved custom snapshot" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small>{quest.source === "custom" ? "Your Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved Custom Solo snapshot" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
                         </span>
                       </label>
                     );
@@ -275,6 +318,8 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
           <div className="groupquests-preview-stat-grid">
             <div><strong>Players</strong><span>{groupQuest.participants.length} joined</span></div>
             <div><strong>Quests</strong><span>{selectedQuests.length} selected</span></div>
+            <div><strong>Proof window</strong><span>{scheduleLabel}</span></div>
+            <div><strong>Games allowed</strong><span>{selectedProvider.label}</span></div>
           </div>
           <div className="groupquests-preview-link">
             <strong>Share URL</strong>
@@ -284,6 +329,10 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
       </div>
 
       <div className="groupquests-create-actions" aria-label="Save Multiplayer Side Quest edits">
+        <div>
+          <strong>Ready to update this table?</strong>
+          <span>Save only when the invite, visibility, quest stack, and proof window match what players should see next.</span>
+        </div>
         {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
         <button className="button primary" disabled={saving} onClick={save} type="button">{saving ? "Saving…" : "Save changes"}</button>
       </div>
