@@ -147,15 +147,19 @@ function CommunityDiscoveryControls({
 }) {
   const preserveCreator = creator ? <input type="hidden" name="creator" value={creator} /> : null;
   return (
-    <div className="groupquest-empty-state" role="search" aria-label="Community Solo discovery filters">
-      <form action="/challenges/community" className="support-form">
+    <div className="groupquest-empty-state community-discovery-panel" role="search" aria-label="Community Solo discovery filters">
+      <div className="community-discovery-intro">
+        <span className="eyebrow">Find your next run</span>
+        <p>Search the public board, filter by momentum, then inspect the rule before you commit. Nothing starts until you choose it from your SQC account.</p>
+      </div>
+      <form action="/challenges/community" className="support-form community-discovery-form">
         {preserveCreator}
         <label htmlFor="community-search">Search Community Solo</label>
-        <div className="form-row compact-form-row">
-          <input id="community-search" name="q" defaultValue={query} placeholder="Search by title, player, rule, or goal" />
+        <div className="form-row compact-form-row community-search-row">
+          <input id="community-search" name="q" defaultValue={query} placeholder="Title, player, rule, or goal" />
           <button className="button secondary" type="submit">Search</button>
         </div>
-        <div className="form-row compact-form-row">
+        <div className="form-row compact-form-row community-filter-row">
           <label>
             Filter
             <select name="filter" defaultValue={filter}>
@@ -175,7 +179,7 @@ function CommunityDiscoveryControls({
           </label>
         </div>
       </form>
-      <div className="button-row">
+      <div className="community-filter-chips" aria-label="Quick Community Solo filters">
         {COMMUNITY_FILTERS.map((item) => (
           <Link key={item.value} className={`button ${filter === item.value ? "primary" : "ghost"}`} href={buildCommunityFilterHref({ creator, query, filter: item.value, sort })}>{item.label}</Link>
         ))}
@@ -205,18 +209,27 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
         <span className="eyebrow">Community · by {quest.creatorName}</span>
         <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
         <p>{quest.summary}</p>
-        <div className="public-groupquest-meta">
+        <div className="public-groupquest-meta community-quest-facts" aria-label={`${quest.title} quick facts`}>
           <small className="community-quest-rule">{quest.ruleLabel}</small>
           <small>{formatCommunityStats(quest)}</small>
           <small>Updated {formatDate(quest.updatedAt)}</small>
         </div>
-        <div className="community-quest-actions">
-          <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
+        <div className="community-rule-preview" aria-label={`${quest.title} rule preview`}>
+          <span>Rule preview</span>
+          <ul>
+            {quest.ruleDetails.slice(0, 3).map((detail) => <li key={detail}>{detail}</li>)}
+          </ul>
         </div>
-        <div className="community-quest-secondary-actions" aria-label={`${quest.title} secondary actions`}>
-          <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report quest</CommunitySoloAnalyticsLink>
+        <div className="community-quest-action-panel">
+          <span className="eyebrow">Next step</span>
+          <div className="community-quest-actions">
+            <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
+          </div>
+          <div className="community-quest-secondary-actions" aria-label={`${quest.title} secondary actions`}>
+            <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
+            <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report quest</CommunitySoloAnalyticsLink>
+          </div>
         </div>
       </div>
     </article>

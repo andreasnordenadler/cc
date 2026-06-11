@@ -1305,12 +1305,25 @@ p { color: var(--muted); line-height: 1.5; }
 .support-thread-bubble p { margin: 0; color: var(--ink); font-size: .94rem; line-height: 1.4; }
 .public-groupquest-meta { display: grid; gap: 6px; }
 .public-groupquest-meta small { color: var(--muted); font-size: .78rem; font-weight: 850; }
+.community-discovery-panel { align-items: stretch; gap: 14px; background: radial-gradient(circle at 92% 0%, rgba(96,240,175,.11), transparent 32%), rgba(0,0,0,.16); }
+.community-discovery-intro { display: grid; gap: 4px; }
+.community-discovery-intro p { max-width: 760px; margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.42; }
+.community-discovery-form { margin: 0; padding: 12px; border: 1px solid rgba(255,255,255,.11); border-radius: 18px; background: rgba(255,255,255,.045); }
+.community-search-row { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+.community-filter-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.community-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .community-side-quest-card .public-groupquest-meta { gap: 8px; margin-top: 2px; }
 .community-side-quest-card .public-groupquest-meta small { display: inline-flex; align-items: center; width: fit-content; max-width: 100%; }
+.community-quest-facts { padding: 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(0,0,0,.12); }
 .community-quest-rule { padding: 7px 9px; border: 1px solid rgba(245,200,106,.18); border-radius: 999px; background: rgba(245,200,106,.1); color: var(--ink) !important; }
-.community-quest-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.community-rule-preview { display: grid; gap: 7px; margin-top: 2px; padding: 11px 12px; border: 1px solid rgba(96,240,175,.18); border-radius: 18px; background: rgba(96,240,175,.07); }
+.community-rule-preview span { color: var(--green); font-size: .72rem; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
+.community-rule-preview ul { display: grid; gap: 5px; margin: 0; padding-left: 18px; color: var(--ink); font-size: .9rem; font-weight: 780; line-height: 1.35; }
+.community-rule-preview li::marker { color: var(--gold); }
+.community-quest-action-panel { display: grid; gap: 8px; margin-top: 2px; padding: 10px; border: 1px solid rgba(245,200,106,.16); border-radius: 20px; background: rgba(0,0,0,.14); }
+.community-quest-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 0; }
 .community-quest-actions .button { justify-content: center; }
-.community-quest-secondary-actions, .community-detail-secondary-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 2px; color: var(--muted); font-size: .82rem; font-weight: 900; }
+.community-quest-secondary-actions, .community-detail-secondary-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 0; color: var(--muted); font-size: .82rem; font-weight: 900; }
 .community-quest-secondary-actions a, .community-detail-secondary-actions a { color: var(--muted); text-decoration: none; }
 .community-quest-secondary-actions a:hover, .community-quest-secondary-actions a:focus-visible, .community-detail-secondary-actions a:hover, .community-detail-secondary-actions a:focus-visible { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
 .community-detail-action-panel { display: grid; gap: 10px; padding: 12px; border: 1px solid rgba(245,200,106,.18); border-radius: 22px; background: rgba(0,0,0,.14); }
@@ -1318,7 +1331,7 @@ p { color: var(--muted); line-height: 1.5; }
 .community-detail-primary-actions .button { justify-content: center; }
 .community-detail-secondary-actions { justify-content: center; }
 .public-groupquest-row em { color: var(--gold); font-size: .84rem; font-style: normal; font-weight: 950; text-align: right; white-space: nowrap; }
-@media (max-width: 760px) { .public-groupquest-row { grid-template-columns: 1fr; } .public-groupquest-row em, .support-thread-head em { text-align: left; } .support-thread-head { display: grid; } .support-thread-bubble { max-width: 100%; } .community-quest-actions, .community-detail-primary-actions { grid-template-columns: 1fr; } .community-detail-secondary-actions { justify-content: flex-start; } }
+@media (max-width: 760px) { .public-groupquest-row { grid-template-columns: 1fr; } .public-groupquest-row em, .support-thread-head em { text-align: left; } .support-thread-head { display: grid; } .support-thread-bubble { max-width: 100%; } .community-search-row, .community-filter-row, .community-quest-actions, .community-detail-primary-actions { grid-template-columns: 1fr; } .community-filter-chips .button { flex: 1 1 44%; justify-content: center; } .community-detail-secondary-actions { justify-content: flex-start; } }
 
 .groupquests-create-minihero {
   display: grid;
