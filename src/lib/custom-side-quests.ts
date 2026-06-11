@@ -87,18 +87,18 @@ const HOME_SQUARES: Record<string, Record<string, Record<string, string>>> = {
 
 
 export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
-  "/badges/v6/bishop-field-trip-badge.png",
-  "/badges/v6/early-king-walk-badge.png",
-  "/badges/v6/knights-before-coffee-badge.png",
-  "/badges/v6/proof-loop-test-badge.png",
-  "/badges/v5/no-castle-club-badge.png",
-  "/badges/v5/one-bishop-to-rule-them-all-badge.png",
-  "/badges/v5/rookless-rampage-badge.png",
-  "/badges/v5/the-blunder-gambit-badge.png",
+  "/badges/custom/clean/custom-coat-knight-gold.png",
+  "/badges/custom/clean/custom-coat-knight-silver.png",
+  "/badges/custom/clean/custom-coat-knight-black.png",
+  "/badges/custom/clean/custom-coat-rook-gold.png",
+  "/badges/custom/clean/custom-coat-rook-silver.png",
+  "/badges/custom/clean/custom-coat-bishop-gold.png",
+  "/badges/custom/clean/custom-coat-bishop-silver.png",
+  "/badges/custom/clean/custom-coat-rook-bronze.png",
 ] as const;
 
 const CUSTOM_SIDE_QUEST_BADGE_SET = new Set<string>(CUSTOM_SIDE_QUEST_BADGE_POOL);
-const DEFAULT_CUSTOM_SIDE_QUEST_BADGE = "/badges/v6/bishop-field-trip-badge.png";
+const DEFAULT_CUSTOM_SIDE_QUEST_BADGE = "/badges/custom/clean/custom-coat-knight-gold.png";
 
 function hashCustomSideQuestId(id: string) {
   return Array.from(id).reduce((hash, character) => ((hash << 5) - hash + character.charCodeAt(0)) | 0, 0);

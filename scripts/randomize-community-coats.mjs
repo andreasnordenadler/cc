@@ -8,14 +8,14 @@ const REROLL_ALL = process.argv.includes("--reroll-all");
 const ROOT = process.cwd();
 const ENV_PATH = path.join(ROOT, ".env.local");
 const QUALITY_APPROVED_COAT_POOL = [
-  "/badges/v6/bishop-field-trip-badge.png",
-  "/badges/v6/early-king-walk-badge.png",
-  "/badges/v6/knights-before-coffee-badge.png",
-  "/badges/v6/proof-loop-test-badge.png",
-  "/badges/v5/no-castle-club-badge.png",
-  "/badges/v5/one-bishop-to-rule-them-all-badge.png",
-  "/badges/v5/rookless-rampage-badge.png",
-  "/badges/v5/the-blunder-gambit-badge.png",
+  "/badges/custom/clean/custom-coat-knight-gold.png",
+  "/badges/custom/clean/custom-coat-knight-silver.png",
+  "/badges/custom/clean/custom-coat-knight-black.png",
+  "/badges/custom/clean/custom-coat-rook-gold.png",
+  "/badges/custom/clean/custom-coat-rook-silver.png",
+  "/badges/custom/clean/custom-coat-bishop-gold.png",
+  "/badges/custom/clean/custom-coat-bishop-silver.png",
+  "/badges/custom/clean/custom-coat-rook-bronze.png",
 ];
 
 await loadDotEnv(ENV_PATH);

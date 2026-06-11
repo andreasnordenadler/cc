@@ -510,7 +510,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
   return (
     <article className="challenge-card community-side-quest-card">
       <div className="challenge-card-art custom-side-quest-art" aria-hidden="true">
-        <Image src={quest.badgeImageUrl || "/badges/v6/bishop-field-trip-badge.png"} alt="" width={96} height={96} />
+        <Image src={quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png"} alt="" width={96} height={96} />
       </div>
       <div className="challenge-card-body">
         <span className="eyebrow">Custom · {statusLabel}</span>
