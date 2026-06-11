@@ -39,6 +39,24 @@ const inviteModes = [
   },
 ];
 
+const hostPrepCards = [
+  {
+    step: "1",
+    title: "Name the table",
+    copy: "Give friends a clear hook and invite message before sharing.",
+  },
+  {
+    step: "2",
+    title: "Pick the run",
+    copy: "Stack official quests or launch-ready Custom Solo recipes.",
+  },
+  {
+    step: "3",
+    title: "Set the window",
+    copy: "Choose when proof opens, closes, and how public the invite should be.",
+  },
+];
+
 function toDateTimeLocal(date: Date) {
   const offsetDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
   return offsetDate.toISOString().slice(0, 16);
@@ -275,8 +293,18 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
       <div className="groupquests-builder" aria-label="Create Multiplayer Side Quest builder">
         <div className="groupquests-builder-form">
           <div className="groupquests-quickstart-note" role="note">
-            <strong>Quick start</strong>
-            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo Side Quests from your library can join the stack too.</span>
+            <strong>Host setup</strong>
+            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo recipes from your library can join the stack too.</span>
+          </div>
+
+          <div className="groupquests-builder-guide" aria-label="Multiplayer Side Quest setup guide">
+            {hostPrepCards.map((card) => (
+              <article key={card.step}>
+                <strong>{card.step}</strong>
+                <span>{card.title}</span>
+                <small>{card.copy}</small>
+              </article>
+            ))}
           </div>
 
           <label>
@@ -303,8 +331,9 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
           <section className="groupquests-quest-picker" aria-label="Choose side quests">
             <div className="groupquests-picker-head">
               <div>
-                <span>3 · Side quests</span>
+                <span>3 · Quest stack</span>
                 <strong>{selectedQuests.length} selected</strong>
+                <small>Choose at least one objective. Players race the same stack from top to bottom.</small>
               </div>
               {!questPickerOpen ? (
                 <button className="button primary" type="button" onClick={() => setQuestPickerOpen(true)}>
@@ -330,8 +359,9 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                           type="checkbox"
                         />
                         <span>
+                          <em>{quest.source === "custom" ? "Custom Solo" : "Official Solo"}</em>
                           <strong>{quest.title}</strong>
-                          <small>{quest.source === "custom" ? "Your Custom Solo" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
                         </span>
                       </label>
                     );
@@ -400,7 +430,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                   </button>
                 ))}
               </div>
-              <small>Matches the mobile shortcut: choose a common proof window without typing a closing date.</small>
+              <small>Choose a common proof window without typing a closing date.</small>
             </div>
           </div>
 
@@ -501,6 +531,10 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
       </div>
 
       <div className="groupquests-create-actions" aria-label="Create Multiplayer Side Quest actions">
+        <div>
+          <strong>Ready to host?</strong>
+          <span>Save the table, review the invite page, then share the link or private host code.</span>
+        </div>
         {saveError ? <p className="groupquest-join-error" role="alert">{saveError}</p> : null}
         <button className="button primary" disabled={saving} onClick={saveMultiplayerSideQuest} type="button">
           {saving ? "Saving…" : "Save Multiplayer Side Quest"}
