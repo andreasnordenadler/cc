@@ -449,11 +449,11 @@ function HostContextCard({
   reportHref: string;
 }) {
   return (
-    <section className="mission-card groupquests-host-panel" aria-label="Community Multiplayer host context">
-      <span className="eyebrow">Host context</span>
+    <section className="mission-card groupquests-host-panel" aria-label="Community Multiplayer host details">
+      <span className="eyebrow">Host details</span>
       <h2>Hosted by {hostName}.</h2>
       <p>
-        Open a public host shelf to browse other Community Multiplayer Side Quests from this host. Private invite-only tables, participant emails, and account details stay hidden.
+        Browse other public Community Multiplayer Side Quests from this host. Private invite-only tables, participant emails, and account details stay hidden.
       </p>
       <div className="button-row">
         <Link className="button secondary" href={`/groupquests/public?host=${encodeURIComponent(hostKey)}`}>More by host</Link>

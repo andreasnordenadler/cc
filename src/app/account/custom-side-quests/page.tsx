@@ -15,7 +15,7 @@ import { POST as runQuestAction } from "@/app/api/mobile/quest/route";
 
 export const metadata = {
   title: "My Custom Side Quests · Side Quest Chess",
-  description: "Manage your Side Quest Chess custom Side Quest library.",
+  description: "Manage your Side Quest Chess Custom Solo Side Quests.",
 };
 
 const WEB_CUSTOM_RULE_BLOCK_LIMIT = 6;
@@ -65,9 +65,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
   const privateCount = customQuests.filter((quest) => quest.visibility !== "public").length;
   const draftCount = customQuests.filter((quest) => quest.lifecycle === "draft").length;
   const archivedCount = customQuests.filter((quest) => quest.lifecycle === "archived").length;
-  const libraryFilter = cleanLibraryFilter(params.filter);
-  const libraryQuery = cleanText(params.q, 80);
-  const filteredCustomQuests = customQuests.filter((quest) => matchesCustomLibraryFilter(quest, libraryFilter, libraryQuery));
+  const collectionFilter = cleanLibraryFilter(params.filter);
+  const collectionQuery = cleanText(params.q, 80);
+  const filteredCustomQuests = customQuests.filter((quest) => matchesCustomLibraryFilter(quest, collectionFilter, collectionQuery));
   const editingQuest = params.edit ? customQuests.find((quest) => quest.id === params.edit) ?? null : null;
   const editingRuleBlockCount = editingQuest ? parseCustomRuleConfig(editingQuest.config)?.blocks.length ?? 0 : 0;
   const preservesComplexRule = editingRuleBlockCount > WEB_CUSTOM_RULE_BLOCK_LIMIT;
@@ -97,9 +97,9 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
 
         <section className="hero-card side-quests-hub-hero">
           <span className="eyebrow">My Custom Side Quests</span>
-          <h1>{runnerDisplayName}&apos;s Custom Solo shelf.</h1>
+          <h1>{runnerDisplayName}&apos;s Custom Solo Side Quests.</h1>
           <p className="hero-copy">
-            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable quests, Community Solo releases, and retired ideas kept neatly on your shelf.
+            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable quests, Community Solo releases, and retired ideas in one calm place.
           </p>
           <div className="hero-actions button-row">
             <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo</a>
@@ -108,10 +108,10 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           </div>
         </section>
 
-        {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your library is now in sync.</p> : null}
-        {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same quest stays in your library.</p> : null}
-        {params.duplicated ? <p className="form-status success" role="status">Custom Side Quest duplicated. The copy is ready in your library.</p> : null}
-        {params.deleted ? <p className="form-status success" role="status">Custom Side Quest deleted from your library.</p> : null}
+        {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your account is now in sync.</p> : null}
+        {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same quest stays saved.</p> : null}
+        {params.duplicated ? <p className="form-status success" role="status">Custom Side Quest duplicated. The copy is ready to tune.</p> : null}
+        {params.deleted ? <p className="form-status success" role="status">Custom Side Quest deleted from your saved quests.</p> : null}
         {params.started ? <p className="form-status success" role="status">Custom Side Quest started. Play a public game, then check the latest result here.</p> : null}
         {params.checked ? <p className="form-status success" role="status">Latest-game proof check saved. See the receipt on the active card below.</p> : null}
         {params.submitted ? <p className="form-status success" role="status">Submitted proof game checked. See the receipt on the active card below.</p> : null}
@@ -121,16 +121,16 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
         {params.restored ? <p className="form-status success" role="status">Custom Side Quest restored as a private draft.</p> : null}
         {params.error ? <p className="form-status error" role="alert">{decodeURIComponent(params.error)}</p> : null}
 
-        <section className="grid side-quest-mode-grid" aria-label="Custom Side Quest library summary">
+        <section className="grid side-quest-mode-grid" aria-label="Custom Side Quest summary">
           <StatCard label="Published public" value={publishedPublic} copy="Visible on the Community Solo browse page." />
           <StatCard label="Private" value={privateCount} copy="Only available to you and your own Multiplayer lineups." />
           <StatCard label="Draft / archived" value={draftCount + archivedCount} copy="Not public and not available for public discovery." />
         </section>
 
-        <section className="mission-card" aria-label="My Custom Side Quest library">
+        <section className="mission-card" aria-label="My Custom Solo Side Quests">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Library</span>
+              <span className="eyebrow">Saved quests</span>
               <h2>{customQuests.length ? "Your saved Custom Solo Side Quests." : "No saved Custom Solo Side Quests yet."}</h2>
               <p>
                 Create a clear starter rule here, search and filter saved quests, publish polished ones to Community Solo, archive retired ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
@@ -139,7 +139,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
           </div>
 
-          {customQuests.length ? <CustomLibraryFilters activeFilter={libraryFilter} query={libraryQuery} /> : null}
+          {customQuests.length ? <CustomLibraryFilters activeFilter={collectionFilter} query={collectionQuery} /> : null}
 
           {customQuests.length ? (
             filteredCustomQuests.length ? (
@@ -163,7 +163,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             )
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No custom Side Quests yet. Create one here or browse public examples first; your SQC account keeps the same saved shelf everywhere you play.</p>
+              <p>No custom Side Quests yet. Create one here or browse public examples first; your SQC account keeps saved quests ready everywhere you play.</p>
               <Link className="button primary" href="/challenges/community">Browse public examples</Link>
             </div>
           )}
@@ -300,14 +300,14 @@ function CustomLibraryFilters({ activeFilter, query }: { activeFilter: CustomLib
     { label: "Archived", value: "archived" },
   ];
   return (
-    <div className="quest-filter-panel" aria-label="Custom Side Quest library filters">
+    <div className="quest-filter-panel" aria-label="Custom Side Quest filters">
       <form className="quest-filter-grid" action="/account/custom-side-quests">
         <label className="input-card">
-          <span>Search your Custom Solo shelf</span>
+          <span>Search your Custom Solo Side Quests</span>
           <input name="q" type="search" placeholder="Title, summary, or safe rule text" defaultValue={query} />
         </label>
         <input type="hidden" name="filter" value={activeFilter} />
-        <button className="button secondary" type="submit">Search shelf</button>
+        <button className="button secondary" type="submit">Search quests</button>
         {query ? <Link className="button ghost" href={`/account/custom-side-quests?filter=${activeFilter}`}>Clear search</Link> : null}
       </form>
       <div className="chip-row" aria-label="Saved Custom Solo filters">
@@ -316,7 +316,7 @@ function CustomLibraryFilters({ activeFilter, query }: { activeFilter: CustomLib
           return <Link key={filter.value} className={activeFilter === filter.value ? "badge gold" : "badge"} href={href}>{filter.label}</Link>;
         })}
       </div>
-      <p className="microcopy">Matches the full library shelf filters while keeping private Side Quests and raw rule config inside your account.</p>
+      <p className="microcopy">Matches your saved Custom Solo filters while keeping private Side Quests and raw rule config inside your account.</p>
     </div>
   );
 }
@@ -555,7 +555,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
           <div className="note-card" aria-label={`${quest.title} completed proof receipt share controls`}>
             <span className="eyebrow">Completed proof receipt</span>
             <h4>Share your Custom Solo proof.</h4>
-            <p className="microcopy">Public receipt link with provider, game, and board evidence only — private rule details and library state stay hidden.</p>
+            <p className="microcopy">Public receipt link with provider, game, and board evidence only — private rule details and saved-quest state stay hidden.</p>
             <div className="button-row">
               <Link className="button secondary" href={proofPath}>Open proof receipt</Link>
             </div>
@@ -576,7 +576,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
         <div className="custom-library-action-panel" aria-label={`${quest.title} actions`}>
           <div className="custom-library-action-head">
             <span className={statusTone ? `badge ${statusTone}` : "badge"}>{statusLabel}</span>
-            <small>{active ? "Running now" : completed ? "Proof saved" : lifecycle === "published" ? "Ready to run" : lifecycle === "archived" ? "Resting in the archive" : "Safe in your private shelf"}</small>
+            <small>{active ? "Running now" : completed ? "Proof saved" : lifecycle === "published" ? "Ready to run" : lifecycle === "archived" ? "Resting in the archive" : "Saved privately"}</small>
           </div>
 
           <div className="custom-library-action-group custom-library-action-group-primary">

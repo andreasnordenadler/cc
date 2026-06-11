@@ -114,7 +114,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="section-head">
             <div>
               <span className="eyebrow">Share link</span>
-              <h2>Send this public Side Quest without exposing private shelf data.</h2>
+              <h2>Send this public Side Quest without exposing private saved-quest data.</h2>
               <p>Copy the canonical Community Solo URL or use the same SQC share actions used for proof receipts. Drafts, archived quests, and private rule data stay private.</p>
             </div>
           </div>

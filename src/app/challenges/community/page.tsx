@@ -120,7 +120,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible for that player right now. The Side Quest may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Side Quest library and become the local goblin of chess rules."}</p>
+              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible for that player right now. The Side Quest may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Solo Side Quests and become the local goblin of chess rules."}</p>
               <CommunitySoloAnalyticsLink className="button primary" href={selectedCreator ? "/challenges/community" : "/account"} type={selectedCreator ? "community_solo_browse" : "community_solo_account_handoff"} status={selectedCreator ? "empty_creator_clear" : "empty_account_handoff"}>{selectedCreator ? "Show all Community Solo" : "Open account"}</CommunitySoloAnalyticsLink>
             </div>
           )}

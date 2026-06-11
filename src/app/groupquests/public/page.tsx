@@ -67,7 +67,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
             <span className="badge gold">{totalQuests}</span>
           </div>
           <form className="groupquest-empty-state" action="/groupquests/public" aria-label="Filter public Multiplayer Side Quests">
-            <p><strong>Discovery filters.</strong> Search public tables, open a host shelf, or include finished events without exposing private invites.</p>
+            <p><strong>Discovery filters.</strong> Search public tables, view more from a host, or include finished events without exposing private invites.</p>
             <div className="button-row">
               <input className="text-input" type="search" name="q" defaultValue={searchQuery} placeholder="Search title, host, provider" aria-label="Search public Multiplayer Side Quests" />
               {selectedHost ? <input type="hidden" name="host" value={selectedHost} /> : null}
