@@ -86,19 +86,6 @@ const HOME_SQUARES: Record<string, Record<string, Record<string, string>>> = {
 
 
 export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
-  "/badges/custom/custom-win-king.png",
-  "/badges/custom/custom-win-queen.png",
-  "/badges/custom/custom-win-knight.png",
-  "/badges/custom/custom-win-pawn.png",
-  "/badges/custom/custom-draw-bishop.png",
-  "/badges/custom/custom-draw-rook.png",
-  "/badges/custom/custom-lose-king.png",
-  "/badges/custom/custom-lose-queen.png",
-  "/badges/custom/custom-opening-scroll.png",
-  "/badges/custom/custom-sequence-scroll.png",
-  "/badges/custom/custom-square-star.png",
-  "/badges/custom/custom-wild-card.png",
-  "/badges/custom/custom-side-quest-crest.png",
   "/badges/custom/random/custom-coat-02.png",
   "/badges/custom/random/custom-coat-05.png",
   "/badges/custom/random/custom-coat-06.png",
@@ -106,7 +93,6 @@ export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
   "/badges/custom/random/custom-coat-08.png",
   "/badges/custom/random/custom-coat-09.png",
   "/badges/custom/random/custom-coat-10.png",
-  "/badges/custom/random/custom-coat-11.png",
   "/badges/custom/random/custom-coat-12.png",
   "/badges/custom/random/custom-coat-13.png",
   "/badges/custom/random/custom-coat-15.png",
@@ -115,7 +101,7 @@ export const CUSTOM_SIDE_QUEST_BADGE_POOL = [
 ] as const;
 
 export function chooseCustomSideQuestBadge() {
-  return CUSTOM_SIDE_QUEST_BADGE_POOL[Math.floor(Math.random() * CUSTOM_SIDE_QUEST_BADGE_POOL.length)] ?? "/badges/custom/custom-side-quest-crest.png";
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[Math.floor(Math.random() * CUSTOM_SIDE_QUEST_BADGE_POOL.length)] ?? "/badges/custom/random/custom-coat-02.png";
 }
 
 export function getCustomSideQuests(metadata: Record<string, unknown>): CustomSideQuest[] {
