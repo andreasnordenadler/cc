@@ -955,6 +955,13 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-hub-grid { grid-template-columns: minmax(300px, .82fr) minmax(0, 1.18fr); align-items: stretch; }
 .groupquests-story-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: center; background: radial-gradient(circle at 76% 14%, rgba(245,200,106,.18), transparent 32%), linear-gradient(135deg, rgba(255,255,255,.09), rgba(118,169,255,.07)); }
 .groupquests-story-card p + p { margin-top: 10px; }
+.groupquests-table-guide-card { display: grid; gap: 14px; background: radial-gradient(circle at 14% 0%, rgba(245,200,106,.2), transparent 34%), linear-gradient(135deg, rgba(255,255,255,.09), rgba(96,240,175,.06)); }
+.groupquests-table-guide-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.groupquests-table-guide-item { display: grid; align-content: start; gap: 8px; min-height: 100%; padding: 14px; border: 1px solid rgba(245,200,106,.18); border-radius: 20px; background: rgba(0,0,0,.16); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.groupquests-table-guide-item:hover, .groupquests-table-guide-item:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.42); background: rgba(255,255,255,.08); outline: none; }
+.groupquests-table-guide-item strong { color: var(--ink); font-size: 1rem; font-weight: 1000; }
+.groupquests-table-guide-item p { font-size: .88rem; }
+.groupquests-table-guide-item span { margin-top: auto; color: var(--gold); font-size: .78rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
 .groupquests-process-graphic { position: relative; min-height: 0; display: grid; align-content: center; justify-items: center; gap: 12px; padding: 0; overflow: visible; }
 .groupquests-knight-competition-art { width: min(100%, 340px); height: auto; border-radius: 24px; object-fit: cover; filter: drop-shadow(0 24px 42px rgba(0,0,0,.36)) drop-shadow(0 0 28px rgba(245,200,106,.12)); }
 .groupquests-logged-out-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
@@ -1052,7 +1059,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-member-grid .groupquests-group-card { min-height: 100%; }
 
 @media (max-width: 860px) {
-  .groupquests-hub-grid, .groupquests-how-grid, .groupquests-join-grid, .groupquests-user-grid, .groupquests-room-sections, .groupquests-logged-out-actions, .groupquests-story-card { grid-template-columns: 1fr; }
+  .groupquests-hub-grid, .groupquests-how-grid, .groupquests-join-grid, .groupquests-user-grid, .groupquests-room-sections, .groupquests-logged-out-actions, .groupquests-story-card, .groupquests-table-guide-grid { grid-template-columns: 1fr; }
   .groupquests-dashboard-actions, .groupquests-dashboard-actions .button, .groupquests-create-card .button, .groupquests-group-card .button, .groupquests-action-card .button { width: 100%; }
   .groupquests-dashboard-actions { justify-content: stretch; }
   .groupquests-room-row { grid-template-columns: 1fr; }
