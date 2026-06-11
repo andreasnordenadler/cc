@@ -26,15 +26,34 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       <div className="content-wrap auth-wrap">
         <section className="hero-card auth-copy-card auth-copy-card-filled">
           <div>
+            <span className="eyebrow">SQC account</span>
             <h1>Sign in, then go make terrible chess decisions.</h1>
             <p className="hero-copy">
-              Logging in lets Side Quest Chess remember your profile, public chess usernames, active side quest, badges, and proof cards.
+              Your account remembers your runner profile, public chess usernames, active Side Quest, coats, proof receipts, and Multiplayer tables.
             </p>
           </div>
+
+          <div className="auth-run-guide" aria-label="Sign-in run guide">
+            <div>
+              <strong>1</strong>
+              <span>Open your run</span>
+              <small>Return to the Side Quest, table, or proof receipt you were trying to reach.</small>
+            </div>
+            <div>
+              <strong>2</strong>
+              <span>Check public games</span>
+              <small>SQC only needs a public Lichess or Chess.com username — never a chess-site password.</small>
+            </div>
+            <div>
+              <strong>3</strong>
+              <span>Keep the receipt</span>
+              <small>Passed runs save as proof cards and coats you can reopen or share later.</small>
+            </div>
+          </div>
+
           <div className="auth-lightweight-copy" aria-label="Lightweight sign-in notes">
-            <p><strong>Lightweight by design.</strong> We do not need or ask for any Lichess or Chess.com passwords.</p>
+            <p><strong>Lightweight by design.</strong> Browse before signing in; sign in when you want SQC to save progress, verify proof, or manage Multiplayer Side Quests.</p>
             <p>Use a public chess username only. SQC checks public games and stores the minimum needed to remember your quests, proof, and Coat of Arms progress.</p>
-            <p>You can browse Side Quests before signing in. Sign in when you want SQC to save progress, verify proof, or manage Multiplayer Quests.</p>
           </div>
         </section>
         <section className="auth-card" aria-label="Sign in form">

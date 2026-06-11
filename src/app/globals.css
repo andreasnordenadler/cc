@@ -1226,7 +1226,7 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-local-drafts > .section-head h3 { font-size: clamp(1.25rem, 2.4vw, 1.8rem); }
 
 @media (max-width: 620px) {
-  .groupquests-rule-grid, .groupquests-builder-guide, .custom-builder-guide, .custom-builder-quality-strip, .custom-builder-starter-grid, .custom-builder-identity-grid, .custom-builder-rule-head, .custom-condition-grid, .custom-condition-field-grid, .custom-builder-save-card { grid-template-columns: 1fr; }
+  .groupquests-rule-grid, .groupquests-builder-guide, .custom-builder-guide, .custom-builder-quality-strip, .custom-builder-starter-grid, .custom-builder-identity-grid, .custom-builder-rule-head, .custom-condition-grid, .custom-condition-field-grid, .custom-builder-save-card, .auth-run-guide { grid-template-columns: 1fr; }
   .custom-condition-field-group, .custom-condition-field-group-piece, .custom-condition-field-group-advanced, .custom-condition-type-select { grid-column: 1; }
   .custom-condition-card summary { align-items: flex-start; flex-direction: column; }
 }
@@ -1374,6 +1374,13 @@ p { color: var(--muted); line-height: 1.5; }
 .auth-lightweight-copy { display: grid; gap: 10px; margin-top: 4px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.12); }
 .auth-lightweight-copy p { color: var(--muted); font-size: clamp(.9rem, 1.08vw, 1rem); line-height: 1.42; }
 .auth-lightweight-copy strong { color: var(--ink); font-weight: 950; }
+.auth-run-guide { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.auth-run-guide div { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 3px 10px; align-items: center; padding: 12px; border: 1px solid rgba(245,200,106,.16); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.09), rgba(0,0,0,.16)); }
+.auth-run-guide strong { grid-row: span 2; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 999px; background: rgba(245,200,106,.18); color: var(--gold); font-size: .92rem; font-weight: 1000; }
+.auth-run-guide span { color: var(--ink); font-weight: 1000; line-height: 1.15; }
+.auth-run-guide small { color: var(--muted); font-size: .78rem; font-weight: 850; line-height: 1.35; }
+.auth-ready-strip { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
+.auth-ready-strip span { padding: 7px 9px; border: 1px solid rgba(96,240,175,.22); border-radius: 999px; background: rgba(96,240,175,.09); color: var(--green); font-size: .76rem; font-weight: 950; letter-spacing: .05em; text-transform: uppercase; }
 
 .home-multiplayer-quests-card .section-head { align-items: start; }
 .home-multiplayer-quest-row { grid-template-columns: minmax(0, 1fr) auto; }
