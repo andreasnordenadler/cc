@@ -128,7 +128,7 @@ export default async function Home() {
           href: "/account/custom-side-quests",
           kind: "custom" as const,
           completed: completedSet.has(activeCustomQuestRecord.id),
-          badgeImageUrl: activeCustomQuestRecord.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png",
+          badgeImageUrl: activeCustomQuestRecord.badgeImageUrl || "/badges/v6/bishop-field-trip-badge.png",
           challenge: null,
         }
       : null;
@@ -276,7 +276,7 @@ export default async function Home() {
         href: "/account/custom-side-quests",
         kind: "Custom" as const,
         image:
-          quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png",
+          quest.badgeImageUrl || "/badges/v6/bishop-field-trip-badge.png",
       }));
 
     homeTrophyCabinetItems = [
