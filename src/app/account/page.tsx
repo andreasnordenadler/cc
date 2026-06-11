@@ -258,6 +258,11 @@ export default async function MyQuestLogPage() {
 
           {completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length ? (
             <>
+              <div className="trophy-case-summary" aria-label="Trophy Cabinet summary">
+                <span><strong>{completedChallenges.length + completedCustomQuestReceipts.length}</strong> Solo coat{completedChallenges.length + completedCustomQuestReceipts.length === 1 ? "" : "s"} sealed</span>
+                <span><strong>{proofReceiptCount}</strong> Proof receipt{proofReceiptCount === 1 ? "" : "s"} saved</span>
+                <span><strong>{multiplayerVictories.length}</strong> Podium scroll{multiplayerVictories.length === 1 ? "" : "s"}</span>
+              </div>
               <div className="quest-achievement-sections">
                 <section className="quest-achievement-lane" aria-label="Completed solo Side Quests">
                   <div className="quest-achievement-lane-head">
@@ -269,6 +274,7 @@ export default async function MyQuestLogPage() {
                   {completedChallenges.length || completedCustomQuestReceipts.length ? (
                     <div className="completed-quest-list trophy-grid" aria-label="Completed side quests">
                       {completedQuestReceipts.map(({ challenge, finishedAt, proofImagePath, proofPath, shareCopy, trophyCopy }) => {
+                        const latestProof = getLatestPassedAttempt(metadata, challenge.id);
                         return (
                           <article className="completed-quest-list-item trophy-card" key={challenge.id}>
                             <span className="trophy-card-shine" aria-hidden="true" />
@@ -279,13 +285,20 @@ export default async function MyQuestLogPage() {
                               <Link href={`/challenges/${challenge.id}`}><strong>{challenge.title}</strong></Link>
                               <em>{trophyCopy.line}</em>
                               <span>{finishedAt ? <>Ceremonially logged <ProofTime value={finishedAt} /></> : "Completed, allegedly."}</span>
-                              <Link href={proofPath} className="button secondary">Open proof receipt</Link>
-                              <ShareProofActions
-                                challengeTitle={challenge.title}
-                                copy={shareCopy}
-                                imagePath={proofImagePath}
-                                sharePath={proofPath}
-                              />
+                              <div className="trophy-proof-panel" aria-label={`${challenge.title} proof receipt`}>
+                                <span>Receipt</span>
+                                <strong>{formatProofProvider(latestProof?.provider)}{latestProof?.gameId ? ` · ${latestProof.gameId}` : ""}</strong>
+                                <small>{latestProof?.summary || `${challenge.badgeIdentity.name} unlocked with +${challenge.reward} points.`}</small>
+                              </div>
+                              <div className="trophy-card-actions">
+                                <Link href={proofPath} className="button secondary">Open proof receipt</Link>
+                                <ShareProofActions
+                                  challengeTitle={challenge.title}
+                                  copy={shareCopy}
+                                  imagePath={proofImagePath}
+                                  sharePath={proofPath}
+                                />
+                              </div>
                             </div>
                             <span className="won-card-seal solo" aria-hidden="true">
                               <Image src="/stamps/sqc-wax-seal-canonical.png" alt="" width={58} height={58} />
@@ -304,9 +317,14 @@ export default async function MyQuestLogPage() {
                             <Link href="/account/custom-side-quests"><strong>{quest.title}</strong></Link>
                             <em>{trophyCopy.line}</em>
                             <span>{finishedAt ? <>Custom Solo proof logged <ProofTime value={finishedAt} /></> : "Custom Solo completed, allegedly."}</span>
-                            <span>{providerLabel}{gameId ? ` · ${gameId}` : ""}</span>
-                            <small>{proofSummary || "Custom proof receipt saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
-                            <Link href="/account/custom-side-quests" className="button secondary">Open Custom Solo receipt</Link>
+                            <div className="trophy-proof-panel" aria-label={`${quest.title} proof receipt`}>
+                              <span>Receipt</span>
+                              <strong>{providerLabel}{gameId ? ` · ${gameId}` : ""}</strong>
+                              <small>{proofSummary || "Custom Solo proof is saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
+                            </div>
+                            <div className="trophy-card-actions">
+                              <Link href="/account/custom-side-quests" className="button secondary">Open Custom Solo receipt</Link>
+                            </div>
                           </div>
                           <span className="won-card-seal solo" aria-hidden="true">
                             <Image src="/stamps/sqc-wax-seal-canonical.png" alt="" width={58} height={58} />
@@ -470,6 +488,12 @@ function formatTrophyDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Finished";
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatProofProvider(provider?: string) {
+  if (provider === "chess.com") return "Chess.com";
+  if (provider === "lichess") return "Lichess";
+  return "Public chess";
 }
 
 function getAwkwardTrophyCopy(index: number) {
