@@ -155,17 +155,45 @@ export default async function ChallengeDetailPage({
             <ChallengeBadge challenge={challenge} earned={isCompleted} size="hero" presentation="art" />
           </div>
           {!isCompleted ? (
-            <div className="button-row hero-actions quest-detail-actions">
-              {!isSignedIn ? (
-                <Link href="/sign-in" className="button primary">Sign in to start this side quest</Link>
-              ) : !hasChessIdentity ? (
-                <Link href="/connect" className="button primary">Add username to start</Link>
-              ) : isActive ? (
-                <a href="#latest-game-checker" className="button primary">Check latest game</a>
-              ) : (
-                <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} label="Start this side quest" />
-              )}
-              {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
+            <div className="quest-detail-next-step-panel" aria-label="Next step for this Side Quest">
+              <div className="quest-detail-next-step-copy">
+                <span className="eyebrow">Next step</span>
+                <h2>
+                  {!isSignedIn
+                    ? "Save this run to your SQC account."
+                    : !hasChessIdentity
+                      ? "Connect a chess username first."
+                      : isActive
+                        ? "This is your active Solo run."
+                        : "Start when you are ready for proof."}
+                </h2>
+                <p>
+                  {!isSignedIn
+                    ? "Sign in to make it your active Solo Side Quest, then SQC can keep receipts when the verifier finds a matching game."
+                    : !hasChessIdentity
+                      ? "SQC only needs your public Lichess or Chess.com username so the checker knows which games belong to you."
+                      : isActive
+                        ? "Play a public game on your connected account, then ask SQC to judge the latest result or jump to the proof checker below."
+                        : "Starting sets this as your one active Solo Side Quest. Existing receipts stay saved if you switch later."}
+                </p>
+              </div>
+              <div className="button-row hero-actions quest-detail-actions">
+                {!isSignedIn ? (
+                  <Link href="/sign-in" className="button primary">Sign in to start this side quest</Link>
+                ) : !hasChessIdentity ? (
+                  <Link href="/connect" className="button primary">Add username to start</Link>
+                ) : isActive ? (
+                  <a href="#latest-game-checker" className="button primary">Check latest game</a>
+                ) : (
+                  <StartQuestControls challenge={challenge} activeChallenge={unfinishedActiveChallenge} label="Start this side quest" />
+                )}
+                {isSignedIn && isActive ? <DeactivateQuestControl challenge={challenge} /> : null}
+              </div>
+              <div className="quest-detail-next-step-facts" aria-label="Run setup summary">
+                <Fact label="Proof source" value="Lichess or Chess.com public games" />
+                <Fact label="Verifier" value="Latest game, or a specific game after starting" />
+                <Fact label="Reward" value={`+${challenge.reward} points and coat unlock`} />
+              </div>
             </div>
           ) : null}
         </section>

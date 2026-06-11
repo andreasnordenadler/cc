@@ -364,7 +364,13 @@ p { color: var(--muted); line-height: 1.5; }
 .quest-detail-hero .challenge-badge-art.hero .badge-reference-art { width: min(240px, 62vw); max-height: 240px; }
 .detail-state-stamp { left: min(42%, 330px); top: 138px; width: min(76%, 270px); }
 .quest-detail-hero .active-quest-stamp.detail-state-stamp { z-index: 7; transform: rotate(-10deg); }
-.quest-detail-actions { margin-top: 0; }
+.quest-detail-next-step-panel { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(230px, .9fr); gap: 14px; align-items: start; padding: 16px; border: 1px solid rgba(96,240,175,.24); border-radius: 26px; background: radial-gradient(circle at 100% 0%, rgba(96,240,175,.14), transparent 42%), linear-gradient(135deg, rgba(0,0,0,.2), rgba(255,255,255,.06)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.quest-detail-next-step-copy { display: grid; gap: 8px; }
+.quest-detail-next-step-copy h2 { margin: 0; font-size: clamp(1.25rem, 2.5vw, 1.8rem); }
+.quest-detail-next-step-copy p { margin: 0; color: var(--muted); max-width: 68ch; }
+.quest-detail-actions { margin-top: 0; justify-content: flex-start; align-self: start; }
+.quest-detail-next-step-facts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.quest-detail-next-step-facts .fact { background: rgba(0,0,0,.18); }
 .quest-status-panel { display: grid; gap: 16px; border-color: rgba(96,240,175,.24); background: radial-gradient(circle at 86% 0%, rgba(96,240,175,.13), transparent 34%), rgba(255,255,255,.075); }
 .proof-check-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
 .proof-check-card { display: grid; gap: 10px; align-content: start; padding: 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 22px; background: linear-gradient(145deg, rgba(255,255,255,.095), rgba(255,255,255,.045)); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
@@ -506,6 +512,7 @@ p { color: var(--muted); line-height: 1.5; }
   .quest-detail-hero.completed-quest-card .quest-detail-hero-grid { grid-template-columns: 1fr; min-height: 0; padding-top: 210px; }
   .quest-detail-hero.completed-quest-card .quest-detail-copy { padding-right: 0; max-width: 100%; }
   .quest-detail-hero.completed-quest-card .quest-detail-copy h1 { max-width: min(78vw, 520px); }
+  .quest-detail-next-step-panel, .quest-detail-next-step-facts { grid-template-columns: 1fr; }
   .completed-quest-award { left: 24px; right: auto; top: 16px; width: min(50vw, 210px); min-width: 172px; }
   .completed-quest-award small { top: calc(100% + 18px); }
   .detail-state-stamp { left: 38px; top: 124px; width: min(76%, 220px); }
