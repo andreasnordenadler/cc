@@ -19,4 +19,7 @@ Continued the SQC website UX parity review after the Multiplayer create-flow pol
 
 ## Production
 
-Pending deploy/smoke for this focused language-cleanup commit.
+- Commit `61515e2` (`Polish remaining SQC product language`) pushed to `main`.
+- `pnpm deploy:prod` passed `pnpm quest:release-gate` and the production deploy guard.
+- Production deploy `https://cc-eegoim823-andreas-nordenadlers-projects.vercel.app` was aliased to `https://sidequestchess.com`.
+- Live smoke passed for production/deploy Community Solo detail, production Public Multiplayer, deploy signed-out Multiplayer create, and production signed-out Custom Solo account route. The smoke verified no remaining `recipe`, `account handoff`, `Start/check`, `Report weird`, `website creator`, `mobile-style`, or `mobile app` phrases on those pages.
