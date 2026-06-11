@@ -12,6 +12,10 @@ Continued the SQC website UX parity sprint on the flagged Custom Solo builder su
 ## Proof
 - `pnpm lint -- src/app/account/custom-side-quests/page.tsx src/app/globals.css` (CSS ignored-file warning only)
 - `pnpm build`
+- committed/pushed `8e71b2a`
+- `pnpm deploy:prod` including `pnpm quest:release-gate`
+- production deploy `https://cc-llqw7rsqp-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`
+- live smoke returned signed-out sign-in content for production/deploy `/account/custom-side-quests?copyChecklistSmoke=20260611`, plus 200 SQC content for `/challenges/community?copyChecklistSmoke=20260611` and `/groupquests/public?copyChecklistSmoke=20260611`
 
 ## Files
 - `src/app/account/custom-side-quests/page.tsx`
