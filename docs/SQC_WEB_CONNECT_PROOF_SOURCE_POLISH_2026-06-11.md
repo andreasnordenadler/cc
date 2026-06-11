@@ -14,4 +14,4 @@ Continued the SQC website UX parity sprint with the account-readiness/proof-sour
 - `pnpm build`
 
 ## Deployment / smoke
-Pending production deploy and live smoke for `/connect`, `/challenges`, and `/groupquests/public`.
+`pnpm deploy:prod` including `pnpm quest:release-gate`; production deploy `https://cc-3l8l5u9i4-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke returned 200 for production/deploy `/connect?connectProofSourceSmoke=20260611` with `Proof source` setup copy, 200 Solo discovery content, and 200 Public Multiplayer content.
