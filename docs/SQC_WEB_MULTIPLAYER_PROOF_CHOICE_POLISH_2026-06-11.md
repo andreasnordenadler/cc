@@ -24,6 +24,15 @@ Sprint: SQC website UX parity review (2026-06-10 20:18 → 2026-06-11 20:18 Euro
 - `pnpm build`
   - Passed.
 
-## Production smoke
+## Production deploy / smoke
 
-Pending deployment/smoke in this tick.
+- Committed/pushed `c74aaed` (`Polish Multiplayer proof choices`).
+- `pnpm deploy:prod`
+  - Included `pnpm quest:release-gate`.
+  - Production deploy: `https://cc-jjw3yf1xs-andreas-nordenadlers-projects.vercel.app`
+  - Aliased to `https://sidequestchess.com`
+- Live smoke:
+  - `https://sidequestchess.com/groupquests/seed-public-sqcseed11-11?multiProofChoiceSmoke=20260611` → 200 with `Run the latest-game check` and `Multiplayer`.
+  - Deploy URL seeded detail → 200 with `Run the latest-game check` and `Multiplayer`.
+  - `https://sidequestchess.com/groupquests/public?multiProofChoiceSmoke=20260611` → 200 with Public Multiplayer content.
+  - `https://sidequestchess.com/challenges/community?multiProofChoiceSmoke=20260611` → 200 with Community Solo / `Find your next run` content.
