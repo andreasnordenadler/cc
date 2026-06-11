@@ -23,4 +23,11 @@ Slice: Account Trophy Cabinet / proof receipts visual polish
 
 ## Deployment / smoke
 
-Pending production deploy and live smoke in this slice.
+- Commit: `d449b41` (`Polish account trophy receipt cards`)
+- Production deploy: `https://cc-39tj0sco3-andreas-nordenadlers-projects.vercel.app`
+- Aliased production: `https://sidequestchess.com`
+- Live smoke:
+  - `https://sidequestchess.com/account?trophyReceiptSmoke=20260611` → `307` to `/sign-in` as expected for signed-out account route
+  - deploy URL `/account?trophyReceiptSmoke=20260611` → `307` to `/sign-in`
+  - `https://sidequestchess.com/challenges?trophyReceiptSmoke=20260611` → `200` with SQC Side Quest content
+  - `https://sidequestchess.com/proof/preview-finish-any-game?trophyReceiptSmoke=20260611` → `200` with public proof receipt / proof board content
