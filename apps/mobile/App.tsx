@@ -1038,7 +1038,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
       },
     },
     browseKind: "coming-soon",
-    releaseDate: "2026-06-04",
+    releaseDate: "2026-06-25",
   },
   {
     id: "rook-lift-internship",
@@ -1072,7 +1072,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
       },
     },
     browseKind: "coming-soon",
-    releaseDate: "2026-06-11",
+    releaseDate: "2026-07-02",
   },
   {
     id: "queen-side-quest",
@@ -1106,7 +1106,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
       },
     },
     browseKind: "coming-soon",
-    releaseDate: "2026-06-18",
+    releaseDate: "2026-07-09",
   },
 ];
 

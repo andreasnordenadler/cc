@@ -60,7 +60,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Back-rank mate · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-05-28",
+    releaseDate: "2026-06-25",
   },
   {
     id: "late-castle-lifestyle",
@@ -93,7 +93,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Castled after move 15 · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-04",
+    releaseDate: "2026-07-02",
   },
   {
     id: "rook-lift-internship",
@@ -126,7 +126,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Early rook lift · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-11",
+    releaseDate: "2026-07-09",
   },
   {
     id: "double-check-drama",
@@ -159,6 +159,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Double check landed · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-07-16",
   },
   {
     id: "en-passant-tax",
@@ -191,6 +192,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "En passant played · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
+    releaseDate: "2026-07-23",
   },
   {
     id: "sacrifice-tax-bracket",
@@ -223,7 +225,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Two sacrifices · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-11",
+    releaseDate: "2026-07-30",
   },
   {
     id: "queen-side-quest",
@@ -256,7 +258,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Queen stayed on first rank · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-18",
+    releaseDate: "2026-08-06",
   },
   {
     id: "underpromotion-union",
@@ -289,7 +291,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Underpromotion played · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-06-25",
+    releaseDate: "2026-08-13",
   },
   {
     id: "lone-king-witness-protection",
@@ -322,7 +324,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     proofCallout: "Opponent had only king left · won the game",
     rules: [],
     requirement: { side: "either", result: "win" },
-    releaseDate: "2026-07-02",
+    releaseDate: "2026-08-20",
   },
 ];
 
