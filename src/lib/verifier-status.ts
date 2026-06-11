@@ -84,22 +84,22 @@ export const verifierStateLabels: Record<VerifierState, { label: string; classNa
     promise: "Latest-game verifier is live."
   },
   next: {
-    label: "Next adapter",
+    label: "Checker planned",
     className: "badge gold",
-    promise: "Rules are product-ready; the next implementation step is provider move-data normalization.",
+    promise: "Rules are ready; SQC still needs a finished Lichess and Chess.com checker before this can award receipts.",
   },
   spec: {
-    label: "Specified",
+    label: "Rules drafted",
     className: "badge",
-    promise: "Shown as a clear product contract now, not as a fake automated success claim.",
+    promise: "Shown as a clear rule promise, not as a fake automated success claim.",
   },
 };
 
 export function getVerifierStatus(challenge: Pick<Challenge, "id">) {
   return verifierStatusByChallenge[challenge.id] ?? {
     state: "spec",
-    summary: "Verifier not specified yet",
-    evidence: "This quest needs an explicit verifier contract before it can create automated receipts.",
+    summary: "Checker not ready yet",
+    evidence: "This quest needs a clear proof check before it can create automated receipts.",
   };
 }
 

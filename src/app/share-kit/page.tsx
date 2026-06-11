@@ -9,18 +9,18 @@ import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status"
 export const metadata: Metadata = {
   title: "Share Kit — Side Quest Chess",
   description:
-    "Quest-specific Side Quest Chess links, preview targets, and friend-copy for every side quest.",
+    "Quest-specific Side Quest Chess invite links, preview cards, and friend-copy for every Side Quest.",
   alternates: { canonical: "/share-kit" },
   openGraph: {
     title: "Side Quest Chess share kit",
-    description: "Every stupidly hard chess side quest, ready to send to a friend with exact quest links.",
+    description: "Every delightfully bad chess side quest, ready to send to a friend with exact quest links.",
     url: "/share-kit",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "Side Quest Chess share kit",
-    description: "Send exact friend-quest links for the SQC quest deck.",
+    description: "Send exact friend-quest links for the SQC Side Quest deck.",
   },
 };
 
@@ -36,9 +36,9 @@ export default function ShareKitPage() {
         <section className="hero-grid">
           <article className="hero-card">
             <span className="eyebrow">SQC share kit</span>
-            <h1>Every bad idea, packaged for one-tap peer pressure.</h1>
+            <h1>Every Side Quest, packaged for one-tap peer pressure.</h1>
             <p className="hero-copy">
-              Use this page when the product needs to spread: quest-specific friend-quest links, random rituals, and proof-preview targets in one place.
+              Pick a quest, copy the invite, and send your friend straight to the same rules, reward, coat of arms, and proof path.
             </p>
             <div className="button-row hero-actions">
               <Link href="/challenges" className="button primary">Share a quest</Link>
@@ -48,7 +48,7 @@ export default function ShareKitPage() {
 
             <div className="steps" aria-label="What the share kit covers">
               <Step num="1" title="Direct" copy="Every quest has its own friend-quest URL." />
-              <Step num="2" title="Previewable" copy="Quest links carry quest-specific social cards." />
+              <Step num="2" title="Previewable" copy="Invite links carry quest-specific social cards." />
               <Step num="3" title="Honest" copy="No fake wins, manual uploads, or serious training vibes." />
             </div>
           </article>
@@ -63,7 +63,7 @@ export default function ShareKitPage() {
             <p>{featured.objective}</p>
             <div className="note-card">
               <strong>Best first share:</strong>
-              <p>Lead with the queenless quest. It explains the whole product in one gloriously questionable chess decision.</p>
+              <p>Lead with the queenless quest. One gloriously questionable chess decision explains the SQC mood fast.</p>
             </div>
           </aside>
         </section>
@@ -98,7 +98,7 @@ export default function ShareKitPage() {
           <div className="checker-flow" aria-label="Friend quest share path">
             <div className="flow-step ready">
               <strong>1 · Invite</strong>
-              <p>Pick one exact side quest instead of pitching the whole product.</p>
+              <p>Pick one exact Side Quest instead of explaining the whole tavern.</p>
             </div>
             <div className="flow-step hot">
               <strong>2 · Play</strong>
@@ -119,7 +119,7 @@ export default function ShareKitPage() {
         <section className="section-head">
           <div>
             <span className="eyebrow">Quest-specific links</span>
-            <h2>Quest deck invite cards</h2>
+            <h2>Side Quest invite cards</h2>
           </div>
           <span className="badge gold">{CHALLENGES.length} links</span>
         </section>

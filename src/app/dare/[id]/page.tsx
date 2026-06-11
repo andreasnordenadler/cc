@@ -126,7 +126,7 @@ export default async function DarePage({
             <span className="badge gold">10-second quest</span>
           </div>
           <p>
-            This invite page now makes the handoff explicit: save this exact quest, play one normal public game on your chess site, and use My Side Quests for an honest pass, fail, or pending receipt.
+            Save this exact quest, play one normal public game on your chess site, and use My Side Quests for an honest pass, fail, or pending receipt.
           </p>
           <div className="proof-grid">
             <Fact label="Quest" value={challenge.title} />
@@ -144,7 +144,7 @@ export default async function DarePage({
             ) : (
               <Link href="/connect" className="button primary">Connect to accept quest</Link>
             )}
-            <Link href="/account" className="button secondary">Open checker</Link>
+            <Link href="/account" className="button secondary">Open My Side Quests</Link>
             <Link href="/result" className="button secondary">Preview receipt</Link>
           </div>
         </section>

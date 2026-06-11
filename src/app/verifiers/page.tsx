@@ -9,11 +9,11 @@ import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status"
 export const metadata: Metadata = {
   title: "Verifier status — Side Quest Chess",
   description:
-    "See which Side Quest Chess quests have live-backed proof, which verifiers are next, and how each quest will be checked from real games.",
+    "See which Side Quest Chess quests have live-backed proof, which checker paths are ready, and how each quest will be checked from real games.",
   openGraph: {
     title: "Verifier status — Side Quest Chess",
     description:
-      "The public verifier board for Side Quest Chess: live-backed proof, next adapters, and honest pending states for every weird chess quest.",
+      "The public verifier board for Side Quest Chess: live-backed proof, clear checker status, and honest pending states for every weird chess quest.",
     url: "/verifiers",
   },
 };
