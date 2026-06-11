@@ -373,6 +373,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
       .slice(0, MAX_VISIBLE_COMING_SOON_QUESTS);
   }, [difficulty, sort, status]);
 
+  const visibleQuestCount = visibleChallenges.length + visibleComingSoonChallenges.length;
   const hasActiveFilters = difficulty !== "All" || status !== "All" || sort !== "recommended";
 
   function resetFilters() {
@@ -381,11 +382,43 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
     setSort("recommended");
   }
 
+  function showStarterLane() {
+    setDifficulty("Easy");
+    setStatus("Open");
+    setSort("easy-first");
+  }
+
+  function showActiveRun() {
+    setDifficulty("All");
+    setStatus("Active");
+    setSort("recommended");
+  }
+
+  function showHighPointLane() {
+    setDifficulty("All");
+    setStatus("Open");
+    setSort("points-high");
+  }
+
   return (
     <>
       <section className="mission-card quest-filter-panel" aria-label="Quest filters and sorting">
-        <div>
-          <h2>Find your next Side Quest.</h2>
+        <div className="quest-filter-head">
+          <div>
+            <span className="eyebrow">Official Solo finder</span>
+            <h2>Find the right official run.</h2>
+            <p>Filter by difficulty, current progress, or the kind of proof receipt you want to chase next.</p>
+          </div>
+          <div className="quest-filter-count" aria-live="polite">
+            <strong>{visibleQuestCount}</strong>
+            <span>{visibleQuestCount === 1 ? "quest shown" : "quests shown"}</span>
+            {visibleComingSoonChallenges.length > 0 ? <small>{visibleComingSoonChallenges.length} scheduled</small> : null}
+          </div>
+        </div>
+        <div className="quest-filter-shortcuts" aria-label="Quick quest filters">
+          <button type="button" className="button secondary" onClick={showStarterLane}>Good first runs</button>
+          <button type="button" className="button secondary" onClick={showActiveRun}>My active run</button>
+          <button type="button" className="button secondary" onClick={showHighPointLane}>Big point targets</button>
         </div>
         <div className="quest-filter-grid">
           <label>
@@ -464,7 +497,15 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
           <em>{challenge.openingHint}</em>
         </div>
       </div>
-
+      <div className="quest-run-preview" aria-label={`${challenge.title} run preview`}>
+        <span>Run preview</span>
+        <p>{challenge.proofCallout || challenge.category}</p>
+        <small>{completed ? "Receipt ready in your Trophy Cabinet" : active ? "Active now — continue the proof check" : "Open the quest, start it, then prove a public game"}</small>
+      </div>
+      <div className="quest-card-next-step" aria-hidden="true">
+        <span>{completed ? "View receipt" : active ? "Continue run" : "Inspect quest"}</span>
+        <strong>→</strong>
+      </div>
     </Link>
   );
 }
