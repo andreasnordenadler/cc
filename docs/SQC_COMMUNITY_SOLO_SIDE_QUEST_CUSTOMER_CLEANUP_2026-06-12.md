@@ -35,3 +35,16 @@ Customer-facing cleanup for `/challenges/community` and related Community Solo S
 - Detail verification: `artifacts/community-ornate-coats-2026-06-12/local-detail-verification.json`
 - Accepted generated source list: `artifacts/community-ornate-coats-2026-06-12/pass-list.txt`
 - Previous simplified community coats backup: `artifacts/community-ornate-coats-2026-06-12/old-community-coats/`
+
+## Transparency correction
+
+After user review, the first ornate coat pass was identified as still having opaque dark backgrounds. Corrected all 48 community coat assets to RGBA PNGs with transparent outside/background regions.
+
+Verification added:
+- 48/48 files are `RGBA`.
+- 48/48 have corner alpha `0`.
+- 48/48 have substantial transparent outside area.
+- Contact-sheet visual QA over a warm checker background passed with no remaining opaque square/rectangular dark backgrounds.
+- Replaced `community-coat-47.png` with another QA-passed ornate source after visual QA caught a lingering dark rectangle.
+
+Artifact: `artifacts/community-transparent-fix-2026-06-12/transparent-contact-sheet-v2.png`.
