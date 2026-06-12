@@ -52,13 +52,13 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
       <div className="content-wrap challenges-page-wrap">
         <section className="challenges-clean-hero community-clean-hero" aria-labelledby="community-solo-title">
           <div>
-            <span className="eyebrow">Community Solo</span>
+            <span className="eyebrow">Community Solo Side Quests</span>
             <h1 id="community-solo-title">Player-made rules, clearly labeled.</h1>
             <p>
-              Community Solo is the public board for custom Side Quests. Browse lightly, inspect before starting, and keep Official SQC separate from player-made experiments.
+              Community Solo Side Quests are player-made challenges with clear rules, real-game proof, and their own ornate coat-of-arms rewards. Browse, choose a quest, and start from your account when one looks fun.
             </p>
           </div>
-          <div className="challenges-clean-hero-actions" aria-label="Community Solo actions">
+          <div className="challenges-clean-hero-actions" aria-label="Community Solo Side Quest actions">
             <Link className="mode-link-card" href="/challenges">
               <span>Official deck</span>
               <strong>Back to curated quests</strong>
@@ -73,8 +73,8 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
         <section className="community-board-card" aria-label="Public Community Solo Side Quest listings">
           <div className="community-board-head">
             <div>
-              <span className="eyebrow">Public board</span>
-              <h2>{selectedCreatorQuest ? `${selectedCreatorQuest.creatorName}'s public quests` : "Browse Community Solo"}</h2>
+              <span className="eyebrow">Community Side Quest hall</span>
+              <h2>{selectedCreatorQuest ? `${selectedCreatorQuest.creatorName}'s public quests` : "Browse Community Solo Side Quests"}</h2>
               <p>{quests.length ? `${visibleQuests.length} of ${quests.length} public quest${quests.length === 1 ? "" : "s"} shown.` : "No public Community Solo Side Quests are available yet."}</p>
             </div>
             <strong className="community-board-count">{visibleQuests.length}/{quests.length}</strong>
@@ -97,7 +97,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           ) : selectedCreator ? (
             <div className="community-context-note" role="status">
               <strong>No public quests for that player right now.</strong> The link may be stale or the quest may have been unpublished.
-              <CommunitySoloAnalyticsLink href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo</CommunitySoloAnalyticsLink>
+              <CommunitySoloAnalyticsLink href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo Side Quests</CommunitySoloAnalyticsLink>
             </div>
           ) : null}
 
@@ -107,7 +107,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </div>
           ) : (
             <div className="community-empty-state" role="status">
-              <p>{activeFilterCount ? "No Community Solo quests match those filters. Clear search or try a broader view." : "No public Community Solo quests yet. Publish one from Custom Solo Side Quests when you want the village to see it."}</p>
+              <p>{activeFilterCount ? "No Community Solo Side Quests match those filters. Clear search or try a broader view." : "No public Community Solo Side Quests yet. Publish one from Custom Solo Side Quests when you want the village to see it."}</p>
               <CommunitySoloAnalyticsLink className="button primary" href={activeFilterCount ? "/challenges/community" : "/account/custom-side-quests"} type={activeFilterCount ? "community_solo_browse" : "community_solo_account_handoff"} status={activeFilterCount ? "empty_clear" : "empty_account_handoff"}>{activeFilterCount ? "Clear filters" : "Open your custom quests"}</CommunitySoloAnalyticsLink>
             </div>
           )}
@@ -134,7 +134,7 @@ function CommunityDiscoveryControls({
 }) {
   const preserveCreator = creator ? <input type="hidden" name="creator" value={creator} /> : null;
   return (
-    <form action="/challenges/community" className="community-filter-bar" role="search" aria-label="Community Solo discovery filters">
+    <form action="/challenges/community" className="community-filter-bar" role="search" aria-label="Community Solo Side Quest discovery filters">
       {preserveCreator}
       <label className="community-search-field" htmlFor="community-search">
         <span>Search</span>
@@ -168,7 +168,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
     <article className="challenge-card community-side-quest-card community-side-quest-official-card">
       <div className="card-meta quest-card-meta">
         <strong className="quest-points">Community</strong>
-        <span className="badge difficulty-badge gold">Public Solo</span>
+        <span className="badge difficulty-badge gold">Community Solo Side Quest</span>
       </div>
       <div className="challenge-card-title-row community-card-title-row">
         <Link href={quest.detailPath} className="community-card-coat" aria-label={`${quest.title} details`}>
@@ -211,11 +211,11 @@ function formatDate(value: string) {
 
 function formatCommunityStats(quest: PublicCommunitySideQuest) {
   const parts = [
-    quest.stats.soloCompletions ? `${quest.stats.soloCompletions} Solo completion${quest.stats.soloCompletions === 1 ? "" : "s"}` : null,
+    quest.stats.soloCompletions ? `${quest.stats.soloCompletions} Solo Side Quest completion${quest.stats.soloCompletions === 1 ? "" : "s"}` : null,
     quest.stats.soloSelections ? `${quest.stats.soloSelections} active runner${quest.stats.soloSelections === 1 ? "" : "s"}` : null,
     quest.stats.multiplayerLineups ? `${quest.stats.multiplayerLineups} Multiplayer lineup${quest.stats.multiplayerLineups === 1 ? "" : "s"}` : null,
   ].filter(Boolean);
-  return parts.join(" · ") || "Fresh Community Solo quest";
+  return parts.join(" · ") || "Fresh Community Solo Side Quest";
 }
 
 function cleanCommunityQuery(value: unknown) {

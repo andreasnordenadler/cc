@@ -157,7 +157,7 @@ function isDisplayableCommunitySideQuest(quest: PublicCommunitySideQuest) {
 function normalizeCommunityBadgeImageUrl(value: string | null | undefined, questId: string) {
   if (value && (CUSTOM_SIDE_QUEST_BADGE_POOL as readonly string[]).includes(value)) return value;
   const hash = Array.from(questId).reduce((total, char) => total + char.charCodeAt(0), 0);
-  return CUSTOM_SIDE_QUEST_BADGE_POOL[hash % CUSTOM_SIDE_QUEST_BADGE_POOL.length] ?? "/badges/custom/clean/custom-coat-knight-gold.png";
+  return CUSTOM_SIDE_QUEST_BADGE_POOL[hash % CUSTOM_SIDE_QUEST_BADGE_POOL.length] ?? "/badges/custom/community/community-coat-01.png";
 }
 
 function capitalize(value: string) {

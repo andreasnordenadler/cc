@@ -99,11 +99,11 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <span className="eyebrow">My Custom Side Quests</span>
           <h1>{runnerDisplayName}&apos;s Custom Solo Side Quests.</h1>
           <p className="hero-copy">
-            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable quests, Community Solo releases, and retired ideas in one calm place.
+            Build, tune, prove, and share your own Solo Side Quests: private drafts, playable quests, Community Solo Side Quest releases, and retired ideas in one calm place.
           </p>
           <div className="hero-actions button-row">
-            <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo</a>
-            <Link className="button primary" href="/challenges/community">Browse Community Solo</Link>
+            <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo Side Quest</a>
+            <Link className="button primary" href="/challenges/community">Browse Community Solo Side Quests</Link>
             <Link className="button secondary" href="/groupquests/create">Use one in Multiplayer</Link>
           </div>
         </section>
@@ -122,7 +122,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
         {params.error ? <p className="form-status error" role="alert">{decodeURIComponent(params.error)}</p> : null}
 
         <section className="grid side-quest-mode-grid" aria-label="Custom Side Quest summary">
-          <StatCard label="Published public" value={publishedPublic} copy="Visible on the Community Solo browse page." />
+          <StatCard label="Published public" value={publishedPublic} copy="Visible on the Community Solo Side Quest browse page." />
           <StatCard label="Private" value={privateCount} copy="Only available to you and your own Multiplayer lineups." />
           <StatCard label="Draft / archived" value={draftCount + archivedCount} copy="Not public and not available for public discovery." />
         </section>
@@ -133,7 +133,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
               <span className="eyebrow">Saved quests</span>
               <h2>{customQuests.length ? "Your saved Custom Solo Side Quests." : "No saved Custom Solo Side Quests yet."}</h2>
               <p>
-                Create a clear starter rule here, search and filter saved quests, publish polished ones to Community Solo, archive retired ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
+                Create a clear starter rule here, search and filter saved quests, publish polished ones to Community Solo Side Quests, archive retired ideas, or restore an archived quest as a private draft. Private rule data stays hidden.
               </p>
             </div>
             <span className="badge gold">{filteredCustomQuests.length}/{customQuests.length}</span>
@@ -169,25 +169,25 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           )}
         </section>
 
-        <section className="mission-card" id="custom-side-quest-builder" aria-label="Create Custom Solo Side Quest">
+        <section className="mission-card" id="custom-side-quest-builder" aria-label="Create Custom Solo Side Quest Side Quest">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Custom Solo builder</span>
+              <span className="eyebrow">Custom Solo Side Quest builder</span>
               <h2>{editingQuest ? "Edit a Custom Solo Side Quest." : "Create a Custom Solo Side Quest."}</h2>
               <p>
-                Start with one clear proof condition, then open optional slots only when the quest needs them. Draft privately first, test proof checks, and publish to Community Solo when it feels ready.
+                Start with one clear proof condition, then open optional slots only when the quest needs them. Draft privately first, try proof checks, and publish to Community Solo Side Quests when it feels ready.
               </p>
             </div>
             <span className="badge gold">{editingQuest ? "Editing" : "New"}</span>
           </div>
 
-          <div className="custom-builder-guide" aria-label="Custom Solo builder flow">
+          <div className="custom-builder-guide" aria-label="Custom Solo Side Quest builder flow">
             <div><strong>1</strong><span>Name the quest</span><small>Give runners a clear tavern-card promise.</small></div>
             <div><strong>2</strong><span>Set proof rules</span><small>Keep it simple; optional slots stay tucked away.</small></div>
             <div><strong>3</strong><span>Save safely</span><small>Draft first, then release when the quest reads cleanly.</small></div>
           </div>
 
-          <div className="custom-builder-quality-strip" aria-label="Custom Solo quality checklist">
+          <div className="custom-builder-quality-strip" aria-label="Custom Solo Side Quest quality checklist">
             <div>
               <span className="eyebrow">Good quest check</span>
               <strong>Would a runner understand it in ten seconds?</strong>
@@ -200,7 +200,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             </div>
           </div>
 
-          <div className="custom-builder-starter-patterns" aria-label="Custom Solo starter examples">
+          <div className="custom-builder-starter-patterns" aria-label="Custom Solo Side Quest starter examples">
             <div className="custom-builder-starter-head">
               <span className="eyebrow">Quest starters</span>
               <strong>Pick the vibe before you touch the controls.</strong>
@@ -264,10 +264,10 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
                 <select name="lifecycle" defaultValue={builderDefaults.lifecycleChoice}>
                   <option value="draft">Draft (private)</option>
                   <option value="published-private">Playable privately</option>
-                  <option value="published-public">Publish to Community Solo</option>
+                  <option value="published-public">Publish to Community Solo Side Quests</option>
                 </select>
               </label>
-              <p className="microcopy">Drafts stay quiet in your account. Playable private Side Quests can be used by you. Community Solo releases can appear in discovery and be played by other runners.</p>
+              <p className="microcopy">Drafts stay quiet in your account. Playable private Side Quests can be used by you. Community Solo Side Quest releases can appear in discovery and be played by other runners.</p>
             </div>
             <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing saved quests with more than six conditions are preserved safely.</p>
             <div className="button-row">
@@ -310,13 +310,13 @@ function CustomLibraryFilters({ activeFilter, query }: { activeFilter: CustomLib
         <button className="button secondary" type="submit">Search quests</button>
         {query ? <Link className="button ghost" href={`/account/custom-side-quests?filter=${activeFilter}`}>Clear search</Link> : null}
       </form>
-      <div className="chip-row" aria-label="Saved Custom Solo filters">
+      <div className="chip-row" aria-label="Saved Custom Solo Side Quest filters">
         {filters.map((filter) => {
           const href = `/account/custom-side-quests?filter=${filter.value}${query ? `&q=${encodeURIComponent(query)}` : ""}`;
           return <Link key={filter.value} className={activeFilter === filter.value ? "badge gold" : "badge"} href={href}>{filter.label}</Link>;
         })}
       </div>
-      <p className="microcopy">Matches your saved Custom Solo filters while keeping private Side Quests and raw rule config inside your account.</p>
+      <p className="microcopy">Matches your saved Custom Solo Side Quest filters while keeping private Side Quests and raw rule config inside your account.</p>
     </div>
   );
 }
@@ -545,7 +545,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
             copy={`Try “${quest.title}” on Side Quest Chess — a public Custom Solo Side Quest.`}
             sharePath={`/challenges/community/${encodeURIComponent(quest.id)}`}
             shareLabel="Copy public quest link"
-            copiedCopy="Public Custom Solo link copied."
+            copiedCopy="Public Custom Solo Side Quest link copied."
             socialCopy={`Try “${quest.title}” on Side Quest Chess — a public Custom Solo Side Quest.`}
             socialTitle={`Try ${quest.title} on Side Quest Chess`}
             shareAriaLabel="Share public Custom Solo Side Quest on social media"
@@ -554,20 +554,20 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
         {proofPath ? (
           <div className="note-card" aria-label={`${quest.title} completed proof receipt share controls`}>
             <span className="eyebrow">Completed proof receipt</span>
-            <h4>Share your Custom Solo proof.</h4>
+            <h4>Share your Custom Solo Side Quest proof.</h4>
             <p className="microcopy">Public receipt link with provider, game, and board evidence only — private rule details and saved-quest state stay hidden.</p>
             <div className="button-row">
               <Link className="button secondary" href={proofPath}>Open proof receipt</Link>
             </div>
             <ShareProofActions
               challengeTitle={quest.title}
-              copy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo proof accepted. +100 points.`}
+              copy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo Side Quest proof accepted. +100 points.`}
               sharePath={proofPath}
               shareLabel="Copy proof link"
-              copiedCopy="Custom Solo proof link copied."
-              socialCopy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo proof accepted. +100 points.`}
+              copiedCopy="Custom Solo Side Quest proof link copied."
+              socialCopy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo Side Quest proof accepted. +100 points.`}
               socialTitle={`${quest.title} completed on Side Quest Chess`}
-              shareAriaLabel="Share Custom Solo proof on social media"
+              shareAriaLabel="Share Custom Solo Side Quest proof on social media"
               imagePath={proofToken ? publicProofImagePath(proofToken) : undefined}
               imageFileName="side-quest-chess-custom-solo-proof.png"
             />
@@ -602,7 +602,7 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
                   <article className="proof-check-card proof-check-card-primary">
                     <span className="eyebrow">Fastest check</span>
                     <h3>Judge my latest public game.</h3>
-                    <p>SQC checks your newest Lichess or Chess.com game against this Custom Solo rule and writes the receipt here when proof is available.</p>
+                    <p>SQC checks your newest Lichess or Chess.com game against this Custom Solo Side Quest rule and writes the receipt here when proof is available.</p>
                     <form action={runCustomQuestProofActionFromWeb}>
                       <input type="hidden" name="id" value={quest.id} />
                       <input type="hidden" name="action" value="check" />

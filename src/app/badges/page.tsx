@@ -40,7 +40,7 @@ export default async function CoatOfArmsPage() {
               <p>
                 {userId
                   ? "Your earned-vs-live Coat of Arms progress is ready here, with quick paths back to receipts and account trophies."
-                  : "Sign in when you want SQC to remember earned coats, proof receipts, Custom Solo trophies, and Multiplayer podium scrolls."}
+                  : "Sign in when you want SQC to remember earned coats, proof receipts, Custom Solo Side Quest trophies, and Multiplayer podium scrolls."}
               </p>
             </div>
             <Link href={userId ? "/account" : "/sign-in"} className="button secondary">

@@ -77,7 +77,7 @@ export default async function PublicProofPage({
     : null;
   const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked. +${payload.reward} points.`;
   const browseHref = challenge ? "/challenges" : "/challenges/community";
-  const browseLabel = challenge ? "Browse Official Solo" : "Browse Community Solo";
+  const browseLabel = challenge ? "Browse Official Solo Side Quests" : "Browse Community Solo Side Quests";
 
   return (
     <main className="site-shell">

@@ -169,7 +169,7 @@ export default async function Home() {
     title: string;
     meta: string;
     href: string;
-    kind: "Solo" | "Custom" | "Multiplayer";
+    kind: "Solo Side Quest" | "Custom" | "Multiplayer";
     image: string;
     officialChallenge?: (typeof CHALLENGES)[number];
   }> = [];
@@ -262,7 +262,7 @@ export default async function Home() {
         title: challenge.title,
         meta: `Unlocked ${challenge.badgeIdentity.name} · +${challenge.reward} points`,
         href: proofPath,
-        kind: "Solo" as const,
+        kind: "Solo Side Quest" as const,
         image:
           challenge.badgeIdentity.image ?? "/badges/proof-loop-test-badge.png",
         officialChallenge: challenge,
@@ -272,7 +272,7 @@ export default async function Home() {
       .filter((quest) => completedSet.has(quest.id))
       .map((quest) => ({
         title: quest.title,
-        meta: "Custom Solo proof saved to your Trophy Cabinet",
+        meta: "Custom Solo Side Quest proof saved to your Trophy Cabinet",
         href: "/account/custom-side-quests",
         kind: "Custom" as const,
         image:
@@ -314,22 +314,22 @@ export default async function Home() {
         >
           <article className="hero-card simplified-home-hero">
             <h1>
-              Chess, but with stupidly hard side quests — solo or multiplayer.
+              Chess, but with stupidly hard side quests — Solo Side Quest or Multiplayer.
             </h1>
             <p className="hero-copy">
               {isSignedIn
-                ? "Pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
-                : "Sign in, connect your public chess usernames, choose one ridiculous solo quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
+                ? "Pick a Solo Side Quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof."
+                : "Sign in, connect your public chess usernames, choose one ridiculous Solo Side Quest or Multiplayer Side Quest, play on Lichess or Chess.com and let SQC check your latest public games."}
             </p>
             <div
               className="button-row hero-actions home-mode-actions"
-              aria-label="Choose Solo or Multiplayer Side Quest mode"
+              aria-label="Choose Solo Side Quest or Multiplayer Side Quest mode"
             >
               <Link
                 href="/challenges"
                 className="button primary home-choice-button"
               >
-                Go on a <span>Solo</span> Side Quest
+                Go on a <span>Solo Side Quest</span>
               </Link>
               <Link
                 href="/groupquests"
@@ -421,7 +421,7 @@ export default async function Home() {
               aria-label="Signed-out product explanation"
             >
               <div className="flow-step ready">
-                <strong>Choose solo or multiplayer</strong>
+                <strong>Choose Solo Side Quest or Multiplayer</strong>
                 <p>
                   Start one quest for yourself, or join a Multiplayer Side Quest
                   when the bad idea deserves witnesses.
@@ -438,7 +438,7 @@ export default async function Home() {
                 <strong>Get the receipt</strong>
                 <p>
                   The latest-game checker returns passed, failed, or pending
-                  with a shareable proof card, solo progress, and multiplayer
+                  with a shareable proof card, Solo Side Quest progress, and multiplayer
                   leaderboard proof when relevant.
                 </p>
               </div>
@@ -502,7 +502,7 @@ export default async function Home() {
                   <h2>
                     {activeSoloQuest
                       ? activeSoloQuest.title
-                      : "No active solo quest yet."}
+                      : "No active Solo Side Quest yet."}
                   </h2>
                 </div>
               </div>
@@ -547,7 +547,7 @@ export default async function Home() {
                       ? activeSoloQuest.kind === "custom"
                         ? "Open My Custom Side Quests for exact-game proof, pause/reset controls, rule summaries, and saved receipts."
                         : "Open the quest page when you want the full rule card, exact-game proof, badge details, or public receipt."
-                      : "Start simple, then browse stranger official or Community Solo quests once the loop feels familiar."}
+                      : "Start simple, then browse stranger official or Community Solo Side Quests once the loop feels familiar."}
                   </p>
                 </div>
               </div>

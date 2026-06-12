@@ -269,9 +269,9 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                       <label className={checked ? "active" : undefined} key={quest.id}>
                         <input checked={checked} onChange={() => toggleQuest(quest.id)} type="checkbox" />
                         <span>
-                          <em>{quest.source === "custom" ? "Custom Solo" : quest.source === "snapshot" ? "Saved custom" : "Official Solo"}</em>
+                          <em>{quest.source === "custom" ? "Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved custom" : "Official Solo Side Quest"}</em>
                           <strong>{quest.title}</strong>
-                          <small>{quest.source === "custom" ? "Your Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved Custom Solo snapshot" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small>{quest.source === "custom" ? "Your Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved Custom Solo Side Quest snapshot" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
                         </span>
                       </label>
                     );

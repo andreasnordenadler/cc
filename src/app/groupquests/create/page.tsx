@@ -29,7 +29,7 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
       title: quest.title,
       objective: quest.summary,
       reward: 100,
-      difficulty: "Custom Solo",
+      difficulty: "Custom Solo Side Quest",
       source: "custom" as const,
     }));
 

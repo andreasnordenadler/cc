@@ -58,7 +58,7 @@ const reportChecklist = [
   },
   {
     label: "Community report",
-    copy: "For Community Solo or Multiplayer, include the quest/table link and the public player or host name shown on SQC.",
+    copy: "For Community Solo Side Quests or Multiplayer, include the quest/table link and the public player or host name shown on SQC.",
   },
 ];
 
@@ -169,7 +169,7 @@ function buildSupportDiagnostics(metadata: UserMetadataRecord) {
     `Runner display name saved: ${getRunnerDisplayName(metadata) ? "yes" : "no"}`,
     `Lichess username saved: ${getLichessUsername(metadata) ? "yes" : "no"}`,
     `Chess.com username saved: ${getChessComUsername(metadata) ? "yes" : "no"}`,
-    `Active solo quest: ${activeChallenge?.id ?? "none"}`,
+    `Active Solo Side Quest: ${activeChallenge?.id ?? "none"}`,
     `Completed solo quests: ${progress.totalCompletedChallenges}`,
     `Reward points: ${progress.totalRewardPoints}`,
     `Stored proof attempts: ${attempts.length}`,

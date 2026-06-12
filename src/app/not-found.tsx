@@ -24,7 +24,7 @@ export default async function NotFoundPage() {
             <div>
               <span className="eyebrow">Next step</span>
               <h2>Pick up the run from a safe room.</h2>
-              <p>Browse official Solo Side Quests, find a Multiplayer table, or ask Support if a proof receipt or Community Solo link should still exist.</p>
+              <p>Browse official Solo Side Quests, find a Multiplayer table, or ask Support if a proof receipt or Community Solo Side Quest link should still exist.</p>
             </div>
             <div className="button-row hero-actions quest-detail-actions">
               <Link className="button primary" href="/challenges">Browse Solo Side Quests</Link>

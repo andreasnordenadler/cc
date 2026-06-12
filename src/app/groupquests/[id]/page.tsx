@@ -227,7 +227,7 @@ export default async function GroupQuestByIdPage({
                       <img src={quest.badgeImage} alt="" />
                       <div>
                         <strong>{quest.title}</strong>
-                        <span>{quest.source === "custom" ? "Custom Solo snapshot · rule details stay safely summarized here" : "View full quest"}</span>
+                        <span>{quest.source === "custom" ? "Custom Solo Side Quest snapshot · rule details stay safely summarized here" : "View full quest"}</span>
                       </div>
                     </>
                   );
@@ -383,7 +383,7 @@ export default async function GroupQuestByIdPage({
                   <img src={quest.badgeImage} alt="" />
                   <span>
                     <strong>{quest.title}</strong>
-                    {quest.source === "custom" ? <small>Custom Solo snapshot · {quest.reward} pts</small> : null}
+                    {quest.source === "custom" ? <small>Custom Solo Side Quest snapshot · {quest.reward} pts</small> : null}
                   </span>
                 </>
               );

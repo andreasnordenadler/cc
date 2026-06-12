@@ -3910,3 +3910,14 @@ Andreas clarified that the previously listed items are still wanted and should b
 - [x] Remove bottom `Back to Side Quests` from Browse Multiplayer Side Quests; X close remains the escape hatch.
 - [x] Replace the filter-first `Browse by status` concept with a discovery-first Browse screen: open/joinable Multiplayer Side Quests are visible immediately, filters narrow the list secondarily, long open lists page via `Show more`, and finished player-created Multiplayer Side Quests move into a Recent results section.
 - Proof: mobile typecheck/lint/Android build/deploy verification recorded with APK v61 after implementation.
+
+## 2026-06-12 — Community Solo Side Quest customer-facing cleanup
+- [x] Replace simplified community-created Solo Side Quest coats with ornate text-free coat-of-arms assets and clean customer-facing copy.
+  - source: Andreas flagged `/challenges/community` as still not end-customer-facing and rejected simplified community coats.
+  - Acceptance:
+    - Community-created Solo Side Quests use ornate text-free coat-of-arms assets comparable in quality direction to the provided reference.
+    - `/challenges/community` and linked community detail pages do not use old simplified fallbacks.
+    - Customer-facing copy avoids bare `Solo`; visible labels use `Solo Side Quest`, `Community Solo Side Quest`, `Custom Solo Side Quest`, or `Official Solo Side Quest`.
+    - Testing/internal wording is removed from customer-facing Community Solo Side Quest copy.
+  - Verification: `pnpm lint`, `pnpm build`, local production rendered QA of `/challenges/community` (47/47 cards), and local production rendered QA of all 47 linked community detail pages.
+  - Proof: `docs/SQC_COMMUNITY_SOLO_SIDE_QUEST_CUSTOMER_CLEANUP_2026-06-12.md`, `artifacts/community-ornate-coats-2026-06-12/local-detail-verification.json`, and `artifacts/community-ornate-coats-2026-06-12/local-community-page-full.png`.

@@ -45,7 +45,7 @@ export default async function ProfilePage() {
     },
     {
       label: "Next run",
-      value: hasChessIdentity ? "Start a Solo or Multiplayer Side Quest" : "Save once, then pick a Side Quest",
+      value: hasChessIdentity ? "Start a Solo Side Quest or Multiplayer Side Quest" : "Save once, then pick a Side Quest",
       ready: hasChessIdentity,
     },
   ];

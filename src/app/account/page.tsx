@@ -180,7 +180,7 @@ export default async function MyQuestLogPage() {
             <div className="account-readiness-panel" aria-label="Account readiness and progress">
               <div className="account-readiness-head">
                 <span className="eyebrow">Account readiness</span>
-                <p>Your run setup at a glance: public SQC identity, chess username for proof checks, active Solo quest, saved proof receipts, Custom Solo, and Multiplayer activity.</p>
+                <p>Your run setup at a glance: public SQC identity, chess username for proof checks, active Solo Side Quest, saved proof receipts, Custom Solo Side Quests, and Multiplayer activity.</p>
               </div>
               <div className="account-run-checklist" aria-label="Ready to run checklist">
                 {runChecklistItems.map((item) => (
@@ -316,14 +316,14 @@ export default async function MyQuestLogPage() {
                           <div className="trophy-card-copy">
                             <Link href="/account/custom-side-quests"><strong>{quest.title}</strong></Link>
                             <em>{trophyCopy.line}</em>
-                            <span>{finishedAt ? <>Custom Solo proof logged <ProofTime value={finishedAt} /></> : "Custom Solo completed, allegedly."}</span>
+                            <span>{finishedAt ? <>Custom Solo Side Quest proof logged <ProofTime value={finishedAt} /></> : "Custom Solo Side Quest completed, allegedly."}</span>
                             <div className="trophy-proof-panel" aria-label={`${quest.title} proof receipt`}>
                               <span>Receipt</span>
                               <strong>{providerLabel}{gameId ? ` · ${gameId}` : ""}</strong>
-                              <small>{proofSummary || "Custom Solo proof is saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
+                              <small>{proofSummary || "Custom Solo Side Quest proof is saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
                             </div>
                             <div className="trophy-card-actions">
-                              <Link href="/account/custom-side-quests" className="button secondary">Open Custom Solo receipt</Link>
+                              <Link href="/account/custom-side-quests" className="button secondary">Open Custom Solo Side Quest receipt</Link>
                             </div>
                           </div>
                           <span className="won-card-seal solo" aria-hidden="true">

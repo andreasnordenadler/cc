@@ -359,7 +359,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                           type="checkbox"
                         />
                         <span>
-                          <em>{quest.source === "custom" ? "Custom Solo" : "Official Solo"}</em>
+                          <em>{quest.source === "custom" ? "Custom Solo Side Quest" : "Official Solo Side Quest"}</em>
                           <strong>{quest.title}</strong>
                           <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
                         </span>

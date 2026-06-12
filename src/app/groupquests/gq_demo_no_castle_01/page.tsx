@@ -14,7 +14,7 @@ const participants = [
 const eventFeed = [
   { label: "Proof accepted", copy: "Andreas completed No Castle Club with a Multiplayer Side Quest-valid game." },
   { label: "Player joined", copy: "QueenlessHero joined after reviewing the locked rules." },
-  { label: "Window opened", copy: "Solo completions before this start time do not count here." },
+  { label: "Window opened", copy: "Solo Side Quest completions before this start time do not count here." },
 ];
 
 const settingCards = [

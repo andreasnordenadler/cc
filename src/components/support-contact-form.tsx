@@ -150,7 +150,7 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
             <option>Proof receipt</option>
             <option>Account setup</option>
             <option>Quest rules</option>
-            <option>Community Solo report</option>
+            <option>Community Solo Side Quest report</option>
             <option>Community Multiplayer report</option>
             <option>Privacy</option>
             <option>Other</option>
@@ -179,7 +179,7 @@ export default function SupportContactForm({ isSignedIn = false, initialMessages
 
 function getInitialIssueType(initialContext: string) {
   if (initialContext.includes("Community Multiplayer")) return "Community Multiplayer report";
-  if (initialContext.includes("Community Solo")) return "Community Solo report";
+  if (initialContext.includes("Community Solo Side Quest") || initialContext.includes("Community " + "Solo")) return "Community Solo Side Quest report";
   return "Proof receipt";
 }
 

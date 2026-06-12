@@ -21,7 +21,7 @@ const overviewSteps = [
   },
   {
     title: "Prove",
-    copy: "Each Multiplayer Side Quest gets its own leaderboard, event feed, and multiplayer-valid proof separate from solo progress.",
+    copy: "Each Multiplayer Side Quest gets its own leaderboard, event feed, and multiplayer-valid proof separate from Solo Side Quest progress.",
   },
 ];
 
@@ -55,7 +55,7 @@ const tableGuideCards = [
   },
   {
     title: "Host your own",
-    copy: "Create a launch-ready Multiplayer Side Quest with official or Custom Solo rules and proof settings.",
+    copy: "Create a launch-ready Multiplayer Side Quest with official or Custom Solo Side Quest rules and proof settings.",
     action: "Build a table",
     href: "/groupquests/create",
   },

@@ -407,7 +407,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
       <section className="mission-card quest-filter-panel" aria-label="Quest filters and sorting">
         <div className="quest-filter-head">
           <div>
-            <span className="eyebrow">Official Solo finder</span>
+            <span className="eyebrow">Official Solo Side Quest finder</span>
             <h2>Find the right official run.</h2>
             <p>Filter by difficulty, current progress, or the kind of proof receipt you want to chase next.</p>
           </div>

@@ -31,7 +31,7 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
       title: quest.title,
       objective: quest.summary,
       reward: 100,
-      difficulty: "Custom Solo",
+      difficulty: "Custom Solo Side Quest",
       source: "custom" as const,
     }));
   const snapshotQuests = (record.groupQuest.customQuestSnapshots ?? [])

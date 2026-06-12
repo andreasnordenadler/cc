@@ -55,7 +55,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
             </div>
             <div className="button-row hero-actions">
               <button type="button" className="button pink" onClick={spinNextDare}>Spin another quest</button>
-              <Link href={`/challenges/${selectedChallenge.id}`} className="button primary">Start this Solo quest</Link>
+              <Link href={`/challenges/${selectedChallenge.id}`} className="button primary">Start this Solo Side Quest</Link>
               <Link href={`/dare/${selectedChallenge.id}`} className="button secondary">Share as friend quest</Link>
             </div>
           </div>

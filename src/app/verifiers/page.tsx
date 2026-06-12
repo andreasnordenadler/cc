@@ -50,7 +50,7 @@ export default async function VerifiersPage() {
         </section>
 
         <section className="grid" aria-label="Verifier summary">
-          <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every current quest now has an automated latest-game verifier instead of a fake-success or upload-your-PGN workaround." />
+          <Fact label="Live verifiers" value={`${liveCount} quests`} copy="Every current quest now has an automated latest-game verifier with a clear public-game proof path." />
           <Fact label="Dual-host coverage" value={`${dualHostCount} quests`} copy="Every current quest can read either Lichess UCI evidence or Chess.com PGN evidence today." />
           <Fact label={parityLabel} value={parityValue} copy={parityCopy} />
         </section>
