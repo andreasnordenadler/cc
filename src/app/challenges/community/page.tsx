@@ -102,7 +102,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           ) : null}
 
           {visibleQuests.length ? (
-            <div className="community-quest-list">
+            <div className="big-grid community-quest-card-grid">
               {visibleQuests.map((quest) => <CommunityQuestCard key={`${quest.creatorUserId}:${quest.id}`} quest={quest} />)}
             </div>
           ) : (
@@ -165,33 +165,36 @@ function CommunityDiscoveryControls({
 
 function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
   return (
-    <article className="community-quest-row-card">
-      <div className="community-quest-badge" aria-hidden="true">
-        <Image src={quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png"} alt="" width={86} height={86} />
+    <article className="challenge-card community-side-quest-card community-side-quest-official-card">
+      <div className="card-meta quest-card-meta">
+        <strong className="quest-points">Community</strong>
+        <span className="badge difficulty-badge gold">Public Solo</span>
       </div>
-      <div className="community-quest-main-copy">
-        <span className="community-quest-source">Community · by {quest.creatorName}</span>
-        <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
-        <p>{quest.summary}</p>
-        <div className="community-quest-tags" aria-label={`${quest.title} quick facts`}>
-          <span>{quest.ruleLabel}</span>
-          <span>{formatCommunityStats(quest)}</span>
-          <span>Updated {formatDate(quest.updatedAt)}</span>
+      <div className="challenge-card-title-row community-card-title-row">
+        <Link href={quest.detailPath} className="community-card-coat" aria-label={`${quest.title} details`}>
+          <Image src={quest.badgeImageUrl || "/badges/custom/community/community-coat-01.png"} alt="" width={156} height={156} />
+        </Link>
+        <div>
+          <span className="community-quest-source">By {quest.creatorName}</span>
+          <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
+          <p>{quest.summary}</p>
+          <em>{quest.ruleLabel}</em>
         </div>
       </div>
-      <div className="community-quest-rule-stack" aria-label={`${quest.title} rule preview`}>
-        <strong>Rule preview</strong>
+      <div className="quest-run-preview community-card-rule-preview" aria-label={`${quest.title} rule preview`}>
+        <span>Rule preview</span>
         <ul>
           {quest.ruleDetails.slice(0, 2).map((detail) => <li key={detail}>{detail}</li>)}
         </ul>
+        <small>{formatCommunityStats(quest)} · Updated {formatDate(quest.updatedAt)}</small>
       </div>
-      <div className="community-quest-row-actions">
-        <CommunitySoloAnalyticsLink className="button primary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect</CommunitySoloAnalyticsLink>
+      <div className="community-card-actions">
+        <CommunitySoloAnalyticsLink className="button primary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
         <CommunitySoloAnalyticsLink className="button secondary" href="/account/custom-side-quests" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
-        <div>
-          <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>
-          <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report</CommunitySoloAnalyticsLink>
-        </div>
+      </div>
+      <div className="community-card-secondary-actions" aria-label={`${quest.title} secondary actions`}>
+        <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>
+        <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report</CommunitySoloAnalyticsLink>
       </div>
     </article>
   );

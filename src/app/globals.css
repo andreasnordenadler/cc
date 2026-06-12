@@ -2095,3 +2095,89 @@ p { color: var(--muted); line-height: 1.5; }
   .community-filter-bar { grid-template-columns: 1fr; }
   .challenges-clean-hero-actions { grid-template-columns: 1fr; }
 }
+
+/* SQC Community Solo browse correction — official-style cards + real community coats */
+.community-quest-card-grid { align-items: stretch; }
+.community-side-quest-official-card {
+  min-height: 430px;
+  grid-template-rows: auto auto 1fr auto auto;
+  border-color: rgba(245,200,106,.18);
+  background:
+    radial-gradient(circle at 18% 4%, rgba(245,200,106,.17), transparent 34%),
+    radial-gradient(circle at 92% 14%, rgba(96,240,175,.10), transparent 34%),
+    rgba(255,255,255,.072);
+}
+.community-side-quest-official-card:hover,
+.community-side-quest-official-card:focus-within {
+  border-color: rgba(245,200,106,.42);
+  background:
+    radial-gradient(circle at 18% 4%, rgba(245,200,106,.21), transparent 34%),
+    radial-gradient(circle at 92% 14%, rgba(96,240,175,.13), transparent 34%),
+    rgba(255,255,255,.09);
+}
+.community-card-title-row {
+  grid-template-columns: minmax(124px, 156px) minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+.community-card-coat {
+  display: grid;
+  place-items: center;
+  width: 156px;
+  min-width: 124px;
+  aspect-ratio: 1;
+  padding: 7px;
+  border-radius: 28px;
+  background: radial-gradient(circle at 50% 42%, rgba(255,255,255,.13), rgba(0,0,0,.08) 58%, transparent 72%);
+}
+.community-card-coat img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 22px rgba(0,0,0,.42)) drop-shadow(0 0 18px rgba(245,200,106,.12));
+}
+.community-card-title-row h3 { margin: 3px 0 7px; font-size: clamp(1.28rem, 2.4vw, 1.75rem); line-height: .95; }
+.community-card-title-row h3 a:hover,
+.community-card-title-row h3 a:focus-visible { color: var(--gold); outline: none; }
+.community-card-title-row p { font-size: .94rem; line-height: 1.38; }
+.community-card-title-row em { display: block; margin-top: 8px; color: var(--ink); font-style: normal; font-weight: 900; line-height: 1.28; }
+.community-side-quest-official-card .community-quest-source {
+  color: var(--green);
+  font-size: .74rem;
+  font-weight: 950;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.community-card-rule-preview ul {
+  display: grid;
+  gap: 5px;
+  margin: 3px 0 2px;
+  padding-left: 18px;
+  color: var(--ink);
+  font-size: .9rem;
+  font-weight: 800;
+  line-height: 1.34;
+}
+.community-card-rule-preview li::marker { color: var(--gold); }
+.community-card-rule-preview small { display: block; margin-top: 6px; }
+.community-card-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.community-card-actions .button { min-height: 42px; padding: 10px 12px; text-align: center; }
+.community-card-secondary-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 13px;
+  flex-wrap: wrap;
+  color: #ddd2be;
+  font-size: .82rem;
+  font-weight: 900;
+}
+.community-card-secondary-actions a { color: #ddd2be; text-decoration: none; }
+.community-card-secondary-actions a:hover,
+.community-card-secondary-actions a:focus-visible { color: var(--gold); outline: none; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 700px) {
+  .community-card-title-row { grid-template-columns: 1fr; justify-items: start; }
+  .community-card-coat { width: min(190px, 70vw); justify-self: center; }
+  .community-card-actions { grid-template-columns: 1fr; }
+}
