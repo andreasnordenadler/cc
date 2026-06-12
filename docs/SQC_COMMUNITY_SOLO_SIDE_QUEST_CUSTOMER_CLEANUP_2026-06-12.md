@@ -48,3 +48,14 @@ Verification added:
 - Replaced `community-coat-47.png` with another QA-passed ornate source after visual QA caught a lingering dark rectangle.
 
 Artifact: `artifacts/community-transparent-fix-2026-06-12/transparent-contact-sheet-v2.png`.
+
+## Outside-only transparency correction
+
+The first transparency correction over-keyed dark pixels and created transparent holes inside some coat-of-arms artwork. Fixed by restoring the original ornate opaque sources, then applying a filled outside-only silhouette mask that preserves every non-background artwork pixel inside the coat.
+
+Verification added:
+- Programmatic alpha check: 48/48 files have transparent corners.
+- Programmatic central-hole check: 0 assets flagged for transparent holes in the central artwork area.
+- Visual contact-sheet QA over high-contrast checker: PASS, no internal transparent cutouts and no remaining opaque square/rectangular backgrounds.
+
+Artifact: `artifacts/community-outside-only-alpha-2026-06-12/contact-sheet-outside-only.png`.
