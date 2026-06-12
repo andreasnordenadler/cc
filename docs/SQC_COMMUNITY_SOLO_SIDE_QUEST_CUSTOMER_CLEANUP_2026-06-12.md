@@ -59,3 +59,14 @@ Verification added:
 - Visual contact-sheet QA over high-contrast checker: PASS, no internal transparent cutouts and no remaining opaque square/rectangular backgrounds.
 
 Artifact: `artifacts/community-outside-only-alpha-2026-06-12/contact-sheet-outside-only.png`.
+
+## Solid crest-mask correction
+
+The outside-only pixel-derived mask was still not good enough in live review. Replaced that approach with a deterministic solid crest-shaped alpha mask applied to restored opaque ornate source artwork. This mask never keys dark pixels and cannot create transparent holes inside the coat artwork; it only clips the exterior into a filled crest silhouette.
+
+Verification added:
+- Programmatic check: 48/48 files have transparent corners.
+- Programmatic central-hole check: 0 assets with transparent pixels in the central artwork zone.
+- Visual contact-sheet QA over high-contrast checker: PASS, no internal cutouts and no obvious square/rectangular backgrounds.
+
+Artifact: `artifacts/community-solid-crest-alpha-2026-06-12/contact-sheet-solid-crest.png`.
