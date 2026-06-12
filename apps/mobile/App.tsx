@@ -1111,7 +1111,6 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
 ];
 
 const SQC_COAT_OF_ARMS_ASSET = require("./assets/sqc-coat-of-arms.png") as ImageSourcePropType;
-const SQC_CUSTOM_SIDE_QUEST_CREST_ASSET = require("./assets/badges/custom-side-quest-crest.png") as ImageSourcePropType;
 const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
 const SQC_MULTIPLAYER_SEAL_ASSET = require("./assets/stamps/sqc-multiplayer-seal.png") as ImageSourcePropType;
 const getMultiplayerSealSource = (quest?: { official?: boolean | null; id?: string | null } | null) => (quest?.official || quest?.id?.startsWith("official-") ? SQC_BLACK_SEAL_ASSET : SQC_MULTIPLAYER_SEAL_ASSET);
@@ -3366,7 +3365,7 @@ function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | 
   return `${name} is published and ready to play.`;
 }
 
-const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/custom-side-quest-crest.png";
+const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/community/community-coat-01.png";
 
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
   if (!stats) return "No attempts yet";
@@ -3408,7 +3407,6 @@ function getMultiplayerCommunitySortTime(quest: MobileGroupQuestSummary, sort: M
 
 function getCustomQuestImageSource(badgeImageUrl?: string | null): ImageSourcePropType {
   const badgePath = getSingleCustomQuestBadgePath(badgeImageUrl);
-  if (badgePath.includes("custom-side-quest-crest.png")) return SQC_CUSTOM_SIDE_QUEST_CREST_ASSET;
   return { uri: absoluteAssetUrl(badgePath) };
 }
 
@@ -3607,7 +3605,6 @@ function getBrowseStatusTone(status: string): "green" | "gold" | "orange" | "dan
 function getRowImageSource(url: string | null): ImageSourcePropType | null {
   if (!url) return null;
   const badgePath = getSingleCustomQuestBadgePath(url);
-  if (badgePath.includes("custom-side-quest-crest.png")) return SQC_CUSTOM_SIDE_QUEST_CREST_ASSET;
   return { uri: absoluteAssetUrl(badgePath) };
 }
 

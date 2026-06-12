@@ -5,7 +5,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
 import { buildPublicProofPath } from "@/lib/proof-share";
 import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
-import { getCustomSideQuests } from "@/lib/custom-side-quests";
+import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   buildAttemptSummary,
   challengeBanner,
@@ -120,7 +120,7 @@ export async function GET(request: Request) {
       completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
       href: new URL(`/challenges`, baseUrl).toString(),
       proofHref: null,
-      badgeImageUrl: new URL("/badges/custom/clean/custom-coat-knight-gold.png", baseUrl).toString(),
+      badgeImageUrl: new URL(getCustomSideQuestBadgeUrl(quest), baseUrl).toString(),
       gameId: latestPassed?.gameId ?? null,
       provider: latestPassed?.provider ?? null,
       finalPositionFen: latestPassed?.finalPositionFen ?? null,
@@ -144,7 +144,7 @@ export async function GET(request: Request) {
       completedAt: latestPassed?.completedGameAt ?? latestPassed?.checkedAt ?? null,
       href: new URL(`/challenges`, baseUrl).toString(),
       proofHref: null,
-      badgeImageUrl: quest.badgeImageUrl ? new URL(quest.badgeImageUrl, baseUrl).toString() : new URL("/badges/custom/clean/custom-coat-knight-gold.png", baseUrl).toString(),
+      badgeImageUrl: new URL(getCustomSideQuestBadgeUrl(quest), baseUrl).toString(),
       gameId: latestPassed?.gameId ?? null,
       provider: latestPassed?.provider ?? null,
       finalPositionFen: latestPassed?.finalPositionFen ?? null,
@@ -287,6 +287,7 @@ export async function GET(request: Request) {
   });
   const customSideQuestsWithStats = customSideQuests.map((quest) => ({
     ...quest,
+    badgeImageUrl: getCustomSideQuestBadgeUrl(quest),
     stats: buildCustomQuestStats({
       questId: quest.id,
       attempts,
@@ -448,6 +449,7 @@ async function listPublicCommunitySideQuests(
         const lineups = groupQuests.filter((groupQuest) => groupQuest.questIds.includes(quest.id));
         return {
           ...quest,
+          badgeImageUrl: getCustomSideQuestBadgeUrl(quest),
           creatorName,
           ownedByYou: ownerUserId === currentUserId,
           stats: {
