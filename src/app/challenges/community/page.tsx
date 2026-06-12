@@ -41,7 +41,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
   const activeFilterCount = [selectedCreator, communityQuery, communityFilter !== "all" ? communityFilter : null].filter(Boolean).length;
 
   return (
-    <main className="site-shell">
+    <main className="site-shell challenges-page-shell">
       <CommunitySoloAnalytics
         type={selectedCreator ? "community_solo_creator_filter" : "community_solo_browse"}
         status={selectedCreator ? "creator_filter" : communityFilter}
@@ -49,45 +49,35 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
       />
       <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
 
-      <div className="content-wrap">
-        <section className="hero-card side-quests-hub-hero">
-          <span className="eyebrow">Community Solo Side Quests</span>
-          <h1>The bad ideas escaped into the village.</h1>
-          <p className="hero-copy">
-            Browse public Solo Side Quests made by SQC players. Some are elegant. Some are cursed. Inspect the rules, share a link, report anything off, and start the quest from the same SQC account you use everywhere.
-          </p>
-          <div className="hero-actions button-row">
-            <Link className="button secondary" href="/challenges">Back to SQC Official</Link>
-            <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" status="browse_hero">Open account to start</CommunitySoloAnalyticsLink>
+      <div className="content-wrap challenges-page-wrap">
+        <section className="challenges-clean-hero community-clean-hero" aria-labelledby="community-solo-title">
+          <div>
+            <span className="eyebrow">Community Solo</span>
+            <h1 id="community-solo-title">Player-made rules, clearly labeled.</h1>
+            <p>
+              Community Solo is the public board for custom Side Quests. Browse lightly, inspect before starting, and keep Official SQC separate from player-made experiments.
+            </p>
+          </div>
+          <div className="challenges-clean-hero-actions" aria-label="Community Solo actions">
+            <Link className="mode-link-card" href="/challenges">
+              <span>Official deck</span>
+              <strong>Back to curated quests</strong>
+            </Link>
+            <CommunitySoloAnalyticsLink className="mode-link-card" href="/account/custom-side-quests" type="community_solo_account_handoff" status="browse_hero">
+              <span>Your customs</span>
+              <strong>Create or publish</strong>
+            </CommunitySoloAnalyticsLink>
           </div>
         </section>
 
-        <section className="mission-card" aria-label="Community Solo Side Quest explanation">
-          <div className="section-head">
+        <section className="community-board-card" aria-label="Public Community Solo Side Quest listings">
+          <div className="community-board-head">
             <div>
-              <span className="eyebrow">How community works</span>
-              <h2>Public Side Quests, private chaos control.</h2>
-              <p>
-                Community Side Quests are player-created rules published for other players to inspect and try. SQC Official quests stay separate; Community is where the weird experiments live.
-              </p>
+              <span className="eyebrow">Public board</span>
+              <h2>{selectedCreatorQuest ? `${selectedCreatorQuest.creatorName}'s public quests` : "Browse Community Solo"}</h2>
+              <p>{quests.length ? `${visibleQuests.length} of ${quests.length} public quest${quests.length === 1 ? "" : "s"} shown.` : "No public Community Solo Side Quests are available yet."}</p>
             </div>
-          </div>
-          <div className="grid side-quest-mode-grid">
-            <InfoCard title="SQC Official stays curated" copy="Official quests are released by SQC with verifier gates and coat-of-arms identity." />
-            <InfoCard title="Community stays labeled" copy="Player-created quests show public player names and custom rule summaries so you know whose bad idea you are borrowing." />
-            <InfoCard title="Ready when the rule hooks you" copy="Community Solo keeps discovery, inspection, starting, proof, reporting, and rewards in one SQC account path, so a strange public Side Quest can become your next run without losing context." />
-            <InfoCard title="Report quest issues" copy="If a public rule looks abusive, confusing, or broken, use Support and include the quest title. Community should feel odd, not hostile." />
-          </div>
-        </section>
-
-        <section className="mission-card" aria-label="Public Community Solo Side Quest listings">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Open Community Solo</span>
-              <h2>Pick someone else’s strange rule.</h2>
-              <p>{quests.length ? `${visibleQuests.length} of ${quests.length} public Community Solo Side Quest${quests.length === 1 ? "" : "s"}${selectedCreatorQuest ? ` by ${selectedCreatorQuest.creatorName}` : " available right now"}.` : "No public Community Solo Side Quests are available yet."}</p>
-            </div>
-            <span className="badge gold">{visibleQuests.length}/{quests.length}</span>
+            <strong className="community-board-count">{visibleQuests.length}/{quests.length}</strong>
           </div>
 
           <CommunityDiscoveryControls
@@ -100,28 +90,25 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           />
 
           {selectedCreatorQuest ? (
-            <div className="groupquest-empty-state" id={`creator-${selectedCreatorQuest.creatorKey}`}>
-              <p><strong>{selectedCreatorQuest.creatorName}</strong> has {visibleQuests.length} public Community Solo Side Quest{visibleQuests.length === 1 ? "" : "s"} on the public board. This view only shows published quests from that public player label; private account details stay private.</p>
-              <CommunitySoloAnalyticsLink className="button secondary" href="/challenges/community" type="community_solo_browse" status="clear_creator_filter">Show everyone</CommunitySoloAnalyticsLink>
+            <div className="community-context-note" id={`creator-${selectedCreatorQuest.creatorKey}`}>
+              Showing public quests from <strong>{selectedCreatorQuest.creatorName}</strong>. Private drafts and account details stay hidden.
+              <CommunitySoloAnalyticsLink href="/challenges/community" type="community_solo_browse" status="clear_creator_filter">Show everyone</CommunitySoloAnalyticsLink>
             </div>
           ) : selectedCreator ? (
-            <div className="groupquest-empty-state" role="status">
-              <p><strong>No public quests for that player right now.</strong> The link may be stale, the Side Quest may have been unpublished, or the public label may have changed. Nothing private is shown just because a URL guessed at it.</p>
-              <div className="button-row">
-                <CommunitySoloAnalyticsLink className="button primary" href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo</CommunitySoloAnalyticsLink>
-                <CommunitySoloAnalyticsLink className="button secondary" href="/support?topic=community-side-quest" type="community_solo_report_click" status="creator_filter_miss_support">Ask Support</CommunitySoloAnalyticsLink>
-              </div>
+            <div className="community-context-note" role="status">
+              <strong>No public quests for that player right now.</strong> The link may be stale or the quest may have been unpublished.
+              <CommunitySoloAnalyticsLink href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo</CommunitySoloAnalyticsLink>
             </div>
           ) : null}
 
           {visibleQuests.length ? (
-            <div className="big-grid starter-route-grid">
+            <div className="community-quest-list">
               {visibleQuests.map((quest) => <CommunityQuestCard key={`${quest.creatorUserId}:${quest.id}`} quest={quest} />)}
             </div>
           ) : (
-            <div className="groupquest-empty-state" role="status">
-              <p>{activeFilterCount ? "No public Community Solo Side Quests match those filters yet. Try clearing search, player, or completion filters; private drafts and account details stay hidden." : selectedCreator ? "No public Community Solo Side Quests are visible for that player right now. The Side Quest may have been unpublished, archived, or cleaned up." : "No public Community Solo Side Quests yet. Publish one from your Custom Solo Side Quests and become the local goblin of chess rules."}</p>
-              <CommunitySoloAnalyticsLink className="button primary" href={selectedCreator ? "/challenges/community" : "/account"} type={selectedCreator ? "community_solo_browse" : "community_solo_account_handoff"} status={selectedCreator ? "empty_creator_clear" : "empty_account_handoff"}>{selectedCreator ? "Show all Community Solo" : "Open account"}</CommunitySoloAnalyticsLink>
+            <div className="community-empty-state" role="status">
+              <p>{activeFilterCount ? "No Community Solo quests match those filters. Clear search or try a broader view." : "No public Community Solo quests yet. Publish one from Custom Solo Side Quests when you want the village to see it."}</p>
+              <CommunitySoloAnalyticsLink className="button primary" href={activeFilterCount ? "/challenges/community" : "/account/custom-side-quests"} type={activeFilterCount ? "community_solo_browse" : "community_solo_account_handoff"} status={activeFilterCount ? "empty_clear" : "empty_account_handoff"}>{activeFilterCount ? "Clear filters" : "Open your custom quests"}</CommunitySoloAnalyticsLink>
             </div>
           )}
         </section>
@@ -147,89 +134,63 @@ function CommunityDiscoveryControls({
 }) {
   const preserveCreator = creator ? <input type="hidden" name="creator" value={creator} /> : null;
   return (
-    <div className="groupquest-empty-state community-discovery-panel" role="search" aria-label="Community Solo discovery filters">
-      <div className="community-discovery-intro">
-        <span className="eyebrow">Find your next run</span>
-        <p>Search the public board, filter by momentum, then inspect the rule before you commit. Nothing starts until you choose it from your SQC account.</p>
-      </div>
-      <form action="/challenges/community" className="support-form community-discovery-form">
-        {preserveCreator}
-        <label htmlFor="community-search">Search Community Solo</label>
-        <div className="form-row compact-form-row community-search-row">
-          <input id="community-search" name="q" defaultValue={query} placeholder="Title, player, rule, or goal" />
-          <button className="button secondary" type="submit">Search</button>
-        </div>
-        <div className="form-row compact-form-row community-filter-row">
-          <label>
-            Filter
-            <select name="filter" defaultValue={filter}>
-              <option value="all">All</option>
-              <option value="popular">Popular</option>
-              <option value="new">New</option>
-              <option value="completed">Completed by me{completedAvailable ? "" : " (sign in)"}</option>
-            </select>
-          </label>
-          <label>
-            Sort
-            <select name="sort" defaultValue={sort}>
-              <option value="popular">Top</option>
-              <option value="newest">Newest</option>
-              <option value="az">A–Z</option>
-            </select>
-          </label>
-        </div>
-      </form>
-      <div className="community-filter-chips" aria-label="Quick Community Solo filters">
-        {COMMUNITY_FILTERS.map((item) => (
-          <Link key={item.value} className={`button ${filter === item.value ? "primary" : "ghost"}`} href={buildCommunityFilterHref({ creator, query, filter: item.value, sort })}>{item.label}</Link>
-        ))}
-        {activeFilterCount ? <Link className="button secondary" href="/challenges/community">Clear filters</Link> : null}
-      </div>
-    </div>
-  );
-}
-
-function InfoCard({ copy, title }: { copy: string; title: string }) {
-  return (
-    <article className="mission-card side-quest-mode-card">
-      <span className="eyebrow">Community guide</span>
-      <h3>{title}</h3>
-      <p>{copy}</p>
-    </article>
+    <form action="/challenges/community" className="community-filter-bar" role="search" aria-label="Community Solo discovery filters">
+      {preserveCreator}
+      <label className="community-search-field" htmlFor="community-search">
+        <span>Search</span>
+        <input id="community-search" name="q" defaultValue={query} placeholder="Title, player, rule, or goal" />
+      </label>
+      <label>
+        <span>Filter</span>
+        <select name="filter" defaultValue={filter}>
+          <option value="all">All</option>
+          <option value="popular">Popular</option>
+          <option value="new">New</option>
+          <option value="completed">Completed by me{completedAvailable ? "" : " (sign in)"}</option>
+        </select>
+      </label>
+      <label>
+        <span>Sort</span>
+        <select name="sort" defaultValue={sort}>
+          <option value="popular">Top</option>
+          <option value="newest">Newest</option>
+          <option value="az">A–Z</option>
+        </select>
+      </label>
+      <button className="button primary" type="submit">Apply</button>
+      {activeFilterCount ? <Link className="button secondary" href="/challenges/community">Clear</Link> : null}
+    </form>
   );
 }
 
 function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
   return (
-    <article className="challenge-card community-side-quest-card">
-      <div className="challenge-card-art custom-side-quest-art" aria-hidden="true">
-        <Image src={quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png"} alt="" width={96} height={96} />
+    <article className="community-quest-row-card">
+      <div className="community-quest-badge" aria-hidden="true">
+        <Image src={quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png"} alt="" width={86} height={86} />
       </div>
-      <div className="challenge-card-body">
-        <span className="eyebrow">Community · by {quest.creatorName}</span>
+      <div className="community-quest-main-copy">
+        <span className="community-quest-source">Community · by {quest.creatorName}</span>
         <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
         <p>{quest.summary}</p>
-        <div className="public-groupquest-meta community-quest-facts" aria-label={`${quest.title} quick facts`}>
-          <small className="community-quest-rule">{quest.ruleLabel}</small>
-          <small>{formatCommunityStats(quest)}</small>
-          <small>Updated {formatDate(quest.updatedAt)}</small>
+        <div className="community-quest-tags" aria-label={`${quest.title} quick facts`}>
+          <span>{quest.ruleLabel}</span>
+          <span>{formatCommunityStats(quest)}</span>
+          <span>Updated {formatDate(quest.updatedAt)}</span>
         </div>
-        <div className="community-rule-preview" aria-label={`${quest.title} rule preview`}>
-          <span>Rule preview</span>
-          <ul>
-            {quest.ruleDetails.slice(0, 3).map((detail) => <li key={detail}>{detail}</li>)}
-          </ul>
-        </div>
-        <div className="community-quest-action-panel">
-          <span className="eyebrow">Next step</span>
-          <div className="community-quest-actions">
-            <CommunitySoloAnalyticsLink className="button secondary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
-            <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
-          </div>
-          <div className="community-quest-secondary-actions" aria-label={`${quest.title} secondary actions`}>
-            <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from {quest.creatorName}</CommunitySoloAnalyticsLink>
-            <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report quest</CommunitySoloAnalyticsLink>
-          </div>
+      </div>
+      <div className="community-quest-rule-stack" aria-label={`${quest.title} rule preview`}>
+        <strong>Rule preview</strong>
+        <ul>
+          {quest.ruleDetails.slice(0, 2).map((detail) => <li key={detail}>{detail}</li>)}
+        </ul>
+      </div>
+      <div className="community-quest-row-actions">
+        <CommunitySoloAnalyticsLink className="button primary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect</CommunitySoloAnalyticsLink>
+        <CommunitySoloAnalyticsLink className="button secondary" href="/account/custom-side-quests" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
+        <div>
+          <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>
+          <CommunitySoloAnalyticsLink href={`/support?topic=community-side-quest&quest=${encodeURIComponent(quest.id)}`} type="community_solo_report_click" questId={quest.id} status="card_report">Report</CommunitySoloAnalyticsLink>
         </div>
       </div>
     </article>
@@ -238,13 +199,6 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
 
 type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
 type CommunitySort = "popular" | "newest" | "az";
-
-const COMMUNITY_FILTERS: Array<{ value: CommunityBrowseFilter; label: string }> = [
-  { value: "all", label: "All" },
-  { value: "popular", label: "Popular" },
-  { value: "new", label: "New" },
-  { value: "completed", label: "Completed" },
-];
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -300,24 +254,13 @@ function sortCommunityQuests(quests: PublicCommunitySideQuest[], sort: Community
   });
 }
 
-function buildCommunityFilterHref({ creator, filter, query, sort }: { creator: string | null; filter: CommunityBrowseFilter; query: string; sort: CommunitySort }) {
-  const params = new URLSearchParams();
-  if (creator) params.set("creator", creator);
-  if (query) params.set("q", query);
-  if (filter !== "all") params.set("filter", filter);
-  if (sort !== cleanCommunitySort(undefined, filter)) params.set("sort", sort);
-  const suffix = params.toString();
-  return suffix ? `/challenges/community?${suffix}` : "/challenges/community";
-}
-
 async function getSignedInCompletedIds(client: Awaited<ReturnType<typeof clerkClient>>, userId: string | null) {
   if (!userId) return new Set<string>();
   try {
     const user = await client.users.getUser(userId);
-    const publicMetadata = user.publicMetadata && typeof user.publicMetadata === "object" ? user.publicMetadata as UserMetadataRecord : {};
-    return new Set(getChallengeProgress(publicMetadata).completedChallengeIds);
-  } catch (error) {
-    console.warn("community completed filter unavailable", { userId, reason: error instanceof Error ? error.message : "unknown" });
+    const metadata = user.publicMetadata as UserMetadataRecord;
+    return new Set(getChallengeProgress(metadata).completedChallengeIds);
+  } catch {
     return new Set<string>();
   }
 }

@@ -1934,3 +1934,164 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-official-toggle small { color: var(--muted); line-height: 1.35; }
 
 @media (max-width: 760px) { .support-report-grid { grid-template-columns: 1fr; } }
+
+/* SQC challenges cleanup — cleaner official/community browse surfaces */
+.challenges-page-shell .content-wrap.challenges-page-wrap { gap: 18px; }
+.challenges-clean-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .48fr);
+  gap: clamp(14px, 2.5vw, 24px);
+  align-items: end;
+  padding: clamp(18px, 3vw, 30px);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(245,200,106,.18), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.045));
+  box-shadow: 0 24px 70px rgba(0,0,0,.24);
+}
+.challenges-clean-hero h1 {
+  max-width: 760px;
+  margin-bottom: 10px;
+  font-size: clamp(2.35rem, 5.6vw, 4.9rem);
+  line-height: .88;
+}
+.challenges-clean-hero p { max-width: 720px; font-size: clamp(1rem, 1.65vw, 1.18rem); }
+.challenges-clean-hero-actions { display: grid; gap: 10px; }
+.mode-link-card {
+  display: grid;
+  gap: 3px;
+  padding: 14px 15px;
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 22px;
+  background: rgba(0,0,0,.16);
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.mode-link-card:hover, .mode-link-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.38); background: rgba(255,255,255,.08); outline: none; }
+.mode-link-card span { color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
+.mode-link-card strong { color: var(--ink); font-size: 1rem; line-height: 1.15; }
+.official-side-quest-deck { display: grid; gap: 18px; }
+
+.community-board-card {
+  display: grid;
+  gap: 16px;
+  padding: clamp(16px, 2.8vw, 24px);
+  border: 1px solid rgba(255,255,255,.13);
+  border-radius: 30px;
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 24px 70px rgba(0,0,0,.22);
+}
+.community-board-head { display: flex; align-items: start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.community-board-head h2 { margin-bottom: 6px; }
+.community-board-count {
+  min-width: 78px;
+  padding: 10px 12px;
+  border: 1px solid rgba(96,240,175,.2);
+  border-radius: 18px;
+  background: rgba(96,240,175,.09);
+  color: var(--green);
+  text-align: center;
+  font-size: 1.1rem;
+}
+.community-filter-bar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(140px, .26fr) minmax(140px, .26fr) auto auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 22px;
+  background: rgba(0,0,0,.16);
+}
+.community-filter-bar label { display: grid; gap: 6px; }
+.community-filter-bar label span {
+  color: var(--muted);
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.community-filter-bar input,
+.community-filter-bar select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 16px;
+  background: rgba(10,8,12,.74);
+  color: var(--ink);
+  padding: 11px 12px;
+  font-weight: 850;
+}
+.community-context-note,
+.community-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 13px 14px;
+  border: 1px solid rgba(245,200,106,.16);
+  border-radius: 20px;
+  background: rgba(245,200,106,.07);
+  color: var(--muted);
+  font-weight: 850;
+}
+.community-context-note a { color: var(--gold); font-weight: 950; text-decoration: none; }
+.community-empty-state p { margin: 0; }
+.community-quest-list { display: grid; gap: 12px; }
+.community-quest-row-card {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr) minmax(230px, .42fr) minmax(170px, .28fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 24px;
+  background: rgba(0,0,0,.15);
+  box-shadow: none;
+}
+.community-quest-badge { display: grid; place-items: center; }
+.community-quest-badge img { width: 86px; height: 86px; object-fit: contain; filter: drop-shadow(0 14px 18px rgba(0,0,0,.28)); }
+.community-quest-main-copy { display: grid; gap: 6px; min-width: 0; }
+.community-quest-source { color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
+.community-quest-main-copy h3 { margin: 0; font-size: clamp(1.15rem, 2.1vw, 1.55rem); line-height: 1; }
+.community-quest-main-copy h3 a:hover, .community-quest-main-copy h3 a:focus-visible { color: var(--gold); outline: none; }
+.community-quest-main-copy p { margin: 0; font-size: .93rem; line-height: 1.38; }
+.community-quest-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.community-quest-tags span {
+  width: fit-content;
+  padding: 6px 8px;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 999px;
+  background: rgba(255,255,255,.055);
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 850;
+}
+.community-quest-rule-stack {
+  display: grid;
+  gap: 6px;
+  padding: 11px 12px;
+  border: 1px solid rgba(96,240,175,.14);
+  border-radius: 18px;
+  background: rgba(96,240,175,.055);
+}
+.community-quest-rule-stack strong { color: var(--green); font-size: .72rem; letter-spacing: .09em; text-transform: uppercase; }
+.community-quest-rule-stack ul { display: grid; gap: 4px; margin: 0; padding-left: 18px; color: var(--ink); font-size: .88rem; font-weight: 780; line-height: 1.34; }
+.community-quest-rule-stack li::marker { color: var(--gold); }
+.community-quest-row-actions { display: grid; gap: 8px; }
+.community-quest-row-actions .button { width: 100%; min-height: 40px; padding: 9px 12px; }
+.community-quest-row-actions div { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.community-quest-row-actions div a { color: #ddd2be; font-size: .8rem; font-weight: 900; }
+.community-quest-row-actions div a:hover, .community-quest-row-actions div a:focus-visible { color: var(--gold); outline: none; }
+
+@media (max-width: 960px) {
+  .challenges-clean-hero, .community-quest-row-card { grid-template-columns: 1fr; }
+  .community-quest-badge { justify-content: start; }
+  .community-filter-bar { grid-template-columns: 1fr 1fr; }
+  .community-search-field { grid-column: 1 / -1; }
+}
+@media (max-width: 620px) {
+  .community-filter-bar { grid-template-columns: 1fr; }
+  .challenges-clean-hero-actions { grid-template-columns: 1fr; }
+}
