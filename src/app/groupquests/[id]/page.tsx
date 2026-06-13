@@ -77,6 +77,8 @@ export default async function GroupQuestByIdPage({
   const endsAt = savedQuest?.endAt ?? new Date().toISOString();
   const startsAtLabel = formatDateTime(startsAt);
   const endsAtLabel = formatDateTime(endsAt);
+  const questTimelineStatus = getGroupQuestTimelineStatus(startsAt, endsAt);
+  const isQuestFinished = questTimelineStatus === "finished";
   const visibilityLabel = savedQuest?.inviteMode === "private-key" ? "Private invite" : savedQuest?.inviteMode === "unlisted-link" ? "Unlisted link" : "Public listing";
   const providerLabel = savedQuest?.providerLabel ?? "Lichess or Chess.com";
   const officialLabel = savedQuest?.officialLabel ?? "Official SQC Multiplayer Side Quest";
@@ -145,21 +147,25 @@ export default async function GroupQuestByIdPage({
         <div className="content-wrap">
           <section className="hero-card groupquests-hero groupquest-competition-hero groupquest-invite-hero">
             <div className="groupquest-hero-copy">
-              <span className="eyebrow">You were invited · Multiplayer Side Quest # {id}</span>
+              <span className="eyebrow">{isQuestFinished ? "Final archive" : "You were invited"} · Multiplayer Side Quest # {id}</span>
               {savedQuest?.official ? <span className="badge gold official-sqc-badge">{officialLabel}</span> : null}
               <h1>{questName}</h1>
               <GroupQuestInviteCopy id={id} fallback={inviteCopy} />
               <div className="hero-actions button-row">
-                <GroupQuestAcceptModal
-                  id={id}
-                  questName={questName}
-                  isSignedIn={Boolean(userId)}
-                  defaultProvider={acceptProvider}
-                  defaultUsername={acceptUsername}
-                  defaultLeaderboardName={acceptLeaderboardName}
-                  canAutoJoin={canAutoAccept}
-                  inviteKey={inviteKey}
-                />
+                {isQuestFinished ? (
+                  <Link className="button secondary" href="#leaderboard-preview">View final leaderboard preview</Link>
+                ) : (
+                  <GroupQuestAcceptModal
+                    id={id}
+                    questName={questName}
+                    isSignedIn={Boolean(userId)}
+                    defaultProvider={acceptProvider}
+                    defaultUsername={acceptUsername}
+                    defaultLeaderboardName={acceptLeaderboardName}
+                    canAutoJoin={canAutoAccept}
+                    inviteKey={inviteKey}
+                  />
+                )}
                 <Link className="button secondary" href="#how-it-works">How it works</Link>
               </div>
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
@@ -193,20 +199,27 @@ export default async function GroupQuestByIdPage({
                   );
 
                   return isAcceptStep ? (
-                    <GroupQuestAcceptModal
-                      id={id}
-                      questName={questName}
-                      isSignedIn={Boolean(userId)}
-                      defaultProvider={acceptProvider}
-                      defaultUsername={acceptUsername}
-                      defaultLeaderboardName={acceptLeaderboardName}
-                      canAutoJoin={canAutoAccept}
-                      inviteKey={inviteKey}
-                      buttonClassName="groupquest-onboarding-step primary-step groupquest-onboarding-step-button"
-                      key={step.title}
-                    >
-                      {content}
-                    </GroupQuestAcceptModal>
+                    isQuestFinished ? (
+                      <div className="groupquest-onboarding-step primary-step" key={step.title}>
+                        <em>{step.label}</em>
+                        <span><strong>Archived table</strong><small>This official window has ended, so joining is closed and the page is kept as a receipt.</small></span>
+                      </div>
+                    ) : (
+                      <GroupQuestAcceptModal
+                        id={id}
+                        questName={questName}
+                        isSignedIn={Boolean(userId)}
+                        defaultProvider={acceptProvider}
+                        defaultUsername={acceptUsername}
+                        defaultLeaderboardName={acceptLeaderboardName}
+                        canAutoJoin={canAutoAccept}
+                        inviteKey={inviteKey}
+                        buttonClassName="groupquest-onboarding-step primary-step groupquest-onboarding-step-button"
+                        key={step.title}
+                      >
+                        {content}
+                      </GroupQuestAcceptModal>
+                    )
                   ) : (
                     <div className="groupquest-onboarding-step" key={step.title}>
                       {content}
@@ -243,7 +256,7 @@ export default async function GroupQuestByIdPage({
           </section>
 
           <section className="grid groupquests-dashboard-grid" aria-label="Rules and participants preview">
-            <article className="mission-card groupquest-leaderboard-card">
+            <article className="mission-card groupquest-leaderboard-card" id="leaderboard-preview">
               <div className="section-head">
                 <div>
                   <span className="eyebrow">Who else is participating?</span>
@@ -273,22 +286,26 @@ export default async function GroupQuestByIdPage({
             </article>
           </section>
 
-          <section className="mission-card groupquest-accept-card" aria-label="Accept this Side Quest">
+          <section className="mission-card groupquest-accept-card" aria-label={isQuestFinished ? "Final Multiplayer Side Quest archive" : "Accept this Side Quest"}>
             <div>
-              <span className="eyebrow">Ready?</span>
-              <h2>Accept this Side Quest.</h2>
-              <p>After accepting, you will reach the live competition page with proof checks, leaderboard progress, activity, and share tools.</p>
+              <span className="eyebrow">{isQuestFinished ? "Finished" : "Ready?"}</span>
+              <h2>{isQuestFinished ? "This official table is archived." : "Accept this Side Quest."}</h2>
+              <p>{isQuestFinished ? "The competition window has ended. The page stays available so players can review the rules, participants, and final context without joining a stale event." : "After accepting, you will reach the live competition page with proof checks, leaderboard progress, activity, and share tools."}</p>
             </div>
-            <GroupQuestAcceptModal
-              id={id}
-              questName={questName}
-              isSignedIn={Boolean(userId)}
-              defaultProvider={acceptProvider}
-              defaultUsername={acceptUsername}
-              defaultLeaderboardName={acceptLeaderboardName}
-              canAutoJoin={canAutoAccept}
-              inviteKey={inviteKey}
-            />
+            {isQuestFinished ? (
+              <Link className="button secondary" href="/scoreboard">Back to Leaderboard</Link>
+            ) : (
+              <GroupQuestAcceptModal
+                id={id}
+                questName={questName}
+                isSignedIn={Boolean(userId)}
+                defaultProvider={acceptProvider}
+                defaultUsername={acceptUsername}
+                defaultLeaderboardName={acceptLeaderboardName}
+                canAutoJoin={canAutoAccept}
+                inviteKey={inviteKey}
+              />
+            )}
           </section>
 
           {savedQuest && !savedQuest.official ? <HostContextCard hostName={savedQuest.hostName} hostKey={hostKey} moreByHost={moreByHost} reportHref={reportHref} /> : null}
@@ -337,16 +354,27 @@ export default async function GroupQuestByIdPage({
           } : undefined}
         />
 
-        <GroupQuestProofControls
-          id={id}
-          quests={quests.map((quest) => ({ id: quest.id, title: quest.title, reward: quest.reward }))}
-          initialState={{
-            score: serverParticipant?.score ?? 0,
-            completedQuestIds: serverParticipant?.completedQuestIds ?? [],
-            lastProofSummary: serverParticipant?.lastProofSummary,
-            lastProofAt: serverParticipant?.lastProofAt,
-          }}
-        />
+        {isQuestFinished ? (
+          <section className="mission-card groupquest-accept-card" aria-label="Finished Multiplayer Side Quest">
+            <div>
+              <span className="eyebrow">Final archive</span>
+              <h2>This run has ended.</h2>
+              <p>Proof checks are closed for this table. Review the final leaderboard, quest stack, and rules as the saved competition receipt.</p>
+            </div>
+            <Link className="button secondary" href="/scoreboard">Back to Leaderboard</Link>
+          </section>
+        ) : (
+          <GroupQuestProofControls
+            id={id}
+            quests={quests.map((quest) => ({ id: quest.id, title: quest.title, reward: quest.reward }))}
+            initialState={{
+              score: serverParticipant?.score ?? 0,
+              completedQuestIds: serverParticipant?.completedQuestIds ?? [],
+              lastProofSummary: serverParticipant?.lastProofSummary,
+              lastProofAt: serverParticipant?.lastProofAt,
+            }}
+          />
+        )}
 
         <section className="groupquest-score-strip" aria-label="Your competition standing">
           <div>
@@ -433,7 +461,7 @@ export default async function GroupQuestByIdPage({
 
         {savedQuest && !savedQuest.official ? <HostContextCard hostName={savedQuest.hostName} hostKey={hostKey} moreByHost={moreByHost} reportHref={reportHref} /> : null}
 
-        <GroupQuestLeaveAction id={id} />
+        {isQuestFinished ? null : <GroupQuestLeaveAction id={id} />}
       </div>
     </main>
   );
@@ -493,4 +521,13 @@ function formatDateTime(value: string) {
     timeZone: "Europe/Stockholm",
     timeZoneName: "short",
   }).format(date);
+}
+
+function getGroupQuestTimelineStatus(startAt: string, endAt: string) {
+  const now = Date.now();
+  const start = Date.parse(startAt);
+  const end = Date.parse(endAt);
+  if (Number.isFinite(end) && now > end) return "finished" as const;
+  if (Number.isFinite(start) && now < start) return "upcoming" as const;
+  return "open" as const;
 }

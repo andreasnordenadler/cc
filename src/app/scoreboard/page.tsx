@@ -66,9 +66,9 @@ export default async function ScoreboardPage() {
         <section className="mission-card" aria-label="Current official Multiplayer leaderboards">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Current week</span>
-              <h2>Active official leaderboards.</h2>
-              <p>Join while the window is open, refresh real proof, and climb the table before the deadline.</p>
+              <span className="eyebrow">Active now</span>
+              <h2>Official leaderboards currently open.</h2>
+              <p>Join while a window is open, refresh real proof, and climb the table before the deadline.</p>
             </div>
             <span className="badge gold">{currentOfficial.length}</span>
           </div>
@@ -78,7 +78,7 @@ export default async function ScoreboardPage() {
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No official leaderboards are active right now.</p>
+              <p>No active official week right now. The latest official tables are archived below; public Multiplayer tables may still be open.</p>
               <Link className="button secondary" href="/groupquests/public?status=all">Check public Multiplayer tables</Link>
             </div>
           )}

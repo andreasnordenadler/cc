@@ -35,7 +35,7 @@ export async function generateMetadata({
       url: `/proof/${token}`,
       siteName: "Side Quest Chess",
       type: "website",
-      images: [{ url: image, width: 1200, height: 1600, alt: `${decoded.payload.challengeTitle} victory proof scroll` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${decoded.payload.challengeTitle} victory proof card` }],
     },
     twitter: {
       card: "summary_large_image",

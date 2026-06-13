@@ -1410,6 +1410,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <View pointerEvents="none" style={styles.appWatermarkFrame}>
         <Image source={{ uri: absoluteAssetUrl("/sqc-logo-v11.png") }} style={styles.appWatermarkImage} resizeMode="contain" />
       </View>
+      <TopTrackerNav activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} />
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
@@ -1427,10 +1428,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </View>
         ) : null}
 
-        {shell.catalogMode === "offline" && !shell.bootstrap && !__DEV__ ? (
+        {shell.catalogMode === "offline" ? (
           <View style={styles.catalogStateBanner} accessibilityLabel="Offline catalog notice">
-            <Text style={styles.catalogStateTitle}>Side Quest board unavailable</Text>
-            <Text style={styles.catalogStateCopy}>SQC could not refresh the Side Quest board. Pull to try again.</Text>
+            <Text style={styles.catalogStateTitle}>Offline Side Quest board</Text>
+            <Text style={styles.catalogStateCopy}>{shell.catalogNotice ? `Showing the saved fallback board because the live board could not refresh: ${shell.catalogNotice}` : "Showing the saved fallback board. Pull to try the live board again."}</Text>
           </View>
         ) : null}
 
@@ -1760,9 +1761,17 @@ function TodayDashboard({
         </View>
         <View style={compactStyles.freshPanelCentered}>
           <Text style={[compactStyles.freshSectionTitle, compactStyles.centerText]}>Sign in to continue.</Text>
-          <Text style={[compactStyles.freshBody, compactStyles.centerText]}>Chess, but with stupidly hard side quests — solo or multiplayer. Sign in to pick a solo quest or join a Multiplayer Side Quest, play a real Lichess or Chess.com game, then come back for automatic proof.</Text>
+          <Text style={[compactStyles.freshBody, compactStyles.centerText]}>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.</Text>
+          <View style={compactStyles.guestBrowseActions}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
+              <Text style={compactStyles.secondaryActionText}>Browse Solo</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" accessibilityLabel="Browse Multiplayer Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
+              <Text style={compactStyles.secondaryActionText}>Browse Multiplayer</Text>
+            </Pressable>
+          </View>
           <Pressable accessibilityRole="button" accessibilityLabel="Sign in" style={[compactStyles.primaryAction, compactStyles.primaryActionCentered]} onPress={handleSignIn}>
-            <Text style={compactStyles.primaryActionText}>Sign in</Text>
+            <Text style={compactStyles.primaryActionText}>Sign in with Google or Facebook</Text>
           </Pressable>
         </View>
       </View>
@@ -5211,7 +5220,7 @@ function ActiveScreen({
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
-      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onClose={() => onSelectTab("account")} />;
+      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onClose={() => onSelectTab("home")} />;
     case "account":
       return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
   }
@@ -8179,6 +8188,7 @@ const compactStyles = StyleSheet.create({
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
   freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4 },
   freshGuestCoat: { width: 132, height: 148 },
+  guestBrowseActions: { flexDirection: "row", justifyContent: "center", gap: 10, marginTop: 14, marginBottom: 10, flexWrap: "wrap" },
   emptyQuestPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   emptyQuestHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   emptyQuestCoat: { width: 82, height: 82 },

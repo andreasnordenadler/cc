@@ -19,6 +19,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           </Link>
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
           <Link href="/challenges" className={active === "challenges" ? "active" : undefined}>Side Quests</Link>
+          <Link href="/groupquests" className={active === "groupquests" ? "active" : undefined}>Multiplayer</Link>
+          <Link href="/scoreboard" className={active === "scoreboard" ? "active" : undefined}>Leaderboard</Link>
           <Link href="/badges" className={active === "badges" ? "active" : undefined}>Coat of Arms</Link>
         </nav>
 
