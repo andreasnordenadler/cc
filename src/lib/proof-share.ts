@@ -88,7 +88,9 @@ export async function buildCustomPublicProofPath({
   return `/proof/${await encodePublicProof(payload)}`;
 }
 
-export async function decodePublicProof(token: string): Promise<DecodedPublicProof | null> {
+export async function decodePublicProof(token: string | null | undefined): Promise<DecodedPublicProof | null> {
+  if (!token || typeof token !== "string") return null;
+
   const preview = decodePreviewProof(token);
   if (preview) return preview;
 
@@ -114,8 +116,8 @@ export async function decodePublicProof(token: string): Promise<DecodedPublicPro
   }
 }
 
-function decodePreviewProof(token: string): DecodedPublicProof | null {
-  if (!token.startsWith("preview-")) return null;
+function decodePreviewProof(token: string | null | undefined): DecodedPublicProof | null {
+  if (!token || !token.startsWith("preview-")) return null;
 
   const challengeId = token.slice("preview-".length);
   const challenge = getChallengeById(challengeId);
@@ -143,8 +145,9 @@ function decodePreviewProof(token: string): DecodedPublicProof | null {
   };
 }
 
-export function publicProofImagePath(token: string) {
-  return `/api/og/proof/${token}`;
+export function publicProofImagePath(token: string | null | undefined) {
+  if (!token) return "/api/og/proof/invalid";
+  return `/api/og/proof/${encodeURIComponent(token)}`;
 }
 
 async function encodePublicProof(payload: PublicProofPayload) {

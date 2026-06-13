@@ -13,7 +13,13 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ token: string }> },
 ) {
-  const { token } = await params;
+  const resolvedParams = await params;
+  const token = normalizeProofToken(resolvedParams?.token);
+
+  if (!token) {
+    return new Response("Invalid proof", { status: 404 });
+  }
+
   const decoded = await decodePublicProof(token);
 
   if (!decoded) {
@@ -198,4 +204,10 @@ function safeTimeZone(value: string | null) {
   } catch {
     return undefined;
   }
+}
+
+function normalizeProofToken(value: unknown) {
+  if (typeof value === "string") return value.trim();
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0].trim();
+  return "";
 }
