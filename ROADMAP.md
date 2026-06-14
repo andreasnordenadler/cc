@@ -11,11 +11,12 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-14 SQC Mobile hamburger expectation fixes
 
-- [ ] Fix SQC Mobile hamburger expectation mismatches from v254 review.
+- [x] Fix SQC Mobile hamburger expectation mismatches from v254 review.
   - added_at: 2026-06-14 14:05 Europe/Stockholm
+  - completed_at: 2026-06-14 14:20 Europe/Stockholm
   - source: Andreas approved the focused v254 hamburger review fixes and told Sam to decide implementation.
-  - scope: make Support open Help & Support directly; add hamburger navigation to Solo detail and joined Multiplayer detail modals; keep Create modal close-only for unsaved-input safety; extend installed-APK smoke coverage.
-  - proof_required: mobile typecheck/lint/build, release build verification, installed APK hamburger smoke test covering Support and detail modal routes, GitHub release link.
+  - scope: made Support open Help & Support directly; added hamburger navigation to Solo detail and joined Multiplayer detail modals; kept Create modal close-only for unsaved-input safety; extended installed-APK smoke coverage.
+  - proof: commit e5ea9be (UX fix), commit df729cd (v255 release metadata); `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` produced v255 release APK; `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v255-2026-06-14.apk` passed; GitHub release `mobile-v255` published.
 
 ## Active queue update — 2026-06-14 SQC Mobile v254 hamburger hotfix
 
