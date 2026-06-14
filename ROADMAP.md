@@ -6,6 +6,14 @@ Owner: Sam
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
+## Active queue update — 2026-06-14 SQC Mobile v258 vocabulary/button polish
+
+- [ ] Release SQC Mobile v258 with Solo Side Quest vocabulary cleanup and button artifact fix.
+  - added_at: 2026-06-14 22:02 Europe/Stockholm
+  - source: Andreas screenshot feedback: bare `Solo` should not be used; use `Solo Side Quest`, and tab/button text had an extra square behind labels.
+  - scope: replace visible bare Solo/Official Solo/Custom Solo/Community Solo wording with full Side Quest terminology where user-facing; remove nested emphasis text from home CTAs; remove Android elevation/shadow that created rectangular artifacts behind tab labels; keep rounded button styling.
+  - proof_required: mobile typecheck/lint/build, release build, installed APK smoke, GitHub release link.
+
 
 ## Active queue update — 2026-06-14 SQC Mobile v257 Trophy Cabinet rethink
 

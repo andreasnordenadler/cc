@@ -49,7 +49,7 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   },
   solo: {
     title: "Choosing a Solo Side Quest",
-    body: "This screen is for picking your next solo challenge. Only one Solo Side Quest can be active at a time, and games count after you pick it.",
+    body: "This screen is for picking your next Solo Side Quest. Only one Solo Side Quest can be active at a time, and games count after you pick it.",
   },
   proof: {
     title: "Proof checks",
@@ -1809,10 +1809,10 @@ function TodayDashboard({
           <Text style={[compactStyles.freshBody, compactStyles.centerText]}>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.</Text>
           <View style={compactStyles.guestBrowseActions}>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Solo Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("sideQuests")}>
-              <Text style={compactStyles.secondaryActionText}>Browse Solo</Text>
+              <Text style={compactStyles.secondaryActionText}>Browse Solo Side Quests</Text>
             </Pressable>
             <Pressable accessibilityRole="button" accessibilityLabel="Browse Multiplayer Side Quests" style={compactStyles.secondaryAction} onPress={() => onSelectTab("multiplayerSideQuests")}>
-              <Text style={compactStyles.secondaryActionText}>Browse Multiplayer</Text>
+              <Text style={compactStyles.secondaryActionText}>Browse Multiplayer Side Quests</Text>
             </Pressable>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel="Sign in" style={[compactStyles.primaryAction, compactStyles.primaryActionCentered]} onPress={handleSignIn}>
@@ -2617,8 +2617,8 @@ function JoinedMultiplayerQuestModal({
                         <Text style={compactStyles.multiplayerRuleValue}>Use a public game that starts after you joined this Multiplayer Side Quest.</Text>
                       </View>
                       <View style={compactStyles.multiplayerRuleRow}>
-                        <Text style={compactStyles.multiplayerRuleLabel}>Solo progress</Text>
-                        <Text style={compactStyles.multiplayerRuleValue}>Solo completions only count here if they were completed during this Multiplayer Side Quest.</Text>
+                        <Text style={compactStyles.multiplayerRuleLabel}>Solo Side Quest progress</Text>
+                        <Text style={compactStyles.multiplayerRuleValue}>Solo Side Quest completions only count here if they were completed during this Multiplayer Side Quest.</Text>
                       </View>
                     </View>
                   </View>
@@ -2854,7 +2854,7 @@ function CompletionCelebrationOverlay({
   const coatSource = challenge ? getChallengeCoatImageSource(challenge) : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
   const glowSource = challenge ? getChallengeCoatGlowSource(challenge.id) : null;
   const headline = unlock.mode === "multiplayer" ? "Quest completed in Multiplayer" : "Quest completed";
-  const subline = unlock.mode === "multiplayer" ? "Solo completion recorded too." : "Coat of Arms unlocked.";
+  const subline = unlock.mode === "multiplayer" ? "Solo Side Quest completion recorded too." : "Coat of Arms unlocked.";
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
@@ -3477,7 +3477,7 @@ const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/community/community-
 
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
   if (!stats) return "No attempts yet";
-  return `Solo: ${stats.soloAttempts} tries, ${stats.soloCompletions} completed · Multiplayer: used ${stats.multiplayerLineups} times, completed ${stats.multiplayerFulfillments}`;
+  return `Solo Side Quest: ${stats.soloAttempts} ${stats.soloAttempts === 1 ? "try" : "tries"}, ${stats.soloCompletions} ${stats.soloCompletions === 1 ? "completion" : "completions"} · Multiplayer Side Quest: used ${stats.multiplayerLineups} ${stats.multiplayerLineups === 1 ? "time" : "times"}, ${stats.multiplayerFulfillments} ${stats.multiplayerFulfillments === 1 ? "completion" : "completions"}`;
 }
 
 function getCustomQuestPopularity(stats?: MobileCustomSideQuest["stats"]) {
@@ -4178,14 +4178,14 @@ function QuestBoardDashboard({
           ]}
           onPress={() => setSideQuestCatalogTab("community")}
         >
-          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Solo</Text>
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Solo Side Quests</Text>
         </Pressable>
       </View>
 
       {sideQuestCatalogTab === "community" ? (
         <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>Community Solo, fully in your hand.</Text>
-          <Text style={compactStyles.communityEmptyCopy}>Browse, inspect, start, check, prove, collect, and report Community Solo Side Quests in the app. The website has the same product surface in a wider layout.</Text>
+          <Text style={compactStyles.communityEmptyTitle}>Community Solo Side Quests, ready in your hand.</Text>
+          <Text style={compactStyles.communityEmptyCopy}>Browse, inspect, start, check, prove, collect, and report Community Solo Side Quests from here.</Text>
         </View>
       ) : null}
 
@@ -4249,7 +4249,7 @@ function QuestBoardDashboard({
           {communityView === "discover" ? (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>Community Solo Discover</Text>
+                <Text style={compactStyles.freshSectionTitle}>Discover Community Solo Side Quests</Text>
                 <Text style={compactStyles.sectionAction}>{publicCommunityQuests.length ? `${communityBrowseQuests.length}/${publicCommunityQuests.length}` : "0 public"}</Text>
               </View>
               {publicCommunityQuests.length || communitySearch || communityCreatorFilter ? (
@@ -4258,7 +4258,7 @@ function QuestBoardDashboard({
                     <View style={compactStyles.communityEmptyPanel}>
                       <Text style={compactStyles.communityEmptyTitle}>Creator shelf: {communityCreatorFilter}</Text>
                       <Text style={compactStyles.communityEmptyCopy}>Showing public Community Solo Side Quests from this creator only. Private drafts and account details stay hidden.</Text>
-                      <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Solo creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Solo Side Quest creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
                         <Text style={compactStyles.secondaryActionText}>Show all creators</Text>
                       </Pressable>
                     </View>
@@ -4309,7 +4309,7 @@ function QuestBoardDashboard({
                       <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
                     </Pressable>
                     <Pressable accessibilityRole="button" accessibilityLabel="View my Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityView("mine")}>
-                      <Text style={compactStyles.secondaryActionText}>My Custom</Text>
+                      <Text style={compactStyles.secondaryActionText}>My Custom Side Quests</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -4484,7 +4484,7 @@ function QuestBoardDashboard({
               </View>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used for Solo or Multiplayer.</Text>
+              <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
                 <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
                 <View style={compactStyles.customCoatPreviewCopy}>
@@ -4807,7 +4807,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
   const earnedIds = new Set(completedQuests.map((quest) => quest.id));
   const unlockedCount = completedQuests.length + multiplayerTrophies.length;
   const unlockedSummary = signedIn
-    ? `${unlockedCount} unlocked: ${officialCompleted.length} Official Solo · ${customCompleted.length} Custom Solo · ${multiplayerTrophies.length} Multiplayer`
+    ? `${unlockedCount} unlocked: ${officialCompleted.length} Official Solo Side Quest${officialCompleted.length === 1 ? "" : "s"} · ${customCompleted.length} Custom Solo Side Quest${customCompleted.length === 1 ? "" : "s"} · ${multiplayerTrophies.length} Multiplayer Side Quest${multiplayerTrophies.length === 1 ? "" : "s"}`
     : "Sign in to sync your cabinet.";
 
   return (
@@ -4823,17 +4823,17 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
         <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{unlockedSummary}</Text>
-        <Text style={styles.microcopy}>This is your unified SQC reward shelf: Official Solo coats, Custom Solo coats, and Multiplayer podium scrolls all belong here.</Text>
+        <Text style={styles.microcopy}>This is your unified SQC reward shelf: Official Solo Side Quest coats, Custom Solo Side Quest coats, and Multiplayer podium scrolls all belong here.</Text>
       </View>
 
       {signedIn && unlockedCount === 0 ? (
-        <AppRow title="No unlocked trophies yet" meta="Complete any Official Solo, Custom Solo, or Multiplayer Side Quest and it will appear on this shelf." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onClose()} />
+        <AppRow title="No unlocked trophies yet" meta="Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onClose()} />
       ) : null}
 
       {completedQuests.length ? (
-        <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Unlocked Solo rewards">
-          <Text style={compactStyles.multiplayerCardEyebrow}>Unlocked Solo rewards</Text>
-          <Text style={compactStyles.multiplayerCardTitle}>Official and Custom Solo Coat of Arms.</Text>
+        <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Unlocked Solo Side Quest rewards">
+          <Text style={compactStyles.multiplayerCardEyebrow}>Unlocked Solo Side Quest rewards</Text>
+          <Text style={compactStyles.multiplayerCardTitle}>Official and Custom Solo Side Quest Coat of Arms.</Text>
           <View style={compactStyles.appRows}>
             {completedQuests.map((quest) => {
               const officialChallenge = officialChallengeById.get(quest.id) ?? null;
@@ -4842,8 +4842,8 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
                 <AppRow
                   key={`solo-unlocked-${quest.id}`}
                   title={cleanMultiplayerTitle(quest.title)}
-                  meta={`${officialChallenge ? "Official Solo" : "Custom Solo"} · ${quest.badgeName}${quest.completedAt ? ` · ${formatAccountDate(quest.completedAt)}` : ""}`}
-                  sourceBadge={officialChallenge ? "Official Solo" : "Custom Solo"}
+                  meta={`${officialChallenge ? "Official Solo Side Quest" : "Custom Solo Side Quest"} · ${quest.badgeName}${quest.completedAt ? ` · ${formatAccountDate(quest.completedAt)}` : ""}`}
+                  sourceBadge={officialChallenge ? "Official Solo Side Quest" : "Custom Solo Side Quest"}
                   status="Unlocked"
                   imageSource={imageSource}
                   glowSource={officialChallenge ? getChallengeCoatGlowSource(officialChallenge.id) : null}
@@ -4880,10 +4880,10 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
         </View>
       ) : null}
 
-      <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo collection">
-        <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo collection</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} / {bootstrap.challenges.length} official Coat of Arms unlocked.</Text>
-        <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo and Multiplayer rewards appear above when earned.</Text>
+      <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo Side Quest collection">
+        <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo Side Quest collection</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} / {bootstrap.challenges.length} official Side Quest Coat of Arms unlocked.</Text>
+        <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo Side Quest and Multiplayer Side Quest rewards appear above when earned.</Text>
       </View>
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
@@ -5012,7 +5012,7 @@ function AccountSoloSideQuestSection({
   return (
     <AppSection title="Side Quests" action="Open" onAction={() => onSelectTab("sideQuests")}>
       <AppRow
-        title={`Solo: ${soloTitle}`}
+        title={`Solo Side Quest: ${soloTitle}`}
         meta={soloMeta}
         status={soloStatus}
         imageSource={activeChallenge ? getChallengeCoatImageSource(activeChallenge) : SQC_COAT_OF_ARMS_ASSET}
@@ -5206,10 +5206,10 @@ function HomeScreen({
         </Text>
         <View style={styles.homeHeroActions}>
           <Pressable accessibilityRole="button" accessibilityLabel="Go on a Solo Side Quest" testID="home-go-solo-side-quest" style={styles.primaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
-            <Text style={styles.primaryButtonText}>Go on a <Text style={styles.buttonEmphasis}>Solo</Text> Side Quest</Text>
+            <Text style={styles.primaryButtonText}>Go on a Solo Side Quest</Text>
           </Pressable>
           <Pressable accessibilityRole="button" accessibilityLabel="Join a Multiplayer Side Quest" testID="home-join-multiplayer-side-quest" style={styles.secondaryButtonWide} onPress={() => onSelectTab("multiplayerSideQuests")}>
-            <Text style={styles.secondaryButtonText}>Join a <Text style={styles.buttonEmphasis}>Multiplayer</Text> Side Quest</Text>
+            <Text style={styles.secondaryButtonText}>Join a Multiplayer Side Quest</Text>
           </Pressable>
         </View>
         <View style={styles.homeRitualStrip} accessibilityLabel="Side Quest Chess workflow">
@@ -5685,7 +5685,7 @@ function SideQuestsScreen({
       <View style={compactStyles.multiplayerNativeCard}>
         <Text style={compactStyles.multiplayerCardEyebrow}>Side Quest Library</Text>
         <Text style={compactStyles.multiplayerCardTitle}>Your custom Side Quest library.</Text>
-        <Text style={styles.sectionBody}>Create your own chess challenges, then use them in Solo or Multiplayer.</Text>
+        <Text style={styles.sectionBody}>Create your own chess challenges, then use them as Solo Side Quests or Multiplayer Side Quests.</Text>
         <View style={compactStyles.appRows}>
           {visibleCustomDrafts.length ? visibleCustomDrafts.map((draft) => (
             <AppRow key={draft.id} title={draft.name} meta={`${getCustomLibraryMeta(draft)} · ${getCustomStatsLine(draft.stats)}`} status={getCustomLifecycleStatus(draft, activeQuestId, Boolean(signedInAccount?.completedQuests.some((quest) => quest.id === draft.id)))} imageSource={getCustomQuestImageSource(draft.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(draft.id)} />
@@ -5813,7 +5813,7 @@ function SideQuestsScreen({
               </View>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used for Solo or Multiplayer.</Text>
+              <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
                 <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
                 <View style={compactStyles.customCoatPreviewCopy}>
@@ -7201,7 +7201,7 @@ function CustomSideQuestDetailModal({
         title: `Side Quest Chess: ${quest.name}`,
         message: `Try “${quest.name}”, a public Community Solo Side Quest in Side Quest Chess. ${url}`,
       });
-      setShareStatus("Community Solo share sheet opened.");
+      setShareStatus("Community Solo Side Quest share sheet opened.");
     } catch {
       setShareStatus("Could not open sharing here.");
     }
@@ -7263,7 +7263,7 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityTitle(quest.visibility)}</Text>
             <Text style={compactStyles.proofScrollCopy}>{getCustomVisibilityExplanation(quest.visibility)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Playable in Solo and your hosted Multiplayer Side Quests" : "Publish it before playing"}</Text>
+            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Playable as a Solo Side Quest and in your hosted Multiplayer Side Quests" : "Publish it before playing"}</Text>
           </View>
 
           <View style={compactStyles.proofScrollCard}>
@@ -8484,14 +8484,14 @@ const compactStyles = StyleSheet.create({
   actionRowTight: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 },
   primaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 14, borderRadius: 999, backgroundColor: colors.gold },
   primaryActionCentered: { alignSelf: "center" },
-  primaryActionText: { color: "#111", fontSize: 13, fontWeight: "900" },
+  primaryActionText: { backgroundColor: "transparent", color: "#111", fontSize: 13, fontWeight: "900" },
   activeSoloActions: { gap: 7, paddingTop: 2 },
   soloPrimaryAction: { width: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 10, paddingHorizontal: 14, borderRadius: 16, backgroundColor: colors.gold },
   soloSecondaryAction: { width: "100%", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 12, borderRadius: 14, backgroundColor: "rgba(255,255,255,.045)", borderWidth: 1, borderColor: "rgba(255,247,232,.11)" },
   soloSecondaryActionText: { color: "rgba(255,247,232,.86)", fontSize: 12, fontWeight: "900" },
   refreshAction: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: colors.gold },
   secondaryAction: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 9, paddingHorizontal: 13, borderRadius: 999, backgroundColor: "rgba(255,255,255,.08)", borderWidth: 1, borderColor: "rgba(255,255,255,.13)" },
-  secondaryActionText: { color: colors.paper, fontSize: 13, fontWeight: "900" },
+  secondaryActionText: { backgroundColor: "transparent", color: colors.paper, fontSize: 13, fontWeight: "900" },
   appSection: { gap: 6 },
   sectionAction: { color: "rgba(245,200,106,.78)", fontSize: 12, fontWeight: "900" },
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
@@ -8520,9 +8520,9 @@ const compactStyles = StyleSheet.create({
   appRowMeta: { color: colors.muted, fontSize: 12 },
   sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   communitySubTabs: { flexDirection: "row", gap: 8, padding: 4, borderRadius: 18, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },
-  communitySubTab: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 38, borderRadius: 14 },
+  communitySubTab: { flex: 1, overflow: "hidden", alignItems: "center", justifyContent: "center", minHeight: 38, borderRadius: 14 },
   communitySubTabActive: { backgroundColor: "rgba(96,240,175,.16)", borderWidth: 1, borderColor: "rgba(96,240,175,.3)" },
-  communitySubTabText: { color: "rgba(255,247,232,.62)", fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  communitySubTabText: { backgroundColor: "transparent", color: "rgba(255,247,232,.62)", fontSize: 12, lineHeight: 15, fontWeight: "900" },
   communitySubTabTextActive: { color: colors.green },
   communityBrowsePanel: { gap: 8, padding: 10, borderRadius: 18, backgroundColor: "rgba(255,255,255,.045)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
   communitySearchBox: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 12, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.12)" },
@@ -8724,12 +8724,12 @@ const compactStyles = StyleSheet.create({
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   sideQuestBrandTabs: { flexDirection: "row", alignItems: "stretch", gap: 10, marginTop: 2, marginBottom: 6 },
-  sideQuestBrandTab: { flex: 1, minHeight: 62, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderRadius: 22, borderWidth: 1.5, shadowColor: "#000", shadowOpacity: .14, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 2 },
+  sideQuestBrandTab: { flex: 1, minHeight: 62, overflow: "hidden", alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderRadius: 22, borderWidth: 1.5 },
   sideQuestBrandTabOfficial: { borderColor: "rgba(245,200,106,.3)", backgroundColor: "rgba(245,200,106,.08)" },
   sideQuestBrandTabOfficialActive: { borderColor: "rgba(245,200,106,.62)", backgroundColor: "rgba(245,200,106,.18)" },
   sideQuestBrandTabCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.065)" },
   sideQuestBrandTabCommunityActive: { borderColor: "rgba(96,240,175,.52)", backgroundColor: "rgba(96,240,175,.15)" },
-  sideQuestBrandTabText: { color: "rgba(255,247,232,.62)", fontSize: 12, lineHeight: 15, fontWeight: "900", textAlign: "center" },
+  sideQuestBrandTabText: { backgroundColor: "transparent", color: "rgba(255,247,232,.62)", fontSize: 12, lineHeight: 15, fontWeight: "900", textAlign: "center" },
   sideQuestBrandTabOfficialTextActive: { color: colors.gold },
   sideQuestBrandTabCommunityTextActive: { color: colors.green },
   sideQuestCatalogRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
@@ -9065,7 +9065,7 @@ const styles = StyleSheet.create({
   primaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   centeredPrimaryButton: { alignSelf: "center", minHeight: 42, justifyContent: "center", alignItems: "center", paddingHorizontal: 18, paddingVertical: 9, borderRadius: 999, backgroundColor: colors.gold },
   primaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, backgroundColor: colors.gold },
-  primaryButtonText: { color: "#17120c", fontWeight: "900" },
+  primaryButtonText: { backgroundColor: "transparent", color: "#17120c", fontWeight: "900" },
   secondaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   secondaryButtonWide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(255,247,232,.08)" },
   disabledActionButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.16)", backgroundColor: "rgba(245,200,106,.07)", opacity: 0.74 },
@@ -9073,7 +9073,7 @@ const styles = StyleSheet.create({
   disabledSecondaryButton: { alignSelf: "flex-start", minHeight: 42, justifyContent: "center", paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
-  secondaryButtonText: { color: colors.paper, fontWeight: "900" },
+  secondaryButtonText: { backgroundColor: "transparent", color: colors.paper, fontWeight: "900" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },
   quickStartTopRow: { flexDirection: "row", gap: 12, alignItems: "center" },
   quickStartCopy: { flex: 1, gap: 5 },
