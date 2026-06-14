@@ -19,7 +19,8 @@
     "qa:launch:local": "node scripts/launch-qa-local.cjs",
     "qa:launch:providers": "node scripts/launch-qa-providers.mjs",
     "admin:grant-analytics": "node scripts/grant-sqc-admin.cjs",
-    "sdk:smoke": "node testing-sdk/smoke.mjs"
+    "sdk:smoke": "node testing-sdk/smoke.mjs",
+    "mobile:smoke:hamburger": "node scripts/smoke-mobile-hamburger-nav.mjs"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.4.2",

@@ -1423,7 +1423,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <View pointerEvents="none" style={styles.appWatermarkFrame}>
         <Image source={{ uri: absoluteAssetUrl("/sqc-logo-v11.png") }} style={styles.appWatermarkImage} resizeMode="contain" />
       </View>
-      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} />
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
@@ -1477,6 +1476,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
       </ScrollView>
       {shell.activeTab === "home" ? null : <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />}
+      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} />
     </SafeAreaView>
   );
 
@@ -1485,6 +1485,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 
 function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const authenticated = isAuthenticatedAccount(account);
 
   function openMenuTab(tab: AppTab) {
@@ -1504,12 +1505,12 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
   ];
 
   return (
-    <View pointerEvents="box-none" style={compactStyles.globalMenuLayer}>
+    <View pointerEvents="box-none" style={[compactStyles.globalMenuLayer, { top: Math.max(insets.top + 10, 34) }]}>
       <Pressable accessibilityRole="button" accessibilityLabel={menuOpen ? "Close main menu" : "Open main menu"} style={[compactStyles.homeMenuButton, compactStyles.globalMenuButton, menuOpen && compactStyles.homeMenuButtonActive]} onPress={() => setMenuOpen((current) => !current)}>
         <MaterialCommunityIcons name="menu" size={22} color={colors.paper} />
       </Pressable>
       <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
-        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay]}>
+        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay, { paddingTop: Math.max(insets.top + 62, 88) }]}>
           <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setMenuOpen(false)} />
           <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
             <View style={compactStyles.homeMenuItems}>
@@ -8256,13 +8257,13 @@ const compactStyles = StyleSheet.create({
   accountDot: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   accountAvatarImage: { width: "100%", height: "100%", borderRadius: 19 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
-  globalMenuLayer: { position: "absolute", top: 8, left: 12, zIndex: 90, elevation: 12 },
+  globalMenuLayer: { position: "absolute", left: 16, zIndex: 120, elevation: 24 },
   globalMenuButton: { shadowColor: "#000", shadowOpacity: .24, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 12 },
   homeMenuButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   homeMenuButtonActive: { backgroundColor: "rgba(245,200,106,.18)", borderColor: "rgba(245,200,106,.28)" },
   homeMenuSpacer: { width: 40, height: 40 },
   homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.018)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: 112, paddingHorizontal: 18 },
-  globalMenuOverlay: { paddingTop: 58, paddingHorizontal: 12 },
+  globalMenuOverlay: { paddingHorizontal: 16 },
   homeMenuBackdrop: { ...StyleSheet.absoluteFillObject },
   homeMenuPanel: { alignSelf: "flex-start", width: 162, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
   homeMenuItems: { gap: 2 },

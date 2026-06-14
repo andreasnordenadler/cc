@@ -1,11 +1,20 @@
 
 # CC Roadmap
 
-Last updated: 2026-06-14 11:20 Europe/Stockholm
+Last updated: 2026-06-14 12:25 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
+
+
+## Active queue update — 2026-06-14 SQC Mobile v254 hamburger hotfix
+
+- [ ] Fix SQC Mobile global hamburger placement/open behavior and add APK smoke coverage.
+  - added_at: 2026-06-14 12:25 Europe/Stockholm
+  - source: Andreas approved the v253 QA recommendation to hotfix the broken global hamburger.
+  - scope: render hamburger above scroll content, respect Android safe-area/status bar, prove menu opens and navigates in installed APK, publish new Android release.
+  - proof_required: mobile typecheck/lint/build, release build verification, installed APK hamburger smoke test, GitHub release link.
 
 ## Active queue update — 2026-06-14 SQC Mobile global hamburger nav
 
