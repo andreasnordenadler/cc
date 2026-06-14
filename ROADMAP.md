@@ -10,11 +10,12 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-14 SQC Mobile v254 hamburger hotfix
 
-- [ ] Fix SQC Mobile global hamburger placement/open behavior and add APK smoke coverage.
+- [x] Fix SQC Mobile global hamburger placement/open behavior and add APK smoke coverage.
   - added_at: 2026-06-14 12:25 Europe/Stockholm
   - source: Andreas approved the v253 QA recommendation to hotfix the broken global hamburger.
   - scope: render hamburger above scroll content, respect Android safe-area/status bar, prove menu opens and navigates in installed APK, publish new Android release.
   - proof_required: mobile typecheck/lint/build, release build verification, installed APK hamburger smoke test, GitHub release link.
+  - proof: committed `23466e1` for safe-area/global-menu layering and `mobile:smoke:hamburger`; `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm lint`, `pnpm build`, `pnpm mobile:release`, and `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v254-2026-06-14.apk` passed; released `mobile-v254` (`0.1.254` / versionCode `254`, sha256 `691403b0451a18c052240166a380a252bbf23aae597c5bb2eb9b50b3a7e5e5ca`) at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v254`.
 
 ## Active queue update — 2026-06-14 SQC Mobile global hamburger nav
 
