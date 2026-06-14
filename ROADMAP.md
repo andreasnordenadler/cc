@@ -7,6 +7,14 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
 
+## Active queue update — 2026-06-14 SQC Mobile v257 Trophy Cabinet rethink
+
+- [ ] Release SQC Mobile v257 with a unified Trophy Cabinet for Official Solo, Custom Solo, and Multiplayer rewards.
+  - added_at: 2026-06-14 21:22 Europe/Stockholm
+  - source: Andreas reported the v256 Trophy Cabinet was confusing: it said 2 unlocked but showed only one visible official Coat of Arms, and asked to rethink the whole cabinet for all Solo/Multiplayer Side Quest types.
+  - scope: make the cabinet count and visible rows agree; show a unified unlocked shelf for Official Solo coats, Custom Solo coats, and Multiplayer podium scrolls; keep locked official coats as a clearly labelled official collection preview; extend installed-APK smoke to catch missing Custom Solo rewards.
+  - proof_required: mobile typecheck/lint/build, release build, installed APK Trophy Cabinet smoke, GitHub release link.
+
 
 ## Active queue update — 2026-06-14 SQC Mobile v256 navigation semantics cleanup
 

@@ -4797,11 +4797,18 @@ function QuestBoardDashboard({
   );
 }
 
-function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onOpenChallengeDetail: (challengeId: string) => void; onClose: () => void }) {
+function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenCompletedQuestDetail, onClose }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onClose: () => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
-  const earnedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
+  const officialChallengeById = new Map(bootstrap.challenges.map((challenge) => [challenge.id, challenge]));
+  const completedQuests = signedIn?.completedQuests ?? [];
   const multiplayerTrophies = signedIn?.multiplayerTrophies ?? [];
-  const unlockedCount = earnedIds.size + multiplayerTrophies.length;
+  const officialCompleted = completedQuests.filter((quest) => officialChallengeById.has(quest.id));
+  const customCompleted = completedQuests.filter((quest) => !officialChallengeById.has(quest.id));
+  const earnedIds = new Set(completedQuests.map((quest) => quest.id));
+  const unlockedCount = completedQuests.length + multiplayerTrophies.length;
+  const unlockedSummary = signedIn
+    ? `${unlockedCount} unlocked: ${officialCompleted.length} Official Solo · ${customCompleted.length} Custom Solo · ${multiplayerTrophies.length} Multiplayer`
+    : "Sign in to sync your cabinet.";
 
   return (
     <View style={compactStyles.stack}>
@@ -4815,9 +4822,41 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
       </View>
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
         <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>{signedIn ? `${unlockedCount} unlocked item${unlockedCount === 1 ? "" : "s"}.` : "Sign in to sync your cabinet."}</Text>
-        <Text style={styles.microcopy}>Solo Coat of Arms and Multiplayer podium scrolls live together here, so the app stands alone as your complete SQC trophy shelf.</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{unlockedSummary}</Text>
+        <Text style={styles.microcopy}>This is your unified SQC reward shelf: Official Solo coats, Custom Solo coats, and Multiplayer podium scrolls all belong here.</Text>
       </View>
+
+      {signedIn && unlockedCount === 0 ? (
+        <AppRow title="No unlocked trophies yet" meta="Complete any Official Solo, Custom Solo, or Multiplayer Side Quest and it will appear on this shelf." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onClose()} />
+      ) : null}
+
+      {completedQuests.length ? (
+        <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Unlocked Solo rewards">
+          <Text style={compactStyles.multiplayerCardEyebrow}>Unlocked Solo rewards</Text>
+          <Text style={compactStyles.multiplayerCardTitle}>Official and Custom Solo Coat of Arms.</Text>
+          <View style={compactStyles.appRows}>
+            {completedQuests.map((quest) => {
+              const officialChallenge = officialChallengeById.get(quest.id) ?? null;
+              const imageSource = officialChallenge ? getChallengeCoatImageSource(officialChallenge) : getRowImageSource(quest.badgeImageUrl) ?? getCustomQuestImageSource(null);
+              return (
+                <AppRow
+                  key={`solo-unlocked-${quest.id}`}
+                  title={cleanMultiplayerTitle(quest.title)}
+                  meta={`${officialChallenge ? "Official Solo" : "Custom Solo"} · ${quest.badgeName}${quest.completedAt ? ` · ${formatAccountDate(quest.completedAt)}` : ""}`}
+                  sourceBadge={officialChallenge ? "Official Solo" : "Custom Solo"}
+                  status="Unlocked"
+                  imageSource={imageSource}
+                  glowSource={officialChallenge ? getChallengeCoatGlowSource(officialChallenge.id) : null}
+                  glowColor={officialChallenge ? getSafeBadgeColors(officialChallenge).glow : colors.gold}
+                  overlaySeal
+                  onPress={() => onOpenCompletedQuestDetail(quest.id)}
+                />
+              );
+            })}
+          </View>
+        </View>
+      ) : null}
+
       {multiplayerTrophies.length ? (
         <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Multiplayer podium scrolls">
           <Text style={compactStyles.multiplayerCardEyebrow}>Multiplayer podium scrolls</Text>
@@ -4827,7 +4866,8 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
               <AppRow
                 key={trophy.id}
                 title={trophy.title}
-                meta={`Multiplayer podium · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
+                meta={`Multiplayer · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
+                sourceBadge="Multiplayer"
                 status={trophy.placement}
                 imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
                 variant="seal"
@@ -4839,12 +4879,18 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
           <Text style={styles.microcopy}>These are account trophy records only; private player/account details stay out of the cabinet.</Text>
         </View>
       ) : null}
+
+      <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo collection">
+        <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo collection</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} / {bootstrap.challenges.length} official Coat of Arms unlocked.</Text>
+        <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo and Multiplayer rewards appear above when earned.</Text>
+      </View>
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
           <Pressable key={challenge.id} accessibilityRole="button" style={compactStyles.coatTile} onPress={() => onOpenChallengeDetail(challenge.id)}>
             <Image source={{ uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") }} style={[compactStyles.coatTileImage, !earnedIds.has(challenge.id) && compactStyles.coatTileLocked]} resizeMode="contain" />
             <Text style={compactStyles.coatTileTitle} numberOfLines={2}>{challenge.title}</Text>
-            {earnedIds.has(challenge.id) ? <Text style={compactStyles.earnedText}>Unlocked</Text> : null}
+            {earnedIds.has(challenge.id) ? <Text style={compactStyles.earnedText}>Unlocked</Text> : <Text style={compactStyles.earnedText}>Locked preview</Text>}
           </Pressable>
         ))}
       </View>
@@ -5382,7 +5428,7 @@ function ActiveScreen({
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
-      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onClose={() => onSelectTab("home")} />;
+      return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onClose={() => onSelectTab("home")} />;
     case "account":
       return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
   }

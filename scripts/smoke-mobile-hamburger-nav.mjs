@@ -167,6 +167,9 @@ dump = chooseMenuItem("Trophy Cabinet", "home-to-trophy-cabinet");
 try {
   assertIncludes(dump.xml, "Trophy Cabinet", "Trophy Cabinet after menu navigation");
   assertIncludes(dump.xml, "Close Trophy Cabinet", "Trophy Cabinet close control");
+  assertIncludes(dump.xml, "Official Solo collection", "Official Solo collection section");
+  assertIncludes(dump.xml, "Unlocked Solo rewards", "unified unlocked Solo shelf");
+  assertIncludes(dump.xml, "Custom Solo", "custom Solo reward classification");
   assertNotIncludes(dump.xml, "Close Browse Coat of Arms", "legacy Trophy Cabinet close label");
 } finally {
   dump.cleanup();
