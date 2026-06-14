@@ -16,6 +16,7 @@ export type ChessComVerificationVerdict = {
   lastMoveUci?: string;
   lastMoveSan?: string;
   playerColor?: "white" | "black";
+  outcome?: "win" | "draw" | "lose" | "unknown";
 };
 
 type QueenChallengeSide = "white" | "black";
@@ -2810,6 +2811,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
           startedGameAt: getChessComStartedGameAt(match),
           completedGameAt: getChessComCompletedGameAt(match),
           playerColor,
+          outcome: playerColor && getWinningSide(match) === playerColor ? "win" : getWinningSide(match) === "draw" ? "draw" : getWinningSide(match) === "unknown" ? "unknown" : "lose",
           ...buildChessComProofPositionFromPgn(match.pgn),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control all count."],
         };

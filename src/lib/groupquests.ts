@@ -56,7 +56,7 @@ export type GroupQuestHostRecord = {
 const MAX_HOST_QUESTS = 4;
 const MAX_PARTICIPANTS = 80;
 const defaultInviteCopy = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
-const defaultRules = { timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
+const defaultRules = { result: "Any result", timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
 
 export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
   if (!metadata || typeof metadata !== "object") return [];
@@ -111,7 +111,7 @@ export function buildGroupQuest(input: {
     customQuestSnapshots: normalizeCustomQuestSnapshots(input.customQuestSnapshots),
     startAt: cleanText(input.startAt, 40) ?? now,
     endAt: cleanText(input.endAt, 40) ?? now,
-    rules: normalizeRules(input.rules),
+    rules: { ...normalizeRules(input.rules), result: cleanText((input.rules as Record<string, unknown> | undefined)?.result, 60) ?? "Win required" },
     createdAt: now,
     participants: [],
   };
@@ -249,7 +249,7 @@ export function buildParticipant(input: {
 function compactGroupQuestForStorage(groupQuest: ServerGroupQuest) {
   const providerMode = groupQuest.providerMode === "lichess" || groupQuest.providerMode === "chesscom" ? groupQuest.providerMode : "both";
   const rules = normalizeRules(groupQuest.rules);
-  const hasCustomRules = rules.timeControl !== defaultRules.timeControl || rules.rated !== defaultRules.rated || rules.color !== defaultRules.color;
+  const hasCustomRules = rules.result !== defaultRules.result || rules.timeControl !== defaultRules.timeControl || rules.rated !== defaultRules.rated || rules.color !== defaultRules.color;
   return {
     id: groupQuest.id,
     hostUserId: groupQuest.hostUserId,
@@ -403,6 +403,7 @@ function normalizeRules(value: unknown): Record<string, string> {
   if (!value || typeof value !== "object") return defaultRules;
   const record = value as Record<string, unknown>;
   return {
+    result: cleanText(record.result, 60) ?? defaultRules.result,
     timeControl: cleanText(record.timeControl, 60) ?? defaultRules.timeControl,
     rated: cleanText(record.rated, 60) ?? defaultRules.rated,
     color: cleanText(record.color, 60) ?? defaultRules.color,

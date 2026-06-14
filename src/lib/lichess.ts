@@ -26,6 +26,7 @@ export type LichessVerificationVerdict = {
   startedGameAt?: string;
   completedGameAt?: string;
   playerColor?: "white" | "black";
+  outcome?: "win" | "draw" | "lose" | "unknown";
 } & Partial<ProofPosition>;
 
 const OPEN_GAME_STATUSES = new Set(["created", "started"]);
@@ -60,6 +61,12 @@ function getStartedGameAt(game: LichessGame): string | undefined {
 function getCompletedGameAt(game: LichessGame): string | undefined {
   const timestamp = game.lastMoveAt ?? game.createdAt;
   return typeof timestamp === "number" ? new Date(timestamp).toISOString() : undefined;
+}
+
+function getLichessPlayerOutcome(game: LichessGame, playerColor: "white" | "black"): "win" | "draw" | "lose" | "unknown" {
+  if (!game.status || OPEN_GAME_STATUSES.has(game.status)) return "unknown";
+  if (!game.winner) return "draw";
+  return game.winner === playerColor ? "win" : "lose";
 }
 
 async function verifyFinishAttempt({
@@ -249,6 +256,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       startedGameAt: getStartedGameAt(game),
       completedGameAt: getCompletedGameAt(game),
       playerColor: whiteName === normalizedUsername ? "white" : "black",
+      outcome: getLichessPlayerOutcome(game, whiteName === normalizedUsername ? "white" : "black"),
       evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control all count."],
       ...proofPosition,
     };

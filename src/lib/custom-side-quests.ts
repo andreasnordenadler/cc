@@ -199,6 +199,8 @@ export async function checkLatestCustomSideQuestForProvider(input: { quest: Cust
     evidence: results.map((r, index) => `Condition ${index + 1}: ${r.passed ? "passed" : "not completed"}. ${r.explanation}`),
     startedGameAt: game.startedGameAt,
     completedGameAt: game.completedGameAt,
+    playerColor: game.playerColor,
+    outcome: game.outcome,
     finalPositionFen: proofSnapshot?.fenAtBreak ?? final?.fen,
     lastMoveUci: proofSnapshot?.uci ?? final?.uci,
     lastMoveSan: proofSnapshot?.san ?? final?.san,

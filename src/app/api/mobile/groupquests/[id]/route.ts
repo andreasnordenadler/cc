@@ -290,6 +290,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         username: participant.username,
         startAt: found.groupQuest.startAt,
         endAt: found.groupQuest.endAt,
+        rules: found.groupQuest.rules,
         customQuest: found.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId) ?? null,
       }),
     })),

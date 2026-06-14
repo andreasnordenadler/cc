@@ -6,6 +6,16 @@ Owner: Sam
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
+## Active queue update — 2026-06-14 SQC Mobile signed-in QA fixes
+
+- [ ] Implement Andreas-approved SQC Mobile signed-in QA fixes except bottom tabs.
+  - added_at: 2026-06-14 10:58 Europe/Stockholm
+  - source: Andreas agreed with SQC Mobile v251 signed-in persona QA recommendations except recommendation 5 (bottom tabs), and added that Community Multiplayer Side Quests should default to requiring a win to complete the side quest.
+  - scope: fix stale Support installed-candidate metadata; improve Multiplayer detail primary actions; improve Solo latest-game check feedback; expand main menu/app map without bottom tabs; simplify Multiplayer create Basic/Advanced; add custom quest templates; move Host/Create actions higher; add custom-builder save/discard protection where practical; compress long education sections; default Community Multiplayer creation to require a win condition.
+  - constraints: do not add bottom tabs; preserve SQC visual identity; no destructive production data changes; mobile app is active lane; website changes only if shared API/defaults require it.
+  - proof_required: focused code changes, mobile typecheck/lint, relevant build/release checks if release candidate changes, emulator/screenshot or direct inspection proof.
+
+
 ## Active queue update — 2026-06-10 UX parity review
 
 - [ ] 24h SQC website UX parity review: make newly added website functions feel app-quality from a user perspective.

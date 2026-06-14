@@ -1,5 +1,5 @@
 import { getChallengeById } from "@/lib/challenges";
-import { checkLatestChallengeForProvider } from "@/lib/challenge-latest-verifiers";
+import { checkLatestChallengeForProvider, type LatestChallengeOutcome } from "@/lib/challenge-latest-verifiers";
 import { checkLatestCustomSideQuestForProvider, type CustomSideQuest } from "@/lib/custom-side-quests";
 
 export type GroupQuestCheckResult = {
@@ -10,6 +10,7 @@ export type GroupQuestCheckResult = {
   finalPositionFen?: string;
   lastMoveUci?: string;
   lastMoveSan?: string;
+  outcome?: LatestChallengeOutcome;
 };
 
 function resolveVerdictTime(verdict: { completedGameAt?: string; startedGameAt?: string }) {
@@ -28,9 +29,11 @@ function buildWindowedResult(
     finalPositionFen?: string;
     lastMoveUci?: string;
     lastMoveSan?: string;
+    outcome?: LatestChallengeOutcome;
   },
   startAt?: string,
   endAt?: string,
+  rules?: Record<string, string>,
 ): GroupQuestCheckResult {
   const title = getChallengeById(challengeId)?.title ?? challengeId;
   const gameTime = resolveVerdictTime(verdict);
@@ -56,6 +59,22 @@ function buildWindowedResult(
     };
   }
 
+  const requiresWin = (rules?.result ?? "Any result").toLowerCase() === "win required";
+  if (requiresWin && verdict.status === "passed") {
+    if (verdict.outcome !== "win") {
+      return {
+        status: "failed",
+        gameId: verdict.gameId,
+        summary: `${title} matched the Side Quest condition, but this Community Multiplayer Side Quest also requires the player to win the game. Latest result was ${verdict.outcome ?? "unknown"}.`,
+        gameTime,
+        finalPositionFen: verdict.finalPositionFen,
+        lastMoveUci: verdict.lastMoveUci,
+        lastMoveSan: verdict.lastMoveSan,
+        outcome: verdict.outcome,
+      };
+    }
+  }
+
   return {
     status: verdict.status,
     gameId: verdict.gameId,
@@ -64,6 +83,7 @@ function buildWindowedResult(
     finalPositionFen: verdict.finalPositionFen,
     lastMoveUci: verdict.lastMoveUci,
     lastMoveSan: verdict.lastMoveSan,
+    outcome: verdict.outcome,
   };
 }
 
@@ -92,10 +112,11 @@ export type CheckLatestGroupQuestChallengeInput = {
     config: string;
     badgeImageUrl?: string | null;
   } | null;
+  rules?: Record<string, string>;
 };
 
 export async function checkLatestGroupQuestChallenge(input: CheckLatestGroupQuestChallengeInput): Promise<GroupQuestCheckResult> {
-  const { challengeId, provider, username, startAt, endAt, customQuest } = input;
+  const { challengeId, provider, username, startAt, endAt, customQuest, rules } = input;
 
   if (!username) {
     return {
@@ -112,5 +133,6 @@ export async function checkLatestGroupQuestChallenge(input: CheckLatestGroupQues
       : await checkLatestChallengeForProvider({ challengeId, provider, username }),
     startAt,
     endAt,
+    rules,
   );
 }

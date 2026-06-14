@@ -41,7 +41,10 @@ export type LatestChallengeFailureDiagnostic = {
   uci?: string;
   fenAtBreak?: string;
   playerColor?: "white" | "black";
+  outcome?: LatestChallengeOutcome;
 };
+
+export type LatestChallengeOutcome = "win" | "draw" | "lose" | "unknown";
 
 export type LatestChallengeVerdict = {
   status: "passed" | "failed" | "pending";
@@ -54,6 +57,7 @@ export type LatestChallengeVerdict = {
   lastMoveUci?: string;
   lastMoveSan?: string;
   playerColor?: "white" | "black";
+  outcome?: LatestChallengeOutcome;
   failureDiagnostic?: LatestChallengeFailureDiagnostic;
 };
 
@@ -173,6 +177,7 @@ async function enrichVerdictWithLatestBoard(input: {
     lastMoveUci: verdict.lastMoveUci ?? latestFinished.lastMoveUci,
     lastMoveSan: verdict.lastMoveSan ?? latestFinishedLastMoveSan,
     playerColor: verdict.playerColor ?? latestFinished.playerColor ?? verdict.failureDiagnostic?.playerColor,
+    outcome: verdict.outcome ?? latestFinished.outcome,
   };
 
   if (verdict.status === "failed") {

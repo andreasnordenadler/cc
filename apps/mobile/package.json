@@ -16,6 +16,7 @@
     "@expo/vector-icons": "^15.0.3",
     "@react-native-community/datetimepicker": "^9.1.0",
     "expo": "^54.0.0",
+    "expo-application": "~7.0.8",
     "expo-auth-session": "7.0.11",
     "expo-clipboard": "~8.0.8",
     "expo-crypto": "^15.0.9",
