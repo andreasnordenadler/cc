@@ -9,11 +9,13 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-14 SQC Mobile v257 Trophy Cabinet rethink
 
-- [ ] Release SQC Mobile v257 with a unified Trophy Cabinet for Official Solo, Custom Solo, and Multiplayer rewards.
+- [x] Release SQC Mobile v257 with a unified Trophy Cabinet for Official Solo, Custom Solo, and Multiplayer rewards.
   - added_at: 2026-06-14 21:22 Europe/Stockholm
   - source: Andreas reported the v256 Trophy Cabinet was confusing: it said 2 unlocked but showed only one visible official Coat of Arms, and asked to rethink the whole cabinet for all Solo/Multiplayer Side Quest types.
   - scope: make the cabinet count and visible rows agree; show a unified unlocked shelf for Official Solo coats, Custom Solo coats, and Multiplayer podium scrolls; keep locked official coats as a clearly labelled official collection preview; extend installed-APK smoke to catch missing Custom Solo rewards.
   - proof_required: mobile typecheck/lint/build, release build, installed APK Trophy Cabinet smoke, GitHub release link.
+  - completed_at: 2026-06-14 21:34 Europe/Stockholm
+  - proof: committed `5b14861` for the unified Trophy Cabinet and installed-APK smoke assertions; committed `aa7cfed` for v257 release metadata; pushed `main`; `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm lint`, and `pnpm build` passed; `pnpm mobile:release` built and verified Android APK `0.1.257` / versionCode `257` / sha256 `f4c9e10fd517cf39573eec538a2118cc38c4e8eefeb16d0ff195d4d500ebe7f1`; `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v257-2026-06-14.apk` passed against the installed APK; GitHub release `mobile-v257` published with APK asset.
 
 
 ## Active queue update — 2026-06-14 SQC Mobile v256 navigation semantics cleanup
