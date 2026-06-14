@@ -6,11 +6,11 @@ Owner: Sam
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-14 SQC Mobile v260 end-user review polish
 
-- [ ] Release SQC Mobile v260 implementing full end-user review recommendations 1–6.
+- [x] Release SQC Mobile v260 implementing full end-user review recommendations 1–6.
   - added_at: 2026-06-14 22:36 Europe/Stockholm
   - source: full signed-in end-user review artifact `artifacts/SQC_MOBILE_V259_FULL_END_USER_REVIEW_2026-06-14.md`.
   - scope: hide Help diagnostics by default; add/normalize bottom safe-area padding and remove overlapping floating scroll controls; fix Community metadata `Official public` vs `Community public`; clean Create Multiplayer time defaults/account time wording; make Trophy Cabinet a normal destination page; sweep awkward copy/plurals and over-internal wording.
-  - proof_required: mobile typecheck/lint/build, installed APK smoke, screenshots for Help/Community/Create/Trophy, and APK release if code changes are shipped.
+  - proof: shipped in commits `2cca0ea` and `ae73585`, pushed to `main`, and published GitHub release `mobile-v260` (`https://github.com/andreasnordenadler/cc/releases/tag/mobile-v260`). APK `sqc-mobile-android-v260-2026-06-14.apk` has versionName `0.1.260`, versionCode `260`, SHA256 `947f7f4b2085d6c63588d90e6b1ca208f3300d9c4814c52936c7f58b6b50bed9`. Verification passed: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint` (existing 3 warnings only); `pnpm build`; `pnpm mobile:release`; installed APK smoke `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v260-2026-06-14.apk`; focused screenshot/XML proof in `artifacts/emulator-screenshots/sqc-v260-polish-proof-2026-06-14/` covering Help, Community metadata, Create time defaults, and Trophy Cabinet semantics.
 
 
 ## Active queue update — 2026-06-14 SQC Mobile v259 community subtab visibility hotfix
