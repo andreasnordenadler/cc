@@ -5,6 +5,14 @@ Last updated: 2026-06-14 14:05 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 
+## Active queue update — 2026-06-14 SQC Mobile v259 community subtab visibility hotfix
+
+- [ ] Release SQC Mobile v259 fixing disappearing Discover/My Custom segmented-button labels.
+  - added_at: 2026-06-14 22:15 Europe/Stockholm
+  - source: Andreas screenshots showed the inactive `Discover` / `My Custom` subtab label disappearing after the v258 artifact fix.
+  - scope: remove risky clipping from the Community Solo Side Quest segmented control; keep stable transparent borders to avoid layout shift; make inactive labels explicitly visible; extend installed-APK smoke to assert both subtab labels remain available in both selected states.
+  - proof_required: mobile typecheck/lint/build, release build, installed APK smoke, GitHub release link.
+
 
 ## Active queue update — 2026-06-14 SQC Mobile v258 vocabulary/button polish
 

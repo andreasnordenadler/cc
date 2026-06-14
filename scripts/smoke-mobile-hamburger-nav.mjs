@@ -175,6 +175,31 @@ try {
   dump.cleanup();
 }
 
+
+launchFresh();
+dump = chooseMenuItem("Solo Side Quests", "home-to-solo-side-quests");
+try {
+  assertIncludes(dump.xml, "SQC Official Side Quests", "official/community catalog switcher");
+} finally {
+  dump.cleanup();
+}
+tapUi("Community Solo Side Quests", "solo-community-tab");
+dump = dumpXml("solo-community-subtabs-discover");
+try {
+  assertIncludes(dump.xml, "Discover", "Discover subtab label visible");
+  assertIncludes(dump.xml, "My Custom", "My Custom subtab label visible while Discover selected");
+} finally {
+  dump.cleanup();
+}
+tapUi("My Custom", "solo-community-my-custom-subtab");
+dump = dumpXml("solo-community-subtabs-my-custom");
+try {
+  assertIncludes(dump.xml, "Discover", "Discover subtab label visible while My Custom selected");
+  assertIncludes(dump.xml, "My Custom", "My Custom subtab label visible");
+} finally {
+  dump.cleanup();
+}
+
 launchFresh();
 dump = chooseMenuItem("My Custom Side Quests", "home-to-my-custom-side-quests");
 try {
