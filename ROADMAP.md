@@ -9,11 +9,12 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-14 SQC Mobile global hamburger nav
 
-- [ ] Remove the chip-style top navigation bar from SQC Mobile and make the hamburger menu available everywhere.
+- [x] Remove the chip-style top navigation bar from SQC Mobile and make the hamburger menu available everywhere.
   - added_at: 2026-06-14 11:20 Europe/Stockholm
   - source: Andreas sent v252 screenshot and requested: “Remove that top bar. Have the hamburger button/menu everywhere.”
   - scope: remove the top tab/chip bar; add one global floating hamburger navigation menu usable from every app screen; avoid reintroducing bottom tabs; preserve SQC visual identity; build and publish a new install APK link.
   - proof_required: mobile typecheck/lint/build or release gate; new Android release candidate link.
+  - proof: committed `812dc1a` for global hamburger nav; `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm lint`, `pnpm build`, and `pnpm mobile:release` passed; released Android APK `mobile-v253` with version `0.1.253` / versionCode `253` / sha256 `49021e829c92eeb006279959c3b4dea8e937020b0683e69e67b131794c429a75`; release URL `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v253`.
 
 ## Active queue update — 2026-06-14 SQC Mobile signed-in QA fixes
 
