@@ -55,12 +55,7 @@ function allNodes(xml) {
       const m = attrs.match(new RegExp(`${name}="([^"]*)"`));
       return m ? m[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&") : "";
     };
-    nodes.push({
-      text: attr("text"),
-      desc: attr("content-desc"),
-      bounds: attr("bounds"),
-      clickable: attr("clickable"),
-    });
+    nodes.push({ text: attr("text"), desc: attr("content-desc"), bounds: attr("bounds"), clickable: attr("clickable") });
   }
   return nodes;
 }
@@ -75,6 +70,10 @@ function findNode(xml, predicate) {
   return allNodes(xml).find(predicate);
 }
 
+function findByLabel(xml, label) {
+  return findNode(xml, (node) => node.text === label || node.desc === label || node.text.includes(label) || node.desc.includes(label));
+}
+
 function tapNode(node, label) {
   const point = center(node.bounds || "");
   if (!point) throw new Error(`Cannot tap ${label}; missing bounds: ${JSON.stringify(node)}`);
@@ -83,8 +82,52 @@ function tapNode(node, label) {
 
 function assertIncludes(xml, needle, label = needle) {
   if (!xml.toLowerCase().includes(needle.toLowerCase())) {
-    throw new Error(`Expected UI to include ${label}; excerpt:\n${xml.slice(0, 2500)}`);
+    throw new Error(`Expected UI to include ${label}; excerpt:\n${xml.slice(0, 3000)}`);
   }
+}
+
+function launchFresh() {
+  run(["shell", "am", "force-stop", PACKAGE_NAME]);
+  run(["shell", "am", "start", "-n", ACTIVITY]);
+  sleep(4500);
+}
+
+function openMenu(tag) {
+  const dump = dumpXml(`${tag}-before-menu`);
+  try {
+    const menuButton = findNode(dump.xml, (node) => node.desc === "Open main menu");
+    if (!menuButton) throw new Error(`Open main menu button not found on ${tag}. UI excerpt:\n${dump.xml.slice(0, 3000)}`);
+    tapNode(menuButton, "Open main menu");
+  } finally {
+    dump.cleanup();
+  }
+  sleep(1000);
+  return dumpXml(`${tag}-menu-open`);
+}
+
+function chooseMenuItem(label, tag) {
+  const menuDump = openMenu(tag);
+  try {
+    const item = findByLabel(menuDump.xml, label);
+    if (!item) throw new Error(`${label} menu item not found after menu open. UI excerpt:\n${menuDump.xml.slice(0, 3000)}`);
+    tapNode(item, `${label} menu item`);
+  } finally {
+    menuDump.cleanup();
+  }
+  sleep(1500);
+  return dumpXml(`${tag}-after-${label.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`);
+}
+
+function tapUi(label, tag) {
+  const dump = dumpXml(`${tag}-before-tap`);
+  try {
+    const node = findByLabel(dump.xml, label);
+    if (!node) throw new Error(`${label} not found. UI excerpt:\n${dump.xml.slice(0, 3000)}`);
+    tapNode(node, label);
+  } finally {
+    dump.cleanup();
+  }
+  sleep(1500);
 }
 
 const { apk } = parseArgs();
@@ -95,35 +138,37 @@ if (apk) {
   run(["install", "-r", apk], { stdio: "inherit" });
 }
 
-run(["shell", "am", "start", "-n", ACTIVITY]);
-sleep(4500);
-
-let dump = dumpXml("home");
-try {
-  const menuButton = findNode(dump.xml, (node) => node.desc === "Open main menu");
-  if (!menuButton) throw new Error(`Open main menu button not found. UI excerpt:\n${dump.xml.slice(0, 2500)}`);
-  tapNode(menuButton, "Open main menu");
-} finally {
-  dump.cleanup();
-}
-
-sleep(1000);
-dump = dumpXml("menu-open");
-try {
-  for (const label of ["Today", "Solo Side Quests", "Multiplayer", "My SQC / Account"]) {
-    assertIncludes(dump.xml, label);
-  }
-  const multiplayer = findNode(dump.xml, (node) => node.text === "Multiplayer" || node.desc === "Multiplayer");
-  if (!multiplayer) throw new Error(`Multiplayer menu item not found after menu open. UI excerpt:\n${dump.xml.slice(0, 2500)}`);
-  tapNode(multiplayer, "Multiplayer menu item");
-} finally {
-  dump.cleanup();
-}
-
-sleep(1500);
-dump = dumpXml("multiplayer");
+launchFresh();
+let dump = chooseMenuItem("Multiplayer", "home-to-multiplayer");
 try {
   assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after menu navigation");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+dump = chooseMenuItem("Support", "home-to-support");
+try {
+  assertIncludes(dump.xml, "HELP & SUPPORT", "Help & Support after Support menu item");
+  assertIncludes(dump.xml, "Installed candidate", "Support installed-candidate block");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+tapUi("Open Current Active Side Quest details", "solo-detail");
+dump = chooseMenuItem("Today", "solo-detail-to-today");
+try {
+  assertIncludes(dump.xml, "ACTIVE SOLO SIDE QUEST", "Today dashboard after Solo detail menu navigation");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+tapUi("Open active Multiplayer Side Quest details", "multiplayer-detail");
+dump = chooseMenuItem("Multiplayer", "multiplayer-detail-to-lobby");
+try {
+  assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after detail menu navigation");
 } finally {
   dump.cleanup();
 }

@@ -1240,6 +1240,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   const [scrollState, setScrollState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
   const [pendingMultiplayerCreateOpen, setPendingMultiplayerCreateOpen] = useState(false);
   const [pendingMultiplayerCreateQuestId, setPendingMultiplayerCreateQuestId] = useState<string | null>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [shell, setShell] = useState<MobileShellState>({
     bootstrap: null,
     account: null,
@@ -1394,6 +1395,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     selectTab("multiplayerSideQuests");
   }
 
+  function openSupport() {
+    setHelpOpen(true);
+  }
+
   function handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
     const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
     setScrollState({ y: contentOffset.y, viewportHeight: layoutMeasurement.height, contentHeight: contentSize.height });
@@ -1464,6 +1469,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               onConsumePendingQuestOpen={clearPendingQuestOpen}
               onSelectTab={selectTab}
               onOpenMultiplayerCreate={openMultiplayerCreate}
+              onOpenSupport={openSupport}
               pendingMultiplayerCreateOpen={pendingMultiplayerCreateOpen}
               pendingMultiplayerCreateQuestId={pendingMultiplayerCreateQuestId}
               onConsumePendingMultiplayerCreate={() => {
@@ -1476,14 +1482,15 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
       </ScrollView>
       {shell.activeTab === "home" ? null : <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />}
-      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} />
+      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenSupport={openSupport} />
+      <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={isAuthenticatedAccount(displayAccount) ? displayAccount : null} authBridge={authBridge} />
     </SafeAreaView>
   );
 
 }
 
 
-function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void }) {
+function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate, onOpenSupport }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void; onOpenSupport: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const authenticated = isAuthenticatedAccount(account);
@@ -1501,7 +1508,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
     { id: "account", label: authenticated ? "My SQC / Account" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
     { id: "custom", label: "Custom Library", icon: "book-open-variant", action: () => openMenuTab("sideQuests") },
     { id: "host", label: "Host Multiplayer", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
-    { id: "support", label: "Support", icon: "lifebuoy", action: () => openMenuTab("account") },
+    { id: "support", label: "Support", icon: "lifebuoy", action: () => { setMenuOpen(false); onOpenSupport(); } },
   ];
 
   return (
@@ -1587,6 +1594,8 @@ function TodayDashboard({
   account,
   authBridge,
   onSelectTab,
+  onOpenMultiplayerCreate,
+  onOpenSupport,
   onSelectChallenge,
   onAccountUpdated,
 }: {
@@ -1594,6 +1603,8 @@ function TodayDashboard({
   account: MobileAccountResponse | null;
   authBridge: MobileAuthBridge;
   onSelectTab: (tab: AppTab) => void;
+  onOpenMultiplayerCreate: () => void;
+  onOpenSupport: () => void;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
   onAccountUpdated: AccountUpdatedCallback;
 }) {
@@ -1901,6 +1912,18 @@ function TodayDashboard({
           setCurrentDetailOpen(false);
           onSelectTab("sideQuests");
         }}
+        onSelectTab={(tab) => {
+          setCurrentDetailOpen(false);
+          onSelectTab(tab);
+        }}
+        onOpenMultiplayerCreate={() => {
+          setCurrentDetailOpen(false);
+          onOpenMultiplayerCreate();
+        }}
+        onOpenSupport={() => {
+          setCurrentDetailOpen(false);
+          onOpenSupport();
+        }}
       />
 
       <View style={compactStyles.activeMultiplayerSection}>
@@ -1949,6 +1972,19 @@ function TodayDashboard({
         onJoin={undefined}
         onUpdate={(payload) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => joinedMultiplayerQuest ? void runGroupQuestAction(joinedMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
+        account={signedIn}
+        onSelectTab={(tab) => {
+          setJoinedMultiplayerId(null);
+          onSelectTab(tab);
+        }}
+        onOpenMultiplayerCreate={() => {
+          setJoinedMultiplayerId(null);
+          onOpenMultiplayerCreate();
+        }}
+        onOpenSupport={() => {
+          setJoinedMultiplayerId(null);
+          onOpenSupport();
+        }}
       />
 
       <JoinedMultiplayerQuestModal
@@ -1966,6 +2002,19 @@ function TodayDashboard({
         onJoin={() => officialMultiplayerQuest && officialMultiplayerQuest.status !== "Finished" ? void runGroupQuestAction(officialMultiplayerQuest.id, "join") : undefined}
         onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
+        account={signedIn}
+        onSelectTab={(tab) => {
+          setOfficialMultiplayerId(null);
+          onSelectTab(tab);
+        }}
+        onOpenMultiplayerCreate={() => {
+          setOfficialMultiplayerId(null);
+          onOpenMultiplayerCreate();
+        }}
+        onOpenSupport={() => {
+          setOfficialMultiplayerId(null);
+          onOpenSupport();
+        }}
       />
 
 
@@ -2077,6 +2126,10 @@ function JoinedMultiplayerQuestModal({
   onRemoveParticipant,
   onReport,
   onViewHost,
+  account = null,
+  onSelectTab,
+  onOpenMultiplayerCreate,
+  onOpenSupport,
 }: {
   visible: boolean;
   quest: MobileGroupQuestSummary | null;
@@ -2094,6 +2147,10 @@ function JoinedMultiplayerQuestModal({
   onRemoveParticipant?: (participantUserId: string) => void;
   onReport?: (quest: MobileGroupQuestSummary) => void;
   onViewHost?: (quest: MobileGroupQuestSummary) => void;
+  account?: MobileAccountResponse | null;
+  onSelectTab?: (tab: AppTab) => void;
+  onOpenMultiplayerCreate?: () => void;
+  onOpenSupport?: () => void;
 }) {
   const [proofMode, setProofMode] = useState(false);
   const [selectedRuleQuestTitle, setSelectedRuleQuestTitle] = useState<string | null>(null);
@@ -2201,6 +2258,9 @@ function JoinedMultiplayerQuestModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
+        {onSelectTab && onOpenMultiplayerCreate && onOpenSupport ? (
+          <GlobalHamburgerMenu activeTab="multiplayerSideQuests" account={account} onSelectTab={(tab) => { closeModal(); onSelectTab(tab); }} onOpenMultiplayerCreate={() => { closeModal(); onOpenMultiplayerCreate(); }} onOpenSupport={() => { closeModal(); onOpenSupport(); }} />
+        ) : null}
         <ScrollHintedScrollView
           contentContainerStyle={compactStyles.detailContent}
           showsVerticalScrollIndicator={false}
@@ -2612,6 +2672,9 @@ function CurrentSideQuestDetailModal({
   onRunCheck,
   onViewProof,
   onSwitchQuest,
+  onSelectTab,
+  onOpenMultiplayerCreate,
+  onOpenSupport,
 }: {
   visible: boolean;
   signedIn: MobileAccountState;
@@ -2629,6 +2692,9 @@ function CurrentSideQuestDetailModal({
   onRunCheck: () => Promise<void>;
   onViewProof: () => void;
   onSwitchQuest: () => void;
+  onSelectTab: (tab: AppTab) => void;
+  onOpenMultiplayerCreate: () => void;
+  onOpenSupport: () => void;
 }) {
   const [coatExpanded, setCoatExpanded] = useState(false);
   const activeQuest = signedIn.activeQuest;
@@ -2651,6 +2717,7 @@ function CurrentSideQuestDetailModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
+        <GlobalHamburgerMenu activeTab="home" account={signedIn} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />
         <ScrollHintedScrollView
           contentContainerStyle={compactStyles.detailContent}
           showsVerticalScrollIndicator={false}
@@ -5242,6 +5309,7 @@ function ActiveScreen({
   onConsumePendingQuestOpen,
   onSelectTab,
   onOpenMultiplayerCreate,
+  onOpenSupport,
   pendingMultiplayerCreateOpen,
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
@@ -5261,6 +5329,7 @@ function ActiveScreen({
   onConsumePendingQuestOpen: () => void;
   onSelectTab: (tab: AppTab) => void;
   onOpenMultiplayerCreate: (questId?: string) => void;
+  onOpenSupport: () => void;
   pendingMultiplayerCreateOpen: boolean;
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
@@ -5268,7 +5337,7 @@ function ActiveScreen({
 }) {
   switch (activeTab) {
     case "home":
-      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
+      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
       return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} />;
     case "multiplayerSideQuests":
