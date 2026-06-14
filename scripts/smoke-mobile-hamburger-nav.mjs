@@ -95,6 +95,13 @@ function assertIncludes(xml, needle, label = needle) {
   }
 }
 
+function assertNotIncludes(xml, needle, label = needle) {
+  const normalized = normalizeXmlText(xml);
+  if (normalized.toLowerCase().includes(needle.toLowerCase())) {
+    throw new Error(`Expected UI not to include ${label}; excerpt:\n${normalized.slice(0, 3000)}`);
+  }
+}
+
 function launchFresh() {
   run(["shell", "am", "force-stop", PACKAGE_NAME]);
   run(["shell", "am", "start", "-n", ACTIVITY]);
@@ -148,7 +155,7 @@ if (apk) {
 }
 
 launchFresh();
-let dump = chooseMenuItem("Multiplayer", "home-to-multiplayer");
+let dump = chooseMenuItem("Multiplayer Lobby", "home-to-multiplayer-lobby");
 try {
   assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after menu navigation");
 } finally {
@@ -156,7 +163,36 @@ try {
 }
 
 launchFresh();
-dump = chooseMenuItem("Support", "home-to-support");
+dump = chooseMenuItem("Trophy Cabinet", "home-to-trophy-cabinet");
+try {
+  assertIncludes(dump.xml, "Trophy Cabinet", "Trophy Cabinet after menu navigation");
+  assertIncludes(dump.xml, "Close Trophy Cabinet", "Trophy Cabinet close control");
+  assertNotIncludes(dump.xml, "Close Browse Coat of Arms", "legacy Trophy Cabinet close label");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+dump = chooseMenuItem("My Custom Side Quests", "home-to-my-custom-side-quests");
+try {
+  assertIncludes(dump.xml, "My Custom Side Quests", "My Custom Side Quests after menu navigation");
+  assertNotIncludes(dump.xml, "Custom Library", "legacy Custom Library label");
+  assertNotIncludes(dump.xml, "My Custom Library", "legacy My Custom Library heading");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+dump = chooseMenuItem("Create Multiplayer Side Quest", "home-to-create-multiplayer-side-quest");
+try {
+  assertIncludes(dump.xml, "Create Multiplayer Side Quest", "Create Multiplayer Side Quest modal");
+  assertNotIncludes(dump.xml, "Host Multiplayer", "legacy Host Multiplayer label");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+dump = chooseMenuItem("Help & Support", "home-to-support");
 try {
   assertIncludes(dump.xml, "HELP & SUPPORT", "Help & Support after Support menu item");
   assertIncludes(dump.xml, "Installed candidate", "Support installed-candidate block");
@@ -175,7 +211,7 @@ try {
 
 launchFresh();
 tapUi("Open active Multiplayer Side Quest details", "multiplayer-detail");
-dump = chooseMenuItem("Multiplayer", "multiplayer-detail-to-lobby");
+dump = chooseMenuItem("Multiplayer Lobby", "multiplayer-detail-to-lobby");
 try {
   assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after detail menu navigation");
 } finally {

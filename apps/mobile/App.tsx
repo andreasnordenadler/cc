@@ -38,6 +38,7 @@ import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
+type SideQuestCatalogIntent = "official" | "community-discover" | "my-custom";
 
 type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" | "multiplayer" | "accounts";
 
@@ -906,6 +907,7 @@ type MobileShellState = {
   selectedChallengeId: string | null;
   pendingSideQuestDetailId: string | null;
   pendingCompletedDetailId: string | null;
+  pendingSideQuestCatalogIntent: SideQuestCatalogIntent | null;
   activeTab: AppTab;
   loading: boolean;
   refreshing: boolean;
@@ -1159,8 +1161,8 @@ const TABS: Array<
 > = [
   { id: "home", label: "Today", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
   { id: "sideQuests", label: "Side Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
-  { id: "multiplayerSideQuests", label: "Multiplayer", iconKind: "vector", iconName: "account-group" },
-  { id: "coatOfArms", label: "Coat of Arms", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
+  { id: "multiplayerSideQuests", label: "Multiplayer Lobby", iconKind: "vector", iconName: "account-group" },
+  { id: "coatOfArms", label: "Trophy Cabinet", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
   { id: "account", label: "Account", iconKind: "vector", iconName: "account-circle" },
 ];
 
@@ -1247,6 +1249,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     selectedChallengeId: null,
     pendingSideQuestDetailId: null,
     pendingCompletedDetailId: null,
+    pendingSideQuestCatalogIntent: null,
     activeTab: "home",
     loading: true,
     refreshing: false,
@@ -1371,20 +1374,20 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }
 
   function openChallengeDetail(challengeId: string) {
-    setShell((current) => ({ ...current, selectedChallengeId: challengeId, pendingSideQuestDetailId: challengeId, pendingCompletedDetailId: null, activeTab: "sideQuests" }));
+    setShell((current) => ({ ...current, selectedChallengeId: challengeId, pendingSideQuestDetailId: challengeId, pendingCompletedDetailId: null, pendingSideQuestCatalogIntent: null, activeTab: "sideQuests" }));
   }
 
   function openCompletedQuestDetail(challengeId: string) {
-    setShell((current) => ({ ...current, selectedChallengeId: challengeId, pendingSideQuestDetailId: null, pendingCompletedDetailId: challengeId, activeTab: "sideQuests" }));
+    setShell((current) => ({ ...current, selectedChallengeId: challengeId, pendingSideQuestDetailId: null, pendingCompletedDetailId: challengeId, pendingSideQuestCatalogIntent: null, activeTab: "sideQuests" }));
   }
 
   function clearPendingQuestOpen() {
-    setShell((current) => ({ ...current, pendingSideQuestDetailId: null, pendingCompletedDetailId: null }));
+    setShell((current) => ({ ...current, pendingSideQuestDetailId: null, pendingCompletedDetailId: null, pendingSideQuestCatalogIntent: null }));
   }
 
   function selectTab(activeTab: AppTab) {
     scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-    setShell((current) => ({ ...current, activeTab }));
+    setShell((current) => ({ ...current, activeTab, pendingSideQuestCatalogIntent: activeTab === "sideQuests" ? current.pendingSideQuestCatalogIntent : null }));
     setScrollState((current) => ({ ...current, y: 0 }));
     requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
@@ -1393,6 +1396,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setPendingMultiplayerCreateQuestId(questId ?? null);
     setPendingMultiplayerCreateOpen(true);
     selectTab("multiplayerSideQuests");
+  }
+
+  function openCustomSideQuests() {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    setShell((current) => ({ ...current, activeTab: "sideQuests", pendingSideQuestCatalogIntent: "my-custom" }));
+    setScrollState((current) => ({ ...current, y: 0 }));
+    requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
 
   function openSupport() {
@@ -1464,6 +1474,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               onSelectChallenge={selectChallenge}
               pendingSideQuestDetailId={shell.pendingSideQuestDetailId}
               pendingCompletedDetailId={shell.pendingCompletedDetailId}
+              pendingSideQuestCatalogIntent={shell.pendingSideQuestCatalogIntent}
               onOpenChallengeDetail={openChallengeDetail}
               onOpenCompletedQuestDetail={openCompletedQuestDetail}
               onConsumePendingQuestOpen={clearPendingQuestOpen}
@@ -1482,7 +1493,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
         ) : null}
       </ScrollView>
       {shell.activeTab === "home" ? null : <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />}
-      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenSupport={openSupport} />
+      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenCustomSideQuests={openCustomSideQuests} onOpenSupport={openSupport} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={isAuthenticatedAccount(displayAccount) ? displayAccount : null} authBridge={authBridge} />
     </SafeAreaView>
   );
@@ -1490,7 +1501,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 }
 
 
-function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate, onOpenSupport }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void; onOpenSupport: () => void }) {
+function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate, onOpenCustomSideQuests, onOpenSupport }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void; onOpenCustomSideQuests: () => void; onOpenSupport: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const authenticated = isAuthenticatedAccount(account);
@@ -1503,12 +1514,12 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
   const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
     { id: "home", label: "Today", icon: "home-variant", action: () => openMenuTab("home"), selected: activeTab === "home" },
     { id: "sideQuests", label: "Solo Side Quests", icon: "flag-checkered", action: () => openMenuTab("sideQuests"), selected: activeTab === "sideQuests" },
-    { id: "multiplayer", label: "Multiplayer", icon: "account-group", action: () => openMenuTab("multiplayerSideQuests"), selected: activeTab === "multiplayerSideQuests" },
+    { id: "multiplayer", label: "Multiplayer Lobby", icon: "account-group", action: () => openMenuTab("multiplayerSideQuests"), selected: activeTab === "multiplayerSideQuests" },
     { id: "coats", label: "Trophy Cabinet", icon: "shield-star", action: () => openMenuTab("coatOfArms"), selected: activeTab === "coatOfArms" },
-    { id: "account", label: authenticated ? "My SQC / Account" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
-    { id: "custom", label: "Custom Library", icon: "book-open-variant", action: () => openMenuTab("sideQuests") },
-    { id: "host", label: "Host Multiplayer", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
-    { id: "support", label: "Support", icon: "lifebuoy", action: () => { setMenuOpen(false); onOpenSupport(); } },
+    { id: "account", label: authenticated ? "My SQC" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
+    { id: "custom", label: "My Custom Side Quests", icon: "pencil-ruler", action: () => { setMenuOpen(false); onOpenCustomSideQuests(); }, selected: activeTab === "sideQuests" },
+    { id: "host", label: "Create Multiplayer Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
+    { id: "support", label: "Help & Support", icon: "lifebuoy", action: () => { setMenuOpen(false); onOpenSupport(); } },
   ];
 
   return (
@@ -2259,7 +2270,7 @@ function JoinedMultiplayerQuestModal({
           </Pressable>
         </View>
         {onSelectTab && onOpenMultiplayerCreate && onOpenSupport ? (
-          <GlobalHamburgerMenu activeTab="multiplayerSideQuests" account={account} onSelectTab={(tab) => { closeModal(); onSelectTab(tab); }} onOpenMultiplayerCreate={() => { closeModal(); onOpenMultiplayerCreate(); }} onOpenSupport={() => { closeModal(); onOpenSupport(); }} />
+          <GlobalHamburgerMenu activeTab="multiplayerSideQuests" account={account} onSelectTab={(tab) => { closeModal(); onSelectTab(tab); }} onOpenMultiplayerCreate={() => { closeModal(); onOpenMultiplayerCreate(); }} onOpenCustomSideQuests={() => { closeModal(); onSelectTab("sideQuests"); }} onOpenSupport={() => { closeModal(); onOpenSupport(); }} />
         ) : null}
         <ScrollHintedScrollView
           contentContainerStyle={compactStyles.detailContent}
@@ -2717,7 +2728,7 @@ function CurrentSideQuestDetailModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
-        <GlobalHamburgerMenu activeTab="home" account={signedIn} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />
+        <GlobalHamburgerMenu activeTab="home" account={signedIn} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenCustomSideQuests={() => onSelectTab("sideQuests")} onOpenSupport={onOpenSupport} />
         <ScrollHintedScrollView
           contentContainerStyle={compactStyles.detailContent}
           showsVerticalScrollIndicator={false}
@@ -3753,6 +3764,7 @@ function QuestBoardDashboard({
   selectedChallenge,
   pendingSideQuestDetailId,
   pendingCompletedDetailId,
+  pendingSideQuestCatalogIntent,
   onConsumePendingQuestOpen,
   account,
   authBridge,
@@ -3766,6 +3778,7 @@ function QuestBoardDashboard({
   selectedChallenge: MobileChallenge;
   pendingSideQuestDetailId: string | null;
   pendingCompletedDetailId: string | null;
+  pendingSideQuestCatalogIntent: SideQuestCatalogIntent | null;
   onConsumePendingQuestOpen: () => void;
   account: MobileAccountResponse | null;
   authBridge: MobileAuthBridge;
@@ -4093,6 +4106,28 @@ function QuestBoardDashboard({
   }
 
   useEffect(() => {
+    if (!pendingSideQuestCatalogIntent) return;
+
+    const frame = requestAnimationFrame(() => {
+      if (pendingSideQuestCatalogIntent === "my-custom") {
+        setSideQuestCatalogTab("community");
+        setCommunityView("mine");
+        setCommunitySearch("");
+        setCommunityCreatorFilter(null);
+        setCustomLibraryFilter("all");
+      } else if (pendingSideQuestCatalogIntent === "community-discover") {
+        setSideQuestCatalogTab("community");
+        setCommunityView("discover");
+      } else {
+        setSideQuestCatalogTab("official");
+      }
+      onConsumePendingQuestOpen();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [onConsumePendingQuestOpen, pendingSideQuestCatalogIntent]);
+
+  useEffect(() => {
     if (!pendingCompletedDetailId && !pendingSideQuestDetailId) return;
 
     const timer = setTimeout(() => {
@@ -4206,7 +4241,7 @@ function QuestBoardDashboard({
                 style={[compactStyles.communitySubTab, communityView === view && compactStyles.communitySubTabActive]}
                 onPress={() => setCommunityView(view)}
               >
-                <Text style={[compactStyles.communitySubTabText, communityView === view && compactStyles.communitySubTabTextActive]}>{view === "discover" ? "Discover" : "My Library"}</Text>
+                <Text style={[compactStyles.communitySubTabText, communityView === view && compactStyles.communitySubTabTextActive]}>{view === "discover" ? "Discover" : "My Custom"}</Text>
               </Pressable>
             ))}
           </View>
@@ -4268,13 +4303,13 @@ function QuestBoardDashboard({
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
                   <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? communityCreatorFilter ? "That creator shelf is empty." : "No matches yet." : "No public Community Side Quests yet."}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator shelf, search text, or filter. Nothing private is shown from guessed creator context." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Library. Public quests will appear here as the catalog grows."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator shelf, search text, or filter. Nothing private is shown from guessed creator context." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows."}</Text>
                   <View style={compactStyles.actionRowTight}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
                       <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
                     </Pressable>
                     <Pressable accessibilityRole="button" accessibilityLabel="View my Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityView("mine")}>
-                      <Text style={compactStyles.secondaryActionText}>My Library</Text>
+                      <Text style={compactStyles.secondaryActionText}>My Custom</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -4283,7 +4318,7 @@ function QuestBoardDashboard({
           ) : (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>My Custom Library</Text>
+                <Text style={compactStyles.freshSectionTitle}>My Custom Side Quests</Text>
                 <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" onPress={() => openCustomEditor()}>
                   <Text style={compactStyles.sectionAction}>+ Create</Text>
                 </Pressable>
@@ -4310,7 +4345,7 @@ function QuestBoardDashboard({
                 <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.52)" />
                 <TextInput
                   value={communitySearch}
-                  placeholder="Search my quests"
+                  placeholder="Search my custom Side Quests"
                   placeholderTextColor="rgba(255,247,232,.42)"
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -4338,8 +4373,8 @@ function QuestBoardDashboard({
                 </View>
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
-                  <Text style={compactStyles.communityEmptyTitle}>{visibleCustomDrafts.length ? "No library matches." : "Your library is empty."}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{visibleCustomDrafts.length ? "Change the library filter or search text to find another saved Side Quest." : "Create a draft first, then publish it when the rule feels ready."}</Text>
+                  <Text style={compactStyles.communityEmptyTitle}>{visibleCustomDrafts.length ? "No custom Side Quest matches." : "Your custom Side Quests are empty."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{visibleCustomDrafts.length ? "Change the filter or search text to find another saved custom Side Quest." : "Create a draft first, then publish it when the rule feels ready."}</Text>
                 </View>
               )}
             </View>
@@ -4368,7 +4403,7 @@ function QuestBoardDashboard({
           const sessionToken = await authBridge.getSessionToken();
           await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config, lifecycle: "published", visibility: quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
-          Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
+          Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in My Custom Side Quests.`);
         }}
         onDelete={customDetailOwned ? async (questId) => {
           if (!authBridge.isSignedIn) {
@@ -4449,7 +4484,7 @@ function QuestBoardDashboard({
               </View>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>Saved Side Quests appear in your library and can be used for Solo or Multiplayer.</Text>
+              <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used for Solo or Multiplayer.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
                 <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
                 <View style={compactStyles.customCoatPreviewCopy}>
@@ -4771,7 +4806,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
   return (
     <View style={compactStyles.stack}>
       <View style={compactStyles.coatBoardCloseRow}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close Browse Coat of Arms" style={compactStyles.coatBoardCloseButton} onPress={onClose}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Close Trophy Cabinet" style={compactStyles.coatBoardCloseButton} onPress={onClose}>
           <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
         </Pressable>
       </View>
@@ -4797,7 +4832,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onClose
                 imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
                 variant="seal"
                 statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-                onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen Multiplayer Side Quests to inspect the full leaderboard and receipt context.`)}
+                onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen the Multiplayer Lobby to inspect the full leaderboard and receipt context.`)}
               />
             ))}
           </View>
@@ -4988,7 +5023,7 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
   const hasAnyTrophies = trophies.length > 0 || completedQuests.length > 0;
 
   return (
-    <AppSection title="Trophy Cabinet" action="Browse Coat of Arms" onAction={() => onSelectTab("coatOfArms")}>
+    <AppSection title="Trophy Cabinet" action="Open Trophy Cabinet" onAction={() => onSelectTab("coatOfArms")}>
       {trophies.slice(0, 4).map((trophy) => (
         <AppRow
           key={`multiplayer-${trophy.id}`}
@@ -5304,6 +5339,7 @@ function ActiveScreen({
   onSelectChallenge,
   pendingSideQuestDetailId,
   pendingCompletedDetailId,
+  pendingSideQuestCatalogIntent,
   onOpenChallengeDetail,
   onOpenCompletedQuestDetail,
   onConsumePendingQuestOpen,
@@ -5324,6 +5360,7 @@ function ActiveScreen({
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
   pendingSideQuestDetailId: string | null;
   pendingCompletedDetailId: string | null;
+  pendingSideQuestCatalogIntent: SideQuestCatalogIntent | null;
   onOpenChallengeDetail: (challengeId: string) => void;
   onOpenCompletedQuestDetail: (challengeId: string) => void;
   onConsumePendingQuestOpen: () => void;
@@ -5339,7 +5376,7 @@ function ActiveScreen({
     case "home":
       return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
-      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} />;
+      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} />;
     case "multiplayerSideQuests":
       return <MultiplayerSideQuestsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpen={pendingMultiplayerCreateOpen} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
     case "officialLeaderboards":
@@ -5677,7 +5714,7 @@ function SideQuestsScreen({
           const sessionToken = await authBridge.getSessionToken();
           await saveMobileCustomSideQuest({ sessionToken, title: `${quest.name} Copy`, summary: quest.summary, config: quest.config, lifecycle: "published", visibility: quest.visibility ?? "private" });
           await Promise.resolve(onAccountUpdated());
-          Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in your library.`);
+          Alert.alert("Custom Side Quest duplicated", `${quest.name} Copy is now in My Custom Side Quests.`);
         }}
         onDelete={async (questId) => {
           if (!authBridge.isSignedIn) {
@@ -5730,7 +5767,7 @@ function SideQuestsScreen({
               </View>
               <Text style={styles.inputLabel}>Side Quest name</Text>
               <TextInput value={customQuestName} placeholder="Name this custom Side Quest" placeholderTextColor="rgba(255,247,232,.42)" style={styles.textInput} onChangeText={setCustomQuestName} />
-              <Text style={styles.microcopy}>Saved Side Quests appear in your library and can be used for Solo or Multiplayer.</Text>
+              <Text style={styles.microcopy}>Saved Side Quests appear in My Custom Side Quests and can be used for Solo or Multiplayer.</Text>
               <View style={compactStyles.customCoatPreviewRow}>
                 <Image source={{ uri: absoluteAssetUrl(getSingleCustomQuestBadgePath(customBadgePreviewUrl)) }} style={compactStyles.customCoatPreviewImage} resizeMode="contain" />
                 <View style={compactStyles.customCoatPreviewCopy}>
@@ -5979,7 +6016,7 @@ function SideQuestsScreen({
                 <Text style={compactStyles.multiplayerRuleLabel}>Rule preview</Text>
                 <Text style={compactStyles.multiplayerRuleValue}>{customRuleSummary}</Text>
               </View>
-              <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from your library if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
+              <Text style={styles.microcopy}>New custom Side Quests start private. After saving, open it from My Custom Side Quests if you want to make the safe title, goal, and Coat of Arms public/shareable.</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Save custom Side Quest" accessibilityState={{ disabled: !canPublishCustomQuest }} style={[compactStyles.detailPrimaryButton, !canPublishCustomQuest && compactStyles.detailPrimaryButtonDisabled]} disabled={!canPublishCustomQuest} onPress={() => void saveCustomDraft("published")}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{canPublishCustomQuest ? "Publish Private Side Quest" : "Add Condition to Publish"}</Text>
               </Pressable>
@@ -6303,12 +6340,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
 
-      <View style={styles.groupquestsActionCard} accessibilityLabel="Host Multiplayer Side Quest fast action">
-        <Text style={styles.eyebrow}>Host</Text>
+      <View style={styles.groupquestsActionCard} accessibilityLabel="Create Multiplayer Side Quest fast action">
+        <Text style={styles.eyebrow}>Create</Text>
         <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
         <Text style={styles.sideQuestModeCopy}>Default proof rule: players must win the eligible game. Advanced settings can loosen that if you choose.</Text>
-        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create a New Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
-          <Text style={styles.primaryButtonText}>Host a Multiplayer Side Quest</Text>
+        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+          <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
         </Pressable>
       </View>
 
@@ -6449,7 +6486,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
-              <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer</Text>
+              <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer Side Quest</Text>
               <Text style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
               <Text style={compactStyles.detailGoal}>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</Text>
             </View>
@@ -7082,7 +7119,7 @@ function CustomSideQuestDetailModal({
     if (!quest || !onDelete || manageBusy) return;
     Alert.alert(
       "Delete custom Side Quest?",
-      active ? "This will remove it from your library and clear it as your active Side Quest." : "This removes it from your custom Side Quest library. Existing Multiplayer Side Quests keep the version they already saved.",
+      active ? "This will remove it from My Custom Side Quests and clear it as your active Side Quest." : "This removes it from My Custom Side Quests. Existing Multiplayer Side Quests keep the version they already saved.",
       [
         { text: "Cancel", style: "cancel" },
         { text: "Delete", style: "destructive", onPress: () => void handleDelete() },
