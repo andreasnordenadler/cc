@@ -4,6 +4,14 @@
 Last updated: 2026-06-14 14:05 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
+## Active queue update — 2026-06-14 SQC Mobile v260 end-user review polish
+
+- [ ] Address top P1 findings from SQC Mobile v259 full end-user review.
+  - added_at: 2026-06-14 22:36 Europe/Stockholm
+  - source: full signed-in end-user review artifact `artifacts/SQC_MOBILE_V259_FULL_END_USER_REVIEW_2026-06-14.md`.
+  - scope: hide Help diagnostics by default; add/normalize bottom safe-area padding and remove/dock overlapping floating scroll controls; fix Community metadata `Official public` vs `Community public`; clean Create Multiplayer time defaults/account time wording; resolve Trophy Cabinet modal-vs-page semantics if low-risk.
+  - proof_required: mobile typecheck/lint/build, installed APK smoke, screenshots for Help/Community/Create/Trophy, and APK release if code changes are shipped.
+
 
 ## Active queue update — 2026-06-14 SQC Mobile v259 community subtab visibility hotfix
 
