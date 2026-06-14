@@ -1423,7 +1423,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <View pointerEvents="none" style={styles.appWatermarkFrame}>
         <Image source={{ uri: absoluteAssetUrl("/sqc-logo-v11.png") }} style={styles.appWatermarkImage} resizeMode="contain" />
       </View>
-      <TopTrackerNav activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} />
+      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} />
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
@@ -1476,11 +1476,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </>
         ) : null}
       </ScrollView>
-      {["sideQuests", "multiplayerSideQuests", "officialLeaderboards", "account"].includes(shell.activeTab) ? (
-        <Pressable accessibilityRole="button" accessibilityLabel="Close current screen" style={styles.floatingScreenCloseButton} onPress={() => selectTab("home")}>
-          <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
-        </Pressable>
-      ) : null}
       {shell.activeTab === "home" ? null : <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />}
     </SafeAreaView>
   );
@@ -1488,24 +1483,46 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 }
 
 
-function TopTrackerNav({ activeTab, account: _account, onSelectTab }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void }) {
+function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const authenticated = isAuthenticatedAccount(account);
+
+  function openMenuTab(tab: AppTab) {
+    setMenuOpen(false);
+    onSelectTab(tab);
+  }
+
+  const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
+    { id: "home", label: "Today", icon: "home-variant", action: () => openMenuTab("home"), selected: activeTab === "home" },
+    { id: "sideQuests", label: "Solo Side Quests", icon: "flag-checkered", action: () => openMenuTab("sideQuests"), selected: activeTab === "sideQuests" },
+    { id: "multiplayer", label: "Multiplayer", icon: "account-group", action: () => openMenuTab("multiplayerSideQuests"), selected: activeTab === "multiplayerSideQuests" },
+    { id: "coats", label: "Trophy Cabinet", icon: "shield-star", action: () => openMenuTab("coatOfArms"), selected: activeTab === "coatOfArms" },
+    { id: "account", label: authenticated ? "My SQC / Account" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
+    { id: "custom", label: "Custom Library", icon: "book-open-variant", action: () => openMenuTab("sideQuests") },
+    { id: "host", label: "Host Multiplayer", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
+    { id: "support", label: "Support", icon: "lifebuoy", action: () => openMenuTab("account") },
+  ];
+
   return (
-    <View style={compactStyles.topNavPanel} accessibilityLabel="SQC tracker sections">
-      <View style={compactStyles.topNavRail}>
-        {TABS.map((tab) => (
-          <Pressable
-            key={tab.id}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: activeTab === tab.id }}
-            accessibilityLabel={`Open ${tab.label}`}
-            testID={`mobile-top-nav-${tab.id}`}
-            style={[compactStyles.topNavChip, activeTab === tab.id && compactStyles.topNavChipActive]}
-            onPress={() => onSelectTab(tab.id)}
-          >
-            <Text style={[compactStyles.topNavChipText, activeTab === tab.id && compactStyles.topNavChipTextActive]}>{tab.label}</Text>
-          </Pressable>
-        ))}
-      </View>
+    <View pointerEvents="box-none" style={compactStyles.globalMenuLayer}>
+      <Pressable accessibilityRole="button" accessibilityLabel={menuOpen ? "Close main menu" : "Open main menu"} style={[compactStyles.homeMenuButton, compactStyles.globalMenuButton, menuOpen && compactStyles.homeMenuButtonActive]} onPress={() => setMenuOpen((current) => !current)}>
+        <MaterialCommunityIcons name="menu" size={22} color={colors.paper} />
+      </Pressable>
+      <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
+        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay]}>
+          <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setMenuOpen(false)} />
+          <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
+            <View style={compactStyles.homeMenuItems}>
+              {menuItems.map((item) => (
+                <Pressable key={item.id} accessibilityRole="button" accessibilityState={item.selected ? { selected: true } : undefined} accessibilityLabel={item.label} style={[compactStyles.homeMenuItem, item.selected && compactStyles.homeMenuItemActive]} onPress={item.action}>
+                  <MaterialCommunityIcons name={item.icon} size={17} color={colors.gold} />
+                  <Text style={compactStyles.homeMenuItemText}>{item.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -1569,7 +1586,6 @@ function TodayDashboard({
   account,
   authBridge,
   onSelectTab,
-  onOpenMultiplayerCreate,
   onSelectChallenge,
   onAccountUpdated,
 }: {
@@ -1577,7 +1593,6 @@ function TodayDashboard({
   account: MobileAccountResponse | null;
   authBridge: MobileAuthBridge;
   onSelectTab: (tab: AppTab) => void;
-  onOpenMultiplayerCreate: () => void;
   onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void;
   onAccountUpdated: AccountUpdatedCallback;
 }) {
@@ -1616,7 +1631,6 @@ function TodayDashboard({
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublic.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [showAllActiveMultiplayer, setShowAllActiveMultiplayer] = useState(false);
   const [showAllTrophyCabinet, setShowAllTrophyCabinet] = useState(false);
-  const [homeMenuOpen, setHomeMenuOpen] = useState(false);
   const visibleActiveMultiplayer = showAllActiveMultiplayer ? activeMultiplayer : activeMultiplayer.slice(0, 5);
   const [completedProofId, setCompletedProofId] = useState<string | null>(null);
   const [celebrationUnlock, setCelebrationUnlock] = useState<CompletionCelebrationUnlock | null>(null);
@@ -1639,11 +1653,6 @@ function TodayDashboard({
   function handleSignIn() {
     if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
     showNativeOnlyNotice("Sign-in is unavailable right now.");
-  }
-
-  function openHomeMenuTab(tab: AppTab) {
-    setHomeMenuOpen(false);
-    onSelectTab(tab);
   }
 
   function openCurrentProof() {
@@ -1794,9 +1803,7 @@ function TodayDashboard({
   return (
     <View style={compactStyles.freshShell}>
       <View style={compactStyles.freshHeader}>
-        <Pressable accessibilityRole="button" accessibilityLabel={homeMenuOpen ? "Close main menu" : "Open main menu"} style={[compactStyles.homeMenuButton, homeMenuOpen && compactStyles.homeMenuButtonActive]} onPress={() => setHomeMenuOpen((current) => !current)}>
-          <MaterialCommunityIcons name="menu" size={22} color={colors.paper} />
-        </Pressable>
+        <View style={compactStyles.homeMenuSpacer} />
         <View style={compactStyles.identityBlock}>
           <AccountIdentityLine
             name={signedIn.profile.displayName}
@@ -1812,44 +1819,6 @@ function TodayDashboard({
           )}
         </Pressable>
       </View>
-
-      <Modal visible={homeMenuOpen} transparent animationType="fade" onRequestClose={() => setHomeMenuOpen(false)}>
-        <View style={compactStyles.homeMenuOverlay}>
-          <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setHomeMenuOpen(false)} />
-          <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
-            <View style={compactStyles.homeMenuItems}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Solo Side Quests" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("sideQuests")}>
-                <MaterialCommunityIcons name="flag-checkered" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Solo Side Quests</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Multiplayer Side Quests" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("multiplayerSideQuests")}>
-                <MaterialCommunityIcons name="account-group" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Multiplayer</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Trophy Cabinet" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("coatOfArms")}>
-                <MaterialCommunityIcons name="shield-star" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Trophy Cabinet</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Account and My SQC" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("account")}>
-                <MaterialCommunityIcons name="account-circle" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>My SQC / Account</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Custom Side Quest Library" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("sideQuests")}>
-                <MaterialCommunityIcons name="book-open-variant" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Custom Library</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Host Multiplayer Side Quest" style={compactStyles.homeMenuItem} onPress={() => { setHomeMenuOpen(false); onOpenMultiplayerCreate(); }}>
-                <MaterialCommunityIcons name="plus-circle" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Host Multiplayer</Text>
-              </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open Support" style={compactStyles.homeMenuItem} onPress={() => openHomeMenuTab("account")}>
-                <MaterialCommunityIcons name="lifebuoy" size={17} color={colors.gold} />
-                <Text style={compactStyles.homeMenuItemText}>Support</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
 
       {!hasChessAccount ? (
         <Pressable accessibilityRole="button" style={compactStyles.blockerPanel} onPress={() => onSelectTab("account")}>
@@ -5298,7 +5267,7 @@ function ActiveScreen({
 }) {
   switch (activeTab) {
     case "home":
-      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
+      return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
       return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} />;
     case "multiplayerSideQuests":
@@ -8287,14 +8256,18 @@ const compactStyles = StyleSheet.create({
   accountDot: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   accountAvatarImage: { width: "100%", height: "100%", borderRadius: 19 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
+  globalMenuLayer: { position: "absolute", top: 8, left: 12, zIndex: 90, elevation: 12 },
+  globalMenuButton: { shadowColor: "#000", shadowOpacity: .24, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 12 },
   homeMenuButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   homeMenuButtonActive: { backgroundColor: "rgba(245,200,106,.18)", borderColor: "rgba(245,200,106,.28)" },
   homeMenuSpacer: { width: 40, height: 40 },
   homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.018)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: 112, paddingHorizontal: 18 },
+  globalMenuOverlay: { paddingTop: 58, paddingHorizontal: 12 },
   homeMenuBackdrop: { ...StyleSheet.absoluteFillObject },
   homeMenuPanel: { alignSelf: "flex-start", width: 162, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
   homeMenuItems: { gap: 2 },
   homeMenuItem: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: "transparent" },
+  homeMenuItemActive: { backgroundColor: "rgba(245,200,106,.14)" },
   homeMenuItemText: { flex: 1, color: colors.paper, fontSize: 11.5, lineHeight: 15, fontWeight: "900" },
   readinessRow: { flexDirection: "row", gap: 8 },
   readinessChip: { flex: 1, gap: 1, paddingHorizontal: 10, paddingVertical: 7, borderRadius: 14, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
@@ -8742,7 +8715,7 @@ const styles = StyleSheet.create({
   appGradientLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   appWatermarkFrame: { position: "absolute", left: -118, top: 104, width: 620, height: 620, opacity: 0.025 },
   appWatermarkImage: { width: "100%", height: "100%" },
-  content: { gap: 7, padding: 10, paddingTop: 10, paddingBottom: 86 },
+  content: { gap: 7, padding: 10, paddingTop: 56, paddingBottom: 86 },
   scrollHintFrame: { flex: 1 },
   scrollHintLayer: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0 },
   scrollHintPill: { position: "absolute", right: 10, minWidth: 28, minHeight: 28, alignItems: "center", justifyContent: "center", paddingHorizontal: 5, paddingVertical: 4, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.055)", opacity: 0.56 },

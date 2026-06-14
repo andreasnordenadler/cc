@@ -1,19 +1,29 @@
 
 # CC Roadmap
 
-Last updated: 2026-06-12 08:45 Europe/Stockholm
+Last updated: 2026-06-14 11:20 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 
+
+## Active queue update — 2026-06-14 SQC Mobile global hamburger nav
+
+- [ ] Remove the chip-style top navigation bar from SQC Mobile and make the hamburger menu available everywhere.
+  - added_at: 2026-06-14 11:20 Europe/Stockholm
+  - source: Andreas sent v252 screenshot and requested: “Remove that top bar. Have the hamburger button/menu everywhere.”
+  - scope: remove the top tab/chip bar; add one global floating hamburger navigation menu usable from every app screen; avoid reintroducing bottom tabs; preserve SQC visual identity; build and publish a new install APK link.
+  - proof_required: mobile typecheck/lint/build or release gate; new Android release candidate link.
+
 ## Active queue update — 2026-06-14 SQC Mobile signed-in QA fixes
 
-- [ ] Implement Andreas-approved SQC Mobile signed-in QA fixes except bottom tabs.
+- [x] Implement Andreas-approved SQC Mobile signed-in QA fixes except bottom tabs.
   - added_at: 2026-06-14 10:58 Europe/Stockholm
   - source: Andreas agreed with SQC Mobile v251 signed-in persona QA recommendations except recommendation 5 (bottom tabs), and added that Community Multiplayer Side Quests should default to requiring a win to complete the side quest.
   - scope: fix stale Support installed-candidate metadata; improve Multiplayer detail primary actions; improve Solo latest-game check feedback; expand main menu/app map without bottom tabs; simplify Multiplayer create Basic/Advanced; add custom quest templates; move Host/Create actions higher; add custom-builder save/discard protection where practical; compress long education sections; default Community Multiplayer creation to require a win condition.
   - constraints: do not add bottom tabs; preserve SQC visual identity; no destructive production data changes; mobile app is active lane; website changes only if shared API/defaults require it.
   - proof_required: focused code changes, mobile typecheck/lint, relevant build/release checks if release candidate changes, emulator/screenshot or direct inspection proof.
+  - proof: committed `e43464f`; released Android APK `mobile-v252` after `pnpm mobile:release`; GitHub release published with verified version `0.1.252` / versionCode `252`.
 
 
 ## Active queue update — 2026-06-10 UX parity review
