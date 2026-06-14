@@ -10,11 +10,13 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-14 SQC Mobile v256 navigation semantics cleanup
 
-- [ ] Release SQC Mobile v256 with menu vocabulary and destination semantics cleaned up.
+- [x] Release SQC Mobile v256 with menu vocabulary and destination semantics cleaned up.
   - added_at: 2026-06-14 20:32 Europe/Stockholm
   - source: Andreas approved the v255 semantic audit recommendation to make hamburger labels, destinations, headings, and first-visible content match user expectations.
   - scope: rename menu items to destination/action-accurate labels; remove Library terminology; route My Custom Side Quests directly to the user's custom Side Quest surface; normalize Trophy Cabinet / Coat of Arms wording; relabel create flow as Create Multiplayer Side Quest; extend installed-APK smoke to catch vocabulary/destination regressions.
   - proof_required: mobile typecheck/lint/build, release build, installed APK semantic hamburger smoke, GitHub release link.
+  - completed_at: 2026-06-14 20:48 Europe/Stockholm
+  - proof: committed `1b7ef61` for the navigation semantics cleanup and semantic installed-APK smoke coverage; committed `8f62855` for v256 release metadata; pushed `main`; `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm lint`, and `pnpm build` passed; `pnpm mobile:release` built and verified Android APK `0.1.256` / versionCode `256` / sha256 `f6999a5e12c71d5213a932394833014bc89d24d3308aba6357129d4d39c995cb`; `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v256-2026-06-14.apk` passed against the installed APK; GitHub release `mobile-v256` published with APK asset.
 
 
 ## Active queue update — 2026-06-14 SQC Mobile hamburger expectation fixes
