@@ -71,6 +71,10 @@ function findNode(xml, predicate) {
 }
 
 function findByLabel(xml, label) {
+  return findNode(xml, (node) => node.text === label || node.desc === label);
+}
+
+function findByLabelLoose(xml, label) {
   return findNode(xml, (node) => node.text === label || node.desc === label || node.text.includes(label) || node.desc.includes(label));
 }
 
@@ -80,9 +84,14 @@ function tapNode(node, label) {
   run(["shell", "input", "tap", String(point[0]), String(point[1])]);
 }
 
+function normalizeXmlText(value) {
+  return value.replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&#10;/g, "\n");
+}
+
 function assertIncludes(xml, needle, label = needle) {
-  if (!xml.toLowerCase().includes(needle.toLowerCase())) {
-    throw new Error(`Expected UI to include ${label}; excerpt:\n${xml.slice(0, 3000)}`);
+  const normalized = normalizeXmlText(xml);
+  if (!normalized.toLowerCase().includes(needle.toLowerCase())) {
+    throw new Error(`Expected UI to include ${label}; excerpt:\n${normalized.slice(0, 3000)}`);
   }
 }
 
@@ -121,7 +130,7 @@ function chooseMenuItem(label, tag) {
 function tapUi(label, tag) {
   const dump = dumpXml(`${tag}-before-tap`);
   try {
-    const node = findByLabel(dump.xml, label);
+    const node = findByLabelLoose(dump.xml, label);
     if (!node) throw new Error(`${label} not found. UI excerpt:\n${dump.xml.slice(0, 3000)}`);
     tapNode(node, label);
   } finally {
