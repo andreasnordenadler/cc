@@ -158,6 +158,8 @@ launchFresh();
 let dump = chooseMenuItem("Multiplayer Lobby", "home-to-multiplayer-lobby");
 try {
   assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after menu navigation");
+  assertIncludes(dump.xml, "Community public", "Community Multiplayer metadata");
+  assertNotIncludes(dump.xml, "Official public", "legacy community/official metadata wording");
 } finally {
   dump.cleanup();
 }
@@ -166,7 +168,7 @@ launchFresh();
 dump = chooseMenuItem("Trophy Cabinet", "home-to-trophy-cabinet");
 try {
   assertIncludes(dump.xml, "Trophy Cabinet", "Trophy Cabinet after menu navigation");
-  assertIncludes(dump.xml, "Close Trophy Cabinet", "Trophy Cabinet close control");
+  assertNotIncludes(dump.xml, "Close Trophy Cabinet", "Trophy Cabinet should behave as a normal destination page");
   assertIncludes(dump.xml, "Official Solo Side Quest collection", "Official Solo Side Quest collection section");
   assertIncludes(dump.xml, "Unlocked Solo Side Quest rewards", "unified unlocked Solo shelf");
   assertIncludes(dump.xml, "Custom Solo Side Quest", "custom Solo Side Quest reward classification");
@@ -223,7 +225,9 @@ launchFresh();
 dump = chooseMenuItem("Help & Support", "home-to-support");
 try {
   assertIncludes(dump.xml, "HELP & SUPPORT", "Help & Support after Support menu item");
-  assertIncludes(dump.xml, "Installed candidate", "Support installed-candidate block");
+  assertIncludes(dump.xml, "App diagnostics", "Support diagnostics disclosure");
+  assertNotIncludes(dump.xml, "Installed candidate", "internal installed-candidate label hidden by default");
+  assertNotIncludes(dump.xml, "Package com.sidequestchess.app", "internal package details hidden by default");
 } finally {
   dump.cleanup();
 }

@@ -1424,8 +1424,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }
 
   const displayAccount = useMemo(() => (shell.bootstrap ? getDevTrackerPreviewAccount(shell.account, shell.bootstrap) : shell.account), [shell.account, shell.bootstrap]);
-  const canScrollUp = scrollState.y > 18;
-  const canScrollDown = scrollState.contentHeight > 0 && scrollState.viewportHeight > 0 && scrollState.y + scrollState.viewportHeight < scrollState.contentHeight - 18;
   const activeBackdropChallenge = useMemo(() => {
     if (!shell.bootstrap || !isAuthenticatedAccount(displayAccount) || !displayAccount.activeQuest?.id) return null;
     return shell.bootstrap.challenges.find((challenge) => challenge.id === displayAccount.activeQuest?.id) ?? null;
@@ -1441,7 +1439,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
       <ScrollView
         ref={scrollViewRef}
         style={styles.screen}
-        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 34, 54) }]}
+        contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 96, 124) }]}
         refreshControl={<RefreshControl tintColor="#f5c86a" refreshing={shell.refreshing} onRefresh={() => void refreshCurrentScreen()} />}
         scrollEventThrottle={32}
         onScroll={handleScroll}
@@ -1492,7 +1490,6 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </>
         ) : null}
       </ScrollView>
-      {shell.activeTab === "home" ? null : <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />}
       <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenCustomSideQuests={openCustomSideQuests} onOpenSupport={openSupport} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={isAuthenticatedAccount(displayAccount) ? displayAccount : null} authBridge={authBridge} />
     </SafeAreaView>
@@ -1562,25 +1559,15 @@ function ScrollHintOverlay({ canScrollUp, canScrollDown, bottomInset }: { canScr
 }
 
 function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeChange, scrollEventThrottle, ...props }: ScrollViewProps) {
-  const insets = useSafeAreaInsets();
-  const [hintState, setHintState] = useState({ y: 0, viewportHeight: 0, contentHeight: 0 });
-  const canScrollUp = hintState.y > 18;
-  const canScrollDown = hintState.contentHeight > 0 && hintState.viewportHeight > 0 && hintState.y + hintState.viewportHeight < hintState.contentHeight - 18;
-
   function handleHintScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
-    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    setHintState({ y: contentOffset.y, viewportHeight: layoutMeasurement.height, contentHeight: contentSize.height });
     onScroll?.(event);
   }
 
   function handleHintLayout(event: LayoutChangeEvent) {
-    const viewportHeight = event.nativeEvent.layout.height;
-    setHintState((current) => ({ ...current, viewportHeight }));
     onLayout?.(event);
   }
 
   function handleHintContentSizeChange(width: number, contentHeight: number) {
-    setHintState((current) => ({ ...current, contentHeight }));
     onContentSizeChange?.(width, contentHeight);
   }
 
@@ -1595,7 +1582,6 @@ function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeCha
       >
         {children}
       </ScrollView>
-      <ScrollHintOverlay canScrollUp={canScrollUp} canScrollDown={canScrollDown} bottomInset={insets.bottom} />
     </View>
   );
 }
@@ -2097,7 +2083,7 @@ function TodayDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             {completedProofRecord && completedProofChallenge ? (
               <CompletedQuestProofCard
                 challenge={completedProofChallenge}
@@ -2273,7 +2259,7 @@ function JoinedMultiplayerQuestModal({
           <GlobalHamburgerMenu activeTab="multiplayerSideQuests" account={account} onSelectTab={(tab) => { closeModal(); onSelectTab(tab); }} onOpenMultiplayerCreate={() => { closeModal(); onOpenMultiplayerCreate(); }} onOpenCustomSideQuests={() => { closeModal(); onSelectTab("sideQuests"); }} onOpenSupport={() => { closeModal(); onOpenSupport(); }} />
         ) : null}
         <ScrollHintedScrollView
-          contentContainerStyle={compactStyles.detailContent}
+          contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={busy} tintColor={colors.gold} onRefresh={() => {
             if (mode === "joined") {
@@ -2504,8 +2490,8 @@ function JoinedMultiplayerQuestModal({
               <View style={compactStyles.multiplayerOptionGrid}>
                 {MULTIPLAYER_PROVIDER_MODES.map((modeOption) => {
                   const selected = adminProviderMode === modeOption.id;
-                  const title = modeOption.id === "both" ? "Both" : modeOption.id === "lichess" ? "Lichess" : "Chess.com";
-                  const helper = modeOption.id === "both" ? "Players can use either site" : modeOption.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
+                  const title = modeOption.id === "both" ? "Lichess or Chess.com" : modeOption.id === "lichess" ? "Lichess" : "Chess.com";
+                  const helper = modeOption.id === "both" ? "Players can use Lichess or Chess.com" : modeOption.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
                   return (
                     <Pressable key={modeOption.id} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setAdminProviderMode(modeOption.id)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
@@ -2521,7 +2507,7 @@ function JoinedMultiplayerQuestModal({
               <GroupQuestDateTimeControl label="End" value={adminEndAt} onChange={setAdminEndAt} />
               <Text style={styles.inputLabel}>Quick duration</Text>
               <GroupQuestDurationChips startAt={adminStartAt} onChangeEndAt={setAdminEndAt} />
-              <Text style={styles.microcopy}>Dates save as your local time. No typing needed.</Text>
+              <Text style={styles.microcopy}>Dates save as your local time. Start defaults to shortly after creation; no typing needed.</Text>
               <Text style={styles.inputLabel}>Included Side Quests</Text>
               <View style={compactStyles.appRows}>
                 {adminQuestChoices.map((choice) => (
@@ -2586,7 +2572,7 @@ function JoinedMultiplayerQuestModal({
                 <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
               </Pressable>
             </View>
-            <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+            <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
               {selectedRuleQuest ? (
                 <View style={compactStyles.completedProofScreen}>
                   <View style={compactStyles.multiplayerDetailHero}>
@@ -2730,7 +2716,7 @@ function CurrentSideQuestDetailModal({
         </View>
         <GlobalHamburgerMenu activeTab="home" account={signedIn} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenCustomSideQuests={() => onSelectTab("sideQuests")} onOpenSupport={onOpenSupport} />
         <ScrollHintedScrollView
-          contentContainerStyle={compactStyles.detailContent}
+          contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={actionState.busy} tintColor={colors.gold} onRefresh={() => void onRunCheck()} />}
         >
@@ -2956,6 +2942,16 @@ function formatAccountDate(value: string | null | undefined): string {
   return date.toLocaleString(ENGLISH_DATE_LOCALE, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
+function formatAccountRecentActivity(value: string | null | undefined): string {
+  if (!value) return "recently";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "recently";
+  const deltaMs = Date.now() - date.getTime();
+  if (deltaMs < 0 || deltaMs < 10 * 60 * 1000) return "just now";
+  if (deltaMs < 60 * 60 * 1000) return `${Math.max(1, Math.round(deltaMs / 60000))} min ago`;
+  return formatAccountDate(value);
+}
+
 function formatQuestPickedDate(value: string | null | undefined): string {
   return formatRelativeDateTime(value, "not recorded");
 }
@@ -3109,6 +3105,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
   const [supportMessage, setSupportMessage] = useState(initialMessage);
   const [localSupportMessages, setLocalSupportMessages] = useState<MobileSupportMessage[]>([]);
   const [submitState, setSubmitState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const candidateIdentity = getMobileCandidateIdentity();
   const supportThread = [...(signedIn?.supportMessages ?? []), ...localSupportMessages]
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
@@ -3165,11 +3162,11 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
-        <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+        <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>Help & Support</Text>
-            <Text style={compactStyles.detailTitle}>How we can help</Text>
+            <Text style={compactStyles.detailTitle}>How can we help?</Text>
             <Text style={compactStyles.detailGoal}>Quick answers for Side Quests, proof, connected accounts, and Multiplayer.</Text>
           </View>
 
@@ -3179,10 +3176,20 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
           </View>
 
           <View style={compactStyles.multiplayerNativeCard}>
-            <Text style={compactStyles.multiplayerCardEyebrow}>Installed candidate</Text>
-            <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
-            <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}. For real-device launch smoke, this should match the GitHub Release APK named in the checklist.</Text>
-            {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
+            <Pressable accessibilityRole="button" accessibilityLabel={diagnosticsOpen ? "Hide app diagnostics" : "Show app diagnostics"} style={compactStyles.diagnosticsDisclosure} onPress={() => setDiagnosticsOpen((current) => !current)}>
+              <View>
+                <Text style={compactStyles.multiplayerCardEyebrow}>App diagnostics</Text>
+                <Text style={compactStyles.detailPanelCopy}>Only needed if support asks for your build details.</Text>
+              </View>
+              <MaterialCommunityIcons name={diagnosticsOpen ? "chevron-up" : "chevron-down"} size={22} color={colors.gold} />
+            </Pressable>
+            {diagnosticsOpen ? (
+              <View style={compactStyles.diagnosticsBody}>
+                <Text style={compactStyles.detailPanelTitle}>{candidateIdentity.releaseCandidate}</Text>
+                <Text style={compactStyles.detailPanelCopy}>App version {candidateIdentity.appVersion}{candidateIdentity.androidVersionCode ? ` (${candidateIdentity.androidVersionCode})` : ""}. Package {candidateIdentity.androidPackage}.</Text>
+                {candidateIdentity.releaseUrl ? <Text style={compactStyles.detailPanelCopy}>{candidateIdentity.releaseUrl}</Text> : null}
+              </View>
+            ) : null}
           </View>
 
           <View style={compactStyles.appRows}>
@@ -3529,8 +3536,8 @@ function getJoinedMultiplayerListStatus(quest: MobileAccountState["activeGroupQu
 
 function getJoinedMultiplayerListMeta(quest: MobileAccountState["activeGroupQuests"][number]) {
   return quest.official
-    ? [quest.isOwner ? "You host" : null, "Official public", quest.copy].filter(Boolean).join(" · ")
-    : [quest.isOwner ? "You host" : null, quest.copy].filter(Boolean).join(" · ");
+    ? [quest.isOwner ? "You host" : null, "SQC official", quest.copy].filter(Boolean).join(" · ")
+    : [quest.isOwner ? "You host" : null, "Community public", quest.copy].filter(Boolean).join(" · ");
 }
 
 function getOfficialMultiplayerListStatus(
@@ -3543,7 +3550,8 @@ function getOfficialMultiplayerListMeta(
   quest: NonNullable<MobileAccountState["officialPublicGroupQuests"]>[number],
 ) {
   const joined = quest.joinState === "Joined";
-  return ["Official public", joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
+  const lane = quest.official || quest.id.startsWith("official-") ? "SQC official" : "Community public";
+  return [lane, joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
 }
 
 function formatGroupQuestDate(value?: string | null) {
@@ -3597,10 +3605,12 @@ function GroupQuestDateTimeControl({
   label,
   value,
   onChange,
+  helper,
 }: {
   label: string;
   value: Date;
   onChange: (next: Date) => void;
+  helper?: string;
 }) {
   const [pickerTarget, setPickerTarget] = useState<NativeDateTimePickerTarget>(null);
 
@@ -3625,7 +3635,7 @@ function GroupQuestDateTimeControl({
             <Text style={styles.dateTimeNativeValue}>{formatGroupQuestControlTime(value)}</Text>
           </Pressable>
         </View>
-        <Text style={styles.dateTimeNativeHint}>Tap date or time to choose a value.</Text>
+        <Text style={styles.dateTimeNativeHint}>{helper ?? "Tap date or time to choose a value."}</Text>
       </View>
       {pickerTarget ? (
         <DateTimePicker
@@ -4184,7 +4194,7 @@ function QuestBoardDashboard({
 
       {sideQuestCatalogTab === "community" ? (
         <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>Community Solo Side Quests, ready in your hand.</Text>
+          <Text style={compactStyles.communityEmptyTitle}>Community Solo Side Quests, ready to play.</Text>
           <Text style={compactStyles.communityEmptyCopy}>Browse, inspect, start, check, prove, collect, and report Community Solo Side Quests from here.</Text>
         </View>
       ) : null}
@@ -4463,7 +4473,7 @@ function QuestBoardDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
@@ -4767,7 +4777,7 @@ function QuestBoardDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             {detailChallenge ? <SelectedQuestDetailCard challenge={detailChallenge} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} /> : null}
           </ScrollHintedScrollView>
         </SafeAreaView>
@@ -4781,7 +4791,7 @@ function QuestBoardDashboard({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             {completedQuestRecord && completedDetailChallenge ? (
               <CompletedQuestProofCard
                 challenge={completedDetailChallenge}
@@ -4812,18 +4822,13 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
 
   return (
     <View style={compactStyles.stack}>
-      <View style={compactStyles.coatBoardCloseRow}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close Trophy Cabinet" style={compactStyles.coatBoardCloseButton} onPress={onClose}>
-          <MaterialCommunityIcons name="close" size={22} color={colors.paper} />
-        </Pressable>
-      </View>
       <View style={compactStyles.coatBoardHeroEmblemWrap}>
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatBoardHeroEmblem} resizeMode="contain" />
       </View>
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
         <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{unlockedSummary}</Text>
-        <Text style={styles.microcopy}>This is your unified SQC reward shelf: Official Solo Side Quest coats, Custom Solo Side Quest coats, and Multiplayer podium scrolls all belong here.</Text>
+        <Text style={styles.microcopy}>This is your unified SQC reward shelf: official coats, custom coats, and Multiplayer podium scrolls all belong here.</Text>
       </View>
 
       {signedIn && unlockedCount === 0 ? (
@@ -4833,7 +4838,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
       {completedQuests.length ? (
         <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Unlocked Solo Side Quest rewards">
           <Text style={compactStyles.multiplayerCardEyebrow}>Unlocked Solo Side Quest rewards</Text>
-          <Text style={compactStyles.multiplayerCardTitle}>Official and Custom Solo Side Quest Coat of Arms.</Text>
+          <Text style={compactStyles.multiplayerCardTitle}>Official and Custom Solo Side Quest Coats of Arms</Text>
           <View style={compactStyles.appRows}>
             {completedQuests.map((quest) => {
               const officialChallenge = officialChallengeById.get(quest.id) ?? null;
@@ -4882,7 +4887,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
 
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo Side Quest collection">
         <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo Side Quest collection</Text>
-        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} / {bootstrap.challenges.length} official Side Quest Coat of Arms unlocked.</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} of {bootstrap.challenges.length} official Side Quest coats unlocked.</Text>
         <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo Side Quest and Multiplayer Side Quest rewards appear above when earned.</Text>
       </View>
       <View style={compactStyles.coatGrid}>
@@ -4952,7 +4957,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
               <Text style={compactStyles.livePill}>Synced</Text>
             </View>
             {accountState.profile.email ? <Text style={compactStyles.accountInfoText}>{accountState.profile.email}</Text> : null}
-            <Text style={compactStyles.accountInfoText}>Last login: {formatAccountDate(accountState.profile.lastSignInAt)}</Text>
+            <Text style={compactStyles.accountInfoText}>Recently active: {formatAccountRecentActivity(accountState.profile.lastSignInAt)}</Text>
           </View>
         </View>
         <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. SQC can read your public Lichess / Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
@@ -5792,7 +5797,7 @@ function SideQuestsScreen({
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={getCustomQuestImageSource(null)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
@@ -6109,7 +6114,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
   const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
   const [createProviderMode, setCreateProviderMode] = useState<"both" | "lichess" | "chesscom">("both");
-  const [createStartAt, setCreateStartAt] = useState(() => new Date());
+  const [createStartAt, setCreateStartAt] = useState(() => addGroupQuestMinutes(new Date(), 5));
   const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
   const [createRules, setCreateRules] = useState<Record<string, string>>({ result: "Win required", timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createAdvancedOpen, setCreateAdvancedOpen] = useState(false);
@@ -6397,7 +6402,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Your Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Hosted and joined by you.</Text>
+        <Text style={styles.sectionTitle}>Hosted or joined by you.</Text>
         <Text style={styles.sectionBody}>Your own Multiplayer Side Quests stay separate from official events and community browsing. This is your fast action queue.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
@@ -6434,7 +6439,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}/{allCommunityMultiplayerQuests.length}</Text>
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Search public user-hosted Multiplayer Side Quests when you are ready to join. App and website both support discovery, inspection, joining, and proof; this view keeps it native and compact.</Text>
+        <Text style={styles.sectionBody}>Find public player-hosted Multiplayer Side Quests, inspect the rules, join, and verify proof from the app.</Text>
         <View style={compactStyles.communityBrowsePanel}>
           {multiplayerHostFilter ? (
             <View style={compactStyles.communityEmptyPanel}>
@@ -6529,7 +6534,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer Side Quest</Text>
@@ -6563,8 +6568,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <View style={compactStyles.multiplayerOptionGrid}>
                 {MULTIPLAYER_PROVIDER_MODES.map((mode) => {
                   const selected = createProviderMode === mode.id;
-                  const title = mode.id === "both" ? "Both" : mode.id === "lichess" ? "Lichess" : "Chess.com";
-                  const helper = mode.id === "both" ? "Players can use either site" : mode.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
+                  const title = mode.id === "both" ? "Lichess or Chess.com" : mode.id === "lichess" ? "Lichess" : "Chess.com";
+                  const helper = mode.id === "both" ? "Players can use Lichess or Chess.com" : mode.id === "lichess" ? "Only public Lichess games" : "Only public Chess.com games";
                   return (
                     <Pressable key={mode.id} accessibilityRole="button" accessibilityState={{ selected }} style={[compactStyles.multiplayerOptionCard, selected ? compactStyles.multiplayerOptionCardSelected : null]} onPress={() => setCreateProviderMode(mode.id)}>
                       <View style={[compactStyles.multiplayerOptionDot, selected ? compactStyles.multiplayerOptionDotSelected : null]} />
@@ -6576,11 +6581,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   );
                 })}
               </View>
-              <GroupQuestDateTimeControl label="Start" value={createStartAt} onChange={setCreateStartAt} />
+              <GroupQuestDateTimeControl label="Start" value={createStartAt} onChange={setCreateStartAt} helper="Defaults to a few minutes from now so players can join before games count." />
               <GroupQuestDateTimeControl label="End" value={createEndAt} onChange={setCreateEndAt} />
               <Text style={styles.inputLabel}>Quick duration</Text>
               <GroupQuestDurationChips startAt={createStartAt} onChangeEndAt={setCreateEndAt} />
-              <Text style={styles.microcopy}>Dates save as your local time. No typing needed.</Text>
+              <Text style={styles.microcopy}>Dates save as your local time. Start defaults to shortly after creation; no typing needed.</Text>
               <Text style={styles.inputLabel}>Basic game setting</Text>
               <Text style={styles.microcopy}>Community Multiplayer defaults to “Win required” so a completed Side Quest also means the player won the proof game.</Text>
               {Object.entries(MULTIPLAYER_RULE_OPTIONS).filter(([ruleId]) => ruleId === "result" || createAdvancedOpen).map(([ruleId, options]) => (
@@ -6792,7 +6797,7 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Official weekly archive</Text>
@@ -7216,7 +7221,7 @@ function CustomSideQuestDetailModal({
             <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
           </Pressable>
         </View>
-        <ScrollHintedScrollView contentContainerStyle={compactStyles.detailContent} showsVerticalScrollIndicator={false}>
+        <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
           <View style={compactStyles.detailHero}>
             <View style={compactStyles.completedProofCoatFrame}>
               <Image source={badgeSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
@@ -8564,6 +8569,7 @@ const compactStyles = StyleSheet.create({
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   detailContent: { paddingTop: 104, paddingHorizontal: 16, paddingBottom: 104, gap: 8 },
+  detailContentWithBottomSafe: { paddingBottom: 148 },
   detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 2 },
   completedProofScreen: { gap: 10 },
   trophyProofStack: { gap: 8 },
@@ -8590,6 +8596,8 @@ const compactStyles = StyleSheet.create({
   multiplayerScoreLabel: { color: colors.muted, fontSize: 10, lineHeight: 13, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .45 },
   multiplayerScoreValue: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   multiplayerNativeCard: { gap: 8, padding: 11, borderRadius: 19, backgroundColor: "rgba(255,247,232,.085)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  diagnosticsDisclosure: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  diagnosticsBody: { gap: 6, paddingTop: 8, borderTopWidth: 1, borderTopColor: "rgba(255,247,232,.1)" },
   multiplayerOptionGrid: { gap: 7 },
   customPieceChoiceGroup: { gap: 7 },
   customPieceChoiceGroupSelected: { gap: 7, padding: 7, borderRadius: 20, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(245,200,106,.055)" },
