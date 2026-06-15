@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import CommunityLikeButton from "@/components/community-like-button";
 import SiteNav from "@/components/site-nav";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { listPublicGroupQuests } from "@/lib/groupquests";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +13,7 @@ export const metadata = {
 };
 
 type PublicGroupQuestStatusFilter = "open" | "all" | "finished" | "joined" | "hosted";
-type PublicGroupQuestSort = "closing" | "newest" | "players";
+type PublicGroupQuestSort = "closing" | "newest" | "players" | "liked";
 
 export default async function PublicGroupQuestsPage({ searchParams }: { searchParams?: Promise<{ host?: string; q?: string; status?: string; sort?: string }> }) {
   const { userId } = await auth();
@@ -21,6 +23,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
   const selectedStatus = getSelectedStatusFilter(resolvedSearchParams.status, Boolean(userId));
   const selectedSort = getSelectedSort(resolvedSearchParams.sort);
   const client = await clerkClient();
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
   const savedPublicQuests = await listPublicGroupQuests(client);
   const displayablePublicQuests = savedPublicQuests.filter((quest) => isDisplayablePublicQuest(quest, { includeFinished: selectedStatus !== "open" }));
   const filteredPublicQuests = displayablePublicQuests.filter((quest) => {
@@ -33,11 +36,11 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
     if (selectedStatus === "joined" && (!userId || quest.hostUserId === userId || !quest.participants.some((participant) => participant.userId === userId))) return false;
     if (selectedStatus === "hosted" && (!userId || quest.hostUserId !== userId)) return false;
     return true;
-  }).sort((a, b) => sortPublicGroupQuests(a, b, selectedSort));
+  }).sort((a, b) => sortPublicGroupQuests(a, b, selectedSort, (quest) => likeSummaries.get("multiplayer", quest.id).count));
   const selectedHostQuest = selectedHost ? displayablePublicQuests.find((quest) => getHostKey(quest.hostName) === selectedHost) : null;
   const showOfficialLane = !selectedHost && !searchQuery;
   const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map((quest) => toPublicQuestCard(quest, userId)) : [];
-  const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map((quest) => toPublicQuestCard(quest, userId));
+  const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map((quest) => toPublicQuestCard(quest, userId, likeSummaries.get("multiplayer", quest.id)));
   const totalQuests = officialQuests.length + communityQuests.length;
 
   return (
@@ -86,6 +89,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
                 <option value="closing">Sort: closing soon</option>
                 <option value="newest">Sort: newest</option>
                 <option value="players">Sort: most players</option>
+                <option value="liked">Sort: most liked</option>
               </select>
               <button className="button primary" type="submit">Apply filters</button>
               {(selectedHost || searchQuery || selectedStatus !== "open" || selectedSort !== "closing") ? <Link className="button secondary" href="/groupquests/public">Show all public</Link> : null}
@@ -120,10 +124,11 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
   );
 }
 
-function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number], userId: string | null) {
+function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number], userId: string | null, likeSummary = { count: 0, likedByViewer: false }) {
   const isHost = Boolean(userId && quest.hostUserId === userId);
   const isJoined = Boolean(userId && quest.participants.some((participant) => participant.userId === userId));
   return {
+    id: quest.id,
     title: quest.name,
     status: getQuestStatus(quest.startAt, quest.endAt),
     players: `${quest.participants.length} player${quest.participants.length === 1 ? "" : "s"} joined`,
@@ -141,6 +146,8 @@ function toPublicQuestCard(quest: Awaited<ReturnType<typeof listPublicGroupQuest
     isJoined,
     official: Boolean(quest.official),
     officialLabel: quest.officialLabel ?? "Official SQC Multiplayer Side Quest",
+    likeSummary,
+    signedIn: Boolean(userId),
   };
 }
 
@@ -174,6 +181,7 @@ function PublicQuestSection({ copy, quests, title }: { copy: string; quests: Ret
               <span>Next step</span>
               <div className="button-row">
                 <Link className="button secondary" href={quest.href}>Inspect and join</Link>
+                {!quest.official ? <CommunityLikeButton targetType="multiplayer" targetId={quest.id} count={quest.likeSummary.count} likedByViewer={quest.likeSummary.likedByViewer} signedIn={quest.signedIn} returnTo="/groupquests/public" /> : null}
                 {!quest.official ? <Link className="button ghost" href={`/groupquests/public?host=${encodeURIComponent(getHostKey(quest.hostName))}`}>More by host</Link> : null}
               </div>
             </div>
@@ -202,6 +210,7 @@ function getSelectedStatusFilter(value: string | undefined, signedIn: boolean): 
 function getSelectedSort(value: string | undefined): PublicGroupQuestSort {
   if (value === "newest") return "newest";
   if (value === "players") return "players";
+  if (value === "liked") return "liked";
   return "closing";
 }
 
@@ -209,9 +218,11 @@ function sortPublicGroupQuests(
   a: Awaited<ReturnType<typeof listPublicGroupQuests>>[number],
   b: Awaited<ReturnType<typeof listPublicGroupQuests>>[number],
   sort: PublicGroupQuestSort,
+  getLikeCount: (quest: Awaited<ReturnType<typeof listPublicGroupQuests>>[number]) => number,
 ) {
   if (sort === "players") return b.participants.length - a.participants.length || newestFirst(a, b);
   if (sort === "newest") return newestFirst(a, b);
+  if (sort === "liked") return getLikeCount(b) - getLikeCount(a) || newestFirst(a, b);
 
   const aEnd = safeTimestamp(a.endAt);
   const bEnd = safeTimestamp(b.endAt);

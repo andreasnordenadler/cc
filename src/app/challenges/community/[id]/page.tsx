@@ -4,8 +4,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { CommunitySoloAnalytics, CommunitySoloAnalyticsLink } from "@/components/analytics/community-solo-analytics";
+import CommunityLikeButton from "@/components/community-like-button";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
 
 export const dynamic = "force-dynamic";
@@ -38,6 +40,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
   const { id } = await params;
   const client = await clerkClient();
   const quest = await findPublicCommunitySideQuestById(client, decodeURIComponent(id));
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
 
   if (!quest) notFound();
 
@@ -85,6 +88,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <div className="community-detail-primary-actions">
                 <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_from_account">Start from account</CommunitySoloAnalyticsLink>
                 <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
+                <CommunityLikeButton targetType="solo" targetId={quest.id} count={likeSummaries.get("solo", quest.id).count} likedByViewer={likeSummaries.get("solo", quest.id).likedByViewer} signedIn={Boolean(userId)} returnTo={quest.detailPath} />
               </div>
               <div className="community-detail-secondary-actions" aria-label="Secondary Community Solo Side Quest actions">
                 <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_player">More from {quest.creatorName}</CommunitySoloAnalyticsLink>

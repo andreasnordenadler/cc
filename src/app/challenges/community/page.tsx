@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { CommunitySoloAnalytics, CommunitySoloAnalyticsLink } from "@/components/analytics/community-solo-analytics";
+import CommunityLikeButton from "@/components/community-like-button";
 import SiteNav from "@/components/site-nav";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { listPublicCommunitySideQuests, type PublicCommunitySideQuest } from "@/lib/community-side-quests";
 import { listPublicGroupQuests } from "@/lib/groupquests";
 import { getChallengeProgress, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -31,11 +33,13 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
   const client = await clerkClient();
   const publicGroupQuests = await listPublicGroupQuests(client);
   const completedIds = await getSignedInCompletedIds(client, userId);
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
   const quests = await listPublicCommunitySideQuests(client, { limit: 80, groupQuests: publicGroupQuests });
   const selectedCreator = typeof creator === "string" ? decodeURIComponent(creator) : null;
   const visibleQuests = sortCommunityQuests(
-    quests.filter((quest) => matchesCommunityFilters(quest, { selectedCreator, communityQuery, communityFilter, completedIds })),
+    quests.filter((quest) => matchesCommunityFilters(quest, { selectedCreator, communityQuery, communityFilter, completedIds, likeCount: likeSummaries.get("solo", quest.id).count })),
     communitySort,
+    (quest) => likeSummaries.get("solo", quest.id).count,
   );
   const selectedCreatorQuest = selectedCreator ? quests.find((quest) => quest.creatorKey === selectedCreator) : null;
   const activeFilterCount = [selectedCreator, communityQuery, communityFilter !== "all" ? communityFilter : null].filter(Boolean).length;
@@ -103,7 +107,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
 
           {visibleQuests.length ? (
             <div className="big-grid community-quest-card-grid">
-              {visibleQuests.map((quest) => <CommunityQuestCard key={`${quest.creatorUserId}:${quest.id}`} quest={quest} />)}
+              {visibleQuests.map((quest) => <CommunityQuestCard key={`${quest.creatorUserId}:${quest.id}`} quest={quest} likeSummary={likeSummaries.get("solo", quest.id)} signedIn={Boolean(userId)} />)}
             </div>
           ) : (
             <div className="community-empty-state" role="status">
@@ -153,6 +157,7 @@ function CommunityDiscoveryControls({
         <span>Sort</span>
         <select name="sort" defaultValue={sort}>
           <option value="popular">Top</option>
+          <option value="liked">Most liked</option>
           <option value="newest">Newest</option>
           <option value="az">A–Z</option>
         </select>
@@ -163,7 +168,7 @@ function CommunityDiscoveryControls({
   );
 }
 
-function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
+function CommunityQuestCard({ quest, likeSummary, signedIn }: { quest: PublicCommunitySideQuest; likeSummary: { count: number; likedByViewer: boolean }; signedIn: boolean }) {
   return (
     <article className="challenge-card community-side-quest-card community-side-quest-official-card">
       <div className="card-meta quest-card-meta">
@@ -191,6 +196,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
       <div className="community-card-actions">
         <CommunitySoloAnalyticsLink className="button primary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
         <CommunitySoloAnalyticsLink className="button secondary" href="/account/custom-side-quests" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
+        <CommunityLikeButton targetType="solo" targetId={quest.id} count={likeSummary.count} likedByViewer={likeSummary.likedByViewer} signedIn={signedIn} returnTo="/challenges/community" />
       </div>
       <div className="community-card-secondary-actions" aria-label={`${quest.title} secondary actions`}>
         <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>
@@ -201,7 +207,7 @@ function CommunityQuestCard({ quest }: { quest: PublicCommunitySideQuest }) {
 }
 
 type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
-type CommunitySort = "popular" | "newest" | "az";
+type CommunitySort = "popular" | "liked" | "newest" | "az";
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -227,7 +233,7 @@ function cleanCommunityFilter(value: unknown): CommunityBrowseFilter {
 }
 
 function cleanCommunitySort(value: unknown, filter: CommunityBrowseFilter): CommunitySort {
-  if (value === "newest" || value === "az" || value === "popular") return value;
+  if (value === "newest" || value === "az" || value === "popular" || value === "liked") return value;
   return filter === "new" ? "newest" : filter === "popular" ? "popular" : "newest";
 }
 
@@ -237,22 +243,24 @@ function matchesCommunityFilters(
     communityFilter,
     communityQuery,
     completedIds,
+    likeCount,
     selectedCreator,
-  }: { communityFilter: CommunityBrowseFilter; communityQuery: string; completedIds: Set<string>; selectedCreator: string | null },
+  }: { communityFilter: CommunityBrowseFilter; communityQuery: string; completedIds: Set<string>; selectedCreator: string | null; likeCount: number },
 ) {
   if (selectedCreator && quest.creatorKey !== selectedCreator) return false;
   if (communityFilter === "completed" && !completedIds.has(quest.id)) return false;
-  if (communityFilter === "popular" && quest.popularityScore <= 0) return false;
+  if (communityFilter === "popular" && quest.popularityScore + likeCount * 5 <= 0) return false;
   if (communityFilter === "new" && Date.now() - quest.updatedAtMs > 1000 * 60 * 60 * 24 * 30) return false;
   if (!communityQuery) return true;
   const haystack = `${quest.title} ${quest.summary} ${quest.creatorName} ${quest.ruleLabel} ${quest.ruleDetails.join(" ")}`.toLowerCase();
   return communityQuery.toLowerCase().split(/\s+/).every((term) => haystack.includes(term));
 }
 
-function sortCommunityQuests(quests: PublicCommunitySideQuest[], sort: CommunitySort) {
+function sortCommunityQuests(quests: PublicCommunitySideQuest[], sort: CommunitySort, getLikeCount: (quest: PublicCommunitySideQuest) => number) {
   return [...quests].sort((a, b) => {
     if (sort === "az") return a.title.localeCompare(b.title);
-    if (sort === "popular" && a.popularityScore !== b.popularityScore) return b.popularityScore - a.popularityScore;
+    if (sort === "liked") return getLikeCount(b) - getLikeCount(a) || b.updatedAtMs - a.updatedAtMs;
+    if (sort === "popular" && a.popularityScore + getLikeCount(a) * 5 !== b.popularityScore + getLikeCount(b) * 5) return (b.popularityScore + getLikeCount(b) * 5) - (a.popularityScore + getLikeCount(a) * 5);
     return b.updatedAtMs - a.updatedAtMs;
   });
 }

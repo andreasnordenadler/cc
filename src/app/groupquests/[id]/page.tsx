@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
+import CommunityLikeButton from "@/components/community-like-button";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
 import GroupQuestLeaderboard from "@/components/group-quest-leaderboard";
 import GroupQuestLeaveAction from "@/components/group-quest-leave-action";
@@ -9,6 +10,7 @@ import GroupQuestProofControls from "@/components/group-quest-proof-controls";
 import GroupQuestShareButton from "@/components/group-quest-share-button";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getCustomSideQuestBadgeUrl } from "@/lib/custom-side-quests";
 import { findGroupQuestById, listPublicGroupQuests } from "@/lib/groupquests";
 import {
@@ -48,6 +50,7 @@ export default async function GroupQuestByIdPage({
   const resolvedSearchParams = await searchParams;
   const inviteKey = typeof resolvedSearchParams?.inviteKey === "string" ? resolvedSearchParams.inviteKey : undefined;
   const client = await clerkClient();
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
   const savedRecord = await findGroupQuestById(client, id);
   const savedQuest = savedRecord?.groupQuest;
   const publicGroupQuests = savedQuest && !savedQuest.official ? await listPublicGroupQuests(client) : [];
@@ -170,6 +173,7 @@ export default async function GroupQuestByIdPage({
               </div>
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
               {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
+              {!savedQuest?.official ? <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} /> : null}
               {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
               {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
@@ -332,6 +336,7 @@ export default async function GroupQuestByIdPage({
             </p>
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
             {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
+            {!savedQuest?.official ? <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} /> : null}
             {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
             {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 

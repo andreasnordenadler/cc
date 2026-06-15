@@ -1,7 +1,15 @@
 
 # CC Roadmap
 
-Last updated: 2026-06-15 04:58 Europe/Stockholm
+## Active queue update — 2026-06-15 SQC community like ratings
+
+- [ ] Add signed-in like/unlike ratings for Community Solo Side Quests and public Community Multiplayer Side Quests.
+  - added_at: 2026-06-15 08:03 Europe/Stockholm
+  - source: Andreas requested a simple rating system: like button is OK, signed-in users only, one like per Side Quest, unlike allowed, usable for sorting.
+  - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
+  - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed.
+
+Last updated: 2026-06-15 08:03 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
