@@ -6,11 +6,11 @@
 
 ## Active queue update — 2026-06-15 SQC Mobile active Solo navigation clarity
 
-- [ ] Make the active Solo card open the active Side Quest screen and clarify active detail next steps.
+- [x] Make the active Solo card open the active Side Quest screen and clarify active detail next steps.
   - added_at: 2026-06-15 13:43 Europe/Stockholm
   - source: Andreas screenshot feedback: tapping inside the active Solo quest square should open the Side Quest screen; the active detail screen should clearly feel active and explain what to do next instead of showing an out-of-place `How proof works` panel.
   - scope: mobile home active Solo card and active Solo detail modal only; preserve proof checking behavior.
-  - proof: pending typecheck/lint/build, APK release/smoke, and release proof.
+  - proof: made the whole active Solo card surface open the active detail screen while refresh/explore buttons stop propagation; detail screen now shows an `Active Solo Side Quest` / completed badge in the hero and replaces `How proof works` with `Do this next` / `Completed — proof accepted` steps; commit `73cb88c` pushed to `main`; updated hamburger smoke target for the new active-card accessibility label; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v270; `pnpm mobile:release:github` published v271; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v271-2026-06-15.apk`; GitHub release `mobile-v271` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v271` with SHA256 `99622f9b8d7005bc7916ee68548ddd1538b63dd441463ed82d69f9430866a8f5`.
 
 ## Active queue update — 2026-06-15 SQC Mobile header alignment hotfix
 
@@ -52,7 +52,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 13:12 Europe/Stockholm
+Last updated: 2026-06-15 13:56 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
