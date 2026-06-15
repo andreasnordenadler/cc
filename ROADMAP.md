@@ -5,11 +5,11 @@
 
 ## Active queue update — 2026-06-15 SQC Mobile header alignment hotfix
 
-- [ ] Align hamburger menu with profile avatar in the mobile header.
+- [x] Align hamburger menu with profile avatar in the mobile header.
   - added_at: 2026-06-15 13:00 Europe/Stockholm
   - source: Andreas screenshot feedback: hamburger menu was not aligned with the profile picture.
   - scope: mobile header positioning only; keep existing hamburger actions/menu content unchanged.
-  - proof: pending typecheck/lint/build, Android release/smoke, and release proof.
+  - proof: moved `GlobalHamburgerMenu` to the same 56px header baseline as the profile/avatar row and tied the dropdown offset to that baseline; commit `a7c175d` pushed to `main`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v268; `pnpm mobile:release:github` published v269; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v269-2026-06-15.apk`; GitHub release `mobile-v269` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v269` with SHA256 `112a4e3b4854cb8cd50843a135cdee2f4d629014bc9175f36cc44e0f87821423`.
 
 ## Active queue update — 2026-06-15 SQC like UI visual hotfix
 
@@ -43,7 +43,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 13:02 Europe/Stockholm
+Last updated: 2026-06-15 13:12 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
