@@ -27,7 +27,13 @@ export async function POST(request: Request) {
       : NextResponse.redirect(new URL(returnTo, request.url), { status: 303 });
   }
 
-  const { userId } = await auth();
+  let userId: string | null = null;
+  try {
+    const authState = await auth();
+    userId = authState.userId;
+  } catch {
+    userId = null;
+  }
 
   if (!userId) {
     return contentType.includes("application/json")
