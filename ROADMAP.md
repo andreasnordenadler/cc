@@ -2,6 +2,15 @@
 # CC Roadmap
 
 
+## Active queue update — 2026-06-15 SQC coat transparency fix
+
+- [x] Remove visible transparency holes from the Back Rank Goblin and Pawn Only Picnic coat-of-arms assets.
+  - added_at: 2026-06-15 18:03 Europe/Stockholm
+  - source: Andreas screenshot feedback: `Back rank goblin` and `Pawn only picnic` had transparency within their coat of arms.
+  - scope: active v7 web badge PNGs plus bundled SQC mobile badge PNG copies; preserve transparent outside background while adding a dark organic backing inside the coat art.
+  - proof: patched `public/badges/v7/coming-soon-clean/back-rank-goblin-badge.png`, `public/badges/v7/coming-soon-clean/pawn-only-picnic-badge.png`, and matching `apps/mobile/assets` copies; visual QA passed with no visible internal transparency holes and no rectangular/angular backing artifacts; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release:github` published Android `mobile-v287` with SHA256 `91c2419382ecee2220f80f28bc2b431a34070f6e09151616045147bf3d204940`.
+
+
 ## Active queue update — 2026-06-15 SQC Mobile start-screen top header alignment
 
 - [x] Align the start-screen profile picture with the round hamburger menu and center the user/chess account identity at the top.
