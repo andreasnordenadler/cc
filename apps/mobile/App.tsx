@@ -1021,6 +1021,8 @@ const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
   "knightmare-mode": require("./assets/badges/v4/knightmare-mode-badge.png"),
 };
 
+const SQC_GENERIC_COAT_GLOW_ASSET = require("./assets/badges/glow/sqc-coat-generic-glow.png") as ImageSourcePropType;
+
 const CHALLENGE_COAT_GLOW_ASSETS: Record<string, ImageSourcePropType> = {
   "finish-any-game": require("./assets/badges/glow/finish-any-game-glow.png"),
   "knights-before-coffee": require("./assets/badges/glow/knights-before-coffee-glow.png"),
@@ -1822,6 +1824,7 @@ function TodayDashboard({
           <Text style={[compactStyles.freshTitle, compactStyles.centerText]}>Side Quest Chess</Text>
         </View>
         <View style={compactStyles.freshGuestCoatWrap}>
+          <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.freshGuestCoatGlow} resizeMode="contain" />
           <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.freshGuestCoat} resizeMode="contain" />
         </View>
         <View style={compactStyles.freshPanelCentered}>
@@ -1904,7 +1907,10 @@ function TodayDashboard({
         ) : (
           <View style={compactStyles.emptyQuestPanel}>
             <View style={compactStyles.emptyQuestHeroRow}>
-              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
+              <View style={compactStyles.emptyQuestCoatWrap}>
+                <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.emptyQuestCoatGlow} resizeMode="contain" />
+                <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.emptyQuestCoat} resizeMode="contain" />
+              </View>
               <View style={compactStyles.currentQuestText}>
                 <Text style={compactStyles.currentQuestTitle}>Choose a Solo Side Quest</Text>
                 <Text style={compactStyles.currentQuestMeta}>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
@@ -1971,7 +1977,7 @@ function TodayDashboard({
           {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
             <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Hosted" : "Joined"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
           )) : (
-            <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => onSelectTab("multiplayerSideQuests")} />
+            <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onSelectTab("multiplayerSideQuests")} />
           )}
           {activeMultiplayer.length > 5 ? (
             <AppRow title={showAllActiveMultiplayer ? "Show fewer Multiplayer Side Quests" : "Show all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top five." : `${activeMultiplayer.length - 5} more active Multiplayer Side Quest${activeMultiplayer.length - 5 === 1 ? "" : "s"}.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
@@ -2051,6 +2057,7 @@ function TodayDashboard({
       <View style={compactStyles.trophyCabinetSection}>
         <Pressable accessibilityRole="button" accessibilityLabel="Open Trophy Cabinet" style={compactStyles.activeMultiplayerSummary} onPress={() => onSelectTab("coatOfArms")}>
           <View style={compactStyles.trophyHeroMarker}>
+            <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.trophyHeroGlow} resizeMode="contain" />
             <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.trophyHeroCoat} resizeMode="contain" />
           </View>
           <View style={compactStyles.activeSoloPill}>
@@ -2625,7 +2632,10 @@ function JoinedMultiplayerQuestModal({
               {selectedRuleQuest ? (
                 <View style={compactStyles.completedProofScreen}>
                   <View style={compactStyles.multiplayerDetailHero}>
-                    <Image source={selectedRuleQuest.imageSource} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
+                    <View style={compactStyles.multiplayerRuleQuestCoatWrap}>
+                      {selectedRuleQuest.glowSource ? <Image source={selectedRuleQuest.glowSource} style={[compactStyles.multiplayerRuleQuestCoatGlowImage, { tintColor: selectedRuleQuest.glowColor }]} resizeMode="contain" /> : <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerRuleQuestCoatGlow} resizeMode="contain" />}
+                      <Image source={selectedRuleQuest.imageSource} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
+                    </View>
                     <Text style={compactStyles.multiplayerDetailKicker}>Multiplayer Side Quest rules</Text>
                     <Text style={compactStyles.detailTitle}>{selectedRuleQuest.title}</Text>
                     <Text style={compactStyles.detailGoal}>{selectedRuleQuest.meta}</Text>
@@ -3220,7 +3230,10 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
         </View>
         <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
           <View style={compactStyles.multiplayerDetailHero}>
-            <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
+            <View style={compactStyles.multiplayerRuleQuestCoatWrap}>
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerRuleQuestCoatGlow} resizeMode="contain" />
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerRuleQuestCoat} resizeMode="contain" />
+            </View>
             <Text style={compactStyles.multiplayerDetailKicker}>Help & Support</Text>
             <Text style={compactStyles.detailTitle}>How can we help?</Text>
             <Text style={compactStyles.detailGoal}>Quick answers for Side Quests, proof, connected accounts, and Multiplayer.</Text>
@@ -3356,6 +3369,8 @@ function AppRow({
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
+          {variant === "seal" ? <View style={compactStyles.rowSealGlow} /> : null}
+          {variant === "coat" && !glowSource ? <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.rowCoatSoftGlow} resizeMode="contain" /> : null}
           {glowSource ? <Image source={glowSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
           {overlaySeal ? <View style={compactStyles.rowCompletedSealBackdrop} /> : null}
           <Image
@@ -4351,6 +4366,7 @@ function QuestBoardDashboard({
   return (
     <View style={compactStyles.stack}>
       <View style={compactStyles.sideQuestListEmblemWrap}>
+        <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
       </View>
       <View style={compactStyles.sideQuestBrandTabs}>
@@ -4532,6 +4548,7 @@ function QuestBoardDashboard({
                 <Pressable accessibilityRole="button" accessibilityLabel="Create custom Side Quest" style={compactStyles.freshPanel} onPress={() => openCustomEditor()}>
                   <View style={compactStyles.currentQuestRow}>
                     <View style={compactStyles.coatMarker}>
+                      <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.coatMarkerSoftGlow} resizeMode="contain" />
                       <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatMarkerImage} resizeMode="contain" />
                     </View>
                     <View style={compactStyles.currentQuestText}>
@@ -5052,6 +5069,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
   return (
     <View style={compactStyles.stack}>
       <View style={compactStyles.coatBoardHeroEmblemWrap}>
+        <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.coatBoardHeroEmblemGlow} resizeMode="contain" />
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.coatBoardHeroEmblem} resizeMode="contain" />
       </View>
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
@@ -5547,10 +5565,13 @@ function CardGradientGlows() {
 
 function HeroismChoiceCard({ label, copy, cta, challenge, onPress }: { label: string; copy: string; cta: string; challenge: MobileChallenge; onPress: () => void }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
+  const glowSource = getChallengeCoatGlowSource(challenge.id);
+  const glowColor = getSafeBadgeColors(challenge).glow;
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={cta} testID={`home-heroism-${challenge.id}`} style={styles.heroismChoiceCard} onPress={onPress}>
       <View style={styles.heroismBadgeFrame}>
+        <Image source={glowSource} style={[styles.heroismBadgeGlowImage, { tintColor: glowColor }]} resizeMode="contain" />
         <Image source={badgeSource} style={styles.heroismBadgeImage} resizeMode="contain" />
       </View>
       <View style={styles.heroismChoiceCopy}>
@@ -5899,7 +5920,10 @@ function SideQuestsScreen({
             <Text style={styles.soloBrowseHeroTitle}>Choose your next Side Quest</Text>
             <Text style={styles.soloBrowseHeroText}>Pick one Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</Text>
           </View>
-          <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
+          <View style={styles.soloBrowseHeroCoatWrap}>
+            <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={styles.soloBrowseHeroCoatGlow} resizeMode="contain" />
+            <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.soloBrowseHeroCoat} resizeMode="contain" />
+          </View>
         </View>
         <View style={styles.soloBrowseStatsRow}>
           <Text style={styles.soloBrowseStat}>{availableCount} available</Text>
@@ -7139,6 +7163,8 @@ function QuestSection({ eyebrow, title, body, challenges, completedIds, activeQu
 
 function ChallengeCardMobile({ challenge, featured = false, completed = false, active = false, onPress }: { challenge: MobileChallenge; featured?: boolean; completed?: boolean; active?: boolean; onPress: () => void }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
+  const glowSource = getChallengeCoatGlowSource(challenge.id);
+  const glowColor = getSafeBadgeColors(challenge).glow;
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} Side Quest`} accessibilityState={{ selected: active }} style={[styles.challengeCardMobile, featured && styles.challengeCardMobileFeatured, active && styles.challengeCardMobileActive, completed && styles.challengeCardMobileCompleted]} onPress={onPress}>
@@ -7150,6 +7176,7 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
       </View>
       <View style={styles.challengeCardTitleRowMobile}>
         <View style={styles.challengeCardBadgeMobile}>
+          <Image source={glowSource} style={[styles.challengeCardBadgeGlowMobile, { tintColor: glowColor }]} resizeMode="contain" />
           <Image source={badgeSource} style={styles.challengeCardBadgeImageMobile} resizeMode="contain" />
         </View>
         <View style={styles.challengeCardCopyMobile}>
@@ -7183,6 +7210,8 @@ function SelectedQuestDetailCard({
   const completed = authenticated ? account.progress.completedChallengeIds.includes(challenge.id) : false;
   const activeQuest = authenticated && account.activeQuest?.id === challenge.id ? account.activeQuest : null;
   const badgeSource = getChallengeCoatImageSource(challenge);
+  const glowSource = getChallengeCoatGlowSource(challenge.id);
+  const glowColor = getSafeBadgeColors(challenge).glow;
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
   const latestCheckFailed = isFailedReceipt(latestReceipt);
   const likeSummary = getOfficialChallengeLikeSummary(account, challenge.id);
@@ -7273,7 +7302,10 @@ function SelectedQuestDetailCard({
           </View>
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
-        <View style={styles.badgeImageFrame}><Image source={badgeSource} style={styles.badgeImage} resizeMode="contain" /></View>
+        <View style={styles.badgeImageFrame}>
+          <Image source={glowSource} style={[styles.badgeGlowImage, { tintColor: glowColor }]} resizeMode="contain" />
+          <Image source={badgeSource} style={styles.badgeImage} resizeMode="contain" />
+        </View>
       </View>
 
       <View style={styles.questFlavorCard}>
@@ -8201,10 +8233,13 @@ function CoatOfArmsScreen({
 
 function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileChallenge; earned: boolean; onPress: () => void }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
+  const glowSource = getChallengeCoatGlowSource(challenge.id);
+  const glowColor = getSafeBadgeColors(challenge).glow;
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.liveCoatRosterItem} onPress={onPress}>
       <View style={[styles.liveCoatBadgeFrame, !earned && styles.liveCoatBadgeFrameLocked]}>
+        <Image source={glowSource} style={[styles.liveCoatBadgeGlowImage, { tintColor: glowColor }]} resizeMode="contain" />
         <Image source={badgeSource} style={[styles.liveCoatBadgeImage, !earned && styles.liveCoatBadgeImageLocked]} resizeMode="contain" />
         {!earned ? <Text style={styles.liveCoatLockedLabel}>Locked</Text> : null}
       </View>
@@ -8215,10 +8250,13 @@ function LiveCoatRosterItem({ challenge, earned, onPress }: { challenge: MobileC
 
 function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileChallenge; earned: boolean; onPress: () => void }) {
   const badgeSource = getChallengeCoatImageSource(challenge);
+  const glowSource = getChallengeCoatGlowSource(challenge.id);
+  const glowColor = getSafeBadgeColors(challenge).glow;
 
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={`Open ${challenge.title} quest`} style={styles.badgeMeaningCard} onPress={onPress}>
       <View style={[styles.badgeMeaningArtLink, !earned && styles.badgeMeaningArtLocked]}>
+        <Image source={glowSource} style={[styles.badgeMeaningGlowImage, { tintColor: glowColor }]} resizeMode="contain" />
         <Image source={badgeSource} style={[styles.badgeMeaningImage, !earned && styles.badgeMeaningImageLocked]} resizeMode="contain" />
       </View>
       <View style={styles.badgeMeaningCopy}>
@@ -8741,15 +8779,19 @@ const compactStyles = StyleSheet.create({
   activeMultiplayerList: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
   trophyCabinetSection: { position: "relative", gap: 8, marginTop: 100, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.064)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
   trophyHeroMarker: { position: "absolute", top: -118, alignSelf: "center", width: 126, height: 126, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  trophyHeroGlow: { position: "absolute", width: 156, height: 166, opacity: .92, transform: [{ translateY: 5 }] },
   trophyHeroCoat: { width: 112, height: 126 },
   activeSoloRefreshRow: { position: "absolute", top: 8, right: 8, zIndex: 8, flexDirection: "row", justifyContent: "flex-end" },
   activeSoloSummary: { gap: 10, alignItems: "center" },
   freshPanelCentered: { gap: 10, alignItems: "center", paddingHorizontal: 12 }, 
-  freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4 },
+  freshGuestCoatWrap: { alignItems: "center", justifyContent: "center", paddingVertical: 4, overflow: "visible" },
+  freshGuestCoatGlow: { position: "absolute", width: 166, height: 176, opacity: .92, transform: [{ translateY: 5 }] },
   freshGuestCoat: { width: 132, height: 148 },
   guestBrowseActions: { flexDirection: "row", justifyContent: "center", gap: 10, marginTop: 14, marginBottom: 10, flexWrap: "wrap" },
   emptyQuestPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.078)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   emptyQuestHeroRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  emptyQuestCoatWrap: { width: 86, height: 86, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  emptyQuestCoatGlow: { position: "absolute", width: 104, height: 108, opacity: .9, transform: [{ translateY: 3 }] },
   emptyQuestCoat: { width: 82, height: 82 },
   emptyMultiplayerPanel: { gap: 12, padding: 13, borderRadius: 24, backgroundColor: "rgba(255,247,232,.072)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   emptyMultiplayerSeal: { width: 52, height: 52, borderRadius: 26 },
@@ -8768,6 +8810,7 @@ const compactStyles = StyleSheet.create({
   coatHeroSeal: { position: "absolute", width: 42, height: 42, right: 6, bottom: 4, zIndex: 4, transform: [{ rotate: "-10deg" }] },
   currentQuestHeroTitle: { maxWidth: 286, color: colors.paper, fontSize: 20, lineHeight: 23, fontWeight: "900", letterSpacing: -.55, textAlign: "center", marginTop: 0 },
   coatMarker: { width: 62, height: 70, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  coatMarkerSoftGlow: { position: "absolute", width: 80, height: 88, opacity: .9, transform: [{ translateY: 4 }] },
   coatMarkerGlowImage: { position: "absolute", width: 78, height: 88, opacity: .74, transform: [{ translateY: 4 }] },
   coatMarkerImage: { width: 56, height: 64 },
   coatMarkerSeal: { position: "absolute", width: 32, height: 32, right: -4, bottom: -3, zIndex: 4, transform: [{ rotate: "-10deg" }] },
@@ -8809,9 +8852,11 @@ const compactStyles = StyleSheet.create({
   appRow: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 12, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.065)" },
   rowCoatFrame: { width: 32, height: 36, alignItems: "center", justifyContent: "center", overflow: "visible" },
   rowCoatGlowImage: { position: "absolute", width: 44, height: 48, opacity: .62, transform: [{ translateY: 3 }] },
+  rowCoatSoftGlow: { position: "absolute", width: 50, height: 54, opacity: .9, transform: [{ translateY: 2 }] },
   rowCoatImage: { width: 30, height: 34 },
   rowCoatImageDim: { opacity: .52 },
-  rowSealImage: { width: 31, height: 31, borderRadius: 15.5 },
+  rowSealGlow: { position: "absolute", width: 44, height: 44, borderRadius: 999, backgroundColor: "rgba(245,200,106,.16)", opacity: .66, shadowColor: colors.gold, shadowOpacity: .42, shadowRadius: 14, shadowOffset: { width: 0, height: 0 } },
+  rowSealImage: { width: 30, height: 30, borderRadius: 15, opacity: .9 },
   rowCompletedSealBackdrop: { position: "absolute", width: 22, height: 22, right: -6, bottom: -5, borderRadius: 999, backgroundColor: "#a81717", transform: [{ scaleX: 1.08 }, { scaleY: 1.02 }] },
   rowCompletedSeal: { position: "absolute", width: 18, height: 18, right: -4, bottom: -3 },
   rowStatusSealImage: { width: 35, height: 35, marginLeft: 6 },
@@ -8864,7 +8909,8 @@ const compactStyles = StyleSheet.create({
   helpSupportAdminBubble: { alignSelf: "flex-start", backgroundColor: "rgba(96,240,175,.1)", borderColor: "rgba(96,240,175,.24)" },
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
-  sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 6 },
+  sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 6, overflow: "visible" },
+  sideQuestListEmblemGlow: { position: "absolute", width: 108, height: 118, opacity: .9, transform: [{ translateY: 5 }] },
   sideQuestListEmblem: { width: 82, height: 92 },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
@@ -8890,6 +8936,9 @@ const compactStyles = StyleSheet.create({
   proofImageHint: { color: "rgba(199,189,169,.72)", fontSize: 11, lineHeight: 15, fontWeight: "800", textAlign: "center", marginTop: -4 },
   multiplayerDetailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 1 },
   multiplayerDetailSeal: { width: 116, height: 116, borderRadius: 58 },
+  multiplayerRuleQuestCoatWrap: { width: 108, height: 114, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  multiplayerRuleQuestCoatGlow: { position: "absolute", width: 124, height: 132, opacity: .9, transform: [{ translateY: 4 }] },
+  multiplayerRuleQuestCoatGlowImage: { position: "absolute", width: 124, height: 132, opacity: .58, transform: [{ translateY: 4 }] },
   multiplayerRuleQuestCoat: { width: 94, height: 104 },
   multiplayerDetailKicker: { color: colors.green, fontSize: 10, lineHeight: 14, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .8 },
   multiplayerScoreGrid: { flexDirection: "row", gap: 8 },
@@ -9106,7 +9155,8 @@ const compactStyles = StyleSheet.create({
   questPillText: { color: colors.gold, fontSize: 11, fontWeight: "900" },
   coatBoardCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", paddingTop: 2, paddingBottom: 0 },
   coatBoardCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.64)", borderWidth: 1, borderColor: "rgba(255,247,232,.18)" },
-  coatBoardHeroEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 8 },
+  coatBoardHeroEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 8, overflow: "visible" },
+  coatBoardHeroEmblemGlow: { position: "absolute", width: 204, height: 220, opacity: .92, transform: [{ translateY: 6 }] },
   coatBoardHeroEmblem: { width: 164, height: 184 },
   coatGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   coatTile: { width: "31.8%", gap: 5, alignItems: "center", padding: 8, borderRadius: 18, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(255,247,232,.055)" },
@@ -9208,7 +9258,8 @@ const styles = StyleSheet.create({
   whereBeginCard: { gap: 9, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 11, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(245,200,106,.12)" },
   heroismChoiceList: { gap: 10 },
   heroismChoiceCard: { flexDirection: "row", alignItems: "center", gap: 9, padding: 10, borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.18)" },
-  heroismBadgeFrame: { width: 58, height: 66, alignItems: "center", justifyContent: "center", borderRadius: 18, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(245,200,106,.2)" },
+  heroismBadgeFrame: { width: 58, height: 66, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  heroismBadgeGlowImage: { position: "absolute", width: 74, height: 82, opacity: .56, transform: [{ translateY: 3 }] },
   heroismBadgeImage: { width: 52, height: 60 },
   heroismChoiceCopy: { flex: 1, gap: 3 },
   heroismChoiceLabel: { color: colors.paper, fontSize: 16, fontWeight: "900" },
@@ -9225,6 +9276,8 @@ const styles = StyleSheet.create({
   soloBrowseHeroCopy: { flex: 1, gap: 7 },
   soloBrowseHeroTitle: { color: colors.paper, fontSize: 30, fontWeight: "900", letterSpacing: -1.0, lineHeight: 32 },
   soloBrowseHeroText: { color: colors.muted, fontSize: 15, lineHeight: 22, fontWeight: "700" },
+  soloBrowseHeroCoatWrap: { width: 96, height: 96, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  soloBrowseHeroCoatGlow: { position: "absolute", width: 112, height: 118, opacity: .9, transform: [{ translateY: 4 }] },
   soloBrowseHeroCoat: { width: 86, height: 86 },
   soloBrowseStatsRow: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
   soloBrowseStat: { overflow: "hidden", color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.65, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.08)" },
@@ -9310,7 +9363,8 @@ const styles = StyleSheet.create({
   difficultyBrutal: { backgroundColor: "rgba(255,122,102,.18)", color: colors.red },
   difficultyAbsurd: { backgroundColor: "rgba(255,95,159,.2)", color: "#ff8cc0" },
   challengeCardTitleRowMobile: { flexDirection: "row", gap: 8, alignItems: "center" },
-  challengeCardBadgeMobile: { width: 66, alignItems: "center", justifyContent: "center" },
+  challengeCardBadgeMobile: { width: 66, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  challengeCardBadgeGlowMobile: { position: "absolute", width: 82, height: 90, opacity: .58, transform: [{ translateY: 3 }] },
   challengeCardBadgeImageMobile: { width: 62, height: 70 },
   challengeCardCopyMobile: { flex: 1, gap: 5 },
   challengeCardTitleMobile: { color: colors.paper, fontSize: 20, lineHeight: 22, fontWeight: "900", letterSpacing: -0.8 },
@@ -9320,16 +9374,18 @@ const styles = StyleSheet.create({
   badgesHeroTitle: { color: colors.paper, fontSize: 29, fontWeight: "900", letterSpacing: -0.4, lineHeight: 31, textAlign: "center" },
   liveCoatRoster: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 4 },
   liveCoatRosterItem: { width: "30%", minWidth: 84, alignItems: "center", gap: 2, paddingVertical: 2 },
-  liveCoatBadgeFrame: { width: 60, height: 64, alignItems: "center", justifyContent: "center" },
+  liveCoatBadgeFrame: { width: 60, height: 64, alignItems: "center", justifyContent: "center", overflow: "visible" },
   liveCoatBadgeFrameLocked: { opacity: 0.5 },
+  liveCoatBadgeGlowImage: { position: "absolute", width: 72, height: 78, opacity: .5, transform: [{ translateY: 3 }] },
   liveCoatBadgeImage: { width: 58, height: 58 },
   liveCoatBadgeImageLocked: { opacity: 0.34 },
   liveCoatLockedLabel: { position: "absolute", bottom: 2, overflow: "hidden", color: colors.paper, fontSize: 8, fontWeight: "900", textTransform: "uppercase", letterSpacing: 0.6, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 999, backgroundColor: "rgba(0,0,0,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   liveCoatRosterTitle: { color: colors.paper, fontSize: 10, fontWeight: "900", lineHeight: 11, textAlign: "center" },
   badgeMeaningList: { gap: 7 },
   badgeMeaningCard: { flexDirection: "row", gap: 8, padding: 9, borderRadius: 24, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
-  badgeMeaningArtLink: { width: 64, alignItems: "center", justifyContent: "center" },
+  badgeMeaningArtLink: { width: 64, alignItems: "center", justifyContent: "center", overflow: "visible" },
   badgeMeaningArtLocked: {},
+  badgeMeaningGlowImage: { position: "absolute", width: 76, height: 84, opacity: .5, transform: [{ translateY: 3 }] },
   badgeMeaningImage: { width: 58, height: 66 },
   badgeMeaningImageLocked: { opacity: 0.74 },
   badgeMeaningCopy: { flex: 1, gap: 6 },
@@ -9459,7 +9515,8 @@ const styles = StyleSheet.create({
   questCardCopy: { flex: 1, gap: 8 },
   questTitle: { color: colors.paper, fontSize: 32, fontWeight: "900", letterSpacing: -1.6, lineHeight: 32 },
   questObjective: { color: colors.muted, fontSize: 16, lineHeight: 22 },
-  badgeImageFrame: { width: 112, height: 128, alignItems: "center", justifyContent: "center" },
+  badgeImageFrame: { width: 112, height: 128, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  badgeGlowImage: { position: "absolute", width: 142, height: 158, opacity: .58, transform: [{ translateY: 4 }] },
   badgeImage: { width: 112, height: 128 },
   completedSealLargeBackdrop: { position: "absolute", width: 52, height: 52, right: -4, bottom: -2, borderRadius: 999, backgroundColor: "#a81717", transform: [{ scaleX: 1.08 }, { scaleY: 1.02 }] },
   completedSealLarge: { position: "absolute", width: 44, height: 44, right: 0, bottom: 2 },

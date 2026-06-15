@@ -2,6 +2,15 @@
 # CC Roadmap
 
 
+## Active queue update — 2026-06-15 SQC coat-of-arms glow treatment
+
+- [x] Replace solid coat-of-arms backing/panel treatments with soft glow everywhere visible in the current SQC web/mobile surfaces.
+  - added_at: 2026-06-15 22:35 Europe/Stockholm
+  - source: Andreas screenshot feedback on `/Users/sam/.openclaw/media/inbound/file_1162---33499341-e13b-48e2-951b-8c112e887e2a.jpg` and `/Users/sam/.openclaw/media/inbound/file_1163---577ddcec-3fce-4225-b798-4f31a6d4cb91.jpg`: coat-of-arms art should have a glow behind it, not a solid thing/panel, everywhere.
+  - scope: mobile generic coat/seal renderers and web completion/community coat containers; preserve fixed badge transparency while replacing UI backings with feathered glow layers.
+  - proof: added transparent generic glow asset `apps/mobile/assets/badges/glow/sqc-coat-generic-glow.png`; updated mobile guest hero, empty Solo/Multiplayer states, Trophy Cabinet, Multiplayer detail/rules, Side Quest list/header markers, Coat board, Solo browse, and shared `AppRow` coat/seal rendering to use soft glow behind artwork; updated web `.completion-coat-stage` and `.community-card-coat` to use feathered pseudo-element glows instead of plate-like backgrounds; verified checkerboard/preview artifacts plus installed APK screenshot `artifacts/mobile-screenshots/coat-glow-v291-transparent-glow.png`, where image QA found no remaining obvious solid dark/circular backing; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `node scripts/mobile-release.mjs --no-bump` built and verified Android `mobile-v291` with SHA256 `49dd73eb707470ae13fa11d8790a0b0ee66ad6ad242dcf652f9f73444b8d7dbe`; installed APK smoke/screenshot passed; GitHub release `mobile-v291` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v291`.
+
+
 ## Active queue update — 2026-06-15 SQC Mobile optical header alignment
 
 - [x] Fix optical vertical alignment of the start-screen hamburger and profile circles.
