@@ -1,6 +1,14 @@
 
 # CC Roadmap
 
+## Active queue update — 2026-06-15 SQC Mobile community like parity
+
+- [x] Add Community Solo + Multiplayer like/unlike parity to the mobile app.
+  - added_at: 2026-06-15 12:04 Europe/Stockholm
+  - source: Andreas asked to immediately close the app-vs-web parity gap after audit found web-only community likes.
+  - scope: mobile API payloads expose like counts/current-user liked state; app can like/unlike community solo and public multiplayer Side Quests; mobile sort controls include Most liked for both surfaces.
+  - proof: implemented mobile authenticated `/api/mobile/community-likes`, added `likeSummary` to mobile account Solo + Multiplayer payloads, wired like/unlike buttons/counts into Community Solo and Multiplayer detail surfaces, added like counts to lists, added Most liked sort cycles for both surfaces, and built APK `artifacts/mobile-releases/sqc-mobile-android-v262-2026-06-15.apk` (`0.1.262` / versionCode `262` / sha256 `6d47c7f6594c48ceedff20d45b21d502b62fb3a7702df26848098fa619eb31ba`). Verification passed: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint` (existing 3 warnings only); `pnpm build`; `pnpm mobile:release`; installed APK smoke `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v262-2026-06-15.apk`.
+
 ## Active queue update — 2026-06-15 SQC community like ratings
 
 - [x] Add signed-in like/unlike ratings for Community Solo Side Quests and public Community Multiplayer Side Quests.
@@ -9,7 +17,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 08:03 Europe/Stockholm
+Last updated: 2026-06-15 12:04 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut

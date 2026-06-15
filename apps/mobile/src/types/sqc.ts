@@ -118,6 +118,10 @@ export type MobileGroupQuestSummary = {
   completedQuestTitles?: string[];
   ruleRows?: Array<{ label: string; value: string }>;
   leaderboardRows?: MobileGroupQuestParticipantRow[];
+  likeSummary?: {
+    count: number;
+    likedByViewer: boolean;
+  };
 };
 
 
@@ -140,6 +144,10 @@ export type MobileCustomSideQuest = {
     multiplayerLineups: number;
     multiplayerAttempts: number;
     multiplayerFulfillments: number;
+  };
+  likeSummary?: {
+    count: number;
+    likedByViewer: boolean;
   };
 };
 
@@ -284,6 +292,20 @@ export type MobileSupportMessageResponse = {
   message: string;
   submittedAt?: string;
   supportMessage?: MobileSupportMessage;
+};
+
+export type MobileCommunityLikeResponse = {
+  apiVersion: number;
+  authenticated: boolean;
+  ok: boolean;
+  targetType?: "solo" | "multiplayer";
+  targetId?: string;
+  liked?: boolean;
+  likeSummary?: {
+    count: number;
+    likedByViewer: boolean;
+  };
+  message?: string;
 };
 
 export type MobileCustomQuestSaveResponse = {

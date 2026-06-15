@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
 import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { buildPublicProofPath } from "@/lib/proof-share";
 import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
@@ -48,6 +49,7 @@ export async function GET(request: Request) {
     await client.users.updateUserMetadata(userId, { publicMetadata: metadata });
   }
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
   const progress = getChallengeProgress(metadata);
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
   const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
@@ -130,7 +132,7 @@ export async function GET(request: Request) {
     };
   }));
   const { relatedGroupQuests, publicGroupQuests } = await getMobileAccountGroupQuests(client, userId);
-  const communitySideQuests = await listPublicCommunitySideQuests(client, userId, dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]));
+  const communitySideQuests = await listPublicCommunitySideQuests(client, userId, dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]), likeSummaries);
   const activeCommunityCustomQuestRecord = activeChallenge?.id ? communitySideQuests.find((quest) => quest.id === activeChallenge.id) ?? null : null;
   const mobileActiveChallengeRecord = activeChallengeRecord ?? activeCommunityCustomQuestRecord;
   const completedCommunityQuests = communitySideQuests.filter((quest) => completedSet.has(quest.id) && !customQuestMap.has(quest.id));
@@ -192,6 +194,7 @@ export async function GET(request: Request) {
         completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getGroupQuestChallengeTitle(quest, questId)),
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
+        likeSummary: likeSummaries.get("multiplayer", quest.id),
       };
     });
   const activeGroupQuests = relatedUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
@@ -231,6 +234,7 @@ export async function GET(request: Request) {
         completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getGroupQuestChallengeTitle(quest, questId)),
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
+        likeSummary: likeSummaries.get("multiplayer", quest.id),
       };
     });
   const officialPublicGroupQuests = officialGroupQuestPayloads
@@ -276,6 +280,7 @@ export async function GET(request: Request) {
         completedQuestTitles: (participant?.completedQuestIds ?? []).map((questId) => getGroupQuestChallengeTitle(quest, questId)),
         ruleRows: buildRuleRows(quest),
         leaderboardRows: buildLeaderboardRows(quest, userId),
+        likeSummary: likeSummaries.get("multiplayer", quest.id),
       };
     });
   const publicUserGroupQuests = publicUserGroupQuestPayloads.filter((quest) => quest.status !== "Finished");
@@ -408,6 +413,7 @@ async function listPublicCommunitySideQuests(
   client: Awaited<ReturnType<typeof clerkClient>>,
   currentUserId: string,
   groupQuests: ServerGroupQuest[],
+  likeSummaries: Awaited<ReturnType<typeof getCommunityLikeSummaries>>,
 ) {
   try {
     const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
@@ -460,11 +466,12 @@ async function listPublicCommunitySideQuests(
             multiplayerAttempts: lineups.reduce((total, groupQuest) => total + groupQuest.participants.length, 0),
             multiplayerFulfillments: lineups.reduce((total, groupQuest) => total + groupQuest.participants.filter((participant) => participant.completedQuestIds?.includes(quest.id)).length, 0),
           },
+          likeSummary: likeSummaries.get("solo", quest.id),
         };
       })
       .sort((a, b) => {
-        const popularityA = (a.stats?.soloSelections ?? 0) + (a.stats?.soloCompletions ?? 0) * 3 + (a.stats?.multiplayerLineups ?? 0) * 2 + (a.stats?.multiplayerFulfillments ?? 0) * 4;
-        const popularityB = (b.stats?.soloSelections ?? 0) + (b.stats?.soloCompletions ?? 0) * 3 + (b.stats?.multiplayerLineups ?? 0) * 2 + (b.stats?.multiplayerFulfillments ?? 0) * 4;
+        const popularityA = (a.stats?.soloSelections ?? 0) + (a.stats?.soloCompletions ?? 0) * 3 + (a.stats?.multiplayerLineups ?? 0) * 2 + (a.stats?.multiplayerFulfillments ?? 0) * 4 + (a.likeSummary?.count ?? 0) * 5;
+        const popularityB = (b.stats?.soloSelections ?? 0) + (b.stats?.soloCompletions ?? 0) * 3 + (b.stats?.multiplayerLineups ?? 0) * 2 + (b.stats?.multiplayerFulfillments ?? 0) * 4 + (b.likeSummary?.count ?? 0) * 5;
         if (popularityA !== popularityB) return popularityB - popularityA;
         return Date.parse(b.updatedAt) - Date.parse(a.updatedAt);
       })

@@ -2,6 +2,7 @@ import type {
   MobileAccountResponse,
   MobileBootstrap,
   MobileGroupQuestActionResponse,
+  MobileCommunityLikeResponse,
   MobileCustomQuestSaveResponse,
   MobileProfileUpdateResponse,
   MobileSupportMessageResponse,
@@ -216,6 +217,31 @@ export async function runMobileGroupQuestAction({
 
   if (!response.ok) {
     throw new Error(result.message || `SQC mobile multiplayer action failed: ${response.status}`);
+  }
+
+  return result;
+}
+
+export async function runMobileCommunityLikeAction({
+  sessionToken,
+  targetType,
+  targetId,
+  intent,
+}: {
+  sessionToken?: string | null;
+  targetType: "solo" | "multiplayer";
+  targetId: string;
+  intent: "like" | "unlike";
+}): Promise<MobileCommunityLikeResponse> {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/community-likes"), {
+    method: "POST",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ targetType, targetId, intent }),
+  }, 20000);
+  const result = await readMobileJson<MobileCommunityLikeResponse>(response, "community like action");
+
+  if (!response.ok) {
+    throw new Error(result.message || `SQC mobile community like action failed: ${response.status}`);
   }
 
   return result;
