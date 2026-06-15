@@ -4,11 +4,11 @@
 
 ## Active queue update — 2026-06-15 SQC like UI visual hotfix
 
-- [ ] Replace confusing chip-like inline likes with quiet app-native thumbs.
+- [x] Replace confusing chip-like inline likes with quiet app-native thumbs.
   - added_at: 2026-06-15 12:47 Europe/Stockholm
   - source: Andreas screenshot feedback: the v265 inline like UI looked terrible, confusing, and unlike the rest of the app.
   - scope: mobile app first, plus matching web quieting; preserve clickable thumb/count behavior and official/community support while removing chip/button-like styling.
-  - proof: pending typecheck/lint/build, Android release/smoke, web deploy/smoke.
+  - proof: removed chip/border/background treatment from mobile and web inline likes, leaving a quiet transparent thumb/count affordance; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v266; `pnpm mobile:release:github` published v267; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v267-2026-06-15.apk`; GitHub release `mobile-v267` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v267` with SHA256 `701b59bca4485b228319daadfac1916efddbadb97f69b42cce1e22142dcb5048`; web deploy/live smoke pending.
 
 ## Active queue update — 2026-06-15 SQC inline thumbs-up likes
 
@@ -34,7 +34,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 13:05 Europe/Stockholm
+Last updated: 2026-06-15 13:02 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
