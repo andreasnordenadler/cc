@@ -61,7 +61,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 15:24 Europe/Stockholm
+Last updated: 2026-06-15 15:29 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
@@ -4082,7 +4082,7 @@ Andreas clarified that the previously listed items are still wanted and should b
   - added_at: 2026-06-15 15:22 Europe/Stockholm
   - source: Andreas screenshot feedback: active Solo detail `What to do` used proof-result past-tense text while nearby instructions were action-oriented.
   - scope: mobile active Solo detail `What to do` row only.
-  - proof: changed active detail source priority from `proofCallout` first to `instruction`, then `objective`, then `proofCallout`; fallback copy now uses generic connected-account wording; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v280; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v280-2026-06-15.apk` with SHA256 `9b53e5947907611bc95892c1754e5e6e45b943ba5e910a794dec8afe791507be`.
+  - proof: changed active detail source priority from `proofCallout` first to `instruction`, then `objective`, then `proofCallout`; fallback copy now uses generic connected-account wording; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v280; `pnpm mobile:release:github` published v281; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v281-2026-06-15.apk`; GitHub release `mobile-v281` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v281` with SHA256 `99c678e0b4c8378188b83b158bae1327ebbe2e2514eef638b9d0e9e5c499ad22`.
 
 - [x] Align signed-in home profile header with hamburger menu.
   - added_at: 2026-06-15 15:08 Europe/Stockholm
