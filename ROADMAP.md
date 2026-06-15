@@ -1,6 +1,15 @@
 
 # CC Roadmap
 
+
+## Active queue update — 2026-06-15 SQC like UI visual hotfix
+
+- [ ] Replace confusing chip-like inline likes with quiet app-native thumbs.
+  - added_at: 2026-06-15 12:47 Europe/Stockholm
+  - source: Andreas screenshot feedback: the v265 inline like UI looked terrible, confusing, and unlike the rest of the app.
+  - scope: mobile app first, plus matching web quieting; preserve clickable thumb/count behavior and official/community support while removing chip/button-like styling.
+  - proof: pending typecheck/lint/build, Android release/smoke, web deploy/smoke.
+
 ## Active queue update — 2026-06-15 SQC inline thumbs-up likes
 
 - [x] Replace like buttons with inline thumbs-up counters across SQC web + mobile.
