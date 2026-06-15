@@ -150,6 +150,18 @@ function tapUi(label, tag) {
   sleep(1500);
 }
 
+function tapActiveOfficialSoloQuest(tag) {
+  const dump = dumpXml(`${tag}-before-tap-active`);
+  try {
+    const node = findNode(dump.xml, (candidate) => candidate.clickable === "true" && candidate.desc.includes("ACTIVE"));
+    if (!node) throw new Error(`Active official Solo Side Quest row not found. UI excerpt:\n${dump.xml.slice(0, 3000)}`);
+    tapNode(node, "Active official Solo Side Quest row");
+  } finally {
+    dump.cleanup();
+  }
+  sleep(1500);
+}
+
 const { apk } = parseArgs();
 adbReady();
 if (apk) {
@@ -189,6 +201,18 @@ try {
 } finally {
   dump.cleanup();
 }
+tapActiveOfficialSoloQuest("solo-active-row-opens-current-detail");
+dump = dumpXml("solo-active-row-current-detail");
+try {
+  assertIncludes(dump.xml, "ACTIVE SOLO SIDE QUEST", "active Solo row should open current active detail");
+  assertIncludes(dump.xml, "Do this next", "active Solo row should show active next-step copy");
+  assertNotIncludes(dump.xml, "Pick this Side Quest", "active Solo row should not open generic selected quest detail");
+} finally {
+  dump.cleanup();
+}
+launchFresh();
+dump = chooseMenuItem("Solo Side Quests", "home-to-solo-side-quests-community-check");
+dump.cleanup();
 tapUi("Community Solo Side Quests", "solo-community-tab");
 dump = dumpXml("solo-community-subtabs-discover");
 try {

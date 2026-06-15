@@ -4078,6 +4078,12 @@ Andreas clarified that the previously listed items are still wanted and should b
 
 ## Active Queue
 
+- [x] Unify active Solo detail opened from Explore/catalog with home active card.
+  - added_at: 2026-06-15 15:45 Europe/Stockholm
+  - source: Andreas screenshot feedback: tapping the active Side Quest from the start screen showed the correct active detail, but `Explore more` → active quest opened a different older/generic detail variant.
+  - scope: mobile official Solo Side Quest catalog/list routing for the currently active quest.
+  - proof: active official Solo rows and pending detail opens now route to `CurrentSideQuestDetailModal`, reusing the same active-state hero, `Do this next` copy, check/proof actions, and support/switch handlers as the home active card; added hamburger smoke regression that taps the current ACTIVE official Solo row and asserts the active detail appears instead of `Pick this Side Quest`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v282; `pnpm mobile:release:github` published v283; installed emulator smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v283-2026-06-15.apk`; GitHub release `mobile-v283` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v283` with SHA256 `6c01de735b4e7e5c964649d95d132fe9129202b595b93db21f5f7f9e263ca07b`.
+
 - [x] Fix active Solo `What to do` tense mismatch.
   - added_at: 2026-06-15 15:22 Europe/Stockholm
   - source: Andreas screenshot feedback: active Solo detail `What to do` used proof-result past-tense text while nearby instructions were action-oriented.

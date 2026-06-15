@@ -3872,6 +3872,7 @@ function QuestBoardDashboard({
   onAccountUpdated,
   onOpenChallengeDetail,
   onOpenMultiplayerCreate,
+  onOpenSupport,
 }: {
   bootstrap: MobileBootstrap;
   selectedChallenge: MobileChallenge;
@@ -3886,12 +3887,27 @@ function QuestBoardDashboard({
   onAccountUpdated: AccountUpdatedCallback;
   onOpenChallengeDetail: (challengeId: string) => void;
   onOpenMultiplayerCreate: (questId?: string) => void;
+  onOpenSupport: () => void;
 }) {
   const [detailChallengeId, setDetailChallengeId] = useState<string | null>(null);
   const [completedDetailId, setCompletedDetailId] = useState<string | null>(null);
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
+  const activeOfficialChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeCustomQuest = signedIn?.activeQuest?.id ? signedIn.customSideQuests?.find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeChallenge = activeOfficialChallenge ?? (signedIn?.activeQuest ? buildCustomActiveChallenge(signedIn.activeQuest, activeCustomQuest) : null);
+  const activeCoatSource = activeChallenge
+    ? getChallengeCoatImageSource(activeChallenge)
+    : { uri: absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
+  const activeQuestReceipt = signedIn && signedIn.latestReceipt?.challengeId === signedIn.activeQuest?.id ? signedIn.latestReceipt : null;
+  const latestCheckText = activeQuestReceipt?.headline ? normalizeCheckHeadline(activeQuestReceipt.headline) : null;
+  const latestCheckPassed = Boolean(latestCheckText?.toLowerCase().includes("passed"));
+  const canViewCurrentProof = Boolean(signedIn?.activeQuest?.completed || latestCheckPassed);
+  const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
+  const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn?.activeQuest?.verifiedAt);
+  const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
+  const activeQuestProofNeeded = activeChallenge?.instruction ?? activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Play a new public game on your connected chess account that matches this Side Quest.";
   const browseQuests: BrowseQuest[] = [
     ...bootstrap.challenges.map((challenge) => ({ ...challenge, browseKind: "live" as const })),
     ...MOBILE_COMING_SOON_QUESTS.filter(() => false),
@@ -3937,6 +3953,8 @@ function QuestBoardDashboard({
   const [communityReportOpen, setCommunityReportOpen] = useState(false);
   const [communityReportMessage, setCommunityReportMessage] = useState("");
   const [soloLikeBusyId, setSoloLikeBusyId] = useState<string | null>(null);
+  const [currentDetailOpen, setCurrentDetailOpen] = useState(false);
+  const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -4228,6 +4246,37 @@ function QuestBoardDashboard({
     }
   }
 
+  async function runActiveCheck() {
+    if (!signedIn?.activeQuest?.id || signedIn.activeQuest.completed) return;
+    if (!authBridge.isSignedIn) {
+      await Promise.resolve(onAccountUpdated());
+      setActionState({ busy: false, message: "Updated account state.", error: null });
+      return;
+    }
+
+    setActionState({ busy: true, message: null, error: null });
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      const result = await runMobileQuestAction({ sessionToken, action: "check", challengeId: signedIn.activeQuest.id });
+      const nextAccount = await Promise.resolve(onAccountUpdated());
+      const coercedAccount = coerceAccountResponse(nextAccount);
+      const refreshedReceipt = isAuthenticatedAccount(coercedAccount) ? coercedAccount.latestReceipt : null;
+      setActionState({ busy: false, message: getCheckActionMessage(refreshedReceipt) || result.message, error: null });
+    } catch (caught) {
+      setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not check this Side Quest." });
+    }
+  }
+
+  function openCurrentProof() {
+    const completedId = signedIn?.activeQuest?.id;
+    if (completedId && signedIn?.completedQuests.some((quest) => quest.id === completedId)) {
+      setCurrentDetailOpen(false);
+      setCompletedDetailId(completedId);
+      return;
+    }
+    showNativeOnlyNotice("This result is saved. Open it from the completed Side Quest card once account sync finishes.");
+  }
+
   async function startCustomSideQuest(questId: string) {
     if (!authBridge.isSignedIn) {
       Alert.alert("Sign in to start custom Side Quests", "Saved Side Quests can be picked after sign-in.");
@@ -4284,6 +4333,13 @@ function QuestBoardDashboard({
       }
 
       if (pendingSideQuestDetailId) {
+        if (pendingSideQuestDetailId === activeId) {
+          setCurrentDetailOpen(true);
+          setDetailChallengeId(null);
+          setCompletedDetailId(null);
+          onConsumePendingQuestOpen();
+          return;
+        }
         setDetailChallengeId(pendingSideQuestDetailId);
         setCompletedDetailId(null);
         onConsumePendingQuestOpen();
@@ -4291,7 +4347,7 @@ function QuestBoardDashboard({
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [onConsumePendingQuestOpen, pendingCompletedDetailId, pendingSideQuestDetailId]);
+  }, [activeId, onConsumePendingQuestOpen, pendingCompletedDetailId, pendingSideQuestDetailId]);
 
   return (
     <View style={compactStyles.stack}>
@@ -4366,6 +4422,10 @@ function QuestBoardDashboard({
                   }
                   if (completed) {
                     setCompletedDetailId(challenge.id);
+                    return;
+                  }
+                  if (active) {
+                    setCurrentDetailOpen(true);
                     return;
                   }
                   onSelectChallenge(challenge.id, "sideQuests");
@@ -4919,6 +4979,39 @@ function QuestBoardDashboard({
           </ScrollHintedScrollView>
         </SafeAreaView>
       </Modal>
+
+      {signedIn ? (
+        <CurrentSideQuestDetailModal
+          visible={currentDetailOpen}
+          signedIn={signedIn}
+          challenge={activeChallenge}
+          activeCoatSource={activeCoatSource}
+          activeQuestGoal={activeQuestGoal}
+          pickedLabel={activeQuestPickedLabel}
+          proofNeeded={activeQuestProofNeeded}
+          latestCheckLabel={activeQuestLatestCheck}
+          latestCheckPassed={latestCheckPassed}
+          latestReceipt={activeQuestReceipt ?? null}
+          canViewCurrentProof={canViewCurrentProof}
+          actionState={actionState}
+          onClose={() => setCurrentDetailOpen(false)}
+          onRunCheck={runActiveCheck}
+          onViewProof={openCurrentProof}
+          onSwitchQuest={() => setCurrentDetailOpen(false)}
+          onSelectTab={(tab) => {
+            setCurrentDetailOpen(false);
+            onSelectTab(tab);
+          }}
+          onOpenMultiplayerCreate={() => {
+            setCurrentDetailOpen(false);
+            onOpenMultiplayerCreate();
+          }}
+          onOpenSupport={() => {
+            setCurrentDetailOpen(false);
+            onOpenSupport();
+          }}
+        />
+      ) : null}
 
       <Modal visible={Boolean(completedQuestRecord && completedDetailChallenge)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCompletedDetailId(null)}>
         <SafeAreaView style={compactStyles.detailScreen}>
@@ -5564,7 +5657,7 @@ function ActiveScreen({
     case "home":
       return <TodayDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} onSelectChallenge={onSelectChallenge} onAccountUpdated={onAccountUpdated} />;
     case "sideQuests":
-      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} />;
+      return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />;
     case "multiplayerSideQuests":
       return <MultiplayerSideQuestsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpen={pendingMultiplayerCreateOpen} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
     case "officialLeaderboards":
