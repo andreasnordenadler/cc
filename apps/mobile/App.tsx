@@ -1652,7 +1652,7 @@ function TodayDashboard({
   const activeQuestGoal = activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Choose one Side Quest to attempt in your next real chess game.";
   const activeQuestLatestCheck = formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? signedIn?.activeQuest?.verifiedAt);
   const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
-  const activeQuestProofNeeded = activeChallenge?.proofCallout ?? activeChallenge?.instruction ?? "Play a new public game on Lichess or Chess.com that matches this Side Quest.";
+  const activeQuestProofNeeded = activeChallenge?.instruction ?? activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Play a new public game on your connected chess account that matches this Side Quest.";
   const officialPublic = (signedIn?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
   const hasChessAccount = Boolean(signedIn?.chessAccounts.hasAny);
