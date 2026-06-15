@@ -152,7 +152,10 @@ export default async function GroupQuestByIdPage({
             <div className="groupquest-hero-copy">
               <span className="eyebrow">{isQuestFinished ? "Final archive" : "You were invited"} · Multiplayer Side Quest # {id}</span>
               {savedQuest?.official ? <span className="badge gold official-sqc-badge">{officialLabel}</span> : null}
-              <h1>{questName}</h1>
+              <div className="side-quest-title-with-like detail-title-with-like">
+                <h1>{questName}</h1>
+                <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} label={questName} />
+              </div>
               <GroupQuestInviteCopy id={id} fallback={inviteCopy} />
               <div className="hero-actions button-row">
                 {isQuestFinished ? (
@@ -173,7 +176,6 @@ export default async function GroupQuestByIdPage({
               </div>
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
               {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
-              {!savedQuest?.official ? <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} /> : null}
               {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
               {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
@@ -330,13 +332,15 @@ export default async function GroupQuestByIdPage({
               {savedQuest?.official ? <span className="eyebrow official-sqc-badge">{officialLabel}</span> : null}
               <span className="eyebrow groupquest-date-pill">{startsAtLabel} → {endsAtLabel}</span>
             </div>
-            <h1>{questName}</h1>
+            <div className="side-quest-title-with-like detail-title-with-like">
+              <h1>{questName}</h1>
+              <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} label={questName} />
+            </div>
             <p className="hero-copy">
               Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
             </p>
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
             {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
-            {!savedQuest?.official ? <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} /> : null}
             {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
             {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 

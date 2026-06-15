@@ -181,7 +181,10 @@ function CommunityQuestCard({ quest, likeSummary, signedIn }: { quest: PublicCom
         </Link>
         <div>
           <span className="community-quest-source">By {quest.creatorName}</span>
-          <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
+          <div className="side-quest-title-with-like">
+            <h3><Link href={quest.detailPath}>{quest.title}</Link></h3>
+            <CommunityLikeButton targetType="solo" targetId={quest.id} count={likeSummary.count} likedByViewer={likeSummary.likedByViewer} signedIn={signedIn} returnTo="/challenges/community" label={quest.title} />
+          </div>
           <p>{quest.summary}</p>
           <em>{quest.ruleLabel}</em>
         </div>
@@ -196,7 +199,6 @@ function CommunityQuestCard({ quest, likeSummary, signedIn }: { quest: PublicCom
       <div className="community-card-actions">
         <CommunitySoloAnalyticsLink className="button primary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
         <CommunitySoloAnalyticsLink className="button secondary" href="/account/custom-side-quests" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
-        <CommunityLikeButton targetType="solo" targetId={quest.id} count={likeSummary.count} likedByViewer={likeSummary.likedByViewer} signedIn={signedIn} returnTo="/challenges/community" />
       </div>
       <div className="community-card-secondary-actions" aria-label={`${quest.title} secondary actions`}>
         <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>

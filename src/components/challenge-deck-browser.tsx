@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import ChallengeBadge from "@/components/challenge-badge";
+import CommunityLikeButton from "@/components/community-like-button";
 import type { Challenge } from "@/lib/challenges";
 
 type ScheduledChallenge = Challenge & { releaseDate?: string };
 
-type SortMode = "recommended" | "easy-first" | "hard-first" | "points-high" | "points-low";
+type SortMode = "recommended" | "most-liked" | "easy-first" | "hard-first" | "points-high" | "points-low";
 type DifficultyFilter = "All" | Challenge["difficulty"];
 type StatusFilter = "All" | "Active" | "Completed" | "Open";
 
@@ -15,6 +16,8 @@ type ChallengeDeckBrowserProps = {
   challenges: Challenge[];
   activeChallengeId?: string;
   completedChallengeIds: string[];
+  likeSummaries?: Record<string, { count: number; likedByViewer: boolean }>;
+  signedIn?: boolean;
 };
 
 const difficultyRank: Record<Challenge["difficulty"], number> = {
@@ -328,7 +331,7 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
   },
 ];
 
-export default function ChallengeDeckBrowser({ challenges, activeChallengeId, completedChallengeIds }: ChallengeDeckBrowserProps) {
+export default function ChallengeDeckBrowser({ challenges, activeChallengeId, completedChallengeIds, likeSummaries = {}, signedIn = false }: ChallengeDeckBrowserProps) {
   const [difficulty, setDifficulty] = useState<DifficultyFilter>("All");
   const [status, setStatus] = useState<StatusFilter>("All");
   const [sort, setSort] = useState<SortMode>("recommended");
@@ -347,13 +350,14 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
     });
 
     return [...filtered].sort((a, b) => {
+      if (sort === "most-liked") return (likeSummaries[b.id]?.count ?? 0) - (likeSummaries[a.id]?.count ?? 0) || challenges.indexOf(a) - challenges.indexOf(b);
       if (sort === "easy-first") return difficultyRank[a.difficulty] - difficultyRank[b.difficulty] || a.reward - b.reward;
       if (sort === "hard-first") return difficultyRank[b.difficulty] - difficultyRank[a.difficulty] || b.reward - a.reward;
       if (sort === "points-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
       if (sort === "points-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
       return challenges.indexOf(a) - challenges.indexOf(b);
     });
-  }, [activeChallengeId, challenges, completedSet, difficulty, sort, status]);
+  }, [activeChallengeId, challenges, completedSet, difficulty, likeSummaries, sort, status]);
 
   const visibleComingSoonChallenges = useMemo(() => {
     if (status !== "All") return [];
@@ -442,6 +446,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
             <span>Sort</span>
             <select value={sort} onChange={(event) => setSort(event.target.value as SortMode)}>
               <option value="recommended">Recommended</option>
+              <option value="most-liked">Most liked</option>
               <option value="easy-first">Easy first</option>
               <option value="hard-first">Hard first</option>
               <option value="points-high">Most points</option>
@@ -462,6 +467,8 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
             featured={sort === "recommended" && index === 0}
             completed={completedSet.has(challenge.id)}
             active={activeChallengeId === challenge.id}
+            likeSummary={likeSummaries[challenge.id] ?? { count: 0, likedByViewer: false }}
+            signedIn={signedIn}
           />
         ))}
         {visibleComingSoonChallenges.map((challenge) => (
@@ -472,11 +479,10 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
   );
 }
 
-export function ChallengeCard({ challenge, featured, completed, active }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean }) {
+export function ChallengeCard({ challenge, featured, completed, active, likeSummary = { count: 0, likedByViewer: false }, signedIn = false }: { challenge: Challenge; featured?: boolean; completed?: boolean; active?: boolean; likeSummary?: { count: number; likedByViewer: boolean }; signedIn?: boolean }) {
   const difficultyTone = getDifficultyTone(challenge.difficulty);
   return (
-    <Link
-      href={`/challenges/${challenge.id}`}
+    <article
       className={`challenge-card clickable-quest-card ${featured ? "featured" : ""} ${active ? "active-quest-card" : ""} ${completed ? "completed-quest-card" : ""}`}
       aria-current={active ? "true" : undefined}
     >
@@ -494,7 +500,10 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
       <div className="challenge-card-title-row">
         <ChallengeBadge challenge={challenge} earned={completed} presentation="art" />
         <div>
-          <h3>{challenge.title}</h3>
+          <div className="side-quest-title-with-like">
+            <h3><Link href={`/challenges/${challenge.id}`}>{challenge.title}</Link></h3>
+            <CommunityLikeButton targetType="solo" targetId={challenge.id} count={likeSummary.count} likedByViewer={likeSummary.likedByViewer} signedIn={signedIn} returnTo="/challenges" label={challenge.title} />
+          </div>
           <p>{challenge.objective}</p>
           <em>{challenge.openingHint}</em>
         </div>
@@ -504,11 +513,11 @@ export function ChallengeCard({ challenge, featured, completed, active }: { chal
         <p>{challenge.proofCallout || challenge.category}</p>
         <small>{completed ? "Receipt ready in your Trophy Cabinet" : active ? "Active now — continue the proof check" : "Open the quest, start it, then prove a public game"}</small>
       </div>
-      <div className="quest-card-next-step" aria-hidden="true">
-        <span>{completed ? "View receipt" : active ? "Continue run" : "Inspect quest"}</span>
-        <strong>→</strong>
+      <div className="quest-card-next-step">
+        <Link href={`/challenges/${challenge.id}`}>{completed ? "View receipt" : active ? "Continue run" : "Inspect quest"}</Link>
+        <strong aria-hidden="true">→</strong>
       </div>
-    </Link>
+    </article>
   );
 }
 

@@ -301,6 +301,7 @@ export async function GET(request: Request) {
       groupQuests: dedupeGroupQuests([...relatedGroupQuests, ...publicGroupQuests]),
     }),
   }));
+  const officialSideQuestLikes = Object.fromEntries(CHALLENGES.map((challenge) => [challenge.id, likeSummaries.get("solo", challenge.id)]));
 
   return NextResponse.json({
     apiVersion: 1,
@@ -326,6 +327,7 @@ export async function GET(request: Request) {
     },
     customSideQuests: customSideQuestsWithStats,
     communitySideQuests,
+    officialSideQuestLikes,
     activeQuest: activeChallenge && mobileActiveChallengeRecord
       ? {
           id: mobileActiveChallengeRecord.id,

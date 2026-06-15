@@ -3,6 +3,7 @@ import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeDeckBrowser from "@/components/challenge-deck-browser";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -20,6 +21,9 @@ export default async function ChallengesPage() {
     const client = await clerkClient();
     await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
   }
+  const client = await clerkClient();
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
+  const officialLikeSummaries = Object.fromEntries(CHALLENGES.map((challenge) => [challenge.id, likeSummaries.get("solo", challenge.id)]));
   const activeChallenge = getActiveChallenge(metadata);
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
@@ -60,6 +64,8 @@ export default async function ChallengesPage() {
             challenges={CHALLENGES}
             activeChallengeId={activeIncompleteChallengeId}
             completedChallengeIds={progress.completedChallengeIds}
+            likeSummaries={officialLikeSummaries}
+            signedIn={Boolean(userId)}
           />
         </div>
       </div>

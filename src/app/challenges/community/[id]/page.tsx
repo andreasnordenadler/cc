@@ -60,7 +60,10 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
           <div className="detail-hero-grid quest-detail-hero-grid">
             <div className="quest-detail-copy">
               <span className="eyebrow">Community Solo Side Quest by {quest.creatorName}</span>
-              <h1>{quest.title}</h1>
+              <div className="side-quest-title-with-like detail-title-with-like">
+                <h1>{quest.title}</h1>
+                <CommunityLikeButton targetType="solo" targetId={quest.id} count={likeSummaries.get("solo", quest.id).count} likedByViewer={likeSummaries.get("solo", quest.id).likedByViewer} signedIn={Boolean(userId)} returnTo={quest.detailPath} label={quest.title} />
+              </div>
               <p className="hero-copy">{quest.summary}</p>
               <p className="quest-detail-flavor">A public custom rule from the community notice board. Read the promise, check the rule shape, then choose whether it belongs in your next SQC run.</p>
             </div>
@@ -88,7 +91,6 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
               <div className="community-detail-primary-actions">
                 <CommunitySoloAnalyticsLink className="button primary" href="/account" type="community_solo_account_handoff" questId={quest.id} status="detail_start_from_account">Start from account</CommunitySoloAnalyticsLink>
                 <Link className="button secondary" href={`/groupquests/create?quest=${encodeURIComponent(quest.id)}`}>Use in Multiplayer</Link>
-                <CommunityLikeButton targetType="solo" targetId={quest.id} count={likeSummaries.get("solo", quest.id).count} likedByViewer={likeSummaries.get("solo", quest.id).likedByViewer} signedIn={Boolean(userId)} returnTo={quest.detailPath} />
               </div>
               <div className="community-detail-secondary-actions" aria-label="Secondary Community Solo Side Quest actions">
                 <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="detail_more_by_player">More from {quest.creatorName}</CommunitySoloAnalyticsLink>

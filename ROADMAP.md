@@ -1,6 +1,14 @@
 
 # CC Roadmap
 
+## Active queue update — 2026-06-15 SQC inline thumbs-up likes
+
+- [ ] Replace like buttons with inline thumbs-up counters across SQC web + mobile.
+  - added_at: 2026-06-15 12:36 Europe/Stockholm
+  - source: Andreas requested clickable thumbs-up icons to the right of Side Quest names, green filled when liked, outline when not liked, counter to the right, and likes expanded to official Solo + official Multiplayer too.
+  - scope: web and mobile; solo and multiplayer; community and official Side Quests; preserve one-like-per-user/unlike behavior and liked sorting.
+  - proof: pending implementation, checks, deployment, and APK release verification.
+
 ## Active queue update — 2026-06-15 SQC Mobile community like parity
 
 - [x] Add Community Solo + Multiplayer like/unlike parity to the mobile app.

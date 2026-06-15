@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import CommunityLikeButton from "@/components/community-like-button";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofPositionBoard from "@/components/proof-position-board";
 import ProofTime from "@/components/proof-time";
@@ -13,6 +14,7 @@ import SiteNav from "@/components/site-nav";
 import StartQuestControls from "@/components/start-quest-controls";
 import { checkActiveChallenge, submitChallengeAttempt } from "@/app/actions";
 import { CHALLENGES, getChallengeById, type Challenge } from "@/lib/challenges";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
   buildAttemptSummary,
@@ -95,6 +97,8 @@ export default async function ChallengeDetailPage({
     const client = await clerkClient();
     await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
   }
+  const client = await clerkClient();
+  const likeSummary = (await getCommunityLikeSummaries(client, userId)).get("solo", challenge.id);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const activeChallenge = getActiveChallenge(metadata);
@@ -147,7 +151,10 @@ export default async function ChallengeDetailPage({
           </div>
           <div className="detail-hero-grid quest-detail-hero-grid">
             <div className="quest-detail-copy">
-              <h1>{challenge.title}</h1>
+              <div className="side-quest-title-with-like detail-title-with-like">
+                <h1>{challenge.title}</h1>
+                <CommunityLikeButton targetType="solo" targetId={challenge.id} count={likeSummary.count} likedByViewer={likeSummary.likedByViewer} signedIn={isSignedIn} returnTo={`/challenges/${challenge.id}`} label={challenge.title} />
+              </div>
               <p className="hero-copy">{challenge.objective}</p>
               <p className="quest-detail-flavor">{challenge.openingHint}</p>
               <p>{challenge.flavor}</p>
@@ -478,4 +485,3 @@ function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAt
 
   return `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points. ${summary}`;
 }
-

@@ -2294,9 +2294,12 @@ function JoinedMultiplayerQuestModal({
           <View style={compactStyles.multiplayerDetailHero}>
             <Image source={getMultiplayerSealSource(quest)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{quest.official || quest.id.startsWith("official-") ? "SQC Official Multiplayer Side Quest" : quest.isOwner ? "Hosted by you" : "Community Multiplayer Side Quest"}</Text>
-            <Text style={compactStyles.detailTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
+            <View style={compactStyles.detailTitleLine}>
+              <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithAccessory]}>{cleanMultiplayerTitle(quest.title)}</Text>
+              {onToggleLike ? <MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={likeBusy} onPress={() => void handleToggleLike()} /> : null}
+            </View>
             <Text style={compactStyles.detailGoal}>{cleanMultiplayerInviteCopy(quest.inviteCopy)}</Text>
-            <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()} · {getLikeSummaryLine(quest.likeSummary)}</Text>
+            <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
 
           <View style={compactStyles.multiplayerScoreGrid}>
@@ -2347,11 +2350,6 @@ function JoinedMultiplayerQuestModal({
               {onReport && !quest.official && !quest.isOwner ? (
                 <Pressable accessibilityRole="button" accessibilityLabel="Report Multiplayer Side Quest" style={compactStyles.detailQuietButton} onPress={() => onReport(quest)}>
                   <Text style={compactStyles.detailQuietButtonText}>Report Side Quest</Text>
-                </Pressable>
-              ) : null}
-              {onToggleLike && !quest.official ? (
-                <Pressable accessibilityRole="button" accessibilityLabel={quest.likeSummary?.likedByViewer ? "Unlike Community Multiplayer Side Quest" : "Like Community Multiplayer Side Quest"} style={compactStyles.detailQuietButton} disabled={likeBusy} onPress={() => void handleToggleLike()}>
-                  <Text style={compactStyles.detailQuietButtonText}>{likeBusy ? "Saving..." : quest.likeSummary?.likedByViewer ? `Unlike · ${getLikeCount(quest.likeSummary)}` : `Like · ${getLikeCount(quest.likeSummary)}`}</Text>
                 </Pressable>
               ) : null}
             </View>
@@ -3293,6 +3291,7 @@ function HelpSupportRow({ title, body }: { title: string; body: string }) {
 function AppRow({
   title,
   meta,
+  titleAccessory,
   status,
   statusImageSource,
   sourceBadge,
@@ -3307,6 +3306,7 @@ function AppRow({
 }: {
   title: string;
   meta: string;
+  titleAccessory?: ReactNode;
   status?: string;
   statusImageSource?: ImageSourcePropType | null;
   sourceBadge?: string | null;
@@ -3341,7 +3341,10 @@ function AppRow({
       ) : null}
       <View style={compactStyles.appRowText}>
         {sourceBadge ? <Text style={compactStyles.sourceBadge} numberOfLines={1}>{sourceBadge}</Text> : null}
-        <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
+        <View style={compactStyles.appRowTitleLine}>
+          <Text style={compactStyles.appRowTitle} numberOfLines={1}>{title}</Text>
+          {titleAccessory}
+        </View>
         <Text style={compactStyles.appRowMeta} numberOfLines={2}>{meta}</Text>
       </View>
       {statusImageSource ? <Image source={statusImageSource} style={compactStyles.rowStatusSealImage} resizeMode="contain" /> : visibleStatus ? <Text style={[
@@ -3521,6 +3524,21 @@ function getLikeSummaryLine(likeSummary?: { count: number; likedByViewer: boolea
 
 function getLikeCount(likeSummary?: { count: number; likedByViewer: boolean }) {
   return likeSummary?.count ?? 0;
+}
+
+function getOfficialChallengeLikeSummary(account: MobileAccountResponse | null, challengeId: string) {
+  return isAuthenticatedAccount(account) ? account.officialSideQuestLikes?.[challengeId] ?? { count: 0, likedByViewer: false } : { count: 0, likedByViewer: false };
+}
+
+function MobileLikePill({ likeSummary, onPress, label, busy = false }: { likeSummary?: { count: number; likedByViewer: boolean }; onPress: () => void; label: string; busy?: boolean }) {
+  const liked = Boolean(likeSummary?.likedByViewer);
+  const count = getLikeCount(likeSummary);
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`${liked ? "Unlike" : "Like"} ${label}. ${count} like${count === 1 ? "" : "s"}.`} accessibilityState={{ selected: liked, disabled: busy }} disabled={busy} style={[compactStyles.likePill, liked && compactStyles.likePillLiked, busy && compactStyles.likePillBusy]} onPress={(event) => { event.stopPropagation(); onPress(); }} hitSlop={8}>
+      <MaterialCommunityIcons name={liked ? "thumb-up" : "thumb-up-outline"} size={15} color={liked ? colors.green : "rgba(255,247,232,.78)"} />
+      <Text style={[compactStyles.likePillCount, liked && compactStyles.likePillCountLiked]}>{count}</Text>
+    </Pressable>
+  );
 }
 
 function getCustomQuestPopularity(stats?: MobileCustomSideQuest["stats"]) {
@@ -3883,6 +3901,7 @@ function QuestBoardDashboard({
   const [customPublishVisibility, setCustomPublishVisibility] = useState<"private" | "public">("private");
   const [communityReportOpen, setCommunityReportOpen] = useState(false);
   const [communityReportMessage, setCommunityReportMessage] = useState("");
+  const [soloLikeBusyId, setSoloLikeBusyId] = useState<string | null>(null);
   const [customConditionEditorOpen, setCustomConditionEditorOpen] = useState(false);
   const [customQuestName, setCustomQuestName] = useState("My custom Side Quest");
   const [customRuleLogic, setCustomRuleLogic] = useState<CustomRuleLogic>("all");
@@ -4142,12 +4161,35 @@ function QuestBoardDashboard({
       Alert.alert("Sign in to like Community Side Quests", "Likes are saved to your SQC account so each player can like a Side Quest once and unlike it later.");
       return;
     }
+    if (soloLikeBusyId === quest.id) return;
+    setSoloLikeBusyId(quest.id);
     try {
       const sessionToken = await authBridge.getSessionToken();
       await runMobileCommunityLikeAction({ sessionToken, targetType: "solo", targetId: quest.id, intent: quest.likeSummary?.likedByViewer ? "unlike" : "like" });
       await Promise.resolve(onAccountUpdated());
     } catch (caught) {
       Alert.alert("Could not update like", caught instanceof Error ? caught.message : "Try again in a moment.");
+    } finally {
+      setSoloLikeBusyId(null);
+    }
+  }
+
+  async function toggleOfficialSoloLike(challenge: MobileChallenge) {
+    if (!authBridge.isSignedIn) {
+      Alert.alert("Sign in to like Side Quests", "Likes are saved to your SQC account so each player can like a Side Quest once and unlike it later.");
+      return;
+    }
+    if (soloLikeBusyId === challenge.id) return;
+    setSoloLikeBusyId(challenge.id);
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      const likeSummary = getOfficialChallengeLikeSummary(account, challenge.id);
+      await runMobileCommunityLikeAction({ sessionToken, targetType: "solo", targetId: challenge.id, intent: likeSummary.likedByViewer ? "unlike" : "like" });
+      await Promise.resolve(onAccountUpdated());
+    } catch (caught) {
+      Alert.alert("Could not update like", caught instanceof Error ? caught.message : "Try again in a moment.");
+    } finally {
+      setSoloLikeBusyId(null);
     }
   }
 
@@ -4273,6 +4315,7 @@ function QuestBoardDashboard({
               <AppRow
                 key={challenge.id}
                 title={challenge.title}
+                titleAccessory={!comingSoon ? <MobileLikePill likeSummary={getOfficialChallengeLikeSummary(account, challenge.id)} label={challenge.title} busy={soloLikeBusyId === challenge.id} onPress={() => void toggleOfficialSoloLike(challenge)} /> : undefined}
                 meta={comingSoon ? `Coming ${comingSoonDate ?? "soon"} · ${challenge.objective}` : challenge.objective}
                 status={comingSoon ? `Coming ${comingSoonDate ?? "soon"}` : active ? "Active" : completed ? "Completed" : challenge.difficulty}
                 imageSource={getChallengeCoatImageSource(challenge)}
@@ -4365,7 +4408,7 @@ function QuestBoardDashboard({
               {communityBrowseQuests.length ? (
                 <View style={compactStyles.sideQuestCatalogRows}>
                   {communityBrowseQuests.map((quest) => (
-                    <AppRow key={quest.id} title={quest.name} meta={`${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${getLikeSummaryLine(quest.likeSummary)} · ${cleanCustomRuleSummaryText(quest.summary)} · ${getCustomStatsLine(quest.stats)}`} status={getCustomLifecycleStatus(quest, activeId, Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id)))} sourceBadge={quest.ownedByYou ? "Yours" : "Community"} imageSource={getCustomQuestImageSource(quest.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(quest.id)} />
+                    <AppRow key={quest.id} title={quest.name} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={quest.name} busy={soloLikeBusyId === quest.id} onPress={() => void toggleCommunitySoloLike(quest)} />} meta={`${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${cleanCustomRuleSummaryText(quest.summary)} · ${getCustomStatsLine(quest.stats)}`} status={getCustomLifecycleStatus(quest, activeId, Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id)))} sourceBadge={quest.ownedByYou ? "Yours" : "Community"} imageSource={getCustomQuestImageSource(quest.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(quest.id)} />
                   ))}
                 </View>
               ) : (
@@ -6165,6 +6208,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [inviteKey, setInviteKey] = useState("");
   const [multiplayerReportOpen, setMultiplayerReportOpen] = useState(false);
   const [multiplayerReportMessage, setMultiplayerReportMessage] = useState("");
+  const [multiplayerLikeBusyId, setMultiplayerLikeBusyId] = useState<string | null>(null);
   const [mineListLimit, setMineListLimit] = useState(4);
   const [availableListLimit, setAvailableListLimit] = useState(4);
   const [hostedListLimit, setHostedListLimit] = useState(3);
@@ -6388,12 +6432,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       Alert.alert("Sign in to like Community Multiplayer Side Quests", "Likes are saved to your SQC account so each player can like a Multiplayer Side Quest once and unlike it later.");
       return;
     }
+    if (multiplayerLikeBusyId === quest.id) return;
+    setMultiplayerLikeBusyId(quest.id);
     try {
       const sessionToken = await authBridge.getSessionToken();
       await runMobileCommunityLikeAction({ sessionToken, targetType: "multiplayer", targetId: quest.id, intent: quest.likeSummary?.likedByViewer ? "unlike" : "like" });
       await Promise.resolve(onAccountUpdated());
     } catch (caught) {
       Alert.alert("Could not update like", caught instanceof Error ? caught.message : "Try again in a moment.");
+    } finally {
+      setMultiplayerLikeBusyId(null);
     }
   }
 
@@ -6442,6 +6490,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onUpdate={(payload) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "update", payload) : undefined}
         onRemoveParticipant={(participantUserId) => officialMultiplayerQuest ? void runGroupQuestAction(officialMultiplayerQuest.id, "remove-participant", { participantUserId }) : undefined}
         onReport={openMultiplayerReport}
+        onToggleLike={toggleCommunityMultiplayerLike}
       />
 
       <JoinedMultiplayerQuestModal
@@ -6483,7 +6532,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : (
@@ -6506,7 +6555,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {officialPublicGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {officialPublicGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>No official Multiplayer Side Quests are open right now.</Text>}
@@ -6559,7 +6608,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={`${getLikeSummaryLine(quest.likeSummary)} · ${getOfficialMultiplayerListMeta(quest)}`} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>{allCommunityMultiplayerQuests.length ? multiplayerHostFilter ? "No public Community Multiplayer Side Quests match this host shelf/search. Nothing private is shown from guessed host context." : "No community Multiplayer Side Quests match this search/filter." : "No public community Multiplayer Side Quests right now."}</Text>}
@@ -7000,6 +7049,7 @@ function SelectedQuestDetailCard({
   onAccountUpdated: AccountUpdatedCallback;
 }) {
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
+  const [likeBusy, setLikeBusy] = useState(false);
   const [shareStatus, setShareStatus] = useState<string | null>(null);
   const [proofGameReference, setProofGameReference] = useState("");
   const authenticated = isAuthenticatedAccount(account);
@@ -7008,6 +7058,7 @@ function SelectedQuestDetailCard({
   const badgeSource = getChallengeCoatImageSource(challenge);
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
   const latestCheckFailed = isFailedReceipt(latestReceipt);
+  const likeSummary = getOfficialChallengeLikeSummary(account, challenge.id);
   const actionTitle = activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
   const actionBody = activeQuest
     ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
@@ -7067,11 +7118,32 @@ function SelectedQuestDetailCard({
     }
   }
 
+  async function toggleLike() {
+    if (!authBridge.isSignedIn) {
+      Alert.alert("Sign in to like Side Quests", "Likes are saved to your SQC account so each player can like a Side Quest once and unlike it later.");
+      return;
+    }
+    if (likeBusy) return;
+    setLikeBusy(true);
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await runMobileCommunityLikeAction({ sessionToken, targetType: "solo", targetId: challenge.id, intent: likeSummary.likedByViewer ? "unlike" : "like" });
+      await Promise.resolve(onAccountUpdated());
+    } catch (caught) {
+      Alert.alert("Could not update like", caught instanceof Error ? caught.message : "Try again in a moment.");
+    } finally {
+      setLikeBusy(false);
+    }
+  }
+
   return (
     <View style={styles.questCard} accessibilityLabel={`${challenge.title} details`}>
       <View style={styles.questCardHeader}>
         <View style={styles.questCardCopy}>
-          <Text style={styles.questTitle}>{challenge.title}</Text>
+          <View style={compactStyles.detailTitleLine}>
+            <Text style={[styles.questTitle, compactStyles.detailTitleWithAccessory]}>{challenge.title}</Text>
+            <MobileLikePill likeSummary={likeSummary} label={challenge.title} busy={likeBusy} onPress={() => void toggleLike()} />
+          </View>
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
         <View style={styles.badgeImageFrame}><Image source={badgeSource} style={styles.badgeImage} resizeMode="contain" /></View>
@@ -7317,7 +7389,10 @@ function CustomSideQuestDetailModal({
               {completed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.completedProofSeal} resizeMode="contain" /> : null}
             </View>
             <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
-            <Text style={compactStyles.detailTitle}>{quest.name}</Text>
+            <View style={compactStyles.detailTitleLine}>
+              <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithAccessory]}>{quest.name}</Text>
+              {onToggleLike && quest.visibility === "public" && lifecycle === "published" ? <MobileLikePill likeSummary={quest.likeSummary} label={quest.name} busy={likeBusy} onPress={() => void handleToggleLike()} /> : null}
+            </View>
             <Text style={compactStyles.detailGoal}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{statusLabel} · {getCustomVisibilityLabel(quest.visibility)}{completedAt ? ` · ${formatLatestCheckTime(completedAt)}` : ""}</Text>
           </View>
@@ -7365,7 +7440,7 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollTitle}>Activity so far</Text>
             <Text style={compactStyles.proofScrollCopy}>{getCustomStatsLine(quest.stats)}</Text>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{getLikeSummaryLine(quest.likeSummary)} · Stats show your activity with this Side Quest.</Text>
+            <Text style={compactStyles.proofScrollMeta}>Stats show your activity with this Side Quest.</Text>
           </View>
 
           {quest.creatorName ? (
@@ -7430,11 +7505,6 @@ function CustomSideQuestDetailModal({
           {quest.visibility === "public" && lifecycle === "published" ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Share Community Solo Side Quest" style={compactStyles.detailSecondaryButton} onPress={() => void shareCommunityQuest()}>
               <Text style={compactStyles.detailSecondaryButtonText}>Share public link</Text>
-            </Pressable>
-          ) : null}
-          {onToggleLike && quest.visibility === "public" && lifecycle === "published" ? (
-            <Pressable accessibilityRole="button" accessibilityLabel={quest.likeSummary?.likedByViewer ? "Unlike Community Solo Side Quest" : "Like Community Solo Side Quest"} style={compactStyles.detailSecondaryButton} disabled={likeBusy} onPress={() => void handleToggleLike()}>
-              <Text style={compactStyles.detailSecondaryButtonText}>{likeBusy ? "Saving..." : quest.likeSummary?.likedByViewer ? `Unlike · ${getLikeCount(quest.likeSummary)}` : `Like · ${getLikeCount(quest.likeSummary)}`}</Text>
             </Pressable>
           ) : null}
           {shareStatus ? <Text style={compactStyles.inlineSuccess}>{shareStatus}</Text> : null}
@@ -8615,7 +8685,13 @@ const compactStyles = StyleSheet.create({
   rowCompletedSeal: { position: "absolute", width: 18, height: 18, right: -4, bottom: -3 },
   rowStatusSealImage: { width: 35, height: 35, marginLeft: 6 },
   appRowText: { flex: 1, minWidth: 0, gap: 2 },
+  appRowTitleLine: { flexDirection: "row", alignItems: "center", gap: 7, minWidth: 0 },
   appRowTitle: { color: colors.paper, fontSize: 14, fontWeight: "800", flexShrink: 1 },
+  likePill: { flexShrink: 0, flexDirection: "row", alignItems: "center", gap: 3, minHeight: 24, paddingHorizontal: 7, paddingVertical: 3, borderRadius: 999, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  likePillLiked: { backgroundColor: "rgba(96,240,175,.14)", borderColor: "rgba(96,240,175,.38)" },
+  likePillBusy: { opacity: .62 },
+  likePillCount: { color: "rgba(255,247,232,.78)", fontSize: 11, lineHeight: 13, fontWeight: "900" },
+  likePillCountLiked: { color: colors.green },
   appRowMeta: { color: colors.muted, fontSize: 12 },
   sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   communitySubTabs: { flexDirection: "row", gap: 8, padding: 4, borderRadius: 18, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },
@@ -8740,7 +8816,9 @@ const compactStyles = StyleSheet.create({
   detailCoatGlowImage: { position: "absolute", width: 136, height: 148, opacity: .7, transform: [{ translateY: 7 }] },
   detailCoatImage: { width: 94, height: 104 },
   detailEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
+  detailTitleLine: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, alignSelf: "stretch" },
   detailTitle: { color: colors.paper, fontSize: 25, lineHeight: 28, fontWeight: "900", textAlign: "center", letterSpacing: -1.05 },
+  detailTitleWithAccessory: { flexShrink: 1, minWidth: 0 },
   detailGoal: { maxWidth: 318, color: colors.muted, fontSize: 13, lineHeight: 17, fontWeight: "700", textAlign: "center" },
   detailHint: { color: "rgba(199,189,169,.72)", fontSize: 10, lineHeight: 13, fontWeight: "800", textAlign: "center" },
   detailLatestCheck: { color: colors.gold, fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },

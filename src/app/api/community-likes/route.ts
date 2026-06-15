@@ -57,6 +57,8 @@ export async function POST(request: Request) {
 
   revalidatePath("/challenges/community");
   revalidatePath(`/challenges/community/${encodeURIComponent(targetId)}`);
+  revalidatePath("/challenges");
+  revalidatePath(`/challenges/${encodeURIComponent(targetId)}`);
   revalidatePath("/groupquests/public");
   revalidatePath(`/groupquests/${encodeURIComponent(targetId)}`);
   revalidatePath(returnTo);

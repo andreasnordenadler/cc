@@ -39,7 +39,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
   }).sort((a, b) => sortPublicGroupQuests(a, b, selectedSort, (quest) => likeSummaries.get("multiplayer", quest.id).count));
   const selectedHostQuest = selectedHost ? displayablePublicQuests.find((quest) => getHostKey(quest.hostName) === selectedHost) : null;
   const showOfficialLane = !selectedHost && !searchQuery;
-  const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map((quest) => toPublicQuestCard(quest, userId)) : [];
+  const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map((quest) => toPublicQuestCard(quest, userId, likeSummaries.get("multiplayer", quest.id))) : [];
   const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map((quest) => toPublicQuestCard(quest, userId, likeSummaries.get("multiplayer", quest.id)));
   const totalQuests = officialQuests.length + communityQuests.length;
 
@@ -168,7 +168,10 @@ function PublicQuestSection({ copy, quests, title }: { copy: string; quests: Ret
               <span>{quest.status}</span>
               {quest.official ? <small className="official-sqc-badge">{quest.officialLabel}</small> : null}
               {quest.isHost ? <small className="official-sqc-badge">Hosted by you</small> : quest.isJoined ? <small className="official-sqc-badge">Joined by you</small> : null}
-              <strong><Link href={quest.href}>{quest.title}</Link></strong>
+              <div className="side-quest-title-with-like public-groupquest-title-with-like">
+                <strong><Link href={quest.href}>{quest.title}</Link></strong>
+                <CommunityLikeButton targetType="multiplayer" targetId={quest.id} count={quest.likeSummary.count} likedByViewer={quest.likeSummary.likedByViewer} signedIn={quest.signedIn} returnTo="/groupquests/public" label={quest.title} />
+              </div>
               <p>{quest.copy}</p>
             </div>
             <div className="public-groupquest-meta public-multiplayer-rule-preview" aria-label={`${quest.title} rule preview`}>
@@ -181,7 +184,6 @@ function PublicQuestSection({ copy, quests, title }: { copy: string; quests: Ret
               <span>Next step</span>
               <div className="button-row">
                 <Link className="button secondary" href={quest.href}>Inspect and join</Link>
-                {!quest.official ? <CommunityLikeButton targetType="multiplayer" targetId={quest.id} count={quest.likeSummary.count} likedByViewer={quest.likeSummary.likedByViewer} signedIn={quest.signedIn} returnTo="/groupquests/public" /> : null}
                 {!quest.official ? <Link className="button ghost" href={`/groupquests/public?host=${encodeURIComponent(getHostKey(quest.hostName))}`}>More by host</Link> : null}
               </div>
             </div>

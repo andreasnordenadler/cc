@@ -36,6 +36,10 @@ export type MobileChallenge = {
       weirdness: string;
     };
   };
+  likeSummary?: {
+    count: number;
+    likedByViewer: boolean;
+  };
 };
 
 export type MobileDiscoveryChoice = {
@@ -175,6 +179,7 @@ export type MobileAccountState = {
   };
   customSideQuests?: MobileCustomSideQuest[];
   communitySideQuests?: MobileCustomSideQuest[];
+  officialSideQuestLikes?: Record<string, { count: number; likedByViewer: boolean }>;
   activeQuest: {
     id: string;
     title: string;
