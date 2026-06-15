@@ -7,11 +7,11 @@
 
 ## Active queue update — 2026-06-15 SQC Mobile active Solo step order correction
 
-- [ ] Correct active Solo detail next-step order.
+- [x] Correct active Solo detail next-step order.
   - added_at: 2026-06-15 14:10 Europe/Stockholm
   - source: Andreas screenshot feedback: the active Solo detail steps had the wrong sequence; correct order is play, complete Side Quest, come back/check.
   - scope: mobile active Solo detail copy only.
-  - proof: pending typecheck/lint/build, APK release/smoke, and release proof.
+  - proof: changed active Solo detail steps to `1 Play one new public game on your connected chess account`, `2 Complete your Side Quest during that game`, `3 Come back here and tap Check my latest game`; commit `2a0860a` pushed to `main`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v272; `pnpm mobile:release:github` published v273; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v273-2026-06-15.apk`; GitHub release `mobile-v273` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v273` with SHA256 `03769f69344e10ef2c2a154337306daabe3cad2fda28b9eb19ff0037d20ebaee`.
 
 ## Active queue update — 2026-06-15 SQC Mobile active Solo navigation clarity
 
@@ -61,7 +61,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 13:56 Europe/Stockholm
+Last updated: 2026-06-15 14:18 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
