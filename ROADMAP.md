@@ -61,7 +61,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 15:10 Europe/Stockholm
+Last updated: 2026-06-15 15:15 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
@@ -4082,7 +4082,7 @@ Andreas clarified that the previously listed items are still wanted and should b
   - added_at: 2026-06-15 15:08 Europe/Stockholm
   - source: Andreas screenshot feedback: hamburger and profile/avatar row were still vertically mismatched; profile text/avatar should move up to match the hamburger.
   - scope: mobile signed-in home header only.
-  - proof: added scoped `freshHeaderMenuAligned` offset so the signed-in profile/name/avatar row moves up against the floating hamburger baseline; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v278; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v278-2026-06-15.apk` with SHA256 `d5deeacf9d2ec3d57088a90b950320687c332937c294356adcc28a3f8c0dac79`.
+  - proof: added scoped `freshHeaderMenuAligned` offset so the signed-in profile/name/avatar row moves up against the floating hamburger baseline; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v278; `pnpm mobile:release:github` published v279; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v279-2026-06-15.apk`; GitHub release `mobile-v279` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v279` with SHA256 `3177404472b29126a53371f80b98dc8e07a79bedabfa688b202cf90cb0087933`.
 
 - [x] Make active Solo post-check next-step copy provider-generic.
   - added_at: 2026-06-15 14:55 Europe/Stockholm
