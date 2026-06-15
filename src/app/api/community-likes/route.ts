@@ -11,7 +11,6 @@ import {
 import type { UserMetadataRecord } from "@/lib/user-metadata";
 
 export async function POST(request: Request) {
-  const { userId } = await auth();
   const contentType = request.headers.get("content-type") ?? "";
   const payload = contentType.includes("application/json")
     ? await request.json().catch(() => ({})) as Record<string, unknown>
@@ -27,6 +26,8 @@ export async function POST(request: Request) {
       ? NextResponse.json({ ok: false, error: "invalid_like_target" }, { status: 400 })
       : NextResponse.redirect(new URL(returnTo, request.url), { status: 303 });
   }
+
+  const { userId } = await auth();
 
   if (!userId) {
     return contentType.includes("application/json")
