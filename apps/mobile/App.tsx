@@ -2773,8 +2773,8 @@ function CurrentSideQuestDetailModal({
                 </>
               ) : (
                 <>
-                  <ProofStep number="1" text={proofNeeded} />
-                  <ProofStep number="2" text="Play one new public game on your connected chess account." />
+                  <ProofStep number="1" text="Play one new public game on your connected chess account." />
+                  <ProofStep number="2" text="Complete your Side Quest during that game." />
                   <ProofStep number="3" text="Come back here and tap Check my latest game." />
                 </>
               )}

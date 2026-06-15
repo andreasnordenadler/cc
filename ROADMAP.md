@@ -4,6 +4,15 @@
 
 
 
+
+## Active queue update — 2026-06-15 SQC Mobile active Solo step order correction
+
+- [ ] Correct active Solo detail next-step order.
+  - added_at: 2026-06-15 14:10 Europe/Stockholm
+  - source: Andreas screenshot feedback: the active Solo detail steps had the wrong sequence; correct order is play, complete Side Quest, come back/check.
+  - scope: mobile active Solo detail copy only.
+  - proof: pending typecheck/lint/build, APK release/smoke, and release proof.
+
 ## Active queue update — 2026-06-15 SQC Mobile active Solo navigation clarity
 
 - [x] Make the active Solo card open the active Side Quest screen and clarify active detail next steps.
