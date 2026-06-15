@@ -1845,7 +1845,7 @@ function TodayDashboard({
 
   return (
     <View style={compactStyles.freshShell}>
-      <View style={compactStyles.freshHeader}>
+      <View style={[compactStyles.freshHeader, compactStyles.freshHeaderMenuAligned]}>
         <View style={compactStyles.homeMenuSpacer} />
         <View style={compactStyles.identityBlock}>
           <AccountIdentityLine
@@ -8600,6 +8600,7 @@ const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
   freshShell: { gap: 12 },
   freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 2, paddingTop: 0 },
+  freshHeaderMenuAligned: { marginTop: -18, marginBottom: 6 },
   freshHeaderCentered: { flexDirection: "column", justifyContent: "center", gap: 6, paddingHorizontal: 12 },
   centerText: { textAlign: "center" },
   identityBlock: { flex: 1, minWidth: 0, alignItems: "center", gap: 4 },
