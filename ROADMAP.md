@@ -3,11 +3,11 @@
 
 ## Active queue update — 2026-06-15 SQC inline thumbs-up likes
 
-- [ ] Replace like buttons with inline thumbs-up counters across SQC web + mobile.
+- [x] Replace like buttons with inline thumbs-up counters across SQC web + mobile.
   - added_at: 2026-06-15 12:36 Europe/Stockholm
   - source: Andreas requested clickable thumbs-up icons to the right of Side Quest names, green filled when liked, outline when not liked, counter to the right, and likes expanded to official Solo + official Multiplayer too.
   - scope: web and mobile; solo and multiplayer; community and official Side Quests; preserve one-like-per-user/unlike behavior and liked sorting.
-  - proof: pending implementation, checks, deployment, and APK release verification.
+  - proof: implemented inline thumbs-up/count UI on web official Solo, Community Solo, official/public Multiplayer, and matching mobile list/detail surfaces; official Solo mobile account payload now includes like summaries; official Solo web includes Most liked sorting; official/public Multiplayer likes use the same one-like-per-user/unlike metadata model; committed `a0cd14d` (`SQC: add inline thumbs-up likes`); verification passed: `pnpm --filter @sidequestchess/mobile typecheck`, `pnpm lint` (existing 3 warnings only), `pnpm build`, `pnpm mobile:release`, `pnpm mobile:release:github`, and installed APK smoke `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v265-2026-06-15.apk`; published GitHub release `mobile-v265` at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v265` with APK sha256 `89d35ae7109273afc6df6e12221bfc63c4ad2aa8260a6f73b4128428e1a10973`; production deploy/live smoke pending.
 
 ## Active queue update — 2026-06-15 SQC Mobile community like parity
 
@@ -25,7 +25,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 12:04 Europe/Stockholm
+Last updated: 2026-06-15 13:05 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
