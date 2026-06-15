@@ -61,7 +61,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 14:58 Europe/Stockholm
+Last updated: 2026-06-15 15:03 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
@@ -4082,7 +4082,7 @@ Andreas clarified that the previously listed items are still wanted and should b
   - added_at: 2026-06-15 14:55 Europe/Stockholm
   - source: Andreas screenshot feedback: after checking proof, the bottom next-step text referred to Lichess specifically even though the instruction should be generic for connected chess accounts.
   - scope: mobile active Solo detail post-check result copy only.
-  - proof: replaced `Next step: play one new public game on {accountLabel}` with `Next step: play one new public game on your connected chess account`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v276; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v276-2026-06-15.apk` with SHA256 `ef7f0b4676d0e7a3dad9723f01437bf62f4a10b202802bb567a40687212b403b`.
+  - proof: replaced `Next step: play one new public game on {accountLabel}` with `Next step: play one new public game on your connected chess account`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v276; `pnpm mobile:release:github` published v277; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v277-2026-06-15.apk`; GitHub release `mobile-v277` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v277` with SHA256 `b509db24037dbe6aac80d89147578db64df0b9629c30ba424a62b658f389a2c7`.
 
 - [x] Clean mobile Community Side Quest detail player-facing copy and contrast.
   - added_at: 2026-06-15 14:40 Europe/Stockholm
