@@ -2,6 +2,15 @@
 # CC Roadmap
 
 
+
+## Active queue update — 2026-06-15 SQC Mobile header alignment hotfix
+
+- [ ] Align hamburger menu with profile avatar in the mobile header.
+  - added_at: 2026-06-15 13:00 Europe/Stockholm
+  - source: Andreas screenshot feedback: hamburger menu was not aligned with the profile picture.
+  - scope: mobile header positioning only; keep existing hamburger actions/menu content unchanged.
+  - proof: pending typecheck/lint/build, Android release/smoke, and release proof.
+
 ## Active queue update — 2026-06-15 SQC like UI visual hotfix
 
 - [x] Replace confusing chip-like inline likes with quiet app-native thumbs.

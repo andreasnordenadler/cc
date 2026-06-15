@@ -1510,6 +1510,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
   const [menuOpen, setMenuOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const authenticated = isAuthenticatedAccount(account);
+  const menuTop = Math.max(insets.top + 10, 56);
 
   function openMenuTab(tab: AppTab) {
     setMenuOpen(false);
@@ -1529,12 +1530,12 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
   ];
 
   return (
-    <View pointerEvents="box-none" style={[compactStyles.globalMenuLayer, { top: Math.max(insets.top + 10, 34) }]}>
+    <View pointerEvents="box-none" style={[compactStyles.globalMenuLayer, { top: menuTop }]}>
       <Pressable accessibilityRole="button" accessibilityLabel={menuOpen ? "Close main menu" : "Open main menu"} style={[compactStyles.homeMenuButton, compactStyles.globalMenuButton, menuOpen && compactStyles.homeMenuButtonActive]} onPress={() => setMenuOpen((current) => !current)}>
         <MaterialCommunityIcons name="menu" size={22} color={colors.paper} />
       </Pressable>
       <Modal visible={menuOpen} transparent animationType="fade" onRequestClose={() => setMenuOpen(false)}>
-        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay, { paddingTop: Math.max(insets.top + 62, 88) }]}>
+        <View style={[compactStyles.homeMenuOverlay, compactStyles.globalMenuOverlay, { paddingTop: menuTop + 52 }]}>
           <Pressable style={compactStyles.homeMenuBackdrop} accessibilityRole="button" accessibilityLabel="Close main menu" onPress={() => setMenuOpen(false)} />
           <View style={compactStyles.homeMenuPanel} accessibilityLabel="Main menu">
             <View style={compactStyles.homeMenuItems}>
