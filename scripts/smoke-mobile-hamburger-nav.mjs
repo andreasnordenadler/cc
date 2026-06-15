@@ -247,7 +247,7 @@ try {
 }
 
 launchFresh();
-tapUi("Open Current Active Side Quest details", "solo-detail");
+tapUi("Open active Solo Side Quest", "solo-detail");
 dump = chooseMenuItem("Today", "solo-detail-to-today");
 try {
   assertIncludes(dump.xml, "ACTIVE SOLO SIDE QUEST", "Today dashboard after Solo detail menu navigation");

@@ -3,6 +3,15 @@
 
 
 
+
+## Active queue update — 2026-06-15 SQC Mobile active Solo navigation clarity
+
+- [ ] Make the active Solo card open the active Side Quest screen and clarify active detail next steps.
+  - added_at: 2026-06-15 13:43 Europe/Stockholm
+  - source: Andreas screenshot feedback: tapping inside the active Solo quest square should open the Side Quest screen; the active detail screen should clearly feel active and explain what to do next instead of showing an out-of-place `How proof works` panel.
+  - scope: mobile home active Solo card and active Solo detail modal only; preserve proof checking behavior.
+  - proof: pending typecheck/lint/build, APK release/smoke, and release proof.
+
 ## Active queue update — 2026-06-15 SQC Mobile header alignment hotfix
 
 - [x] Align hamburger menu with profile avatar in the mobile header.

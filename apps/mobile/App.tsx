@@ -28,6 +28,7 @@ import {
   type LayoutChangeEvent,
   type NativeScrollEvent,
   type ImageSourcePropType,
+  type GestureResponderEvent,
   type NativeSyntheticEvent,
   type ScrollViewProps,
 } from "react-native";
@@ -1751,6 +1752,10 @@ function TodayDashboard({
     }
   }
 
+  function stopCardPress(event: GestureResponderEvent) {
+    event.stopPropagation();
+  }
+
   async function runGroupQuestAction(groupQuestId: string, action: "join" | "leave" | "refresh" | "update" | "remove-participant", payload?: Record<string, unknown>) {
     if (!authBridge.isSignedIn) {
       showNativeOnlyNotice("Sign in to manage Multiplayer Side Quests in the app.");
@@ -1846,15 +1851,15 @@ function TodayDashboard({
         </Pressable>
       ) : null}
 
-      <View style={compactStyles.activeSoloSection}>
+      <Pressable accessibilityRole={signedIn.activeQuest ? "button" : undefined} accessibilityLabel={signedIn.activeQuest ? "Open active Solo Side Quest" : undefined} style={compactStyles.activeSoloSection} onPress={signedIn.activeQuest ? () => setCurrentDetailOpen(true) : undefined}>
         <View style={compactStyles.activeSoloRefreshRow}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={() => void runActiveCheck()}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={(event) => { stopCardPress(event); void runActiveCheck(); }}>
             <MaterialCommunityIcons name={actionState.busy ? "sync" : "refresh"} size={17} color={colors.gold} />
           </Pressable>
         </View>
         {signedIn.activeQuest ? (
           <View>
-          <Pressable accessibilityRole="button" accessibilityLabel="Open Current Active Side Quest details" style={compactStyles.activeSoloSummary} onPress={() => setCurrentDetailOpen(true)}>
+          <View style={compactStyles.activeSoloSummary}>
             <View style={compactStyles.currentQuestHero}>
               <View style={compactStyles.coatHeroMarker}>
                 {activeChallenge ? <Image source={getChallengeCoatGlowSource(activeChallenge.id)} style={[compactStyles.coatHeroGlowImage, { tintColor: getSafeBadgeColors(activeChallenge).glow }]} resizeMode="contain" /> : null}
@@ -1868,12 +1873,12 @@ function TodayDashboard({
             </View>
             {actionState.message && !latestCheckFailed ? <Text style={compactStyles.inlineSuccess}>{actionState.message}</Text> : null}
             {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
-          </Pressable>
+          </View>
           {canViewCurrentProof && activeQuestReceipt ? <ActiveQuestMiniProofBoard receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Completed" /> : null}
           {!canViewCurrentProof && latestCheckFailed && activeQuestReceipt ? <ActiveQuestFailureSummary receipt={activeQuestReceipt} goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Not Completed" /> : null}
           {!canViewCurrentProof && (!activeQuestReceipt || isPendingReceipt(activeQuestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={activeQuestPickedLabel} latestCheckLabel={activeQuestLatestCheck} statusLabel="Not Completed" /> : null}
           <View style={compactStyles.activeSoloActions}>
-            <Pressable accessibilityRole="button" accessibilityLabel={canViewCurrentProof ? "Pick your next Solo Side Quest" : "Explore More Solo Side Quests"} style={compactStyles.soloSecondaryAction} onPress={() => onSelectTab("sideQuests")}>
+            <Pressable accessibilityRole="button" accessibilityLabel={canViewCurrentProof ? "Pick your next Solo Side Quest" : "Explore More Solo Side Quests"} style={compactStyles.soloSecondaryAction} onPress={(event) => { stopCardPress(event); onSelectTab("sideQuests"); }}>
               <Text style={compactStyles.soloSecondaryActionText}>{canViewCurrentProof ? "Pick your next Solo Side Quest" : "Explore More Solo Side Quests"}</Text>
             </Pressable>
           </View>
@@ -1892,7 +1897,7 @@ function TodayDashboard({
             </Pressable>
           </View>
         )}
-      </View>
+      </Pressable>
 
       <View style={compactStyles.pullRefreshHint}>
         <MaterialCommunityIcons name="arrow-down" size={13} color="rgba(199,189,169,.72)" />
@@ -2751,16 +2756,28 @@ function CurrentSideQuestDetailModal({
               {challenge ? <Image source={getChallengeCoatGlowSource(challenge.id)} style={[compactStyles.detailCoatGlowImage, { tintColor: getSafeBadgeColors(challenge).glow }]} resizeMode="contain" /> : null}
               <Image source={activeCoatSource} style={compactStyles.detailCoatImage} resizeMode="contain" />
             </Pressable>
+            <View style={compactStyles.activeSoloPill}>
+              <Text style={compactStyles.activeSoloPillText}>{completed ? "Completed Solo Side Quest" : "Active Solo Side Quest"}</Text>
+            </View>
             <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
           </View>
 
           <View style={compactStyles.detailPanelStrong}>
-            <Text style={compactStyles.detailPanelTitle}>How proof works</Text>
+            <Text style={compactStyles.detailPanelTitle}>{completed ? "Completed — proof accepted" : "Do this next"}</Text>
             <View style={compactStyles.proofStepList}>
-              <ProofStep number="1" text="Pick a Side Quest." />
-              <ProofStep number="2" text="Play a new public Lichess or Chess.com game." />
-              <ProofStep number="3" text="Return here and check your latest game." />
+              {completed ? (
+                <>
+                  <ProofStep number="1" text="Your latest eligible game completed this Side Quest." />
+                  <ProofStep number="2" text="View the proof receipt or pick your next Solo Side Quest." />
+                </>
+              ) : (
+                <>
+                  <ProofStep number="1" text={proofNeeded} />
+                  <ProofStep number="2" text="Play one new public game on your connected chess account." />
+                  <ProofStep number="3" text="Come back here and tap Check my latest game." />
+                </>
+              )}
             </View>
           </View>
 
