@@ -2749,11 +2749,6 @@ function CurrentSideQuestDetailModal({
 
   const completed = activeQuest.completed || latestCheckPassed;
   const latestCheckFailed = isFailedReceipt(latestReceipt);
-  const accountLabel = signedIn.chessAccounts.lichessUsername
-    ? `lichess · ${signedIn.chessAccounts.lichessUsername}`
-    : signedIn.chessAccounts.chessComUsername
-      ? `chess.com · ${signedIn.chessAccounts.chessComUsername}`
-      : "No chess account connected";
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
@@ -2840,7 +2835,7 @@ function CurrentSideQuestDetailModal({
             <View style={compactStyles.detailPanelStrong} accessibilityLabel="Latest proof check result">
               <Text style={compactStyles.detailPanelTitle}>{completed ? "Proof check passed" : latestCheckFailed ? "No completion yet" : "No qualifying game yet"}</Text>
               <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.detailPanelCopy}>{actionState.message}</Text>
-              {!completed ? <Text style={compactStyles.detailPanelCopy}>Next step: play one new public game on {accountLabel}, then tap Check my latest game again.</Text> : null}
+              {!completed ? <Text style={compactStyles.detailPanelCopy}>Next step: play one new public game on your connected chess account, then tap Check my latest game again.</Text> : null}
             </View>
           ) : null}
           {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
