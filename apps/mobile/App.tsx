@@ -1149,9 +1149,7 @@ const MOBILE_COMING_SOON_QUESTS: BrowseQuest[] = [
 ];
 
 const SQC_COAT_OF_ARMS_ASSET = require("./assets/sqc-coat-of-arms.png") as ImageSourcePropType;
-const SQC_BLACK_SEAL_ASSET = require("./assets/stamps/sqc-black-seal.png") as ImageSourcePropType;
-const SQC_MULTIPLAYER_SEAL_ASSET = require("./assets/stamps/sqc-multiplayer-seal.png") as ImageSourcePropType;
-const getMultiplayerSealSource = (quest?: { official?: boolean | null; id?: string | null } | null) => (quest?.official || quest?.id?.startsWith("official-") ? SQC_BLACK_SEAL_ASSET : SQC_MULTIPLAYER_SEAL_ASSET);
+const MOBILE_BADGES_WITH_BAKED_BACKING = new Set(["pawn-storm-maniac", "no-castle-club", "knightmare-mode"]);
 const SQC_GOLD_SEAL_ASSET = require("./assets/stamps/sqc-gold-seal.png") as ImageSourcePropType;
 const SQC_SILVER_SEAL_ASSET = require("./assets/stamps/sqc-silver-seal.png") as ImageSourcePropType;
 const SQC_BRONZE_SEAL_ASSET = require("./assets/stamps/sqc-bronze-seal.png") as ImageSourcePropType;
@@ -1965,7 +1963,8 @@ function TodayDashboard({
       <View style={compactStyles.activeMultiplayerSection}>
         <Pressable accessibilityRole="button" accessibilityLabel="Open active Multiplayer Side Quest details" style={compactStyles.activeMultiplayerSummary} onPress={() => activeMultiplayer[0] ? setJoinedMultiplayerId(activeMultiplayer[0].id) : onSelectTab("multiplayerSideQuests")}>
           <View style={compactStyles.multiplayerHeroMarker}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerHeroSeal} resizeMode="contain" />
+            <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerHeroGlow} resizeMode="contain" />
+            <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerHeroSeal} resizeMode="contain" />
           </View>
           <View style={compactStyles.activeSoloPill}>
             <Text style={compactStyles.activeSoloPillText}>Active Multiplayer Side Quests</Text>
@@ -1975,12 +1974,12 @@ function TodayDashboard({
 
         <View style={compactStyles.activeMultiplayerList}>
           {visibleActiveMultiplayer.length ? visibleActiveMultiplayer.map((quest) => (
-            <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Hosted" : "Joined"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setJoinedMultiplayerId(quest.id)} />
+            <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Host" : "Joined"} sourceBadge={quest.isOwner ? "Hosted" : "Joined"} imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setJoinedMultiplayerId(quest.id)} />
           )) : (
             <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onSelectTab("multiplayerSideQuests")} />
           )}
           {activeMultiplayer.length > 5 ? (
-            <AppRow title={showAllActiveMultiplayer ? "Show fewer Multiplayer Side Quests" : "Show all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top five." : `${activeMultiplayer.length - 5} more active Multiplayer Side Quest${activeMultiplayer.length - 5 === 1 ? "" : "s"}.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
+            <AppRow title={showAllActiveMultiplayer ? "Show fewer Multiplayer Side Quests" : "Show all active Multiplayer Side Quests"} meta={showAllActiveMultiplayer ? "Collapse this list back to the top five." : `${activeMultiplayer.length - 5} more active Multiplayer Side Quest${activeMultiplayer.length - 5 === 1 ? "" : "s"}.`} status={showAllActiveMultiplayer ? "Collapse" : "Expand"} imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => setShowAllActiveMultiplayer((current) => !current)} />
           ) : null}
         </View>
 
@@ -2075,8 +2074,7 @@ function TodayDashboard({
                   meta={`Multiplayer placement · ${item.trophy.rankLabel}`}
                   status={undefined}
                   statusImageSource={getMultiplayerTrophySealSource(item.trophy.placement)}
-                  imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-                  variant="seal"
+                  imageSource={SQC_COAT_OF_ARMS_ASSET}
                   onPress={() => onSelectTab("coatOfArms")}
                 />
               );
@@ -2323,7 +2321,8 @@ function JoinedMultiplayerQuestModal({
           }} />}
         >
           <View style={compactStyles.multiplayerDetailHero}>
-            <Image source={getMultiplayerSealSource(quest)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+            <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
+            <Image source={getMultiplayerQuestCoatSource(quest.title)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{quest.official || quest.id.startsWith("official-") ? "SQC Official Multiplayer Side Quest" : quest.isOwner ? "Hosted by you" : "Community Multiplayer Side Quest"}</Text>
             <View style={compactStyles.detailTitleLine}>
               <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithAccessory]}>{cleanMultiplayerTitle(quest.title)}</Text>
@@ -2436,7 +2435,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from SQC." status="Live data" imageSource={getMultiplayerSealSource(quest)} variant="seal" onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="Join this Multiplayer Side Quest or refresh proof to pull live player standings from SQC." status="Live data" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => undefined} />
                   )}
                 </View>
               </View>
@@ -2483,7 +2482,7 @@ function JoinedMultiplayerQuestModal({
                   {leaderboardRows.length ? leaderboardRows.map((row) => (
                     <MultiplayerLeaderboardRow key={`${row.rank}-${row.name}`} row={row} compact />
                   )) : (
-                    <AppRow title="No leaderboard rows yet" meta="SQC will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={getMultiplayerSealSource(quest)} variant="seal" onPress={() => undefined} />
+                    <AppRow title="No leaderboard rows yet" meta="SQC will show real joined players here after this Multiplayer Side Quest has live participant data." status="Live data" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => undefined} />
                   )}
                 </View>
               </View>
@@ -3126,7 +3125,7 @@ function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   return (
     <AppSection title="Help & Support" action="Open" onAction={onOpenHelp}>
       <AppRow title="How SQC works" meta="Side Quests, proof checks, Coat of Arms, and Multiplayer help." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
-      <AppRow title="Report a problem" meta="Tell us what happened and we’ll take a look." imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={onOpenHelp} />
+      <AppRow title="Report a problem" meta="Tell us what happened and we’ll take a look." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
     </AppSection>
   );
 }
@@ -3369,7 +3368,7 @@ function AppRow({
     <Pressable accessibilityRole="button" style={compactStyles.appRow} onPress={onPress}>
       {imageSource ? (
         <View style={compactStyles.rowCoatFrame}>
-          {variant === "seal" ? <View style={compactStyles.rowSealGlow} /> : null}
+          {variant === "seal" ? <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.rowSealGlow} resizeMode="contain" /> : null}
           {variant === "coat" && !glowSource ? <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.rowCoatSoftGlow} resizeMode="contain" /> : null}
           {glowSource ? <Image source={glowSource} style={[compactStyles.rowCoatGlowImage, { tintColor: glowColor ?? colors.gold }]} resizeMode="contain" /> : null}
           {overlaySeal ? <View style={compactStyles.rowCompletedSealBackdrop} /> : null}
@@ -3415,12 +3414,12 @@ function getMultiplayerTrophySealSource(placement: "Gold" | "Silver" | "Bronze")
 function getMultiplayerQuestCoatSource(title: string): ImageSourcePropType {
   const lowerTitle = title.toLowerCase();
   if (lowerTitle.includes("queen")) return CHALLENGE_COAT_IMAGE_ASSETS["queen-never-heard-of-her"];
-  if (lowerTitle.includes("knightmare")) return CHALLENGE_COAT_IMAGE_ASSETS["knightmare-mode"];
+  if (lowerTitle.includes("knightmare")) return SQC_COAT_OF_ARMS_ASSET;
   if (lowerTitle.includes("rookless") || lowerTitle.includes("rookless rampage")) return CHALLENGE_COAT_IMAGE_ASSETS["rookless-rampage"];
   if (lowerTitle.includes("rook")) return require("./assets/badges/v7/coming-soon-clean/rook-lift-internship-badge.png");
   if (lowerTitle.includes("one bishop")) return CHALLENGE_COAT_IMAGE_ASSETS["one-bishop-to-rule-them-all"];
   if (lowerTitle.includes("bishop")) return CHALLENGE_COAT_IMAGE_ASSETS["bishop-field-trip"];
-  if (lowerTitle.includes("pawn storm")) return CHALLENGE_COAT_IMAGE_ASSETS["pawn-storm-maniac"];
+  if (lowerTitle.includes("pawn storm")) return SQC_COAT_OF_ARMS_ASSET;
   return SQC_COAT_OF_ARMS_ASSET;
 }
 
@@ -3810,7 +3809,7 @@ function getLeaderboardProgressPercent(verified: string) {
 }
 
 function getChallengeCoatGlowSource(challengeId: string): ImageSourcePropType {
-  return CHALLENGE_COAT_GLOW_ASSETS[challengeId] ?? CHALLENGE_COAT_IMAGE_ASSETS[challengeId] ?? CHALLENGE_COAT_GLOW_ASSETS["finish-any-game"];
+  return CHALLENGE_COAT_GLOW_ASSETS[challengeId] ?? SQC_GENERIC_COAT_GLOW_ASSET;
 }
 
 function getBrowseStatusTone(status: string): "green" | "gold" | "orange" | "danger" | "absurd" | null {
@@ -5121,8 +5120,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
                 meta={`Multiplayer · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
                 sourceBadge="Multiplayer"
                 status={trophy.placement}
-                imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-                variant="seal"
+                imageSource={SQC_COAT_OF_ARMS_ASSET}
                 statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
                 onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen the Multiplayer Lobby to inspect the full leaderboard and receipt context.`)}
               />
@@ -5277,8 +5275,7 @@ function AccountSoloSideQuestSection({
         title="Multiplayer Side Quests"
         meta={multiplayerMeta}
         status={multiplayerStatus}
-        imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-        variant="seal"
+        imageSource={SQC_COAT_OF_ARMS_ASSET}
         onPress={() => onSelectTab("multiplayerSideQuests")}
       />
       <AppRow
@@ -5329,8 +5326,7 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
           meta={`Multiplayer trophy · ${trophy.rankLabel}`}
           status={undefined}
           statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-          imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
-          variant="seal"
+          imageSource={SQC_COAT_OF_ARMS_ASSET}
           onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy stays in the app.`)}
         />
       ))}
@@ -6683,7 +6679,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getJoinedMultiplayerListMeta(quest)} status={quest.isOwner ? "Hosting" : getJoinedMultiplayerListStatus(quest)} sourceBadge={quest.isOwner ? "Hosted by you" : "Joined"} imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : (
@@ -6706,7 +6702,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {officialPublicGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {officialPublicGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setOfficialMultiplayerId(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>No official Multiplayer Side Quests are open right now.</Text>}
@@ -6759,7 +6755,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>{allCommunityMultiplayerQuests.length ? multiplayerHostFilter ? "No public Community Multiplayer Side Quests match this host shelf/search. Nothing private is shown from guessed host context." : "No community Multiplayer Side Quests match this search/filter." : "No public community Multiplayer Side Quests right now."}</Text>}
@@ -6791,7 +6787,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleHistoryGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleHistoryGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={SQC_MULTIPLAYER_SEAL_ASSET} variant="seal" onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>No finished Multiplayer Side Quests yet.</Text>}
@@ -6812,7 +6808,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           </View>
           <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
-              <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Create Multiplayer Side Quest</Text>
               <Text style={compactStyles.detailTitle}>Start a shared Multiplayer Side Quest.</Text>
               <Text style={compactStyles.detailGoal}>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</Text>
@@ -7011,7 +7008,10 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.sectionTitle}>Active official leaderboards.</Text>
         {currentOfficialGroupQuests.length ? currentOfficialGroupQuests.map((quest) => (
           <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open current official leaderboard ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            <View style={styles.activeMultiplayerSealFrame}>
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={styles.activeMultiplayerSealGlow} resizeMode="contain" />
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            </View>
             <View style={styles.activeMultiplayerCopy}>
               <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
               <Text style={styles.activeMultiplayerMeta}>{getOfficialMultiplayerListStatus(quest)} · {getOfficialMultiplayerListMeta(quest)}</Text>
@@ -7025,7 +7025,10 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.sectionTitle}>Latest final results.</Text>
         {previousOfficialGroupQuests.length ? previousOfficialGroupQuests.map((quest) => (
           <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open previous official result ${cleanMultiplayerTitle(quest.title)}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedQuestId(quest.id)}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            <View style={styles.activeMultiplayerSealFrame}>
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={styles.activeMultiplayerSealGlow} resizeMode="contain" />
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            </View>
             <View style={styles.activeMultiplayerCopy}>
               <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
               <Text style={styles.activeMultiplayerMeta}>Final · {quest.playersLabel ?? "Players pending"} · {quest.leaderboardRows?.[0]?.name ? `Winner: ${quest.leaderboardRows[0].name}` : "Podium pending"}</Text>
@@ -7039,7 +7042,10 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
         <Text style={styles.sectionTitle}>Browse older official weeks.</Text>
         {officialWeeks.length ? officialWeeks.map((week) => (
           <Pressable key={week.id} accessibilityRole="button" accessibilityLabel={`Open official results for ${week.label}`} style={styles.groupquestsActiveRow} onPress={() => setSelectedWeekId(week.id)}>
-            <Image source={SQC_BLACK_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            <View style={styles.activeMultiplayerSealFrame}>
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={styles.activeMultiplayerSealGlow} resizeMode="contain" />
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+            </View>
             <View style={styles.activeMultiplayerCopy}>
               <Text style={styles.activeMultiplayerTitle}>{week.label}</Text>
               <Text style={styles.activeMultiplayerMeta}>{week.rangeLabel} · {week.quests.length} official result{week.quests.length === 1 ? "" : "s"}</Text>
@@ -7075,14 +7081,15 @@ function OfficialMultiplayerLeaderboardsScreen({ bootstrap, account, authBridge,
           </View>
           <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
-              <Image source={SQC_BLACK_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
+              <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
               <Text style={compactStyles.multiplayerDetailKicker}>Official weekly archive</Text>
               <Text style={compactStyles.detailTitle}>{selectedWeek?.label}</Text>
               <Text style={compactStyles.detailGoal}>{selectedWeek?.rangeLabel}</Text>
             </View>
             <View style={compactStyles.appRows}>
               {selectedWeek?.quests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={SQC_BLACK_SEAL_ASSET} variant="seal" onPress={() => setSelectedQuestId(quest.id)} />
+                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={`Final · ${quest.playersLabel ?? "Players pending"}`} status={quest.leaderboardRows?.[0]?.rank ?? "Results"} imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setSelectedQuestId(quest.id)} />
               ))}
             </View>
           </ScrollHintedScrollView>
@@ -8138,7 +8145,10 @@ function AccountShell({
             <Text style={styles.eyebrow}>Active Multiplayer Side Quests</Text>
             {userCreatedActiveGroupQuests.length ? userCreatedActiveGroupQuests.map((quest) => (
               <Pressable key={quest.id} accessibilityRole="button" accessibilityLabel={`Open ${cleanMultiplayerTitle(quest.title)}`} style={styles.activeMultiplayerRow} onPress={() => onSelectTab("multiplayerSideQuests")}>
-                <Image source={{ uri: absoluteAssetUrl("/stamps/sqc-multiplayer-seal.png") }} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+                <View style={styles.activeMultiplayerSealFrame}>
+                  <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={styles.activeMultiplayerSealGlow} resizeMode="contain" />
+                  <Image source={SQC_COAT_OF_ARMS_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+                </View>
                 <View style={styles.activeMultiplayerCopy}>
                   <Text style={styles.activeMultiplayerTitle}>{cleanMultiplayerTitle(quest.title)}</Text>
                   <Text style={styles.activeMultiplayerMeta}>{getJoinedMultiplayerListStatus(quest)} · {getJoinedMultiplayerListMeta(quest)}</Text>
@@ -8649,6 +8659,7 @@ function isAuthenticatedAccount(account: MobileAccountResponse | null): account 
 }
 
 function getChallengeCoatImageSource(challenge: MobileChallenge): ImageSourcePropType {
+  if (MOBILE_BADGES_WITH_BAKED_BACKING.has(challenge.id)) return SQC_COAT_OF_ARMS_ASSET;
   const imageUrl = getSafeBadgeIdentity(challenge).imageUrl ?? CHALLENGE_COAT_IMAGE_PATHS[challenge.id] ?? null;
   if (imageUrl?.includes("/badges/custom/")) return getCustomQuestImageSource(imageUrl);
   return CHALLENGE_COAT_IMAGE_ASSETS[challenge.id] ?? { uri: getChallengeCoatImageUrl(challenge) ?? absoluteAssetUrl("/badges/v6/proof-loop-test-badge.png") };
@@ -8775,6 +8786,7 @@ const compactStyles = StyleSheet.create({
   activeMultiplayerSection: { position: "relative", gap: 8, marginTop: 70, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.064)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
   activeMultiplayerSummary: { gap: 10, alignItems: "center" },
   multiplayerHeroMarker: { position: "absolute", top: -116, alignSelf: "center", width: 112, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible", zIndex: 7 },
+  multiplayerHeroGlow: { position: "absolute", width: 142, height: 152, opacity: .9, transform: [{ translateY: 4 }] },
   multiplayerHeroSeal: { width: 100, height: 100 },
   activeMultiplayerList: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
   trophyCabinetSection: { position: "relative", gap: 8, marginTop: 100, padding: 13, paddingTop: 24, borderRadius: 24, backgroundColor: "rgba(255,247,232,.064)", borderWidth: 1, borderColor: "rgba(245,200,106,.18)" },
@@ -8855,8 +8867,8 @@ const compactStyles = StyleSheet.create({
   rowCoatSoftGlow: { position: "absolute", width: 50, height: 54, opacity: .9, transform: [{ translateY: 2 }] },
   rowCoatImage: { width: 30, height: 34 },
   rowCoatImageDim: { opacity: .52 },
-  rowSealGlow: { position: "absolute", width: 44, height: 44, borderRadius: 999, backgroundColor: "rgba(245,200,106,.16)", opacity: .66, shadowColor: colors.gold, shadowOpacity: .42, shadowRadius: 14, shadowOffset: { width: 0, height: 0 } },
-  rowSealImage: { width: 30, height: 30, borderRadius: 15, opacity: .9 },
+  rowSealGlow: { position: "absolute", width: 52, height: 54, opacity: .9, transform: [{ translateY: 2 }] },
+  rowSealImage: { width: 30, height: 30, opacity: .9 },
   rowCompletedSealBackdrop: { position: "absolute", width: 22, height: 22, right: -6, bottom: -5, borderRadius: 999, backgroundColor: "#a81717", transform: [{ scaleX: 1.08 }, { scaleY: 1.02 }] },
   rowCompletedSeal: { position: "absolute", width: 18, height: 18, right: -4, bottom: -3 },
   rowStatusSealImage: { width: 35, height: 35, marginLeft: 6 },
@@ -8935,7 +8947,8 @@ const compactStyles = StyleSheet.create({
   proofScrollMeta: { color: "rgba(255,247,232,.64)", fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   proofImageHint: { color: "rgba(199,189,169,.72)", fontSize: 11, lineHeight: 15, fontWeight: "800", textAlign: "center", marginTop: -4 },
   multiplayerDetailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 1 },
-  multiplayerDetailSeal: { width: 116, height: 116, borderRadius: 58 },
+  multiplayerDetailSealGlow: { position: "absolute", width: 138, height: 146, opacity: .9, transform: [{ translateY: 4 }] },
+  multiplayerDetailSeal: { width: 116, height: 116 },
   multiplayerRuleQuestCoatWrap: { width: 108, height: 114, alignItems: "center", justifyContent: "center", overflow: "visible" },
   multiplayerRuleQuestCoatGlow: { position: "absolute", width: 124, height: 132, opacity: .9, transform: [{ translateY: 4 }] },
   multiplayerRuleQuestCoatGlowImage: { position: "absolute", width: 124, height: 132, opacity: .58, transform: [{ translateY: 4 }] },
@@ -9553,7 +9566,9 @@ const styles = StyleSheet.create({
   currentMissionBody: { color: colors.muted, fontSize: 14, lineHeight: 19 },
   currentMissionMultiplayer: { gap: 5, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "rgba(96,240,175,.2)", backgroundColor: "rgba(96,240,175,.07)" },
   activeMultiplayerRow: { flexDirection: "row", gap: 10, alignItems: "center", padding: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.18)" },
-  activeMultiplayerSeal: { width: 36, height: 36 },
+  activeMultiplayerSealFrame: { width: 40, height: 42, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  activeMultiplayerSealGlow: { position: "absolute", width: 52, height: 56, opacity: .86, transform: [{ translateY: 2 }] },
+  activeMultiplayerSeal: { width: 34, height: 36 },
   activeMultiplayerCopy: { flex: 1, gap: 2 },
   activeMultiplayerTitle: { color: colors.paper, fontSize: 14, fontWeight: "900" },
   activeMultiplayerMeta: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
