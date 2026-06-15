@@ -2,6 +2,15 @@
 # CC Roadmap
 
 
+## Active queue update — 2026-06-15 SQC Mobile optical header alignment
+
+- [x] Fix optical vertical alignment of the start-screen hamburger and profile circles.
+  - added_at: 2026-06-15 18:31 Europe/Stockholm
+  - source: Andreas screenshot feedback on `/Users/sam/.openclaw/media/inbound/file_1161---6bc3b830-c44a-4911-9516-ee430c14e269.jpg`: hamburger/profile touch bounds aligned, but the visible circles still did not look vertically aligned.
+  - scope: mobile signed-in start-screen hamburger visual treatment only; keep the profile avatar/header identity layout and menu actions unchanged.
+  - proof: kept hamburger/avatar bounds aligned at `[42,154][147,259]` and `[943,154][1048,259]`, then removed the hamburger's downward shadow/elevation bias so the visible circle body aligns optically with the avatar; screenshot QA on `artifacts/mobile-screenshots/header-align-v290.png` passed with visible circle bodies aligned and possible residual delta only `0–1px`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built and verified Android `mobile-v290`; GitHub release `mobile-v290` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v290` with SHA256 `0177576c8d525ed76ffa89e2f56843b31a4dfbb87fcd9a4a5f801672e5a3d292`.
+
+
 ## Active queue update — 2026-06-15 SQC coat transparency fix
 
 - [x] Remove visible transparency holes from the Back Rank Goblin and Pawn Only Picnic coat-of-arms assets.

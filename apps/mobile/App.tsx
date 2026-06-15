@@ -8710,7 +8710,7 @@ const compactStyles = StyleSheet.create({
   accountAvatarImage: { width: "100%", height: "100%", borderRadius: 20 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   globalMenuLayer: { position: "absolute", left: 16, zIndex: 120, elevation: 24 },
-  globalMenuButton: { shadowColor: "#000", shadowOpacity: .24, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 12 },
+  globalMenuButton: { shadowColor: "#000", shadowOpacity: .18, shadowRadius: 8, shadowOffset: { width: 0, height: 0 }, elevation: 4 },
   homeMenuButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.58)", borderWidth: 1, borderColor: "rgba(255,247,232,.16)" },
   homeMenuButtonActive: { backgroundColor: "rgba(245,200,106,.18)", borderColor: "rgba(245,200,106,.28)" },
   homeMenuSpacer: { width: 40, height: 40 },
