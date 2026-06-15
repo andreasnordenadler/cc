@@ -1,9 +1,17 @@
 
 # CC Roadmap
 
-Last updated: 2026-06-14 14:05 Europe/Stockholm
+Last updated: 2026-06-15 04:58 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
+## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
+
+- [x] Add a `Create Custom Side Quest` hamburger menu item before `Create Multiplayer Side Quest`.
+  - added_at: 2026-06-15 04:54 Europe/Stockholm
+  - source: Andreas screenshot feedback requested another `+ Create Custom Side Quest` menu item placed before `+ Create Multiplayer Side Quest`.
+  - scope: add the new global hamburger action; route it directly into the custom Side Quest builder; extend hamburger smoke coverage so the builder path is checked before the multiplayer-create path.
+  - proof: implemented locally in `apps/mobile/App.tsx` and `scripts/smoke-mobile-hamburger-nav.mjs`; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with the existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built and verified Android APK `artifacts/mobile-releases/sqc-mobile-android-v261-2026-06-15.apk` (`0.1.261` / versionCode `261` / sha256 `cde2623d243ae6c836b3825202810e378b8045342fab2a1fed09e3d0dc376547`); `pnpm mobile:smoke:hamburger -- --apk artifacts/mobile-releases/sqc-mobile-android-v261-2026-06-15.apk` passed.
+
 ## Active queue update — 2026-06-14 SQC Mobile v260 end-user review polish
 
 - [x] Release SQC Mobile v260 implementing full end-user review recommendations 1–6.

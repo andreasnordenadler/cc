@@ -71,7 +71,11 @@ function findNode(xml, predicate) {
 }
 
 function findByLabel(xml, label) {
-  return findNode(xml, (node) => node.text === label || node.desc === label);
+  const nodes = allNodes(xml);
+  return nodes.find((node) => node.desc === label && node.clickable === "true")
+    || nodes.find((node) => node.text === label && node.clickable === "true")
+    || nodes.find((node) => node.desc === label)
+    || nodes.find((node) => node.text === label);
 }
 
 function findByLabelLoose(xml, label) {
@@ -158,7 +162,7 @@ launchFresh();
 let dump = chooseMenuItem("Multiplayer Lobby", "home-to-multiplayer-lobby");
 try {
   assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after menu navigation");
-  assertIncludes(dump.xml, "Community public", "Community Multiplayer metadata");
+  assertIncludes(dump.xml, "Create Multiplayer Side Quest", "Multiplayer create action on lobby");
   assertNotIncludes(dump.xml, "Official public", "legacy community/official metadata wording");
 } finally {
   dump.cleanup();
@@ -208,6 +212,16 @@ try {
   assertIncludes(dump.xml, "My Custom Side Quests", "My Custom Side Quests after menu navigation");
   assertNotIncludes(dump.xml, "Custom Library", "legacy Custom Library label");
   assertNotIncludes(dump.xml, "My Custom Library", "legacy My Custom Library heading");
+} finally {
+  dump.cleanup();
+}
+
+launchFresh();
+dump = chooseMenuItem("Create Custom Side Quest", "home-to-create-custom-side-quest");
+try {
+  assertIncludes(dump.xml, "Custom Side Quest", "Create Custom Side Quest builder");
+  assertIncludes(dump.xml, "Build your Side Quest", "custom Side Quest builder intro");
+  assertIncludes(dump.xml, "Side Quest Name", "custom Side Quest builder name section");
 } finally {
   dump.cleanup();
 }

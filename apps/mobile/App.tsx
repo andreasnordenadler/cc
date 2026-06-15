@@ -38,7 +38,7 @@ import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
-type SideQuestCatalogIntent = "official" | "community-discover" | "my-custom";
+type SideQuestCatalogIntent = "official" | "community-discover" | "my-custom" | "create-custom";
 
 type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" | "multiplayer" | "accounts";
 
@@ -1405,6 +1405,13 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
 
+  function openCustomSideQuestCreate() {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    setShell((current) => ({ ...current, activeTab: "sideQuests", pendingSideQuestCatalogIntent: "create-custom" }));
+    setScrollState((current) => ({ ...current, y: 0 }));
+    requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
+  }
+
   function openSupport() {
     setHelpOpen(true);
   }
@@ -1490,7 +1497,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </>
         ) : null}
       </ScrollView>
-      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenCustomSideQuests={openCustomSideQuests} onOpenSupport={openSupport} />
+      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenCustomSideQuests={openCustomSideQuests} onOpenCustomSideQuestCreate={openCustomSideQuestCreate} onOpenSupport={openSupport} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={isAuthenticatedAccount(displayAccount) ? displayAccount : null} authBridge={authBridge} />
     </SafeAreaView>
   );
@@ -1498,7 +1505,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
 }
 
 
-function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate, onOpenCustomSideQuests, onOpenSupport }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void; onOpenCustomSideQuests: () => void; onOpenSupport: () => void }) {
+function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplayerCreate, onOpenCustomSideQuests, onOpenCustomSideQuestCreate, onOpenSupport }: { activeTab: AppTab; account: MobileAccountResponse | null; onSelectTab: (tab: AppTab) => void; onOpenMultiplayerCreate: () => void; onOpenCustomSideQuests: () => void; onOpenCustomSideQuestCreate?: () => void; onOpenSupport: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const authenticated = isAuthenticatedAccount(account);
@@ -1515,6 +1522,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
     { id: "coats", label: "Trophy Cabinet", icon: "shield-star", action: () => openMenuTab("coatOfArms"), selected: activeTab === "coatOfArms" },
     { id: "account", label: authenticated ? "My SQC" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
     { id: "custom", label: "My Custom Side Quests", icon: "pencil-ruler", action: () => { setMenuOpen(false); onOpenCustomSideQuests(); }, selected: activeTab === "sideQuests" },
+    { id: "create-custom", label: "Create Custom Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); (onOpenCustomSideQuestCreate ?? onOpenCustomSideQuests)(); } },
     { id: "host", label: "Create Multiplayer Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
     { id: "support", label: "Help & Support", icon: "lifebuoy", action: () => { setMenuOpen(false); onOpenSupport(); } },
   ];
@@ -4125,6 +4133,13 @@ function QuestBoardDashboard({
         setCommunitySearch("");
         setCommunityCreatorFilter(null);
         setCustomLibraryFilter("all");
+      } else if (pendingSideQuestCatalogIntent === "create-custom") {
+        setSideQuestCatalogTab("community");
+        setCommunityView("mine");
+        setCommunitySearch("");
+        setCommunityCreatorFilter(null);
+        setCustomLibraryFilter("all");
+        openCustomEditor(null);
       } else if (pendingSideQuestCatalogIntent === "community-discover") {
         setSideQuestCatalogTab("community");
         setCommunityView("discover");
