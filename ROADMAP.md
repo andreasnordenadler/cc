@@ -2,6 +2,15 @@
 # CC Roadmap
 
 
+## Active queue update — 2026-06-15 SQC Mobile start-screen top header alignment
+
+- [x] Align the start-screen profile picture with the round hamburger menu and center the user/chess account identity at the top.
+  - added_at: 2026-06-15 18:02 Europe/Stockholm
+  - source: Andreas screenshot feedback: profile picture must vertically align with the round hamburger menu; username and chess platform connections must sit at top center.
+  - scope: mobile signed-in start-screen header layout only.
+  - proof: removed the fake left spacer, made the profile avatar an absolute 40px header control, centered the identity block between the hamburger/avatar controls, and adjusted the signed-in header baseline from actual emulator bounds; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v285; `pnpm mobile:release:github` published v286; installed APK bound-check passed for `artifacts/mobile-releases/sqc-mobile-android-v286-2026-06-15.apk` with hamburger bounds `[42,154][147,259]`, avatar bounds `[943,154][1048,259]`, center_y_delta `0.0px`, and centered identity text `SAM` / `and72nor`; screenshot proof saved at `artifacts/mobile-releases/sqc-mobile-header-v286.png`; GitHub release `mobile-v286` is live at `https://github.com/andreasnordenadler/cc/releases/tag/mobile-v286` with SHA256 `eb38862095dab3a2e611f9b44300a6fee6c5b9b89b84d95fa909657a535d851e`.
+
+
 
 
 

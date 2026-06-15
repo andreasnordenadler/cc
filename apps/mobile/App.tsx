@@ -1846,7 +1846,6 @@ function TodayDashboard({
   return (
     <View style={compactStyles.freshShell}>
       <View style={[compactStyles.freshHeader, compactStyles.freshHeaderMenuAligned]}>
-        <View style={compactStyles.homeMenuSpacer} />
         <View style={compactStyles.identityBlock}>
           <AccountIdentityLine
             name={signedIn.profile.displayName}
@@ -8693,10 +8692,10 @@ const compactStyles = StyleSheet.create({
   stack: { gap: 8 },
   freshShell: { gap: 12 },
   freshHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10, paddingHorizontal: 2, paddingTop: 0 },
-  freshHeaderMenuAligned: { marginTop: -18, marginBottom: 6 },
+  freshHeaderMenuAligned: { height: 40, marginTop: -46, marginBottom: 6, justifyContent: "center", position: "relative" },
   freshHeaderCentered: { flexDirection: "column", justifyContent: "center", gap: 6, paddingHorizontal: 12 },
   centerText: { textAlign: "center" },
-  identityBlock: { flex: 1, minWidth: 0, alignItems: "center", gap: 4 },
+  identityBlock: { position: "absolute", left: 58, right: 58, top: 0, minWidth: 0, height: 40, alignItems: "center", justifyContent: "center", gap: 3 },
   freshTitle: { color: colors.paper, fontSize: 24, lineHeight: 28, fontWeight: "900", letterSpacing: -.65 },
   freshSubtle: { color: colors.muted, fontSize: 12, fontWeight: "800", marginTop: 2 },
   identityLine: { alignItems: "center", gap: 4, minWidth: 0, maxWidth: "100%" },
@@ -8707,8 +8706,8 @@ const compactStyles = StyleSheet.create({
   identityPlatformLichess: { color: colors.green, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   identityPlatformChessCom: { color: "#76a9ff", backgroundColor: "rgba(118,169,255,.1)", borderWidth: 1, borderColor: "rgba(118,169,255,.18)" },
   identityUsername: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
-  accountDot: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
-  accountAvatarImage: { width: "100%", height: "100%", borderRadius: 19 },
+  accountDot: { position: "absolute", right: 2, top: 0, width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  accountAvatarImage: { width: "100%", height: "100%", borderRadius: 20 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   globalMenuLayer: { position: "absolute", left: 16, zIndex: 120, elevation: 24 },
   globalMenuButton: { shadowColor: "#000", shadowOpacity: .24, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 12 },
