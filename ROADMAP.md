@@ -61,7 +61,7 @@
   - scope: persist one-like-per-user state, show like counts and current-user liked state on community solo + multiplayer listings/details, add like-aware sorting hooks.
   - proof: implemented Clerk-metadata-backed `sqcCommunityLikes` with signed-in like/unlike route, one-like-per-user normalization, Community Solo list/detail buttons, public Community Multiplayer list/detail buttons, `Most liked` sort hooks, and like-weighted `Top` sorting; commits `6b9e548`, `080b358`, and `89ee6f6` pushed to `main`; `pnpm tsc --noEmit` passed; targeted `pnpm lint` passed; `pnpm build` passed; production deploy guard passed; Vercel production deploy `https://cc-955d91h8x-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; live smoke passed for `/challenges/community`, `/challenges/community?sort=liked`, `/groupquests/public`, `/groupquests/public?sort=liked`, `/sign-in`; `/api/community-likes` invalid target returns 400 and signed-out valid target returns 401; production 500 scan after the final fix returned no new 500s.
 
-Last updated: 2026-06-15 14:18 Europe/Stockholm
+Last updated: 2026-06-15 14:45 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
@@ -4075,3 +4075,11 @@ Andreas clarified that the previously listed items are still wanted and should b
     - Testing/internal wording is removed from customer-facing Community Solo Side Quest copy.
   - Verification: `pnpm lint`, `pnpm build`, local production rendered QA of `/challenges/community` (47/47 cards), and local production rendered QA of all 47 linked community detail pages.
   - Proof: `docs/SQC_COMMUNITY_SOLO_SIDE_QUEST_CUSTOMER_CLEANUP_2026-06-12.md`, `artifacts/community-ornate-coats-2026-06-12/local-detail-verification.json`, and `artifacts/community-ornate-coats-2026-06-12/local-community-page-full.png`.
+
+## Active Queue
+
+- [x] Clean mobile Community Side Quest detail player-facing copy and contrast.
+  - added_at: 2026-06-15 14:40 Europe/Stockholm
+  - source: Andreas screenshot feedback: the detail view looked too white and exposed creator/internal wording to end users.
+  - scope: mobile custom/community Side Quest detail copy, related creator/host shelf copy, Multiplayer rule display copy, and proof detail card contrast.
+  - proof: replaced raw `White`/`Black` rule option titles with `Play as White`/`Play as Black`; translated player-facing rules such as `White only` into `Play as White`; hid visibility/creator-management copy from public viewer mode; removed `raw custom quest config`, `creator context`, `local creator shelf`, and private-account implementation text; toned proof detail cards from bright cream to dark/gold; `pnpm --filter @sidequestchess/mobile typecheck` passed; `pnpm lint` passed with existing 3 warnings only; `pnpm build` passed; `pnpm mobile:release` built v274; installed APK smoke passed for `artifacts/mobile-releases/sqc-mobile-android-v274-2026-06-15.apk` with SHA256 `a7e79c5aba388b61a54c769e398372ea32a42ee25028b22cf83e7f5068b173cb`.

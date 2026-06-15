@@ -893,9 +893,28 @@ function getMultiplayerRuleOptionCopy(ruleId: string, option: string) {
     if (option === "Rated only") return { title: "Rated", helper: "Only rated games count" };
     return { title: "Casual", helper: "Only casual games count" };
   }
-  if (option === "Any color") return { title: "Any", helper: "White or Black games count" };
-  if (option === "White only") return { title: "White", helper: "Only games as White count" };
-  return { title: "Black", helper: "Only games as Black count" };
+  if (option === "Any color") return { title: "Any side", helper: "Games as White or Black count" };
+  if (option === "White only") return { title: "Play as White", helper: "Only games where you have the white pieces count" };
+  return { title: "Play as Black", helper: "Only games where you have the black pieces count" };
+}
+
+function formatMultiplayerRuleLabelForPlayers(label: string) {
+  if (/^color$/i.test(label)) return "Side to play";
+  if (/^rated$/i.test(label)) return "Rated games";
+  if (/^time\s*control$/i.test(label)) return "Time control";
+  return label;
+}
+
+function formatMultiplayerRuleValueForPlayers(value: string) {
+  return value
+    .replace(/^Any color$/i, "Play as White or Black")
+    .replace(/^White only$/i, "Play as White")
+    .replace(/^Black only$/i, "Play as Black")
+    .replace(/^Any rated state$/i, "Rated or casual games count")
+    .replace(/^Rated only$/i, "Rated games only")
+    .replace(/^Casual only$/i, "Casual games only")
+    .replace(/^Any time control$/i, "Any normal time control")
+    .replace(/^Fresh public games inside this window$/i, "Play a fresh public game before the time runs out");
 }
 
 type BrowseQuest = MobileChallenge & {
@@ -2360,14 +2379,14 @@ function JoinedMultiplayerQuestModal({
               ) : null}
             </View>
             {quest.inviteMode === "private-key" && quest.isOwner ? <Text style={styles.microcopy}>This private invite link includes the invite code. Only share it with players you want in.</Text> : null}
-            {onReport && !quest.official && !quest.isOwner ? <Text style={styles.microcopy}>Community Multiplayer reports go to SQC support with the quest ID and host context, not private player data.</Text> : null}
+            {onReport && !quest.official && !quest.isOwner ? <Text style={styles.microcopy}>Reports help SQC keep shared Side Quests useful and safe.</Text> : null}
           </View>
 
           {!quest.official && quest.hostName ? (
             <View style={compactStyles.multiplayerNativeCard}>
-              <Text style={compactStyles.multiplayerCardEyebrow}>Host context</Text>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Created by</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Hosted by {quest.hostName}</Text>
-              <Text style={styles.microcopy}>Open a local host shelf to browse other public Community Multiplayer Side Quests from this host. Private invite-only tables and account details stay hidden.</Text>
+              <Text style={styles.microcopy}>See more public Side Quests from this host when they share them.</Text>
             </View>
           ) : null}
 
@@ -2422,8 +2441,8 @@ function JoinedMultiplayerQuestModal({
                 <View style={compactStyles.multiplayerListStack}>
                   {ruleRows.map((row) => (
                     <View key={row.label} style={compactStyles.multiplayerRuleRow}>
-                      <Text style={compactStyles.multiplayerRuleLabel}>{row.label}</Text>
-                      <Text style={compactStyles.multiplayerRuleValue}>{row.value}</Text>
+                      <Text style={compactStyles.multiplayerRuleLabel}>{formatMultiplayerRuleLabelForPlayers(row.label)}</Text>
+                      <Text style={compactStyles.multiplayerRuleValue}>{formatMultiplayerRuleValueForPlayers(row.value)}</Text>
                     </View>
                   ))}
                 </View>
@@ -2468,8 +2487,8 @@ function JoinedMultiplayerQuestModal({
                 <View style={compactStyles.multiplayerListStack}>
                   {ruleRows.slice(0, 4).map((row) => (
                     <View key={row.label} style={compactStyles.multiplayerRuleRow}>
-                      <Text style={compactStyles.multiplayerRuleLabel}>{row.label}</Text>
-                      <Text style={compactStyles.multiplayerRuleValue}>{row.value}</Text>
+                      <Text style={compactStyles.multiplayerRuleLabel}>{formatMultiplayerRuleLabelForPlayers(row.label)}</Text>
+                      <Text style={compactStyles.multiplayerRuleValue}>{formatMultiplayerRuleValueForPlayers(row.value)}</Text>
                     </View>
                   ))}
                 </View>
@@ -3510,15 +3529,15 @@ function getCustomLibraryMeta(quest: Pick<CustomLibraryQuest, "summary" | "visib
 }
 
 function getCustomVisibilityTitle(visibility?: "private" | "public") {
-  return visibility === "public" ? "Public: shareable when ready" : "Private: only you can find it";
+  return visibility === "public" ? "Public Side Quest" : "Private Side Quest";
 }
 
 function getCustomVisibilityExplanation(visibility?: "private" | "public") {
   if (visibility === "public") {
-    return "Other players may see the title, goal, and Coat of Arms when you share it or when public custom Side Quest browsing arrives. Your editor details and account stay private.";
+    return "Other players can discover and play this Side Quest when it is shared.";
   }
 
-  return "Only you can find and manage this Side Quest. Other players can play it in a Multiplayer Side Quest you host, but they cannot browse, edit, or reuse the private setup unless you share it.";
+  return "Only you can find and manage this Side Quest.";
 }
 
 function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | "published" | "archived"; visibility?: "private" | "public" }) {
@@ -3531,8 +3550,11 @@ function getCustomStateSavedMessage(name: string, next: { lifecycle?: "draft" | 
 const CUSTOM_SIDE_QUEST_SINGLE_CREST_PATH = "/badges/custom/community/community-coat-01.png";
 
 function getCustomStatsLine(stats?: MobileCustomSideQuest["stats"]) {
-  if (!stats) return "No attempts yet";
-  return `Solo Side Quest: ${stats.soloAttempts} ${stats.soloAttempts === 1 ? "try" : "tries"}, ${stats.soloCompletions} ${stats.soloCompletions === 1 ? "completion" : "completions"} · Multiplayer Side Quest: used ${stats.multiplayerLineups} ${stats.multiplayerLineups === 1 ? "time" : "times"}, ${stats.multiplayerFulfillments} ${stats.multiplayerFulfillments === 1 ? "completion" : "completions"}`;
+  if (!stats) return "No plays yet.";
+  const plays = stats.soloAttempts + stats.multiplayerLineups;
+  const completions = stats.soloCompletions + stats.multiplayerFulfillments;
+  if (!plays && !completions) return "No plays yet.";
+  return `${plays} ${plays === 1 ? "play" : "plays"} · ${completions} ${completions === 1 ? "completion" : "completions"}`;
 }
 
 function getLikeSummaryLine(likeSummary?: { count: number; likedByViewer: boolean }) {
@@ -4386,7 +4408,7 @@ function QuestBoardDashboard({
                   {communityCreatorFilter ? (
                     <View style={compactStyles.communityEmptyPanel}>
                       <Text style={compactStyles.communityEmptyTitle}>Creator shelf: {communityCreatorFilter}</Text>
-                      <Text style={compactStyles.communityEmptyCopy}>Showing public Community Solo Side Quests from this creator only. Private drafts and account details stay hidden.</Text>
+                      <Text style={compactStyles.communityEmptyCopy}>Showing public Community Solo Side Quests from this creator.</Text>
                       <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Solo Side Quest creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
                         <Text style={compactStyles.secondaryActionText}>Show all creators</Text>
                       </Pressable>
@@ -4432,7 +4454,7 @@ function QuestBoardDashboard({
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
                   <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? communityCreatorFilter ? "That creator shelf is empty." : "No matches yet." : "No public Community Side Quests yet."}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator shelf, search text, or filter. Nothing private is shown from guessed creator context." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows."}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator filter, search text, or category." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows."}</Text>
                   <View style={compactStyles.actionRowTight}>
                     <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
                       <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
@@ -5001,7 +5023,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
               />
             ))}
           </View>
-          <Text style={styles.microcopy}>These are account trophy records only; private player/account details stay out of the cabinet.</Text>
+          <Text style={styles.microcopy}>These are your earned Side Quest trophies.</Text>
         </View>
       ) : null}
 
@@ -6587,7 +6609,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           {multiplayerHostFilter ? (
             <View style={compactStyles.communityEmptyPanel}>
               <Text style={compactStyles.communityEmptyTitle}>Host shelf: {multiplayerHostFilter}</Text>
-              <Text style={compactStyles.communityEmptyCopy}>Showing public Community Multiplayer Side Quests from this host only. Private invite-only tables and account details stay hidden.</Text>
+              <Text style={compactStyles.communityEmptyCopy}>Showing public Community Multiplayer Side Quests from this host.</Text>
               <Pressable accessibilityRole="button" accessibilityLabel="Show all Multiplayer hosts" style={compactStyles.secondaryAction} onPress={() => setMultiplayerHostFilter(null)}>
                 <Text style={compactStyles.secondaryActionText}>Show all hosts</Text>
               </Pressable>
@@ -7279,6 +7301,7 @@ function CustomSideQuestDetailModal({
   const canStart = lifecycle === "published";
   const statusLabel = getCustomLifecycleStatus(quest, active ? quest.id : null, completed);
   const ruleDetails = getCustomRuleDetailLines(quest.config, quest.summary);
+  const canManageQuest = Boolean(onEdit || onSaveState || onDelete);
 
   async function handleStart() {
     if (!quest || busy || active || completed || !canStart) return;
@@ -7442,16 +7465,18 @@ function CustomSideQuestDetailModal({
               ))}
             </View>
             <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>Only safe rule summaries are shown; raw custom quest config stays hidden.</Text>
+            <Text style={compactStyles.proofScrollMeta}>Complete these conditions in one eligible public game.</Text>
           </View>
 
-          <View style={compactStyles.proofScrollCard}>
-            <Text style={compactStyles.proofScrollEyebrow}>Visibility</Text>
-            <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityTitle(quest.visibility)}</Text>
-            <Text style={compactStyles.proofScrollCopy}>{getCustomVisibilityExplanation(quest.visibility)}</Text>
-            <View style={compactStyles.proofScrollRule} />
-            <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Playable as a Solo Side Quest and in your hosted Multiplayer Side Quests" : "Publish it before playing"}</Text>
-          </View>
+          {canManageQuest ? (
+            <View style={compactStyles.proofScrollCard}>
+              <Text style={compactStyles.proofScrollEyebrow}>Visibility</Text>
+              <Text style={compactStyles.proofScrollTitle}>{getCustomVisibilityTitle(quest.visibility)}</Text>
+              <Text style={compactStyles.proofScrollCopy}>{getCustomVisibilityExplanation(quest.visibility)}</Text>
+              <View style={compactStyles.proofScrollRule} />
+              <Text style={compactStyles.proofScrollMeta}>{statusLabel} · {canStart ? "Ready to play as Solo or Multiplayer" : "Publish it before playing"}</Text>
+            </View>
+          ) : null}
 
           <View style={compactStyles.proofScrollCard}>
             <Text style={compactStyles.proofScrollEyebrow}>Stats</Text>
@@ -7463,11 +7488,11 @@ function CustomSideQuestDetailModal({
 
           {quest.creatorName ? (
             <View style={compactStyles.proofScrollCard}>
-              <Text style={compactStyles.proofScrollEyebrow}>Creator context</Text>
+              <Text style={compactStyles.proofScrollEyebrow}>Creator</Text>
               <Text style={compactStyles.proofScrollTitle}>Made by {quest.creatorName}</Text>
-              <Text style={compactStyles.proofScrollCopy}>Open a local creator shelf to browse other public Community Solo Side Quests from this creator.</Text>
+              <Text style={compactStyles.proofScrollCopy}>Browse more public Side Quests from this creator when available.</Text>
               <View style={compactStyles.proofScrollRule} />
-              <Text style={compactStyles.proofScrollMeta}>Private drafts and account details stay hidden.</Text>
+              <Text style={compactStyles.proofScrollMeta}>Community Side Quest</Text>
             </View>
           ) : null}
 
@@ -8768,12 +8793,12 @@ const compactStyles = StyleSheet.create({
   completedProofSealBadgeText: { color: colors.gold, fontSize: 11, fontWeight: "900", textTransform: "uppercase", letterSpacing: 1.1 },
   completedProofKicker: { color: colors.green, fontSize: 11, lineHeight: 14, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .8 },
   completedProofBadgeName: { color: colors.paper, opacity: .88, fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
-  proofScrollCard: { gap: 6, paddingVertical: 14, paddingHorizontal: 14, borderRadius: 18, backgroundColor: "rgba(255,247,232,.92)", shadowColor: "#000", shadowOpacity: .26, shadowRadius: 18, shadowOffset: { width: 0, height: 10 } },
-  proofScrollEyebrow: { color: "#7f1d1d", fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .9, textAlign: "center" },
-  proofScrollTitle: { color: "#20130c", fontSize: 18, lineHeight: 22, fontWeight: "900", textAlign: "center", letterSpacing: -.4 },
-  proofScrollCopy: { color: "#4a2b1c", fontSize: 12, lineHeight: 17, fontWeight: "700", textAlign: "center" },
-  proofScrollRule: { height: 1, marginVertical: 4, backgroundColor: "rgba(127,29,29,.2)" },
-  proofScrollMeta: { color: "#7f1d1d", fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
+  proofScrollCard: { gap: 6, paddingVertical: 14, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.18)", backgroundColor: "rgba(32,19,12,.74)", shadowColor: "#000", shadowOpacity: .2, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } },
+  proofScrollEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .9, textAlign: "center" },
+  proofScrollTitle: { color: colors.paper, fontSize: 18, lineHeight: 22, fontWeight: "900", textAlign: "center", letterSpacing: -.4 },
+  proofScrollCopy: { color: "rgba(255,247,232,.78)", fontSize: 12, lineHeight: 17, fontWeight: "700", textAlign: "center" },
+  proofScrollRule: { height: 1, marginVertical: 4, backgroundColor: "rgba(245,200,106,.14)" },
+  proofScrollMeta: { color: "rgba(255,247,232,.64)", fontSize: 12, lineHeight: 16, fontWeight: "900", textAlign: "center" },
   proofImageHint: { color: "rgba(199,189,169,.72)", fontSize: 11, lineHeight: 15, fontWeight: "800", textAlign: "center", marginTop: -4 },
   multiplayerDetailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 1 },
   multiplayerDetailSeal: { width: 116, height: 116, borderRadius: 58 },
