@@ -958,6 +958,58 @@ const DEFAULT_BADGE_IDENTITY: MobileChallenge["badgeIdentity"] = {
   },
 };
 
+
+const COMMUNITY_SIDE_QUEST_COLOR_PALETTES: Array<MobileChallenge["badgeIdentity"]["colors"]> = [
+  { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
+  { primary: "#60f0af", secondary: "#145c44", glow: "#60f0af" },
+  { primary: "#76a9ff", secondary: "#1e3f78", glow: "#76a9ff" },
+  { primary: "#ff5f9f", secondary: "#6e1d3f", glow: "#ff5f9f" },
+  { primary: "#c084fc", secondary: "#4c1d95", glow: "#c084fc" },
+  { primary: "#fb7185", secondary: "#7f1d1d", glow: "#fb7185" },
+  { primary: "#2dd4bf", secondary: "#134e4a", glow: "#2dd4bf" },
+  { primary: "#f97316", secondary: "#7c2d12", glow: "#f97316" },
+  { primary: "#38bdf8", secondary: "#075985", glow: "#38bdf8" },
+  { primary: "#a3e635", secondary: "#365314", glow: "#a3e635" },
+  { primary: "#e879f9", secondary: "#701a75", glow: "#e879f9" },
+  { primary: "#facc15", secondary: "#713f12", glow: "#facc15" },
+  { primary: "#4ade80", secondary: "#14532d", glow: "#4ade80" },
+  { primary: "#818cf8", secondary: "#312e81", glow: "#818cf8" },
+  { primary: "#f472b6", secondary: "#831843", glow: "#f472b6" },
+  { primary: "#22d3ee", secondary: "#164e63", glow: "#22d3ee" },
+  { primary: "#fb923c", secondary: "#7c2d12", glow: "#fb923c" },
+  { primary: "#bef264", secondary: "#3f6212", glow: "#bef264" },
+  { primary: "#93c5fd", secondary: "#1e3a8a", glow: "#93c5fd" },
+  { primary: "#fda4af", secondary: "#881337", glow: "#fda4af" },
+  { primary: "#5eead4", secondary: "#115e59", glow: "#5eead4" },
+  { primary: "#fdba74", secondary: "#9a3412", glow: "#fdba74" },
+  { primary: "#86efac", secondary: "#166534", glow: "#86efac" },
+  { primary: "#a5b4fc", secondary: "#3730a3", glow: "#a5b4fc" },
+  { primary: "#f0abfc", secondary: "#86198f", glow: "#f0abfc" },
+  { primary: "#67e8f9", secondary: "#155e75", glow: "#67e8f9" },
+  { primary: "#fde047", secondary: "#854d0e", glow: "#fde047" },
+  { primary: "#34d399", secondary: "#065f46", glow: "#34d399" },
+  { primary: "#60a5fa", secondary: "#1d4ed8", glow: "#60a5fa" },
+  { primary: "#f9a8d4", secondary: "#9d174d", glow: "#f9a8d4" },
+  { primary: "#14b8a6", secondary: "#0f766e", glow: "#14b8a6" },
+  { primary: "#ea580c", secondary: "#7c2d12", glow: "#ea580c" },
+  { primary: "#84cc16", secondary: "#3f6212", glow: "#84cc16" },
+  { primary: "#6366f1", secondary: "#312e81", glow: "#6366f1" },
+  { primary: "#ec4899", secondary: "#831843", glow: "#ec4899" },
+  { primary: "#06b6d4", secondary: "#164e63", glow: "#06b6d4" },
+  { primary: "#eab308", secondary: "#713f12", glow: "#eab308" },
+  { primary: "#10b981", secondary: "#064e3b", glow: "#10b981" },
+  { primary: "#3b82f6", secondary: "#1e40af", glow: "#3b82f6" },
+  { primary: "#d946ef", secondary: "#701a75", glow: "#d946ef" },
+];
+
+function getCommunitySideQuestColors(seed: string): MobileChallenge["badgeIdentity"]["colors"] {
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) >>> 0;
+  }
+  return COMMUNITY_SIDE_QUEST_COLOR_PALETTES[hash % COMMUNITY_SIDE_QUEST_COLOR_PALETTES.length] ?? DEFAULT_BADGE_IDENTITY.colors;
+}
+
 function getSafeBadgeIdentity(challenge?: MobileChallenge | null): MobileChallenge["badgeIdentity"] {
   return challenge?.badgeIdentity ?? DEFAULT_BADGE_IDENTITY;
 }
@@ -1181,9 +1233,9 @@ const TABS: Array<
   | { id: AppTab; label: string; iconKind: "image"; imagePath: string }
   | { id: AppTab; label: string; iconKind: "vector"; iconName: keyof typeof MaterialCommunityIcons.glyphMap }
 > = [
-  { id: "home", label: "Today", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
+  { id: "home", label: "Home", iconKind: "image", imagePath: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
   { id: "sideQuests", label: "Side Quests", iconKind: "image", imagePath: "/sqc-logo-v11.png" },
-  { id: "multiplayerSideQuests", label: "Multiplayer Lobby", iconKind: "vector", iconName: "account-group" },
+  { id: "multiplayerSideQuests", label: "Multiplayer Side Quests", iconKind: "vector", iconName: "account-group" },
   { id: "coatOfArms", label: "Trophy Cabinet", iconKind: "image", imagePath: "/badges/v6/proof-loop-test-badge.png" },
   { id: "account", label: "Account", iconKind: "vector", iconName: "account-circle" },
 ];
@@ -1539,13 +1591,13 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
   }
 
   const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
-    { id: "home", label: "Today", icon: "home-variant", action: () => openMenuTab("home"), selected: activeTab === "home" },
+    { id: "home", label: "Home", icon: "home-variant", action: () => openMenuTab("home"), selected: activeTab === "home" },
     { id: "sideQuests", label: "Solo Side Quests", icon: "flag-checkered", action: () => openMenuTab("sideQuests"), selected: activeTab === "sideQuests" },
-    { id: "multiplayer", label: "Multiplayer Lobby", icon: "account-group", action: () => openMenuTab("multiplayerSideQuests"), selected: activeTab === "multiplayerSideQuests" },
+    { id: "multiplayer", label: "Multiplayer Side Quests", icon: "account-group", action: () => openMenuTab("multiplayerSideQuests"), selected: activeTab === "multiplayerSideQuests" },
     { id: "coats", label: "Trophy Cabinet", icon: "shield-star", action: () => openMenuTab("coatOfArms"), selected: activeTab === "coatOfArms" },
-    { id: "account", label: authenticated ? "My SQC" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
     { id: "custom", label: "My Custom Side Quests", icon: "pencil-ruler", action: () => { setMenuOpen(false); onOpenCustomSideQuests(); }, selected: activeTab === "sideQuests" },
     { id: "create-custom", label: "Create Custom Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); (onOpenCustomSideQuestCreate ?? onOpenCustomSideQuests)(); } },
+    { id: "account", label: authenticated ? "My Account" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
     { id: "host", label: "Create Multiplayer Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
     { id: "support", label: "Help & Support", icon: "lifebuoy", action: () => { setMenuOpen(false); onOpenSupport(); } },
   ];
@@ -1639,7 +1691,7 @@ function TodayDashboard({
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const latestReceipt = signedIn?.latestReceipt;
   const activeOfficialChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
-  const activeCustomQuest = signedIn?.activeQuest?.id ? signedIn.customSideQuests?.find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeCustomQuest = signedIn?.activeQuest?.id ? [...(signedIn.customSideQuests ?? []), ...(signedIn.communitySideQuests ?? [])].find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
   const activeChallenge = activeOfficialChallenge ?? (signedIn?.activeQuest ? buildCustomActiveChallenge(signedIn.activeQuest, activeCustomQuest) : null);
   const activeCoatSource = activeChallenge
     ? getChallengeCoatImageSource(activeChallenge)
@@ -1664,6 +1716,7 @@ function TodayDashboard({
     message: null,
     error: null,
   });
+  const [soloLikeBusyId, setSoloLikeBusyId] = useState<string | null>(null);
   const [currentDetailOpen, setCurrentDetailOpen] = useState(false);
   const [joinedMultiplayerId, setJoinedMultiplayerId] = useState<string | null>(null);
   const joinedMultiplayerQuest = joinedMultiplayerId ? activeMultiplayer.find((quest) => quest.id === joinedMultiplayerId) ?? null : null;
@@ -1703,6 +1756,25 @@ function TodayDashboard({
       return;
     }
     showNativeOnlyNotice("This result is saved. Open it from the completed Side Quest card once account sync finishes.");
+  }
+
+  async function toggleActiveSoloLike() {
+    if (!signedIn?.activeQuest?.id || !authBridge.isSignedIn) {
+      Alert.alert("Sign in to like Side Quests", "Likes are saved to your SQC account.");
+      return;
+    }
+    if (soloLikeBusyId === signedIn.activeQuest.id) return;
+    const likeSummary = activeCustomQuest?.likeSummary ?? getOfficialChallengeLikeSummary(account, signedIn.activeQuest.id);
+    setSoloLikeBusyId(signedIn.activeQuest.id);
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await runMobileCommunityLikeAction({ sessionToken, targetType: "solo", targetId: signedIn.activeQuest.id, intent: likeSummary?.likedByViewer ? "unlike" : "like" });
+      await Promise.resolve(onAccountUpdated());
+    } catch (caught) {
+      Alert.alert("Could not update like", caught instanceof Error ? caught.message : "Try again in a moment.");
+    } finally {
+      setSoloLikeBusyId(null);
+    }
   }
 
   const showNewCompletionCelebration = useCallback((
@@ -1940,6 +2012,9 @@ function TodayDashboard({
         latestReceipt={activeQuestReceipt ?? null}
         canViewCurrentProof={canViewCurrentProof}
         actionState={actionState}
+        likeSummary={activeCustomQuest?.likeSummary ?? (signedIn.activeQuest?.id ? getOfficialChallengeLikeSummary(account, signedIn.activeQuest.id) : undefined)}
+        likeBusy={soloLikeBusyId === signedIn.activeQuest?.id}
+        onToggleLike={toggleActiveSoloLike}
         onClose={() => setCurrentDetailOpen(false)}
         onRunCheck={runActiveCheck}
         onViewProof={openCurrentProof}
@@ -2724,6 +2799,9 @@ function CurrentSideQuestDetailModal({
   latestReceipt,
   canViewCurrentProof,
   actionState,
+  likeSummary,
+  likeBusy = false,
+  onToggleLike,
   onClose,
   onRunCheck,
   onViewProof,
@@ -2744,6 +2822,9 @@ function CurrentSideQuestDetailModal({
   latestReceipt: MobileAccountState["latestReceipt"];
   canViewCurrentProof: boolean;
   actionState: { busy: boolean; message: string | null; error: string | null };
+  likeSummary?: { count: number; likedByViewer: boolean };
+  likeBusy?: boolean;
+  onToggleLike?: () => void;
   onClose: () => void;
   onRunCheck: () => Promise<void>;
   onViewProof: () => void;
@@ -2782,7 +2863,10 @@ function CurrentSideQuestDetailModal({
             <View style={compactStyles.activeSoloPill}>
               <Text style={compactStyles.activeSoloPillText}>{completed ? "Completed Solo Side Quest" : "Active Solo Side Quest"}</Text>
             </View>
-            <Text style={compactStyles.detailTitle}>{activeQuest.title}</Text>
+            <View style={compactStyles.detailTitleLikeRow}>
+              <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithLike]}>{activeQuest.title}</Text>
+              {onToggleLike ? <MobileLikePill likeSummary={likeSummary} label={activeQuest.title} busy={likeBusy} onPress={onToggleLike} /> : null}
+            </View>
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
           </View>
 
@@ -2804,14 +2888,11 @@ function CurrentSideQuestDetailModal({
             </View>
           </View>
 
-          <View style={compactStyles.detailPanel}>
-            <DetailRow label="Picked" value={pickedLabel} />
-            <DetailRow label="What to do" value={proofNeeded} />
-            <DetailRow label="Latest check" value={latestCheckLabel} tone={latestCheckPassed ? "good" : "default"} />
-          </View>
+          {completed && latestReceipt ? <ActiveQuestMiniProofBoard receipt={latestReceipt} goal={activeQuestGoal} pickedLabel={pickedLabel} latestCheckLabel={latestCheckLabel} statusLabel="Completed" /> : null}
+          {!completed && latestCheckFailed && latestReceipt ? <ActiveQuestFailureSummary receipt={latestReceipt} goal={activeQuestGoal} pickedLabel={pickedLabel} latestCheckLabel={latestCheckLabel} statusLabel="Not Completed" /> : null}
+          {!completed && (!latestReceipt || isPendingReceipt(latestReceipt)) ? <ActiveQuestNoGameSummary goal={activeQuestGoal} pickedLabel={pickedLabel} latestCheckLabel={latestCheckLabel} statusLabel="Not Completed" /> : null}
 
           {latestCheckFailed ? <FailureDiagnosticBoard receipt={latestReceipt} /> : null}
-          {!completed && isPendingReceipt(latestReceipt) ? <ActiveQuestNoGameSummary /> : null}
           {completed ? <VictoryProofBoard proof={latestReceipt} /> : null}
 
           {canViewCurrentProof ? (
@@ -3901,7 +3982,7 @@ function QuestBoardDashboard({
   const completedIds = new Set(signedIn?.progress.completedChallengeIds ?? []);
   const activeId = signedIn?.activeQuest && !signedIn.activeQuest.completed ? signedIn.activeQuest.id : null;
   const activeOfficialChallenge = signedIn?.activeQuest?.id ? bootstrap.challenges.find((challenge) => challenge.id === signedIn.activeQuest?.id) ?? null : null;
-  const activeCustomQuest = signedIn?.activeQuest?.id ? signedIn.customSideQuests?.find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
+  const activeCustomQuest = signedIn?.activeQuest?.id ? [...(signedIn.customSideQuests ?? []), ...(signedIn.communitySideQuests ?? [])].find((quest) => quest.id === signedIn.activeQuest?.id) ?? null : null;
   const activeChallenge = activeOfficialChallenge ?? (signedIn?.activeQuest ? buildCustomActiveChallenge(signedIn.activeQuest, activeCustomQuest) : null);
   const activeCoatSource = activeChallenge
     ? getChallengeCoatImageSource(activeChallenge)
@@ -3954,6 +4035,7 @@ function QuestBoardDashboard({
   const [communityCreatorFilter, setCommunityCreatorFilter] = useState<string | null>(null);
   const [communityFilter, setCommunityFilter] = useState<CommunityBrowseFilter>("all");
   const [communitySort, setCommunitySort] = useState<CommunityBrowseSort>("popular");
+  const [communityBrowseLimit, setCommunityBrowseLimit] = useState(10);
   const [customLibraryFilter, setCustomLibraryFilter] = useState<CustomLibraryFilter>("all");
   const [customPublishVisibility, setCustomPublishVisibility] = useState<"private" | "public">("private");
   const [communityReportOpen, setCommunityReportOpen] = useState(false);
@@ -4003,6 +4085,8 @@ function QuestBoardDashboard({
       if (popularDelta !== 0) return popularDelta;
       return getCustomQuestUpdatedMs(b) - getCustomQuestUpdatedMs(a);
     });
+  const visibleCommunityBrowseQuests = communityBrowseQuests.slice(0, communityBrowseLimit);
+  const hiddenCommunityBrowseCount = Math.max(0, communityBrowseQuests.length - visibleCommunityBrowseQuests.length);
   const filteredCustomDrafts = visibleCustomDrafts
     .filter((quest) => customQuestMatchesSearch(quest, communitySearch))
     .filter((quest) => {
@@ -4299,6 +4383,10 @@ function QuestBoardDashboard({
   }
 
   useEffect(() => {
+    setCommunityBrowseLimit(10);
+  }, [communitySearch, communityCreatorFilter, communityFilter, communitySort, sideQuestCatalogTab]);
+
+  useEffect(() => {
     if (!pendingSideQuestCatalogIntent) return;
 
     const frame = requestAnimationFrame(() => {
@@ -4357,6 +4445,11 @@ function QuestBoardDashboard({
 
   return (
     <View style={compactStyles.stack}>
+      <View style={compactStyles.screenCloseRow}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Close Solo Side Quests" style={compactStyles.detailCloseButton} onPress={() => onSelectTab("home")}>
+          <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+        </Pressable>
+      </View>
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
@@ -4365,7 +4458,7 @@ function QuestBoardDashboard({
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: sideQuestCatalogTab === "official" }}
-          accessibilityLabel="Show SQC Official Side Quests"
+          accessibilityLabel="Show Official Side Quests"
           style={[
             compactStyles.sideQuestBrandTab,
             compactStyles.sideQuestBrandTabOfficial,
@@ -4373,7 +4466,7 @@ function QuestBoardDashboard({
           ]}
           onPress={() => setSideQuestCatalogTab("official")}
         >
-          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>SQC Official Side Quests</Text>
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
         <Pressable
           accessibilityRole="tab"
@@ -4386,21 +4479,21 @@ function QuestBoardDashboard({
           ]}
           onPress={() => setSideQuestCatalogTab("community")}
         >
-          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Solo Side Quests</Text>
+          <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
         </Pressable>
       </View>
 
       {sideQuestCatalogTab === "community" ? (
         <View style={compactStyles.communityEmptyPanel}>
-          <Text style={compactStyles.communityEmptyTitle}>Community Solo Side Quests, ready to play.</Text>
-          <Text style={compactStyles.communityEmptyCopy}>Browse, inspect, start, check, prove, collect, and report Community Solo Side Quests from here.</Text>
+          <Text style={compactStyles.communityEmptyTitle}>Community Side Quests</Text>
+          <Text style={compactStyles.communityEmptyCopy}>These are Side Quests created by the Side Quest Chess community.</Text>
         </View>
       ) : null}
 
       {sideQuestCatalogTab === "official" ? (
         <View style={compactStyles.appSection}>
           <View style={compactStyles.panelHeaderRow}>
-            <Text style={compactStyles.freshSectionTitle}>SQC Official Side Quests</Text>
+            <Text style={compactStyles.freshSectionTitle}>Official Side Quests</Text>
             <Text style={compactStyles.sectionAction}>{sortedQuests.length} official</Text>
           </View>
           <View style={compactStyles.sideQuestCatalogRows}>
@@ -4445,24 +4538,10 @@ function QuestBoardDashboard({
         </View>
       ) : (
         <>
-          <View style={compactStyles.communitySubTabs}>
-            {(["discover", "mine"] as CommunityBrowseView[]).map((view) => (
-              <Pressable
-                key={view}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: communityView === view }}
-                style={[compactStyles.communitySubTab, communityView === view && compactStyles.communitySubTabActive]}
-                onPress={() => setCommunityView(view)}
-              >
-                <Text style={[compactStyles.communitySubTabText, communityView === view && compactStyles.communitySubTabTextActive]}>{view === "discover" ? "Discover" : "My Custom"}</Text>
-              </Pressable>
-            ))}
-          </View>
-
           {communityView === "discover" ? (
             <View style={compactStyles.appSection}>
               <View style={compactStyles.panelHeaderRow}>
-                <Text style={compactStyles.freshSectionTitle}>Discover Community Solo Side Quests</Text>
+                <Text style={compactStyles.freshSectionTitle}>Community Side Quests</Text>
                 <Text style={compactStyles.sectionAction}>{publicCommunityQuests.length ? `${communityBrowseQuests.length}/${publicCommunityQuests.length}` : "0 public"}</Text>
               </View>
               {publicCommunityQuests.length || communitySearch || communityCreatorFilter ? (
@@ -4470,8 +4549,8 @@ function QuestBoardDashboard({
                   {communityCreatorFilter ? (
                     <View style={compactStyles.communityEmptyPanel}>
                       <Text style={compactStyles.communityEmptyTitle}>Creator shelf: {communityCreatorFilter}</Text>
-                      <Text style={compactStyles.communityEmptyCopy}>Showing public Community Solo Side Quests from this creator.</Text>
-                      <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Solo Side Quest creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
+                      <Text style={compactStyles.communityEmptyCopy}>Showing public Community Side Quests from this creator.</Text>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Show all Community Side Quest creators" style={compactStyles.secondaryAction} onPress={() => setCommunityCreatorFilter(null)}>
                         <Text style={compactStyles.secondaryActionText}>Show all creators</Text>
                       </Pressable>
                     </View>
@@ -4509,20 +4588,22 @@ function QuestBoardDashboard({
               ) : null}
               {communityBrowseQuests.length ? (
                 <View style={compactStyles.sideQuestCatalogRows}>
-                  {communityBrowseQuests.map((quest) => (
+                  {visibleCommunityBrowseQuests.map((quest) => (
                     <AppRow key={quest.id} title={quest.name} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={quest.name} busy={soloLikeBusyId === quest.id} onPress={() => void toggleCommunitySoloLike(quest)} />} meta={`${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${cleanCustomRuleSummaryText(quest.summary)} · ${getCustomStatsLine(quest.stats)}`} status={getCustomLifecycleStatus(quest, activeId, Boolean(signedIn?.completedQuests.some((completedQuest) => completedQuest.id === quest.id)))} sourceBadge={quest.ownedByYou ? "Yours" : "Community"} imageSource={getCustomQuestImageSource(quest.badgeImageUrl)} variant="seal" onPress={() => setCustomDetailId(quest.id)} />
                   ))}
+                  {hiddenCommunityBrowseCount ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel="Load more Community Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityBrowseLimit((current) => current + 10)}>
+                      <Text style={compactStyles.secondaryActionText}>Load more</Text>
+                    </Pressable>
+                  ) : null}
                 </View>
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
                   <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? communityCreatorFilter ? "That creator shelf is empty." : "No matches yet." : "No public Community Side Quests yet."}</Text>
                   <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator filter, search text, or category." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows."}</Text>
                   <View style={compactStyles.actionRowTight}>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Create Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
-                      <Text style={compactStyles.primaryActionText}>Create Side Quest</Text>
-                    </Pressable>
-                    <Pressable accessibilityRole="button" accessibilityLabel="View my Side Quests" style={compactStyles.secondaryAction} onPress={() => setCommunityView("mine")}>
-                      <Text style={compactStyles.secondaryActionText}>My Custom Side Quests</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Add or create a New Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
+                      <Text style={compactStyles.primaryActionText}>Add/Create a New Side Quest</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -5115,7 +5196,7 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
                 status={trophy.placement}
                 imageSource={SQC_COAT_OF_ARMS_ASSET}
                 statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-                onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen the Multiplayer Lobby to inspect the full leaderboard and receipt context.`)}
+                onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen Multiplayer Side Quests to inspect the full leaderboard and receipt context.`)}
               />
             ))}
           </View>
@@ -5149,7 +5230,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <View style={compactStyles.stack}>
         <View style={compactStyles.heroPanel}>
           <View style={compactStyles.topLine}>
-            <Text style={compactStyles.kicker}>My SQC</Text>
+            <Text style={compactStyles.kicker}>My Account</Text>
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
@@ -5179,7 +5260,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     <View style={compactStyles.stack}>
       <View style={compactStyles.heroPanel}>
         <View style={compactStyles.topLine}>
-          <Text style={compactStyles.kicker}>My SQC</Text>
+          <Text style={compactStyles.kicker}>My Account</Text>
         </View>
         <View style={compactStyles.accountIdentityCard}>
           <View style={compactStyles.accountIdentityAvatar}>
@@ -6588,10 +6669,18 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
   return (
     <View style={styles.screenStack}>
+      <View style={compactStyles.screenCloseRow}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Close Multiplayer Side Quests" style={compactStyles.detailCloseButton} onPress={() => onSelectTab("home")}>
+          <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+        </Pressable>
+      </View>
       <View style={styles.multiplayerLobbyHero}>
-        <Image source={{ uri: absoluteAssetUrl("/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png") }} style={styles.multiplayerLobbyHeroGraphic} resizeMode="contain" />
-        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Lobby</Text>
-        <Text style={styles.sectionBody}>Join, host, refresh proof, check standings, and manage Multiplayer Side Quests here. The website has the same Multiplayer product surface in a wider layout.</Text>
+        <View style={compactStyles.sideQuestListEmblemWrap}>
+          <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
+          <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
+        </View>
+        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Side Quests</Text>
+        <Text style={styles.sectionBody}>Join, host, refresh proof, check standings, and manage Multiplayer Side Quests here.</Text>
       </View>
 
 
@@ -6657,19 +6746,10 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
 
-      <View style={styles.groupquestsActionCard} accessibilityLabel="Create Multiplayer Side Quest fast action">
-        <Text style={styles.eyebrow}>Create</Text>
-        <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
-        <Text style={styles.sideQuestModeCopy}>Default proof rule: players must win the eligible game. Advanced settings can loosen that if you choose.</Text>
-        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
-          <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
-        </Pressable>
-      </View>
-
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Your Multiplayer Side Quests · {activeMineGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Hosted or joined by you.</Text>
-        <Text style={styles.sectionBody}>Your own Multiplayer Side Quests stay separate from official events and community browsing. This is your fast action queue.</Text>
+        <Text style={styles.eyebrow}>Active · joined and hosted</Text>
+        <Text style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Joined and hosted Multiplayer Side Quests come first so your current tables are easy to resume.</Text>
         {visibleMineGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleMineGroupQuests.map((quest) => (
@@ -6689,10 +6769,27 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : null}
       </View>
 
+      <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
+        <Text style={styles.eyebrow}>Recently finished · {historyGroupQuests.length}</Text>
+        <Text style={styles.sectionTitle}>Recently finished Multiplayer Side Quests.</Text>
+        {visibleHistoryGroupQuests.length ? (
+          <View style={compactStyles.appRows}>
+            {visibleHistoryGroupQuests.map((quest) => (
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
+            ))}
+          </View>
+        ) : <Text style={styles.sectionBody}>No finished Multiplayer Side Quests yet.</Text>}
+        {hiddenHistoryCount ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Show more finished Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setHistoryListLimit((current) => current + 3)}>
+            <Text style={styles.secondaryButtonText}>More history ({hiddenHistoryCount})</Text>
+          </Pressable>
+        ) : null}
+      </View>
+
       <View style={styles.groupquestsActiveCard} accessibilityLabel="SQC Official Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>SQC Official · {officialPublicGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>SQC Official Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Curated SQC events and official leaderboards stay in their own trusted lane.</Text>
+        <Text style={styles.eyebrow}>Available to join · official</Text>
+        <Text style={styles.sectionTitle}>Official Multiplayer Side Quests.</Text>
+        <Text style={styles.sectionBody}>Available official Multiplayer Side Quests to inspect and join.</Text>
         {officialPublicGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {officialPublicGroupQuests.map((quest) => (
@@ -6703,9 +6800,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       </View>
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Community · {availableGroupQuests.length}/{allCommunityMultiplayerQuests.length}</Text>
+        <Text style={styles.eyebrow}>Available to join · community</Text>
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Find public player-hosted Multiplayer Side Quests, inspect the rules, join, and verify proof from the app.</Text>
+        <Text style={styles.sectionBody}>Public player-hosted Multiplayer Side Quests appear after your active and recently finished tables.</Text>
         <View style={compactStyles.communityBrowsePanel}>
           {multiplayerHostFilter ? (
             <View style={compactStyles.communityEmptyPanel}>
@@ -6760,6 +6857,15 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : null}
       </View>
 
+      <View style={styles.groupquestsActionCard} accessibilityLabel="Create Multiplayer Side Quest fast action">
+        <Text style={styles.eyebrow}>Create</Text>
+        <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
+        <Text style={styles.sideQuestModeCopy}>Default proof rule: players must win the eligible game. Advanced settings can loosen that if you choose.</Text>
+        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+          <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
+        </Pressable>
+      </View>
+
       <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
         <Text style={styles.eyebrow}>Invite Code</Text>
         <Text style={styles.sideQuestModeTitle}>Join private Multiplayer Side Quest.</Text>
@@ -6773,23 +6879,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         </Pressable>
         {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
         {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
-      </View>
-
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>History · {historyGroupQuests.length}</Text>
-        <Text style={styles.sectionTitle}>Finished Multiplayer Side Quests.</Text>
-        {visibleHistoryGroupQuests.length ? (
-          <View style={compactStyles.appRows}>
-            {visibleHistoryGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
-            ))}
-          </View>
-        ) : <Text style={styles.sectionBody}>No finished Multiplayer Side Quests yet.</Text>}
-        {hiddenHistoryCount ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Show more finished Multiplayer Side Quests" style={styles.secondaryButtonWide} onPress={() => setHistoryListLimit((current) => current + 3)}>
-            <Text style={styles.secondaryButtonText}>More history ({hiddenHistoryCount})</Text>
-          </Pressable>
-        ) : null}
       </View>
 
       <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCreateOpen(false)}>
@@ -7924,7 +8013,7 @@ function buildCustomActiveChallenge(
       rarity: "Custom",
       unlockCopy: `${activeQuest.title} completed.`,
       imageUrl: activeQuest.badgeImageUrl,
-      colors: { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
+      colors: getCommunitySideQuestColors(activeQuest.id),
       heraldry: {
         shield: "Custom",
         charge: "Player-made rule",
@@ -7963,7 +8052,7 @@ function buildCustomProofChallenge(
       rarity: "Custom",
       unlockCopy: `${completedQuest.title} completed.`,
       imageUrl: completedQuest.badgeImageUrl,
-      colors: { primary: "#f5c86a", secondary: "#8b5a2b", glow: "#f5c86a" },
+      colors: getCommunitySideQuestColors(completedQuest.id),
       heraldry: {
         shield: "Custom",
         charge: "Player-made rule",
@@ -8762,7 +8851,7 @@ const compactStyles = StyleSheet.create({
   identityPlatformLichess: { color: colors.green, backgroundColor: "rgba(96,240,175,.1)", borderWidth: 1, borderColor: "rgba(96,240,175,.18)" },
   identityPlatformChessCom: { color: "#76a9ff", backgroundColor: "rgba(118,169,255,.1)", borderWidth: 1, borderColor: "rgba(118,169,255,.18)" },
   identityUsername: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
-  accountDot: { position: "absolute", right: 2, top: 0, width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
+  accountDot: { position: "absolute", right: 2, top: 3, width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", overflow: "hidden", backgroundColor: "rgba(245,200,106,.16)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   accountAvatarImage: { width: "100%", height: "100%", borderRadius: 20 },
   accountDotText: { color: colors.gold, fontSize: 16, fontWeight: "900" },
   globalMenuLayer: { position: "absolute", left: 16, zIndex: 120, elevation: 24 },
@@ -8928,15 +9017,16 @@ const compactStyles = StyleSheet.create({
   helpSupportAdminBubble: { alignSelf: "flex-start", backgroundColor: "rgba(96,240,175,.1)", borderColor: "rgba(96,240,175,.24)" },
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
-  sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 6, overflow: "visible" },
-  sideQuestListEmblemGlow: { position: "absolute", width: 108, height: 118, opacity: .9, transform: [{ translateY: 5 }] },
-  sideQuestListEmblem: { width: 82, height: 92 },
+  screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: -6, marginBottom: -22, zIndex: 20 },
+  sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 2, overflow: "visible" },
+  sideQuestListEmblemGlow: { position: "absolute", width: 142, height: 154, opacity: .9, transform: [{ translateY: 5 }] },
+  sideQuestListEmblem: { width: 112, height: 124 },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
   detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
-  detailContent: { paddingTop: 104, paddingHorizontal: 16, paddingBottom: 104, gap: 8 },
+  detailContent: { paddingTop: 72, paddingHorizontal: 16, paddingBottom: 104, gap: 8 },
   detailContentWithBottomSafe: { paddingBottom: 148 },
-  detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 2 },
+  detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 0 },
   completedProofScreen: { gap: 10 },
   trophyProofStack: { gap: 8 },
   completedProofCoatFrame: { width: 124, height: 136, alignItems: "center", justifyContent: "center", overflow: "visible" },
@@ -9012,12 +9102,14 @@ const compactStyles = StyleSheet.create({
   multiplayerProgressFill: { height: "100%", borderRadius: 999, backgroundColor: colors.green },
   multiplayerFooterActions: { alignItems: "center", gap: 8, paddingTop: 2 },
   pullRefreshHintInline: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, paddingVertical: 3 },
-  detailCoatFrame: { width: 104, height: 112, alignItems: "center", justifyContent: "center", overflow: "visible" },
-  detailCoatGlowImage: { position: "absolute", width: 136, height: 148, opacity: .7, transform: [{ translateY: 7 }] },
-  detailCoatImage: { width: 94, height: 104 },
+  detailCoatFrame: { width: 118, height: 126, alignItems: "center", justifyContent: "center", overflow: "visible" },
+  detailCoatGlowImage: { position: "absolute", width: 152, height: 164, opacity: .7, transform: [{ translateY: 7 }] },
+  detailCoatImage: { width: 108, height: 118 },
   detailEyebrow: { color: colors.gold, fontSize: 10, fontWeight: "900", textTransform: "uppercase", letterSpacing: .85 },
   detailTitleLine: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, alignSelf: "stretch" },
   detailTitle: { color: colors.paper, fontSize: 25, lineHeight: 28, fontWeight: "900", textAlign: "center", letterSpacing: -1.05 },
+  detailTitleLikeRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, alignSelf: "stretch", paddingHorizontal: 6 },
+  detailTitleWithLike: { flexShrink: 1, minWidth: 0 },
   detailTitleWithAccessory: { flexShrink: 1, minWidth: 0 },
   detailGoal: { maxWidth: 318, color: colors.muted, fontSize: 13, lineHeight: 17, fontWeight: "700", textAlign: "center" },
   detailHint: { color: "rgba(199,189,169,.72)", fontSize: 10, lineHeight: 13, fontWeight: "800", textAlign: "center" },
@@ -9312,9 +9404,9 @@ const styles = StyleSheet.create({
   screenCloseButton: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.16)", backgroundColor: "rgba(0,0,0,.26)" },
   floatingScreenCloseButton: { position: "absolute", top: 54, right: 16, zIndex: 50, width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: "rgba(255,247,232,.18)", backgroundColor: "rgba(10,8,10,.74)", shadowColor: "#000", shadowOpacity: 0.26, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 8 },
   groupquestsHeroCopy: { color: colors.muted, fontSize: 16, lineHeight: 24 },
-  multiplayerLobbyHero: { alignItems: "center", gap: 7, marginHorizontal: -12, paddingHorizontal: 16, paddingTop: 6, paddingBottom: 4 },
+  multiplayerLobbyHero: { alignItems: "center", gap: 4, marginHorizontal: -12, paddingHorizontal: 16, paddingTop: 0, paddingBottom: 4 },
   multiplayerLobbyHeroGraphic: { width: 172, height: 132 },
-  multiplayerLobbyHeroTitle: { color: colors.paper, fontSize: 34, fontWeight: "900", letterSpacing: -1.5, lineHeight: 37, textAlign: "center" },
+  multiplayerLobbyHeroTitle: { color: colors.paper, fontSize: 31, fontWeight: "900", letterSpacing: -1.25, lineHeight: 34, textAlign: "center" },
   multiplayerLobbyStatsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   multiplayerLobbyStatCard: { flexBasis: "48%", flexGrow: 1, gap: 3, paddingVertical: 11, paddingHorizontal: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.22)", backgroundColor: "rgba(245,200,106,.075)" },
   multiplayerLobbyStatValue: { color: colors.paper, fontSize: 24, lineHeight: 27, fontWeight: "900", textAlign: "center" },
