@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import RatingPill from "@/components/rating-pill";
 import { useState } from "react";
 
 type InitialProofState = {
@@ -230,7 +231,7 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
             <article className={isComplete ? "groupquest-proof-check passed" : "groupquest-proof-check"} key={quest.id}>
               <span className="badge green">{isComplete ? "Verified" : check?.status === "failed" ? "Needs another game" : "Open"}</span>
               <strong>{quest.title}</strong>
-              <small>{check?.summary ?? (isComplete ? "Already counted for this Multiplayer Side Quest." : `${quest.reward} pts available inside this run.`)}</small>
+              <small>{check?.summary ?? (isComplete ? "Already counted for this Multiplayer Side Quest." : <span className="inline-rating-copy"><RatingPill value={quest.reward} plus={false} /> available inside this run.</span>)}</small>
               {check ? <MultiplayerProofBoard check={check} /> : null}
             </article>
           );

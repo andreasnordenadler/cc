@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import ChallengeBadge from "@/components/challenge-badge";
+import RatingPill from "@/components/rating-pill";
 import type { Challenge } from "@/lib/challenges";
 
 type VictoryScrollProps = {
@@ -35,7 +36,7 @@ export default function VictoryScroll({
       <p className="victory-scroll-proof">{proofLine}</p>
       <div className="victory-scroll-footer">
         <span>{dateLabel}</span>
-        <span>+{reward} pts</span>
+        <RatingPill value={reward} />
       </div>
       <div className="victory-scroll-seal" aria-label="Side Quest Chess seal of approval" />
     </div>

@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
 import ProofImage from "@/components/proof-image";
 import ProofTime from "@/components/proof-time";
+import RatingPill from "@/components/rating-pill";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
@@ -111,7 +113,7 @@ export default async function ResultPage({
               <Fact label="Quest" value={challenge.title} />
               <Fact label="Status" value={proofStatus} />
               <Fact label="Game" value={gameLabel} />
-              <Fact label="Points" value={isPassed ? `+${challenge.reward}` : `${progress.totalRewardPoints} banked`} />
+              <Fact label="Points" value={isPassed ? <RatingPill value={challenge.reward} /> : <RatingPill value={progress.totalRewardPoints} plus={false} ariaLabel={`${progress.totalRewardPoints} banked rating points`} />} />
             </div>
             <strong>{isPassed ? `Coat unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
             <p>{challenge.badgeIdentity.heraldry.meaning} {challenge.badgeIdentity.heraldry.weirdness}</p>
@@ -284,7 +286,7 @@ function buildVictoryScrollCopy(challenge: (typeof CHALLENGES)[number], attempt?
   return `${summary} The verifier accepted the evidence, so the coat of arms may now be displayed with entirely appropriate smugness.`;
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="fact">
       <span>{label}</span>

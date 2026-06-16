@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
@@ -56,7 +57,7 @@ export default function ShareKitPage() {
           <aside className="side-card card">
             <div className="spread">
               <span className="eyebrow">Quest deck value</span>
-              <span className="badge gold">{deckValue} pts</span>
+              <RatingPill value={deckValue} plus={false} ariaLabel={`${deckValue} total deck rating points`} />
             </div>
             <ChallengeBadge challenge={featured} />
             <h2>{featured.title}</h2>
@@ -139,7 +140,7 @@ export default function ShareKitPage() {
               <h3>{challenge.title}</h3>
               <p>{challenge.objective}</p>
               <em>{challenge.openingHint}</em>
-              <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · +{challenge.reward} pts</div>
+              <div className="proof-line proof-line-with-rating"><span>{challenge.badgeIdentity.heraldry.motto}</span><RatingPill value={challenge.reward} /></div>
               <p className="microcopy"><strong>{verifierStatus.summary}.</strong> {verifierLabel.promise}</p>
               <div className="button-row">
                 <Link href={`/dare/${challenge.id}`} className="button secondary">Open quest page</Link>

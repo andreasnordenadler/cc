@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import ChallengeBadge from "@/components/challenge-badge";
 import CommunityLikeButton from "@/components/community-like-button";
+import RatingPill from "@/components/rating-pill";
 import type { Challenge } from "@/lib/challenges";
 
 type ScheduledChallenge = Challenge & { releaseDate?: string };
@@ -494,7 +495,7 @@ export function ChallengeCard({ challenge, featured, completed, active, likeSumm
         </span>
       ) : null}
       <div className="card-meta quest-card-meta">
-        <strong className="quest-points">+{challenge.reward} pts</strong>
+        <RatingPill value={challenge.reward} />
         <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>
       </div>
       <div className="challenge-card-title-row">
@@ -532,7 +533,7 @@ function ComingSoonChallengeCard({ challenge }: { challenge: ScheduledChallenge 
       </span>
       <div className="coming-soon-card-content" aria-hidden="true">
         <div className="card-meta quest-card-meta">
-          <strong className="quest-points">+{challenge.reward} pts</strong>
+          <RatingPill value={challenge.reward} />
           <span className={`badge difficulty-badge ${difficultyTone}`}>{challenge.difficulty}</span>
         </div>
         <div className="challenge-card-title-row">

@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 
@@ -79,7 +81,7 @@ export default async function RulesPage() {
 
         <section className="grid" aria-label="Verification scorecard">
           <Fact label="Quest deck" value={`${CHALLENGES.length} quests`} copy="Every quest has rules, reward points, and a collectible coat-of-arms badge." />
-          <Fact label="Deck value" value={`${totalReward} pts`} copy="The point score is brag fuel, not a serious rating system." />
+          <Fact label="Deck value" value={<RatingPill value={totalReward} plus={false} />} copy="The point score is brag fuel, not a serious rating system." />
           <Fact label="Proof tone" value="Honest chaos" copy="Pass, fail, and pending states all stay shareable without pretending every attempt succeeded." />
         </section>
 
@@ -132,7 +134,7 @@ export default async function RulesPage() {
   );
 }
 
-function Fact({ label, value, copy }: { label: string; value: string; copy: string }) {
+function Fact({ label, value, copy }: { label: string; value: ReactNode; copy: string }) {
   return (
     <article className="stat-card mission-card">
       <span className="eyebrow">{label}</span>

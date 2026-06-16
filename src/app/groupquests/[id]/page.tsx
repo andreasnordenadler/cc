@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import RatingPill from "@/components/rating-pill";
 import GroupQuestAcceptModal from "@/components/group-quest-accept-modal";
 import CommunityLikeButton from "@/components/community-like-button";
 import GroupQuestInviteCopy from "@/components/group-quest-invite-copy";
@@ -348,7 +349,7 @@ export default async function GroupQuestByIdPage({
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="groupquest-seal" src={groupQuestSealSrc} alt={groupQuestSealAlt} />
-            <strong>{totalReward.toLocaleString()} pts</strong>
+            <RatingPill value={totalReward.toLocaleString()} plus={false} />
           </div>
         </section>
 
@@ -420,7 +421,7 @@ export default async function GroupQuestByIdPage({
                   <img src={quest.badgeImage} alt="" />
                   <span>
                     <strong>{quest.title}</strong>
-                    {quest.source === "custom" ? <small>Custom Solo Side Quest snapshot · {quest.reward} pts</small> : null}
+                    {quest.source === "custom" ? <small className="inline-rating-copy">Custom Solo Side Quest snapshot <RatingPill value={quest.reward} plus={false} /></small> : null}
                   </span>
                 </>
               );

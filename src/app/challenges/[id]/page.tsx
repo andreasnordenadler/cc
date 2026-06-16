@@ -8,6 +8,7 @@ import CommunityLikeButton from "@/components/community-like-button";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import ProofPositionBoard from "@/components/proof-position-board";
 import ProofTime from "@/components/proof-time";
+import RatingPill from "@/components/rating-pill";
 import ResetQuestControl from "@/components/reset-quest-control";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
@@ -146,7 +147,7 @@ export default async function ChallengeDetailPage({
             </div>
           ) : null}
           <div className="quest-detail-meta card-meta quest-card-meta">
-            <strong className="quest-points">+{challenge.reward} pts</strong>
+            <RatingPill value={challenge.reward} />
             <span className={`badge difficulty-badge ${getDifficultyTone(challenge.difficulty)}`}>{challenge.difficulty}</span>
           </div>
           <div className="detail-hero-grid quest-detail-hero-grid">
@@ -199,7 +200,7 @@ export default async function ChallengeDetailPage({
               <div className="quest-detail-next-step-facts" aria-label="Run setup summary">
                 <Fact label="Proof source" value="Lichess or Chess.com public games" />
                 <Fact label="Verifier" value="Latest game, or a specific game after starting" />
-                <Fact label="Reward" value={`+${challenge.reward} points and coat unlock`} />
+                <Fact label="Reward" value={<><RatingPill value={challenge.reward} /> <span>and coat unlock</span></>} />
               </div>
             </div>
           ) : null}

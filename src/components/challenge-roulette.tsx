@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import RatingPill from "@/components/rating-pill";
 import type { Challenge } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
 
@@ -41,7 +42,7 @@ export default function ChallengeRoulette({ challenges, initialChallengeId }: Ch
         <div>
           <div className="badge-row">
             <span className="eyebrow">Random quest machine</span>
-            <span className="badge gold">+{selectedChallenge.reward} pts</span>
+            <RatingPill value={selectedChallenge.reward} />
             <span className="badge danger">{selectedChallenge.difficulty}</span>
           </div>
           <h1>{selectedChallenge.title}</h1>

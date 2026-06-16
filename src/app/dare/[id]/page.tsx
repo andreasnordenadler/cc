@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ChallengeInviteActions from "@/components/challenge-invite-actions";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { startChallenge } from "@/app/actions";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
@@ -53,7 +55,7 @@ export async function generateMetadata({
   };
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="fact">
       <span>{label}</span>
@@ -131,7 +133,7 @@ export default async function DarePage({
           <div className="proof-grid">
             <Fact label="Quest" value={challenge.title} />
             <Fact label="Verifier" value={verifierStatus.summary} />
-            <Fact label="Reward" value={`+${challenge.reward} pts`} />
+            <Fact label="Reward" value={<RatingPill value={challenge.reward} />} />
             <Fact label="Proof" value="Latest public game" />
           </div>
           <p className="microcopy"><strong>{verifierLabel.promise}</strong> {verifierStatus.evidence}</p>

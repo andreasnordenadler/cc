@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import RatingPill from "@/components/rating-pill";
 
 type BuilderQuest = {
   id: string;
@@ -361,7 +362,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                         <span>
                           <em>{quest.source === "custom" ? "Custom Solo Side Quest" : "Official Solo Side Quest"}</em>
                           <strong>{quest.title}</strong>
-                          <small>{quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small className="inline-rating-copy">{quest.difficulty} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
                         </span>
                       </label>
                     );
@@ -494,7 +495,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                   <em>{index + 1}</em>
                   <span>
                     <strong>{quest.title}</strong>
-                    <small>{quest.difficulty} · {quest.reward} pts</small>
+                    <small className="inline-rating-copy">{quest.difficulty} <RatingPill value={quest.reward} plus={false} /></small>
                   </span>
                 </li>
               ))}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { startChallenge } from "@/app/actions";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
@@ -191,7 +192,7 @@ function PathStep({
       <em>{challenge.openingHint}</em>
       <div className="proof-line">{challenge.badgeIdentity.heraldry.motto} · {challenge.proofCallout}</div>
       <div className="card-footer">
-        <strong>+{challenge.reward} pts</strong>
+        <RatingPill value={challenge.reward} />
         <span>{challenge.badgeIdentity.name}</span>
         {isSignedIn && !completed ? (
           <form action={startChallenge}>

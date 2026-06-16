@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import RatingPill from "@/components/rating-pill";
 import type { GroupQuestInviteMode, GroupQuestProviderMode, ServerGroupQuest } from "@/lib/groupquests";
 
 type EditableQuest = {
@@ -271,7 +272,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                         <span>
                           <em>{quest.source === "custom" ? "Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved custom" : "Official Solo Side Quest"}</em>
                           <strong>{quest.title}</strong>
-                          <small>{quest.source === "custom" ? "Your Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved Custom Solo Side Quest snapshot" : quest.difficulty} · {quest.reward} pts · {quest.objective}</small>
+                          <small className="inline-rating-copy">{quest.source === "custom" ? "Your Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved Custom Solo Side Quest snapshot" : quest.difficulty} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
                         </span>
                       </label>
                     );

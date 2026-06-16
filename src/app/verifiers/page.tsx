@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { getVerifierStateLabel, getVerifierStatus } from "@/lib/verifier-status";
@@ -111,7 +112,7 @@ function VerifierCard({ challenge }: { challenge: Challenge }) {
         <p>{state.promise}</p>
       </div>
       <div className="card-footer">
-        <strong>+{challenge.reward} pts</strong>
+        <RatingPill value={challenge.reward} />
         <Link href={`/challenges/${challenge.id}`}>Open quest</Link>
       </div>
     </article>

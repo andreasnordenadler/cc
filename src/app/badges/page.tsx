@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
 import { getChallengeAttempts, getChallengeProgress, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -50,7 +52,7 @@ export default async function CoatOfArmsPage() {
           <div className="grid lean-status-grid" aria-label="Coat of Arms progress summary">
             <Fact label="Earned coats" value={`${earnedLiveBadgeCount}/${liveBadgeChallenges.length}`} />
             <Fact label="Proof receipts" value={userId ? `${proofReceiptCount}` : "Saved after sign-in"} />
-            <Fact label="Total SQC points" value={userId ? `${progress.totalRewardPoints}` : "Start any quest"} />
+            <Fact label="Total SQC points" value={userId ? <RatingPill value={progress.totalRewardPoints} plus={false} /> : "Start any quest"} />
           </div>
         </section>
 
@@ -95,7 +97,7 @@ export default async function CoatOfArmsPage() {
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="fact">
       <span>{label}</span>
@@ -115,7 +117,7 @@ function BadgeMeaningCard({ challenge, earned }: { challenge: Challenge; earned:
         <h2>{challenge.badgeIdentity.name}</h2>
         <span className="badge-run-preview" aria-label={`${challenge.title} run preview`}>
           <span>{challenge.difficulty}</span>
-          <span>{challenge.reward} pts</span>
+          <RatingPill value={challenge.reward} />
           <span>{challenge.category}</span>
         </span>
         <p>{challenge.objective}</p>

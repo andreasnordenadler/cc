@@ -5302,6 +5302,7 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
     <AppSection title="Progress & Stats" action="Details" onAction={() => onSelectTab("coatOfArms")}>
       <View style={compactStyles.statsPanel}>
         <View style={compactStyles.metricGrid}>
+          <CompactMetric label="SQC points" value={<MobileRatingPill value={account.progress.totalRewardPoints} compact plus={false} />} />
           <CompactMetric label="Completed" value={`${completedCount}`} />
           <CompactMetric label="Proofs" value={`${proofCount}`} />
           <CompactMetric label="Coat of Arms" value={`${completedCount + multiplayerTrophyCount}`} />
@@ -5350,10 +5351,10 @@ function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }:
   );
 }
 
-function CompactMetric({ label, value }: { label: string; value: string }) {
+function CompactMetric({ label, value }: { label: string; value: ReactNode }) {
   return (
     <View style={compactStyles.metricBox}>
-      <Text style={compactStyles.metricValue}>{value}</Text>
+      {typeof value === "string" ? <Text style={compactStyles.metricValue}>{value}</Text> : value}
       <Text style={compactStyles.metricLabel}>{label}</Text>
     </View>
   );
@@ -7196,11 +7197,11 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
   );
 }
 
-function MobileRatingPill({ value, compact = false }: { value: number; compact?: boolean }) {
+function MobileRatingPill({ value, compact = false, plus = true }: { value: number; compact?: boolean; plus?: boolean }) {
   return (
     <View style={[styles.mobileRatingPill, compact && styles.mobileRatingPillCompact]} accessibilityLabel={`${value} rating points`}>
       <Text style={[styles.mobileRatingIcon, compact && styles.mobileRatingIconCompact]}>★</Text>
-      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>+{value} pts</Text>
+      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>{plus ? "+" : ""}{value} pts</Text>
     </View>
   );
 }

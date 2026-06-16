@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth } from "@clerk/nextjs/server";
+import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 
@@ -174,7 +175,7 @@ export default async function GroupQuestRoomPage() {
               <article className="challenge-card" key={challenge.id}>
                 <div className="card-meta quest-card-meta">
                   <span className="badge gold">Step {index + 1}</span>
-                  <strong className="quest-points">{challenge.reward} pts</strong>
+                  <RatingPill value={challenge.reward} plus={false} />
                 </div>
                 <div>
                   <h3>{challenge.title}</h3>
@@ -199,7 +200,7 @@ export default async function GroupQuestRoomPage() {
                 <div className={`groupquests-participant ${participant.tone}`} key={participant.name}>
                   <strong>#{index + 1}</strong>
                   <div><span>{participant.name}</span><small>{participant.handle}</small></div>
-                  <div><em>{participant.score} pts</em><small>{participant.status} · {participant.proof}</small></div>
+                  <div><RatingPill value={participant.score} plus={false} /><small>{participant.status} · {participant.proof}</small></div>
                 </div>
               ))}
             </div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
+import RatingPill from "@/components/rating-pill";
 import ShareProofActions from "@/components/share-proof-actions";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
@@ -288,7 +289,7 @@ export default async function MyQuestLogPage() {
                               <div className="trophy-proof-panel" aria-label={`${challenge.title} proof receipt`}>
                                 <span>Receipt</span>
                                 <strong>{formatProofProvider(latestProof?.provider)}{latestProof?.gameId ? ` · ${latestProof.gameId}` : ""}</strong>
-                                <small>{latestProof?.summary || `${challenge.badgeIdentity.name} unlocked with +${challenge.reward} points.`}</small>
+                                <small>{latestProof?.summary || `${challenge.badgeIdentity.name} unlocked.`} <RatingPill value={challenge.reward} /></small>
                               </div>
                               <div className="trophy-card-actions">
                                 <Link href={proofPath} className="button secondary">Open proof receipt</Link>

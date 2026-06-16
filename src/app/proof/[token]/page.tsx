@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import ProofImage from "@/components/proof-image";
 import ProofPositionBoard from "@/components/proof-position-board";
 import ProofTime from "@/components/proof-time";
+import RatingPill from "@/components/rating-pill";
 import ShareProofActions from "@/components/share-proof-actions";
 import SiteNav from "@/components/site-nav";
 import { decodePublicProof, publicProofImagePath } from "@/lib/proof-share";
@@ -93,7 +94,7 @@ export default async function PublicProofPage({
           <div className="public-proof-receipt-strip" aria-label="Proof receipt summary">
             <span><strong>Runner</strong>{payload.runnerName ?? "SQC player"}</span>
             <span><strong>Proof source</strong>{providerLabel}</span>
-            <span><strong>Reward</strong>+{payload.reward} points</span>
+            <span><strong>Reward</strong><RatingPill value={payload.reward} /></span>
             <span><strong>Completed</strong>{completedAt ? <ProofTime value={completedAt} /> : "Verified run"}</span>
           </div>
           <div className="button-row">
