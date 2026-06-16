@@ -7178,8 +7178,8 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
       {active && !completed ? <Text style={styles.activeQuestStampText}>Active Side Quest</Text> : null}
       {completed ? <Text style={styles.completedQuestStampText}>Side Quest completed</Text> : null}
       <View style={styles.questCardMetaMobile}>
+        <MobileRatingPill value={challenge.reward} compact />
         <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
-        <Text style={styles.questPointsMobile}>Coat of Arms</Text>
       </View>
       <View style={styles.challengeCardTitleRowMobile}>
         <View style={styles.challengeCardBadgeMobile}>
@@ -7193,6 +7193,15 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
         </View>
       </View>
     </Pressable>
+  );
+}
+
+function MobileRatingPill({ value, compact = false }: { value: number; compact?: boolean }) {
+  return (
+    <View style={[styles.mobileRatingPill, compact && styles.mobileRatingPillCompact]} accessibilityLabel={`${value} rating points`}>
+      <Text style={[styles.mobileRatingIcon, compact && styles.mobileRatingIconCompact]}>★</Text>
+      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>+{value} pts</Text>
+    </View>
   );
 }
 
@@ -7306,6 +7315,10 @@ function SelectedQuestDetailCard({
           <View style={compactStyles.detailTitleLine}>
             <Text style={[styles.questTitle, compactStyles.detailTitleWithAccessory]}>{challenge.title}</Text>
             <MobileLikePill likeSummary={likeSummary} label={challenge.title} busy={likeBusy} onPress={() => void toggleLike()} />
+          </View>
+          <View style={styles.questDetailMetaRow}>
+            <MobileRatingPill value={challenge.reward} />
+            <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
           </View>
           <Text style={styles.questObjective}>{challenge.objective}</Text>
         </View>
@@ -9368,6 +9381,13 @@ const styles = StyleSheet.create({
   activeQuestStampText: { alignSelf: "flex-start", overflow: "hidden", color: "#17120c", backgroundColor: colors.green, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   completedQuestStampText: { alignSelf: "flex-start", overflow: "hidden", color: "#17120c", backgroundColor: colors.gold, borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
   questCardMetaMobile: { flexDirection: "row", alignItems: "center", gap: 8 },
+  questDetailMetaRow: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginTop: 4 },
+  mobileRatingPill: { flexDirection: "row", alignItems: "center", gap: 6, alignSelf: "flex-start", minHeight: 30, paddingLeft: 5, paddingRight: 10, paddingVertical: 5, borderRadius: 999, borderWidth: 1, borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.1)" },
+  mobileRatingPillCompact: { minHeight: 26, paddingLeft: 4, paddingRight: 8, paddingVertical: 4, gap: 5 },
+  mobileRatingIcon: { overflow: "hidden", width: 20, height: 20, borderRadius: 10, backgroundColor: colors.gold, color: "#151006", fontSize: 12, lineHeight: 20, fontWeight: "900", textAlign: "center" },
+  mobileRatingIconCompact: { width: 18, height: 18, borderRadius: 9, fontSize: 11, lineHeight: 18 },
+  mobileRatingText: { color: colors.green, fontSize: 13, lineHeight: 16, fontWeight: "900" },
+  mobileRatingTextCompact: { fontSize: 12, lineHeight: 15 },
   questPointsMobile: { color: colors.gold, fontSize: 13, fontWeight: "900" },
   difficultyBadgeMobile: { overflow: "hidden", color: colors.paper, fontSize: 11, fontWeight: "900", textTransform: "uppercase", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,247,232,.1)" },
   difficultyEasy: { backgroundColor: "rgba(96,240,175,.18)", color: colors.green },

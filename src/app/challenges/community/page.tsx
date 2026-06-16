@@ -172,7 +172,7 @@ function CommunityQuestCard({ quest, likeSummary, signedIn }: { quest: PublicCom
   return (
     <article className="challenge-card community-side-quest-card community-side-quest-official-card">
       <div className="card-meta quest-card-meta">
-        <strong className="quest-points">Community</strong>
+        <strong className="community-source-pill">Community</strong>
         <span className="badge difficulty-badge gold">Community Solo Side Quest</span>
       </div>
       <div className="challenge-card-title-row community-card-title-row">

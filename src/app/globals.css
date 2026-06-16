@@ -150,7 +150,9 @@ p { color: var(--muted); line-height: 1.5; }
 .card-meta span:first-child { color: var(--gold); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .1em; }
 .card-meta.quest-card-meta { justify-content: space-between; }
 .card-meta.quest-card-meta span:first-child { color: #111; font-size: 11px; text-transform: none; letter-spacing: 0; }
-.quest-points { color: var(--green); font-size: 15px; font-weight: 1000; letter-spacing: -.02em; }
+.quest-points { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 4px 9px 4px 6px; border: 1px solid rgba(96,240,175,.28); border-radius: 999px; background: rgba(96,240,175,.1); color: var(--green); font-size: 14px; font-weight: 1000; letter-spacing: -.02em; line-height: 1; white-space: nowrap; }
+.quest-points::before { content: "★"; display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 999px; background: linear-gradient(135deg, var(--gold), #fff0a8); color: #151006; font-size: 11px; line-height: 1; box-shadow: 0 0 0 1px rgba(245,200,106,.38), 0 6px 14px rgba(245,200,106,.2); }
+.community-source-pill { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 10px; border: 1px solid rgba(245,200,106,.28); border-radius: 999px; background: rgba(245,200,106,.12); color: var(--gold); font-size: 12px; font-weight: 1000; letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; }
 .challenge-card em { color: var(--ink); font-style: normal; font-weight: 850; line-height: 1.35; }
 .quest-run-preview { align-self: end; display: grid; gap: 4px; padding: 11px 12px; border: 1px solid rgba(245,200,106,.18); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.14)); }
 .quest-run-preview span { color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
