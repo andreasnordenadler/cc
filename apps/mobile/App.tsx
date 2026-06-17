@@ -1615,7 +1615,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
               {menuItems.map((item) => (
                 <Pressable key={item.id} accessibilityRole="button" accessibilityState={item.selected ? { selected: true } : undefined} accessibilityLabel={item.label} style={[compactStyles.homeMenuItem, item.selected && compactStyles.homeMenuItemActive]} onPress={item.action}>
                   <MaterialCommunityIcons name={item.icon} size={17} color={colors.gold} />
-                  <Text style={compactStyles.homeMenuItemText}>{item.label}</Text>
+                  <Text style={compactStyles.homeMenuItemText} numberOfLines={1}>{item.label}</Text>
                 </Pressable>
               ))}
             </View>
@@ -8862,7 +8862,7 @@ const compactStyles = StyleSheet.create({
   homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.018)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: 112, paddingHorizontal: 18 },
   globalMenuOverlay: { paddingHorizontal: 16 },
   homeMenuBackdrop: { ...StyleSheet.absoluteFillObject },
-  homeMenuPanel: { alignSelf: "flex-start", width: 162, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
+  homeMenuPanel: { alignSelf: "flex-start", width: 232, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
   homeMenuItems: { gap: 2 },
   homeMenuItem: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: "transparent" },
   homeMenuItemActive: { backgroundColor: "rgba(245,200,106,.14)" },
@@ -9017,12 +9017,12 @@ const compactStyles = StyleSheet.create({
   helpSupportAdminBubble: { alignSelf: "flex-start", backgroundColor: "rgba(96,240,175,.1)", borderColor: "rgba(96,240,175,.24)" },
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
-  screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: -6, marginBottom: -22, zIndex: 20 },
+  screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: 0, marginBottom: -22, zIndex: 20 },
   sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 2, overflow: "visible" },
   sideQuestListEmblemGlow: { position: "absolute", width: 142, height: 154, opacity: .9, transform: [{ translateY: 5 }] },
   sideQuestListEmblem: { width: 112, height: 124 },
   detailScreen: { flex: 1, backgroundColor: colors.bg },
-  detailTopBar: { position: "absolute", top: 54, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
+  detailTopBar: { position: "absolute", top: 56, right: 16, zIndex: 50, minHeight: 40, paddingHorizontal: 0, paddingTop: 0, flexDirection: "row", justifyContent: "flex-end", alignItems: "center" },
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   detailContent: { paddingTop: 72, paddingHorizontal: 16, paddingBottom: 104, gap: 8 },
   detailContentWithBottomSafe: { paddingBottom: 148 },
