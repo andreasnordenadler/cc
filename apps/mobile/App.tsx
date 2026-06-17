@@ -9017,7 +9017,7 @@ const compactStyles = StyleSheet.create({
   helpSupportAdminBubble: { alignSelf: "flex-start", backgroundColor: "rgba(96,240,175,.1)", borderColor: "rgba(96,240,175,.24)" },
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
-  screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: 0, marginBottom: -22, zIndex: 20 },
+  screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: -36, marginBottom: 14, zIndex: 20 },
   sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 2, overflow: "visible" },
   sideQuestListEmblemGlow: { position: "absolute", width: 142, height: 154, opacity: .9, transform: [{ translateY: 5 }] },
   sideQuestListEmblem: { width: 112, height: 124 },
