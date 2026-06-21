@@ -1597,8 +1597,8 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
     { id: "coats", label: "Trophy Cabinet", icon: "shield-star", action: () => openMenuTab("coatOfArms"), selected: activeTab === "coatOfArms" },
     { id: "custom", label: "My Custom Side Quests", icon: "pencil-ruler", action: () => { setMenuOpen(false); onOpenCustomSideQuests(); }, selected: activeTab === "sideQuests" },
     { id: "create-custom", label: "Create Custom Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); (onOpenCustomSideQuestCreate ?? onOpenCustomSideQuests)(); } },
-    { id: "account", label: authenticated ? "My Account" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
     { id: "host", label: "Create Multiplayer Side Quest", icon: "plus-circle", action: () => { setMenuOpen(false); onOpenMultiplayerCreate(); } },
+    { id: "account", label: authenticated ? "My Account" : "Sign in / Account", icon: "account-circle", action: () => openMenuTab("account"), selected: activeTab === "account" },
     { id: "support", label: "Help & Support", icon: "lifebuoy", action: () => { setMenuOpen(false); onOpenSupport(); } },
   ];
 
