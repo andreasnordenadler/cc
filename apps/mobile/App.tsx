@@ -31,6 +31,8 @@ import {
   type GestureResponderEvent,
   type NativeSyntheticEvent,
   type ScrollViewProps,
+  type StyleProp,
+  type TextStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
@@ -2400,10 +2402,7 @@ function JoinedMultiplayerQuestModal({
             <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
             <Image source={getMultiplayerQuestCoatSource(quest.title)} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
             <Text style={compactStyles.multiplayerDetailKicker}>{quest.official || quest.id.startsWith("official-") ? "SQC Official Multiplayer Side Quest" : quest.isOwner ? "Hosted by you" : "Community Multiplayer Side Quest"}</Text>
-            <View style={compactStyles.detailTitleLine}>
-              <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithAccessory]}>{cleanMultiplayerTitle(quest.title)}</Text>
-              {onToggleLike ? <MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={likeBusy} onPress={() => void handleToggleLike()} /> : null}
-            </View>
+            <MobileInlineLikeTitle title={cleanMultiplayerTitle(quest.title)} textStyle={compactStyles.detailTitle} likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={likeBusy} onPress={onToggleLike ? () => void handleToggleLike() : undefined} />
             <Text style={compactStyles.detailGoal}>{cleanMultiplayerInviteCopy(quest.inviteCopy)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{quest.status.toUpperCase()}</Text>
           </View>
@@ -2866,10 +2865,7 @@ function CurrentSideQuestDetailModal({
             <View style={compactStyles.activeSoloPill}>
               <Text style={compactStyles.activeSoloPillText}>{completed ? "Completed Solo Side Quest" : "Active Solo Side Quest"}</Text>
             </View>
-            <View style={compactStyles.detailTitleLikeRow}>
-              <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithLike]}>{activeQuest.title}</Text>
-              {onToggleLike ? <MobileLikePill likeSummary={likeSummary} label={activeQuest.title} busy={likeBusy} onPress={onToggleLike} /> : null}
-            </View>
+            <MobileInlineLikeTitle title={activeQuest.title} textStyle={compactStyles.detailTitle} likeSummary={likeSummary} label={activeQuest.title} busy={likeBusy} onPress={onToggleLike} />
             <Text style={compactStyles.detailGoal}>{activeQuestGoal}</Text>
           </View>
 
@@ -3693,6 +3689,57 @@ function MobileLikePill({ likeSummary, onPress, label, busy = false }: { likeSum
       <MaterialCommunityIcons name={liked ? "thumb-up" : "thumb-up-outline"} size={15} color={liked ? colors.green : "rgba(255,247,232,.78)"} />
       <Text style={[compactStyles.likePillCount, liked && compactStyles.likePillCountLiked]}>{count}</Text>
     </Pressable>
+  );
+}
+
+function MobileInlineLikeTitle({
+  title,
+  textStyle,
+  likeSummary,
+  onPress,
+  label,
+  busy = false,
+  iconSize = 17,
+}: {
+  title: string;
+  textStyle: StyleProp<TextStyle>;
+  likeSummary?: { count: number; likedByViewer: boolean };
+  onPress?: () => void;
+  label: string;
+  busy?: boolean;
+  iconSize?: number;
+}) {
+  const liked = Boolean(likeSummary?.likedByViewer);
+  const count = getLikeCount(likeSummary);
+  const disabled = busy || !onPress;
+  const color = liked ? colors.green : "rgba(255,247,232,.78)";
+  const countFontSize = Math.max(10, Math.round(iconSize * .68));
+  const likeLineHeight = Math.max(13, iconSize + 2);
+
+  return (
+    <Text style={textStyle}>
+      {title}
+      <Text
+        accessibilityRole="button"
+        accessibilityLabel={`${liked ? "Unlike" : "Like"} ${label}. ${count} like${count === 1 ? "" : "s"}.`}
+        accessibilityState={{ selected: liked, disabled }}
+        suppressHighlighting
+        style={[
+          compactStyles.inlineLikeText,
+          { color, fontSize: countFontSize, lineHeight: likeLineHeight },
+          liked && compactStyles.inlineLikeTextLiked,
+          busy && compactStyles.likePillBusy,
+        ]}
+        onPress={onPress ? (event) => {
+          event.stopPropagation();
+          if (!busy) onPress();
+        } : undefined}
+      >
+        {"  "}
+        <MaterialCommunityIcons name={liked ? "thumb-up" : "thumb-up-outline"} size={iconSize} color={color} />
+        {` ${count}`}
+      </Text>
+    </Text>
   );
 }
 
@@ -7431,10 +7478,7 @@ function SelectedQuestDetailCard({
     <View style={styles.questCard} accessibilityLabel={`${challenge.title} details`}>
       <View style={styles.questCardHeader}>
         <View style={styles.questCardCopy}>
-          <View style={compactStyles.detailTitleLine}>
-            <Text style={[styles.questTitle, compactStyles.detailTitleWithAccessory]}>{challenge.title}</Text>
-            <MobileLikePill likeSummary={likeSummary} label={challenge.title} busy={likeBusy} onPress={() => void toggleLike()} />
-          </View>
+          <MobileInlineLikeTitle title={challenge.title} textStyle={styles.questTitle} likeSummary={likeSummary} label={challenge.title} busy={likeBusy} onPress={() => void toggleLike()} />
           <View style={styles.questDetailMetaRow}>
             <MobileRatingPill value={challenge.reward} />
             <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
@@ -7703,10 +7747,7 @@ function CustomSideQuestDetailModal({
               {completed ? <Image source={SQC_COMPLETED_RED_SEAL_ASSET} style={compactStyles.completedProofSeal} resizeMode="contain" /> : null}
             </View>
             <Text style={compactStyles.multiplayerDetailKicker}>Custom Side Quest</Text>
-            <View style={compactStyles.detailTitleLine}>
-              <Text style={[compactStyles.detailTitle, compactStyles.detailTitleWithAccessory]}>{quest.name}</Text>
-              {onToggleLike && quest.visibility === "public" && lifecycle === "published" ? <MobileLikePill likeSummary={quest.likeSummary} label={quest.name} busy={likeBusy} onPress={() => void handleToggleLike()} /> : null}
-            </View>
+            <MobileInlineLikeTitle title={quest.name} textStyle={compactStyles.detailTitle} likeSummary={quest.likeSummary} label={quest.name} busy={likeBusy} onPress={onToggleLike && quest.visibility === "public" && lifecycle === "published" ? () => void handleToggleLike() : undefined} />
             <Text style={compactStyles.detailGoal}>{cleanCustomRuleSummaryText(quest.summary)}</Text>
             <Text style={compactStyles.detailLatestCheck}>{statusLabel} · {getCustomVisibilityLabel(quest.visibility)}{completedAt ? ` · ${formatLatestCheckTime(completedAt)}` : ""}</Text>
           </View>
@@ -9029,6 +9070,8 @@ const compactStyles = StyleSheet.create({
   likePillBusy: { opacity: .42 },
   likePillCount: { color: "rgba(255,247,232,.56)", fontSize: 10, lineHeight: 12, fontWeight: "900" },
   likePillCountLiked: { color: colors.green },
+  inlineLikeText: { color: "rgba(255,247,232,.78)", fontWeight: "900", letterSpacing: 0, opacity: .78 },
+  inlineLikeTextLiked: { color: colors.green, opacity: 1 },
   appRowMeta: { color: colors.muted, fontSize: 12 },
   sourceBadge: { alignSelf: "flex-start", overflow: "hidden", color: colors.gold, fontSize: 9, lineHeight: 12, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.22)" },
   communitySubTabs: { flexDirection: "row", gap: 8, padding: 4, borderRadius: 18, backgroundColor: "rgba(255,247,232,.055)", borderWidth: 1, borderColor: "rgba(255,247,232,.09)" },

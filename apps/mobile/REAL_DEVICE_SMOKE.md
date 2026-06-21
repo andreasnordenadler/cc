@@ -15,13 +15,13 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v303`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v303>
-- APK filename: `sqc-mobile-android-v303-2026-06-21.apk`
+- GitHub Release tag: `mobile-v304`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v304>
+- APK filename: `sqc-mobile-android-v304-2026-06-21.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.303`
-- Android version code: `303`
-- APK SHA256: `00f2cf764cefc7a55f3bc7eabbf829d0031b4c23a3f13da405edc8bddd039eeb`
+- Version name: `0.1.304`
+- Android version code: `304`
+- APK SHA256: `187aa0639ef287742fe8e627235add294bc59bf49ef81df1722288703c334db3`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
 
 ## Candidate identity
