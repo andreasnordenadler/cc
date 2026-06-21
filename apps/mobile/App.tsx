@@ -149,6 +149,7 @@ type CommunityBrowseView = "discover" | "mine";
 type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
 type CommunityBrowseSort = "popular" | "liked" | "newest" | "az";
 type CustomLibraryFilter = "all" | "published" | "drafts" | "public" | "archived";
+type MultiplayerCatalogTab = "official" | "community";
 type MultiplayerCommunityFilter = "open" | "all" | "joined" | "hosted" | "finished";
 type MultiplayerCommunitySort = "closing" | "liked" | "newest" | "players";
 
@@ -6502,6 +6503,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const officialMultiplayerQuest = officialMultiplayerId ? officialPublicGroupQuests.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
   const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
   const publicMultiplayerQuest = publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null;
+  const [multiplayerCatalogTab, setMultiplayerCatalogTab] = useState<MultiplayerCatalogTab>("official");
   const [multiplayerCommunitySearch, setMultiplayerCommunitySearch] = useState("");
   const [multiplayerHostFilter, setMultiplayerHostFilter] = useState<string | null>(null);
   const [multiplayerCommunityFilter, setMultiplayerCommunityFilter] = useState<MultiplayerCommunityFilter>("open");
@@ -6513,7 +6515,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [multiplayerLikeBusyId, setMultiplayerLikeBusyId] = useState<string | null>(null);
   const [mineListLimit, setMineListLimit] = useState(4);
   const [availableListLimit, setAvailableListLimit] = useState(4);
-  const [hostedListLimit, setHostedListLimit] = useState(3);
   const [historyListLimit, setHistoryListLimit] = useState(3);
   const [createName, setCreateName] = useState("");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
@@ -6668,7 +6669,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const hostedPublicUserGroupQuests = publicUserGroupQuests.filter((quest) => Boolean(quest.isOwner) && quest.status !== "Finished" && !activeGroupQuests.some((activeQuest) => activeQuest.id === quest.id));
   const finishedPublicUserGroupQuests = closedPublicUserGroupQuests;
   const joinedBrowseGroupQuests = [...joinedActiveGroupQuests, ...hostedActiveGroupQuests, ...joinedPublicUserGroupQuests, ...hostedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
-  const hostedBrowseGroupQuests = [...hostedActiveGroupQuests, ...hostedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
   const sortLobbyGroupQuests = <T extends { startAt?: string | null; endAt?: string | null }>(quests: T[]) => [...quests].sort((a, b) => Date.parse(b.startAt ?? b.endAt ?? "") - Date.parse(a.startAt ?? a.endAt ?? ""));
   const activeMineGroupQuests = sortLobbyGroupQuests(joinedBrowseGroupQuests);
   const availableGroupQuests = allCommunityMultiplayerQuests
@@ -6688,15 +6688,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       const bTime = getMultiplayerCommunitySortTime(b, multiplayerCommunitySort);
       return multiplayerCommunitySort === "closing" ? aTime - bTime : bTime - aTime;
     });
-  const hostedLobbyGroupQuests = sortLobbyGroupQuests(hostedBrowseGroupQuests);
   const historyGroupQuests = sortLobbyGroupQuests(closedUserGroupQuests);
   const visibleMineGroupQuests = activeMineGroupQuests.slice(0, mineListLimit);
   const visibleAvailableGroupQuests = availableGroupQuests.slice(0, availableListLimit);
-  const visibleHostedGroupQuests = hostedLobbyGroupQuests.slice(0, hostedListLimit);
   const visibleHistoryGroupQuests = historyGroupQuests.slice(0, historyListLimit);
   const hiddenMineCount = Math.max(0, activeMineGroupQuests.length - visibleMineGroupQuests.length);
   const hiddenAvailableCount = Math.max(0, availableGroupQuests.length - visibleAvailableGroupQuests.length);
-  const hiddenHostedCount = Math.max(0, hostedLobbyGroupQuests.length - visibleHostedGroupQuests.length);
   const hiddenHistoryCount = Math.max(0, historyGroupQuests.length - visibleHistoryGroupQuests.length);
 
   function openBrowseGroupQuest(groupQuestId: string) {
@@ -6709,6 +6706,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
   function openMultiplayerHostShelf(quest: MobileGroupQuestSummary) {
     if (!quest.hostName) return;
+    setMultiplayerCatalogTab("community");
     setMultiplayerHostFilter(quest.hostName);
     setMultiplayerCommunityFilter("all");
     setPublicMultiplayerId(null);
@@ -6754,13 +6752,37 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
         </Pressable>
       </View>
-      <View style={styles.multiplayerLobbyHero}>
-        <View style={compactStyles.sideQuestListEmblemWrap}>
-          <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
-          <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
-        </View>
-        <Text style={styles.multiplayerLobbyHeroTitle}>Multiplayer Side Quests</Text>
-        <Text style={styles.sectionBody}>Join, host, refresh proof, check standings, and manage Multiplayer Side Quests here.</Text>
+      <View style={compactStyles.sideQuestListEmblemWrap}>
+        <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
+        <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
+      </View>
+      <View style={compactStyles.sideQuestBrandTabs}>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: multiplayerCatalogTab === "official" }}
+          accessibilityLabel="Show Official Multiplayer Side Quests"
+          style={[
+            compactStyles.sideQuestBrandTab,
+            compactStyles.sideQuestBrandTabOfficial,
+            multiplayerCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialActive,
+          ]}
+          onPress={() => setMultiplayerCatalogTab("official")}
+        >
+          <Text style={[compactStyles.sideQuestBrandTabText, multiplayerCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
+        </Pressable>
+        <Pressable
+          accessibilityRole="tab"
+          accessibilityState={{ selected: multiplayerCatalogTab === "community" }}
+          accessibilityLabel="Show Community Multiplayer Side Quests"
+          style={[
+            compactStyles.sideQuestBrandTab,
+            compactStyles.sideQuestBrandTabCommunity,
+            multiplayerCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityActive,
+          ]}
+          onPress={() => setMultiplayerCatalogTab("community")}
+        >
+          <Text style={[compactStyles.sideQuestBrandTabText, multiplayerCatalogTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
+        </Pressable>
       </View>
 
 
@@ -6826,6 +6848,32 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
       <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
 
+      {multiplayerCatalogTab === "official" ? (
+        <View style={compactStyles.appSection} accessibilityLabel="SQC Official Multiplayer Side Quests">
+          <View style={compactStyles.panelHeaderRow}>
+            <Text style={compactStyles.freshSectionTitle}>Official Multiplayer Side Quests</Text>
+            <Text style={compactStyles.sectionAction}>{officialPublicGroupQuests.length} official</Text>
+          </View>
+          {officialPublicGroupQuests.length ? (
+            <View style={compactStyles.sideQuestCatalogRows}>
+              {officialPublicGroupQuests.map((quest) => (
+                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
+              ))}
+            </View>
+          ) : (
+            <View style={compactStyles.communityEmptyPanel}>
+              <Text style={compactStyles.communityEmptyTitle}>Official Multiplayer Side Quests</Text>
+              <Text style={compactStyles.communityEmptyCopy}>No official Multiplayer Side Quests are open right now.</Text>
+            </View>
+          )}
+        </View>
+      ) : (
+        <>
+      <View style={compactStyles.communityEmptyPanel}>
+        <Text style={compactStyles.communityEmptyTitle}>Community Multiplayer Side Quests</Text>
+        <Text style={compactStyles.communityEmptyCopy}>These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community.</Text>
+      </View>
+
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Active · joined and hosted</Text>
         <Text style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
@@ -6864,19 +6912,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <Text style={styles.secondaryButtonText}>More history ({hiddenHistoryCount})</Text>
           </Pressable>
         ) : null}
-      </View>
-
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="SQC Official Multiplayer Side Quests">
-        <Text style={styles.eyebrow}>Available to join · official</Text>
-        <Text style={styles.sectionTitle}>Official Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Available official Multiplayer Side Quests to inspect and join.</Text>
-        {officialPublicGroupQuests.length ? (
-          <View style={compactStyles.appRows}>
-            {officialPublicGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
-            ))}
-          </View>
-        ) : <Text style={styles.sectionBody}>No official Multiplayer Side Quests are open right now.</Text>}
       </View>
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
@@ -7110,6 +7145,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Text style={styles.sectionBody}>Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.</Text>
       </View>
       </> : null}
+
+        </>
+      )}
 
     </View>
   );
