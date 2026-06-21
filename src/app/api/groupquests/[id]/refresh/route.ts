@@ -3,7 +3,13 @@ import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
-import { findGroupQuestById, updateParticipantProgress, upsertHostGroupQuest } from "@/lib/groupquests";
+import {
+  findGroupQuestById,
+  isBuiltInOfficialGroupQuestHost,
+  updateParticipantProgress,
+  upsertHostGroupQuest,
+  upsertParticipantGroupQuest,
+} from "@/lib/groupquests";
 import {
   buildChallengeProgressRecord,
   compactChallengeAttempts,
@@ -66,12 +72,16 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     lastProofAt: new Date().toISOString(),
   });
 
-  const host = await client.users.getUser(found.userId);
-  await client.users.updateUserMetadata(found.userId, {
+  const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
+  const storageUserId = storeOnParticipant ? userId : found.userId;
+  const storageUser = await client.users.getUser(storageUserId);
+  await client.users.updateUserMetadata(storageUserId, {
     privateMetadata: {
-      ...(host.privateMetadata ?? {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-      sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, refreshedQuest),
+      ...(storageUser.privateMetadata ?? {}),
+      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+      sqcGroupQuests: storeOnParticipant
+        ? upsertParticipantGroupQuest(storageUser.privateMetadata, refreshedQuest, userId)
+        : upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
     },
   });
 

@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import {
   buildParticipant,
   findGroupQuestById,
+  isBuiltInOfficialGroupQuestHost,
   joinGroupQuest,
   upsertHostGroupQuest,
+  upsertParticipantGroupQuest,
 } from "@/lib/groupquests";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 
@@ -40,13 +42,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ ok: false, error: "invite_key_required" }, { status: 403 });
   }
 
-  const host = await client.users.getUser(found.userId);
   const joined = joinGroupQuest(found.groupQuest, participant);
-  await client.users.updateUserMetadata(found.userId, {
+  const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
+  const storageUserId = storeOnParticipant ? userId : found.userId;
+  const storageUser = await client.users.getUser(storageUserId);
+  await client.users.updateUserMetadata(storageUserId, {
     privateMetadata: {
-      ...(host.privateMetadata ?? {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-      sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, joined),
+      ...(storageUser.privateMetadata ?? {}),
+      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+      sqcGroupQuests: storeOnParticipant
+        ? upsertParticipantGroupQuest(storageUser.privateMetadata, joined, userId)
+        : upsertHostGroupQuest(storageUser.privateMetadata, joined),
     },
   });
 

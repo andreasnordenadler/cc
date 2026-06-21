@@ -9,10 +9,13 @@ import {
   buildParticipant,
   findGroupQuestById,
   findGroupQuestByInviteKey,
+  isBuiltInOfficialGroupQuestHost,
   joinGroupQuest,
   removeParticipantFromGroupQuest,
+  removeStoredGroupQuest,
   updateParticipantProgress,
   upsertHostGroupQuest,
+  upsertParticipantGroupQuest,
   type ServerGroupQuest,
 } from "@/lib/groupquests";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
@@ -225,7 +228,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const joined = joinGroupQuest(found.groupQuest, participant);
-    const saveError = await saveHostQuestSafely(client, found.userId, joined);
+    const saveError = await saveGroupQuestSafely(client, found.userId, joined, userId);
     if (saveError) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: saveError },
@@ -254,7 +257,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const updatedQuest = removeParticipantFromGroupQuest(found.groupQuest, userId);
-    const saveError = await saveHostQuestSafely(client, found.userId, updatedQuest);
+    const saveError = await saveGroupQuestSafely(client, found.userId, updatedQuest, userId, { removeParticipant: true });
     if (saveError) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: saveError },
@@ -311,7 +314,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     lastProofAt: new Date().toISOString(),
   });
 
-  const saveError = await saveHostQuestSafely(client, found.userId, refreshedQuest);
+  const saveError = await saveGroupQuestSafely(client, found.userId, refreshedQuest, userId);
   if (saveError) {
     return NextResponse.json(
       { apiVersion: 1, authenticated: true, ok: false, message: saveError },
@@ -529,6 +532,35 @@ async function saveHostQuestSafely(
   } catch (error) {
     console.error("mobile_groupquest_save_failed", error);
     return "Could not save Multiplayer Side Quest settings. I compacted the Side Quest data; try again once more.";
+  }
+}
+
+async function saveGroupQuestSafely(
+  client: Awaited<ReturnType<typeof clerkClient>>,
+  hostUserId: string,
+  groupQuest: ServerGroupQuest,
+  participantUserId: string,
+  options: { removeParticipant?: boolean } = {},
+) {
+  if (!isBuiltInOfficialGroupQuestHost(hostUserId)) {
+    return saveHostQuestSafely(client, hostUserId, groupQuest);
+  }
+
+  try {
+    const participantUser = await client.users.getUser(participantUserId);
+    await client.users.updateUserMetadata(participantUserId, {
+      privateMetadata: {
+        ...(participantUser.privateMetadata ?? {}),
+        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(participantUser.privateMetadata)),
+        sqcGroupQuests: options.removeParticipant
+          ? removeStoredGroupQuest(participantUser.privateMetadata, groupQuest.id)
+          : upsertParticipantGroupQuest(participantUser.privateMetadata, groupQuest, participantUserId),
+      },
+    });
+    return null;
+  } catch (error) {
+    console.error("mobile_official_groupquest_save_failed", error);
+    return "Could not save Official Multiplayer Side Quest progress. Try again once more.";
   }
 }
 

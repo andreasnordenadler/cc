@@ -53,16 +53,80 @@ export type GroupQuestHostRecord = {
   groupQuest: ServerGroupQuest;
 };
 
+const OFFICIAL_GROUP_QUEST_HOST_USER_ID = "official-sqc";
+const OFFICIAL_GROUP_QUEST_HOST_NAME = "Side Quest Chess";
+const OFFICIAL_GROUP_QUEST_DURATION_DAYS = 14;
+const OFFICIAL_GROUP_QUEST_ANCHOR = Date.UTC(2026, 5, 21);
 const MAX_HOST_QUESTS = 4;
+const MAX_PARTICIPANT_STORED_QUESTS = 12;
 const MAX_PARTICIPANTS = 80;
 const defaultInviteCopy = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
 const defaultRules = { result: "Any result", timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
+
+type OfficialGroupQuestTemplate = {
+  slug: string;
+  name: string;
+  inviteCopy: string;
+  questIds: string[];
+};
+
+const officialGroupQuestTemplates: OfficialGroupQuestTemplate[] = [
+  {
+    slug: "starter-shield",
+    name: "Official 14-Day Starter Shield",
+    inviteCopy: "A two-week official Multiplayer Side Quest for proving the clean fundamentals: finish a game, win with both knights, and give a bishop a real journey.",
+    questIds: ["finish-any-game", "knights-before-coffee", "bishop-field-trip"],
+  },
+  {
+    slug: "royal-route",
+    name: "Official 14-Day Royal Route",
+    inviteCopy: "A two-week official Multiplayer Side Quest for bold king movement, no-castle confidence, and winning with one bishop doing the heavy lifting.",
+    questIds: ["early-king-walk", "no-castle-club", "one-bishop-to-rule-them-all"],
+  },
+  {
+    slug: "chaos-ladder",
+    name: "Official 14-Day Chaos Ladder",
+    inviteCopy: "A two-week official Multiplayer Side Quest for sharp recovery, queenless bravery, and knight-only chaos.",
+    questIds: ["the-blunder-gambit", "queen-never-heard-of-her", "knightmare-mode"],
+  },
+];
 
 export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
   if (!metadata || typeof metadata !== "object") return [];
   const raw = (metadata as { sqcGroupQuests?: unknown }).sqcGroupQuests;
   if (!Array.isArray(raw)) return [];
   return raw.map(normalizeGroupQuest).filter((quest): quest is ServerGroupQuest => Boolean(quest));
+}
+
+export function isBuiltInOfficialGroupQuestHost(userId: string) {
+  return userId === OFFICIAL_GROUP_QUEST_HOST_USER_ID;
+}
+
+export function getBuiltInOfficialGroupQuests(now = new Date()): ServerGroupQuest[] {
+  const { cycleKey, startAt, endAt } = getOfficialGroupQuestWindow(now);
+  return officialGroupQuestTemplates.map((template) => ({
+    id: `official-${template.slug}-${cycleKey}`,
+    hostUserId: OFFICIAL_GROUP_QUEST_HOST_USER_ID,
+    hostName: OFFICIAL_GROUP_QUEST_HOST_NAME,
+    name: template.name,
+    inviteCopy: template.inviteCopy,
+    inviteMode: "public",
+    inviteKey: `official-${template.slug}`,
+    questIds: template.questIds,
+    providerMode: "both",
+    providerLabel: "Lichess or Chess.com",
+    official: true,
+    officialLabel: "Official SQC · 14 days",
+    startAt,
+    endAt,
+    rules: defaultRules,
+    createdAt: startAt,
+    participants: [],
+  }));
+}
+
+export function getBuiltInOfficialGroupQuestById(id: string, now = new Date()) {
+  return getBuiltInOfficialGroupQuests(now).find((quest) => quest.id === id) ?? null;
 }
 
 export function makeGroupQuestId(name: string) {
@@ -121,6 +185,21 @@ export async function findGroupQuestById(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
   id: string,
 ): Promise<GroupQuestHostRecord | null> {
+  const builtInOfficialQuest = getBuiltInOfficialGroupQuestById(id);
+  if (builtInOfficialQuest || id.startsWith("official-")) {
+    const storedQuests = await listStoredGroupQuests(client);
+    const storedOfficialQuests = storedQuests.filter((quest) => quest.id === id && quest.official);
+    const baseOfficialQuest = builtInOfficialQuest ?? storedOfficialQuests[0];
+    if (!baseOfficialQuest) return null;
+    return {
+      userId: OFFICIAL_GROUP_QUEST_HOST_USER_ID,
+      groupQuest: mergeOfficialParticipantCopies(
+        baseOfficialQuest,
+        storedOfficialQuests,
+      ),
+    };
+  }
+
   let offset = 0;
   while (true) {
     const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
@@ -140,6 +219,18 @@ export async function findGroupQuestByInviteKey(
 ): Promise<GroupQuestHostRecord | null> {
   const normalizedKey = cleanInviteKey(inviteKey);
   if (!normalizedKey) return null;
+
+  const builtInOfficialQuest = getBuiltInOfficialGroupQuests().find((quest) => cleanInviteKey(quest.inviteKey) === normalizedKey);
+  if (builtInOfficialQuest) {
+    const storedQuests = await listStoredGroupQuests(client);
+    return {
+      userId: OFFICIAL_GROUP_QUEST_HOST_USER_ID,
+      groupQuest: mergeOfficialParticipantCopies(
+        builtInOfficialQuest,
+        storedQuests.filter((quest) => quest.id === builtInOfficialQuest.id && quest.official),
+      ),
+    };
+  }
 
   let offset = 0;
   while (true) {
@@ -173,18 +264,41 @@ export async function listUserRelatedGroupQuests(
 }
 
 export async function listPublicGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
 ) {
-  const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
-  return users.data
-    .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
-    .filter((quest) => quest.inviteMode === "public")
+  const storedPublicQuests = (await listStoredGroupQuests(client)).filter((quest) => quest.inviteMode === "public");
+  const builtInOfficialQuests = getBuiltInOfficialGroupQuests().map((quest) => mergeOfficialParticipantCopies(
+    quest,
+    storedPublicQuests.filter((storedQuest) => storedQuest.id === quest.id && storedQuest.official),
+  ));
+  const builtInOfficialQuestIds = new Set(builtInOfficialQuests.map((quest) => quest.id));
+
+  return [
+    ...builtInOfficialQuests,
+    ...mergeStoredPublicGroupQuestCopies(storedPublicQuests.filter((quest) => !builtInOfficialQuestIds.has(quest.id))),
+  ]
     .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
 export function upsertHostGroupQuest(metadata: unknown, groupQuest: ServerGroupQuest) {
   const existing = getStoredGroupQuests(metadata).filter((quest) => quest.id !== groupQuest.id);
   return [groupQuest, ...existing].slice(0, MAX_HOST_QUESTS).map(compactGroupQuestForStorage);
+}
+
+export function upsertParticipantGroupQuest(metadata: unknown, groupQuest: ServerGroupQuest, participantUserId: string) {
+  const participantOnlyQuest = {
+    ...groupQuest,
+    participants: groupQuest.participants.filter((participant) => participant.userId === participantUserId),
+  };
+  const existing = getStoredGroupQuests(metadata).filter((quest) => quest.id !== groupQuest.id);
+  return [participantOnlyQuest, ...existing].slice(0, MAX_PARTICIPANT_STORED_QUESTS).map(compactGroupQuestForStorage);
+}
+
+export function removeStoredGroupQuest(metadata: unknown, groupQuestId: string) {
+  return getStoredGroupQuests(metadata)
+    .filter((quest) => quest.id !== groupQuestId)
+    .slice(0, MAX_PARTICIPANT_STORED_QUESTS)
+    .map(compactGroupQuestForStorage);
 }
 
 export function joinGroupQuest(groupQuest: ServerGroupQuest, participant: GroupQuestParticipant): ServerGroupQuest {
@@ -377,6 +491,60 @@ function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
   if (value === "private-key") return value;
   if (value === "unlisted-link") return value;
   return "public";
+}
+
+async function listStoredGroupQuests(
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
+) {
+  const quests: ServerGroupQuest[] = [];
+  let offset = 0;
+  while (true) {
+    const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
+    quests.push(...users.data.flatMap((user) => getStoredGroupQuests(user.privateMetadata)));
+    if (users.data.length < 100) return quests;
+    offset += users.data.length;
+  }
+}
+
+function mergeOfficialParticipantCopies(base: ServerGroupQuest, copies: ServerGroupQuest[]) {
+  const participantsByUserId = new Map<string, GroupQuestParticipant>();
+  for (const copy of copies) {
+    for (const participant of copy.participants) {
+      const existing = participantsByUserId.get(participant.userId);
+      if (!existing || Date.parse(participant.lastProofAt ?? participant.joinedAt) >= Date.parse(existing.lastProofAt ?? existing.joinedAt)) {
+        participantsByUserId.set(participant.userId, participant);
+      }
+    }
+  }
+  return { ...base, participants: Array.from(participantsByUserId.values()).slice(0, MAX_PARTICIPANTS) };
+}
+
+function mergeStoredPublicGroupQuestCopies(quests: ServerGroupQuest[]) {
+  const questsById = new Map<string, ServerGroupQuest>();
+  for (const quest of quests) {
+    const existing = questsById.get(quest.id);
+    if (!existing) {
+      questsById.set(quest.id, quest);
+      continue;
+    }
+    if (quest.official || existing.official) {
+      questsById.set(quest.id, mergeOfficialParticipantCopies(existing.official ? existing : quest, [existing, quest]));
+    }
+  }
+  return Array.from(questsById.values());
+}
+
+function getOfficialGroupQuestWindow(now: Date) {
+  const durationMs = OFFICIAL_GROUP_QUEST_DURATION_DAYS * 24 * 60 * 60 * 1000;
+  const elapsedCycles = Math.max(0, Math.floor((now.getTime() - OFFICIAL_GROUP_QUEST_ANCHOR) / durationMs));
+  const start = new Date(OFFICIAL_GROUP_QUEST_ANCHOR + elapsedCycles * durationMs);
+  const end = new Date(start.getTime() + durationMs);
+  const cycleKey = start.toISOString().slice(0, 10);
+  return {
+    cycleKey,
+    startAt: start.toISOString(),
+    endAt: end.toISOString(),
+  };
 }
 
 function makeInviteKey(name: string) {

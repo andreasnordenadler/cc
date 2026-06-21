@@ -1,7 +1,13 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
-import { findGroupQuestById, removeParticipantFromGroupQuest, upsertHostGroupQuest } from "@/lib/groupquests";
+import {
+  findGroupQuestById,
+  isBuiltInOfficialGroupQuestHost,
+  removeParticipantFromGroupQuest,
+  removeStoredGroupQuest,
+  upsertHostGroupQuest,
+} from "@/lib/groupquests";
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -22,13 +28,17 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ ok: false, error: "not_joined" }, { status: 403 });
   }
 
-  const host = await client.users.getUser(found.userId);
   const updatedQuest = removeParticipantFromGroupQuest(found.groupQuest, userId);
-  await client.users.updateUserMetadata(found.userId, {
+  const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
+  const storageUserId = storeOnParticipant ? userId : found.userId;
+  const storageUser = await client.users.getUser(storageUserId);
+  await client.users.updateUserMetadata(storageUserId, {
     privateMetadata: {
-      ...(host.privateMetadata ?? {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(host.privateMetadata)),
-      sqcGroupQuests: upsertHostGroupQuest(host.privateMetadata, updatedQuest),
+      ...(storageUser.privateMetadata ?? {}),
+      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+      sqcGroupQuests: storeOnParticipant
+        ? removeStoredGroupQuest(storageUser.privateMetadata, found.groupQuest.id)
+        : upsertHostGroupQuest(storageUser.privateMetadata, updatedQuest),
     },
   });
 
