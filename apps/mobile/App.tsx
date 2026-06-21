@@ -2839,6 +2839,9 @@ function CurrentSideQuestDetailModal({
 
   const completed = activeQuest.completed || latestCheckPassed;
   const latestCheckFailed = isFailedReceipt(latestReceipt);
+  const conditionLines = challenge ? getOfficialChallengeConditions(challenge) : [proofNeeded].filter(Boolean);
+  const conditionIntro = conditionLines.length === 1 ? "Complete this condition in one eligible public game." : "Complete every condition in one eligible public game.";
+  const conditionTitleForIndex = challenge?.category === "Custom" ? getCustomConditionLabel : (index: number) => `Condition ${index + 1}`;
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="fullScreen" onRequestClose={onClose}>
@@ -2887,6 +2890,28 @@ function CurrentSideQuestDetailModal({
               )}
             </View>
           </View>
+
+          {conditionLines.length ? (
+            <View style={compactStyles.detailPanelStrong}>
+              <Text style={compactStyles.detailPanelTitle}>Conditions</Text>
+              <Text style={compactStyles.detailPanelCopy}>{conditionIntro}</Text>
+              <View style={compactStyles.appRows}>
+                {conditionLines.map((condition, index) => (
+                  <View key={`${activeQuest.id}-active-condition-${index}`} style={compactStyles.conditionCompactRow}>
+                    <View style={compactStyles.conditionCompactMainRow}>
+                      <View style={compactStyles.conditionCompactIndexPill}>
+                        <Text style={compactStyles.conditionCompactIndex}>{index + 1}</Text>
+                      </View>
+                      <View style={compactStyles.conditionCompactCopy}>
+                        <Text style={compactStyles.conditionCompactTitle}>{conditionTitleForIndex(index)}</Text>
+                        <Text style={compactStyles.conditionCompactMeta}>{condition}</Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
 
           {completed && latestReceipt ? <ActiveQuestMiniProofBoard receipt={latestReceipt} goal={activeQuestGoal} pickedLabel={pickedLabel} latestCheckLabel={latestCheckLabel} statusLabel="Completed" /> : null}
           {!completed && latestCheckFailed && latestReceipt ? <ActiveQuestFailureSummary receipt={latestReceipt} goal={activeQuestGoal} pickedLabel={pickedLabel} latestCheckLabel={latestCheckLabel} statusLabel="Not Completed" /> : null}
@@ -8016,6 +8041,7 @@ function buildCustomActiveChallenge(
   customQuest: MobileCustomSideQuest | null,
 ): MobileChallenge {
   const summary = cleanCustomRuleSummaryText(customQuest?.summary?.trim() || activeQuest.banner?.trim() || "Complete your custom Side Quest rule in a fresh public game.");
+  const conditionLines = customQuest ? getCustomRuleDetailLines(customQuest.config, summary).lines : [summary];
   return {
     id: activeQuest.id,
     title: customQuest?.title?.trim() || activeQuest.title,
@@ -8030,6 +8056,7 @@ function buildCustomActiveChallenge(
     badge: activeQuest.title,
     proofCallout: summary,
     rules: [summary],
+    conditions: conditionLines,
     requirement: { side: "any", result: "custom" },
     badgeIdentity: {
       name: activeQuest.title,
