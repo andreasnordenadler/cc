@@ -8031,6 +8031,10 @@ function CompletedQuestProofCard({
         </View>
         <Text style={compactStyles.completedProofKicker}>Side Quest completed</Text>
         <Text style={compactStyles.detailTitle}>{challenge.title}</Text>
+        <View style={styles.questDetailMetaRow}>
+          <MobileRatingPill value={challenge.reward} />
+          <Text style={[styles.difficultyBadgeMobile, styles[`difficulty${challenge.difficulty}` as keyof typeof styles]]}>{challenge.difficulty}</Text>
+        </View>
         <Text style={compactStyles.detailGoal}>{challenge.objective}</Text>
         <Text style={compactStyles.detailLatestCheck}>Completed: {formatLatestCheckTime(completedQuest.completedAt)}</Text>
         <Text style={compactStyles.completedProofBadgeName}>Coat of Arms: {completedQuest.badgeName}</Text>
