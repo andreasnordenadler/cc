@@ -2883,7 +2883,7 @@ function CurrentSideQuestDetailModal({
                 </>
               ) : (
                 <>
-                  <ProofStep number="1" text="Play one new public game on your connected chess account." />
+                  <ProofStep number="1" text="Play a new public game on your connected chess account." />
                   <ProofStep number="2" text="Complete your Side Quest during that game." />
                   <ProofStep number="3" text="Come back here and tap Check my latest game." />
                 </>
@@ -2950,7 +2950,7 @@ function CurrentSideQuestDetailModal({
             <View style={compactStyles.detailPanelStrong} accessibilityLabel="Latest proof check result">
               <Text style={compactStyles.detailPanelTitle}>{completed ? "Proof check passed" : latestCheckFailed ? "No completion yet" : "No qualifying game yet"}</Text>
               <Text style={latestCheckFailed ? compactStyles.inlineError : compactStyles.detailPanelCopy}>{actionState.message}</Text>
-              {!completed ? <Text style={compactStyles.detailPanelCopy}>Next step: play one new public game on your connected chess account, then tap Check my latest game again.</Text> : null}
+              {!completed ? <Text style={compactStyles.detailPanelCopy}>Next step: play a new public game on your connected chess account, then tap Check my latest game again.</Text> : null}
             </View>
           ) : null}
           {actionState.error ? <Text style={compactStyles.inlineError}>{actionState.error}</Text> : null}
@@ -7349,7 +7349,7 @@ function SelectedQuestDetailCard({
   const likeSummary = getOfficialChallengeLikeSummary(account, challenge.id);
   const actionTitle = activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
   const actionBody = activeQuest
-    ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
+    ? "Play a new eligible public game after starting this quest, then check your latest game for proof."
     : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
   const conditionLines = getOfficialChallengeConditions(challenge);
 
@@ -7770,7 +7770,7 @@ function CustomSideQuestDetailModal({
           {active && !completed ? (
             <View style={styles.proofActionCard}>
               <Text style={styles.proofActionTitle}>{quest.name} is active.</Text>
-              <Text style={styles.proofActionBody}>Play one new eligible public game after picking this custom Side Quest, then check your latest game for proof.</Text>
+              <Text style={styles.proofActionBody}>Play a new eligible public game after picking this custom Side Quest, then check your latest game for proof.</Text>
               <View style={styles.inputStack}>
                 <Text style={styles.inputLabel}>Specific proof game</Text>
                 <TextInput value={proofGameReference} placeholder="Lichess game ID or Chess.com URL" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} style={styles.textInput} onChangeText={setProofGameReference} />
@@ -8165,7 +8165,7 @@ function getMobileAccountNextStep(account: MobileAccountState) {
   }
 
   return {
-    title: `${account.activeQuest.title} is on the royal docket - play one new eligible game, then check the proof.`,
+    title: `${account.activeQuest.title} is on the royal docket - play a new eligible game, then check the proof.`,
     copy: "SQC will inspect your latest public game after this quest started and decide whether the bad idea counts.",
     href: account.activeQuest.href.replace(getApiBaseUrl(), "") || `/challenges/${account.activeQuest.id}`,
     cta: "Open active Side Quest",
