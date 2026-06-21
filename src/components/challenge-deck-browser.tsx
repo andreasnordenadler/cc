@@ -8,6 +8,7 @@ import RatingPill from "@/components/rating-pill";
 import type { Challenge } from "@/lib/challenges";
 
 type ScheduledChallenge = Challenge & { releaseDate?: string };
+type ScheduledChallengeDefinition = Omit<Challenge, "conditions"> & { conditions?: string[]; releaseDate?: string };
 
 type SortMode = "recommended" | "most-liked" | "easy-first" | "hard-first" | "points-high" | "points-low";
 type DifficultyFilter = "All" | Challenge["difficulty"];
@@ -32,7 +33,7 @@ const difficultyRank: Record<Challenge["difficulty"], number> = {
 const difficultyFilters: DifficultyFilter[] = ["All", "Easy", "Medium", "Hard", "Brutal", "Absurd"];
 const MAX_VISIBLE_COMING_SOON_QUESTS = 4;
 
-const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
+const COMING_SOON_CHALLENGE_DEFINITIONS: ScheduledChallengeDefinition[] = [
   {
     id: "back-rank-goblin",
     title: "Back Rank Goblin",
@@ -331,6 +332,11 @@ const COMING_SOON_CHALLENGES: ScheduledChallenge[] = [
     releaseDate: "2026-08-20",
   },
 ];
+
+const COMING_SOON_CHALLENGES: ScheduledChallenge[] = COMING_SOON_CHALLENGE_DEFINITIONS.map((challenge) => ({
+  ...challenge,
+  conditions: challenge.conditions?.length ? challenge.conditions : challenge.rules,
+}));
 
 export default function ChallengeDeckBrowser({ challenges, activeChallengeId, completedChallengeIds, likeSummaries = {}, signedIn = false }: ChallengeDeckBrowserProps) {
   const [difficulty, setDifficulty] = useState<DifficultyFilter>("All");

@@ -32,6 +32,7 @@ type MobileChallengeCard = {
   badge: string;
   proofCallout: string;
   rules: string[];
+  conditions: string[];
   requirement: {
     side: string;
     result: string;
@@ -99,6 +100,7 @@ export async function GET(request: Request) {
       badge: challenge.badge,
       proofCallout: challenge.proofCallout,
       rules: challenge.rules,
+      conditions: challenge.conditions,
       requirement: challenge.requirement,
       badgeIdentity: {
         name: challenge.badgeIdentity.name,

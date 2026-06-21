@@ -3514,7 +3514,7 @@ function getMultiplayerQuestBrowseRow(
       imageSource: getChallengeCoatImageSource(challenge),
       glowSource: getChallengeCoatGlowSource(challenge.id),
       glowColor: getSafeBadgeColors(challenge).glow,
-      ruleLines: challenge.rules.length ? challenge.rules : [challenge.instruction, challenge.proofCallout],
+      ruleLines: getOfficialChallengeConditions(challenge),
     };
   }
 
@@ -3550,6 +3550,14 @@ function getMultiplayerQuestBrowseRow(
       "Use a fresh public Lichess or Chess.com game that satisfies the multiplayer rules.",
     ],
   };
+}
+
+function getOfficialChallengeConditions(challenge: MobileChallenge) {
+  return challenge.conditions?.length
+    ? challenge.conditions
+    : challenge.rules.length
+      ? challenge.rules
+      : [challenge.instruction, challenge.proofCallout].filter(Boolean);
 }
 
 function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests: MobileCustomSideQuest[], existingSummaries: MobileGroupQuestSummary["customQuestSummaries"] = []) {
@@ -7318,6 +7326,7 @@ function SelectedQuestDetailCard({
   const actionBody = activeQuest
     ? "Play one new eligible public game after starting this quest, then check your latest game for proof."
     : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
+  const conditionLines = getOfficialChallengeConditions(challenge);
 
   function confirmLifecycleAction(action: "deactivate" | "reset") {
     Alert.alert(
@@ -7416,8 +7425,23 @@ function SelectedQuestDetailCard({
       </View>
 
       <View style={styles.questInstructionCard}>
-        <Text style={styles.instructionLabel}>What SQC checks</Text>
-        <Text style={styles.instructionCopy}>{challenge.instruction}</Text>
+        <Text style={styles.instructionLabel}>Conditions</Text>
+        <Text style={styles.instructionCopy}>Complete every condition in one eligible public game.</Text>
+        <View style={compactStyles.appRows}>
+          {conditionLines.map((condition, index) => (
+            <View key={`${challenge.id}-condition-${index}`} style={compactStyles.customConditionListRow}>
+              <View style={compactStyles.currentQuestRow}>
+                <View style={compactStyles.coatMarker}>
+                  <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                </View>
+                <View style={compactStyles.currentQuestText}>
+                  <Text style={compactStyles.currentQuestTitle}>Condition {index + 1}</Text>
+                  <Text style={compactStyles.currentQuestMeta}>{condition}</Text>
+                </View>
+              </View>
+            </View>
+          ))}
+        </View>
         <Text style={styles.openingHint}>{challenge.openingHint}</Text>
       </View>
 

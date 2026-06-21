@@ -9,6 +9,11 @@ function fail(message) {
 const challengesText = fs.readFileSync('src/lib/challenges.ts', 'utf8');
 const verifiersText = fs.readFileSync('src/lib/challenge-latest-verifiers.ts', 'utf8');
 const actionsText = fs.readFileSync('src/app/actions.ts', 'utf8');
+const officialDetailText = fs.readFileSync('src/app/challenges/[id]/page.tsx', 'utf8');
+const dareDetailText = fs.readFileSync('src/app/dare/[id]/page.tsx', 'utf8');
+const mobileBootstrapText = fs.readFileSync('src/app/api/mobile/bootstrap/route.ts', 'utf8');
+const mobileAppText = fs.readFileSync('apps/mobile/App.tsx', 'utf8');
+const mobileTypesText = fs.readFileSync('apps/mobile/src/types/sqc.ts', 'utf8');
 
 const challengeIds = [...challengesText.matchAll(/\bid:\s*"([a-z0-9-]+)"/g)].map((match) => match[1]);
 const uniqueChallengeIds = [...new Set(challengeIds)];
@@ -42,12 +47,16 @@ function moveNumberTokens(text) {
 }
 
 const copyMoveThresholdIssues = [];
+const missingRuleCopy = [];
 for (const challenge of extractChallengeBlocks(challengesText)) {
   const objective = extractStringField(challenge.text, "objective");
   const instruction = extractStringField(challenge.text, "instruction");
   const primaryCopy = `${objective} ${instruction}`;
   const primaryTokens = moveNumberTokens(primaryCopy);
   const rules = extractRules(challenge.text);
+  if (rules.length === 0) {
+    missingRuleCopy.push(challenge.id);
+  }
   const minimumMoveRules = rules.filter((rule) => /Game must be at least \d+ moves/i.test(rule));
 
   for (const rule of minimumMoveRules) {
@@ -61,6 +70,26 @@ for (const challenge of extractChallengeBlocks(challengesText)) {
 
 if (copyMoveThresholdIssues.length > 0) {
   fail(`public quest move-threshold copy mismatch:\n- ${copyMoveThresholdIssues.join("\n- ")}`);
+}
+
+if (missingRuleCopy.length > 0) {
+  fail(`official quests missing condition/rule copy: ${missingRuleCopy.join(', ')}`);
+}
+
+const conditionContractChecks = [
+  [challengesText, 'conditions: string[]', 'official Challenge conditions field'],
+  [challengesText, 'conditions: challenge.conditions?.length ? challenge.conditions : challenge.rules', 'official conditions default to verifier rule lines'],
+  [officialDetailText, 'challenge.conditions.map', 'official web detail condition rendering'],
+  [dareDetailText, 'challenge.conditions.map', 'official dare detail condition rendering'],
+  [mobileBootstrapText, 'conditions: challenge.conditions', 'mobile bootstrap conditions payload'],
+  [mobileTypesText, 'conditions?: string[]', 'mobile client conditions type'],
+  [mobileAppText, 'getOfficialChallengeConditions(challenge)', 'mobile official condition rendering'],
+];
+
+for (const [text, needle, label] of conditionContractChecks) {
+  if (!text.includes(needle)) {
+    fail(`official Side Quest condition contract missing: ${label}`);
+  }
 }
 
 const bannedVerifierPhrases = [
@@ -87,4 +116,4 @@ if (missingActionBranches.length > 0) {
   fail(`missing start/check action latest-game branches for: ${missingActionBranches.join(', ')}`);
 }
 
-console.log(`✅ Quest release gate passed: ${uniqueChallengeIds.length} released quests have provider map entries/action branches, no placeholder verifier text, and public move-threshold copy is aligned.`);
+console.log(`✅ Quest release gate passed: ${uniqueChallengeIds.length} released quests have provider map entries/action branches, official condition display coverage, no placeholder verifier text, and public move-threshold copy is aligned.`);

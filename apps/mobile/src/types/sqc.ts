@@ -12,6 +12,7 @@ export type MobileChallenge = {
   badge: string;
   proofCallout: string;
   rules: string[];
+  conditions?: string[];
   requirement: {
     side: string;
     result: string;

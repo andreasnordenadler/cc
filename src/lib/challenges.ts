@@ -34,13 +34,18 @@ export type Challenge = {
   badgeIdentity: BadgeIdentity;
   proofCallout: string;
   rules: string[];
+  conditions: string[];
   requirement: {
     side: "white" | "black" | "either";
     result: "win" | "finish" | "draw" | "lose";
   };
 };
 
-export const CHALLENGES: Challenge[] = [
+type ChallengeDefinition = Omit<Challenge, "conditions"> & {
+  conditions?: string[];
+};
+
+const CHALLENGE_DEFINITIONS: ChallengeDefinition[] = [
   {
     id: "back-rank-goblin",
     title: "Back Rank Goblin",
@@ -582,6 +587,11 @@ export const CHALLENGES: Challenge[] = [
     },
   },
 ];
+
+export const CHALLENGES: Challenge[] = CHALLENGE_DEFINITIONS.map((challenge) => ({
+  ...challenge,
+  conditions: challenge.conditions?.length ? challenge.conditions : challenge.rules,
+}));
 
 export function getChallengeById(id: string): Challenge | undefined {
   return CHALLENGES.find((challenge) => challenge.id === id);

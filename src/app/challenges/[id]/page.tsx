@@ -319,11 +319,11 @@ export default async function ChallengeDetailPage({
         ) : null}
 
         <section className="mission-card quest-detail-section">
-          <span className="eyebrow">Rules</span>
-          <h2>Funny, but rule-clear.</h2>
-          <p>{challenge.instruction}</p>
+          <span className="eyebrow">Conditions</span>
+          <h2>Complete these conditions.</h2>
+          <p>SQC checks the latest eligible public game, or the specific game you submit, against every condition below.</p>
           <ul className="rules-list">
-            {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
+            {challenge.conditions.map((condition) => <li key={condition}>{condition}</li>)}
           </ul>
           <div className="quest-run-flow">
             <span className="eyebrow">How to run it</span>

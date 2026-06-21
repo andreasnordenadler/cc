@@ -153,10 +153,10 @@ export default async function DarePage({
 
         <section className="big-grid">
           <article className="mission-card">
-            <span className="eyebrow">What counts</span>
-            <h2>Rules before chaos.</h2>
+            <span className="eyebrow">Conditions</span>
+            <h2>Complete these conditions.</h2>
             <ul className="rules-list">
-              {challenge.rules.map((rule) => <li key={rule}>{rule}</li>)}
+              {challenge.conditions.map((condition) => <li key={condition}>{condition}</li>)}
             </ul>
           </article>
 
