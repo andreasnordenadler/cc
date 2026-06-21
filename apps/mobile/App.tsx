@@ -4826,25 +4826,25 @@ function QuestBoardDashboard({
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
                   {customRequirements.map((requirement, index) => (
-                    <View key={requirement.id} style={compactStyles.customConditionListRow}>
-                      <View style={compactStyles.currentQuestRow}>
-                        <View style={compactStyles.coatMarker}>
-                          <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                    <View key={requirement.id} style={compactStyles.conditionCompactRow}>
+                      <View style={compactStyles.conditionCompactMainRow}>
+                        <View style={compactStyles.conditionCompactIndexPill}>
+                          <Text style={compactStyles.conditionCompactIndex}>{index + 1}</Text>
                         </View>
-                        <View style={compactStyles.currentQuestText}>
-                          <Text style={compactStyles.currentQuestTitle}>{getCustomConditionLabel(index)}</Text>
-                          <Text style={compactStyles.currentQuestMeta}>{buildCustomPieceRuleSummary(requirement)}</Text>
+                        <View style={compactStyles.conditionCompactCopy}>
+                          <Text style={compactStyles.conditionCompactTitle}>{getCustomConditionLabel(index)}</Text>
+                          <Text style={compactStyles.conditionCompactMeta}>{buildCustomPieceRuleSummary(requirement)}</Text>
                         </View>
                       </View>
-                      <View style={compactStyles.actionRowTight}>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.secondaryAction} onPress={() => editCustomRequirement(requirement)}>
-                          <Text style={compactStyles.secondaryActionText}>Edit</Text>
+                      <View style={compactStyles.conditionCompactActions}>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
+                          <Text style={compactStyles.conditionCompactActionText}>Edit</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.secondaryAction} onPress={() => duplicateCustomRequirement(requirement)}>
-                          <Text style={compactStyles.secondaryActionText}>Duplicate</Text>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                          <Text style={compactStyles.conditionCompactActionText}>Duplicate</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.secondaryAction} onPress={() => removeCustomRequirement(requirement.id)}>
-                          <Text style={compactStyles.secondaryActionText}>Delete</Text>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
+                          <Text style={compactStyles.conditionCompactActionText}>Delete</Text>
                         </Pressable>
                       </View>
                     </View>
@@ -6188,25 +6188,25 @@ function SideQuestsScreen({
               {customRequirements.length ? (
                 <View style={compactStyles.appRows}>
                   {customRequirements.map((requirement, index) => (
-                    <View key={requirement.id} style={compactStyles.customConditionListRow}>
-                      <View style={compactStyles.currentQuestRow}>
-                        <View style={compactStyles.coatMarker}>
-                          <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                    <View key={requirement.id} style={compactStyles.conditionCompactRow}>
+                      <View style={compactStyles.conditionCompactMainRow}>
+                        <View style={compactStyles.conditionCompactIndexPill}>
+                          <Text style={compactStyles.conditionCompactIndex}>{index + 1}</Text>
                         </View>
-                        <View style={compactStyles.currentQuestText}>
-                          <Text style={compactStyles.currentQuestTitle}>{getCustomConditionLabel(index)}</Text>
-                          <Text style={compactStyles.currentQuestMeta}>{buildCustomPieceRuleSummary(requirement)}</Text>
+                        <View style={compactStyles.conditionCompactCopy}>
+                          <Text style={compactStyles.conditionCompactTitle}>{getCustomConditionLabel(index)}</Text>
+                          <Text style={compactStyles.conditionCompactMeta}>{buildCustomPieceRuleSummary(requirement)}</Text>
                         </View>
                       </View>
-                      <View style={compactStyles.actionRowTight}>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.secondaryAction} onPress={() => editCustomRequirement(requirement)}>
-                          <Text style={compactStyles.secondaryActionText}>Edit</Text>
+                      <View style={compactStyles.conditionCompactActions}>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Edit saved condition" style={compactStyles.conditionCompactAction} onPress={() => editCustomRequirement(requirement)}>
+                          <Text style={compactStyles.conditionCompactActionText}>Edit</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.secondaryAction} onPress={() => duplicateCustomRequirement(requirement)}>
-                          <Text style={compactStyles.secondaryActionText}>Duplicate</Text>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Duplicate saved condition" style={compactStyles.conditionCompactAction} onPress={() => duplicateCustomRequirement(requirement)}>
+                          <Text style={compactStyles.conditionCompactActionText}>Duplicate</Text>
                         </Pressable>
-                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.secondaryAction} onPress={() => removeCustomRequirement(requirement.id)}>
-                          <Text style={compactStyles.secondaryActionText}>Delete</Text>
+                        <Pressable accessibilityRole="button" accessibilityLabel="Delete saved condition" style={compactStyles.conditionCompactAction} onPress={() => removeCustomRequirement(requirement.id)}>
+                          <Text style={compactStyles.conditionCompactActionText}>Delete</Text>
                         </Pressable>
                       </View>
                     </View>
@@ -7429,14 +7429,14 @@ function SelectedQuestDetailCard({
         <Text style={styles.instructionCopy}>Complete every condition in one eligible public game.</Text>
         <View style={compactStyles.appRows}>
           {conditionLines.map((condition, index) => (
-            <View key={`${challenge.id}-condition-${index}`} style={compactStyles.customConditionListRow}>
-              <View style={compactStyles.currentQuestRow}>
-                <View style={compactStyles.coatMarker}>
-                  <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+            <View key={`${challenge.id}-condition-${index}`} style={compactStyles.conditionCompactRow}>
+              <View style={compactStyles.conditionCompactMainRow}>
+                <View style={compactStyles.conditionCompactIndexPill}>
+                  <Text style={compactStyles.conditionCompactIndex}>{index + 1}</Text>
                 </View>
-                <View style={compactStyles.currentQuestText}>
-                  <Text style={compactStyles.currentQuestTitle}>Condition {index + 1}</Text>
-                  <Text style={compactStyles.currentQuestMeta}>{condition}</Text>
+                <View style={compactStyles.conditionCompactCopy}>
+                  <Text style={compactStyles.conditionCompactTitle}>Condition {index + 1}</Text>
+                  <Text style={compactStyles.conditionCompactMeta}>{condition}</Text>
                 </View>
               </View>
             </View>
@@ -7697,14 +7697,14 @@ function CustomSideQuestDetailModal({
             <Text style={compactStyles.proofScrollTitle}>{ruleDetails.logicLabel}</Text>
             <View style={compactStyles.appRows}>
               {ruleDetails.lines.map((line, index) => (
-                <View key={`${quest.id}-rule-${index}`} style={compactStyles.customConditionListRow}>
-                  <View style={compactStyles.currentQuestRow}>
-                    <View style={compactStyles.coatMarker}>
-                      <Text style={compactStyles.customConditionIndex}>{index + 1}</Text>
+                <View key={`${quest.id}-rule-${index}`} style={compactStyles.conditionCompactRow}>
+                  <View style={compactStyles.conditionCompactMainRow}>
+                    <View style={compactStyles.conditionCompactIndexPill}>
+                      <Text style={compactStyles.conditionCompactIndex}>{index + 1}</Text>
                     </View>
-                    <View style={compactStyles.currentQuestText}>
-                      <Text style={compactStyles.currentQuestTitle}>{getCustomConditionLabel(index)}</Text>
-                      <Text style={compactStyles.currentQuestMeta}>{line}</Text>
+                    <View style={compactStyles.conditionCompactCopy}>
+                      <Text style={compactStyles.conditionCompactTitle}>{getCustomConditionLabel(index)}</Text>
+                      <Text style={compactStyles.conditionCompactMeta}>{line}</Text>
                     </View>
                   </View>
                 </View>
@@ -9093,8 +9093,16 @@ const compactStyles = StyleSheet.create({
   customTimingChoiceCard: { flexDirection: "column", alignItems: "stretch", gap: 8 },
   customTimingChoiceHeader: { flexDirection: "row", alignItems: "center", gap: 9 },
   customTimingNestedInput: { gap: 5, marginLeft: 24, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: "rgba(245,200,106,.35)" },
-  customConditionListRow: { gap: 9, paddingVertical: 10, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(0,0,0,.16)" },
-  customConditionIndex: { color: colors.gold, fontSize: 16, lineHeight: 20, fontWeight: "900", textAlign: "center" },
+  conditionCompactRow: { gap: 7, paddingVertical: 8, paddingHorizontal: 9, borderRadius: 13, borderWidth: 1, borderColor: "rgba(255,247,232,.1)", backgroundColor: "rgba(0,0,0,.16)" },
+  conditionCompactMainRow: { flexDirection: "row", alignItems: "flex-start", gap: 9 },
+  conditionCompactIndexPill: { width: 28, minHeight: 28, alignItems: "center", justifyContent: "center", borderRadius: 14, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
+  conditionCompactIndex: { color: colors.gold, fontSize: 13, lineHeight: 16, fontWeight: "900", textAlign: "center" },
+  conditionCompactCopy: { flex: 1, minWidth: 0, gap: 1, paddingTop: 1 },
+  conditionCompactTitle: { color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "900" },
+  conditionCompactMeta: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
+  conditionCompactActions: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "flex-start", gap: 6, marginLeft: 37 },
+  conditionCompactAction: { alignItems: "center", justifyContent: "center", minHeight: 32, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(255,255,255,.07)", borderWidth: 1, borderColor: "rgba(255,255,255,.12)" },
+  conditionCompactActionText: { backgroundColor: "transparent", color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   multiplayerOptionCard: { flexDirection: "row", alignItems: "center", gap: 9, minHeight: 52, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 16, borderWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(0,0,0,.16)" },
   multiplayerOptionCardSelected: { borderColor: "rgba(245,200,106,.48)", backgroundColor: "rgba(245,200,106,.13)" },
   multiplayerOptionDot: { width: 15, height: 15, borderRadius: 8, borderWidth: 2, borderColor: "rgba(255,247,232,.32)", backgroundColor: "rgba(0,0,0,.24)" },
