@@ -52,7 +52,7 @@ export default async function CoatOfArmsPage() {
           <div className="grid lean-status-grid" aria-label="Coat of Arms progress summary">
             <Fact label="Earned coats" value={`${earnedLiveBadgeCount}/${liveBadgeChallenges.length}`} />
             <Fact label="Proof receipts" value={userId ? `${proofReceiptCount}` : "Saved after sign-in"} />
-            <Fact label="Total SQC points" value={userId ? <RatingPill value={progress.totalRewardPoints} plus={false} /> : "Start any quest"} />
+            <Fact label="Trophy Cabinet" value={userId ? `${earnedLiveBadgeCount}/${liveBadgeChallenges.length}` : "Start any quest"} />
           </div>
         </section>
 

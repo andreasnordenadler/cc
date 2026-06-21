@@ -200,7 +200,7 @@ export default async function GroupQuestRoomPage() {
                 <div className={`groupquests-participant ${participant.tone}`} key={participant.name}>
                   <strong>#{index + 1}</strong>
                   <div><span>{participant.name}</span><small>{participant.handle}</small></div>
-                  <div><RatingPill value={participant.score} plus={false} /><small>{participant.status} · {participant.proof}</small></div>
+                  <div><span>{participant.status}</span><small>{participant.proof}</small></div>
                 </div>
               ))}
             </div>
@@ -225,7 +225,7 @@ export default async function GroupQuestRoomPage() {
           <span className="eyebrow">Completion state rule</span>
           <h2>Personal proof and Multiplayer proof are different receipts.</h2>
           <p>
-            If you already earned a Coat of Arms for a Solo Side Quest, that stays yours. This Multiplayer Side Quest has its own receipt: joined participant, eligible window, locked table rules, table score, and leaderboard celebration.
+            If you already earned a Coat of Arms for a Solo Side Quest, that stays yours. This Multiplayer Side Quest has its own receipt: joined participant, eligible window, locked table rules, verified progress, and leaderboard celebration.
           </p>
         </section>
       </div>

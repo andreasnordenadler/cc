@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 const sections = [
   {
     title: "Use Side Quest Chess for entertainment.",
-    copy: "Side Quest Chess is a playful chess challenge site. Side quests, points, coats of arms, proof receipts, and leaderboards are for fun, bragging rights, and community competition — not financial, professional, or official chess ratings advice.",
+    copy: "Side Quest Chess is a playful chess challenge site. Side quests, coats of arms, proof receipts, and leaderboards are for fun, bragging rights, and community competition — not financial, professional, or official chess ratings advice.",
   },
   {
     title: "Only public chess data is checked.",
@@ -24,7 +24,7 @@ const sections = [
   },
   {
     title: "Proof receipts can be wrong.",
-    copy: "Side Quest Chess tries to read public game records accurately, but verifier logic, third-party data, delays, outages, or unusual games can produce incorrect passed, failed, or pending results. We may correct, remove, or adjust receipts, points, quests, and leaderboard entries when needed.",
+    copy: "Side Quest Chess tries to read public game records accurately, but verifier logic, third-party data, delays, outages, or unusual games can produce incorrect passed, failed, or pending results. We may correct, remove, or adjust receipts, quests, and leaderboard entries when needed.",
   },
   {
     title: "Play fairly and do not abuse the service.",
@@ -44,7 +44,7 @@ const sections = [
   },
   {
     title: "Public proof sharing is visible.",
-    copy: "If you share a proof card or public proof link, people with that link may see the quest title, coat of arms, points, proof summary, timestamp, and public chess-game reference included in the receipt. Do not share proof you do not want others to view.",
+    copy: "If you share a proof card or public proof link, people with that link may see the quest title, coat of arms, proof summary, timestamp, and public chess-game reference included in the receipt. Do not share proof you do not want others to view.",
   },
   {
     title: "Data deletion requests.",
@@ -60,7 +60,7 @@ const sections = [
   },
   {
     title: "Changes and access.",
-    copy: "We may update quests, points, coats of arms, verification rules, leaderboards, these terms, or access to the service as the product evolves. Continued use after changes means you accept the updated terms.",
+    copy: "We may update quests, coats of arms, verification rules, leaderboards, these terms, or access to the service as the product evolves. Continued use after changes means you accept the updated terms.",
   },
 ];
 

@@ -174,7 +174,7 @@ export async function GET(request: Request) {
         timeLeftLabel: status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt),
         positionLabel: getParticipantPositionLabel(quest, userId),
         joinState: "Joined" as const,
-        pointsLabel: formatPointsLabel(participant?.score ?? 0),
+        progressLabel: formatProgressLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         official: false,
         private: quest.inviteMode === "private-key",
@@ -216,7 +216,7 @@ export async function GET(request: Request) {
         timeLeftLabel: status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt),
         positionLabel: positionLabel ?? undefined,
         joinState: joined ? "Joined" as const : "Join" as const,
-        pointsLabel: formatPointsLabel(participant?.score ?? 0),
+        progressLabel: formatProgressLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         official: true,
         isOwner: quest.hostUserId === userId,
@@ -260,7 +260,7 @@ export async function GET(request: Request) {
         timeLeftLabel: deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt),
         positionLabel: positionLabel ?? undefined,
         joinState: joined ? "Joined" as const : "Join" as const,
-        pointsLabel: formatPointsLabel(participant?.score ?? 0),
+        progressLabel: formatProgressLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         verifiedLabel: formatVerifiedLabel(participant?.completedQuestIds?.length ?? 0, quest.questIds.length),
         official: false,
         private: quest.inviteMode === "private-key",
@@ -549,8 +549,8 @@ function formatPlayersLabel(count: number) {
   return `${count} player${count === 1 ? "" : "s"}`;
 }
 
-function formatPointsLabel(score: number) {
-  return `${score.toLocaleString("en-US")} pts`;
+function formatProgressLabel(completedCount: number, totalCount: number) {
+  return `${completedCount}/${Math.max(totalCount, 1)} verified`;
 }
 
 function formatVerifiedLabel(completedCount: number, totalCount: number) {
@@ -622,7 +622,7 @@ function buildLeaderboardRows(
       rank: `#${index + 1}`,
       name: participant.leaderboardName,
       provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
-      points: formatPointsLabel(participant.score ?? 0),
+      progress: `${participant.completedQuestIds?.length ?? 0}/${totalCount}`,
       verified: `${participant.completedQuestIds?.length ?? 0}/${totalCount} verified`,
       note: formatLeaderboardNote(participant, userId),
       lastProofSummary: participant.lastProofSummary ?? undefined,

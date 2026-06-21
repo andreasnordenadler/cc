@@ -561,11 +561,11 @@ function CustomQuestCard({ active, completed, latestAttempt, proofPath, quest }:
             </div>
             <ShareProofActions
               challengeTitle={quest.title}
-              copy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo Side Quest proof accepted. +100 points.`}
+              copy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo Side Quest proof accepted.`}
               sharePath={proofPath}
               shareLabel="Copy proof link"
               copiedCopy="Custom Solo Side Quest proof link copied."
-              socialCopy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo Side Quest proof accepted. +100 points.`}
+              socialCopy={`I completed “${quest.title}” on Side Quest Chess. Custom Solo Side Quest proof accepted.`}
               socialTitle={`${quest.title} completed on Side Quest Chess`}
               shareAriaLabel="Share Custom Solo Side Quest proof on social media"
               imagePath={proofToken ? publicProofImagePath(proofToken) : undefined}

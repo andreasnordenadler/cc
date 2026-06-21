@@ -166,7 +166,7 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
               <li key={row.userId}>
                 <b>{row.rankLabel}</b>
                 <span>{row.leaderboardName}</span>
-                <small>{row.score} point{row.score === 1 ? "" : "s"} · {row.verifiedCount} verified</small>
+                <small>{row.verifiedCount} verified</small>
               </li>
             ))}
           </ol>

@@ -80,8 +80,8 @@ export default async function RulesPage() {
         </section>
 
         <section className="grid" aria-label="Verification scorecard">
-          <Fact label="Quest deck" value={`${CHALLENGES.length} quests`} copy="Every quest has rules, reward points, and a collectible coat-of-arms badge." />
-          <Fact label="Deck value" value={<RatingPill value={totalReward} plus={false} />} copy="The point score is brag fuel, not a serious rating system." />
+          <Fact label="Quest deck" value={`${CHALLENGES.length} quests`} copy="Every quest has rules, proof checks, and a collectible coat-of-arms badge." />
+          <Fact label="Deck rewards" value={<RatingPill value={totalReward} plus={false} />} copy="The rewards are collectibles and proof receipts, not a serious rating system." />
           <Fact label="Proof tone" value="Honest chaos" copy="Pass, fail, and pending states all stay shareable without pretending every attempt succeeded." />
         </section>
 

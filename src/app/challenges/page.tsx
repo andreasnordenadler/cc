@@ -44,7 +44,7 @@ export default async function ChallengesPage() {
             <span className="eyebrow">Side Quests</span>
             <h1 id="side-quests-title">Choose the next rule you’ll regret.</h1>
             <p>
-              Official Solo Side Quests are the curated SQC deck: clear rules, live proof checks, points, and coat-of-arms rewards.
+              Official Solo Side Quests are the curated SQC deck: clear rules, live proof checks, and coat-of-arms rewards.
             </p>
           </div>
           <div className="challenges-clean-hero-actions" aria-label="Other Side Quest modes">

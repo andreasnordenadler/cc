@@ -44,7 +44,7 @@ export default async function RandomDarePage() {
           <article className="stat-card mission-card">
             <span className="eyebrow">Exact links</span>
             <h3>Every result has a friend-quest URL.</h3>
-            <p>The share path points recipients straight at the same quest, coat, reward, and rules.</p>
+            <p>The share path sends recipients straight to the same quest, coat, reward, and rules.</p>
           </article>
           <article className="stat-card mission-card">
             <span className="eyebrow">Still verifiable</span>

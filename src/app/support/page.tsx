@@ -71,7 +71,7 @@ const privacyNotes = [
   {
     label: "Stores",
     value: "SQC progress",
-    copy: "SQC stores your sign-in profile, saved chess usernames, active quest, points, coat-of-arms progress, and proof receipts.",
+    copy: "SQC stores your sign-in profile, saved chess usernames, active quest, coat-of-arms progress, and proof receipts.",
   },
   {
     label: "Never asks for",
@@ -171,7 +171,7 @@ function buildSupportDiagnostics(metadata: UserMetadataRecord) {
     `Chess.com username saved: ${getChessComUsername(metadata) ? "yes" : "no"}`,
     `Active Solo Side Quest: ${activeChallenge?.id ?? "none"}`,
     `Completed solo quests: ${progress.totalCompletedChallenges}`,
-    `Reward points: ${progress.totalRewardPoints}`,
+    `Coat-of-Arms progress: ${progress.totalCompletedChallenges}`,
     `Stored proof attempts: ${attempts.length}`,
     `Support thread messages: ${supportMessages.length}`,
   ];

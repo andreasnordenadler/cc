@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: "Quest picks — Side Quest Chess",
   description:
-    "Three suggested Side Quest Chess starting points: easy, trouble, or full chaos.",
+    "Three suggested Side Quest Chess starting paths: easy, trouble, or full chaos.",
   alternates: { canonical: "/path" },
   openGraph: {
     title: "Quest picks — Side Quest Chess",

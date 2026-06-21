@@ -135,7 +135,7 @@ export default async function MyQuestLogPage() {
       finishedAt,
       proofPath,
       proofImagePath: publicProofImagePath(proofPath.split("/proof/")[1] ?? ""),
-      shareCopy: `${runnerDisplayName} completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.`,
+      shareCopy: `${runnerDisplayName} completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked.`,
       trophyCopy,
     };
   }));

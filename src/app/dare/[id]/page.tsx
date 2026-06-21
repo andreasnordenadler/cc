@@ -30,7 +30,7 @@ export async function generateMetadata({
   }
 
   const title = `Quest for you: ${challenge.title} — Side Quest Chess`;
-  const description = `${challenge.objective} Unlock ${challenge.badgeIdentity.name} for +${challenge.reward} points.`;
+  const description = `${challenge.objective} Unlock ${challenge.badgeIdentity.name}.`;
   const url = `/dare/${challenge.id}`;
   const image = `/api/og/dare/${challenge.id}`;
 
@@ -115,7 +115,7 @@ export default async function DarePage({
             <ChallengeBadge challenge={challenge} size="hero" />
             <h2>{challenge.badgeIdentity.name}</h2>
             <p>{challenge.badgeIdentity.unlockCopy}</p>
-            <div className="proof-line">{challenge.proofCallout} · +{challenge.reward} points</div>
+            <div className="proof-line">{challenge.proofCallout} · Coat of Arms unlock</div>
           </aside>
         </section>
 

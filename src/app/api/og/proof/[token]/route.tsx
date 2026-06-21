@@ -101,7 +101,7 @@ export async function GET(
             <div style={{ display: "flex", gap: 18, alignItems: "center", fontFamily: "Arial, Helvetica, sans-serif", textTransform: "uppercase", letterSpacing: 2.1, fontSize: 20, color: "rgba(245,200,106,.9)", fontWeight: 1000 }}>
               <span>{dateLabel}</span>
               <span>·</span>
-              <span>{`+${payload.reward} pts`}</span>
+              <span>Coat of Arms</span>
               <span>·</span>
               <span>sidequestchess.com</span>
             </div>

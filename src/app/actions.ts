@@ -149,7 +149,7 @@ const simulatedChallengeChecks: Record<string, Array<{ status: "passed" | "faile
     {
       status: "pending",
       gameId: "latest-game-pawn-weather",
-      summary: "Detected multiple early pawn moves; verifier still needs the full six-pawn threshold check before awarding chaos points.",
+      summary: "Detected multiple early pawn moves; verifier still needs the full six-pawn threshold check before stamping the receipt.",
     },
   ],
   "knightmare-mode": [
@@ -603,7 +603,7 @@ async function buildLatestGameCheck(challengeId: string, attemptCount: number, l
     {
       status: "pending" as const,
       gameId: `latest-game-${challengeId}`,
-      summary: `Queued latest-game verification for ${challenge?.title ?? challengeId}. This quest needs its exact rule detector before auto-awarding points.`,
+      summary: `Queued latest-game verification for ${challenge?.title ?? challengeId}. This quest needs its exact rule detector before stamping the receipt.`,
     },
   ];
 

@@ -85,7 +85,7 @@ export type MobileGroupQuestParticipantRow = {
   rank: string;
   name: string;
   provider: string;
-  points: string;
+  progress: string;
   verified: string;
   note: string;
   lastProofSummary?: string;
@@ -102,7 +102,7 @@ export type MobileGroupQuestSummary = {
   playersLabel?: string;
   timeLeftLabel?: string;
   positionLabel?: string;
-  pointsLabel?: string;
+  progressLabel?: string;
   verifiedLabel?: string;
   official?: boolean;
   private?: boolean;

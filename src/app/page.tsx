@@ -260,7 +260,7 @@ export default async function Home() {
 
       return {
         title: challenge.title,
-        meta: `Unlocked ${challenge.badgeIdentity.name} · +${challenge.reward} points`,
+        meta: `Unlocked ${challenge.badgeIdentity.name}`,
         href: proofPath,
         kind: "Solo Side Quest" as const,
         image:

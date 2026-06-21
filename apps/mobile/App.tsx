@@ -62,11 +62,11 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   },
   multiplayerDetail: {
     title: "This Multiplayer Side Quest",
-    body: "This page shows the Multiplayer Side Quest window, included Side Quests, players, and leaderboard. Join while it is open, play matching public games during the time window, then refresh proof to update your score.",
+    body: "This page shows the Multiplayer Side Quest window, included Side Quests, players, and leaderboard. Join while it is open, play matching public games during the time window, then refresh proof to update your verified progress.",
   },
   multiplayer: {
     title: "Multiplayer Side Quests",
-    body: "Browse shared Multiplayer Side Quests, create your own, or join official Multiplayer Side Quests. Multiplayer progress is scored separately from your Solo Side Quest.",
+    body: "Browse shared Multiplayer Side Quests, create your own, or join official Multiplayer Side Quests. Multiplayer progress is tracked separately from your Solo Side Quest.",
   },
   accounts: {
     title: "Chess accounts",
@@ -2760,7 +2760,7 @@ function MultiplayerLeaderboardRow({
     rank: string;
     name: string;
     provider: string;
-    points: string;
+    progress: string;
     verified: string;
     note: string;
   };
@@ -5409,10 +5409,10 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
     <AppSection title="Progress & Stats" action="Details" onAction={() => onSelectTab("coatOfArms")}>
       <View style={compactStyles.statsPanel}>
         <View style={compactStyles.metricGrid}>
-          <CompactMetric label="SQC points" value={<MobileRatingPill value={account.progress.totalRewardPoints} compact plus={false} />} />
           <CompactMetric label="Completed" value={`${completedCount}`} />
           <CompactMetric label="Proofs" value={`${proofCount}`} />
           <CompactMetric label="Coat of Arms" value={`${completedCount + multiplayerTrophyCount}`} />
+          <CompactMetric label="Multiplayer" value={`${multiplayerTrophyCount}`} />
         </View>
         <Text style={compactStyles.micro}>Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
       </View>
@@ -7060,7 +7060,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <View style={styles.groupquestsRulesCard} accessibilityLabel="Multiplayer Side Quest completion rules">
         <Text style={styles.eyebrow}>Proof rule</Text>
         <Text style={styles.sectionTitle}>Personal proof and multiplayer proof are different ledgers.</Text>
-        <Text style={styles.sectionBody}>Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.</Text>
+        <Text style={styles.sectionBody}>Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.</Text>
       </View>
       </> : null}
 
@@ -7313,10 +7313,12 @@ function ChallengeCardMobile({ challenge, featured = false, completed = false, a
 }
 
 function MobileRatingPill({ value, compact = false, plus = true }: { value: number; compact?: boolean; plus?: boolean }) {
+  void value;
+  void plus;
   return (
-    <View style={[styles.mobileRatingPill, compact && styles.mobileRatingPillCompact]} accessibilityLabel={`${value} rating points`}>
+    <View style={[styles.mobileRatingPill, compact && styles.mobileRatingPillCompact]} accessibilityLabel="Coat of Arms reward">
       <Text style={[styles.mobileRatingIcon, compact && styles.mobileRatingIconCompact]}>★</Text>
-      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>{plus ? "+" : ""}{value} pts</Text>
+      <Text style={[styles.mobileRatingText, compact && styles.mobileRatingTextCompact]}>Coat</Text>
     </View>
   );
 }
@@ -8687,7 +8689,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         playersLabel: "2 players",
         timeLeftLabel: "2d left",
         positionLabel: "#2",
-        pointsLabel: "",
+        progressLabel: "",
         verifiedLabel: "2 / 4",
         questTitles: ["Queen? Never Heard of Her", "Knightmare Mode", "Rookless Rampage", "One Bishop to Rule Them All"],
         completedQuestTitles: ["Queen? Never Heard of Her", "Knightmare Mode"],
@@ -8698,8 +8700,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "First to complete all included Side Quests wins. If nobody finishes, best completion progress at the deadline wins." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "SAM", provider: "lichess · and72nor", points: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", points: "2/4", verified: "2/4 verified", note: "You" },
+          { rank: "#1", name: "SAM", provider: "lichess · and72nor", progress: "3/4", verified: "3/4 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "2/4", verified: "2/4 verified", note: "You" },
         ],
       },
     ],
@@ -8721,8 +8723,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best completion progress when time expires." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Mira", provider: "lichess · miragambit", points: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Jon", provider: "chess.com · jonforks", points: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Jon", provider: "chess.com · jonforks", progress: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
         ],
       },
       {
@@ -8735,7 +8737,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         timeLeftLabel: "2d left",
         positionLabel: "#4",
         joinState: "Joined",
-        pointsLabel: "",
+        progressLabel: "",
         verifiedLabel: "1 / 2",
         questTitles: ["No Castle Club", "Early King Walk"],
         completedQuestTitles: ["Early King Walk"],
@@ -8746,8 +8748,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best completion progress when time expires." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Greta", provider: "lichess · gretafork", points: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", points: "1/2", verified: "1/2 verified", note: "You" },
+          { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#4", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "You" },
         ],
       },
       {
@@ -8767,8 +8769,8 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
           { label: "Winner", value: "Best completion progress when time expires." },
         ],
         leaderboardRows: [
-          { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", points: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
-          { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", points: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
+          { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
         ],
       },
     ],

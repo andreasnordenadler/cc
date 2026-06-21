@@ -102,7 +102,7 @@ export async function GET(
             }}
           >
             <span>SQC friend quest</span>
-            <span style={{ color: "#f8f4e8", opacity: 0.72 }}>+{challenge.reward} pts</span>
+            <span style={{ color: "#f8f4e8", opacity: 0.72 }}>Coat of Arms</span>
           </div>
           <div style={{ fontSize: 78, lineHeight: 0.94, fontWeight: 950, letterSpacing: -3 }}>
             {challenge.title}

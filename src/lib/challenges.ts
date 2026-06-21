@@ -509,12 +509,12 @@ const CHALLENGE_DEFINITIONS: ChallengeDefinition[] = [
     objective: "Lose both original rooks before move 20, then win a rated 20+ move game.",
     instruction:
       "Absurd quests are the no-excuses tier: play a rated 20+ move public Lichess or Chess.com game, lose both original rooks before move 20, then win anyway so the receipt feels impossible but fair.",
-    openingHint: "Castles are temporary. Rating points are not.",
+    openingHint: "Castles are temporary. Rating pressure is not.",
     reward: 1200,
     category: "Absurdity",
     difficulty: "Absurd",
     completionRate: "Rated-only absurd",
-    flavor: "Structural damage with rating points on the line. This is the streamer-hard ceiling, not a casual sandbox.",
+    flavor: "Structural damage with rating pressure on the line. This is the streamer-hard ceiling, not a casual sandbox.",
     badge: "No Towers, No Problem",
     badgeIdentity: {
       name: "Demolition Permit",

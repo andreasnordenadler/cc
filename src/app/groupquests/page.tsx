@@ -282,7 +282,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <span className="eyebrow">Proof rule</span>
               <h2>Personal proof and multiplayer proof are different ledgers.</h2>
               <p>
-                Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.
+                Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.
               </p>
             </section>
 
@@ -470,7 +470,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                   Multiplayer Side Quests turn normal chess nights into a table challenge: one player hosts, everyone reviews the quest stack and game rules, then SQC checks real Lichess or Chess.com games for valid proof.
                 </p>
                 <p>
-                  Each table has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters — but Multiplayer scoring only counts proof earned inside that table.
+                  Each table has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters, but Multiplayer standings only count proof earned inside that table.
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
@@ -555,7 +555,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <span className="eyebrow">Proof rule</span>
               <h2>Personal proof and multiplayer proof are different ledgers.</h2>
               <p>
-                Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, Multiplayer Side Quest score, and multiplayer celebration.
+                Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.
               </p>
             </section>
           </>

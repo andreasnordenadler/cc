@@ -56,7 +56,7 @@ export default async function ResultPage({
       : "Start a quest, play real chess, and Side Quest Chess turns the latest check into a shareable proof card.";
   const gameLabel = latestAttempt?.gameId ?? "latest-game-check";
   const shareCopy = isPassed
-    ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. ${challenge.badge} +${challenge.reward} points. Proof + coat of arms included.`
+    ? `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. ${challenge.badge} Proof + coat of arms included.`
     : latestAttempt
       ? `I tried “${challenge.title}” on Side Quest Chess. ${latestAttemptSummary.headline}: ${latestAttemptSummary.detail}`
       : `I am trying “${challenge.title}” on Side Quest Chess — chess side quests for people who enjoy bad ideas.`;
@@ -73,7 +73,7 @@ export default async function ResultPage({
     ? {
         label: "Passed",
         title: "Share the coat, then pick the next run.",
-        copy: "Your coat of arms, quest proof, points, and share link are ready. Send the receipt as-is or jump straight into another Solo Side Quest.",
+        copy: "Your coat of arms, quest proof, and share link are ready. Send the receipt as-is or jump straight into another Solo Side Quest.",
         action: "Share victory proof",
         href: "/result",
       }
@@ -113,7 +113,7 @@ export default async function ResultPage({
               <Fact label="Quest" value={challenge.title} />
               <Fact label="Status" value={proofStatus} />
               <Fact label="Game" value={gameLabel} />
-              <Fact label="Points" value={isPassed ? <RatingPill value={challenge.reward} /> : <RatingPill value={progress.totalRewardPoints} plus={false} ariaLabel={`${progress.totalRewardPoints} banked rating points`} />} />
+              <Fact label="Unlock" value={isPassed ? <RatingPill value={challenge.reward} /> : "Coat pending"} />
             </div>
             <strong>{isPassed ? `Coat unlocked: ${challenge.badgeIdentity.name}.` : `Badge target: ${challenge.badgeIdentity.name}.`}</strong>
             <p>{challenge.badgeIdentity.heraldry.meaning} {challenge.badgeIdentity.heraldry.weirdness}</p>
@@ -124,7 +124,7 @@ export default async function ResultPage({
             <h2>{isPassed ? "Your coat of arms is ready to show." : "Your latest check is saved here."}</h2>
             <p>
               {isPassed
-                ? "The receipt keeps the unlocked coat, proof summary, points, and sharing tools together so your win is easy to keep or send."
+                ? "The receipt keeps the unlocked coat, proof summary, and sharing tools together so your win is easy to keep or send."
                 : "Use this receipt to see the current quest status, the game SQC checked, and the next action to take before trying again."}
             </p>
             <div className="button-row">
@@ -197,7 +197,7 @@ export default async function ResultPage({
               <p>{shareCopy}</p>
             )}
             <ShareProofActions
-              copy={isPassed ? `${scrollAchievement} ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points.` : shareCopy}
+              copy={isPassed ? `${scrollAchievement} ${challenge.badgeIdentity.name} unlocked.` : shareCopy}
               challengeTitle={challenge.title}
               sharePath={isPassed ? publicProofPath : "/result"}
               imagePath={isPassed ? publicProofImagePath(publicProofToken) : undefined}

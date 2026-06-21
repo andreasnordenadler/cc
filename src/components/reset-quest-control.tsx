@@ -31,7 +31,7 @@ export default function ResetQuestControl({ challenge }: ResetQuestControlProps)
             <span className="eyebrow">Reset completed quest?</span>
             <h2 id="quest-reset-title">Undo this completion?</h2>
             <p id="quest-reset-copy">
-              This removes the saved completion, proof receipt, coat of arms unlock, and points for this quest so you can do it again. This cannot be undone.
+              This removes the saved completion, proof receipt, and coat of arms unlock for this quest so you can do it again. This cannot be undone.
             </p>
 
             <div className="quest-deactivate-crest-card quest-reset-crest-card">

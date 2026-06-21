@@ -223,12 +223,12 @@ export default function GroupQuestLeaderboard({
         <div>
           <span>Current leader</span>
           <strong>{leader ? leader.name : "No leader yet"}</strong>
-          <small>{leader ? `${leader.score.toLocaleString()} pts · ${leader.completed}/${quests.length} verified` : "First verified proof starts the table."}</small>
+          <small>{leader ? `${leader.completed}/${quests.length} verified` : "First verified proof starts the table."}</small>
         </div>
         <div>
           <span>Your run</span>
           <strong>{currentPlayer ? `#${currentPlayer.rank}` : "Join to rank"}</strong>
-          <small>{currentPlayer ? `${currentPlayer.score.toLocaleString()} pts · ${currentPlayer.completed}/${quests.length} verified` : "Accept the invite, then run a proof check."}</small>
+          <small>{currentPlayer ? `${currentPlayer.completed}/${quests.length} verified` : "Accept the invite, then run a proof check."}</small>
         </div>
         <div>
           <span>Full clears</span>
@@ -308,7 +308,7 @@ export default function GroupQuestLeaderboard({
                 <span style={{ width: `${Math.round((player.completed / questCount) * 100)}%` }} />
               </div>
               <div>
-                <strong>{player.score.toLocaleString()} pts</strong>
+                <strong>{player.completed}/{quests.length} verified</strong>
                 <small>{player.proof} · {player.last}</small>
               </div>
             </summary>

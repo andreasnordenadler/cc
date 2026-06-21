@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import RatingPill from "@/components/rating-pill";
 import { useState } from "react";
 
 type InitialProofState = {
@@ -192,7 +191,7 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
         <article className="proof-check-card proof-check-card-primary">
           <span className="eyebrow">Fastest check</span>
           <h3>Judge my latest table game.</h3>
-          <p>Use this after you finish a fresh Lichess or Chess.com game inside this Multiplayer window. One check updates your points, receipts, boards, and leaderboard progress.</p>
+          <p>Use this after you finish a fresh Lichess or Chess.com game inside this Multiplayer window. One check updates your receipts, boards, and leaderboard progress.</p>
           <button className="button primary" type="button" onClick={refreshProof} disabled={submitting}>
             {submitting ? "Checking…" : "Check latest game"}
           </button>
@@ -204,14 +203,14 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
         </article>
       </div>
 
-      <div className="groupquest-score-strip groupquest-proof-strip" aria-label="Your proof receipt summary">
+      <div className="groupquest-progress-strip groupquest-proof-strip" aria-label="Your proof receipt summary">
         <div>
           <strong>{completedCount} / {quests.length}</strong>
           <span>Verified here</span>
         </div>
         <div>
-          <strong>{state.score}</strong>
-          <span>Multiplayer pts</span>
+          <strong>{completedCount} / {quests.length}</strong>
+          <span>Verified progress</span>
         </div>
         <div>
           <strong>{formatProofTime(state.lastProofAt)}</strong>
@@ -231,7 +230,7 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
             <article className={isComplete ? "groupquest-proof-check passed" : "groupquest-proof-check"} key={quest.id}>
               <span className="badge green">{isComplete ? "Verified" : check?.status === "failed" ? "Needs another game" : "Open"}</span>
               <strong>{quest.title}</strong>
-              <small>{check?.summary ?? (isComplete ? "Already counted for this Multiplayer Side Quest." : <span className="inline-rating-copy"><RatingPill value={quest.reward} plus={false} /> available inside this run.</span>)}</small>
+              <small>{check?.summary ?? (isComplete ? "Already counted for this Multiplayer Side Quest." : "Available inside this run.")}</small>
               {check ? <MultiplayerProofBoard check={check} /> : null}
             </article>
           );

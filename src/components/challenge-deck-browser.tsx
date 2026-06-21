@@ -10,7 +10,7 @@ import type { Challenge } from "@/lib/challenges";
 type ScheduledChallenge = Challenge & { releaseDate?: string };
 type ScheduledChallengeDefinition = Omit<Challenge, "conditions"> & { conditions?: string[]; releaseDate?: string };
 
-type SortMode = "recommended" | "most-liked" | "easy-first" | "hard-first" | "points-high" | "points-low";
+type SortMode = "recommended" | "most-liked" | "easy-first" | "hard-first" | "reward-high" | "reward-low";
 type DifficultyFilter = "All" | Challenge["difficulty"];
 type StatusFilter = "All" | "Active" | "Completed" | "Open";
 
@@ -269,7 +269,7 @@ const COMING_SOON_CHALLENGE_DEFINITIONS: ScheduledChallengeDefinition[] = [
     id: "underpromotion-union",
     title: "Underpromotion Union",
     objective: "Underpromote a pawn and win a rated game.",
-    instruction: "Coming soon: rated-only Absurd proof. Reach promotion, deliberately choose not-queen, and still win with rating points on the line.",
+    instruction: "Coming soon: rated-only Absurd proof. Reach promotion, deliberately choose not-queen, and still win with rating pressure on the line.",
     openingHint: "The pawn negotiated benefits and risked Elo.",
     reward: 1400,
     category: "Absurdity",
@@ -308,7 +308,7 @@ const COMING_SOON_CHALLENGE_DEFINITIONS: ScheduledChallengeDefinition[] = [
     category: "Absurdity",
     difficulty: "Absurd",
     completionRate: "Coming soon · rated-only absurd",
-    flavor: "A lonely king, a crowded board, rating points at risk, and absolutely no dignity left.",
+    flavor: "A lonely king, a crowded board, rating at risk, and absolutely no dignity left.",
     badge: "Solo Monarch Department",
     badgeIdentity: {
       name: "Witness King",
@@ -360,8 +360,8 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
       if (sort === "most-liked") return (likeSummaries[b.id]?.count ?? 0) - (likeSummaries[a.id]?.count ?? 0) || challenges.indexOf(a) - challenges.indexOf(b);
       if (sort === "easy-first") return difficultyRank[a.difficulty] - difficultyRank[b.difficulty] || a.reward - b.reward;
       if (sort === "hard-first") return difficultyRank[b.difficulty] - difficultyRank[a.difficulty] || b.reward - a.reward;
-      if (sort === "points-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
-      if (sort === "points-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
+      if (sort === "reward-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
+      if (sort === "reward-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
       return challenges.indexOf(a) - challenges.indexOf(b);
     });
   }, [activeChallengeId, challenges, completedSet, difficulty, likeSummaries, sort, status]);
@@ -379,8 +379,8 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
       .sort((a, b) => {
         if (sort === "easy-first") return difficultyRank[a.difficulty] - difficultyRank[b.difficulty] || a.reward - b.reward;
         if (sort === "hard-first") return difficultyRank[b.difficulty] - difficultyRank[a.difficulty] || b.reward - a.reward;
-        if (sort === "points-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
-        if (sort === "points-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
+        if (sort === "reward-high") return b.reward - a.reward || difficultyRank[b.difficulty] - difficultyRank[a.difficulty];
+        if (sort === "reward-low") return a.reward - b.reward || difficultyRank[a.difficulty] - difficultyRank[b.difficulty];
         return COMING_SOON_CHALLENGES.indexOf(a) - COMING_SOON_CHALLENGES.indexOf(b);
       })
       .slice(0, MAX_VISIBLE_COMING_SOON_QUESTS);
@@ -410,7 +410,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
   function showHighPointLane() {
     setDifficulty("All");
     setStatus("Open");
-    setSort("points-high");
+    setSort("reward-high");
   }
 
   return (
@@ -431,7 +431,7 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
         <div className="quest-filter-shortcuts" aria-label="Quick quest filters">
           <button type="button" className="button secondary" onClick={showStarterLane}>Good first runs</button>
           <button type="button" className="button secondary" onClick={showActiveRun}>My active run</button>
-          <button type="button" className="button secondary" onClick={showHighPointLane}>Big point targets</button>
+          <button type="button" className="button secondary" onClick={showHighPointLane}>Hardest trophy runs</button>
         </div>
         <div className="quest-filter-grid">
           <label>
@@ -456,8 +456,8 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
               <option value="most-liked">Most liked</option>
               <option value="easy-first">Easy first</option>
               <option value="hard-first">Hard first</option>
-              <option value="points-high">Most points</option>
-              <option value="points-low">Fewest points</option>
+              <option value="reward-high">Biggest coat unlocks</option>
+              <option value="reward-low">Lightest coat unlocks</option>
             </select>
           </label>
           <button type="button" className="button secondary quest-filter-reset" onClick={resetFilters} disabled={!hasActiveFilters}>

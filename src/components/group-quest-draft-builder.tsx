@@ -14,7 +14,7 @@ type BuilderQuest = {
 
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
 const storagePrefix = "sqc-groupquest-draft:";
-const successCriteria = "First to complete all quests wins. If nobody finishes, highest points at the deadline wins.";
+const successCriteria = "First to complete all quests wins. If nobody finishes, best verified progress at the deadline wins.";
 
 const providerModes = [
   { id: "both", label: "Lichess or Chess.com", copy: "Players can submit public proof from either supported provider." },

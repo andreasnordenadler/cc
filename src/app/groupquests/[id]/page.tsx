@@ -32,7 +32,7 @@ const onboardingSteps = [
   { label: "4", title: "Climb the leaderboard", copy: "Completed quests fill the progress bars and move you up before time runs out." },
 ];
 
-const successCriteria = "First to complete all quests wins. If nobody finishes, highest points at the deadline wins.";
+const successCriteria = "First to complete all quests wins. If nobody finishes, best verified progress at the deadline wins.";
 
 export const metadata = {
   title: "Multiplayer Side Quest · Side Quest Chess",
@@ -280,7 +280,7 @@ export default async function GroupQuestByIdPage({
               <span className="eyebrow">Rules and time</span>
               <h2>What counts for this run.</h2>
               <p>
-                This competition uses fresh public games. Older personal completions do not automatically count here. Winner rule: first to complete every Side Quest wins; otherwise highest points wins when time expires.
+                This competition uses fresh public games. Older personal completions do not automatically count here. Winner rule: first to complete every Side Quest wins; otherwise best verified progress wins when time expires.
               </p>
               <ul className="groupquest-summary-list groupquest-rules-list" aria-label="Onboarding rule summary">
                 <li><span>Games allowed</span><strong>{providerLabel}</strong></li>
@@ -338,7 +338,7 @@ export default async function GroupQuestByIdPage({
               <CommunityLikeButton targetType="multiplayer" targetId={id} count={likeSummaries.get("multiplayer", id).count} likedByViewer={likeSummaries.get("multiplayer", id).likedByViewer} signedIn={Boolean(userId)} returnTo={`/groupquests/${encodeURIComponent(id)}`} label={questName} />
             </div>
             <p className="hero-copy">
-              Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, highest points at the deadline wins.
+              Side Quests. One leaderboard. First to finish all quests wins; if nobody finishes, best verified progress at the deadline wins.
             </p>
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
             {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
@@ -386,14 +386,14 @@ export default async function GroupQuestByIdPage({
           />
         )}
 
-        <section className="groupquest-score-strip" aria-label="Your competition standing">
+        <section className="groupquest-progress-strip" aria-label="Your competition standing">
           <div>
             <strong>{currentParticipantRank ? `#${currentParticipantRank}` : "—"}</strong>
             <span>Your rank</span>
           </div>
           <div>
-            <strong>{serverParticipant?.score ?? 0}</strong>
-            <span>Your points</span>
+            <strong>{serverParticipant?.completedQuestIds?.length ?? 0} / {quests.length}</strong>
+            <span>Verified</span>
           </div>
           <div>
             <strong>{serverParticipant?.completedQuestIds?.length ?? 0} / {quests.length}</strong>

@@ -24,7 +24,7 @@ export async function generateMetadata({
 
   const image = publicProofImagePath(token);
   const title = `${decoded.payload.challengeTitle} completed — Side Quest Chess`;
-  const description = `${decoded.payload.badgeName} unlocked for +${decoded.payload.reward} points.`;
+  const description = `${decoded.payload.badgeName} unlocked on Side Quest Chess.`;
 
   return {
     title,
@@ -76,7 +76,7 @@ export default async function PublicProofPage({
         lastMoveSan: payload.lastMoveSan,
       }
     : null;
-  const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked. +${payload.reward} points.`;
+  const shareCopy = `${payload.runnerName ? `${payload.runnerName} completed` : "I completed"} “${payload.challengeTitle}” on Side Quest Chess. ${payload.badgeName} unlocked.`;
   const browseHref = challenge ? "/challenges" : "/challenges/community";
   const browseLabel = challenge ? "Browse Official Solo Side Quests" : "Browse Community Solo Side Quests";
 

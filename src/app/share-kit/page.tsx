@@ -57,7 +57,7 @@ export default function ShareKitPage() {
           <aside className="side-card card">
             <div className="spread">
               <span className="eyebrow">Quest deck value</span>
-              <RatingPill value={deckValue} plus={false} ariaLabel={`${deckValue} total deck rating points`} />
+              <RatingPill value={deckValue} plus={false} ariaLabel="Coat of Arms reward deck" />
             </div>
             <ChallengeBadge challenge={featured} />
             <h2>{featured.title}</h2>

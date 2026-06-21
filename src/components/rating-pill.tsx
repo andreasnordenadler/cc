@@ -6,11 +6,13 @@ type RatingPillProps = {
   ariaLabel?: string;
 };
 
-export default function RatingPill({ value, suffix = "pts", plus = true, className = "", ariaLabel }: RatingPillProps) {
-  const textValue = `${plus ? "+" : ""}${value}${suffix ? ` ${suffix}` : ""}`;
+export default function RatingPill({ value, suffix = "Coat of Arms", plus = true, className = "", ariaLabel }: RatingPillProps) {
+  void value;
+  void plus;
+  const textValue = suffix;
 
   return (
-    <span className={`quest-points rating-pill ${className}`.trim()} aria-label={ariaLabel ?? `${textValue} rating points`}>
+    <span className={`quest-reward rating-pill ${className}`.trim()} aria-label={ariaLabel ?? `${textValue} reward`}>
       {textValue}
     </span>
   );

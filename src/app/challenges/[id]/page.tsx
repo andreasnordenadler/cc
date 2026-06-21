@@ -53,7 +53,7 @@ export async function generateMetadata({
   }
 
   const title = `${challenge.title} — Side Quest Chess`;
-  const description = `${challenge.objective} ${challenge.proofCallout}. Win on Lichess or Chess.com, then verify your latest public game for +${challenge.reward} points.`;
+  const description = `${challenge.objective} ${challenge.proofCallout}. Win on Lichess or Chess.com, then verify your latest public game for the Coat of Arms.`;
   const url = `/challenges/${challenge.id}`;
   const image = `/api/og/dare/${challenge.id}`;
 
@@ -484,5 +484,5 @@ function buildOfficialQuestShareCopy(challenge: Challenge) {
 function buildCompletedQuestShareCopy(challenge: Challenge, attempt: ChallengeAttempt | null) {
   const summary = sanitizeAttemptSummary(attempt?.summary);
 
-  return `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. +${challenge.reward} points. ${summary}`;
+  return `I completed “${challenge.title}” on Side Quest Chess. ${challenge.badgeIdentity.name} unlocked. ${summary}`;
 }
