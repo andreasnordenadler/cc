@@ -71,7 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       username: user.username,
       emailAddress: user.primaryEmailAddress?.emailAddress,
     }) || "SQC host";
-    const inviteMode = payload?.inviteMode === "private-key" ? "private-key" : "public";
+    const inviteMode = normalizeInviteMode(payload?.inviteMode);
     const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata);
     if (questSelection.error) {
       return NextResponse.json(
@@ -347,7 +347,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
 function patchMobileGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, questSelection: GroupQuestSelection): ServerGroupQuest {
   const providerMode = normalizeProviderMode(payload.providerMode);
-  const inviteMode = payload.inviteMode === "private-key" ? "private-key" : "public";
+  const inviteMode = normalizeInviteMode(payload.inviteMode);
   return {
     ...current,
     name: cleanText(payload.name, 64) ?? current.name,
@@ -420,6 +420,11 @@ function getGroupQuestReward(groupQuest: ServerGroupQuest, questId: string) {
 function normalizeProviderMode(value: unknown): ServerGroupQuest["providerMode"] {
   if (value === "lichess" || value === "chesscom") return value;
   return "both";
+}
+
+function normalizeInviteMode(value: unknown): ServerGroupQuest["inviteMode"] {
+  if (value === "private-key" || value === "unlisted-link") return value;
+  return "public";
 }
 
 function normalizeDateTimeValue(value: unknown) {

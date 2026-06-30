@@ -877,10 +877,17 @@ function getCustomRuleDetailLines(config: string, fallbackSummary: string) {
   };
 }
 
-function getInviteModeOptionCopy(mode: "public" | "private-key") {
-  return mode === "public"
-    ? { title: "Public", helper: "Visible in Browse" }
-    : { title: "Invite code", helper: "Only players with the invite code or link can join" };
+type MobileMultiplayerInviteMode = NonNullable<MobileGroupQuestSummary["inviteMode"]>;
+
+function normalizeMobileInviteMode(mode?: MobileGroupQuestSummary["inviteMode"]): MobileMultiplayerInviteMode {
+  if (mode === "private-key" || mode === "unlisted-link") return mode;
+  return "public";
+}
+
+function getInviteModeOptionCopy(mode: MobileMultiplayerInviteMode) {
+  if (mode === "public") return { title: "Public", helper: "Visible in Browse" };
+  if (mode === "unlisted-link") return { title: "Unlisted link", helper: "Only players with the link can join" };
+  return { title: "Invite code", helper: "Only players with the invite code or link can join" };
 }
 
 function getMultiplayerRuleOptionCopy(ruleId: string, option: string) {
@@ -2273,7 +2280,7 @@ function JoinedMultiplayerQuestModal({
   const [selectedRuleQuestTitle, setSelectedRuleQuestTitle] = useState<string | null>(null);
   const [adminName, setAdminName] = useState(quest?.title ?? "");
   const [adminInviteCopy, setAdminInviteCopy] = useState(cleanMultiplayerInviteCopy(quest?.inviteCopy));
-  const [adminInviteMode, setAdminInviteMode] = useState<"public" | "private-key">(quest?.inviteMode === "private-key" ? "private-key" : "public");
+  const [adminInviteMode, setAdminInviteMode] = useState<MobileMultiplayerInviteMode>(() => normalizeMobileInviteMode(quest?.inviteMode));
   const [adminProviderMode, setAdminProviderMode] = useState<"both" | "lichess" | "chesscom">(quest?.providerMode ?? "both");
   const [adminStartAt, setAdminStartAt] = useState(() => dateFromGroupQuestValue(quest?.startAt));
   const [adminEndAt, setAdminEndAt] = useState(() => dateFromGroupQuestValue(quest?.endAt, setGroupQuestDuration(dateFromGroupQuestValue(quest?.startAt), 7)));
@@ -2656,7 +2663,7 @@ function JoinedMultiplayerQuestModal({
               <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Visibility</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
-                {(["public", "private-key"] as const).map((modeOption) => {
+                {(["public", "unlisted-link", "private-key"] as const).map((modeOption) => {
                   const selected = adminInviteMode === modeOption;
                   const copy = getInviteModeOptionCopy(modeOption);
                   return (
@@ -6717,7 +6724,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [historyListLimit, setHistoryListLimit] = useState(3);
   const [createName, setCreateName] = useState("");
   const [createInviteCopy, setCreateInviteCopy] = useState(MULTIPLAYER_DEFAULT_INVITE_COPY);
-  const [createInviteMode, setCreateInviteMode] = useState<"public" | "private-key">("public");
+  const [createInviteMode, setCreateInviteMode] = useState<MobileMultiplayerInviteMode>("public");
   const [createProviderMode, setCreateProviderMode] = useState<"both" | "lichess" | "chesscom">("both");
   const [createStartAt, setCreateStartAt] = useState(() => addGroupQuestMinutes(new Date(), 5));
   const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
@@ -7003,6 +7010,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         visible={Boolean(joinedMultiplayerQuest)}
         quest={joinedMultiplayerQuest}
         challenges={bootstrap.challenges}
+        customQuests={multiplayerCustomQuestCatalog}
         mode="joined"
         busy={groupQuestActionState.busy && groupQuestActionState.questId === joinedMultiplayerQuest?.id}
         message={groupQuestActionState.questId === joinedMultiplayerQuest?.id ? groupQuestActionState.message : null}
@@ -7015,6 +7023,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onReport={openMultiplayerReport}
         onToggleLike={toggleCommunityMultiplayerLike}
         onViewHost={openMultiplayerHostShelf}
+        account={signedInAccount}
       />
 
       <JoinedMultiplayerQuestModal
@@ -7306,7 +7315,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={styles.microcopy}>Shown to players before they join.</Text>
               <Text style={styles.inputLabel}>Access</Text>
               <View style={compactStyles.multiplayerOptionGrid}>
-                {(["public", "private-key"] as const).map((mode) => {
+                {(["public", "unlisted-link", "private-key"] as const).map((mode) => {
                   const selected = createInviteMode === mode;
                   const copy = getInviteModeOptionCopy(mode);
                   return (

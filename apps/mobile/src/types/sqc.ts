@@ -109,7 +109,7 @@ export type MobileGroupQuestSummary = {
   isOwner?: boolean;
   joinState?: "Join" | "Joined";
   hostName?: string;
-  inviteMode?: "public" | "private-key";
+  inviteMode?: "public" | "unlisted-link" | "private-key";
   inviteKey?: string | null;
   inviteCopy?: string;
   providerMode?: "both" | "lichess" | "chesscom";
