@@ -226,6 +226,7 @@ export type MobileAccountState = {
     title: string;
     placement: "Gold" | "Silver" | "Bronze";
     rankLabel: string;
+    source?: "official" | "community";
     completedAt: string | null;
     href: string;
   }>;

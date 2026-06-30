@@ -52,11 +52,11 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   },
   solo: {
     title: "Choosing a Solo Side Quest",
-    body: "This screen is for picking your next Solo Side Quest. Only one Solo Side Quest can be active at a time, and games count after you pick it.",
+    body: "Pick one Solo Side Quest, then play a new public game on your connected Lichess or Chess.com username. Side Quest Chess checks games played after you choose the quest.",
   },
   proof: {
     title: "Proof checks",
-    body: "SQC checks your latest public games after you picked the Side Quest. If a game does not verify, make sure it is public, finished, on the connected username, and matches the Side Quest rule.",
+    body: "Side Quest Chess checks your latest public games after you pick a Side Quest. If proof does not verify, make sure the game is finished, public, played on your connected username, and matches the Side Quest rule.",
   },
   coat: {
     title: "Coat of Arms",
@@ -68,11 +68,11 @@ const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   },
   multiplayer: {
     title: "Multiplayer Side Quests",
-    body: "Browse shared Multiplayer Side Quests, create your own, or join official Multiplayer Side Quests. Multiplayer progress is tracked separately from your Solo Side Quest.",
+    body: "Multiplayer Side Quests are shared challenges with their own rules, time window, players, and leaderboard. You can join an official table, join a community table, or create one for friends.",
   },
   accounts: {
     title: "Chess accounts",
-    body: "Add your public Lichess or Chess.com username so SQC knows which games to check. SQC only reads public game records.",
+    body: "Add your public Lichess or Chess.com username so Side Quest Chess knows which games to check. Side Quest Chess only reads public game records and never needs your chess-site password.",
   },
 };
 
@@ -150,6 +150,7 @@ type CommunityBrowseFilter = "all" | "popular" | "new" | "completed";
 type CommunityBrowseSort = "popular" | "liked" | "newest" | "az";
 type CustomLibraryFilter = "all" | "published" | "drafts" | "public" | "archived";
 type MultiplayerCatalogTab = "official" | "community";
+type MultiplayerQuestChoiceSource = MultiplayerCatalogTab;
 type MultiplayerCommunityFilter = "open" | "all" | "joined" | "hosted" | "finished";
 type MultiplayerCommunitySort = "closing" | "liked" | "newest" | "players";
 
@@ -3228,7 +3229,7 @@ function HomeFeatureCard({
 function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   return (
     <AppSection title="Help & Support" action="Open" onAction={onOpenHelp}>
-      <AppRow title="How SQC works" meta="Side Quests, proof checks, Coat of Arms, and Multiplayer help." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
+      <AppRow title="How Side Quest Chess works" meta="Side Quests, proof checks, Coat of Arms, and Multiplayer help." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
       <AppRow title="Report a problem" meta="Tell us what happened and we’ll take a look." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
     </AppSection>
   );
@@ -3339,12 +3340,12 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
             </View>
             <Text style={compactStyles.multiplayerDetailKicker}>Help & Support</Text>
             <Text style={compactStyles.detailTitle}>How can we help?</Text>
-            <Text style={compactStyles.detailGoal}>Quick answers for Side Quests, proof, connected accounts, and Multiplayer.</Text>
+            <Text style={compactStyles.detailGoal}>New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer.</Text>
           </View>
 
           <View style={compactStyles.detailPanelStrong}>
             <Text style={compactStyles.detailPanelTitle}>Quick answers</Text>
-            <Text style={compactStyles.detailPanelCopy}>SQC checks public chess games after you pick or join a Side Quest. If something looks wrong, refresh proof after the game has fully finished.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Side Quest Chess checks public Lichess or Chess.com games after you choose a Side Quest or join a Multiplayer Side Quest. If proof looks wrong, wait until the game is fully finished and refresh proof.</Text>
           </View>
 
           <View style={compactStyles.multiplayerNativeCard}>
@@ -3366,20 +3367,20 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.appRows}>
             <HelpSupportRow title="How Side Quests work" body={HELP_TOPICS.solo.body} />
-            <HelpSupportRow title="Why proof may not verify" body={HELP_TOPICS.proof.body} />
-            <HelpSupportRow title="Connecting chess accounts" body={HELP_TOPICS.accounts.body} />
+            <HelpSupportRow title="Why proof may not work yet" body={HELP_TOPICS.proof.body} />
+            <HelpSupportRow title="Connecting a chess username" body={HELP_TOPICS.accounts.body} />
             <HelpSupportRow title="Multiplayer Side Quests" body={HELP_TOPICS.multiplayer.body} />
             <HelpSupportRow title="Coat of Arms" body={HELP_TOPICS.coat.body} />
           </View>
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Legal & privacy</Text>
-            <Text style={compactStyles.detailPanelCopy}>Open the same support/privacy notes and Terms of Use from the app. SQC only asks for public chess usernames and never chess-site passwords.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Read the support and privacy notes or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</Text>
             <View style={styles.buttonRow}>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open SQC support and privacy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/support", "support and privacy")}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Side Quest Chess support and privacy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/support", "support and privacy")}>
                 <Text style={compactStyles.detailQuietButtonText}>Support & privacy</Text>
               </Pressable>
-              <Pressable accessibilityRole="button" accessibilityLabel="Open SQC Terms of Use" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/terms", "Terms of Use")}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Side Quest Chess Terms of Use" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/terms", "Terms of Use")}>
                 <Text style={compactStyles.detailQuietButtonText}>Terms of Use</Text>
               </Pressable>
             </View>
@@ -3387,16 +3388,16 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Report a problem</Text>
-            <Text style={compactStyles.detailPanelCopy}>Something not working. Send a short note here and we can reply in this conversation if we need more details. Support notes include app version and device diagnostics so real-device launch smoke failures are easier to trace.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Something not working? Send a short note with what you tried and what happened. We can reply here if we need more details.</Text>
             <View style={compactStyles.helpSupportThread}>
               <Text style={compactStyles.appRowTitle}>Conversation</Text>
               {supportThread.length ? supportThread.map((entry) => (
                 <View key={entry.id} style={[compactStyles.helpSupportMessageBubble, entry.source === "admin" ? compactStyles.helpSupportAdminBubble : null]}>
-                  <Text style={compactStyles.helpSupportMessageMeta}>{entry.source === "admin" ? "SQC support" : "You"} · {formatAccountDate(entry.at)}</Text>
+                  <Text style={compactStyles.helpSupportMessageMeta}>{entry.source === "admin" ? "Side Quest Chess support" : "You"} · {formatAccountDate(entry.at)}</Text>
                   <Text style={compactStyles.helpSupportBody}>{entry.message}</Text>
                 </View>
               )) : (
-                <Text style={compactStyles.helpSupportBody}>Your messages and replies from SQC support will appear here.</Text>
+                <Text style={compactStyles.helpSupportBody}>Your messages and replies from Side Quest Chess support will appear here.</Text>
               )}
             </View>
             <View style={styles.inputStack}>
@@ -3509,6 +3510,49 @@ function AppRow({
   );
 }
 
+function OfficialResultCard({
+  quest,
+  onPress,
+}: {
+  quest: MobileGroupQuestSummary;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Open official result ${cleanMultiplayerTitle(quest.title)}`}
+      style={compactStyles.officialResultCard}
+      onPress={onPress}
+    >
+      <View style={compactStyles.officialResultHeader}>
+        <View style={styles.activeMultiplayerSealFrame}>
+          <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={styles.activeMultiplayerSealGlow} resizeMode="contain" />
+          <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={styles.activeMultiplayerSeal} resizeMode="contain" />
+        </View>
+        <View style={compactStyles.officialResultHeaderCopy}>
+          <Text style={compactStyles.officialResultTitle} numberOfLines={2}>{cleanMultiplayerTitle(quest.title)}</Text>
+          <Text style={compactStyles.officialResultMeta} numberOfLines={2}>{getOfficialResultSummary(quest)}</Text>
+        </View>
+      </View>
+      <View style={compactStyles.officialPodiumList}>
+        {getOfficialResultPodiumRows(quest).map(({ placement, row }) => (
+          <View key={placement} style={compactStyles.officialPodiumRow}>
+            <Image source={getMultiplayerTrophySealSource(placement)} style={compactStyles.officialPodiumSeal} resizeMode="contain" />
+            <View style={compactStyles.officialPodiumCopy}>
+              <Text style={compactStyles.officialPodiumName} numberOfLines={1}>
+                {row?.name ?? `${placement} pending`}
+              </Text>
+              <Text style={compactStyles.officialPodiumMeta} numberOfLines={1}>
+                {row ? `${row.rank} · ${row.progress} · ${row.provider}` : "Waiting for verified finishers"}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </View>
+    </Pressable>
+  );
+}
+
 function getMultiplayerTrophySealSource(placement: "Gold" | "Silver" | "Bronze"): ImageSourcePropType {
   if (placement === "Gold") return SQC_GOLD_SEAL_ASSET;
   if (placement === "Silver") return SQC_SILVER_SEAL_ASSET;
@@ -3582,8 +3626,18 @@ function getOfficialChallengeConditions(challenge: MobileChallenge) {
       : [challenge.instruction, challenge.proofCallout].filter(Boolean);
 }
 
-function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests: MobileCustomSideQuest[], existingSummaries: MobileGroupQuestSummary["customQuestSummaries"] = []) {
+function getMultiplayerQuestChoices(
+  challenges: MobileChallenge[],
+  customQuests: MobileCustomSideQuest[],
+  existingSummaries: MobileGroupQuestSummary["customQuestSummaries"] = [],
+  communityQuests: MobileCustomSideQuest[] = [],
+) {
   const customById = new Map(customQuests.filter(isCustomQuestPublished).map((quest) => [quest.id, quest]));
+  for (const quest of communityQuests.filter(isCustomQuestPublished)) {
+    if (!customById.has(quest.id)) {
+      customById.set(quest.id, quest);
+    }
+  }
   for (const summary of existingSummaries ?? []) {
     if (!customById.has(summary.id)) {
       customById.set(summary.id, {
@@ -3607,16 +3661,22 @@ function getMultiplayerQuestChoices(challenges: MobileChallenge[], customQuests:
       meta: challenge.objective,
       status: "Official",
       sourceBadge: "SQC Official",
+      source: "official" as MultiplayerQuestChoiceSource,
       imageSource: getChallengeCoatImageSource(challenge),
     })),
-    ...Array.from(customById.values()).map((quest) => ({
-      id: quest.id,
-      title: quest.title,
-      meta: `Custom · ${getCustomVisibilityLabel(quest.visibility)} · ${cleanCustomRuleSummaryText(quest.summary)}`,
-      status: "Custom",
-      sourceBadge: quest.visibility === "public" ? "Community" : "Private",
-      imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
-    })),
+    ...Array.from(customById.values()).map((quest) => {
+      const ownedByYou = quest.ownedByYou ?? customQuests.some((customQuest) => customQuest.id === quest.id);
+      const creator = quest.creatorName && !ownedByYou ? ` by ${quest.creatorName}` : "";
+      return {
+        id: quest.id,
+        title: quest.title,
+        meta: `${ownedByYou ? "Custom" : "Community"}${creator} · ${getCustomVisibilityLabel(quest.visibility)} · ${cleanCustomRuleSummaryText(quest.summary)}`,
+        status: ownedByYou ? "Custom" : "Community",
+        sourceBadge: ownedByYou ? (quest.visibility === "public" ? "Your public" : "Private") : "Community",
+        source: "community" as MultiplayerQuestChoiceSource,
+        imageSource: getCustomQuestImageSource(quest.badgeImageUrl),
+      };
+    }),
   ];
 }
 
@@ -3809,6 +3869,24 @@ function getOfficialMultiplayerListMeta(
   const joined = quest.joinState === "Joined";
   const lane = quest.official || quest.id.startsWith("official-") ? "SQC official" : "Community public";
   return [lane, joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
+}
+
+const officialPodiumPlacements = ["Gold", "Silver", "Bronze"] as const;
+
+function getOfficialResultSummary(quest: MobileGroupQuestSummary) {
+  const winner = quest.leaderboardRows?.[0]?.name;
+  return [
+    "Final",
+    quest.playersLabel ?? "Players pending",
+    winner ? `Winner: ${winner}` : "Podium pending",
+  ].join(" · ");
+}
+
+function getOfficialResultPodiumRows(quest: MobileGroupQuestSummary) {
+  return officialPodiumPlacements.map((placement, index) => ({
+    placement,
+    row: quest.leaderboardRows?.[index] ?? null,
+  }));
 }
 
 function formatGroupQuestDate(value?: string | null) {
@@ -5212,12 +5290,14 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
   const officialChallengeById = new Map(bootstrap.challenges.map((challenge) => [challenge.id, challenge]));
   const completedQuests = signedIn?.completedQuests ?? [];
   const multiplayerTrophies = signedIn?.multiplayerTrophies ?? [];
+  const officialMultiplayerTrophies = multiplayerTrophies.filter((trophy) => trophy.source === "official");
+  const communityMultiplayerTrophies = multiplayerTrophies.filter((trophy) => trophy.source !== "official");
   const officialCompleted = completedQuests.filter((quest) => officialChallengeById.has(quest.id));
   const customCompleted = completedQuests.filter((quest) => !officialChallengeById.has(quest.id));
   const earnedIds = new Set(completedQuests.map((quest) => quest.id));
   const unlockedCount = completedQuests.length + multiplayerTrophies.length;
   const unlockedSummary = signedIn
-    ? `${unlockedCount} unlocked: ${officialCompleted.length} Official Solo Side Quest${officialCompleted.length === 1 ? "" : "s"} · ${customCompleted.length} Custom Solo Side Quest${customCompleted.length === 1 ? "" : "s"} · ${multiplayerTrophies.length} Multiplayer Side Quest${multiplayerTrophies.length === 1 ? "" : "s"}`
+    ? `${unlockedCount} unlocked: ${officialCompleted.length} Official Solo Side Quest${officialCompleted.length === 1 ? "" : "s"} · ${officialMultiplayerTrophies.length} Official Multiplayer Side Quest${officialMultiplayerTrophies.length === 1 ? "" : "s"} · ${customCompleted.length + communityMultiplayerTrophies.length} community/custom reward${customCompleted.length + communityMultiplayerTrophies.length === 1 ? "" : "s"}`
     : "Sign in to sync your cabinet.";
 
   return (
@@ -5229,12 +5309,35 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Trophy Cabinet summary">
         <Text style={compactStyles.multiplayerCardEyebrow}>Trophy Cabinet</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{unlockedSummary}</Text>
-        <Text style={styles.microcopy}>This is your unified SQC reward shelf: official coats, custom coats, and Multiplayer podium scrolls all belong here.</Text>
+        <Text style={styles.microcopy}>This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here.</Text>
       </View>
 
       {signedIn && unlockedCount === 0 ? (
         <AppRow title="No unlocked trophies yet" meta="Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf." status="Explore" imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={() => onClose()} />
       ) : null}
+
+      <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Multiplayer Side Quest trophies">
+        <Text style={compactStyles.multiplayerCardEyebrow}>Official Multiplayer trophies</Text>
+        <Text style={compactStyles.multiplayerCardTitle}>{officialMultiplayerTrophies.length} Official Multiplayer Side Quest podium{officialMultiplayerTrophies.length === 1 ? "" : "s"}.</Text>
+        {officialMultiplayerTrophies.length ? (
+          <View style={compactStyles.appRows}>
+            {officialMultiplayerTrophies.map((trophy) => (
+              <AppRow
+                key={trophy.id}
+                title={trophy.title}
+                meta={`Official Multiplayer Side Quest · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
+                sourceBadge="Official Multiplayer"
+                status={trophy.placement}
+                imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+                statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
+                onPress={() => Alert.alert("Official Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nOpen Multiplayer Side Quests to inspect the full leaderboard and receipt context.`)}
+              />
+            ))}
+          </View>
+        ) : (
+          <Text style={styles.microcopy}>Place on the podium in an official Multiplayer Side Quest to earn one here.</Text>
+        )}
+      </View>
 
       {completedQuests.length ? (
         <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Unlocked Solo Side Quest rewards">
@@ -5263,32 +5366,32 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
         </View>
       ) : null}
 
-      {multiplayerTrophies.length ? (
-        <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Multiplayer podium scrolls">
-          <Text style={compactStyles.multiplayerCardEyebrow}>Multiplayer podium scrolls</Text>
-          <Text style={compactStyles.multiplayerCardTitle}>Completed Multiplayer Side Quests.</Text>
+      {communityMultiplayerTrophies.length ? (
+        <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Community Multiplayer Side Quest trophies">
+          <Text style={compactStyles.multiplayerCardEyebrow}>Community Multiplayer trophies</Text>
+          <Text style={compactStyles.multiplayerCardTitle}>Community Multiplayer podiums.</Text>
           <View style={compactStyles.appRows}>
-            {multiplayerTrophies.map((trophy) => (
+            {communityMultiplayerTrophies.map((trophy) => (
               <AppRow
                 key={trophy.id}
                 title={trophy.title}
-                meta={`Multiplayer · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
-                sourceBadge="Multiplayer"
+                meta={`Community Multiplayer Side Quest · ${trophy.rankLabel}${trophy.completedAt ? ` · ${formatAccountDate(trophy.completedAt)}` : ""}`}
+                sourceBadge="Community Multiplayer"
                 status={trophy.placement}
                 imageSource={SQC_COAT_OF_ARMS_ASSET}
                 statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-                onPress={() => Alert.alert("Multiplayer podium scroll", `${trophy.title}\n${trophy.rankLabel}\n\nOpen Multiplayer Side Quests to inspect the full leaderboard and receipt context.`)}
+                onPress={() => Alert.alert("Community Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nCommunity trophies are listed here, but official Multiplayer trophies stay more prominent.`)}
               />
             ))}
           </View>
-          <Text style={styles.microcopy}>These are your earned Side Quest trophies.</Text>
+          <Text style={styles.microcopy}>Community Multiplayer wins can be easier to organize, so they are kept visible but secondary to official podiums.</Text>
         </View>
       ) : null}
 
       <View style={compactStyles.multiplayerNativeCard} accessibilityLabel="Official Solo Side Quest collection">
         <Text style={compactStyles.multiplayerCardEyebrow}>Official Solo Side Quest collection</Text>
         <Text style={compactStyles.multiplayerCardTitle}>{officialCompleted.length} of {bootstrap.challenges.length} official Side Quest coats unlocked.</Text>
-        <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo Side Quest and Multiplayer Side Quest rewards appear above when earned.</Text>
+        <Text style={styles.microcopy}>Locked official coats are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</Text>
       </View>
       <View style={compactStyles.coatGrid}>
         {bootstrap.challenges.map((challenge) => (
@@ -5360,7 +5463,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Text style={compactStyles.accountInfoText}>Recently active: {formatAccountRecentActivity(accountState.profile.lastSignInAt)}</Text>
           </View>
         </View>
-        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. SQC can read your public Lichess / Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
+        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. Side Quest Chess can read your public Lichess and Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
         <View style={compactStyles.readinessRow}>
           <ReadinessChip label="Lichess" value={accountState.chessAccounts.lichessUsername} />
           <ReadinessChip label="Chess.com" value={accountState.chessAccounts.chessComUsername} />
@@ -5403,10 +5506,11 @@ function AccountSoloSideQuestSection({
     : "Pick one Side Quest to judge against your next public game.";
   const hostedMultiplayer = account.activeGroupQuests.filter((quest) => quest.isOwner).length;
   const joinedMultiplayer = account.activeGroupQuests.length - hostedMultiplayer;
+  const firstActiveMultiplayer = account.activeGroupQuests[0];
   const multiplayerStatus = account.activeGroupQuests.length ? `${account.activeGroupQuests.length} active` : "Open";
   const multiplayerMeta = account.activeGroupQuests.length
-    ? `${hostedMultiplayer} hosted · ${joinedMultiplayer} joined`
-    : "Join or create a Multiplayer Side Quest.";
+    ? `${hostedMultiplayer} hosted · ${joinedMultiplayer} joined · ${cleanMultiplayerTitle(firstActiveMultiplayer?.title ?? "Open Multiplayer Side Quest")}`
+    : "Join an official table, join a community table, or create one for friends.";
   const customQuests = account.customSideQuests ?? [];
   const publishedCustom = customQuests.filter((quest) => quest.lifecycle !== "archived" && quest.lifecycle !== "draft").length;
   const draftCustom = customQuests.filter((quest) => quest.lifecycle === "draft").length;
@@ -5427,14 +5531,14 @@ function AccountSoloSideQuestSection({
         onPress={() => account.activeQuest?.id ? onSelectChallenge(account.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}
       />
       <AppRow
-        title="Multiplayer Side Quests"
+        title={account.activeGroupQuests.length ? "Active Multiplayer Side Quests" : "Multiplayer Side Quests"}
         meta={multiplayerMeta}
         status={multiplayerStatus}
         imageSource={SQC_COAT_OF_ARMS_ASSET}
         onPress={() => onSelectTab("multiplayerSideQuests")}
       />
       <AppRow
-        title="Custom Side Quests"
+        title="Your Custom Side Quests"
         meta={customMeta}
         status={customQuests.length ? `${customQuests.length} made` : "Create"}
         imageSource={getCustomQuestImageSource(null)}
@@ -5459,8 +5563,8 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
         <View style={compactStyles.metricGrid}>
           <CompactMetric label="Completed" value={`${completedCount}`} />
           <CompactMetric label="Proofs" value={`${proofCount}`} />
-          <CompactMetric label="Coat of Arms" value={`${completedCount + multiplayerTrophyCount}`} />
-          <CompactMetric label="Multiplayer" value={`${multiplayerTrophyCount}`} />
+          <CompactMetric label="Coats" value={`${completedCount + multiplayerTrophyCount}`} />
+          <CompactMetric label="Multiplayer wins" value={`${multiplayerTrophyCount}`} />
         </View>
         <Text style={compactStyles.micro}>Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
       </View>
@@ -5470,34 +5574,36 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
 
 function AccountTrophyList({ account, onSelectTab, onOpenCompletedQuestDetail }: { account: Extract<MobileAccountResponse, { authenticated: true }>; onSelectTab: (tab: AppTab) => void; onOpenCompletedQuestDetail: (challengeId: string) => void }) {
   const trophies = account.multiplayerTrophies ?? [];
+  const officialTrophies = trophies.filter((trophy) => trophy.source === "official");
+  const communityTrophies = trophies.filter((trophy) => trophy.source !== "official");
   const completedQuests = account.completedQuests ?? [];
   const hasAnyTrophies = trophies.length > 0 || completedQuests.length > 0;
+  const previewTrophies = [...officialTrophies, ...communityTrophies].slice(0, 4);
 
   return (
     <AppSection title="Trophy Cabinet" action="Open Trophy Cabinet" onAction={() => onSelectTab("coatOfArms")}>
-      {trophies.slice(0, 4).map((trophy) => (
+      {previewTrophies.map((trophy) => (
         <AppRow
           key={`multiplayer-${trophy.id}`}
           title={trophy.title}
-          meta={`Multiplayer trophy · ${trophy.rankLabel}`}
+          meta={`${trophy.source === "official" ? "Official Multiplayer trophy" : "Community Multiplayer trophy"} · ${trophy.rankLabel}`}
+          sourceBadge={trophy.source === "official" ? "Official Multiplayer" : "Community Multiplayer"}
           status={undefined}
           statusImageSource={getMultiplayerTrophySealSource(trophy.placement)}
-          imageSource={SQC_COAT_OF_ARMS_ASSET}
+          imageSource={trophy.source === "official" ? SQC_MULTIPLAYER_SEAL_ASSET : SQC_COAT_OF_ARMS_ASSET}
           onPress={() => Alert.alert("Multiplayer trophy", `${trophy.title}\n${trophy.rankLabel}\n\nThis trophy stays in the app.`)}
         />
       ))}
       {completedQuests.slice(0, 5).map((quest) => (
-        <View key={`solo-${quest.id}`} style={compactStyles.trophyProofStack}>
-          <AppRow
-            title={cleanMultiplayerTitle(quest.title)}
-            meta={`Coat of Arms: ${quest.badgeName}`}
-            status={undefined}
-            statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
-            imageSource={getRowImageSource(quest.badgeImageUrl)}
-            onPress={() => onOpenCompletedQuestDetail(quest.id)}
-          />
-          <VictoryProofBoard proof={quest} />
-        </View>
+        <AppRow
+          key={`solo-${quest.id}`}
+          title={cleanMultiplayerTitle(quest.title)}
+          meta={`Coat of Arms: ${quest.badgeName}`}
+          status={undefined}
+          statusImageSource={SQC_COMPLETED_RED_SEAL_ASSET}
+          imageSource={getRowImageSource(quest.badgeImageUrl)}
+          onPress={() => onOpenCompletedQuestDetail(quest.id)}
+        />
       ))}
       {!hasAnyTrophies ? (
         <AppRow title="No trophies yet" meta="Complete a Side Quest to unlock your first Coat of Arms." onPress={() => onSelectTab("sideQuests")} />
@@ -5510,7 +5616,7 @@ function CompactMetric({ label, value }: { label: string; value: ReactNode }) {
   return (
     <View style={compactStyles.metricBox}>
       {typeof value === "string" ? <Text style={compactStyles.metricValue}>{value}</Text> : value}
-      <Text style={compactStyles.metricLabel}>{label}</Text>
+      <Text style={compactStyles.metricLabel} numberOfLines={2}>{label}</Text>
     </View>
   );
 }
@@ -6490,6 +6596,10 @@ function SideQuestsScreen({
 function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectTab, pendingCreateOpen, pendingCreateQuestId, onConsumePendingCreateOpen, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; pendingCreateOpen?: boolean; pendingCreateQuestId?: string | null; onConsumePendingCreateOpen?: () => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedInAccount = isAuthenticatedAccount(account) ? account : null;
   const officialPublicGroupQuests = (signedInAccount?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
+  const previousOfficialGroupQuests = (signedInAccount?.previousOfficialGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
+  const officialGroupQuestWeeks = signedInAccount?.officialGroupQuestWeeks ?? [];
+  const latestOfficialWeekId = officialGroupQuestWeeks[0]?.id ?? null;
+  const earlierOfficialWeeks = officialGroupQuestWeeks.filter((week) => week.id !== latestOfficialWeekId);
   const officialPublicGroupQuestIds = new Set(officialPublicGroupQuests.map((quest) => quest.id));
   const activeGroupQuests = (signedInAccount?.activeGroupQuests ?? []).filter((quest) => !officialPublicGroupQuestIds.has(quest.id) && !quest.id.startsWith("official-"));
   const publicUserGroupQuests = (signedInAccount?.publicUserGroupQuests ?? []).filter((quest) => !quest.official && !quest.id.startsWith("official-"));
@@ -6500,7 +6610,14 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const closedUserGroupQuests = [...closedGroupQuests, ...closedPublicUserGroupQuests].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
   const joinedMultiplayerQuest = joinedMultiplayerId ? [...activeGroupQuests, ...closedUserGroupQuests].find((quest) => quest.id === joinedMultiplayerId) ?? null : null;
   const [officialMultiplayerId, setOfficialMultiplayerId] = useState<string | null>(null);
-  const officialMultiplayerQuest = officialMultiplayerId ? officialPublicGroupQuests.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
+  const allOfficialGroupQuests = [
+    ...officialPublicGroupQuests,
+    ...previousOfficialGroupQuests,
+    ...officialGroupQuestWeeks.flatMap((week) => week.quests),
+  ].filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index);
+  const officialMultiplayerQuest = officialMultiplayerId ? allOfficialGroupQuests.find((quest) => quest.id === officialMultiplayerId) ?? null : null;
+  const [officialWeekId, setOfficialWeekId] = useState<string | null>(null);
+  const officialWeek = officialWeekId ? officialGroupQuestWeeks.find((week) => week.id === officialWeekId) ?? null : null;
   const [publicMultiplayerId, setPublicMultiplayerId] = useState<string | null>(null);
   const publicMultiplayerQuest = publicMultiplayerId ? [...publicUserGroupQuests, ...closedPublicUserGroupQuests].find((quest) => quest.id === publicMultiplayerId) ?? null : null;
   const [multiplayerCatalogTab, setMultiplayerCatalogTab] = useState<MultiplayerCatalogTab>("official");
@@ -6526,7 +6643,19 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createAdvancedOpen, setCreateAdvancedOpen] = useState(false);
   const [multiplayerLearningOpen, setMultiplayerLearningOpen] = useState(false);
   const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
-  const createQuestChoices = useMemo(() => getMultiplayerQuestChoices(bootstrap.challenges, signedInAccount?.customSideQuests ?? []), [bootstrap.challenges, signedInAccount?.customSideQuests]);
+  const [createQuestSourceTab, setCreateQuestSourceTab] = useState<MultiplayerQuestChoiceSource>("official");
+  const multiplayerCustomQuestCatalog = useMemo(() => {
+    const byId = new Map<string, MobileCustomSideQuest>();
+    for (const quest of [...(signedInAccount?.customSideQuests ?? []), ...(signedInAccount?.communitySideQuests ?? [])]) {
+      if (!byId.has(quest.id)) byId.set(quest.id, quest);
+    }
+    return Array.from(byId.values());
+  }, [signedInAccount?.communitySideQuests, signedInAccount?.customSideQuests]);
+  const createQuestChoices = useMemo(
+    () => getMultiplayerQuestChoices(bootstrap.challenges, signedInAccount?.customSideQuests ?? [], [], signedInAccount?.communitySideQuests ?? []),
+    [bootstrap.challenges, signedInAccount?.communitySideQuests, signedInAccount?.customSideQuests],
+  );
+  const visibleCreateQuestChoices = createQuestChoices.filter((choice) => choice.source === createQuestSourceTab);
 
   useEffect(() => {
     if (!pendingCreateOpen) return;
@@ -6535,6 +6664,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         setCreateQuestIds((current) => [pendingCreateQuestId, ...current.filter((id) => id !== pendingCreateQuestId)].slice(0, 4));
         const selectedQuest = createQuestChoices.find((choice) => choice.id === pendingCreateQuestId);
         if (selectedQuest) {
+          setCreateQuestSourceTab(selectedQuest.source);
           setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
         }
       }
@@ -6810,7 +6940,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         visible={Boolean(officialMultiplayerQuest)}
         quest={officialMultiplayerQuest}
         challenges={bootstrap.challenges}
-        customQuests={signedInAccount?.customSideQuests ?? []}
+        customQuests={multiplayerCustomQuestCatalog}
         mode={officialMultiplayerQuest?.joinState === "Joined" ? "joined" : "public"}
         busy={groupQuestActionState.busy && groupQuestActionState.questId === officialMultiplayerQuest?.id}
         message={groupQuestActionState.questId === officialMultiplayerQuest?.id ? groupQuestActionState.message : null}
@@ -6825,12 +6955,44 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onToggleLike={toggleCommunityMultiplayerLike}
       />
 
+      <Modal visible={Boolean(officialWeek)} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setOfficialWeekId(null)}>
+        <SafeAreaView style={compactStyles.detailScreen}>
+          <LinearGradient colors={["#173f43", "#121b20", colors.bg]} style={StyleSheet.absoluteFill} />
+          <View style={compactStyles.detailTopBar}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close earlier official results" style={compactStyles.detailCloseButton} onPress={() => setOfficialWeekId(null)}>
+              <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+            </Pressable>
+          </View>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
+            <View style={compactStyles.multiplayerDetailHero}>
+              <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
+              <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
+              <Text style={compactStyles.multiplayerDetailKicker}>Earlier official results</Text>
+              <Text style={compactStyles.detailTitle}>{officialWeek?.label}</Text>
+              <Text style={compactStyles.detailGoal}>{officialWeek?.rangeLabel}</Text>
+            </View>
+            <View style={compactStyles.officialResultsStack}>
+              {officialWeek?.quests.map((quest) => (
+                <OfficialResultCard
+                  key={quest.id}
+                  quest={quest}
+                  onPress={() => {
+                    setOfficialWeekId(null);
+                    setOfficialMultiplayerId(quest.id);
+                  }}
+                />
+              ))}
+            </View>
+          </ScrollHintedScrollView>
+        </SafeAreaView>
+      </Modal>
+
       <JoinedMultiplayerQuestModal
         key={publicMultiplayerQuest?.id ?? "public"}
         visible={Boolean(publicMultiplayerQuest)}
         quest={publicMultiplayerQuest}
         challenges={bootstrap.challenges}
-        customQuests={signedInAccount?.customSideQuests ?? []}
+        customQuests={multiplayerCustomQuestCatalog}
         mode={publicMultiplayerQuest?.joinState === "Joined" ? "joined" : "public"}
         busy={groupQuestActionState.busy && groupQuestActionState.questId === publicMultiplayerQuest?.id}
         message={groupQuestActionState.questId === publicMultiplayerQuest?.id ? groupQuestActionState.message : null}
@@ -6849,24 +7011,65 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       <HelpSupportModal key={multiplayerReportMessage || "multiplayer-report"} visible={multiplayerReportOpen} onClose={() => setMultiplayerReportOpen(false)} signedIn={signedInAccount} authBridge={authBridge} initialMessage={multiplayerReportMessage} />
 
       {multiplayerCatalogTab === "official" ? (
-        <View style={compactStyles.appSection} accessibilityLabel="SQC Official Multiplayer Side Quests">
-          <View style={compactStyles.panelHeaderRow}>
-            <Text style={compactStyles.freshSectionTitle}>Official Multiplayer Side Quests</Text>
-            <Text style={compactStyles.sectionAction}>{officialPublicGroupQuests.length} official</Text>
+        <>
+          <View style={compactStyles.appSection} accessibilityLabel="SQC Official Multiplayer Side Quests">
+            <View style={compactStyles.panelHeaderRow}>
+              <Text style={compactStyles.freshSectionTitle}>Official Multiplayer Side Quests</Text>
+              <Text style={compactStyles.sectionAction}>{officialPublicGroupQuests.length} official</Text>
+            </View>
+            {officialPublicGroupQuests.length ? (
+              <View style={compactStyles.sideQuestCatalogRows}>
+                {officialPublicGroupQuests.map((quest) => (
+                  <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
+                ))}
+              </View>
+            ) : (
+              <View style={compactStyles.communityEmptyPanel}>
+                <Text style={compactStyles.communityEmptyTitle}>Official Multiplayer Side Quests</Text>
+                <Text style={compactStyles.communityEmptyCopy}>No official Multiplayer Side Quests are open right now.</Text>
+              </View>
+            )}
           </View>
-          {officialPublicGroupQuests.length ? (
-            <View style={compactStyles.sideQuestCatalogRows}>
-              {officialPublicGroupQuests.map((quest) => (
-                <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
-              ))}
-            </View>
-          ) : (
-            <View style={compactStyles.communityEmptyPanel}>
-              <Text style={compactStyles.communityEmptyTitle}>Official Multiplayer Side Quests</Text>
-              <Text style={compactStyles.communityEmptyCopy}>No official Multiplayer Side Quests are open right now.</Text>
-            </View>
-          )}
-        </View>
+
+          <View style={styles.groupquestsActiveCard} accessibilityLabel="Latest finished official Multiplayer Side Quest results">
+            <Text style={styles.eyebrow}>Latest finished official set</Text>
+            <Text style={styles.sectionTitle}>Gold, silver, bronze.</Text>
+            <Text style={styles.sectionBody}>The latest completed official weekly set appears here after the leaderboard closes.</Text>
+            {previousOfficialGroupQuests.length ? (
+              <View style={compactStyles.officialResultsStack}>
+                {previousOfficialGroupQuests.map((quest) => (
+                  <OfficialResultCard key={quest.id} quest={quest} onPress={() => setOfficialMultiplayerId(quest.id)} />
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.sectionBody}>Results will appear here after the first official weekly set finishes.</Text>
+            )}
+          </View>
+
+          <View style={styles.groupquestsActiveCard} accessibilityLabel="Browse earlier official Multiplayer Side Quest results">
+            <Text style={styles.eyebrow}>Earlier official weeks</Text>
+            <Text style={styles.sectionTitle}>Browse weekly results.</Text>
+            <Text style={styles.sectionBody}>Finished official Multiplayer Side Quest sets are grouped by week so we can keep running this weekly.</Text>
+            {earlierOfficialWeeks.length ? (
+              <View style={compactStyles.appRows}>
+                {earlierOfficialWeeks.map((week) => (
+                  <AppRow
+                    key={week.id}
+                    title={week.label}
+                    meta={`${week.rangeLabel} · ${week.quests.length} official result${week.quests.length === 1 ? "" : "s"}`}
+                    status="Results"
+                    sourceBadge="Archive"
+                    imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
+                    variant="seal"
+                    onPress={() => setOfficialWeekId(week.id)}
+                  />
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.sectionBody}>Earlier weekly result sets will appear here after the next official cycle closes.</Text>
+            )}
+          </View>
+        </>
       ) : (
         <>
       <View style={compactStyles.communityEmptyPanel}>
@@ -7086,8 +7289,37 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>
-              <View style={compactStyles.appRows}>
-                {createQuestChoices.map((choice) => (
+              <View style={compactStyles.sideQuestBrandTabs}>
+                <Pressable
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: createQuestSourceTab === "official" }}
+                  accessibilityLabel="Choose from Official Side Quests"
+                  style={[
+                    compactStyles.sideQuestBrandTab,
+                    compactStyles.sideQuestBrandTabOfficial,
+                    createQuestSourceTab === "official" && compactStyles.sideQuestBrandTabOfficialActive,
+                  ]}
+                  onPress={() => setCreateQuestSourceTab("official")}
+                >
+                  <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: createQuestSourceTab === "community" }}
+                  accessibilityLabel="Choose from Community Side Quests"
+                  style={[
+                    compactStyles.sideQuestBrandTab,
+                    compactStyles.sideQuestBrandTabCommunity,
+                    createQuestSourceTab === "community" && compactStyles.sideQuestBrandTabCommunityActive,
+                  ]}
+                  onPress={() => setCreateQuestSourceTab("community")}
+                >
+                  <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
+                </Pressable>
+              </View>
+              {visibleCreateQuestChoices.length ? (
+                <View style={compactStyles.appRows}>
+                  {visibleCreateQuestChoices.map((choice) => (
                   <AppRow
                     key={choice.id}
                     title={choice.title}
@@ -7097,8 +7329,14 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                     imageSource={choice.imageSource}
                     onPress={() => toggleCreateQuestId(choice.id)}
                   />
-                ))}
-              </View>
+                  ))}
+                </View>
+              ) : (
+                <View style={compactStyles.communityEmptyPanel}>
+                  <Text style={compactStyles.communityEmptyTitle}>{createQuestSourceTab === "official" ? "No official Side Quests" : "No community-created Side Quests"}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{createQuestSourceTab === "official" ? "Official Side Quests will appear here when the catalog loads." : "Public community-created Side Quests and your published custom Side Quests will appear here."}</Text>
+                </View>
+              )}
             </View>
             {groupQuestActionState.questId === "new" && groupQuestActionState.error ? <Text style={compactStyles.inlineError}>{groupQuestActionState.error}</Text> : null}
             <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest now" style={[compactStyles.detailPrimaryButton, groupQuestActionState.busy && groupQuestActionState.questId === "new" ? compactStyles.disabledAction : null]} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "new"} onPress={() => void createGroupQuest()}>
@@ -8628,7 +8866,7 @@ function ChessUsernameEditor({
     <View style={styles.usernameEditorCard}>
       <Text style={styles.eyebrow}>Profile details</Text>
       <Text style={styles.usernameEditorTitle}>Edit profile and chess usernames</Text>
-      <Text style={styles.usernameEditorBody}>Save your public SQC name, brag line, and chess usernames from the app. Website and mobile stay in sync.</Text>
+      <Text style={styles.usernameEditorBody}>Save your public Side Quest Chess display name, brag line, and chess usernames from the app. Website and mobile stay in sync.</Text>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>Display name</Text>
         <TextInput
@@ -8688,7 +8926,7 @@ function MobileAccountStatesCard({ authBridge, account }: { authBridge: MobileAu
     <View style={styles.stateBoardCard}>
       <Text style={styles.eyebrow}>Account sync</Text>
       <Text style={styles.stateBoardTitle}>Your progress stays connected.</Text>
-      <Text style={styles.stateBoardBody}>SQC keeps browsing available and syncs progress after sign-in.</Text>
+      <Text style={styles.stateBoardBody}>Side Quest Chess keeps browsing available and syncs progress after sign-in.</Text>
       <View style={styles.stateTimeline}>
         <FlowStep done title="Browse quests" body="Quest goals, rewards, and Coat of Arms previews are available before sign-in." />
         <FlowStep done={authBridge.configured} title="Account sign-in" body={authBridge.configured ? "Sign in to save progress and proof." : "Sign-in is temporarily unavailable."} />
@@ -8854,6 +9092,122 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
         leaderboardRows: [
           { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "1/2", verified: "1/2 verified", note: "Joined this Multiplayer Side Quest" },
           { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "0/2", verified: "0/2 verified", note: "Joined this Multiplayer Side Quest" },
+        ],
+      },
+    ],
+    previousOfficialGroupQuests: [
+      {
+        id: "official-preview-starter-shield-finished",
+        title: "Official 14-Day Starter Shield",
+        official: true,
+        status: "Finished",
+        copy: "14 players · final",
+        href: "/groupquests/official-preview-starter-shield-finished",
+        playersLabel: "14 players",
+        timeLeftLabel: "Finished",
+        questTitles: ["Knights Before Coffee", "Any Game Counts"],
+        ruleRows: [
+          { label: "Games allowed", value: "Lichess or Chess.com" },
+          { label: "Variant", value: "Standard chess only" },
+          { label: "Proof", value: "Fresh public games inside the official window" },
+          { label: "Winner", value: "Best verified completion progress at the deadline." },
+        ],
+        leaderboardRows: [
+          { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#2", name: "Mira", provider: "lichess · miragambit", progress: "2/2", verified: "2/2 verified", note: "Silver" },
+          { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
+        ],
+      },
+      {
+        id: "official-preview-royal-route-finished",
+        title: "Official 14-Day Royal Route",
+        official: true,
+        status: "Finished",
+        copy: "11 players · final",
+        href: "/groupquests/official-preview-royal-route-finished",
+        playersLabel: "11 players",
+        timeLeftLabel: "Finished",
+        questTitles: ["No Castle Club", "Early King Walk"],
+        ruleRows: [
+          { label: "Games allowed", value: "Lichess or Chess.com" },
+          { label: "Variant", value: "Standard chess only" },
+          { label: "Proof", value: "Fresh public games inside the official window" },
+          { label: "Winner", value: "Best verified completion progress at the deadline." },
+        ],
+        leaderboardRows: [
+          { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#3", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
+        ],
+      },
+      {
+        id: "official-preview-chaos-ladder-finished",
+        title: "Official 14-Day Chaos Ladder",
+        official: true,
+        status: "Finished",
+        copy: "9 players · final",
+        href: "/groupquests/official-preview-chaos-ladder-finished",
+        playersLabel: "9 players",
+        timeLeftLabel: "Finished",
+        questTitles: ["Queen? Never Heard of Her", "The Blunder Gambit"],
+        ruleRows: [
+          { label: "Games allowed", value: "Lichess or Chess.com" },
+          { label: "Variant", value: "Standard chess only" },
+          { label: "Proof", value: "Fresh public games inside the official window" },
+          { label: "Winner", value: "Best verified completion progress at the deadline." },
+        ],
+        leaderboardRows: [
+          { rank: "#1", name: "Nils", provider: "lichess · nilsgremlin", progress: "2/2", verified: "2/2 verified", note: "Gold" },
+          { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/2", verified: "1/2 verified", note: "Silver" },
+          { rank: "#3", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Bronze" },
+        ],
+      },
+    ],
+    officialGroupQuestWeeks: [
+      {
+        id: "official-week-preview-2026-06-07",
+        label: "Official week · Jun 7",
+        rangeLabel: "Jun 7-14, 2026",
+        quests: [
+          {
+            id: "official-preview-week-archive-starter",
+            title: "Official Starter Shield",
+            official: true,
+            status: "Finished",
+            copy: "10 players · final",
+            href: "/groupquests/official-preview-week-archive-starter",
+            playersLabel: "10 players",
+            timeLeftLabel: "Finished",
+            questTitles: ["Any Game Counts"],
+            leaderboardRows: [
+              { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/1", verified: "1/1 verified", note: "Gold" },
+              { rank: "#2", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Silver" },
+              { rank: "#3", name: "Jon", provider: "chess.com · jonforks", progress: "1/1", verified: "1/1 verified", note: "Bronze" },
+            ],
+          },
+        ],
+      },
+      {
+        id: "official-week-preview-2026-05-31",
+        label: "Official week · May 31",
+        rangeLabel: "May 31-Jun 7, 2026",
+        quests: [
+          {
+            id: "official-preview-week-archive-royal",
+            title: "Official Royal Route",
+            official: true,
+            status: "Finished",
+            copy: "8 players · final",
+            href: "/groupquests/official-preview-week-archive-royal",
+            playersLabel: "8 players",
+            timeLeftLabel: "Finished",
+            questTitles: ["No Castle Club"],
+            leaderboardRows: [
+              { rank: "#1", name: "Andreas", provider: "lichess · and72nor", progress: "1/1", verified: "1/1 verified", note: "Gold" },
+              { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/1", verified: "1/1 verified", note: "Silver" },
+              { rank: "#3", name: "Nils", provider: "lichess · nilsgremlin", progress: "0/1", verified: "0/1 verified", note: "Bronze" },
+            ],
+          },
         ],
       },
     ],
@@ -9082,6 +9436,18 @@ const compactStyles = StyleSheet.create({
   appSection: { gap: 6 },
   sectionAction: { color: "rgba(245,200,106,.78)", fontSize: 12, fontWeight: "900" },
   appRows: { overflow: "hidden", borderRadius: 18, backgroundColor: "rgba(13,11,14,.78)", borderWidth: 1, borderColor: "rgba(255,255,255,.09)" },
+  officialResultsStack: { gap: 9 },
+  officialResultCard: { gap: 9, padding: 10, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.2)", backgroundColor: "rgba(13,11,14,.62)" },
+  officialResultHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
+  officialResultHeaderCopy: { flex: 1, minWidth: 0, gap: 2 },
+  officialResultTitle: { color: colors.paper, fontSize: 15, lineHeight: 19, fontWeight: "900" },
+  officialResultMeta: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "700" },
+  officialPodiumList: { gap: 6 },
+  officialPodiumRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 8, paddingVertical: 7, borderRadius: 14, backgroundColor: "rgba(255,247,232,.045)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
+  officialPodiumSeal: { width: 28, height: 28 },
+  officialPodiumCopy: { flex: 1, minWidth: 0, gap: 1 },
+  officialPodiumName: { color: colors.paper, fontSize: 13, fontWeight: "900" },
+  officialPodiumMeta: { color: "rgba(199,189,169,.78)", fontSize: 11, fontWeight: "700" },
   homeFeatureCard: { minHeight: 90, flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 13, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,.065)", backgroundColor: "rgba(245,200,106,.032)" },
   homeFeatureImageFrame: { width: 58, height: 62, alignItems: "center", justifyContent: "center", overflow: "visible" },
   homeFeatureGlowImage: { position: "absolute", width: 74, height: 82, opacity: .54, transform: [{ translateY: 3 }] },
@@ -9384,7 +9750,7 @@ const compactStyles = StyleSheet.create({
   metricGrid: { flexDirection: "row", gap: 7 },
   metricBox: { flex: 1, padding: 9, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
   metricValue: { color: colors.paper, fontSize: 20, fontWeight: "900" },
-  metricLabel: { color: colors.muted, fontSize: 10, fontWeight: "800", textTransform: "uppercase", letterSpacing: .7 },
+  metricLabel: { color: colors.muted, fontSize: 9, lineHeight: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: .35 },
   actionRow: { flexDirection: "row", gap: 8 },
   goldButton: { alignItems: "center", justifyContent: "center", paddingVertical: 13, paddingHorizontal: 14, borderRadius: 18, backgroundColor: colors.gold },
   goldButtonSmall: { alignSelf: "flex-start", alignItems: "center", justifyContent: "center", paddingVertical: 8, paddingHorizontal: 12, borderRadius: 999, backgroundColor: "rgba(255,255,255,.14)" },

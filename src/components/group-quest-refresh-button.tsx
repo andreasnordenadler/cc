@@ -13,6 +13,7 @@ export default function GroupQuestRefreshButton({ id }: { id: string }) {
       <button
         className="button secondary groupquest-refresh-button"
         type="button"
+        aria-label="Refresh checks"
         disabled={refreshing}
         onClick={async () => {
           setRefreshing(true);

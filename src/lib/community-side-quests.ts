@@ -92,6 +92,10 @@ export async function findPublicCommunitySideQuestById(client: ClerkUserListClie
   return quests.find((quest) => quest.id === id) ?? null;
 }
 
+export async function findPublicCommunityCustomSideQuestById(client: ClerkUserListClient, id: string) {
+  return findPublicCommunitySideQuestById(client, id);
+}
+
 async function fetchAllUsers(client: ClerkUserListClient) {
   const out: Awaited<ReturnType<ClerkUserListClient["users"]["getUserList"]>>["data"] = [];
   let offset = 0;

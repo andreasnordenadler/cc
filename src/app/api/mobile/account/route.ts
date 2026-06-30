@@ -671,6 +671,7 @@ function buildMobileMultiplayerTrophies({ groupQuests, userId, baseUrl }: { grou
         title: quest.name,
         placement,
         rankLabel: `${index + 1}${index === 0 ? "st" : index === 1 ? "nd" : "rd"} place`,
+        source: quest.official ? "official" as const : "community" as const,
         completedAt: participant.lastProofAt ?? finishedAtValues.at(-1) ?? quest.endAt,
         href: new URL(`/groupquests/${quest.id}?accepted=1`, baseUrl).toString(),
       };

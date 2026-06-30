@@ -2,6 +2,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore, isAdminAnalyticsViewer } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
+import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { findGroupQuestById, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
 
@@ -20,7 +21,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const host = await client.users.getUser(record.userId);
   const signedInUser = await client.users.getUser(userId);
-  const questSelection = buildGroupQuestSelection((payload as Record<string, unknown>).questIds, signedInUser.privateMetadata, record.groupQuest);
+  const questSelection = await buildGroupQuestSelection(client, (payload as Record<string, unknown>).questIds, signedInUser.privateMetadata, record.groupQuest);
   if (questSelection.error) {
     return NextResponse.json({ ok: false, error: questSelection.error }, { status: 400 });
   }
@@ -37,7 +38,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return NextResponse.json({ ok: true, href: `/groupquests/${id}${updatedQuest.participants.some((participant) => participant.userId === userId) ? "?accepted=1" : ""}` });
 }
 
-function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean, questSelection: ReturnType<typeof buildGroupQuestSelection>): ServerGroupQuest {
+function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean, questSelection: Awaited<ReturnType<typeof buildGroupQuestSelection>>): ServerGroupQuest {
   const providerMode = normalizeProviderMode(payload.providerMode);
   return {
     ...current,
@@ -57,7 +58,7 @@ function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unkn
   };
 }
 
-function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown, current: ServerGroupQuest) {
+async function buildGroupQuestSelection(client: Awaited<ReturnType<typeof clerkClient>>, rawQuestIds: unknown, privateMetadata: unknown, current: ServerGroupQuest) {
   if (!Array.isArray(rawQuestIds)) return {};
   const requestedIds = Array.from(new Set(rawQuestIds.filter((questId): questId is string => typeof questId === "string" && questId.length > 0))).slice(0, 8);
   if (!requestedIds.length) return { error: "Choose at least one Side Quest for this Multiplayer lineup." };
@@ -70,7 +71,7 @@ function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown
   for (const questId of requestedIds) {
     if (getChallengeById(questId)) continue;
 
-    const customQuest = ownedCustomQuests.get(questId);
+    const customQuest = ownedCustomQuests.get(questId) ?? await findPublicCommunityCustomSideQuestById(client, questId);
     if (customQuest) {
       if ((customQuest.lifecycle ?? "published") !== "published") return { error: `${customQuest.title} must be published before it can be used in multiplayer.` };
       if (!parseCustomRuleConfig(customQuest.config)?.blocks.length) return { error: `${customQuest.title} needs a launch-ready custom rule before it can be used in multiplayer.` };
@@ -84,7 +85,7 @@ function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown
       continue;
     }
 
-    return { error: "Only official Side Quests, saved custom snapshots, or your own published custom Side Quests can be added to multiplayer." };
+    return { error: "Only official Side Quests, public community-created Side Quests, saved custom snapshots, or your own published custom Side Quests can be added to multiplayer." };
   }
 
   return { questIds: requestedIds, customQuestSnapshots };

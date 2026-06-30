@@ -2,6 +2,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
+import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import {
@@ -70,7 +71,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       emailAddress: user.primaryEmailAddress?.emailAddress,
     }) || "SQC host";
     const inviteMode = payload?.inviteMode === "private-key" ? "private-key" : "public";
-    const questSelection = buildGroupQuestSelection(payload?.questIds, user.privateMetadata);
+    const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata);
     if (questSelection.error) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: questSelection.error },
@@ -139,7 +140,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
-    const questSelection = buildGroupQuestSelection(payload?.questIds, user.privateMetadata, found.groupQuest);
+    const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata, found.groupQuest);
     if (questSelection.error) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: questSelection.error },
@@ -369,7 +370,7 @@ type GroupQuestSelection = {
   error?: string;
 };
 
-function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown, current?: ServerGroupQuest): GroupQuestSelection {
+async function buildGroupQuestSelection(client: Awaited<ReturnType<typeof clerkClient>>, rawQuestIds: unknown, privateMetadata: unknown, current?: ServerGroupQuest): Promise<GroupQuestSelection> {
   if (!Array.isArray(rawQuestIds)) {
     return current ? {} : { questIds: undefined, customQuestSnapshots: [] };
   }
@@ -378,13 +379,21 @@ function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown
   if (!requestedIds.length) return { error: "Choose at least one Side Quest for this Multiplayer lineup." };
 
   const ownedCustomQuests = new Map(getCustomSideQuests(privateMetadata && typeof privateMetadata === "object" ? privateMetadata as Record<string, unknown> : {}).map((quest) => [quest.id, quest]));
+  const currentSnapshots = new Map((current?.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));
   const customQuestSnapshots: NonNullable<ServerGroupQuest["customQuestSnapshots"]> = [];
 
   for (const questId of requestedIds) {
     if (getChallengeById(questId)) continue;
 
-    const customQuest = ownedCustomQuests.get(questId);
-    if (!customQuest) return { error: "Only official Side Quests or your own saved custom Side Quests can be added to multiplayer." };
+    const customQuest = ownedCustomQuests.get(questId) ?? await findPublicCommunityCustomSideQuestById(client, questId);
+    if (!customQuest) {
+      const existingSnapshot = currentSnapshots.get(questId);
+      if (existingSnapshot) {
+        customQuestSnapshots.push(existingSnapshot);
+        continue;
+      }
+      return { error: "Only official, public community-created, saved custom snapshots, or your own saved custom Side Quests can be added to multiplayer." };
+    }
     if ((customQuest.lifecycle ?? "published") !== "published") return { error: `${customQuest.title} must be published before it can be used in multiplayer.` };
     if (!parseCustomRuleConfig(customQuest.config)?.blocks.length) return { error: `${customQuest.title} needs a launch-ready custom rule before it can be used in multiplayer.` };
     customQuestSnapshots.push(buildCustomSnapshot(customQuest));

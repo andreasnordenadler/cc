@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { buildGroupQuest, buildParticipant, upsertHostGroupQuest } from "@/lib/groupquests";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
+import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import {
   getChessComUsername,
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
 
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
-  const questSelection = buildGroupQuestSelection((payload as Record<string, unknown>).questIds, user.privateMetadata);
+  const questSelection = await buildGroupQuestSelection(client, (payload as Record<string, unknown>).questIds, user.privateMetadata);
   if (questSelection.error) {
     return NextResponse.json({ ok: false, error: questSelection.error }, { status: 400 });
   }
@@ -79,7 +80,7 @@ export async function POST(request: Request) {
   });
 }
 
-function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown) {
+async function buildGroupQuestSelection(client: Awaited<ReturnType<typeof clerkClient>>, rawQuestIds: unknown, privateMetadata: unknown) {
   if (!Array.isArray(rawQuestIds)) return { questIds: undefined, customQuestSnapshots: [] };
   const requestedIds = Array.from(new Set(rawQuestIds.filter((questId): questId is string => typeof questId === "string" && questId.length > 0))).slice(0, 8);
   if (!requestedIds.length) return { error: "Choose at least one Side Quest for this Multiplayer lineup." };
@@ -91,8 +92,8 @@ function buildGroupQuestSelection(rawQuestIds: unknown, privateMetadata: unknown
   for (const questId of requestedIds) {
     if (getChallengeById(questId)) continue;
 
-    const customQuest = ownedCustomQuests.get(questId);
-    if (!customQuest) return { error: "Only official Side Quests or your own saved custom Side Quests can be added to multiplayer." };
+    const customQuest = ownedCustomQuests.get(questId) ?? await findPublicCommunityCustomSideQuestById(client, questId);
+    if (!customQuest) return { error: "Only official, public community-created, or your own saved custom Side Quests can be added to multiplayer." };
     if ((customQuest.lifecycle ?? "published") !== "published") return { error: `${customQuest.title} must be published before it can be used in multiplayer.` };
     if (!parseCustomRuleConfig(customQuest.config)?.blocks.length) return { error: `${customQuest.title} needs a launch-ready custom rule before it can be used in multiplayer.` };
     customQuestSnapshots.push(buildCustomSnapshot(customQuest));
