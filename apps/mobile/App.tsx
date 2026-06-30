@@ -2613,7 +2613,24 @@ function JoinedMultiplayerQuestModal({
             </>
           )}
 
-          {quest.isOwner ? (
+          {quest.isOwner ? joinClosed ? (
+            <View style={compactStyles.multiplayerNativeCard}>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Owner archive</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>This finished table is locked.</Text>
+              <Text style={styles.microcopy}>You can still share the final result and review player receipts, but settings and player removals are closed after the event window ends.</Text>
+              {adminInviteMode === "private-key" ? (
+                <View style={compactStyles.multiplayerRuleRow}>
+                  <Text style={compactStyles.multiplayerRuleLabel}>Invite code</Text>
+                  <View style={compactStyles.multiplayerInlineAction}>
+                    <Text selectable style={compactStyles.multiplayerRuleValue}>{quest.inviteKey ?? "Key pending"}</Text>
+                    <Pressable accessibilityRole="button" accessibilityLabel="Copy private invite code" style={compactStyles.detailQuietButton} onPress={copyInviteKey}>
+                      <Text style={compactStyles.detailQuietButtonText}>Copy</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : null}
+            </View>
+          ) : (
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Owner settings</Text>
               <Text style={compactStyles.multiplayerCardTitle}>Simple Multiplayer controls.</Text>

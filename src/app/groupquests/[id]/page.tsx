@@ -174,7 +174,7 @@ export default async function GroupQuestByIdPage({
               <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
               {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
               {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
-              {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
+              {isHost && !isQuestFinished ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
             </div>
             <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest invitation summary">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -339,7 +339,7 @@ export default async function GroupQuestByIdPage({
             <GroupQuestShareButton questName={questName} shareUrl={shareUrl} buttonLabel="Share quest" inviteKey={hostPrivateInviteKey} />
             {hostPrivateInviteKey ? <p className="microcopy">Private host code: <strong>{hostPrivateInviteKey}</strong>. The copied invite link includes this code. You can also copy just the host code for players who already know where to join.</p> : null}
             {!savedQuest?.official ? <Link className="button ghost" href={reportHref}>Report Side Quest</Link> : null}
-            {isHost ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
+            {isHost && !isQuestFinished ? <Link className="button secondary" href={`/groupquests/${id}/edit`}>Edit quest</Link> : null}
 
           </div>
           <div className="groupquest-seal-card" aria-label="Multiplayer Side Quest trophy summary">
@@ -446,7 +446,7 @@ export default async function GroupQuestByIdPage({
           }))}
           participants={savedQuest?.participants}
           currentUserId={userId}
-          canManageParticipants={isHost}
+          canManageParticipants={isHost && !isQuestFinished}
           finished={isQuestFinished}
         />
 
