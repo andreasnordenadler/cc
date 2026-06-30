@@ -2312,7 +2312,12 @@ function JoinedMultiplayerQuestModal({
   ];
   const leaderboardRows = quest.leaderboardRows ?? [];
   const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges, quest.customQuestSummaries));
-  const adminQuestChoices = getMultiplayerQuestChoices(challenges, customQuests, quest.customQuestSummaries);
+  const adminQuestChoices = getMultiplayerQuestChoices(
+    challenges,
+    customQuests,
+    quest.customQuestSummaries,
+    account?.authenticated ? account.communitySideQuests ?? [] : [],
+  );
   const selectedRuleQuest = selectedRuleQuestTitle ? questRows.find((row) => row.title === selectedRuleQuestTitle) ?? null : null;
 
   function toggleAdminQuestId(questId: string) {
