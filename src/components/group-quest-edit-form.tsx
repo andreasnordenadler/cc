@@ -10,7 +10,7 @@ type EditableQuest = {
   objective: string;
   reward: number;
   difficulty: string;
-  source?: "official" | "custom" | "snapshot";
+  source?: "official" | "custom" | "community" | "snapshot";
 };
 
 const providerModes: Array<{ id: GroupQuestProviderMode; label: string }> = [
@@ -94,6 +94,13 @@ function makeInviteKey(name: string) {
 
 function cleanInviteKey(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
+}
+
+function getQuestSourceLabel(source: EditableQuest["source"]) {
+  if (source === "custom") return "Your Custom Solo Side Quest";
+  if (source === "community") return "Community Solo Side Quest";
+  if (source === "snapshot") return "Saved Custom Solo Side Quest snapshot";
+  return "Official Solo Side Quest";
 }
 
 export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest, quests }: { canMarkOfficial?: boolean; groupQuest: ServerGroupQuest; quests: EditableQuest[] }) {
@@ -266,13 +273,14 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
                 <div className="groupquests-picker-panel">
                   {quests.map((quest) => {
                     const checked = selectedQuestIds.includes(quest.id);
+                    const sourceLabel = getQuestSourceLabel(quest.source);
                     return (
                       <label className={checked ? "active" : undefined} key={quest.id}>
                         <input checked={checked} onChange={() => toggleQuest(quest.id)} type="checkbox" />
                         <span>
-                          <em>{quest.source === "custom" ? "Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved custom" : "Official Solo Side Quest"}</em>
+                          <em>{sourceLabel}</em>
                           <strong>{quest.title}</strong>
-                          <small className="inline-rating-copy">{quest.source === "custom" ? "Your Custom Solo Side Quest" : quest.source === "snapshot" ? "Saved Custom Solo Side Quest snapshot" : quest.difficulty} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
+                          <small className="inline-rating-copy">{quest.source === "official" ? quest.difficulty : sourceLabel} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
                         </span>
                       </label>
                     );

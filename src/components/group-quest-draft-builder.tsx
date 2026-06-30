@@ -9,7 +9,7 @@ type BuilderQuest = {
   objective: string;
   reward: number;
   difficulty: string;
-  source?: "official" | "custom" | "snapshot";
+  source?: "official" | "custom" | "community" | "snapshot";
 };
 
 const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
@@ -153,6 +153,13 @@ function makeInviteKey(name: string) {
 
 function cleanInviteKey(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 40);
+}
+
+function getQuestSourceLabel(source: BuilderQuest["source"]) {
+  if (source === "custom") return "Your Custom Solo Side Quest";
+  if (source === "community") return "Community Solo Side Quest";
+  if (source === "snapshot") return "Saved Custom Solo Side Quest snapshot";
+  return "Official Solo Side Quest";
 }
 
 export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { quests: BuilderQuest[]; initialQuestId?: string }) {
@@ -352,6 +359,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                 <div className="groupquests-picker-panel">
                   {quests.map((quest) => {
                     const checked = selectedQuestIds.includes(quest.id);
+                    const sourceLabel = getQuestSourceLabel(quest.source);
                     return (
                       <label className={checked ? "active" : undefined} key={quest.id}>
                         <input
@@ -360,9 +368,9 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                           type="checkbox"
                         />
                         <span>
-                          <em>{quest.source === "custom" ? "Custom Solo Side Quest" : "Official Solo Side Quest"}</em>
+                          <em>{sourceLabel}</em>
                           <strong>{quest.title}</strong>
-                          <small className="inline-rating-copy">{quest.difficulty} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
+                          <small className="inline-rating-copy">{quest.source === "official" ? quest.difficulty : sourceLabel} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
                         </span>
                       </label>
                     );

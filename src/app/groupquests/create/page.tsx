@@ -3,6 +3,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestDraftBuilder from "@/components/group-quest-draft-builder";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig } from "@/lib/custom-side-quests";
 
 export const metadata = {
@@ -32,6 +33,17 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
       difficulty: "Custom Solo Side Quest",
       source: "custom" as const,
     }));
+  const customQuestIds = new Set(customQuests.map((quest) => quest.id));
+  const publicCommunityQuests = (await listPublicCommunitySideQuests(client, { limit: 120 }))
+    .filter((quest) => !customQuestIds.has(quest.id) && parseCustomRuleConfig(quest.config)?.blocks.length)
+    .map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      objective: quest.summary,
+      reward: 100,
+      difficulty: "Community Solo Side Quest",
+      source: "community" as const,
+    }));
 
   const builderQuests = CHALLENGES.map((challenge) => ({
     id: challenge.id,
@@ -55,7 +67,7 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
         </section>
 
         <section className="mission-card groupquests-create-card" aria-label="Multiplayer Side Quest draft builder">
-          <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests]} initialQuestId={requestedQuestId} />
+          <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests, ...publicCommunityQuests]} initialQuestId={requestedQuestId} />
         </section>
       </div>
     </main>

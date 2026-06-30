@@ -4,6 +4,7 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestEditForm from "@/components/group-quest-edit-form";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig } from "@/lib/custom-side-quests";
 import { isAdminAnalyticsViewer } from "@/lib/analytics";
 import { findGroupQuestById } from "@/lib/groupquests";
@@ -34,6 +35,18 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
       difficulty: "Custom Solo Side Quest",
       source: "custom" as const,
     }));
+  const customQuestIds = new Set(customQuests.map((quest) => quest.id));
+  const snapshotQuestIds = new Set((record.groupQuest.customQuestSnapshots ?? []).map((snapshot) => snapshot.id));
+  const publicCommunityQuests = (await listPublicCommunitySideQuests(client, { limit: 120 }))
+    .filter((quest) => !customQuestIds.has(quest.id) && !snapshotQuestIds.has(quest.id) && parseCustomRuleConfig(quest.config)?.blocks.length)
+    .map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      objective: quest.summary,
+      reward: 100,
+      difficulty: "Community Solo Side Quest",
+      source: "community" as const,
+    }));
   const snapshotQuests = (record.groupQuest.customQuestSnapshots ?? [])
     .filter((snapshot) => !customQuests.some((quest) => quest.id === snapshot.id))
     .map((snapshot) => ({
@@ -59,7 +72,7 @@ export default async function EditGroupQuestPage({ params }: { params: Promise<{
           </div>
         </section>
 
-        <GroupQuestEditForm canMarkOfficial={canMarkOfficial} groupQuest={record.groupQuest} quests={[...officialQuests, ...customQuests, ...snapshotQuests]} />
+        <GroupQuestEditForm canMarkOfficial={canMarkOfficial} groupQuest={record.groupQuest} quests={[...officialQuests, ...customQuests, ...publicCommunityQuests, ...snapshotQuests]} />
       </div>
     </main>
   );
