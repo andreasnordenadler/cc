@@ -433,10 +433,15 @@ function normalizeDateTimeValue(value: unknown) {
 function normalizeRules(value: unknown, fallback: Record<string, string>) {
   if (!value || typeof value !== "object") return fallback;
   const record = value as Record<string, unknown>;
+  const customRuleSummary = cleanText(record.customRuleSummary, 180) ?? fallback.customRuleSummary;
+  const customRuleConfig = cleanText(record.customRuleConfig, 800) ?? fallback.customRuleConfig;
   return {
+    result: cleanText(record.result, 60) ?? fallback.result ?? "Win required",
     timeControl: cleanText(record.timeControl, 60) ?? fallback.timeControl ?? "Any time control",
     rated: cleanText(record.rated, 60) ?? fallback.rated ?? "Any rated state",
     color: cleanText(record.color, 60) ?? fallback.color ?? "Any color",
+    ...(customRuleSummary ? { customRuleSummary } : {}),
+    ...(customRuleConfig ? { customRuleConfig } : {}),
   };
 }
 
