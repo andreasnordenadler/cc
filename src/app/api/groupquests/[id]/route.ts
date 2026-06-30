@@ -4,7 +4,7 @@ import { compactAnalyticsStore, getAnalyticsStore, isAdminAnalyticsViewer } from
 import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
-import { findGroupQuestById, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
+import { findGroupQuestById, isGroupQuestFinished, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -18,6 +18,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const record = await findGroupQuestById(client, id);
   if (!record) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   if (record.groupQuest.hostUserId !== userId) return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+  if (isGroupQuestFinished(record.groupQuest)) return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
 
   const host = await client.users.getUser(record.userId);
   const signedInUser = await client.users.getUser(userId);

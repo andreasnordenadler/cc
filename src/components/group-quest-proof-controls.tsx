@@ -73,6 +73,7 @@ function friendlyError(error?: string) {
   if (error === "sign_in_required") return "Sign in to check Multiplayer proof.";
   if (error === "not_joined") return "Join this Multiplayer Side Quest before checking proof.";
   if (error === "not_found") return "This Multiplayer Side Quest could not be found.";
+  if (error === "finished") return "This Multiplayer Side Quest has ended. Final standings are frozen, so proof checks no longer change the leaderboard.";
   return "Could not refresh Multiplayer proof right now.";
 }
 
@@ -136,7 +137,7 @@ function MultiplayerProofBoard({ check }: { check: ProofCheck }) {
   );
 }
 
-export default function GroupQuestProofControls({ id, quests, initialState }: { id: string; quests: QuestSummary[]; initialState: InitialProofState }) {
+export default function GroupQuestProofControls({ id, quests, initialState, finished = false }: { id: string; quests: QuestSummary[]; initialState: InitialProofState; finished?: boolean }) {
   const router = useRouter();
   const [state, setState] = useState(initialState);
   const [checks, setChecks] = useState<ProofCheck[]>([]);
@@ -147,6 +148,11 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
   const completedCount = quests.filter((quest) => completed.has(quest.id)).length;
 
   async function refreshProof() {
+    if (finished) {
+      setMessage(null);
+      setError(friendlyError("finished"));
+      return;
+    }
     setSubmitting(true);
     setMessage(null);
     setError(null);
@@ -192,8 +198,8 @@ export default function GroupQuestProofControls({ id, quests, initialState }: { 
           <span className="eyebrow">Fastest check</span>
           <h3>Judge my latest table game.</h3>
           <p>Use this after you finish a fresh Lichess or Chess.com game inside this Multiplayer window. One check updates your receipts, boards, and leaderboard progress.</p>
-          <button className="button primary" type="button" onClick={refreshProof} disabled={submitting}>
-            {submitting ? "Checking…" : "Check latest game"}
+          <button className="button primary" type="button" onClick={refreshProof} disabled={submitting || finished}>
+            {finished ? "Final standings frozen" : submitting ? "Checking…" : "Check latest game"}
           </button>
         </article>
         <article className="proof-check-card">

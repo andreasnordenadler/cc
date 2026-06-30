@@ -6,6 +6,7 @@ import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import {
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
+  isGroupQuestFinished,
   updateParticipantProgress,
   upsertHostGroupQuest,
   upsertParticipantGroupQuest,
@@ -35,6 +36,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const participant = found.groupQuest.participants.find((entry) => entry.userId === userId);
   if (!participant) {
     return NextResponse.json({ ok: false, error: "not_joined" }, { status: 403 });
+  }
+  if (isGroupQuestFinished(found.groupQuest)) {
+    return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
   }
 
   const customSnapshotsById = new Map((found.groupQuest.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));

@@ -4,6 +4,7 @@ import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import {
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
+  isGroupQuestFinished,
   removeParticipantFromGroupQuest,
   removeStoredGroupQuest,
   upsertHostGroupQuest,
@@ -21,6 +22,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const found = await findGroupQuestById(client, id);
   if (!found) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
+  }
+  if (isGroupQuestFinished(found.groupQuest)) {
+    return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
   }
 
   const joined = found.groupQuest.participants.some((participant) => participant.userId === userId);

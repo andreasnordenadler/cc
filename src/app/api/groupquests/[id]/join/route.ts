@@ -4,6 +4,7 @@ import {
   buildParticipant,
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
+  isGroupQuestFinished,
   joinGroupQuest,
   upsertHostGroupQuest,
   upsertParticipantGroupQuest,
@@ -57,11 +58,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
 
   return NextResponse.json({ ok: true, href: `/groupquests/${id}?accepted=1` });
-}
-
-function isGroupQuestFinished(groupQuest: { endAt: string }) {
-  const end = Date.parse(groupQuest.endAt);
-  return Number.isFinite(end) && end < Date.now();
 }
 
 function sameInviteKey(input: unknown, expected: unknown) {

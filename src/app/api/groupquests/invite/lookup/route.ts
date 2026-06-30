@@ -1,6 +1,6 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { findGroupQuestByInviteKey } from "@/lib/groupquests";
+import { findGroupQuestByInviteKey, isGroupQuestFinished } from "@/lib/groupquests";
 
 export async function POST(request: Request) {
   const { userId } = await auth();
@@ -25,9 +25,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ ok: true, href: `/groupquests/${found.groupQuest.id}?inviteKey=${encodeURIComponent(inviteKey)}` });
-}
-
-function isGroupQuestFinished(groupQuest: { endAt: string }) {
-  const end = Date.parse(groupQuest.endAt);
-  return Number.isFinite(end) && end < Date.now();
 }

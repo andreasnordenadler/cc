@@ -1,7 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
-import { findGroupQuestById, removeParticipantFromGroupQuest, upsertHostGroupQuest } from "@/lib/groupquests";
+import { findGroupQuestById, isGroupQuestFinished, removeParticipantFromGroupQuest, upsertHostGroupQuest } from "@/lib/groupquests";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -26,6 +26,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const found = await findGroupQuestById(client, id);
   if (!found) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
+  }
+  if (isGroupQuestFinished(found.groupQuest)) {
+    return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
   }
 
   if (found.groupQuest.hostUserId !== userId) {

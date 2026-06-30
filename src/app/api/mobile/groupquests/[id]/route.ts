@@ -11,6 +11,7 @@ import {
   findGroupQuestById,
   findGroupQuestByInviteKey,
   isBuiltInOfficialGroupQuestHost,
+  isGroupQuestFinished,
   joinGroupQuest,
   removeParticipantFromGroupQuest,
   removeStoredGroupQuest,
@@ -131,6 +132,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       { status: 404 },
     );
   }
+  if (isGroupQuestFinished(found.groupQuest)) {
+    return NextResponse.json(
+      { apiVersion: 1, authenticated: true, ok: false, message: "This Multiplayer Side Quest has ended. Final standings are frozen, so table changes and proof checks are closed." },
+      { status: 400 },
+    );
+  }
 
   if (action === "update") {
     if (found.groupQuest.hostUserId !== userId) {
@@ -206,13 +213,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   if (action === "join") {
-    if (isGroupQuestFinished(found.groupQuest)) {
-      return NextResponse.json(
-        { apiVersion: 1, authenticated: true, ok: false, message: "This Multiplayer Side Quest has ended, so it is no longer open to join." },
-        { status: 400 },
-      );
-    }
-
     const participant = buildMobileParticipant({ groupQuest: found.groupQuest, userId, metadata, fallbackName: user.firstName ?? user.username ?? "SQC player" });
     if (!participant) {
       return NextResponse.json(
@@ -443,11 +443,6 @@ function normalizeRules(value: unknown, fallback: Record<string, string>) {
     ...(customRuleSummary ? { customRuleSummary } : {}),
     ...(customRuleConfig ? { customRuleConfig } : {}),
   };
-}
-
-function isGroupQuestFinished(groupQuest: Pick<ServerGroupQuest, "endAt">) {
-  const end = Date.parse(groupQuest.endAt);
-  return Number.isFinite(end) && end < Date.now();
 }
 
 function cleanText(value: unknown, maxLength: number) {

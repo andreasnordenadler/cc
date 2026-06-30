@@ -13,7 +13,7 @@ import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getCustomSideQuestBadgeUrl } from "@/lib/custom-side-quests";
-import { findGroupQuestById, listPublicGroupQuests } from "@/lib/groupquests";
+import { findGroupQuestById, getGroupQuestResultMode, rankGroupQuestParticipants, listPublicGroupQuests } from "@/lib/groupquests";
 import {
   getChessComUsername,
   getLichessUsername,
@@ -124,17 +124,13 @@ export default async function GroupQuestByIdPage({
     })
     .filter((quest): quest is NonNullable<typeof quest> => Boolean(quest));
   const totalReward = quests.reduce((sum, quest) => sum + quest.reward, 0);
-  const rankedParticipants = savedQuest?.participants
-    ? [...savedQuest.participants].sort((a, b) => {
-        const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
-        if (scoreDiff !== 0) return scoreDiff;
-        const completedDiff = (b.completedQuestIds?.length ?? 0) - (a.completedQuestIds?.length ?? 0);
-        if (completedDiff !== 0) return completedDiff;
-        return Date.parse(a.joinedAt) - Date.parse(b.joinedAt);
-      })
-    : [];
+  const rankedParticipants = savedQuest ? rankGroupQuestParticipants(savedQuest) : [];
   const participantCount = rankedParticipants.length;
   const currentParticipantRank = serverParticipant ? rankedParticipants.findIndex((participant) => participant.userId === userId) + 1 : null;
+  const resultMode = savedQuest ? getGroupQuestResultMode(savedQuest) : "deadline-points";
+  const finalResultCopy = resultMode === "first-to-complete"
+    ? "A player completed every included Side Quest before the deadline, so first full clear decides the final order."
+    : "No player completed every included Side Quest before the deadline, so highest verified points at close decide the final order.";
   const hostKey = savedQuest ? getHostKey(savedQuest.hostName) : "sqc-host";
   const moreByHost = savedQuest && !savedQuest.official
     ? publicGroupQuests
@@ -369,9 +365,12 @@ export default async function GroupQuestByIdPage({
             <div>
               <span className="eyebrow">Final archive</span>
               <h2>This run has ended.</h2>
-              <p>Proof checks are closed for this table. Review the final leaderboard, quest stack, and rules as the saved competition receipt.</p>
+              <p>Proof checks are closed for this table. {finalResultCopy} Review the final leaderboard, quest stack, and rules as the saved competition receipt.</p>
             </div>
-            <Link className="button secondary" href="/scoreboard">Back to Leaderboard</Link>
+            <div className="button-row">
+              <GroupQuestShareButton questName={questName} shareUrl={`${shareUrl}#leaderboard`} buttonLabel="Share final result" inviteKey={hostPrivateInviteKey} />
+              <Link className="button secondary" href="#leaderboard">Open final leaderboard</Link>
+            </div>
           </section>
         ) : (
           <GroupQuestProofControls
@@ -448,6 +447,7 @@ export default async function GroupQuestByIdPage({
           participants={savedQuest?.participants}
           currentUserId={userId}
           canManageParticipants={isHost}
+          finished={isQuestFinished}
         />
 
         <section className="mission-card groupquests-live-card" aria-label="Rules">

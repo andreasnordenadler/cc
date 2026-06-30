@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import GroupQuestRefreshButton from "@/components/group-quest-refresh-button";
+import { getGroupQuestResultMode, rankGroupQuestParticipants } from "@/lib/groupquests";
 
 type QuestSummary = {
   id: string;
@@ -36,6 +37,7 @@ type ServerParticipant = {
   provider: "lichess" | "chesscom";
   username: string;
   leaderboardName: string;
+  joinedAt: string;
   score?: number;
   completedQuestIds?: string[];
   questFinishedAt?: Record<string, string>;
@@ -103,6 +105,7 @@ export default function GroupQuestLeaderboard({
   participants,
   currentUserId,
   canManageParticipants = false,
+  finished = false,
 }: {
   id: string;
   questName: string;
@@ -110,17 +113,11 @@ export default function GroupQuestLeaderboard({
   participants?: ServerParticipant[];
   currentUserId?: string | null;
   canManageParticipants?: boolean;
+  finished?: boolean;
 }) {
   const [currentParticipant] = useState(() => readCurrentParticipant(id));
-  const orderedParticipants = participants
-    ? [...participants].sort((a, b) => {
-        const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
-        if (scoreDiff !== 0) return scoreDiff;
-        const completedDiff = (b.completedQuestIds?.length ?? 0) - (a.completedQuestIds?.length ?? 0);
-        if (completedDiff !== 0) return completedDiff;
-        return Number(b.userId === currentUserId) - Number(a.userId === currentUserId);
-      })
-    : [];
+  const questIds = quests.map((quest) => quest.id);
+  const orderedParticipants = participants ? rankGroupQuestParticipants({ questIds, participants }) : [];
   const serverPlayers = orderedParticipants.map((participant, index): Player => ({
     rank: index + 1,
     name: participant.leaderboardName,
@@ -142,6 +139,11 @@ export default function GroupQuestLeaderboard({
   const leader = players[0] ?? null;
   const fullyVerifiedCount = players.filter((player) => player.completed >= quests.length && quests.length > 0).length;
   const currentPlayer = players.find((player) => player.isCurrentParticipant) ?? null;
+  const resultMode = getGroupQuestResultMode({ questIds, participants: orderedParticipants });
+  const finalResultCopy = resultMode === "first-to-complete"
+    ? "First full clear decided this table. Later proof stays visible, but the final order is frozen."
+    : "No full clear landed before the deadline. Highest verified points at close decided this table.";
+  const finalResultLabel = resultMode === "first-to-complete" ? "First to complete" : "Deadline points";
 
   const podiumPlayer = players.find((player) => player.isCurrentParticipant && rankSealByPlacement[player.rank] && player.completed >= quests.length);
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
@@ -206,7 +208,7 @@ export default function GroupQuestLeaderboard({
           <div>
             <span className="eyebrow">{podiumSeal.label} claimed</span>
             <h3>{podiumSeal.label} scroll unlocked for {podiumPlayer.name}.</h3>
-            <p>The verifier has stamped every Side Quest complete. The leaderboard goblin has updated the official scroll.</p>
+            <p>The verifier has stamped every Side Quest complete. The official scroll is ready for the final proof moment.</p>
           </div>
           <a className="button primary" href={`#${leaderboardAnchorFor(podiumPlayer)}`}>View on leaderboard</a>
         </div>
@@ -214,11 +216,22 @@ export default function GroupQuestLeaderboard({
       <div className="section-head groupquest-leaderboard-head">
         <div>
           <span className="eyebrow">Leaderboard and proof receipts</span>
-          <h2>See the table, then open any player’s receipt.</h2>
-          <p>Rows start compact for scanning. Open a row for the Side Quest-by-Side Quest proof trail, final time, and host controls when you manage the table.</p>
+          <h2>{finished ? "Final leaderboard." : "See the table, then open any player’s receipt."}</h2>
+          <p>{finished ? finalResultCopy : "Rows start compact for scanning. Open a row for the Side Quest-by-Side Quest proof trail, final time, and host controls when you manage the table."}</p>
         </div>
-        <GroupQuestRefreshButton id={id} />
+        <GroupQuestRefreshButton id={id} finished={finished} />
       </div>
+      {finished && currentPlayer ? (
+        <div className="groupquest-podium-scroll" role="status" aria-live="polite">
+          <div className="groupquest-rank">{rankSealByPlacement[currentPlayer.rank] ? rankSealByPlacement[currentPlayer.rank].label : `#${currentPlayer.rank}`}</div>
+          <div>
+            <span className="eyebrow">Final result · {finalResultLabel}</span>
+            <h3>{currentPlayer.rank === 1 ? "Winner" : currentPlayer.rank === 2 ? "Second place" : currentPlayer.rank === 3 ? "Third place" : `Finished #${currentPlayer.rank}`}: {currentPlayer.name}</h3>
+            <p>{currentPlayer.proof} · {currentPlayer.rank <= 3 ? "Podium seal earned when every Side Quest is verified." : "Non-podium finish recorded in the final table."}</p>
+          </div>
+          <a className="button primary" href={`#${leaderboardAnchorFor(currentPlayer)}`}>Open receipt</a>
+        </div>
+      ) : null}
       <div className="groupquest-leaderboard-summary" aria-label="Leaderboard summary">
         <div>
           <span>Current leader</span>
@@ -397,7 +410,7 @@ export default function GroupQuestLeaderboard({
                 })}
                 <text x="512" y="1000" textAnchor="middle" className="scroll-section-title">PLAYERS BESTED ON THE ROAD</text>
                 <text x="512" y="1034" textAnchor="middle" className="scroll-body">Bested on the road: {shortenScrollText(bestedPlayers.join(" · "), 50)}</text>
-                <text x="512" y="1092" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the leaderboard goblin.</text>
+                <text x="512" y="1092" textAnchor="middle" className="scroll-footer">Stamped by the verifier. Witnessed by the final leaderboard.</text>
               </svg>
               <a className="button primary" href={`#${leaderboardAnchorFor(selectedScroll)}`} onClick={() => setSelectedScroll(null)}>
                 View on leaderboard

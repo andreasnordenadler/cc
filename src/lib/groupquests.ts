@@ -332,6 +332,50 @@ export function updateParticipantProgress(groupQuest: ServerGroupQuest, userId: 
   };
 }
 
+export function isGroupQuestFinished(groupQuest: Pick<ServerGroupQuest, "endAt">, now = Date.now()) {
+  const end = Date.parse(groupQuest.endAt);
+  return Number.isFinite(end) && end <= now;
+}
+
+export function getGroupQuestParticipantFinishedAt(
+  groupQuest: Pick<ServerGroupQuest, "questIds">,
+  participant: Pick<GroupQuestParticipant, "completedQuestIds" | "questFinishedAt">,
+) {
+  if (!groupQuest.questIds.length) return null;
+  const completed = new Set(participant.completedQuestIds ?? []);
+  if (!groupQuest.questIds.every((questId) => completed.has(questId))) return null;
+
+  const timestamps = groupQuest.questIds
+    .map((questId) => Date.parse(participant.questFinishedAt?.[questId] ?? ""))
+    .filter(Number.isFinite);
+  if (timestamps.length !== groupQuest.questIds.length) return null;
+  return new Date(Math.max(...timestamps)).toISOString();
+}
+
+export function rankGroupQuestParticipants<T extends Pick<GroupQuestParticipant, "score" | "completedQuestIds" | "questFinishedAt" | "joinedAt">>(
+  groupQuest: Pick<ServerGroupQuest, "questIds"> & { participants: T[] },
+) {
+  return [...groupQuest.participants].sort((a, b) => {
+    const aFinishedAt = getGroupQuestParticipantFinishedAt(groupQuest, a);
+    const bFinishedAt = getGroupQuestParticipantFinishedAt(groupQuest, b);
+    if (aFinishedAt && bFinishedAt) return Date.parse(aFinishedAt) - Date.parse(bFinishedAt);
+    if (aFinishedAt) return -1;
+    if (bFinishedAt) return 1;
+
+    const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
+    if (scoreDiff !== 0) return scoreDiff;
+    const completedDiff = (b.completedQuestIds?.length ?? 0) - (a.completedQuestIds?.length ?? 0);
+    if (completedDiff !== 0) return completedDiff;
+    return Date.parse(a.joinedAt) - Date.parse(b.joinedAt);
+  });
+}
+
+export function getGroupQuestResultMode(groupQuest: Pick<ServerGroupQuest, "questIds" | "participants">) {
+  return groupQuest.participants.some((participant) => getGroupQuestParticipantFinishedAt(groupQuest, participant))
+    ? "first-to-complete"
+    : "deadline-points";
+}
+
 export function buildParticipant(input: {
   userId: string;
   provider?: unknown;

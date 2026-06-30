@@ -38,7 +38,7 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-
 import { buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
-import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
+import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 type SideQuestCatalogIntent = "official" | "community-discover" | "my-custom" | "create-custom";
@@ -2312,6 +2312,11 @@ function JoinedMultiplayerQuestModal({
   ];
   const leaderboardRows = quest.leaderboardRows ?? [];
   const questRows = questInputs.map((entry) => getMultiplayerQuestBrowseRow(entry, challenges, quest.customQuestSummaries));
+  const finalRankNumber = parseRankNumber(position);
+  const finalSealSource = getMultiplayerFinalSeal(finalRankNumber);
+  const finalResultTitle = getMultiplayerFinalResultTitle(finalRankNumber);
+  const finalModeLabel = getMultiplayerFinalModeLabel(leaderboardRows, questRows.length);
+  const finalLeaderName = leaderboardRows[0]?.name ?? null;
   const adminQuestChoices = getMultiplayerQuestChoices(
     challenges,
     customQuests,
@@ -2429,11 +2434,36 @@ function JoinedMultiplayerQuestModal({
             </View>
           </View>
 
+          {joinClosed ? (
+            <View style={compactStyles.multiplayerNativeCard}>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Final result · {finalModeLabel}</Text>
+              {finalSealSource ? (
+                <View style={compactStyles.proofReadySealFrame}>
+                  <Image source={finalSealSource} style={compactStyles.proofReadySealImage} resizeMode="contain" />
+                </View>
+              ) : null}
+              <Text style={compactStyles.multiplayerCardTitle}>{mode === "joined" ? finalResultTitle : "Final leaderboard frozen."}</Text>
+              <Text style={styles.microcopy}>
+                {mode === "joined"
+                  ? `${position} · ${verified}. Proof checks are closed, so this receipt is the final table.`
+                  : `${finalLeaderName ? `Winner: ${finalLeaderName}. ` : ""}Proof checks are closed, so this leaderboard is final.`}
+              </Text>
+              <View style={compactStyles.multiplayerFooterActions}>
+                <Pressable accessibilityRole="button" accessibilityLabel="Share final Multiplayer Side Quest result" style={compactStyles.detailPrimaryButton} onPress={() => void shareInviteLink()}>
+                  <Text style={compactStyles.detailPrimaryButtonText}>Share final result</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityLabel="Copy final Multiplayer Side Quest result link" style={compactStyles.detailQuietButton} onPress={() => void copyInviteLink()}>
+                  <Text style={compactStyles.detailQuietButtonText}>Copy final link</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : null}
+
           <View style={compactStyles.multiplayerNativeCard}>
-            <Text style={compactStyles.multiplayerCardEyebrow}>{mode === "joined" ? "Next action" : "Join first"}</Text>
-            <Text style={compactStyles.multiplayerCardTitle}>{mode === "joined" ? "Refresh proof after your next eligible game." : "Join this Multiplayer Side Quest before playing your proof game."}</Text>
-            <Text style={styles.microcopy}>{mode === "joined" ? "SQC checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</Text>
-            {mode === "joined" ? (
+            <Text style={compactStyles.multiplayerCardEyebrow}>{joinClosed ? "Receipts locked" : mode === "joined" ? "Next action" : "Join first"}</Text>
+            <Text style={compactStyles.multiplayerCardTitle}>{joinClosed ? "Final standings are frozen." : mode === "joined" ? "Refresh proof after your next eligible game." : "Join this Multiplayer Side Quest before playing your proof game."}</Text>
+            <Text style={styles.microcopy}>{joinClosed ? "The event window has ended, so SQC keeps the leaderboard as the final proof record." : mode === "joined" ? "SQC checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</Text>
+            {mode === "joined" && !joinClosed ? (
               <Pressable accessibilityRole="button" accessibilityLabel="Refresh Multiplayer Side Quest proof" style={[compactStyles.detailPrimaryButton, busy ? compactStyles.disabledAction : null]} disabled={busy} onPress={() => onRefresh?.()}>
                 <Text style={compactStyles.detailPrimaryButtonText}>{busy ? "Checking..." : "Check my latest game"}</Text>
               </Pressable>
@@ -2680,7 +2710,7 @@ function JoinedMultiplayerQuestModal({
           <View style={compactStyles.multiplayerFooterActions}>
             {message ? <Text style={compactStyles.inlineSuccess}>{message}</Text> : null}
             {error ? <Text style={compactStyles.inlineError}>{error}</Text> : null}
-            {mode === "joined" ? (
+            {mode === "joined" && !joinClosed ? (
               <>
                 <View style={compactStyles.pullRefreshHintInline}>
                   <MaterialCommunityIcons name="arrow-down" size={14} color="rgba(199,189,169,.72)" />
@@ -2690,6 +2720,10 @@ function JoinedMultiplayerQuestModal({
                   <Text style={compactStyles.detailQuietButtonText}>Leave Side Quest</Text>
                 </Pressable>
               </>
+            ) : mode === "joined" && joinClosed ? (
+              <View style={compactStyles.detailQuietButton} accessibilityLabel="Final Multiplayer Side Quest standings">
+                <Text style={compactStyles.detailQuietButtonText}>Final standings frozen</Text>
+              </View>
             ) : joinClosed ? (
               <View style={compactStyles.detailQuietButton} accessibilityLabel="Multiplayer Side Quest ended">
                 <Text style={compactStyles.detailQuietButtonText}>Ended — no longer open to join</Text>
@@ -3892,6 +3926,32 @@ function getOfficialResultPodiumRows(quest: MobileGroupQuestSummary) {
     placement,
     row: quest.leaderboardRows?.[index] ?? null,
   }));
+}
+
+function parseRankNumber(value?: string | null) {
+  const match = value?.match(/#?(\d+)/);
+  return match ? Number(match[1]) : null;
+}
+
+function getMultiplayerFinalSeal(rank: number | null): ImageSourcePropType | null {
+  if (rank === 1) return SQC_GOLD_SEAL_ASSET;
+  if (rank === 2) return SQC_SILVER_SEAL_ASSET;
+  if (rank === 3) return SQC_BRONZE_SEAL_ASSET;
+  return null;
+}
+
+function getMultiplayerFinalResultTitle(rank: number | null) {
+  if (rank === 1) return "Winner · gold SQC seal.";
+  if (rank === 2) return "Second place · silver SQC seal.";
+  if (rank === 3) return "Third place · bronze SQC seal.";
+  if (rank && rank > 3) return `Finished #${rank}.`;
+  return "Final placement recorded.";
+}
+
+function getMultiplayerFinalModeLabel(rows: MobileGroupQuestParticipantRow[], questCount: number) {
+  const total = Math.max(questCount, 1);
+  const leaderProgress = rows[0]?.progress ?? "";
+  return leaderProgress === `${total}/${total}` ? "first to complete" : "deadline points";
 }
 
 function formatGroupQuestDate(value?: string | null) {

@@ -5,7 +5,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { buildPublicProofPath } from "@/lib/proof-share";
-import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
+import { rankGroupQuestParticipants, listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   buildAttemptSummary,
@@ -569,8 +569,11 @@ function formatTimeLeftLabel(endAt: string) {
   return `${Math.ceil(hours / 24)}d left`;
 }
 
-function getParticipantPositionLabel(quest: { participants: Array<{ userId: string; score?: number }> }, userId: string) {
-  const ranked = [...quest.participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+function getParticipantPositionLabel(quest: { questIds?: string[]; participants: Array<{ userId: string; score?: number; completedQuestIds?: string[]; questFinishedAt?: Record<string, string>; joinedAt?: string }> }, userId: string) {
+  const canUseFinalRanking = Array.isArray(quest.questIds) && quest.participants.every((participant) => typeof participant.joinedAt === "string");
+  const ranked = canUseFinalRanking
+    ? rankGroupQuestParticipants(quest as ServerGroupQuest)
+    : [...quest.participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
   const index = ranked.findIndex((participant) => participant.userId === userId);
   return index >= 0 ? `#${index + 1}` : null;
 }
@@ -611,12 +614,11 @@ function buildRuleRows(quest: { providerLabel: string; rules: Record<string, str
 }
 
 function buildLeaderboardRows(
-  quest: { participants: Array<{ userId: string; username: string; provider: string; score?: number; completedQuestIds?: string[]; leaderboardName: string; lastProofSummary?: string; lastProofAt?: string }> ; questIds: string[] },
+  quest: { participants: Array<{ userId: string; username: string; provider: string; score?: number; completedQuestIds?: string[]; questFinishedAt?: Record<string, string>; joinedAt: string; leaderboardName: string; lastProofSummary?: string; lastProofAt?: string }> ; questIds: string[] },
   userId: string,
 ) {
   const totalCount = Math.max(quest.questIds.length, 1);
-  return [...quest.participants]
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+  return rankGroupQuestParticipants(quest)
     .map((participant, index) => ({
       userId: participant.userId,
       rank: `#${index + 1}`,
@@ -624,7 +626,7 @@ function buildLeaderboardRows(
       provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
       progress: `${participant.completedQuestIds?.length ?? 0}/${totalCount}`,
       verified: `${participant.completedQuestIds?.length ?? 0}/${totalCount} verified`,
-      note: formatLeaderboardNote(participant, userId),
+      note: formatLeaderboardNote(participant, userId, index, quest),
       lastProofSummary: participant.lastProofSummary ?? undefined,
       lastProofAt: participant.lastProofAt ?? undefined,
       removable: participant.userId !== userId,
@@ -632,16 +634,20 @@ function buildLeaderboardRows(
 }
 
 function formatLeaderboardNote(
-  participant: { userId: string; lastProofSummary?: string; lastProofAt?: string },
+  participant: { userId: string; lastProofSummary?: string; lastProofAt?: string; completedQuestIds?: string[] },
   userId: string,
+  index: number,
+  quest: { questIds: string[] },
 ) {
   const summary = participant.lastProofSummary?.trim();
   const selfPrefix = participant.userId === userId ? "You" : "";
+  const podium = index === 0 ? "Gold" : index === 1 ? "Silver" : index === 2 ? "Bronze" : "";
+  const finalPrefix = participant.completedQuestIds?.length === quest.questIds.length && podium ? `${podium} seal` : "";
   if (!summary) return selfPrefix;
 
   const proofDate = participant.lastProofAt ? formatShortDateTime(participant.lastProofAt) : "";
   const proofLabel = proofDate ? `Latest proof ${proofDate}` : "Latest proof";
-  return [selfPrefix, `${proofLabel}: ${summary}`].filter(Boolean).join(" · ");
+  return [selfPrefix, finalPrefix, `${proofLabel}: ${summary}`].filter(Boolean).join(" · ");
 }
 
 function formatShortDateTime(value: string) {
@@ -660,7 +666,7 @@ function buildMobileMultiplayerTrophies({ groupQuests, userId, baseUrl }: { grou
   return groupQuests
     .filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished")
     .map((quest) => {
-      const ranked = [...quest.participants].sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+      const ranked = rankGroupQuestParticipants(quest);
       const index = ranked.findIndex((participant) => participant.userId === userId);
       const participant = index >= 0 ? ranked[index] : null;
       if (!participant || index > 2 || (participant.score ?? 0) <= 0) return null;

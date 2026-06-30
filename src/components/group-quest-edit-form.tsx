@@ -156,7 +156,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
     });
     const result = await response.json().catch(() => null) as { href?: string; error?: string } | null;
     if (!response.ok || !result?.href) {
-      setError(result?.error ?? "Could not update Multiplayer Side Quest.");
+      setError(result?.error === "finished" ? "This Multiplayer Side Quest has ended, so final standings and table settings are frozen." : result?.error ?? "Could not update Multiplayer Side Quest.");
       setSaving(false);
       return;
     }

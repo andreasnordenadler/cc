@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function GroupQuestRefreshButton({ id }: { id: string }) {
+export default function GroupQuestRefreshButton({ id, finished = false }: { id: string; finished?: boolean }) {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -14,8 +14,12 @@ export default function GroupQuestRefreshButton({ id }: { id: string }) {
         className="button secondary groupquest-refresh-button"
         type="button"
         aria-label="Refresh checks"
-        disabled={refreshing}
+        disabled={refreshing || finished}
         onClick={async () => {
+          if (finished) {
+            setStatus("Final standings are frozen for this Multiplayer Side Quest.");
+            return;
+          }
           setRefreshing(true);
           setStatus(null);
           try {
@@ -26,7 +30,9 @@ export default function GroupQuestRefreshButton({ id }: { id: string }) {
                 ? "Join this Multiplayer Side Quest before refreshing checks."
                 : payload?.error === "sign_in_required"
                   ? "Sign in to refresh Multiplayer Side Quest checks."
-                  : "Could not refresh checks right now.");
+                  : payload?.error === "finished"
+                    ? "Final standings are frozen for this Multiplayer Side Quest."
+                    : "Could not refresh checks right now.");
             } else if (Array.isArray(payload?.checks)) {
               const passed = payload.checks.filter((check: { status?: string }) => check.status === "passed").length;
               setStatus(`${passed} of ${payload.checks.length} Side Quests verified from your latest public games.`);
@@ -37,7 +43,7 @@ export default function GroupQuestRefreshButton({ id }: { id: string }) {
           }
         }}
       >
-        {refreshing ? "Checking…" : "Check my latest games"}
+        {finished ? "Final standings frozen" : refreshing ? "Checking…" : "Check my latest games"}
       </button>
       {status ? <small>{status}</small> : null}
     </>
