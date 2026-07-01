@@ -58,6 +58,12 @@ async function main() {
   const envPath = process.env.SQC_ENV_FILE || ".env.local";
   const env = readEnv(envPath);
   if (!env.CLERK_SECRET_KEY) throw new Error(`Missing CLERK_SECRET_KEY in ${envPath}`);
+  if (/^https:\/\/(?:www\.)?sidequestchess\.com\b/.test(baseURL) && env.CLERK_SECRET_KEY.startsWith("sk_test_")) {
+    throw new Error(
+      `Refusing authenticated production QA for ${baseURL} with a Clerk test secret from ${envPath}. ` +
+      "Use a local/preview base URL or provide an env file with the matching production Clerk secret.",
+    );
+  }
 
   const client = createClerkClient({ secretKey: env.CLERK_SECRET_KEY });
   await ensureRedirectUrl(client, `${baseURL}/`);
