@@ -447,6 +447,7 @@ export default async function GroupQuestByIdPage({
           participants={savedQuest?.participants}
           currentUserId={userId}
           canManageParticipants={isHost && !isQuestFinished}
+          canReviewFinalControls={isHost}
           finished={isQuestFinished}
         />
 

@@ -57,6 +57,10 @@ function leaderboardAnchorFor(player: Pick<Player, "rank">) {
   return `leaderboard-rank-${player.rank}`;
 }
 
+function hasPodiumSeal(player: Pick<Player, "rank" | "completed">, questCount: number, finished: boolean) {
+  return Boolean(rankSealByPlacement[player.rank] && (finished || player.completed >= questCount));
+}
+
 function formatProvider(value: unknown) {
   if (value === "chesscom") return "chess.com";
   if (value === "lichess") return "lichess";
@@ -77,6 +81,32 @@ function finalCompletionTimeFor(player: Player, quests: QuestSummary[]) {
   const completed = completedQuestsFor(player, quests);
   const finalQuest = completed[completed.length - 1];
   return finalQuest ? player.questFinishedAt[finalQuest.id] : "Not completed yet";
+}
+
+function getLatestVerifierEvent(players: Player[]) {
+  const latest = players
+    .map((player) => ({ name: player.name, time: Object.values(player.questFinishedAt).map((value) => Date.parse(value)).filter(Number.isFinite).sort((a, b) => b - a)[0] }))
+    .filter((entry): entry is { name: string; time: number } => Number.isFinite(entry.time))
+    .sort((a, b) => b.time - a.time)[0];
+
+  if (!latest) return "No verified proof events have landed for this table yet.";
+
+  return `${latest.name} · ${new Date(latest.time).toISOString()}`;
+}
+
+function getTieReviewCopy(players: Player[], quests: QuestSummary[], resultMode: "first-to-complete" | "deadline-points") {
+  if (players.length < 2) return "No tie-break needed with fewer than two leaderboard rows.";
+
+  const exactTie = players.some((player, index) => {
+    const next = players[index + 1];
+    if (!next) return false;
+    return player.score === next.score && player.completed === next.completed && finalCompletionTimeFor(player, quests) === finalCompletionTimeFor(next, quests);
+  });
+
+  if (exactTie) return "At least two adjacent rows still match on visible progress. Earlier join time is the final stable tie-breaker.";
+  return resultMode === "first-to-complete"
+    ? "Full clear time wins first; unresolved equal rows fall back to points, verified count, then earliest join."
+    : "Verified points win at the deadline; unresolved equal rows fall back to verified count, then earliest join.";
 }
 
 function readCurrentParticipant(id: string) {
@@ -105,6 +135,7 @@ export default function GroupQuestLeaderboard({
   participants,
   currentUserId,
   canManageParticipants = false,
+  canReviewFinalControls = false,
   finished = false,
 }: {
   id: string;
@@ -113,9 +144,11 @@ export default function GroupQuestLeaderboard({
   participants?: ServerParticipant[];
   currentUserId?: string | null;
   canManageParticipants?: boolean;
+  canReviewFinalControls?: boolean;
   finished?: boolean;
 }) {
   const [currentParticipant] = useState(() => readCurrentParticipant(id));
+  const [copiedFinalLink, setCopiedFinalLink] = useState(false);
   const questIds = quests.map((quest) => quest.id);
   const orderedParticipants = participants ? rankGroupQuestParticipants({ questIds, participants }) : [];
   const serverPlayers = orderedParticipants.map((participant, index): Player => ({
@@ -145,8 +178,11 @@ export default function GroupQuestLeaderboard({
     : "No full clear landed before the deadline. Highest verified points at close decided this table.";
   const finalResultLabel = resultMode === "first-to-complete" ? "First to complete" : "Deadline points";
 
-  const podiumPlayer = players.find((player) => player.isCurrentParticipant && rankSealByPlacement[player.rank] && player.completed >= quests.length);
+  const podiumPlayer = players.find((player) => player.isCurrentParticipant && hasPodiumSeal(player, quests.length, finished));
   const podiumSeal = podiumPlayer ? rankSealByPlacement[podiumPlayer.rank] : null;
+  const verifierEventCount = players.reduce((total, player) => total + Object.keys(player.questFinishedAt).length, 0);
+  const latestVerifierEvent = getLatestVerifierEvent(players);
+  const tieReviewCopy = getTieReviewCopy(players, quests, resultMode);
   const [selectedScroll, setSelectedScroll] = useState<Player | null>(null);
   const [selectedSealPreview, setSelectedSealPreview] = useState<Player | null>(null);
   const [removeBusyUserId, setRemoveBusyUserId] = useState<string | null>(null);
@@ -193,6 +229,13 @@ export default function GroupQuestLeaderboard({
     }
   }
 
+  async function copyFinalResultLink() {
+    const href = `${window.location.origin}${window.location.pathname}#leaderboard`;
+    await navigator.clipboard?.writeText(href).catch(() => undefined);
+    setCopiedFinalLink(true);
+    window.setTimeout(() => setCopiedFinalLink(false), 1800);
+  }
+
   return (
     <section className="mission-card groupquest-leaderboard-card" id="leaderboard" aria-label="Competition leaderboard">
       {podiumPlayer && podiumSeal ? (
@@ -227,9 +270,31 @@ export default function GroupQuestLeaderboard({
           <div>
             <span className="eyebrow">Final result · {finalResultLabel}</span>
             <h3>{currentPlayer.rank === 1 ? "Winner" : currentPlayer.rank === 2 ? "Second place" : currentPlayer.rank === 3 ? "Third place" : `Finished #${currentPlayer.rank}`}: {currentPlayer.name}</h3>
-            <p>{currentPlayer.proof} · {currentPlayer.rank <= 3 ? "Podium seal earned when every Side Quest is verified." : "Non-podium finish recorded in the final table."}</p>
+            <p>{currentPlayer.proof} · {currentPlayer.rank <= 3 ? "Podium seal earned for this frozen final placement." : "Non-podium finish recorded in the final table."}</p>
           </div>
           <a className="button primary" href={`#${leaderboardAnchorFor(currentPlayer)}`}>Open receipt</a>
+        </div>
+      ) : null}
+      {finished ? (
+        <div className="groupquest-final-review" aria-label={canReviewFinalControls ? "Organizer final review" : "Final leaderboard status"}>
+          <div>
+            <span>{canReviewFinalControls ? "Organizer final status" : "Final status"}</span>
+            <strong>Standings frozen</strong>
+            <small>{canReviewFinalControls ? "Settings, proof refreshes, and player removals are locked after the event window." : finalResultCopy}</small>
+          </div>
+          <div>
+            <span>Verifier event review</span>
+            <strong>{verifierEventCount} proof event{verifierEventCount === 1 ? "" : "s"}</strong>
+            <small>{latestVerifierEvent}</small>
+          </div>
+          <div>
+            <span>Tie and edge cases</span>
+            <strong>{finalResultLabel}</strong>
+            <small>{tieReviewCopy}</small>
+          </div>
+          <button className="button secondary" type="button" onClick={() => void copyFinalResultLink()}>
+            {copiedFinalLink ? "Final link copied" : "Copy final result link"}
+          </button>
         </div>
       ) : null}
       <div className="groupquest-leaderboard-summary" aria-label="Leaderboard summary">
@@ -264,7 +329,7 @@ export default function GroupQuestLeaderboard({
             <summary>
               <div className="groupquest-rank-stack">
                 <div className="groupquest-rank" aria-label={`Rank ${player.rank}`}>
-                  {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (
+                  {hasPodiumSeal(player, quests.length, finished) ? (
                     <button
                       className="groupquest-seal-button"
                       type="button"
@@ -281,7 +346,7 @@ export default function GroupQuestLeaderboard({
                     `#${player.rank}`
                   )}
                 </div>
-                {rankSealByPlacement[player.rank] && player.completed >= quests.length ? (
+                {hasPodiumSeal(player, quests.length, finished) ? (
                   <button
                     className="groupquest-scroll-mini"
                     type="button"

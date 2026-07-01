@@ -1698,6 +1698,14 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquest-leaderboard-summary strong { display: block; margin-top: 5px; color: var(--ink); font-size: clamp(1rem, 2vw, 1.22rem); font-weight: 1000; line-height: 1.12; }
 .groupquest-leaderboard-summary small { display: block; margin-top: 5px; color: var(--muted); font-size: .78rem; font-weight: 850; line-height: 1.32; }
 @media (max-width: 760px) { .groupquest-leaderboard-summary { grid-template-columns: 1fr; } }
+.groupquest-final-review { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 10px; align-items: stretch; margin: 0 0 14px; padding: 12px; border: 1px solid rgba(96,240,175,.18); border-radius: 20px; background: linear-gradient(135deg, rgba(96,240,175,.08), rgba(0,0,0,.18)); }
+.groupquest-final-review div { min-width: 0; padding: 10px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(0,0,0,.14); }
+.groupquest-final-review span { display: block; color: var(--green); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.groupquest-final-review strong { display: block; margin-top: 5px; color: var(--ink); font-size: .96rem; font-weight: 1000; line-height: 1.12; }
+.groupquest-final-review small { display: block; margin-top: 5px; color: var(--muted); font-size: .76rem; font-weight: 850; line-height: 1.32; }
+.groupquest-final-review .button { align-self: center; white-space: nowrap; }
+@media (max-width: 980px) { .groupquest-final-review { grid-template-columns: 1fr 1fr; } .groupquest-final-review .button { grid-column: 1 / -1; justify-content: center; width: 100%; } }
+@media (max-width: 640px) { .groupquest-final-review { grid-template-columns: 1fr; } }
 
 .groupquest-podium-scroll { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin-bottom: 14px; padding: 14px; border: 1px solid rgba(245,200,106,.3); border-radius: 22px; background: radial-gradient(circle at 6% 8%, rgba(245,200,106,.22), transparent 36%), linear-gradient(135deg, rgba(245,200,106,.12), rgba(0,0,0,.18)); }
 .groupquest-podium-scroll img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 12px 20px rgba(0,0,0,.36)); }
