@@ -1718,7 +1718,7 @@ function TodayDashboard({
   const activeQuestPickedLabel = formatQuestPickedDate(signedIn?.activeQuest?.startedAt);
   const activeQuestProofNeeded = activeChallenge?.instruction ?? activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Play a new public game on your connected chess account that matches this Side Quest.";
   const officialPublic = (signedIn?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
-  const activeMultiplayer = signedIn?.activeGroupQuests ?? [];
+  const activeMultiplayer = signedIn ? getActiveMultiplayerQuestsForAccount(signedIn) : [];
   const hasChessAccount = Boolean(signedIn?.chessAccounts.hasAny);
   const [actionState, setActionState] = useState<{ busy: boolean; message: string | null; error: string | null }>({ busy: false, message: null, error: null });
   const [groupQuestActionState, setGroupQuestActionState] = useState<{ busy: boolean; questId: string | null; message: string | null; error: string | null }>({
@@ -3959,11 +3959,27 @@ function getSingleCustomQuestBadgePath(badgeImageUrl?: string | null) {
   return badgeImageUrl;
 }
 
-function getJoinedMultiplayerListStatus(quest: MobileAccountState["activeGroupQuests"][number]) {
+function getActiveMultiplayerQuestsForAccount(account: MobileAccountState): MobileGroupQuestSummary[] {
+  const activeAccountQuests = account.activeGroupQuests.filter((quest) => quest.status !== "Finished");
+  const joinedPublicQuests = [
+    ...(account.officialPublicGroupQuests ?? []),
+    ...(account.publicUserGroupQuests ?? []),
+  ].filter((quest) => (quest.joinState === "Joined" || quest.isOwner) && quest.status !== "Finished");
+
+  return [...activeAccountQuests, ...joinedPublicQuests]
+    .filter((quest, index, all) => all.findIndex((entry) => entry.id === quest.id) === index)
+    .sort((a, b) => {
+      const bTime = Date.parse(b.startAt ?? b.endAt ?? "");
+      const aTime = Date.parse(a.startAt ?? a.endAt ?? "");
+      return (Number.isFinite(bTime) ? bTime : 0) - (Number.isFinite(aTime) ? aTime : 0);
+    });
+}
+
+function getJoinedMultiplayerListStatus(quest: MobileGroupQuestSummary) {
   return quest.isOwner ? "Hosting" : "Joined";
 }
 
-function getJoinedMultiplayerListMeta(quest: MobileAccountState["activeGroupQuests"][number]) {
+function getJoinedMultiplayerListMeta(quest: MobileGroupQuestSummary) {
   return quest.official
     ? [quest.isOwner ? "You host" : null, "SQC official", quest.copy].filter(Boolean).join(" · ")
     : [quest.isOwner ? "You host" : null, "Community public", quest.copy].filter(Boolean).join(" · ");
@@ -5642,11 +5658,12 @@ function AccountSoloSideQuestSection({
   const soloMeta = account.activeQuest
     ? `${activeChallenge?.objective ?? activeChallenge?.proofCallout ?? "Waiting for your next public game."} · ${getProofCheckDisplay(formatLatestCheckTime(activeQuestReceipt?.checkedAt ?? account.activeQuest.verifiedAt), activeQuestReceipt)}`
     : "Pick one Side Quest to judge against your next public game.";
-  const hostedMultiplayer = account.activeGroupQuests.filter((quest) => quest.isOwner).length;
-  const joinedMultiplayer = account.activeGroupQuests.length - hostedMultiplayer;
-  const firstActiveMultiplayer = account.activeGroupQuests[0];
-  const multiplayerStatus = account.activeGroupQuests.length ? `${account.activeGroupQuests.length} active` : "Open";
-  const multiplayerMeta = account.activeGroupQuests.length
+  const activeMultiplayer = getActiveMultiplayerQuestsForAccount(account);
+  const hostedMultiplayer = activeMultiplayer.filter((quest) => quest.isOwner).length;
+  const joinedMultiplayer = activeMultiplayer.length - hostedMultiplayer;
+  const firstActiveMultiplayer = activeMultiplayer[0];
+  const multiplayerStatus = activeMultiplayer.length ? `${activeMultiplayer.length} active` : "Open";
+  const multiplayerMeta = activeMultiplayer.length
     ? `${hostedMultiplayer} hosted · ${joinedMultiplayer} joined · ${cleanMultiplayerTitle(firstActiveMultiplayer?.title ?? "Open Multiplayer Side Quest")}`
     : "Join an official table, join a community table, or create one for friends.";
   const customQuests = account.customSideQuests ?? [];
@@ -5669,7 +5686,7 @@ function AccountSoloSideQuestSection({
         onPress={() => account.activeQuest?.id ? onSelectChallenge(account.activeQuest.id, "sideQuests") : onSelectTab("sideQuests")}
       />
       <AppRow
-        title={account.activeGroupQuests.length ? "Active Multiplayer Side Quests" : "Multiplayer Side Quests"}
+        title={activeMultiplayer.length ? "Active Multiplayer Side Quests" : "Multiplayer Side Quests"}
         meta={multiplayerMeta}
         status={multiplayerStatus}
         imageSource={SQC_COAT_OF_ARMS_ASSET}
