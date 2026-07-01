@@ -2344,6 +2344,10 @@ function JoinedMultiplayerQuestModal({
   const finalResultTitle = getMultiplayerFinalResultTitle(finalRankNumber);
   const finalModeLabel = getMultiplayerFinalModeLabel(leaderboardRows, questRows.length);
   const finalLeaderName = leaderboardRows[0]?.name ?? null;
+  const finalParticipantRow = finalRankNumber ? leaderboardRows[finalRankNumber - 1] ?? null : null;
+  const finalRewardCopy = finalSealSource
+    ? "Podium seal earned. This reward appears in your Trophy Cabinet after account sync."
+    : "Final proof recorded. Podium seals are awarded to the top three finishers.";
   const adminQuestChoices = getMultiplayerQuestChoices(
     challenges,
     customQuests,
@@ -2475,6 +2479,25 @@ function JoinedMultiplayerQuestModal({
                   ? `${position} · ${verified}. Proof checks are closed, so this receipt is the final table.`
                   : `${finalLeaderName ? `Winner: ${finalLeaderName}. ` : ""}Proof checks are closed, so this leaderboard is final.`}
               </Text>
+              {mode === "joined" ? (
+                <View style={compactStyles.multiplayerFinalRewardCard} accessibilityLabel="Final Multiplayer reward proof">
+                  {finalSealSource ? (
+                    <Image source={finalSealSource} style={compactStyles.multiplayerFinalRewardSeal} resizeMode="contain" />
+                  ) : (
+                    <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerFinalRewardSeal} resizeMode="contain" />
+                  )}
+                  <View style={compactStyles.multiplayerFinalRewardCopy}>
+                    <Text style={compactStyles.multiplayerFinalRewardTitle}>{finalSealSource ? "Final reward sealed." : "Final proof saved."}</Text>
+                    <Text style={compactStyles.multiplayerFinalRewardBody}>{finalRewardCopy}</Text>
+                    <Text style={compactStyles.multiplayerFinalRewardMeta}>
+                      {finalParticipantRow ? `${finalParticipantRow.progress} complete · ${finalParticipantRow.verified}` : `${verified} verified`}
+                    </Text>
+                    {finalParticipantRow?.lastProofSummary ? (
+                      <Text style={compactStyles.multiplayerFinalRewardMeta} numberOfLines={2}>{finalParticipantRow.lastProofSummary}</Text>
+                    ) : null}
+                  </View>
+                </View>
+              ) : null}
               <View style={compactStyles.multiplayerFooterActions}>
                 <Pressable accessibilityRole="button" accessibilityLabel="Share final Multiplayer Side Quest result" style={compactStyles.detailPrimaryButton} onPress={() => void shareInviteLink()}>
                   <Text style={compactStyles.detailPrimaryButtonText}>Share final result</Text>
@@ -2850,10 +2873,16 @@ function MultiplayerLeaderboardRow({
   };
   compact?: boolean;
 }) {
+  const rankNumber = parseRankNumber(row.rank);
+  const rankSeal = getMultiplayerFinalSeal(rankNumber);
   return (
     <View style={[compactStyles.appRow, compactStyles.multiplayerLeaderboardAppRow]}>
       <View style={compactStyles.multiplayerRankBadge}>
-        <Text style={compactStyles.multiplayerRankBadgeText}>{row.rank}</Text>
+        {rankSeal ? (
+          <Image source={rankSeal} style={compactStyles.multiplayerLeaderboardSeal} resizeMode="contain" />
+        ) : (
+          <Text style={compactStyles.multiplayerRankBadgeText}>{row.rank}</Text>
+        )}
       </View>
       <View style={compactStyles.appRowText}>
         <View style={compactStyles.multiplayerLeaderboardTopLine}>
@@ -9704,6 +9733,12 @@ const compactStyles = StyleSheet.create({
   multiplayerOptionHelper: { color: "rgba(255,247,232,.62)", fontSize: 11, lineHeight: 15, fontWeight: "800" },
   multiplayerCardEyebrow: { color: colors.green, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .9, textAlign: "center" },
   multiplayerCardTitle: { color: colors.paper, fontSize: 18, lineHeight: 22, fontWeight: "900", textAlign: "center", letterSpacing: -.4 },
+  multiplayerFinalRewardCard: { flexDirection: "row", gap: 10, alignItems: "center", padding: 12, borderRadius: 18, borderWidth: 1, borderColor: "rgba(245,200,106,.28)", backgroundColor: "rgba(245,200,106,.1)" },
+  multiplayerFinalRewardSeal: { width: 58, height: 58 },
+  multiplayerFinalRewardCopy: { flex: 1, minWidth: 0, gap: 3 },
+  multiplayerFinalRewardTitle: { color: colors.paper, fontSize: 15, lineHeight: 18, fontWeight: "900" },
+  multiplayerFinalRewardBody: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  multiplayerFinalRewardMeta: { color: colors.gold, fontSize: 11, lineHeight: 14, fontWeight: "900" },
   multiplayerListStack: { gap: 7 },
   multiplayerQuestRow: { flexDirection: "row", alignItems: "center", gap: 9, paddingVertical: 7, paddingHorizontal: 8, borderRadius: 13, backgroundColor: "rgba(0,0,0,.16)" },
   multiplayerQuestCoat: { width: 34, height: 38 },
@@ -9715,6 +9750,7 @@ const compactStyles = StyleSheet.create({
   multiplayerLeaderboardAppRow: { alignItems: "flex-start", paddingVertical: 10 },
   multiplayerRankBadge: { width: 42, minHeight: 42, alignItems: "center", justifyContent: "center" },
   multiplayerRankBadgeText: { color: colors.gold, fontSize: 22, lineHeight: 26, fontWeight: "900", letterSpacing: -.5 },
+  multiplayerLeaderboardSeal: { width: 40, height: 40 },
   multiplayerLeaderboardRow: { flexDirection: "row", gap: 10, padding: 10, borderRadius: 14, backgroundColor: "rgba(0,0,0,.16)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
   multiplayerRank: { width: 34, color: colors.gold, fontSize: 18, lineHeight: 22, fontWeight: "900", textAlign: "center" },
   multiplayerLeaderboardCopy: { flex: 1, gap: 2 },
