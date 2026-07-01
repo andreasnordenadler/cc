@@ -156,7 +156,7 @@ export default async function GroupQuestByIdPage({
               <GroupQuestInviteCopy id={id} fallback={inviteCopy} />
               <div className="hero-actions button-row">
                 {isQuestFinished ? (
-                  <Link className="button secondary" href="#leaderboard-preview">View final leaderboard preview</Link>
+                  <Link className="button secondary" href="#leaderboard">View final leaderboard</Link>
                 ) : (
                   <GroupQuestAcceptModal
                     id={id}
@@ -259,18 +259,33 @@ export default async function GroupQuestByIdPage({
           </section>
 
           <section className="grid groupquests-dashboard-grid" aria-label="Rules and participants preview">
-            <article className="mission-card groupquest-leaderboard-card" id="leaderboard-preview">
-              <div className="section-head">
-                <div>
-                  <span className="eyebrow">Who else is participating?</span>
-                  <h2>Competition leaderboard preview.</h2>
+            {isQuestFinished ? (
+              <GroupQuestLeaderboard
+                id={id}
+                questName={questName}
+                quests={quests.map((quest) => ({
+                  id: quest.id,
+                  title: quest.title,
+                  badgeImage: quest.badgeImage,
+                  badgeName: quest.badgeName,
+                }))}
+                participants={savedQuest?.participants}
+                finished
+              />
+            ) : (
+              <article className="mission-card groupquest-leaderboard-card" id="leaderboard-preview">
+                <div className="section-head">
+                  <div>
+                    <span className="eyebrow">Who else is participating?</span>
+                    <h2>Competition leaderboard preview.</h2>
+                  </div>
+                  <span className="badge green">Live</span>
                 </div>
-                <span className="badge green">Live</span>
-              </div>
-              <div className="groupquest-empty-state" role="status">
-                <p>{participantCount === 0 ? "No players have joined yet." : `${participantCount} player${participantCount === 1 ? " has" : "s have"} joined so far.`}</p>
-              </div>
-            </article>
+                <div className="groupquest-empty-state" role="status">
+                  <p>{participantCount === 0 ? "No players have joined yet." : `${participantCount} player${participantCount === 1 ? " has" : "s have"} joined so far.`}</p>
+                </div>
+              </article>
+            )}
 
             <article className="mission-card groupquests-live-card">
               <span className="eyebrow">Rules and time</span>
