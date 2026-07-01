@@ -2287,6 +2287,26 @@ function JoinedMultiplayerQuestModal({
   const [adminRules, setAdminRules] = useState<Record<string, string>>(quest?.rules ?? { timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [adminQuestIds, setAdminQuestIds] = useState<string[]>(quest?.questIds ?? []);
   const [likeBusy, setLikeBusy] = useState(false);
+  const syncedQuestIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!quest) {
+      syncedQuestIdRef.current = null;
+      return;
+    }
+    if (syncedQuestIdRef.current === quest.id) return;
+    syncedQuestIdRef.current = quest.id;
+    setProofMode(false);
+    setSelectedRuleQuestTitle(null);
+    setAdminName(quest.title);
+    setAdminInviteCopy(cleanMultiplayerInviteCopy(quest.inviteCopy));
+    setAdminInviteMode(normalizeMobileInviteMode(quest.inviteMode));
+    setAdminProviderMode(quest.providerMode ?? "both");
+    setAdminStartAt(dateFromGroupQuestValue(quest.startAt));
+    setAdminEndAt(dateFromGroupQuestValue(quest.endAt, setGroupQuestDuration(dateFromGroupQuestValue(quest.startAt), 7)));
+    setAdminRules(quest.rules ?? { timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
+    setAdminQuestIds(quest.questIds ?? []);
+  }, [quest]);
 
 
   if (!quest) return null;
