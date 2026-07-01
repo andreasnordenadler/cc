@@ -44,6 +44,58 @@ async function createQaUser(client, prefix) {
   return { userId: user.id, email };
 }
 
+function getPrimaryEmail(user) {
+  return user.emailAddresses?.find((email) => email.id === user.primaryEmailAddressId)?.emailAddress
+    ?? user.emailAddresses?.[0]?.emailAddress
+    ?? "";
+}
+
+function isReusableQaUser(user, prefix) {
+  return getPrimaryEmail(user).startsWith(`sqc.${prefix}.`) && getPrimaryEmail(user).endsWith("@example.com");
+}
+
+async function resetQaUser(client, user, prefix) {
+  await client.users.updateUser(user.id, {
+    firstName: prefix === "host" ? "Host" : "Guest",
+    lastName: "QA",
+    publicMetadata: {
+      runnerDisplayName: prefix === "host" ? "Host QA" : "Guest QA",
+      lichessUsername: "and72nor",
+      chessComUsername: "and72nor",
+    },
+  });
+  await client.users.updateUserMetadata(user.id, {
+    privateMetadata: {
+      sqcAnalytics: undefined,
+      sqcChallengeProgress: undefined,
+      sqcChallengeAttempts: undefined,
+      sqcGroupQuests: [],
+      sqcParticipantGroupQuests: [],
+    },
+  });
+
+  return { userId: user.id, email: getPrimaryEmail(user) };
+}
+
+async function findReusableQaUser(client, prefix, excludeUserIds = new Set()) {
+  const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
+  return users.data.find((user) => isReusableQaUser(user, prefix) && !excludeUserIds.has(user.id)) ?? null;
+}
+
+async function getQaUser(client, prefix, excludeUserIds = new Set()) {
+  const existing = await findReusableQaUser(client, prefix, excludeUserIds);
+  if (existing) return resetQaUser(client, existing, prefix);
+
+  try {
+    return await createQaUser(client, prefix);
+  } catch (error) {
+    const quotaExceeded = (error?.errors ?? []).some((entry) => entry?.code === "user_quota_exceeded");
+    if (!quotaExceeded) throw error;
+
+    throw new Error("Clerk test user quota is full and no reusable sqc multiplayer QA users were found. Delete old sqc.*@example.com QA users or run against a Clerk instance with available test-user capacity.");
+  }
+}
+
 async function signInPage(browser, baseURL, tokenUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const ticket = new URL(tokenUrl).search;
@@ -62,8 +114,8 @@ async function main() {
   await ensureRedirectUrl(client, `${baseURL}/`);
   await ensureRedirectUrl(client, `${baseURL}/account`);
 
-  const host = await createQaUser(client, "host");
-  const guest = await createQaUser(client, "guest");
+  const host = await getQaUser(client, "host");
+  const guest = await getQaUser(client, "guest", new Set([host.userId]));
   const hostToken = await client.signInTokens.createSignInToken({ userId: host.userId, expiresInSeconds: 3600 });
   const guestToken = await client.signInTokens.createSignInToken({ userId: guest.userId, expiresInSeconds: 3600 });
 
