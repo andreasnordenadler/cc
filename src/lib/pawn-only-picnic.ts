@@ -1,3 +1,6 @@
+import { Chess } from "chess.js";
+import { normalizeLichessMoveTokens } from "./lichess-move-normalizer";
+
 export type PawnOnlyPicnicSide = "white" | "black";
 export type PawnOnlyPicnicResult = PawnOnlyPicnicSide | "draw" | "unknown";
 export type PawnOnlyPicnicTimeClass = "bullet" | "blitz" | "rapid" | "classical" | "daily" | "unknown";
@@ -43,6 +46,7 @@ export type PawnOnlyPicnicVerdict = {
 };
 
 const ALLOWED_TIME_CLASSES = new Set<PawnOnlyPicnicTimeClass>(["bullet", "blitz", "rapid", "unknown"]);
+const UCI_MOVE_PATTERN = /^[a-h][1-8][a-h][1-8][qrbn]?$/i;
 
 function colorName(color: PawnOnlyPicnicSide) {
   return color === "white" ? "White" : "Black";
@@ -81,6 +85,38 @@ function playerPiecesFromSanMoves(moves: string[], playerColor: PawnOnlyPicnicSi
     .map(pieceFromSanMove);
 }
 
+function pieceTypeFromChessJs(piece?: string): PieceType | null {
+  if (piece === "n") return "knight";
+  if (piece === "b") return "bishop";
+  if (piece === "r") return "rook";
+  if (piece === "q") return "queen";
+  if (piece === "k") return "king";
+  if (piece === "p") return "pawn";
+  return null;
+}
+
+function playerPiecesFromUciMoves(moves: string[], playerColor: PawnOnlyPicnicSide) {
+  const chess = new Chess();
+  const playerPieces: PieceType[] = [];
+  const playerChessColor = playerColor === "white" ? "w" : "b";
+
+  for (const token of moves) {
+    let move;
+    try {
+      move = chess.move({ from: token.slice(0, 2), to: token.slice(2, 4), promotion: token.slice(4, 5) || undefined });
+    } catch {
+      break;
+    }
+    if (move.color !== playerChessColor) continue;
+
+    const piece = pieceTypeFromChessJs(move.piece);
+    if (piece) playerPieces.push(piece);
+    if (playerPieces.length >= 8) break;
+  }
+
+  return playerPieces;
+}
+
 export function normalizeLichessPawnOnlyPicnicGame(
   game: LichessPawnOnlyPicnicGame,
   username: string,
@@ -94,7 +130,10 @@ export function normalizeLichessPawnOnlyPicnicGame(
     return null;
   }
 
-  const moves = game.moves.trim().split(/\s+/).filter(Boolean);
+  const moves = normalizeLichessMoveTokens(game.moves);
+  const firstEightPlayerMovePieces = moves.every((token) => UCI_MOVE_PATTERN.test(token))
+    ? playerPiecesFromUciMoves(moves, playerColor)
+    : playerPiecesFromSanMoves(moves, playerColor);
 
   return {
     id: game.id,
@@ -106,7 +145,7 @@ export function normalizeLichessPawnOnlyPicnicGame(
     rated: game.rated,
     startedGameAt: typeof game.createdAt === "number" ? new Date(game.createdAt).toISOString() : undefined,
     completedGameAt: typeof game.lastMoveAt === "number" ? new Date(game.lastMoveAt).toISOString() : undefined,
-    firstEightPlayerMovePieces: playerPiecesFromSanMoves(moves, playerColor),
+    firstEightPlayerMovePieces,
   };
 }
 

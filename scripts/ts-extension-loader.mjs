@@ -11,6 +11,12 @@ export async function resolve(specifier, context, nextResolve) {
     return await nextResolve(specifier, context);
   } catch (error) {
     if (error?.code === 'ERR_MODULE_NOT_FOUND' && (specifier.startsWith('./') || specifier.startsWith('../') || specifier.startsWith('/'))) {
+      const fallback = context.parentURL && (specifier.startsWith('./') || specifier.startsWith('../'))
+        ? new URL(`${specifier}.ts`, context.parentURL).href
+        : `${specifier}.ts`;
+      return nextResolve(fallback, context);
+    }
+    if (error?.code === 'ERR_MODULE_NOT_FOUND' && specifier.startsWith('file:')) {
       return nextResolve(`${specifier}.ts`, context);
     }
     throw error;
