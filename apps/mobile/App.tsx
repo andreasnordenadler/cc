@@ -5855,9 +5855,15 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
-          <Pressable accessibilityRole="button" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
-            <Text style={compactStyles.goldButtonText}>Sign in</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
+            <Text style={compactStyles.goldButtonText}>Continue with Google</Text>
           </Pressable>
+          {authBridge.startFacebookSignIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
+              <Text style={styles.secondaryButtonText}>Continue with Facebook</Text>
+            </Pressable>
+          ) : null}
+          <PasswordAuthPanel authBridge={authBridge} onAccountUpdated={onAccountUpdated} />
         </View>
         <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
         <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={null} authBridge={authBridge} />
@@ -9160,7 +9166,7 @@ function AccountShell({
 }) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
-    const primaryLabel = signedInButRejected ? "Sync account" : authBridge.configured ? "Continue with Google" : "Open sign in";
+    const primaryLabel = signedInButRejected ? "Sync account" : "Continue with Google";
     const handlePrimaryPress = () => {
       if (signedInButRejected) {
         return onAccountUpdated();
@@ -9187,7 +9193,7 @@ function AccountShell({
 
         <View style={styles.accountAuthFormCard} accessibilityLabel="Sign in form">
           <Text style={styles.eyebrow}>Account</Text>
-          <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Continue to your account."}</Text>
+          <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but SQC needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={handlePrimaryPress}>
             <Text style={styles.primaryButtonText}>{primaryLabel}</Text>
