@@ -1,6 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import { getChessRatingSnapshots, refreshChessRatingSnapshots } from "@/lib/chess-ratings";
 import {
   getChessComUsername,
   getLichessUsername,
@@ -92,16 +93,19 @@ export async function PATCH(request: Request) {
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
   const metadata = user.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const nextMetadata = {
+    ...metadata,
+    ...(runnerDisplayName !== undefined ? { runnerDisplayName } : {}),
+    ...(runnerBio !== undefined ? { runnerBio } : {}),
+    lichessUsername: lichessValidation.username,
+    chessComUsername: chessComValidation.username,
+  };
+  const refreshed = await refreshChessRatingSnapshots(nextMetadata, { force: true });
 
   await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      ...metadata,
-      ...(runnerDisplayName !== undefined ? { runnerDisplayName } : {}),
-      ...(runnerBio !== undefined ? { runnerBio } : {}),
-      lichessUsername: lichessValidation.username,
-      chessComUsername: chessComValidation.username,
-    },
+    publicMetadata: refreshed.metadata,
   });
+  const chessRatingSnapshots = getChessRatingSnapshots(refreshed.metadata);
 
   return NextResponse.json({
     apiVersion: 1,
@@ -114,6 +118,10 @@ export async function PATCH(request: Request) {
       previousLichessUsername: getLichessUsername(metadata) || null,
       previousChessComUsername: getChessComUsername(metadata) || null,
       hasAny: Boolean(lichessValidation.username || chessComValidation.username),
+      ratingSnapshots: {
+        lichess: chessRatingSnapshots.lichess ?? null,
+        chessCom: chessRatingSnapshots.chessCom ?? null,
+      },
     },
   });
 }

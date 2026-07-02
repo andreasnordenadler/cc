@@ -3444,6 +3444,11 @@ function formatAccountRecentActivity(value: string | null | undefined): string {
   return formatAccountDate(value);
 }
 
+function formatRatingSnapshotDate(value: string | null | undefined): string {
+  if (!value) return "after refresh";
+  return formatAccountRecentActivity(value);
+}
+
 function formatQuestPickedDate(value: string | null | undefined): string {
   return formatRelativeDateTime(value, "not recorded");
 }
@@ -9245,6 +9250,7 @@ function AccountShell({
         <CompletedQuestShelf account={signedInAccount} />
       </View>
 
+      <ChessStrengthCard account={signedInAccount} />
       <ChessUsernameEditor account={signedInAccount} authBridge={authBridge} onSaved={onAccountUpdated} />
       <QuestProgressStrip completed={signedInAccount.progress.totalCompletedChallenges} total={bootstrap.challenges.length} />
       <AccountNextActionsCard account={signedInAccount} />
@@ -9345,6 +9351,53 @@ function BadgeMeaningCard({ challenge, earned, onPress }: { challenge: MobileCha
         </View>
       </View>
     </Pressable>
+  );
+}
+
+function ChessStrengthCard({ account }: { account: MobileAccountState }) {
+  const snapshots = account.chessAccounts.ratingSnapshots;
+  const rows = [
+    {
+      provider: "Lichess",
+      username: account.chessAccounts.lichessUsername,
+      snapshot: snapshots?.lichess ?? null,
+    },
+    {
+      provider: "Chess.com",
+      username: account.chessAccounts.chessComUsername,
+      snapshot: snapshots?.chessCom ?? null,
+    },
+  ].filter((row) => row.username);
+
+  if (!rows.length) return null;
+
+  return (
+    <View style={styles.chessStrengthCard}>
+      <Text style={styles.eyebrow}>Chess strength</Text>
+      <Text style={styles.chessStrengthTitle}>Public chess ratings</Text>
+      <Text style={styles.chessStrengthBody}>Provider ratings are kept as context. Your Side Quest identity still comes from proofs, coats, and Multiplayer podiums.</Text>
+      <View style={styles.chessStrengthRows}>
+        {rows.map((row) => (
+          <View key={row.provider} style={styles.chessStrengthRow}>
+            <View style={styles.chessStrengthProviderBlock}>
+              <Text style={styles.chessStrengthProvider}>{row.provider}</Text>
+              <Text style={styles.chessStrengthUsername} numberOfLines={1}>{row.username}</Text>
+            </View>
+            <View style={styles.chessStrengthRatings}>
+              {row.snapshot?.ratings.length ? row.snapshot.ratings.slice(0, 4).map((rating) => (
+                <View key={`${row.provider}-${rating.category}`} style={styles.chessStrengthRatingPill}>
+                  <Text style={styles.chessStrengthRatingLabel}>{rating.label}</Text>
+                  <Text style={styles.chessStrengthRatingValue}>{rating.rating}</Text>
+                </View>
+              )) : (
+                <Text style={styles.chessStrengthEmpty}>{row.snapshot?.error ?? "Ratings will appear after the next refresh."}</Text>
+              )}
+            </View>
+            <Text style={styles.chessStrengthUpdated}>Updated {formatRatingSnapshotDate(row.snapshot?.updatedAt)}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
   );
 }
 
@@ -10912,6 +10965,20 @@ const styles = StyleSheet.create({
   noticeStrip: { flexDirection: "row", gap: 10, alignItems: "center", padding: 12, borderRadius: 18, backgroundColor: "rgba(0,0,0,.18)", borderWidth: 1, borderColor: "rgba(255,247,232,.08)" },
   noticeIcon: { fontSize: 18 },
   noticeCopy: { flex: 1, color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
+  chessStrengthCard: { gap: 9, padding: 12, borderRadius: 22, backgroundColor: "rgba(96,240,175,.075)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
+  chessStrengthTitle: { color: colors.paper, fontSize: 20, fontWeight: "900", letterSpacing: -0.7, lineHeight: 23 },
+  chessStrengthBody: { color: colors.muted, fontSize: 13, lineHeight: 18, fontWeight: "700" },
+  chessStrengthRows: { gap: 8 },
+  chessStrengthRow: { gap: 7, padding: 10, borderRadius: 18, backgroundColor: "rgba(0,0,0,.2)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  chessStrengthProviderBlock: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  chessStrengthProvider: { color: colors.green, fontSize: 12, fontWeight: "900", textTransform: "uppercase" },
+  chessStrengthUsername: { flex: 1, color: colors.paper, fontSize: 14, fontWeight: "900", textAlign: "right" },
+  chessStrengthRatings: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  chessStrengthRatingPill: { minWidth: 68, flexGrow: 1, gap: 2, paddingHorizontal: 9, paddingVertical: 7, borderRadius: 14, backgroundColor: "rgba(255,247,232,.08)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  chessStrengthRatingLabel: { color: colors.muted, fontSize: 10, fontWeight: "900", textTransform: "uppercase" },
+  chessStrengthRatingValue: { color: colors.paper, fontSize: 18, fontWeight: "900" },
+  chessStrengthEmpty: { flex: 1, color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
+  chessStrengthUpdated: { color: colors.muted, fontSize: 11, fontWeight: "800" },
 
   actionPlanCard: { gap: 12, padding: 16, borderRadius: 24, backgroundColor: "rgba(96,240,175,.075)", borderWidth: 1, borderColor: "rgba(96,240,175,.22)" },
   actionPlanTitle: { color: colors.paper, fontSize: 21, fontWeight: "900", letterSpacing: -0.8, lineHeight: 24 },

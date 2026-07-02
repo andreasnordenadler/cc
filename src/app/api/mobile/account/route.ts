@@ -1,6 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import { getChessRatingSnapshots, refreshChessRatingSnapshots, shouldRefreshChessRatingSnapshots } from "@/lib/chess-ratings";
 import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
@@ -49,6 +50,14 @@ export async function GET(request: Request) {
     await client.users.updateUserMetadata(userId, { publicMetadata: metadata });
   }
   const privateMetadata = user.privateMetadata && typeof user.privateMetadata === "object" ? (user.privateMetadata as UserMetadataRecord) : {};
+  if (shouldRefreshChessRatingSnapshots(metadata)) {
+    const refreshed = await refreshChessRatingSnapshots(metadata);
+    if (refreshed.changed) {
+      metadata = refreshed.metadata;
+      await client.users.updateUserMetadata(userId, { publicMetadata: metadata });
+    }
+  }
+  const chessRatingSnapshots = getChessRatingSnapshots(metadata);
   const likeSummaries = await getCommunityLikeSummaries(client, userId);
   const progress = getChallengeProgress(metadata);
   const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
@@ -318,6 +327,10 @@ export async function GET(request: Request) {
       lichessUsername: getLichessUsername(metadata) || null,
       chessComUsername: getChessComUsername(metadata) || null,
       hasAny: Boolean(getLichessUsername(metadata) || getChessComUsername(metadata)),
+      ratingSnapshots: {
+        lichess: chessRatingSnapshots.lichess ?? null,
+        chessCom: chessRatingSnapshots.chessCom ?? null,
+      },
     },
     progress: {
       completedChallengeIds: progress.completedChallengeIds,

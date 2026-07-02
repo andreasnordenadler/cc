@@ -11,6 +11,7 @@ import {
   type SQCAnalyticsEvent,
 } from "@/lib/analytics";
 import { sanitizeChessUsername, validateChessComUsername, validateLichessUsername } from "@/lib/chess-username-validation";
+import { refreshChessRatingSnapshots } from "@/lib/chess-ratings";
 import {
   verifyChessComDrawAnyGameAttempt,
   verifyChessComDrawAsBlackAttempt,
@@ -678,14 +679,15 @@ export async function saveChessUsernames(formData: FormData) {
   }
 
   const { lichess, chessCom } = await validateChessAccountsOrThrow(lichessUsername, chessComUsername);
+  const nextMetadata = await refreshChessRatingSnapshots({
+    ...metadata,
+    lichessUsername: lichess,
+    chessComUsername: chessCom,
+  }, { force: true });
 
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      ...metadata,
-      lichessUsername: lichess,
-      chessComUsername: chessCom,
-    },
+    publicMetadata: nextMetadata.metadata,
   });
 
   await recordSignedInAnalyticsEvent(userId, {
@@ -718,16 +720,17 @@ export async function saveRunnerProfile(formData: FormData) {
   }
 
   const { lichess, chessCom } = await validateChessAccountsOrThrow(lichessUsername, chessComUsername);
+  const nextMetadata = await refreshChessRatingSnapshots({
+    ...metadata,
+    runnerDisplayName,
+    runnerBio,
+    lichessUsername: lichess,
+    chessComUsername: chessCom,
+  }, { force: true });
 
   const client = await clerkClient();
   await client.users.updateUserMetadata(userId, {
-    publicMetadata: {
-      ...metadata,
-      runnerDisplayName,
-      runnerBio,
-      lichessUsername: lichess,
-      chessComUsername: chessCom,
-    },
+    publicMetadata: nextMetadata.metadata,
   });
 
   await recordSignedInAnalyticsEvent(userId, {

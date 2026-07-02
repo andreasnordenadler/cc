@@ -172,6 +172,10 @@ export type MobileAccountState = {
     lichessUsername: string | null;
     chessComUsername: string | null;
     hasAny: boolean;
+    ratingSnapshots?: {
+      lichess: MobileChessRatingSnapshot | null;
+      chessCom: MobileChessRatingSnapshot | null;
+    };
   };
   progress: {
     completedChallengeIds: string[];
@@ -290,7 +294,24 @@ export type MobileProfileUpdateResponse = {
     previousLichessUsername?: string | null;
     previousChessComUsername?: string | null;
     hasAny: boolean;
+    ratingSnapshots?: {
+      lichess: MobileChessRatingSnapshot | null;
+      chessCom: MobileChessRatingSnapshot | null;
+    };
   };
+};
+
+export type MobileChessRatingSnapshot = {
+  provider: "lichess" | "chess.com";
+  username: string;
+  updatedAt: string;
+  ratings: Array<{
+    category: string;
+    label: string;
+    rating: number;
+    games?: number;
+  }>;
+  error?: string;
 };
 
 export type MobileSupportMessageResponse = {
