@@ -1045,6 +1045,7 @@ type CompletionCelebrationUnlock = {
 };
 
 type AccountUpdatedCallback = () => void | MobileAccountResponse | null | Promise<void | MobileAccountResponse | null>;
+type PasswordSignUpResult = { status: "complete" } | { status: "verification_required"; identifier: string };
 
 type MobileAuthBridge = {
   configured: boolean;
@@ -1054,7 +1055,8 @@ type MobileAuthBridge = {
   startGoogleSignIn?: () => Promise<void>;
   startFacebookSignIn?: () => Promise<void>;
   startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
-  startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<void>;
+  startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<PasswordSignUpResult>;
+  attemptPasswordSignUpVerification?: (params: { code: string }) => Promise<void>;
   signOut?: () => Promise<void>;
   signedInLabel: string | null;
 };
@@ -1433,7 +1435,7 @@ function ClerkMobileShell() {
     throw new Error(`Password sign-in needs another step: ${result.status}.`);
   }, [setSignInActive, signIn, signInLoaded]);
 
-  const startPasswordSignUp = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
+  const startPasswordSignUp = useCallback(async ({ identifier, password }: { identifier: string; password: string }): Promise<PasswordSignUpResult> => {
     if (!signUpLoaded) throw new Error("Account creation is still loading. Try again in a moment.");
     const trimmedIdentifier = identifier.trim();
     const payload = trimmedIdentifier.includes("@")
@@ -1443,10 +1445,37 @@ function ClerkMobileShell() {
 
     if (result.status === "complete" && result.createdSessionId && setSignUpActive) {
       await setSignUpActive({ session: result.createdSessionId });
-      return;
+      return { status: "complete" };
+    }
+
+    if (result.status === "missing_requirements") {
+      if (result.unverifiedFields.includes("email_address")) {
+        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+        return { status: "verification_required", identifier: trimmedIdentifier };
+      }
+
+      if (result.missingFields.includes("email_address")) {
+        throw new Error("Use an email address to create a password account in Side Quest Chess.");
+      }
     }
 
     throw new Error(`Account creation needs another step: ${result.status}.`);
+  }, [setSignUpActive, signUp, signUpLoaded]);
+
+  const attemptPasswordSignUpVerification = useCallback(async ({ code }: { code: string }) => {
+    if (!signUpLoaded) throw new Error("Account verification is still loading. Try again in a moment.");
+    const result = await signUp.attemptEmailAddressVerification({ code: code.trim() });
+
+    if (result.status === "complete" && result.createdSessionId && setSignUpActive) {
+      await setSignUpActive({ session: result.createdSessionId });
+      return;
+    }
+
+    if (result.status === "missing_requirements" && result.unverifiedFields.includes("email_address")) {
+      throw new Error("That verification code did not complete sign-up. Check the email code and try again.");
+    }
+
+    throw new Error(`Account verification needs another step: ${result.status}.`);
   }, [setSignUpActive, signUp, signUpLoaded]);
 
   const authBridge = useMemo<MobileAuthBridge>(
@@ -1459,10 +1488,11 @@ function ClerkMobileShell() {
       startFacebookSignIn,
       startPasswordSignIn,
       startPasswordSignUp,
+      attemptPasswordSignUpVerification,
       signOut,
       signedInLabel,
     }),
-    [getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
+    [attemptPasswordSignUpVerification, getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -9643,11 +9673,19 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [pendingVerificationIdentifier, setPendingVerificationIdentifier] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const passwordAuthAvailable = Boolean(authBridge.startPasswordSignIn && authBridge.startPasswordSignUp);
-  const submitLabel = mode === "sign-in" ? "Sign in with password" : "Create password account";
+  const waitingForVerification = mode === "sign-up" && Boolean(pendingVerificationIdentifier);
+  const submitLabel = mode === "sign-in" ? "Sign in with password" : waitingForVerification ? "Verify and create account" : "Create password account";
+
+  function resetVerificationState() {
+    setPendingVerificationIdentifier(null);
+    setVerificationCode("");
+  }
 
   async function submitPasswordAuth() {
     const cleanIdentifier = identifier.trim();
@@ -9656,6 +9694,30 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
       setError("Password sign-in is unavailable in this build.");
       return;
     }
+    if (waitingForVerification) {
+      const cleanCode = verificationCode.trim();
+      if (!cleanCode) {
+        setMessage(null);
+        setError("Enter the verification code Clerk sent to your email.");
+        return;
+      }
+
+      setBusy(true);
+      setMessage(null);
+      setError(null);
+      try {
+        await authBridge.attemptPasswordSignUpVerification?.({ code: cleanCode });
+        setMessage("Account created. Syncing your SQC account...");
+        resetVerificationState();
+        await Promise.resolve(onAccountUpdated());
+      } catch (caught) {
+        setError(caught instanceof Error ? caught.message : "Account verification failed.");
+      } finally {
+        setBusy(false);
+      }
+      return;
+    }
+
     if (!cleanIdentifier || password.length < 8) {
       setMessage(null);
       setError("Enter an email or username and a password of at least 8 characters.");
@@ -9668,11 +9730,19 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
     try {
       if (mode === "sign-in") {
         await authBridge.startPasswordSignIn?.({ identifier: cleanIdentifier, password });
+        setMessage("Signed in. Syncing your SQC account...");
+        await Promise.resolve(onAccountUpdated());
       } else {
-        await authBridge.startPasswordSignUp?.({ identifier: cleanIdentifier, password });
+        const result = await authBridge.startPasswordSignUp?.({ identifier: cleanIdentifier, password });
+        if (result?.status === "verification_required") {
+          setPendingVerificationIdentifier(result.identifier);
+          setVerificationCode("");
+          setMessage(`Check ${result.identifier} for the verification code, then enter it here.`);
+          return;
+        }
+        setMessage("Account created. Syncing your SQC account...");
+        await Promise.resolve(onAccountUpdated());
       }
-      setMessage(mode === "sign-in" ? "Signed in. Syncing your SQC account..." : "Account created. Syncing your SQC account...");
-      await Promise.resolve(onAccountUpdated());
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Password authentication failed.");
     } finally {
@@ -9683,25 +9753,31 @@ function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: Mobil
   return (
     <View style={styles.passwordAuthPanel} accessibilityLabel="Username and password sign in">
       <View style={styles.passwordAuthModeRow}>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => setMode("sign-in")}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-in"); resetVerificationState(); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-in" && styles.passwordAuthModeTextActive]}>Sign in</Text>
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => setMode("sign-up")}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => { setMode("sign-up"); resetVerificationState(); }}>
           <Text style={[styles.passwordAuthModeText, mode === "sign-up" && styles.passwordAuthModeTextActive]}>Create</Text>
         </Pressable>
       </View>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>Email or username</Text>
-        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" style={styles.textInput} onChangeText={setIdentifier} />
+        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} keyboardType="email-address" style={styles.textInput} onChangeText={(value) => { setIdentifier(value); resetVerificationState(); }} />
       </View>
       <View style={styles.inputStack}>
         <Text style={styles.inputLabel}>Password</Text>
-        <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} secureTextEntry style={styles.textInput} onChangeText={setPassword} />
+        <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} editable={!waitingForVerification} secureTextEntry style={styles.textInput} onChangeText={(value) => { setPassword(value); resetVerificationState(); }} />
       </View>
+      {waitingForVerification ? (
+        <View style={styles.inputStack}>
+          <Text style={styles.inputLabel}>Verification code</Text>
+          <TextInput value={verificationCode} placeholder="6-digit email code" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="number-pad" style={styles.textInput} onChangeText={setVerificationCode} />
+        </View>
+      ) : null}
       <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || !passwordAuthAvailable }} style={[styles.secondaryButtonWide, (busy || !passwordAuthAvailable) && compactStyles.disabledAction]} disabled={busy || !passwordAuthAvailable} onPress={() => void submitPasswordAuth()}>
         <Text style={styles.secondaryButtonText}>{busy ? "Working..." : submitLabel}</Text>
       </Pressable>
-      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your SQC account has a password." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
+      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your SQC account has a password." : waitingForVerification ? "Clerk needs this email check before Side Quest Chess can sync the new account." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
     </View>
