@@ -4836,6 +4836,9 @@ function QuestBoardDashboard({
         >
           <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
+        <View pointerEvents="none" style={compactStyles.sideQuestBrandTabSwitchIcon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
+        </View>
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
@@ -7111,6 +7114,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         >
           <Text style={[compactStyles.sideQuestBrandTabText, multiplayerCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
+        <View pointerEvents="none" style={compactStyles.sideQuestBrandTabSwitchIcon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
+        </View>
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: multiplayerCatalogTab === "community" }}
@@ -10021,8 +10027,9 @@ const compactStyles = StyleSheet.create({
   coatLightboxTitle: { color: colors.paper, fontSize: 18, lineHeight: 23, fontWeight: "900", textAlign: "center" },
   pullRefreshHint: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 5, paddingTop: 7, paddingBottom: 9, opacity: .64 },
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
-  sideQuestBrandTabs: { flexDirection: "row", alignItems: "stretch", gap: 10, marginTop: 2, marginBottom: 6 },
+  sideQuestBrandTabs: { position: "relative", flexDirection: "row", alignItems: "stretch", gap: 12, marginTop: 2, marginBottom: 6 },
   sideQuestBrandTab: { flex: 1, minHeight: 62, overflow: "hidden", alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderRadius: 22, borderWidth: 1.5 },
+  sideQuestBrandTabSwitchIcon: { position: "absolute", left: "50%", top: "50%", width: 32, height: 32, marginLeft: -16, marginTop: -16, zIndex: 4, elevation: 7, alignItems: "center", justifyContent: "center", borderRadius: 16, backgroundColor: "rgba(15,17,17,.92)", borderWidth: 1, borderColor: "rgba(255,247,232,.2)", shadowColor: "#000", shadowOpacity: .2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
   sideQuestBrandTabOfficial: { borderColor: "rgba(245,200,106,.3)", backgroundColor: "rgba(245,200,106,.08)" },
   sideQuestBrandTabOfficialActive: { borderColor: "rgba(245,200,106,.62)", backgroundColor: "rgba(245,200,106,.18)" },
   sideQuestBrandTabCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.065)" },
