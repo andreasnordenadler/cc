@@ -1663,9 +1663,14 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   }
 
   function openMultiplayerCreate(questId?: string) {
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
     setPendingMultiplayerCreateQuestId(questId ?? null);
-    setPendingMultiplayerCreateOpenToken((current) => current + 1);
-    selectTab("multiplayerSideQuests");
+    setShell((current) => ({ ...current, activeTab: "multiplayerSideQuests", pendingSideQuestCatalogIntent: null }));
+    setScrollState((current) => ({ ...current, y: 0 }));
+    requestAnimationFrame(() => {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+      setTimeout(() => setPendingMultiplayerCreateOpenToken((current) => current + 1), 0);
+    });
   }
 
   function openCustomSideQuests() {
@@ -1806,7 +1811,9 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
 
   function openMultiplayerCreateFromMenu() {
     setMenuOpen(false);
-    setTimeout(() => onOpenMultiplayerCreate(), 0);
+    requestAnimationFrame(() => {
+      setTimeout(() => onOpenMultiplayerCreate(), 180);
+    });
   }
 
   const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
