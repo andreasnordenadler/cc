@@ -5843,6 +5843,20 @@ function CoatBoardDashboard({ bootstrap, account, onOpenChallengeDetail, onOpenC
   );
 }
 
+function SocialSignInButtonContent({ provider, label, textStyle }: { provider: "google" | "facebook"; label: string; textStyle: StyleProp<TextStyle> }) {
+  const iconName: keyof typeof MaterialCommunityIcons.glyphMap = provider === "google" ? "google" : "facebook";
+  const iconColor = provider === "google" ? "#4285f4" : "#1877f2";
+
+  return (
+    <View style={styles.socialButtonContent}>
+      <View style={styles.socialButtonIconBadge}>
+        <MaterialCommunityIcons name={iconName} size={18} color={iconColor} />
+      </View>
+      <Text style={textStyle}>{label}</Text>
+    </View>
+  );
+}
+
 function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
@@ -5856,11 +5870,11 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
           <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
-            <Text style={compactStyles.goldButtonText}>Continue with Google</Text>
+            <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={compactStyles.goldButtonText} />
           </Pressable>
           {authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
-              <Text style={styles.secondaryButtonText}>Continue with Facebook</Text>
+              <SocialSignInButtonContent provider="facebook" label="Continue with Facebook" textStyle={styles.secondaryButtonText} />
             </Pressable>
           ) : null}
           <PasswordAuthPanel authBridge={authBridge} onAccountUpdated={onAccountUpdated} />
@@ -9196,11 +9210,11 @@ function AccountShell({
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but SQC needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={handlePrimaryPress}>
-            <Text style={styles.primaryButtonText}>{primaryLabel}</Text>
+            {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.primaryButtonText} />}
           </Pressable>
           {!signedInButRejected && authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
-              <Text style={styles.secondaryButtonText}>Continue with Facebook</Text>
+              <SocialSignInButtonContent provider="facebook" label="Continue with Facebook" textStyle={styles.secondaryButtonText} />
             </Pressable>
           ) : null}
           {!signedInButRejected ? <PasswordAuthPanel authBridge={authBridge} onAccountUpdated={onAccountUpdated} /> : null}
@@ -10887,6 +10901,8 @@ const styles = StyleSheet.create({
   disabledWideButton: { alignItems: "center", justifyContent: "center", paddingHorizontal: 14, paddingVertical: 12, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)", opacity: 0.68 },
   disabledSecondaryButtonText: { color: "rgba(255,247,232,.62)", fontWeight: "900" },
   secondaryButtonText: { backgroundColor: "transparent", color: colors.paper, fontWeight: "900" },
+  socialButtonContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9 },
+  socialButtonIconBadge: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(255,255,255,.94)" },
   quickStartCard: { gap: 13, padding: 16, borderRadius: 24, borderWidth: 1, borderColor: "rgba(245,200,106,.34)", backgroundColor: "rgba(255,247,232,.08)" },
   quickStartTopRow: { flexDirection: "row", gap: 12, alignItems: "center" },
   quickStartCopy: { flex: 1, gap: 5 },
