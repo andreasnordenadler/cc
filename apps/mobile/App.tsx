@@ -4712,16 +4712,57 @@ function QuestBoardDashboard({
     setCustomConditionEditorOpen(false);
   }
 
+  function hasUnsavedCustomBuilderWork() {
+    return customQuestName.trim() !== "My custom Side Quest" || customRequirements.length > 0 || customConditionEditorOpen;
+  }
+
+  function dismissCustomBuilder() {
+    setCustomCreateOpen(false);
+    setCustomEditingQuestId(null);
+    setCustomConditionEditorOpen(false);
+  }
+
   function closeCustomBuilder() {
-    const hasUnsavedWork = customQuestName.trim() !== "My custom Side Quest" || customRequirements.length > 0 || customConditionEditorOpen;
+    const hasUnsavedWork = hasUnsavedCustomBuilderWork();
     if (!hasUnsavedWork) {
-      setCustomCreateOpen(false);
+      dismissCustomBuilder();
       return;
     }
     Alert.alert("Discard custom Side Quest?", "You have unsaved custom Side Quest changes.", [
       { text: "Keep editing", style: "cancel" },
-      { text: "Discard", style: "destructive", onPress: () => setCustomCreateOpen(false) },
+      { text: "Discard", style: "destructive", onPress: dismissCustomBuilder },
     ]);
+  }
+
+  function leaveCustomBuilder(next: () => void) {
+    const runNext = () => {
+      dismissCustomBuilder();
+      setTimeout(next, 0);
+    };
+
+    if (!hasUnsavedCustomBuilderWork()) {
+      runNext();
+      return;
+    }
+
+    Alert.alert("Discard custom Side Quest?", "You have unsaved custom Side Quest changes.", [
+      { text: "Keep editing", style: "cancel" },
+      { text: "Discard", style: "destructive", onPress: runNext },
+    ]);
+  }
+
+  function openCustomLibraryFromBuilder() {
+    leaveCustomBuilder(() => {
+      setSideQuestCatalogTab("community");
+      setCommunityView("mine");
+      setCommunitySearch("");
+      setCommunityCreatorFilter(null);
+      setCustomLibraryFilter("all");
+    });
+  }
+
+  function openNewCustomBuilderFromMenu() {
+    leaveCustomBuilder(() => openCustomEditor(null));
   }
 
   function editCustomRequirement(requirement: CustomRuleRequirement) {
@@ -5295,11 +5336,22 @@ function QuestBoardDashboard({
 
       <HelpSupportModal key={communityReportMessage || "community-report"} visible={communityReportOpen} onClose={() => setCommunityReportOpen(false)} signedIn={signedIn} authBridge={authBridge} initialMessage={communityReportMessage} />
 
-      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => { setCustomCreateOpen(false); setCustomEditingQuestId(null); }}>
+      <Modal visible={customCreateOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={closeCustomBuilder}>
         <SafeAreaView style={compactStyles.detailScreen}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
+          {signedIn ? (
+            <GlobalHamburgerMenu
+              activeTab="sideQuests"
+              account={signedIn}
+              onSelectTab={(tab) => leaveCustomBuilder(() => onSelectTab(tab))}
+              onOpenMultiplayerCreate={() => leaveCustomBuilder(() => onOpenMultiplayerCreate())}
+              onOpenCustomSideQuests={openCustomLibraryFromBuilder}
+              onOpenCustomSideQuestCreate={openNewCustomBuilderFromMenu}
+              onOpenSupport={() => leaveCustomBuilder(onOpenSupport)}
+            />
+          ) : null}
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={() => { setCustomCreateOpen(false); setCustomEditingQuestId(null); }}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close custom Side Quest builder" style={compactStyles.detailCloseButton} onPress={closeCustomBuilder}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>

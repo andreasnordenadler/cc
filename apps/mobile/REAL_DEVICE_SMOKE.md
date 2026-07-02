@@ -15,27 +15,27 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v327`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v327>
-- APK filename: `sqc-mobile-android-v327-2026-07-02.apk`
+- GitHub Release tag: `mobile-v328`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v328>
+- APK filename: `sqc-mobile-android-v328-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.327`
-- Android version code: `327`
-- APK SHA256: `157a0adf9f41e84c0ebf511bccf8ee36b485120d0aa2847e9a069050897c00a9`
+- Version name: `0.1.328`
+- Android version code: `328`
+- APK SHA256: `30a53cfb53726ae1d44b35952229021ac2477e77a895f6ebcaeb74af606c4aa1`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
-- Emulator/source proof: release checks through `mobile-v327` confirm the latest mobile build includes the chess ratings card render on Account, fixed hamburger `Create Multiplayer Side Quest` routing into the create draft flow, provider-specific chess rating snapshots, animated active Solo refresh, and the community-creator-inspired Multiplayer create picker with catalog search/browse, source counts, max-four feedback, unsaved discard confirmation, and a pinned Create action. Signed-in phone smoke remains required for the actual device gate.
+- Emulator/source proof: release checks through `mobile-v328` confirm the latest mobile build includes the chess ratings card render on Account, fixed hamburger `Create Multiplayer Side Quest` routing into the create draft flow, provider-specific chess rating snapshots, animated active Solo refresh, the community-creator-inspired Multiplayer create picker with catalog search/browse, source counts, max-four feedback, unsaved discard confirmation, a pinned Create action, and signed-in hamburger access inside the full-screen Custom Side Quest builder. Signed-in phone smoke remains required for the actual device gate.
 
 ## Candidate identity
 
-- GitHub Release tag: `mobile-v327`
-- APK filename: `sqc-mobile-android-v327-2026-07-02.apk`
+- GitHub Release tag: `mobile-v328`
+- APK filename: `sqc-mobile-android-v328-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.327`
-- Android version code: `327`
-- APK SHA256: `157a0adf9f41e84c0ebf511bccf8ee36b485120d0aa2847e9a069050897c00a9`
-- Manifest/signer proof: `pnpm mobile:release:candidate-check` passed on 2026-07-02 13:16 CEST; GitHub Release APK package/version identity matches app config, `debuggable=false`, `allowBackup=false`, and signer is not the Android debug identity.
-- Tester/device/OS: Pending physical Android device; Mac mini ADB had no authorized physical device at 2026-07-02 13:16 CEST.
-- Test time: 2026-07-02 13:16 CEST candidate identity check only.
+- Version name: `0.1.328`
+- Android version code: `328`
+- APK SHA256: `30a53cfb53726ae1d44b35952229021ac2477e77a895f6ebcaeb74af606c4aa1`
+- Manifest/signer proof: `pnpm mobile:release:candidate-check` passed on 2026-07-02 14:20 CEST; GitHub Release APK package/version identity matches app config, `debuggable=false`, `allowBackup=false`, and signer is not the Android debug identity.
+- Tester/device/OS: Pending physical Android device; physical-phone QA is manual on Andreas's side.
+- Test time: 2026-07-02 14:20 CEST candidate identity check only.
 
 ## Install and launch
 
