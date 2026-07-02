@@ -5679,16 +5679,16 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
             <Text style={compactStyles.accountInfoText}>Recently active: {formatAccountRecentActivity(accountState.profile.lastSignInAt)}</Text>
           </View>
         </View>
-        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. Side Quest Chess can read your public Lichess and Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
+        <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. Side Quest Chess can check your public Lichess and Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
         <View style={compactStyles.readinessRow}>
           <ReadinessChip label="Lichess" value={accountState.chessAccounts.lichessUsername} />
           <ReadinessChip label="Chess.com" value={accountState.chessAccounts.chessComUsername} />
         </View>
       </View>
-      <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
       <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
       <AccountProgressStatsSection account={accountState} onSelectTab={onSelectTab} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
+      <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
@@ -5734,9 +5734,12 @@ function AccountSoloSideQuestSection({
   const customMeta = customQuests.length
     ? `${publishedCustom} playable · ${draftCustom} draft${draftCustom === 1 ? "" : "s"} · private by default`
     : "Build a private custom Side Quest for solo or multiplayer use.";
+  const visibleCustomPreview = customQuests
+    .filter((quest) => quest.lifecycle !== "archived")
+    .slice(0, 2);
 
   return (
-    <AppSection title="Side Quests" action="Open" onAction={() => onSelectTab("sideQuests")}>
+    <AppSection title="Your Side Quests" action="Browse Solo" onAction={() => onSelectTab("sideQuests")}>
       <AppRow
         title={`Solo Side Quest: ${soloTitle}`}
         meta={soloMeta}
@@ -5751,7 +5754,7 @@ function AccountSoloSideQuestSection({
         title={activeMultiplayer.length ? "Active Multiplayer Side Quests" : "Multiplayer Side Quests"}
         meta={multiplayerMeta}
         status={multiplayerStatus}
-        imageSource={SQC_COAT_OF_ARMS_ASSET}
+        imageSource={SQC_MULTIPLAYER_SEAL_ASSET}
         onPress={() => onSelectTab("multiplayerSideQuests")}
       />
       <AppRow
@@ -5762,6 +5765,17 @@ function AccountSoloSideQuestSection({
         variant="seal"
         onPress={() => onSelectTab("sideQuests")}
       />
+      {visibleCustomPreview.map((quest) => (
+        <AppRow
+          key={quest.id}
+          title={`Created: ${cleanMultiplayerTitle(quest.title)}`}
+          meta={quest.summary?.trim() || "Player-made Side Quest rule."}
+          status={quest.lifecycle === "draft" ? "Draft" : quest.visibility === "public" ? "Public" : "Private"}
+          imageSource={getCustomQuestImageSource(quest.badgeImageUrl)}
+          variant="seal"
+          onPress={() => onSelectTab("sideQuests")}
+        />
+      ))}
     </AppSection>
   );
 }
@@ -5781,9 +5795,10 @@ function AccountProgressStatsSection({ account, onSelectTab }: { account: Extrac
           <CompactMetric label="Completed" value={`${completedCount}`} />
           <CompactMetric label="Proofs" value={`${proofCount}`} />
           <CompactMetric label="Coats" value={`${completedCount + multiplayerTrophyCount}`} />
-          <CompactMetric label="Multiplayer wins" value={`${multiplayerTrophyCount}`} />
+          <CompactMetric label="Podiums" value={`${multiplayerTrophyCount}`} />
         </View>
         <Text style={compactStyles.micro}>Custom Side Quests: {customQuests.length} made · {customTries} tries · {customWins} wins</Text>
+        <Text style={compactStyles.micro}>Multiplayer trophies: {multiplayerTrophyCount} podium{multiplayerTrophyCount === 1 ? "" : "s"}</Text>
       </View>
     </AppSection>
   );
@@ -10068,8 +10083,8 @@ const compactStyles = StyleSheet.create({
   heroCopy: { color: colors.muted, fontSize: 14, lineHeight: 19 },
   micro: { color: "rgba(255,247,232,.64)", fontSize: 12, lineHeight: 16 },
   livePill: { overflow: "hidden", color: colors.green, fontSize: 11, fontWeight: "900", paddingHorizontal: 9, paddingVertical: 5, borderRadius: 999, backgroundColor: "rgba(96,240,175,.12)", borderWidth: 1, borderColor: "rgba(96,240,175,.28)" },
-  metricGrid: { flexDirection: "row", gap: 7 },
-  metricBox: { flex: 1, padding: 9, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  metricGrid: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
+  metricBox: { flexBasis: "48%", flexGrow: 1, minWidth: 118, padding: 9, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
   metricValue: { color: colors.paper, fontSize: 20, fontWeight: "900" },
   metricLabel: { color: colors.muted, fontSize: 9, lineHeight: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: .35 },
   actionRow: { flexDirection: "row", gap: 8 },
