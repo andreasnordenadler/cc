@@ -11,7 +11,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   BackHandler,
+  Easing,
   Image,
   Modal,
   Platform,
@@ -1852,6 +1854,43 @@ function ScrollHintedScrollView({ children, onScroll, onLayout, onContentSizeCha
   );
 }
 
+function SpinningRefreshIcon({ spinning, size = 17, color = colors.gold }: { spinning: boolean; size?: number; color?: string }) {
+  const [rotation] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    if (!spinning) {
+      rotation.stopAnimation();
+      rotation.setValue(0);
+      return;
+    }
+
+    const loop = Animated.loop(
+      Animated.timing(rotation, {
+        toValue: 1,
+        duration: 900,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      }),
+    );
+    loop.start();
+    return () => {
+      loop.stop();
+      rotation.setValue(0);
+    };
+  }, [rotation, spinning]);
+
+  const rotate = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["0deg", "360deg"],
+  });
+
+  return (
+    <Animated.View style={{ transform: [{ rotate }] }}>
+      <MaterialCommunityIcons name={spinning ? "sync" : "refresh"} size={size} color={color} />
+    </Animated.View>
+  );
+}
+
 function TodayDashboard({
   bootstrap,
   account,
@@ -2128,7 +2167,7 @@ function TodayDashboard({
       <Pressable accessibilityRole={signedIn.activeQuest ? "button" : undefined} accessibilityLabel={signedIn.activeQuest ? "Open active Solo Side Quest" : undefined} style={compactStyles.activeSoloSection} onPress={signedIn.activeQuest ? () => setCurrentDetailOpen(true) : undefined}>
         <View style={compactStyles.activeSoloRefreshRow}>
           <Pressable accessibilityRole="button" accessibilityLabel="Refresh active Solo Side Quest" style={[compactStyles.headerIconButton, actionState.busy && compactStyles.disabledAction]} disabled={actionState.busy} onPress={(event) => { stopCardPress(event); void runActiveCheck(); }}>
-            <MaterialCommunityIcons name={actionState.busy ? "sync" : "refresh"} size={17} color={colors.gold} />
+            <SpinningRefreshIcon spinning={actionState.busy} />
           </Pressable>
         </View>
         {signedIn.activeQuest ? (
