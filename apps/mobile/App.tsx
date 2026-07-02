@@ -5856,6 +5856,7 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       </View>
       <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
       <AccountProgressStatsSection account={accountState} onSelectTab={onSelectTab} />
+      <ChessStrengthCard account={accountState} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
