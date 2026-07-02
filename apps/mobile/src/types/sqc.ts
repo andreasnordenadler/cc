@@ -77,6 +77,7 @@ export type MobileBootstrap = {
     questHubGroups?: MobileDiscoveryGroup[];
   };
   challenges: MobileChallenge[];
+  communitySideQuests?: MobileCustomSideQuest[];
 };
 
 

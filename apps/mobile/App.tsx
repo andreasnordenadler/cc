@@ -1582,11 +1582,30 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
           </>
         ) : null}
       </ScrollView>
-      <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenCustomSideQuests={openCustomSideQuests} onOpenCustomSideQuestCreate={openCustomSideQuestCreate} onOpenSupport={openSupport} />
+      {shell.activeTab !== "home" ? (
+        <FixedScreenCloseButton
+          label={shell.activeTab === "sideQuests" ? "Close Solo Side Quests" : shell.activeTab === "multiplayerSideQuests" ? "Close Multiplayer Side Quests" : "Close screen"}
+          top={Math.max(insets.top + 10, 56)}
+          onPress={() => selectTab("home")}
+        />
+      ) : null}
+      {isAuthenticatedAccount(displayAccount) ? (
+        <GlobalHamburgerMenu activeTab={shell.activeTab} account={displayAccount} onSelectTab={selectTab} onOpenMultiplayerCreate={openMultiplayerCreate} onOpenCustomSideQuests={openCustomSideQuests} onOpenCustomSideQuestCreate={openCustomSideQuestCreate} onOpenSupport={openSupport} />
+      ) : null}
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={isAuthenticatedAccount(displayAccount) ? displayAccount : null} authBridge={authBridge} />
     </SafeAreaView>
   );
 
+}
+
+function FixedScreenCloseButton({ label, onPress, top }: { label: string; onPress: () => void; top: number }) {
+  return (
+    <View pointerEvents="box-none" style={[compactStyles.fixedScreenCloseLayer, { top }]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={label} style={compactStyles.detailCloseButton} onPress={onPress}>
+        <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
+      </Pressable>
+    </View>
+  );
 }
 
 
@@ -4377,9 +4396,12 @@ function QuestBoardDashboard({
   const [customEditingRequirementId, setCustomEditingRequirementId] = useState<string | null>(null);
   const [customDrafts, setCustomDrafts] = useState<CustomLibraryQuest[]>([]);
   const serverCustomDrafts: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.customSideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "private", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary })) : [];
-  const serverCommunityQuests: CustomLibraryQuest[] = isAuthenticatedAccount(account) ? (account.communitySideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "public", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary })) : [];
+  const bootstrapCommunityQuests: CustomLibraryQuest[] = (bootstrap.communitySideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "public", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: false, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary }));
+  const serverCommunityQuests: CustomLibraryQuest[] = isAuthenticatedAccount(account)
+    ? (account.communitySideQuests ?? []).map((quest) => ({ id: quest.id, name: quest.title, summary: quest.summary, config: quest.config, visibility: quest.visibility ?? "public", lifecycle: quest.lifecycle ?? "published", createdAt: quest.createdAt, updatedAt: quest.updatedAt, creatorName: quest.creatorName, ownedByYou: quest.ownedByYou, badgeImageUrl: quest.badgeImageUrl ?? null, stats: quest.stats, likeSummary: quest.likeSummary }))
+    : bootstrapCommunityQuests;
   const visibleCustomDrafts = serverCustomDrafts.length ? serverCustomDrafts : customDrafts;
-  const communityReferenceMs = signedIn?.generatedAt ? Date.parse(signedIn.generatedAt) : 0;
+  const communityReferenceMs = Date.parse(signedIn?.generatedAt ?? bootstrap.generatedAt);
   const publicCommunityQuests = serverCommunityQuests.filter((quest) => quest.lifecycle === "published" && quest.visibility === "public");
   const communityBrowseQuests = publicCommunityQuests
     .filter((quest) => customQuestMatchesSearch(quest, communitySearch))
@@ -4758,11 +4780,6 @@ function QuestBoardDashboard({
 
   return (
     <View style={compactStyles.stack}>
-      <View style={compactStyles.screenCloseRow}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close Solo Side Quests" style={compactStyles.detailCloseButton} onPress={() => onSelectTab("home")}>
-          <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
-        </Pressable>
-      </View>
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_COAT_OF_ARMS_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
@@ -4913,12 +4930,14 @@ function QuestBoardDashboard({
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
                   <Text style={compactStyles.communityEmptyTitle}>{publicCommunityQuests.length ? communityCreatorFilter ? "That creator shelf is empty." : "No matches yet." : "No public Community Side Quests yet."}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator filter, search text, or category." : "Try a broader search or switch the filter back to All." : "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows."}</Text>
-                  <View style={compactStyles.actionRowTight}>
-                    <Pressable accessibilityRole="button" accessibilityLabel="Add or create a New Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
-                      <Text style={compactStyles.primaryActionText}>Add/Create a New Side Quest</Text>
-                    </Pressable>
-                  </View>
+                  <Text style={compactStyles.communityEmptyCopy}>{publicCommunityQuests.length ? communityCreatorFilter ? "Try clearing the creator filter, search text, or category." : "Try a broader search or switch the filter back to All." : signedIn ? "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows." : "Public player-made Side Quests will appear here as the catalog grows."}</Text>
+                  {signedIn ? (
+                    <View style={compactStyles.actionRowTight}>
+                      <Pressable accessibilityRole="button" accessibilityLabel="Add or create a New Side Quest" style={compactStyles.primaryAction} onPress={() => openCustomEditor()}>
+                        <Text style={compactStyles.primaryActionText}>Add/Create a New Side Quest</Text>
+                      </Pressable>
+                    </View>
+                  ) : null}
                 </View>
               )}
             </View>
@@ -4997,6 +5016,8 @@ function QuestBoardDashboard({
         completed={Boolean(customDetailCompletedQuest)}
         completedAt={customDetailCompletedQuest?.completedAt ?? null}
         latestReceipt={customDetailLatestReceipt}
+        signedIn={Boolean(signedIn)}
+        onSignIn={authBridge.startGoogleSignIn ? () => void authBridge.startGoogleSignIn?.() : () => onSelectTab("account")}
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
@@ -6405,6 +6426,8 @@ function SideQuestsScreen({
         completed={Boolean(customDetailCompletedQuest)}
         completedAt={customDetailCompletedQuest?.completedAt ?? null}
         latestReceipt={customDetailLatestReceipt}
+        signedIn={Boolean(signedInAccount)}
+        onSignIn={authBridge.startGoogleSignIn ? () => void authBridge.startGoogleSignIn?.() : () => onSelectTab("account")}
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
@@ -7032,11 +7055,6 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
 
   return (
     <View style={styles.screenStack}>
-      <View style={compactStyles.screenCloseRow}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close Multiplayer Side Quests" style={compactStyles.detailCloseButton} onPress={() => onSelectTab("home")}>
-          <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
-        </Pressable>
-      </View>
       <View style={compactStyles.sideQuestListEmblemWrap}>
         <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.sideQuestListEmblemGlow} resizeMode="contain" />
         <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.sideQuestListEmblem} resizeMode="contain" />
@@ -7829,8 +7847,10 @@ function SelectedQuestDetailCard({
   const latestReceipt = authenticated && account.latestReceipt?.challengeId === challenge.id ? account.latestReceipt : null;
   const latestCheckFailed = isFailedReceipt(latestReceipt);
   const likeSummary = getOfficialChallengeLikeSummary(account, challenge.id);
-  const actionTitle = activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
-  const actionBody = activeQuest
+  const actionTitle = !authenticated ? "Sign in to start this Side Quest." : activeQuest ? `${challenge.title} is on the royal docket.` : "Pick this Side Quest.";
+  const actionBody = !authenticated
+    ? "Browse the rules here. Sign in when you want SQC to save this as your active Solo Side Quest and track proof."
+    : activeQuest
     ? "Play a new eligible public game after starting this quest, then check your latest game for proof."
     : "Choose this ridiculous rule so SQC knows what to judge after your next public game.";
   const conditionLines = getOfficialChallengeConditions(challenge);
@@ -7874,6 +7894,14 @@ function SelectedQuestDetailCard({
     } catch (caught) {
       setActionState({ busy: false, message: null, error: caught instanceof Error ? caught.message : "Could not update this Side Quest." });
     }
+  }
+
+  async function promptSignIn() {
+    if (authBridge.startGoogleSignIn) {
+      await authBridge.startGoogleSignIn();
+      return;
+    }
+    onSelectTab("account");
   }
 
   async function shareOfficialQuest() {
@@ -7966,7 +7994,11 @@ function SelectedQuestDetailCard({
             </View>
           ) : null}
           <View style={[styles.buttonRow, activeQuest ? null : styles.centeredButtonRow]}>
-            {activeQuest ? (
+            {!authenticated ? (
+              <Pressable accessibilityRole="button" accessibilityLabel="Sign in" style={styles.primaryButton} onPress={() => void promptSignIn()}>
+                <Text style={styles.primaryButtonText}>Sign in</Text>
+              </Pressable>
+            ) : activeQuest ? (
               <>
                 <Pressable accessibilityRole="button" accessibilityLabel="Check latest game" style={styles.primaryButton} disabled={actionState.busy} onPress={() => void runAction("check")}>
                   <Text style={styles.primaryButtonText}>{actionState.busy ? "Checking..." : "Check latest game"}</Text>
@@ -8003,6 +8035,8 @@ function CustomSideQuestDetailModal({
   completed,
   completedAt,
   latestReceipt,
+  signedIn,
+  onSignIn,
   onClose,
   onStart,
   onCheck,
@@ -8023,6 +8057,8 @@ function CustomSideQuestDetailModal({
   completed: boolean;
   completedAt: string | null;
   latestReceipt?: MobileAccountState["latestReceipt"] | null;
+  signedIn: boolean;
+  onSignIn: () => void;
   onClose: () => void;
   onStart: (questId: string) => Promise<void> | void;
   onCheck?: (questId: string, gameId?: string) => Promise<string | void> | string | void;
@@ -8278,6 +8314,10 @@ function CustomSideQuestDetailModal({
           ) : completed && onViewResult ? (
             <Pressable accessibilityRole="button" accessibilityLabel="View custom Side Quest result" style={compactStyles.detailPrimaryButton} onPress={onViewResult}>
               <Text style={compactStyles.detailPrimaryButtonText}>View result</Text>
+            </Pressable>
+          ) : !signedIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Sign in" style={compactStyles.detailPrimaryButton} onPress={onSignIn}>
+              <Text style={compactStyles.detailPrimaryButtonText}>Sign in</Text>
             </Pressable>
           ) : (
             <Pressable accessibilityRole="button" accessibilityLabel="Pick custom Side Quest" style={[compactStyles.detailPrimaryButton, (busy || !canStart) ? compactStyles.disabledAction : null]} disabled={busy || !canStart} onPress={() => void handleStart()}>
@@ -9679,6 +9719,7 @@ const compactStyles = StyleSheet.create({
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
   screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: -36, marginBottom: 14, zIndex: 20 },
+  fixedScreenCloseLayer: { position: "absolute", right: 16, zIndex: 60 },
   sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 2, overflow: "visible" },
   sideQuestListEmblemGlow: { position: "absolute", width: 142, height: 154, opacity: .9, transform: [{ translateY: 5 }] },
   sideQuestListEmblem: { width: 112, height: 124 },

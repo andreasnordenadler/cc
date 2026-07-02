@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { CHALLENGES } from "@/lib/challenges";
-
-export const runtime = "edge";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
+import { listPublicGroupQuests } from "@/lib/groupquests";
 
 type MobileDiscoveryChoice = {
   id: string;
@@ -67,6 +69,7 @@ export async function GET(request: Request) {
     .filter((challenge) => !challenge.id.includes("coming-soon"))
     .map((challenge) => challenge.id);
   const questHubGroups = buildQuestHubGroups(challengeIds);
+  const publicCommunitySideQuests = await getPublicCommunitySideQuestsForMobile(baseUrl);
 
   return NextResponse.json({
     apiVersion: 1,
@@ -112,7 +115,38 @@ export async function GET(request: Request) {
         heraldry: challenge.badgeIdentity.heraldry,
       },
     })),
+    communitySideQuests: publicCommunitySideQuests,
   });
+}
+
+async function getPublicCommunitySideQuestsForMobile(baseUrl: string) {
+  try {
+    const client = await clerkClient();
+    const [publicGroupQuests, likeSummaries] = await Promise.all([
+      listPublicGroupQuests(client),
+      getCommunityLikeSummaries(client, null),
+    ]);
+    const quests = await listPublicCommunitySideQuests(client, { limit: 80, groupQuests: publicGroupQuests });
+
+    return quests.map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      summary: quest.summary,
+      config: quest.config,
+      visibility: quest.visibility,
+      lifecycle: quest.lifecycle,
+      createdAt: quest.createdAt,
+      updatedAt: quest.updatedAt,
+      badgeImageUrl: quest.badgeImageUrl ? new URL(quest.badgeImageUrl, baseUrl).toString() : null,
+      creatorName: quest.creatorName,
+      ownedByYou: false,
+      stats: quest.stats,
+      likeSummary: likeSummaries.get("solo", quest.id),
+    }));
+  } catch (error) {
+    console.warn("mobile bootstrap community catalog unavailable", { error });
+    return [];
+  }
 }
 
 
