@@ -83,7 +83,6 @@ const MULTIPLAYER_PROVIDER_MODES = [
 ] as const;
 
 const MULTIPLAYER_RULE_OPTIONS = {
-  result: ["Win required", "Any result"],
   timeControl: ["Any time control", "Bullet", "Blitz", "Rapid", "Classical"],
   rated: ["Any rated state", "Rated only", "Casual only"],
   color: ["Any color", "White only", "Black only"],
@@ -6997,7 +6996,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createProviderMode, setCreateProviderMode] = useState<"both" | "lichess" | "chesscom">("both");
   const [createStartAt, setCreateStartAt] = useState(() => addGroupQuestMinutes(new Date(), 5));
   const [createEndAt, setCreateEndAt] = useState(() => dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
-  const [createRules, setCreateRules] = useState<Record<string, string>>({ result: "Win required", timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
+  const [createRules, setCreateRules] = useState<Record<string, string>>({ result: "Any result", timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createAdvancedOpen, setCreateAdvancedOpen] = useState(false);
   const [multiplayerLearningOpen, setMultiplayerLearningOpen] = useState(false);
   const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
@@ -7624,11 +7623,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={styles.inputLabel}>Quick duration</Text>
               <GroupQuestDurationChips startAt={createStartAt} onChangeEndAt={setCreateEndAt} />
               <Text style={styles.microcopy}>Dates save as your local time. Start defaults to shortly after creation; no typing needed.</Text>
-              <Text style={styles.inputLabel}>Basic game setting</Text>
-              <Text style={styles.microcopy}>Community Multiplayer defaults to “Win required” so a completed Side Quest also means the player won the proof game.</Text>
-              {Object.entries(MULTIPLAYER_RULE_OPTIONS).filter(([ruleId]) => ruleId === "result" || createAdvancedOpen).map(([ruleId, options]) => (
+              {createAdvancedOpen ? Object.entries(MULTIPLAYER_RULE_OPTIONS).map(([ruleId, options]) => (
                 <View key={ruleId} style={compactStyles.multiplayerListStack}>
-                  <Text style={compactStyles.multiplayerRuleLabel}>{ruleId === "result" ? "Result required" : ruleId === "timeControl" ? "Time control" : ruleId === "rated" ? "Rated setting" : "Player color"}</Text>
+                  <Text style={compactStyles.multiplayerRuleLabel}>{ruleId === "timeControl" ? "Time control" : ruleId === "rated" ? "Rated setting" : "Player color"}</Text>
                   <View style={compactStyles.multiplayerOptionGrid}>
                     {options.map((option) => {
                       const selected = createRules[ruleId] === option;
@@ -7645,7 +7642,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                     })}
                   </View>
                 </View>
-              ))}
+              )) : null}
               <Pressable accessibilityRole="button" accessibilityLabel="Toggle advanced Multiplayer game settings" style={compactStyles.detailQuietButton} onPress={() => setCreateAdvancedOpen((current) => !current)}>
                 <Text style={compactStyles.detailQuietButtonText}>{createAdvancedOpen ? "Hide advanced settings" : "Advanced: time, rated, color"}</Text>
               </Pressable>
