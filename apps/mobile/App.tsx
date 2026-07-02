@@ -82,6 +82,9 @@ const MULTIPLAYER_PROVIDER_MODES = [
   { id: "chesscom", label: "Chess.com only" },
 ] as const;
 
+const MULTIPLAYER_CREATE_MAX_QUESTS = 4;
+const MULTIPLAYER_CREATE_LIST_PAGE_SIZE = 12;
+
 const MULTIPLAYER_RULE_OPTIONS = {
   timeControl: ["Any time control", "Bullet", "Blitz", "Rapid", "Classical"],
   rated: ["Any rated state", "Rated only", "Casual only"],
@@ -890,10 +893,6 @@ function getInviteModeOptionCopy(mode: MobileMultiplayerInviteMode) {
 }
 
 function getMultiplayerRuleOptionCopy(ruleId: string, option: string) {
-  if (ruleId === "result") {
-    if (option === "Any result") return { title: "Any result", helper: "Win, draw, or loss can complete the Multiplayer Side Quest." };
-    return { title: "Win required", helper: "Default for Community Multiplayer: the player must also win the checked game." };
-  }
   if (ruleId === "timeControl") {
     if (option === "Any time control") return { title: "Any", helper: "Bullet, blitz, rapid, or classical" };
     return { title: option, helper: `${option} games only` };
@@ -6999,8 +6998,13 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [createRules, setCreateRules] = useState<Record<string, string>>({ result: "Any result", timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
   const [createAdvancedOpen, setCreateAdvancedOpen] = useState(false);
   const [multiplayerLearningOpen, setMultiplayerLearningOpen] = useState(false);
-  const [createQuestIds, setCreateQuestIds] = useState<string[]>(bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id));
+  const defaultCreateQuestIds = useMemo(() => bootstrap.challenges.slice(0, 3).map((challenge) => challenge.id), [bootstrap.challenges]);
+  const [createQuestIds, setCreateQuestIds] = useState<string[]>(() => defaultCreateQuestIds);
   const [createQuestSourceTab, setCreateQuestSourceTab] = useState<MultiplayerQuestChoiceSource>("official");
+  const [createQuestSearch, setCreateQuestSearch] = useState("");
+  const [createQuestListLimit, setCreateQuestListLimit] = useState(MULTIPLAYER_CREATE_LIST_PAGE_SIZE);
+  const [createShowSelectedOnly, setCreateShowSelectedOnly] = useState(false);
+  const [createQuestSelectionError, setCreateQuestSelectionError] = useState<string | null>(null);
   const multiplayerCustomQuestCatalog = useMemo(() => {
     const byId = new Map<string, MobileCustomSideQuest>();
     for (const quest of [...(signedInAccount?.customSideQuests ?? []), ...(signedInAccount?.communitySideQuests ?? [])]) {
@@ -7012,7 +7016,29 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     () => getMultiplayerQuestChoices(bootstrap.challenges, signedInAccount?.customSideQuests ?? [], [], signedInAccount?.communitySideQuests ?? []),
     [bootstrap.challenges, signedInAccount?.communitySideQuests, signedInAccount?.customSideQuests],
   );
-  const visibleCreateQuestChoices = createQuestChoices.filter((choice) => choice.source === createQuestSourceTab);
+  const selectedCreateQuestChoices = createQuestIds
+    .map((questId) => createQuestChoices.find((choice) => choice.id === questId))
+    .filter((choice): choice is NonNullable<typeof choice> => Boolean(choice));
+  const normalizedCreateQuestSearch = createQuestSearch.trim().toLowerCase();
+  const visibleCreateQuestChoices = createQuestChoices
+    .filter((choice) => choice.source === createQuestSourceTab)
+    .filter((choice) => !createShowSelectedOnly || createQuestIds.includes(choice.id))
+    .filter((choice) => !normalizedCreateQuestSearch || `${choice.title} ${choice.meta} ${choice.sourceBadge ?? ""}`.toLowerCase().includes(normalizedCreateQuestSearch));
+  const visibleCreateQuestChoicePage = visibleCreateQuestChoices.slice(0, createQuestListLimit);
+  const hiddenCreateQuestChoiceCount = Math.max(visibleCreateQuestChoices.length - visibleCreateQuestChoicePage.length, 0);
+  const createQuestDraftIsDirty = createName.trim().length > 0
+    || createInviteCopy !== MULTIPLAYER_DEFAULT_INVITE_COPY
+    || createInviteMode !== "public"
+    || createProviderMode !== "both"
+    || createAdvancedOpen
+    || createQuestSearch.trim().length > 0
+    || createShowSelectedOnly
+    || createQuestSourceTab !== "official"
+    || createQuestIds.join("|") !== defaultCreateQuestIds.join("|");
+
+  useEffect(() => {
+    setCreateQuestListLimit(MULTIPLAYER_CREATE_LIST_PAGE_SIZE);
+  }, [createQuestSearch, createQuestSourceTab, createShowSelectedOnly]);
 
   useEffect(() => {
     if (!pendingCreateOpen) return;
@@ -7120,6 +7146,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       });
       const createdGroupQuestId = result.groupQuestId ?? "new";
       setCreateOpen(false);
+      resetCreateDraft();
       await Promise.resolve(onAccountUpdated());
       await waitMs(450);
       await Promise.resolve(onAccountUpdated());
@@ -7143,8 +7170,58 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     await runGroupQuestAction("invite", "join", { inviteKey: key });
   }
 
+  function resetCreateDraft() {
+    setCreateName("");
+    setCreateInviteCopy(MULTIPLAYER_DEFAULT_INVITE_COPY);
+    setCreateInviteMode("public");
+    setCreateProviderMode("both");
+    setCreateStartAt(addGroupQuestMinutes(new Date(), 5));
+    setCreateEndAt(dateFromGroupQuestValue(defaultGroupQuestEndAtIso(7)));
+    setCreateRules({ result: "Any result", timeControl: "Any time control", rated: "Any rated state", color: "Any color" });
+    setCreateAdvancedOpen(false);
+    setCreateQuestIds(defaultCreateQuestIds);
+    setCreateQuestSourceTab("official");
+    setCreateQuestSearch("");
+    setCreateShowSelectedOnly(false);
+    setCreateQuestListLimit(MULTIPLAYER_CREATE_LIST_PAGE_SIZE);
+    setCreateQuestSelectionError(null);
+  }
+
+  function closeCreateBuilder() {
+    if (!createQuestDraftIsDirty) {
+      setCreateOpen(false);
+      return;
+    }
+
+    Alert.alert("Discard Multiplayer Side Quest?", "You have unsaved create settings.", [
+      { text: "Keep editing", style: "cancel" },
+      {
+        text: "Discard",
+        style: "destructive",
+        onPress: () => {
+          resetCreateDraft();
+          setCreateOpen(false);
+        },
+      },
+    ]);
+  }
+
   function toggleCreateQuestId(questId: string) {
-    setCreateQuestIds((current) => current.includes(questId) ? current.filter((id) => id !== questId) : [...current, questId].slice(0, 4));
+    if (createQuestIds.includes(questId)) {
+      setCreateQuestIds((current) => current.filter((id) => id !== questId));
+      setCreateQuestSelectionError(null);
+      return;
+    }
+
+    if (createQuestIds.length >= MULTIPLAYER_CREATE_MAX_QUESTS) {
+      const message = `Choose up to ${MULTIPLAYER_CREATE_MAX_QUESTS} Side Quests. Remove one before adding another.`;
+      setCreateQuestSelectionError(message);
+      Alert.alert("Four Side Quests max", message);
+      return;
+    }
+
+    setCreateQuestIds((current) => [...current, questId]);
+    setCreateQuestSelectionError(null);
   }
 
   const allCommunityMultiplayerQuests = [...publicUserGroupQuests, ...closedPublicUserGroupQuests]
@@ -7541,7 +7618,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       {isSignedOutBrowse ? null : <View style={styles.groupquestsActionCard} accessibilityLabel="Create Multiplayer Side Quest fast action">
         <Text style={styles.eyebrow}>Create</Text>
         <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
-        <Text style={styles.sideQuestModeCopy}>Default proof rule: players must win the eligible game. Advanced settings can loosen that if you choose.</Text>
+        <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, set the time window, then share the table with players.</Text>
         <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
           <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
         </Pressable>
@@ -7562,11 +7639,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
       </View>}
 
-      <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCreateOpen(false)}>
+      <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={closeCreateBuilder}>
         <SafeAreaView style={compactStyles.detailScreen}>
           <LinearGradient colors={["#352021", "#171011", colors.bg]} style={StyleSheet.absoluteFill} />
           <View style={compactStyles.detailTopBar}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close create Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={() => setCreateOpen(false)}>
+            <Pressable accessibilityRole="button" accessibilityLabel="Close create Multiplayer Side Quest" style={compactStyles.detailCloseButton} onPress={closeCreateBuilder}>
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
@@ -7649,7 +7726,54 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             </View>
             <View style={compactStyles.multiplayerNativeCard}>
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
-              <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>
+              <View style={compactStyles.createSelectionHeader}>
+                <View style={compactStyles.createSelectionHeaderCopy}>
+                  <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>
+                  <Text style={compactStyles.createSelectionMeta}>{createQuestIds.length}/{MULTIPLAYER_CREATE_MAX_QUESTS} selected</Text>
+                </View>
+                {createQuestIds.length ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Clear selected Side Quests" style={compactStyles.createClearSelectionButton} onPress={() => { setCreateQuestIds([]); setCreateQuestSelectionError(null); }}>
+                    <Text style={compactStyles.createClearSelectionText}>Clear</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              <View style={compactStyles.createSelectedTray}>
+                {selectedCreateQuestChoices.length ? selectedCreateQuestChoices.map((choice, index) => (
+                  <Pressable key={choice.id} accessibilityRole="button" accessibilityLabel={`Remove ${choice.title} from Multiplayer Side Quest`} style={compactStyles.createSelectedPill} onPress={() => toggleCreateQuestId(choice.id)}>
+                    <Text style={compactStyles.createSelectedIndex}>{index + 1}</Text>
+                    <Text style={compactStyles.createSelectedTitle} numberOfLines={1}>{choice.title}</Text>
+                    <MaterialCommunityIcons name="close" size={14} color="rgba(255,247,232,.72)" />
+                  </Pressable>
+                )) : (
+                  <Text style={compactStyles.createSelectionEmpty}>No Side Quests selected yet.</Text>
+                )}
+              </View>
+              {createQuestSelectionError ? <Text style={compactStyles.inlineError}>{createQuestSelectionError}</Text> : null}
+              <View style={compactStyles.createSearchShell}>
+                <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.58)" />
+                <TextInput
+                  value={createQuestSearch}
+                  placeholder="Search Side Quests"
+                  placeholderTextColor="rgba(255,247,232,.42)"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={compactStyles.createSearchInput}
+                  onChangeText={setCreateQuestSearch}
+                />
+                {createQuestSearch ? (
+                  <Pressable accessibilityRole="button" accessibilityLabel="Clear Side Quest search" onPress={() => setCreateQuestSearch("")}>
+                    <MaterialCommunityIcons name="close-circle" size={18} color="rgba(255,247,232,.5)" />
+                  </Pressable>
+                ) : null}
+              </View>
+              <View style={compactStyles.createFilterRow}>
+                <Pressable accessibilityRole="button" accessibilityState={{ selected: !createShowSelectedOnly }} style={[compactStyles.createFilterChip, !createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(false)}>
+                  <Text style={[compactStyles.createFilterChipText, !createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Browse</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" accessibilityState={{ selected: createShowSelectedOnly }} style={[compactStyles.createFilterChip, createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(true)}>
+                  <Text style={[compactStyles.createFilterChipText, createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Selected</Text>
+                </Pressable>
+              </View>
               <View style={compactStyles.sideQuestBrandTabs}>
                 <Pressable
                   accessibilityRole="tab"
@@ -7679,23 +7803,34 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                 </Pressable>
               </View>
               {visibleCreateQuestChoices.length ? (
-                <View style={compactStyles.appRows}>
-                  {visibleCreateQuestChoices.map((choice) => (
-                  <AppRow
-                    key={choice.id}
-                    title={choice.title}
-                    meta={choice.meta}
-                    status={createQuestIds.includes(choice.id) ? "Included" : choice.status}
-                    sourceBadge={choice.sourceBadge}
-                    imageSource={choice.imageSource}
-                    onPress={() => toggleCreateQuestId(choice.id)}
-                  />
-                  ))}
-                </View>
+                <>
+                  <View style={compactStyles.appRows}>
+                    {visibleCreateQuestChoicePage.map((choice) => {
+                      const included = createQuestIds.includes(choice.id);
+                      const maxed = !included && createQuestIds.length >= MULTIPLAYER_CREATE_MAX_QUESTS;
+                      return (
+                        <AppRow
+                          key={choice.id}
+                          title={choice.title}
+                          meta={choice.meta}
+                          status={included ? "Included" : maxed ? "Max 4" : choice.status}
+                          sourceBadge={choice.sourceBadge}
+                          imageSource={choice.imageSource}
+                          onPress={() => toggleCreateQuestId(choice.id)}
+                        />
+                      );
+                    })}
+                  </View>
+                  {hiddenCreateQuestChoiceCount ? (
+                    <Pressable accessibilityRole="button" accessibilityLabel="Show more Side Quests to include" style={compactStyles.detailSecondaryButton} onPress={() => setCreateQuestListLimit((current) => current + MULTIPLAYER_CREATE_LIST_PAGE_SIZE)}>
+                      <Text style={compactStyles.detailSecondaryButtonText}>Show more ({hiddenCreateQuestChoiceCount})</Text>
+                    </Pressable>
+                  ) : null}
+                </>
               ) : (
                 <View style={compactStyles.communityEmptyPanel}>
-                  <Text style={compactStyles.communityEmptyTitle}>{createQuestSourceTab === "official" ? "No official Side Quests" : "No community-created Side Quests"}</Text>
-                  <Text style={compactStyles.communityEmptyCopy}>{createQuestSourceTab === "official" ? "Official Side Quests will appear here when the catalog loads." : "Public community-created Side Quests and your published custom Side Quests will appear here."}</Text>
+                  <Text style={compactStyles.communityEmptyTitle}>{createQuestSearch || createShowSelectedOnly ? "No matching Side Quests" : createQuestSourceTab === "official" ? "No official Side Quests" : "No community-created Side Quests"}</Text>
+                  <Text style={compactStyles.communityEmptyCopy}>{createQuestSearch || createShowSelectedOnly ? "Adjust search, switch source, or turn off Selected to browse the catalog." : createQuestSourceTab === "official" ? "Official Side Quests will appear here when the catalog loads." : "Public community-created Side Quests and your published custom Side Quests will appear here."}</Text>
                 </View>
               )}
             </View>
@@ -10015,6 +10150,23 @@ const compactStyles = StyleSheet.create({
   multiplayerScoreLabel: { color: colors.muted, fontSize: 10, lineHeight: 13, fontWeight: "900", textAlign: "center", textTransform: "uppercase", letterSpacing: .45 },
   multiplayerScoreValue: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
   multiplayerNativeCard: { gap: 8, padding: 11, borderRadius: 19, backgroundColor: "rgba(255,247,232,.085)", borderWidth: 1, borderColor: "rgba(255,247,232,.14)" },
+  createSelectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+  createSelectionHeaderCopy: { flex: 1, minWidth: 0, gap: 2 },
+  createSelectionMeta: { color: colors.green, fontSize: 11, lineHeight: 14, fontWeight: "900", textTransform: "uppercase", letterSpacing: .7 },
+  createClearSelectionButton: { alignItems: "center", justifyContent: "center", minHeight: 32, paddingHorizontal: 10, borderRadius: 999, backgroundColor: "rgba(255,247,232,.08)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  createClearSelectionText: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  createSelectedTray: { gap: 6, padding: 8, borderRadius: 17, backgroundColor: "rgba(0,0,0,.18)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
+  createSelectedPill: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 7, paddingVertical: 6, paddingHorizontal: 9, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
+  createSelectedIndex: { width: 20, height: 20, overflow: "hidden", borderRadius: 10, color: "#111", backgroundColor: colors.gold, textAlign: "center", lineHeight: 20, fontSize: 11, fontWeight: "900" },
+  createSelectedTitle: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  createSelectionEmpty: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center", paddingVertical: 4 },
+  createSearchShell: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 11, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
+  createSearchInput: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "800", paddingVertical: 9 },
+  createFilterRow: { flexDirection: "row", gap: 7 },
+  createFilterChip: { flex: 1, minHeight: 34, alignItems: "center", justifyContent: "center", paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.11)", backgroundColor: "rgba(255,247,232,.055)" },
+  createFilterChipActive: { borderColor: "rgba(96,240,175,.36)", backgroundColor: "rgba(96,240,175,.14)" },
+  createFilterChipText: { color: colors.muted, fontSize: 12, lineHeight: 15, fontWeight: "900" },
+  createFilterChipTextActive: { color: colors.green },
   diagnosticsDisclosure: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
   diagnosticsBody: { gap: 6, paddingTop: 8, borderTopWidth: 1, borderTopColor: "rgba(255,247,232,.1)" },
   multiplayerOptionGrid: { gap: 7 },
