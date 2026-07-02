@@ -1066,6 +1066,122 @@ const MOBILE_ACCOUNT_FALLBACK: MobileAccountResponse = {
   message: "Browse Side Quests now. Sign in when you want to save progress, proof, and Coat of Arms unlocks.",
 };
 
+const SIGNED_OUT_OFFICIAL_MULTIPLAYER_QUESTS: MobileGroupQuestSummary[] = [
+  {
+    id: "official-preview-knights",
+    official: true,
+    title: "Knights Before Coffee Rush",
+    status: "Join",
+    copy: "8 players · 18h left",
+    href: "/groupquests/official-preview-knights",
+    playersLabel: "8 players",
+    timeLeftLabel: "18h left",
+    joinState: "Join",
+    questTitles: ["Knights Before Coffee", "Early King Walk"],
+    ruleRows: [
+      { label: "Games allowed", value: "Lichess or Chess.com" },
+      { label: "Variant", value: "Standard chess only" },
+      { label: "Proof", value: "Fresh public games inside this window" },
+      { label: "Winner", value: "Best completion progress when time expires." },
+    ],
+    leaderboardRows: [
+      { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Leading" },
+      { rank: "#2", name: "Jon", provider: "chess.com · jonforks", progress: "0/2", verified: "0/2 verified", note: "Chasing" },
+    ],
+  },
+  {
+    id: "official-preview-no-castle",
+    official: true,
+    title: "No Castle Club Night",
+    status: "Join",
+    copy: "14 players · 2d left",
+    href: "/groupquests/official-preview-no-castle",
+    playersLabel: "14 players",
+    timeLeftLabel: "2d left",
+    joinState: "Join",
+    questTitles: ["No Castle Club", "Early King Walk"],
+    ruleRows: [
+      { label: "Games allowed", value: "Lichess or Chess.com" },
+      { label: "Variant", value: "Standard chess only" },
+      { label: "Proof", value: "Fresh public games inside this window" },
+      { label: "Winner", value: "Best completion progress when time expires." },
+    ],
+    leaderboardRows: [
+      { rank: "#1", name: "Greta", provider: "lichess · gretafork", progress: "2/2", verified: "2/2 verified", note: "Leading" },
+      { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Chasing" },
+    ],
+  },
+  {
+    id: "official-preview-queenless",
+    official: true,
+    title: "Queenless Cup",
+    status: "Join",
+    copy: "5 players · 4d left",
+    href: "/groupquests/official-preview-queenless",
+    playersLabel: "5 players",
+    timeLeftLabel: "4d left",
+    joinState: "Join",
+    questTitles: ["Queen? Never Heard of Her", "The Blunder Gambit"],
+    ruleRows: [
+      { label: "Games allowed", value: "Lichess or Chess.com" },
+      { label: "Variant", value: "Standard chess only" },
+      { label: "Proof", value: "Fresh public games inside this window" },
+      { label: "Winner", value: "Best completion progress when time expires." },
+    ],
+    leaderboardRows: [
+      { rank: "#1", name: "Nils", provider: "lichess · nilsattack", progress: "1/2", verified: "1/2 verified", note: "Leading" },
+      { rank: "#2", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "0/2", verified: "0/2 verified", note: "Chasing" },
+    ],
+  },
+];
+
+const SIGNED_OUT_COMMUNITY_MULTIPLAYER_QUESTS: MobileGroupQuestSummary[] = [
+  {
+    id: "community-preview-rookless",
+    title: "Rookless Weekend Table",
+    status: "Join",
+    copy: "6 players · 23h left",
+    href: "/groupquests/community-preview-rookless",
+    playersLabel: "6 players",
+    timeLeftLabel: "23h left",
+    joinState: "Join",
+    hostName: "Mira",
+    questTitles: ["Rookless Rampage", "Any Game Counts"],
+    ruleRows: [
+      { label: "Games allowed", value: "Lichess or Chess.com" },
+      { label: "Variant", value: "Standard chess only" },
+      { label: "Proof", value: "Fresh public games inside this window" },
+      { label: "Winner", value: "Best completion progress when time expires." },
+    ],
+    leaderboardRows: [
+      { rank: "#1", name: "Mira", provider: "lichess · miragambit", progress: "1/2", verified: "1/2 verified", note: "Host" },
+      { rank: "#2", name: "Jon", provider: "chess.com · jonforks", progress: "0/2", verified: "0/2 verified", note: "Joined" },
+    ],
+  },
+  {
+    id: "community-preview-pawn-storm",
+    title: "Pawn Storm Sprint",
+    status: "Join",
+    copy: "4 players · 2d left",
+    href: "/groupquests/community-preview-pawn-storm",
+    playersLabel: "4 players",
+    timeLeftLabel: "2d left",
+    joinState: "Join",
+    hostName: "Sasha",
+    questTitles: ["Pawn Storm Maniac", "No Castle Club"],
+    ruleRows: [
+      { label: "Games allowed", value: "Lichess or Chess.com" },
+      { label: "Variant", value: "Standard chess only" },
+      { label: "Proof", value: "Fresh public games inside this window" },
+      { label: "Winner", value: "Best completion progress when time expires." },
+    ],
+    leaderboardRows: [
+      { rank: "#1", name: "Sasha", provider: "chess.com · sashaqueenless", progress: "1/2", verified: "1/2 verified", note: "Host" },
+      { rank: "#2", name: "Nils", provider: "lichess · nilsattack", progress: "0/2", verified: "0/2 verified", note: "Joined" },
+    ],
+  },
+];
+
 WebBrowser.maybeCompleteAuthSession();
 
 const CHALLENGE_COAT_IMAGE_ASSETS: Record<string, ImageSourcePropType> = {
@@ -4050,10 +4166,11 @@ function getOfficialMultiplayerListStatus(
 
 function getOfficialMultiplayerListMeta(
   quest: NonNullable<MobileAccountState["officialPublicGroupQuests"]>[number],
+  signedOut = false,
 ) {
   const joined = quest.joinState === "Joined";
   const lane = quest.official || quest.id.startsWith("official-") ? "SQC official" : "Community public";
-  return [lane, joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
+  return [lane, signedOut ? null : joined ? "You joined" : "Not joined", quest.copy].filter(Boolean).join(" · ");
 }
 
 const officialPodiumPlacements = ["Gold", "Silver", "Bronze"] as const;
@@ -6835,14 +6952,15 @@ function SideQuestsScreen({
 
 function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectTab, pendingCreateOpen, pendingCreateQuestId, onConsumePendingCreateOpen, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; pendingCreateOpen?: boolean; pendingCreateQuestId?: string | null; onConsumePendingCreateOpen?: () => void; onAccountUpdated: AccountUpdatedCallback }) {
   const signedInAccount = isAuthenticatedAccount(account) ? account : null;
-  const officialPublicGroupQuests = (signedInAccount?.officialPublicGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
+  const isSignedOutBrowse = !authBridge.isSignedIn;
+  const officialPublicGroupQuests = (signedInAccount?.officialPublicGroupQuests ?? SIGNED_OUT_OFFICIAL_MULTIPLAYER_QUESTS).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const previousOfficialGroupQuests = (signedInAccount?.previousOfficialGroupQuests ?? []).filter((quest) => quest.official || quest.id.startsWith("official-"));
   const officialGroupQuestWeeks = signedInAccount?.officialGroupQuestWeeks ?? [];
   const latestOfficialWeekId = officialGroupQuestWeeks[0]?.id ?? null;
   const earlierOfficialWeeks = officialGroupQuestWeeks.filter((week) => week.id !== latestOfficialWeekId);
   const officialPublicGroupQuestIds = new Set(officialPublicGroupQuests.map((quest) => quest.id));
   const activeGroupQuests = (signedInAccount?.activeGroupQuests ?? []).filter((quest) => !officialPublicGroupQuestIds.has(quest.id) && !quest.id.startsWith("official-"));
-  const publicUserGroupQuests = (signedInAccount?.publicUserGroupQuests ?? []).filter((quest) => !quest.official && !quest.id.startsWith("official-"));
+  const publicUserGroupQuests = (signedInAccount?.publicUserGroupQuests ?? SIGNED_OUT_COMMUNITY_MULTIPLAYER_QUESTS).filter((quest) => !quest.official && !quest.id.startsWith("official-"));
   const [groupQuestActionState, setGroupQuestActionState] = useState<{ busy: boolean; questId: string | null; message: string | null; error: string | null }>({ busy: false, questId: null, message: null, error: null });
   const [joinedMultiplayerId, setJoinedMultiplayerId] = useState<string | null>(null);
   const closedGroupQuests = (signedInAccount?.closedGroupQuests ?? []).filter((quest) => !officialPublicGroupQuestIds.has(quest.id) && !quest.id.startsWith("official-"));
@@ -7266,7 +7384,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             {officialPublicGroupQuests.length ? (
               <View style={compactStyles.sideQuestCatalogRows}>
                 {officialPublicGroupQuests.map((quest) => (
-                  <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
+                  <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest, isSignedOutBrowse)} status={isSignedOutBrowse ? "Sign in" : getOfficialMultiplayerListStatus(quest)} sourceBadge="SQC Official" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => setOfficialMultiplayerId(quest.id)} />
                 ))}
               </View>
             ) : (
@@ -7277,7 +7395,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             )}
           </View>
 
-          <View style={styles.groupquestsActiveCard} accessibilityLabel="Latest finished official Multiplayer Side Quest results">
+          {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Latest finished official Multiplayer Side Quest results">
             <Text style={styles.eyebrow}>Latest finished official set</Text>
             <Text style={styles.sectionTitle}>Gold, silver, bronze.</Text>
             <Text style={styles.sectionBody}>The latest completed official weekly set appears here after the leaderboard closes.</Text>
@@ -7290,9 +7408,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             ) : (
               <Text style={styles.sectionBody}>Results will appear here after the first official weekly set finishes.</Text>
             )}
-          </View>
+          </View>}
 
-          <View style={styles.groupquestsActiveCard} accessibilityLabel="Browse earlier official Multiplayer Side Quest results">
+          {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Browse earlier official Multiplayer Side Quest results">
             <Text style={styles.eyebrow}>Earlier official weeks</Text>
             <Text style={styles.sectionTitle}>Browse weekly results.</Text>
             <Text style={styles.sectionBody}>Finished official Multiplayer Side Quest sets are grouped by week so we can keep running this weekly.</Text>
@@ -7314,16 +7432,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             ) : (
               <Text style={styles.sectionBody}>Earlier weekly result sets will appear here after the next official cycle closes.</Text>
             )}
-          </View>
+          </View>}
         </>
       ) : (
         <>
       <View style={compactStyles.communityEmptyPanel}>
         <Text style={compactStyles.communityEmptyTitle}>Community Multiplayer Side Quests</Text>
-        <Text style={compactStyles.communityEmptyCopy}>These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community.</Text>
+        <Text style={compactStyles.communityEmptyCopy}>{isSignedOutBrowse ? "Browse public Multiplayer Side Quests from the Side Quest Chess community. Sign in when you want to join one." : "These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community."}</Text>
       </View>
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
+      {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Your Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Active · joined and hosted</Text>
         <Text style={styles.sectionTitle}>Your active Multiplayer Side Quests.</Text>
         <Text style={styles.sectionBody}>Joined and hosted Multiplayer Side Quests come first so your current tables are easy to resume.</Text>
@@ -7344,9 +7462,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <Text style={styles.secondaryButtonText}>More my quests ({hiddenMineCount})</Text>
           </Pressable>
         ) : null}
-      </View>
+      </View>}
 
-      <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
+      {isSignedOutBrowse ? null : <View style={styles.groupquestsActiveCard} accessibilityLabel="Finished Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Recently finished · {historyGroupQuests.length}</Text>
         <Text style={styles.sectionTitle}>Recently finished Multiplayer Side Quests.</Text>
         {visibleHistoryGroupQuests.length ? (
@@ -7361,12 +7479,12 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
             <Text style={styles.secondaryButtonText}>More history ({hiddenHistoryCount})</Text>
           </Pressable>
         ) : null}
-      </View>
+      </View>}
 
       <View style={styles.groupquestsActiveCard} accessibilityLabel="Community Multiplayer Side Quests">
         <Text style={styles.eyebrow}>Available to join · community</Text>
         <Text style={styles.sectionTitle}>Community Multiplayer Side Quests.</Text>
-        <Text style={styles.sectionBody}>Public player-hosted Multiplayer Side Quests appear after your active and recently finished tables.</Text>
+        <Text style={styles.sectionBody}>{isSignedOutBrowse ? "Public player-hosted Multiplayer Side Quests you can inspect before signing in." : "Public player-hosted Multiplayer Side Quests appear after your active and recently finished tables."}</Text>
         <View style={compactStyles.communityBrowsePanel}>
           {multiplayerHostFilter ? (
             <View style={compactStyles.communityEmptyPanel}>
@@ -7396,7 +7514,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
           </View>
           <View style={compactStyles.communityControlsStack}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={compactStyles.communityChipRow}>
-              {(["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[]).map((filter) => (
+              {(isSignedOutBrowse ? (["open", "all"] as MultiplayerCommunityFilter[]) : (["open", "all", "joined", "hosted", "finished"] as MultiplayerCommunityFilter[])).map((filter) => (
                 <Pressable key={filter} accessibilityRole="button" accessibilityState={{ selected: multiplayerCommunityFilter === filter }} style={[compactStyles.communityChip, multiplayerCommunityFilter === filter && compactStyles.communityChipActive]} onPress={() => setMultiplayerCommunityFilter(filter)}>
                   <Text style={[compactStyles.communityChipText, multiplayerCommunityFilter === filter && compactStyles.communityChipTextActive]}>{filter === "all" ? "All" : filter === "open" ? "Open" : filter === "joined" ? "Joined" : filter === "hosted" ? "Hosted" : "Finished"}</Text>
                 </Pressable>
@@ -7410,7 +7528,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         {visibleAvailableGroupQuests.length ? (
           <View style={compactStyles.appRows}>
             {visibleAvailableGroupQuests.map((quest) => (
-              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest)} status={getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
+              <AppRow key={quest.id} title={cleanMultiplayerTitle(quest.title)} titleAccessory={<MobileLikePill likeSummary={quest.likeSummary} label={cleanMultiplayerTitle(quest.title)} busy={multiplayerLikeBusyId === quest.id} onPress={() => void toggleCommunityMultiplayerLike(quest)} />} meta={getOfficialMultiplayerListMeta(quest, isSignedOutBrowse)} status={isSignedOutBrowse ? "Sign in" : getOfficialMultiplayerListStatus(quest)} sourceBadge="Community" imageSource={getMultiplayerQuestCoatSource(quest.title)} onPress={() => openBrowseGroupQuest(quest.id)} />
             ))}
           </View>
         ) : <Text style={styles.sectionBody}>{allCommunityMultiplayerQuests.length ? multiplayerHostFilter ? "No public Community Multiplayer Side Quests match this host shelf/search. Nothing private is shown from guessed host context." : "No community Multiplayer Side Quests match this search/filter." : "No public community Multiplayer Side Quests right now."}</Text>}
@@ -7421,16 +7539,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         ) : null}
       </View>
 
-      <View style={styles.groupquestsActionCard} accessibilityLabel="Create Multiplayer Side Quest fast action">
+      {isSignedOutBrowse ? null : <View style={styles.groupquestsActionCard} accessibilityLabel="Create Multiplayer Side Quest fast action">
         <Text style={styles.eyebrow}>Create</Text>
         <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
         <Text style={styles.sideQuestModeCopy}>Default proof rule: players must win the eligible game. Advanced settings can loosen that if you choose.</Text>
         <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
           <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
         </Pressable>
-      </View>
+      </View>}
 
-      <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
+      {isSignedOutBrowse ? null : <View style={styles.groupquestsActionCard} accessibilityLabel="Join private Multiplayer Side Quest">
         <Text style={styles.eyebrow}>Invite Code</Text>
         <Text style={styles.sideQuestModeTitle}>Join private Multiplayer Side Quest.</Text>
         <Text style={styles.sideQuestModeCopy}>Paste an invite code from the host to join a private Multiplayer Side Quest.</Text>
@@ -7443,7 +7561,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         </Pressable>
         {groupQuestActionState.questId === "invite" && groupQuestActionState.error ? <Text style={styles.errorCopy}>{groupQuestActionState.error}</Text> : null}
         {groupQuestActionState.questId === "invite" && groupQuestActionState.message ? <Text style={styles.successCopy}>{groupQuestActionState.message}</Text> : null}
-      </View>
+      </View>}
 
       <Modal visible={createOpen} animationType="slide" presentationStyle="fullScreen" onRequestClose={() => setCreateOpen(false)}>
         <SafeAreaView style={compactStyles.detailScreen}>
@@ -9414,7 +9532,7 @@ function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, boot
       },
       {
         id: "official-preview-queenless",
-        title: "Queenless Gremlin Cup",
+        title: "Queenless Cup",
         status: "Join",
         copy: "5 players · 4d left",
         href: "/groupquests/official-preview-queenless",

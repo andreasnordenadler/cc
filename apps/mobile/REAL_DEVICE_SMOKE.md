@@ -15,15 +15,15 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v319`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v319>
-- APK filename: `sqc-mobile-android-v319-2026-07-02.apk`
+- GitHub Release tag: `mobile-v320`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v320>
+- APK filename: `sqc-mobile-android-v320-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.319`
-- Android version code: `319`
-- APK SHA256: `bdd079f97d9ee99319f7fa4b6787e151da7c60de927c0e1e3d492fa286ca29c3`
+- Version name: `0.1.320`
+- Android version code: `320`
+- APK SHA256: `8a61601372db2cce4910f3c067d5b78e768f6beeb4fcba8d2d64c266fce6cb82`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
-- Emulator smoke proof: `sqc_pixel_35` installed and launched `mobile-v319`; the signed-out Solo browse center switch button toggled Official -> Community -> Official, with screenshots in `artifacts/mobile-smoke/v319/`.
+- Emulator smoke proof: `sqc_pixel_35` installed and launched `mobile-v320`; signed-out Multiplayer browse showed Official and Community Multiplayer Side Quest rows, hid irrelevant results/history/create/invite sections, and preserved the center switch button behavior, with screenshots in `artifacts/mobile-smoke/v320/`.
 
 ## Candidate identity
 
