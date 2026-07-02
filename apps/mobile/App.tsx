@@ -1669,7 +1669,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     setScrollState((current) => ({ ...current, y: 0 }));
     requestAnimationFrame(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-      setTimeout(() => setPendingMultiplayerCreateOpenToken((current) => current + 1), 0);
+      setTimeout(() => setPendingMultiplayerCreateOpenToken((current) => current + 1), 520);
     });
   }
 
@@ -1812,7 +1812,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
   function openMultiplayerCreateFromMenu() {
     setMenuOpen(false);
     requestAnimationFrame(() => {
-      setTimeout(() => onOpenMultiplayerCreate(), 180);
+      setTimeout(() => onOpenMultiplayerCreate(), 320);
     });
   }
 
@@ -7216,7 +7216,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       }
       setCreateOpen(true);
       onConsumePendingCreateOpen?.();
-    }, 0);
+    }, 220);
     return () => clearTimeout(timer);
   }, [createQuestChoices, onConsumePendingCreateOpen, pendingCreateOpenToken, pendingCreateQuestId]);
 
