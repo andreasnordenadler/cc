@@ -4836,9 +4836,15 @@ function QuestBoardDashboard({
         >
           <Text style={[compactStyles.sideQuestBrandTabText, sideQuestCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
-        <View pointerEvents="none" style={compactStyles.sideQuestBrandTabSwitchIcon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={sideQuestCatalogTab === "official" ? "Switch to Community Side Quests" : "Switch to Official Side Quests"}
+          hitSlop={10}
+          style={compactStyles.sideQuestBrandTabSwitchButton}
+          onPress={() => setSideQuestCatalogTab((current) => current === "official" ? "community" : "official")}
+        >
           <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
-        </View>
+        </Pressable>
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: sideQuestCatalogTab === "community" }}
@@ -7129,9 +7135,15 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         >
           <Text style={[compactStyles.sideQuestBrandTabText, multiplayerCatalogTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
         </Pressable>
-        <View pointerEvents="none" style={compactStyles.sideQuestBrandTabSwitchIcon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={multiplayerCatalogTab === "official" ? "Switch to Community Multiplayer Side Quests" : "Switch to Official Multiplayer Side Quests"}
+          hitSlop={10}
+          style={compactStyles.sideQuestBrandTabSwitchButton}
+          onPress={() => setMultiplayerCatalogTab((current) => current === "official" ? "community" : "official")}
+        >
           <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
-        </View>
+        </Pressable>
         <Pressable
           accessibilityRole="tab"
           accessibilityState={{ selected: multiplayerCatalogTab === "community" }}
@@ -10044,7 +10056,7 @@ const compactStyles = StyleSheet.create({
   pullRefreshHintText: { color: colors.muted, fontSize: 11, lineHeight: 14, fontWeight: "800" },
   sideQuestBrandTabs: { position: "relative", flexDirection: "row", alignItems: "stretch", gap: 12, marginTop: 2, marginBottom: 6 },
   sideQuestBrandTab: { flex: 1, minHeight: 62, overflow: "hidden", alignItems: "center", justifyContent: "center", paddingHorizontal: 10, paddingVertical: 12, borderRadius: 22, borderWidth: 1.5 },
-  sideQuestBrandTabSwitchIcon: { position: "absolute", left: "50%", top: "50%", width: 32, height: 32, marginLeft: -16, marginTop: -16, zIndex: 4, elevation: 7, alignItems: "center", justifyContent: "center", borderRadius: 16, backgroundColor: "rgba(15,17,17,.92)", borderWidth: 1, borderColor: "rgba(255,247,232,.2)", shadowColor: "#000", shadowOpacity: .2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+  sideQuestBrandTabSwitchButton: { position: "absolute", left: "50%", top: "50%", width: 44, height: 44, marginLeft: -22, marginTop: -22, zIndex: 4, elevation: 7, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: "rgba(15,17,17,.92)", borderWidth: 1, borderColor: "rgba(255,247,232,.2)", shadowColor: "#000", shadowOpacity: .2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
   sideQuestBrandTabOfficial: { borderColor: "rgba(245,200,106,.3)", backgroundColor: "rgba(245,200,106,.08)" },
   sideQuestBrandTabOfficialActive: { borderColor: "rgba(245,200,106,.62)", backgroundColor: "rgba(245,200,106,.18)" },
   sideQuestBrandTabCommunity: { borderColor: "rgba(96,240,175,.28)", backgroundColor: "rgba(96,240,175,.065)" },

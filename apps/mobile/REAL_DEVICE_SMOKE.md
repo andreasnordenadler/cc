@@ -15,14 +15,15 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v318`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v318>
-- APK filename: `sqc-mobile-android-v318-2026-07-02.apk`
+- GitHub Release tag: `mobile-v319`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v319>
+- APK filename: `sqc-mobile-android-v319-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.318`
-- Android version code: `318`
-- APK SHA256: `0933dc5a0baaf8a711b763dbe522095a6bc1ce3b3d390a53e5fac0e5917488dd`
+- Version name: `0.1.319`
+- Android version code: `319`
+- APK SHA256: `bdd079f97d9ee99319f7fa4b6787e151da7c60de927c0e1e3d492fa286ca29c3`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
+- Emulator smoke proof: `sqc_pixel_35` installed and launched `mobile-v319`; the signed-out Solo browse center switch button toggled Official -> Community -> Official, with screenshots in `artifacts/mobile-smoke/v319/`.
 
 ## Candidate identity
 
