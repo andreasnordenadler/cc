@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/alt-text, @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ClerkProvider, useAuth, useClerk, useSSO, useUser } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
@@ -1052,6 +1052,9 @@ type MobileAuthBridge = {
   isSignedIn: boolean;
   getSessionToken: () => Promise<string | null>;
   startGoogleSignIn?: () => Promise<void>;
+  startFacebookSignIn?: () => Promise<void>;
+  startPasswordSignIn?: (credentials: { identifier: string; password: string }) => Promise<void>;
+  startPasswordSignUp?: (credentials: { identifier: string; password: string }) => Promise<void>;
   signOut?: () => Promise<void>;
   signedInLabel: string | null;
 };
@@ -1269,13 +1272,15 @@ function ClerkMobileShell() {
   const { getToken, isLoaded, isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const { startSSOFlow } = useSSO();
+  const { signIn, setActive: setSignInActive, isLoaded: signInLoaded } = useSignIn();
+  const { signUp, setActive: setSignUpActive, isLoaded: signUpLoaded } = useSignUp();
   const { user } = useUser();
   const signedInLabel = user?.fullName || user?.username || user?.primaryEmailAddress?.emailAddress || null;
 
-  const startGoogleSignIn = useCallback(async () => {
+  const startSocialSignIn = useCallback(async (strategy: "oauth_google" | "oauth_facebook", providerLabel: "Google" | "Facebook") => {
     try {
       const result = await startSSOFlow({
-        strategy: "oauth_google",
+        strategy,
         redirectUrl: mobileOAuthRedirectUrl,
       });
 
@@ -1289,13 +1294,44 @@ function ClerkMobileShell() {
       const authResultType = result.authSessionResult?.type ?? "unknown";
       Alert.alert(
         "Sign-in did not finish",
-        `Google returned to SQC, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
+        `${providerLabel} returned to SQC, but Clerk did not create a mobile session yet. Details: auth=${authResultType}, signIn=${signInStatus}, signUp=${signUpStatus}.`,
       );
     } catch (caught) {
       const message = caught instanceof Error ? caught.message : "Unknown mobile sign-in error.";
       Alert.alert("Sign-in error", message);
     }
   }, [startSSOFlow]);
+
+  const startGoogleSignIn = useCallback(() => startSocialSignIn("oauth_google", "Google"), [startSocialSignIn]);
+  const startFacebookSignIn = useCallback(() => startSocialSignIn("oauth_facebook", "Facebook"), [startSocialSignIn]);
+
+  const startPasswordSignIn = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
+    if (!signInLoaded) throw new Error("Sign-in is still loading. Try again in a moment.");
+    const result = await signIn.create({ strategy: "password", identifier, password });
+
+    if (result.status === "complete" && result.createdSessionId && setSignInActive) {
+      await setSignInActive({ session: result.createdSessionId });
+      return;
+    }
+
+    throw new Error(`Password sign-in needs another step: ${result.status}.`);
+  }, [setSignInActive, signIn, signInLoaded]);
+
+  const startPasswordSignUp = useCallback(async ({ identifier, password }: { identifier: string; password: string }) => {
+    if (!signUpLoaded) throw new Error("Account creation is still loading. Try again in a moment.");
+    const trimmedIdentifier = identifier.trim();
+    const payload = trimmedIdentifier.includes("@")
+      ? { emailAddress: trimmedIdentifier, password }
+      : { username: trimmedIdentifier, password };
+    const result = await signUp.create(payload);
+
+    if (result.status === "complete" && result.createdSessionId && setSignUpActive) {
+      await setSignUpActive({ session: result.createdSessionId });
+      return;
+    }
+
+    throw new Error(`Account creation needs another step: ${result.status}.`);
+  }, [setSignUpActive, signUp, signUpLoaded]);
 
   const authBridge = useMemo<MobileAuthBridge>(
     () => ({
@@ -1304,10 +1340,13 @@ function ClerkMobileShell() {
       isSignedIn: Boolean(isSignedIn),
       getSessionToken: async () => getToken(),
       startGoogleSignIn,
+      startFacebookSignIn,
+      startPasswordSignIn,
+      startPasswordSignUp,
       signOut,
       signedInLabel,
     }),
-    [getToken, isLoaded, isSignedIn, signOut, signedInLabel, startGoogleSignIn],
+    [getToken, isLoaded, isSignedIn, signOut, signedInLabel, startFacebookSignIn, startGoogleSignIn, startPasswordSignIn, startPasswordSignUp],
   );
 
   return <MobileShell authBridge={authBridge} />;
@@ -1774,8 +1813,7 @@ function TodayDashboard({
   const visibleTrophyCabinetItems = showAllTrophyCabinet ? trophyCabinetItems : trophyCabinetItems.slice(0, 5);
 
   function handleSignIn() {
-    if (authBridge.startGoogleSignIn) return void authBridge.startGoogleSignIn();
-    showNativeOnlyNotice("Sign-in is unavailable right now.");
+    onSelectTab("account");
   }
 
   function openCurrentProof() {
@@ -1940,7 +1978,7 @@ function TodayDashboard({
             </Pressable>
           </View>
           <Pressable accessibilityRole="button" accessibilityLabel="Sign in" style={[compactStyles.primaryAction, compactStyles.primaryActionCentered]} onPress={handleSignIn}>
-            <Text style={compactStyles.primaryActionText}>Sign in with Google or Facebook</Text>
+            <Text style={compactStyles.primaryActionText}>Choose sign-in method</Text>
           </Pressable>
         </View>
       </View>
@@ -5017,7 +5055,7 @@ function QuestBoardDashboard({
         completedAt={customDetailCompletedQuest?.completedAt ?? null}
         latestReceipt={customDetailLatestReceipt}
         signedIn={Boolean(signedIn)}
-        onSignIn={authBridge.startGoogleSignIn ? () => void authBridge.startGoogleSignIn?.() : () => onSelectTab("account")}
+        onSignIn={() => onSelectTab("account")}
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
@@ -6427,7 +6465,7 @@ function SideQuestsScreen({
         completedAt={customDetailCompletedQuest?.completedAt ?? null}
         latestReceipt={customDetailLatestReceipt}
         signedIn={Boolean(signedInAccount)}
-        onSignIn={authBridge.startGoogleSignIn ? () => void authBridge.startGoogleSignIn?.() : () => onSelectTab("account")}
+        onSignIn={() => onSelectTab("account")}
         onClose={() => setCustomDetailId(null)}
         onStart={async (questId) => {
           await startCustomSideQuest(questId);
@@ -7897,10 +7935,6 @@ function SelectedQuestDetailCard({
   }
 
   async function promptSignIn() {
-    if (authBridge.startGoogleSignIn) {
-      await authBridge.startGoogleSignIn();
-      return;
-    }
     onSelectTab("account");
   }
 
@@ -8710,7 +8744,7 @@ function AccountShell({
 }) {
   if (!isAuthenticatedAccount(account)) {
     const signedInButRejected = authBridge.isSignedIn && account?.authenticated === false;
-    const primaryLabel = signedInButRejected ? "Sync account" : authBridge.configured ? "Sign in" : "Open sign in";
+    const primaryLabel = signedInButRejected ? "Sync account" : authBridge.configured ? "Continue with Google" : "Open sign in";
     const handlePrimaryPress = () => {
       if (signedInButRejected) {
         return onAccountUpdated();
@@ -8742,6 +8776,12 @@ function AccountShell({
           <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={handlePrimaryPress}>
             <Text style={styles.primaryButtonText}>{primaryLabel}</Text>
           </Pressable>
+          {!signedInButRejected && authBridge.startFacebookSignIn ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
+              <Text style={styles.secondaryButtonText}>Continue with Facebook</Text>
+            </Pressable>
+          ) : null}
+          {!signedInButRejected ? <PasswordAuthPanel authBridge={authBridge} onAccountUpdated={onAccountUpdated} /> : null}
           <Pressable accessibilityRole="button" accessibilityLabel="Browse Side Quests" style={styles.secondaryButtonWide} onPress={() => onSelectTab("sideQuests")}>
             <Text style={styles.secondaryButtonText}>Browse Side Quests</Text>
           </Pressable>
@@ -9109,6 +9149,75 @@ function ChessUsernameEditor({
         <Text style={styles.primaryButtonText}>{saving ? "Saving..." : "Save usernames"}</Text>
       </Pressable>
       {!authBridge.isSignedIn ? <Text style={styles.microcopy}>Sign in first to enable native account edits.</Text> : null}
+      {message ? <Text style={styles.successCopy}>{message}</Text> : null}
+      {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
+    </View>
+  );
+}
+
+function PasswordAuthPanel({ authBridge, onAccountUpdated }: { authBridge: MobileAuthBridge; onAccountUpdated: AccountUpdatedCallback }) {
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [identifier, setIdentifier] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const passwordAuthAvailable = Boolean(authBridge.startPasswordSignIn && authBridge.startPasswordSignUp);
+  const submitLabel = mode === "sign-in" ? "Sign in with password" : "Create password account";
+
+  async function submitPasswordAuth() {
+    const cleanIdentifier = identifier.trim();
+    if (!passwordAuthAvailable) {
+      setMessage(null);
+      setError("Password sign-in is unavailable in this build.");
+      return;
+    }
+    if (!cleanIdentifier || password.length < 8) {
+      setMessage(null);
+      setError("Enter an email or username and a password of at least 8 characters.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage(null);
+    setError(null);
+    try {
+      if (mode === "sign-in") {
+        await authBridge.startPasswordSignIn?.({ identifier: cleanIdentifier, password });
+      } else {
+        await authBridge.startPasswordSignUp?.({ identifier: cleanIdentifier, password });
+      }
+      setMessage(mode === "sign-in" ? "Signed in. Syncing your SQC account..." : "Account created. Syncing your SQC account...");
+      await Promise.resolve(onAccountUpdated());
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Password authentication failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <View style={styles.passwordAuthPanel} accessibilityLabel="Username and password sign in">
+      <View style={styles.passwordAuthModeRow}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-in" }} style={[styles.passwordAuthModeButton, mode === "sign-in" && styles.passwordAuthModeButtonActive]} onPress={() => setMode("sign-in")}>
+          <Text style={[styles.passwordAuthModeText, mode === "sign-in" && styles.passwordAuthModeTextActive]}>Sign in</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: mode === "sign-up" }} style={[styles.passwordAuthModeButton, mode === "sign-up" && styles.passwordAuthModeButtonActive]} onPress={() => setMode("sign-up")}>
+          <Text style={[styles.passwordAuthModeText, mode === "sign-up" && styles.passwordAuthModeTextActive]}>Create</Text>
+        </Pressable>
+      </View>
+      <View style={styles.inputStack}>
+        <Text style={styles.inputLabel}>Email or username</Text>
+        <TextInput value={identifier} placeholder="you@example.com" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" style={styles.textInput} onChangeText={setIdentifier} />
+      </View>
+      <View style={styles.inputStack}>
+        <Text style={styles.inputLabel}>Password</Text>
+        <TextInput value={password} placeholder="At least 8 characters" placeholderTextColor="rgba(255,247,232,.42)" autoCapitalize="none" autoCorrect={false} secureTextEntry style={styles.textInput} onChangeText={setPassword} />
+      </View>
+      <Pressable accessibilityRole="button" accessibilityLabel={submitLabel} accessibilityState={{ disabled: busy || !passwordAuthAvailable }} style={[styles.secondaryButtonWide, (busy || !passwordAuthAvailable) && compactStyles.disabledAction]} disabled={busy || !passwordAuthAvailable} onPress={() => void submitPasswordAuth()}>
+        <Text style={styles.secondaryButtonText}>{busy ? "Working..." : submitLabel}</Text>
+      </Pressable>
+      <Text style={styles.microcopy}>{mode === "sign-in" ? "Use this if your SQC account has a password." : "Use email for the smoothest setup; username depends on the Clerk auth settings."}</Text>
       {message ? <Text style={styles.successCopy}>{message}</Text> : null}
       {error ? <Text style={styles.errorCopy}>{error}</Text> : null}
     </View>
@@ -10378,6 +10487,12 @@ const styles = StyleSheet.create({
   authNote: { color: colors.muted, fontSize: 13, lineHeight: 19 },
   authNoteStrong: { color: colors.paper, fontWeight: "900" },
   accountAuthFormCard: { gap: 8, marginHorizontal: -12, paddingHorizontal: 16, paddingVertical: 12, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(255,247,232,.13)", backgroundColor: "rgba(255,247,232,.055)" },
+  passwordAuthPanel: { gap: 8, padding: 12, borderRadius: 22, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(0,0,0,.16)" },
+  passwordAuthModeRow: { flexDirection: "row", gap: 6, padding: 4, borderRadius: 999, borderWidth: 1, borderColor: "rgba(255,247,232,.12)", backgroundColor: "rgba(255,247,232,.045)" },
+  passwordAuthModeButton: { flex: 1, alignItems: "center", justifyContent: "center", minHeight: 34, paddingHorizontal: 10, borderRadius: 999 },
+  passwordAuthModeButtonActive: { backgroundColor: colors.gold },
+  passwordAuthModeText: { color: colors.muted, fontSize: 12, fontWeight: "900" },
+  passwordAuthModeTextActive: { color: "#17120c" },
   currentMissionCard: { gap: 7, marginHorizontal: -10, paddingHorizontal: 13, paddingVertical: 9, borderRadius: 0, borderTopWidth: 1, borderBottomWidth: 1, borderColor: "rgba(245,200,106,.32)", backgroundColor: "rgba(255,247,232,.055)" },
   currentMissionCopy: { gap: 6 },
   currentMissionName: { color: colors.paper, fontSize: 27, fontWeight: "900", letterSpacing: -1.5, lineHeight: 29 },
