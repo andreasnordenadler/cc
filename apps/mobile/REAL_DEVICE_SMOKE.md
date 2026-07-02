@@ -15,31 +15,31 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v323`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v323>
-- APK filename: `sqc-mobile-android-v323-2026-07-02.apk`
+- GitHub Release tag: `mobile-v327`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v327>
+- APK filename: `sqc-mobile-android-v327-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.323`
-- Android version code: `323`
-- APK SHA256: `105ec0d3adb3fd5d6aca7beb5dfe08cf08a8d280de0ecc0a5e97a54f95db1c88`
+- Version name: `0.1.327`
+- Android version code: `327`
+- APK SHA256: `157a0adf9f41e84c0ebf511bccf8ee36b485120d0aa2847e9a069050897c00a9`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
-- Emulator smoke proof: `sqc_pixel_35` installed and launched `mobile-v323`; the emulator was signed out, so the signed-in Multiplayer create flow remains a physical/signed-in smoke item. Source and packaged APK bundle checks confirm the create flow now has a community-creator-inspired draft panel, catalog search/browse controls, source counts, max-four feedback, unsaved discard confirmation, and a pinned Create action.
+- Emulator/source proof: release checks through `mobile-v327` confirm the latest mobile build includes the chess ratings card render on Account, fixed hamburger `Create Multiplayer Side Quest` routing into the create draft flow, provider-specific chess rating snapshots, animated active Solo refresh, and the community-creator-inspired Multiplayer create picker with catalog search/browse, source counts, max-four feedback, unsaved discard confirmation, and a pinned Create action. Signed-in phone smoke remains required for the actual device gate.
 
 ## Candidate identity
 
-- GitHub Release tag:
-- APK filename:
-- Package ID:
-- Version name:
-- Android version code:
-- APK SHA256:
-- Manifest/signer proof:
-- Tester/device/OS:
-- Test time:
+- GitHub Release tag: `mobile-v327`
+- APK filename: `sqc-mobile-android-v327-2026-07-02.apk`
+- Package ID: `com.sidequestchess.app`
+- Version name: `0.1.327`
+- Android version code: `327`
+- APK SHA256: `157a0adf9f41e84c0ebf511bccf8ee36b485120d0aa2847e9a069050897c00a9`
+- Manifest/signer proof: `pnpm mobile:release:candidate-check` passed on 2026-07-02 13:16 CEST; GitHub Release APK package/version identity matches app config, `debuggable=false`, `allowBackup=false`, and signer is not the Android debug identity.
+- Tester/device/OS: Pending physical Android device; Mac mini ADB had no authorized physical device at 2026-07-02 13:16 CEST.
+- Test time: 2026-07-02 13:16 CEST candidate identity check only.
 
 ## Install and launch
 
-- [ ] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, release notes, SHA256 sidecar, downloaded GitHub Release APK, APK manifest, package ID, and signer all describe the same non-debuggable release candidate.
+- [x] Run `pnpm mobile:release:candidate-check` and confirm the checklist, app config, release notes, SHA256 sidecar, downloaded GitHub Release APK, APK manifest, package ID, and signer all describe the same non-debuggable release candidate.
 - [ ] Prefer `pnpm mobile:release:device-install` for the first real-device step: it reruns the candidate check, downloads the APK from GitHub Release, refuses emulators, verifies SHA256, installs on exactly one authorized physical Android device, confirms the installed package version, launches `com.sidequestchess.app`, and verifies it is foregrounded after launch.
 - [ ] Download the APK from the GitHub Release, not a local `dist-*` directory, if installing manually.
 - [ ] Verify SHA256 matches the release note if recording proof manually.
