@@ -15,15 +15,15 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v322`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v322>
-- APK filename: `sqc-mobile-android-v322-2026-07-02.apk`
+- GitHub Release tag: `mobile-v323`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v323>
+- APK filename: `sqc-mobile-android-v323-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.322`
-- Android version code: `322`
-- APK SHA256: `6d25d5eb63858591c7f1bad613b69a8c12752d0d5fca38e76c437a59f2d05740`
+- Version name: `0.1.323`
+- Android version code: `323`
+- APK SHA256: `105ec0d3adb3fd5d6aca7beb5dfe08cf08a8d280de0ecc0a5e97a54f95db1c88`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
-- Emulator smoke proof: `sqc_pixel_35` installed and launched `mobile-v322`; the emulator was signed out, so the signed-in Multiplayer create flow remains a physical/signed-in smoke item. Source and packaged APK bundle checks confirm the create flow includes search, selected/browse controls, max-four copy, and discard confirmation copy, with stale win/result setting copy removed.
+- Emulator smoke proof: `sqc_pixel_35` installed and launched `mobile-v323`; the emulator was signed out, so the signed-in Multiplayer create flow remains a physical/signed-in smoke item. Source and packaged APK bundle checks confirm the create flow now has a community-creator-inspired draft panel, catalog search/browse controls, source counts, max-four feedback, unsaved discard confirmation, and a pinned Create action.
 
 ## Candidate identity
 

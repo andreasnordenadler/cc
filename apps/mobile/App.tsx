@@ -83,7 +83,7 @@ const MULTIPLAYER_PROVIDER_MODES = [
 ] as const;
 
 const MULTIPLAYER_CREATE_MAX_QUESTS = 4;
-const MULTIPLAYER_CREATE_LIST_PAGE_SIZE = 12;
+const MULTIPLAYER_CREATE_LIST_PAGE_SIZE = 8;
 
 const MULTIPLAYER_RULE_OPTIONS = {
   timeControl: ["Any time control", "Bullet", "Blitz", "Rapid", "Classical"],
@@ -7026,6 +7026,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     .filter((choice) => !normalizedCreateQuestSearch || `${choice.title} ${choice.meta} ${choice.sourceBadge ?? ""}`.toLowerCase().includes(normalizedCreateQuestSearch));
   const visibleCreateQuestChoicePage = visibleCreateQuestChoices.slice(0, createQuestListLimit);
   const hiddenCreateQuestChoiceCount = Math.max(visibleCreateQuestChoices.length - visibleCreateQuestChoicePage.length, 0);
+  const officialCreateQuestChoiceCount = createQuestChoices.filter((choice) => choice.source === "official").length;
+  const communityCreateQuestChoiceCount = createQuestChoices.filter((choice) => choice.source === "community").length;
   const createQuestDraftIsDirty = createName.trim().length > 0
     || createInviteCopy !== MULTIPLAYER_DEFAULT_INVITE_COPY
     || createInviteMode !== "public"
@@ -7647,7 +7649,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <MaterialCommunityIcons name="close" size={23} color={colors.paper} />
             </Pressable>
           </View>
-          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe]} showsVerticalScrollIndicator={false}>
+          <ScrollHintedScrollView contentContainerStyle={[compactStyles.detailContent, compactStyles.detailContentWithBottomSafe, compactStyles.detailContentWithCreateFooter]} showsVerticalScrollIndicator={false}>
             <View style={compactStyles.multiplayerDetailHero}>
               <Image source={SQC_GENERIC_COAT_GLOW_ASSET} style={compactStyles.multiplayerDetailSealGlow} resizeMode="contain" />
               <Image source={SQC_MULTIPLAYER_SEAL_ASSET} style={compactStyles.multiplayerDetailSeal} resizeMode="contain" />
@@ -7728,8 +7730,8 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               <Text style={compactStyles.multiplayerCardEyebrow}>Included Side Quests</Text>
               <View style={compactStyles.createSelectionHeader}>
                 <View style={compactStyles.createSelectionHeaderCopy}>
-                  <Text style={compactStyles.multiplayerCardTitle}>Choose up to four.</Text>
-                  <Text style={compactStyles.createSelectionMeta}>{createQuestIds.length}/{MULTIPLAYER_CREATE_MAX_QUESTS} selected</Text>
+                  <Text style={compactStyles.multiplayerCardTitle}>Your Multiplayer draft</Text>
+                  <Text style={compactStyles.createSelectionMeta}>{createQuestIds.length}/{MULTIPLAYER_CREATE_MAX_QUESTS} Side Quests selected</Text>
                 </View>
                 {createQuestIds.length ? (
                   <Pressable accessibilityRole="button" accessibilityLabel="Clear selected Side Quests" style={compactStyles.createClearSelectionButton} onPress={() => { setCreateQuestIds([]); setCreateQuestSelectionError(null); }}>
@@ -7739,16 +7741,28 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               </View>
               <View style={compactStyles.createSelectedTray}>
                 {selectedCreateQuestChoices.length ? selectedCreateQuestChoices.map((choice, index) => (
-                  <Pressable key={choice.id} accessibilityRole="button" accessibilityLabel={`Remove ${choice.title} from Multiplayer Side Quest`} style={compactStyles.createSelectedPill} onPress={() => toggleCreateQuestId(choice.id)}>
+                  <Pressable key={choice.id} accessibilityRole="button" accessibilityLabel={`Remove ${choice.title} from Multiplayer Side Quest`} style={compactStyles.createSelectedRow} onPress={() => toggleCreateQuestId(choice.id)}>
                     <Text style={compactStyles.createSelectedIndex}>{index + 1}</Text>
-                    <Text style={compactStyles.createSelectedTitle} numberOfLines={1}>{choice.title}</Text>
-                    <MaterialCommunityIcons name="close" size={14} color="rgba(255,247,232,.72)" />
+                    <View style={compactStyles.createSelectedCopy}>
+                      <Text style={compactStyles.createSelectedTitle} numberOfLines={1}>{choice.title}</Text>
+                      <Text style={compactStyles.createSelectedMeta} numberOfLines={1}>{choice.sourceBadge ?? choice.status}</Text>
+                    </View>
+                    <View style={compactStyles.createSelectedRemoveIcon}>
+                      <MaterialCommunityIcons name="close" size={14} color="rgba(255,247,232,.72)" />
+                    </View>
                   </Pressable>
                 )) : (
-                  <Text style={compactStyles.createSelectionEmpty}>No Side Quests selected yet.</Text>
+                  <View style={compactStyles.createSelectionEmptyPanel}>
+                    <Text style={compactStyles.createSelectionEmptyTitle}>No Side Quests selected yet.</Text>
+                    <Text style={compactStyles.createSelectionEmpty}>Search or browse below, then tap rows to add them here.</Text>
+                  </View>
                 )}
               </View>
               {createQuestSelectionError ? <Text style={compactStyles.inlineError}>{createQuestSelectionError}</Text> : null}
+            </View>
+            <View style={compactStyles.multiplayerNativeCard}>
+              <Text style={compactStyles.multiplayerCardEyebrow}>Add from catalog</Text>
+              <Text style={compactStyles.multiplayerCardTitle}>Browse like Community Side Quests.</Text>
               <View style={compactStyles.createSearchShell}>
                 <MaterialCommunityIcons name="magnify" size={18} color="rgba(255,247,232,.58)" />
                 <TextInput
@@ -7771,7 +7785,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   <Text style={[compactStyles.createFilterChipText, !createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Browse</Text>
                 </Pressable>
                 <Pressable accessibilityRole="button" accessibilityState={{ selected: createShowSelectedOnly }} style={[compactStyles.createFilterChip, createShowSelectedOnly ? compactStyles.createFilterChipActive : null]} onPress={() => setCreateShowSelectedOnly(true)}>
-                  <Text style={[compactStyles.createFilterChipText, createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Selected</Text>
+                  <Text style={[compactStyles.createFilterChipText, createShowSelectedOnly ? compactStyles.createFilterChipTextActive : null]}>Selected ({createQuestIds.length})</Text>
                 </Pressable>
               </View>
               <View style={compactStyles.sideQuestBrandTabs}>
@@ -7786,7 +7800,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   ]}
                   onPress={() => setCreateQuestSourceTab("official")}
                 >
-                  <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official Side Quests</Text>
+                  <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "official" && compactStyles.sideQuestBrandTabOfficialTextActive]} numberOfLines={2}>Official ({officialCreateQuestChoiceCount})</Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={createQuestSourceTab === "official" ? "Switch to Community Side Quests" : "Switch to Official Side Quests"}
+                  hitSlop={10}
+                  style={compactStyles.sideQuestBrandTabSwitchButton}
+                  onPress={() => setCreateQuestSourceTab((current) => current === "official" ? "community" : "official")}
+                >
+                  <MaterialCommunityIcons name="swap-horizontal-bold" size={19} color="rgba(255,247,232,.82)" />
                 </Pressable>
                 <Pressable
                   accessibilityRole="tab"
@@ -7799,7 +7822,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                   ]}
                   onPress={() => setCreateQuestSourceTab("community")}
                 >
-                  <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community Side Quests</Text>
+                  <Text style={[compactStyles.sideQuestBrandTabText, createQuestSourceTab === "community" && compactStyles.sideQuestBrandTabCommunityTextActive]} numberOfLines={2}>Community ({communityCreateQuestChoiceCount})</Text>
                 </Pressable>
               </View>
               {visibleCreateQuestChoices.length ? (
@@ -7813,7 +7836,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
                           key={choice.id}
                           title={choice.title}
                           meta={choice.meta}
-                          status={included ? "Included" : maxed ? "Max 4" : choice.status}
+                          status={included ? "Remove" : maxed ? "Max 4" : "Add"}
                           sourceBadge={choice.sourceBadge}
                           imageSource={choice.imageSource}
                           onPress={() => toggleCreateQuestId(choice.id)}
@@ -7835,10 +7858,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
               )}
             </View>
             {groupQuestActionState.questId === "new" && groupQuestActionState.error ? <Text style={compactStyles.inlineError}>{groupQuestActionState.error}</Text> : null}
-            <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest now" style={[compactStyles.detailPrimaryButton, groupQuestActionState.busy && groupQuestActionState.questId === "new" ? compactStyles.disabledAction : null]} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "new"} onPress={() => void createGroupQuest()}>
-              <Text style={compactStyles.detailPrimaryButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "new" ? "Creating..." : "Create and join"}</Text>
-            </Pressable>
           </ScrollHintedScrollView>
+          <View style={compactStyles.createFooterBar}>
+            <View style={compactStyles.createFooterCopy}>
+              <Text style={compactStyles.createFooterTitle}>{createQuestIds.length ? `${createQuestIds.length}/${MULTIPLAYER_CREATE_MAX_QUESTS} selected` : "Choose at least one Side Quest"}</Text>
+              <Text style={compactStyles.createFooterMeta} numberOfLines={1}>{createName.trim() || "Name the Multiplayer Side Quest before creating."}</Text>
+            </View>
+            <Pressable accessibilityRole="button" accessibilityLabel="Create Multiplayer Side Quest now" style={[compactStyles.createFooterButton, groupQuestActionState.busy && groupQuestActionState.questId === "new" ? compactStyles.disabledAction : null]} disabled={groupQuestActionState.busy && groupQuestActionState.questId === "new"} onPress={() => void createGroupQuest()}>
+              <Text style={compactStyles.createFooterButtonText}>{groupQuestActionState.busy && groupQuestActionState.questId === "new" ? "Creating..." : "Create"}</Text>
+            </Pressable>
+          </View>
         </SafeAreaView>
       </Modal>
 
@@ -10120,6 +10149,7 @@ const compactStyles = StyleSheet.create({
   detailCloseButton: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(6,5,7,.72)", borderWidth: 1, borderColor: "rgba(255,247,232,.24)", shadowColor: "#000", shadowOpacity: .25, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 6 },
   detailContent: { paddingTop: 72, paddingHorizontal: 16, paddingBottom: 104, gap: 8 },
   detailContentWithBottomSafe: { paddingBottom: 148 },
+  detailContentWithCreateFooter: { paddingBottom: 208 },
   detailHero: { alignItems: "center", gap: 5, paddingTop: 0, paddingBottom: 0 },
   completedProofScreen: { gap: 10 },
   trophyProofStack: { gap: 8 },
@@ -10157,9 +10187,15 @@ const compactStyles = StyleSheet.create({
   createClearSelectionText: { color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   createSelectedTray: { gap: 6, padding: 8, borderRadius: 17, backgroundColor: "rgba(0,0,0,.18)", borderWidth: 1, borderColor: "rgba(255,247,232,.1)" },
   createSelectedPill: { minHeight: 34, flexDirection: "row", alignItems: "center", gap: 7, paddingVertical: 6, paddingHorizontal: 9, borderRadius: 999, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.26)" },
+  createSelectedRow: { minHeight: 46, flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 7, paddingHorizontal: 9, borderRadius: 14, backgroundColor: "rgba(245,200,106,.12)", borderWidth: 1, borderColor: "rgba(245,200,106,.24)" },
   createSelectedIndex: { width: 20, height: 20, overflow: "hidden", borderRadius: 10, color: "#111", backgroundColor: colors.gold, textAlign: "center", lineHeight: 20, fontSize: 11, fontWeight: "900" },
+  createSelectedCopy: { flex: 1, minWidth: 0, gap: 1 },
   createSelectedTitle: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 12, lineHeight: 15, fontWeight: "900" },
-  createSelectionEmpty: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center", paddingVertical: 4 },
+  createSelectedMeta: { color: colors.muted, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .45 },
+  createSelectedRemoveIcon: { width: 26, height: 26, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: "rgba(0,0,0,.18)" },
+  createSelectionEmptyPanel: { gap: 3, alignItems: "center", paddingVertical: 5, paddingHorizontal: 8 },
+  createSelectionEmptyTitle: { color: colors.paper, fontSize: 13, lineHeight: 17, fontWeight: "900", textAlign: "center" },
+  createSelectionEmpty: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800", textAlign: "center" },
   createSearchShell: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8, paddingHorizontal: 11, borderRadius: 16, backgroundColor: "rgba(0,0,0,.22)", borderWidth: 1, borderColor: "rgba(255,247,232,.13)" },
   createSearchInput: { flex: 1, minWidth: 0, color: colors.paper, fontSize: 14, lineHeight: 18, fontWeight: "800", paddingVertical: 9 },
   createFilterRow: { flexDirection: "row", gap: 7 },
@@ -10167,6 +10203,12 @@ const compactStyles = StyleSheet.create({
   createFilterChipActive: { borderColor: "rgba(96,240,175,.36)", backgroundColor: "rgba(96,240,175,.14)" },
   createFilterChipText: { color: colors.muted, fontSize: 12, lineHeight: 15, fontWeight: "900" },
   createFilterChipTextActive: { color: colors.green },
+  createFooterBar: { position: "absolute", left: 0, right: 0, bottom: 0, minHeight: 92, flexDirection: "row", alignItems: "center", gap: 10, paddingHorizontal: 16, paddingTop: 12, paddingBottom: 18, backgroundColor: "rgba(18,12,13,.96)", borderTopWidth: 1, borderTopColor: "rgba(245,200,106,.22)", zIndex: 40, elevation: 12 },
+  createFooterCopy: { flex: 1, minWidth: 0, gap: 2 },
+  createFooterTitle: { color: colors.green, fontSize: 12, lineHeight: 15, fontWeight: "900", textTransform: "uppercase", letterSpacing: .65 },
+  createFooterMeta: { color: colors.muted, fontSize: 12, lineHeight: 16, fontWeight: "800" },
+  createFooterButton: { minWidth: 108, minHeight: 46, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, borderRadius: 999, backgroundColor: colors.gold },
+  createFooterButtonText: { color: "#111", fontSize: 14, lineHeight: 18, fontWeight: "900" },
   diagnosticsDisclosure: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
   diagnosticsBody: { gap: 6, paddingTop: 8, borderTopWidth: 1, borderTopColor: "rgba(255,247,232,.1)" },
   multiplayerOptionGrid: { gap: 7 },
