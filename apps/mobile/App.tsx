@@ -5869,8 +5869,8 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
           </View>
           <Text style={compactStyles.heroTitle}>Sign in to sync your board.</Text>
           <Text style={compactStyles.heroCopy}>Sign in to save Side Quest progress, latest proof, Coat of Arms unlocks, and connected chess usernames.</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={compactStyles.goldButton} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
-            <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={compactStyles.goldButtonText} />
+          <Pressable accessibilityRole="button" accessibilityLabel="Continue with Google" style={styles.secondaryButtonWide} onPress={() => authBridge.startGoogleSignIn ? void authBridge.startGoogleSignIn() : showNativeOnlyNotice("Sign-in is unavailable right now.")}>
+            <SocialSignInButtonContent provider="google" label="Continue with Google" textStyle={styles.secondaryButtonText} />
           </Pressable>
           {authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
@@ -9209,8 +9209,8 @@ function AccountShell({
           <Text style={styles.eyebrow}>Account</Text>
           <Text style={styles.cardTitle}>{signedInButRejected ? "Finish syncing your account." : "Choose how to sign in."}</Text>
           <Text style={styles.cardBody}>{signedInButRejected ? "Your sign-in is active, but SQC needs to refresh your account before saving progress." : "Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced."}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={styles.primaryButtonWide} onPress={handlePrimaryPress}>
-            {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.primaryButtonText} />}
+          <Pressable accessibilityRole="button" accessibilityLabel={primaryLabel} testID="account-primary-sign-in" style={signedInButRejected ? styles.primaryButtonWide : styles.secondaryButtonWide} onPress={handlePrimaryPress}>
+            {signedInButRejected ? <Text style={styles.primaryButtonText}>{primaryLabel}</Text> : <SocialSignInButtonContent provider="google" label={primaryLabel} textStyle={styles.secondaryButtonText} />}
           </Pressable>
           {!signedInButRejected && authBridge.startFacebookSignIn ? (
             <Pressable accessibilityRole="button" accessibilityLabel="Continue with Facebook" style={styles.secondaryButtonWide} onPress={() => void authBridge.startFacebookSignIn?.()}>
