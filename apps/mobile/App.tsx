@@ -9849,7 +9849,7 @@ const compactStyles = StyleSheet.create({
   helpSupportMessageMeta: { color: colors.gold, fontSize: 10, lineHeight: 13, fontWeight: "900", textTransform: "uppercase", letterSpacing: .5 },
   helpSupportBody: { color: colors.muted, fontSize: 12, lineHeight: 17, fontWeight: "700" },
   screenCloseRow: { minHeight: 40, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", marginTop: -36, marginBottom: 14, zIndex: 20 },
-  fixedScreenCloseLayer: { position: "absolute", right: 16, zIndex: 60 },
+  fixedScreenCloseLayer: { position: "absolute", right: 16, width: 40, height: 40, zIndex: 160, elevation: 16 },
   sideQuestListEmblemWrap: { alignItems: "center", justifyContent: "center", paddingTop: 0, paddingBottom: 2, overflow: "visible" },
   sideQuestListEmblemGlow: { position: "absolute", width: 142, height: 154, opacity: .9, transform: [{ translateY: 5 }] },
   sideQuestListEmblem: { width: 112, height: 124 },
