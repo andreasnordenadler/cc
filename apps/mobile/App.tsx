@@ -47,32 +47,32 @@ type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" 
 
 const HELP_TOPICS: Record<HelpTopic, { title: string; body: string }> = {
   activeSolo: {
-    title: "This active Side Quest card",
-    body: "This card shows the Side Quest you are trying now. Play a new public game on your connected Lichess or Chess.com account after picking it, then come back and check proof.",
+    title: "Your active Side Quest",
+    body: "This card shows the Solo Side Quest you are trying now. Play a new public game on the Lichess or Chess.com username you connected, then come back and check proof.",
   },
   solo: {
     title: "Choosing a Solo Side Quest",
-    body: "Pick one Solo Side Quest, then play a new public game on your connected Lichess or Chess.com username. Side Quest Chess checks games played after you choose the quest.",
+    body: "Pick one Solo Side Quest at a time. After you choose it, play a new public Lichess or Chess.com game so Side Quest Chess has a fresh game to check.",
   },
   proof: {
-    title: "Proof checks",
-    body: "Side Quest Chess checks your latest public games after you pick a Side Quest. If proof does not verify, make sure the game is finished, public, played on your connected username, and matches the Side Quest rule.",
+    title: "Why proof may not work yet",
+    body: "Proof checks your newest public games after you choose a Side Quest. If it does not pass, make sure the game is finished, public, played on your connected username, and matches the rule.",
   },
   coat: {
     title: "Coat of Arms",
-    body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and can be opened from the Trophy Cabinet.",
+    body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and appear in the Trophy Cabinet.",
   },
   multiplayerDetail: {
     title: "This Multiplayer Side Quest",
-    body: "This page shows the Multiplayer Side Quest window, included Side Quests, players, and leaderboard. Join while it is open, play matching public games during the time window, then refresh proof to update your verified progress.",
+    body: "This page shows the time window, rules, players, and leaderboard. Join while it is open, play matching public games during the window, then refresh proof to update your progress.",
   },
   multiplayer: {
     title: "Multiplayer Side Quests",
-    body: "Multiplayer Side Quests are shared challenges with their own rules, time window, players, and leaderboard. You can join an official table, join a community table, or create one for friends.",
+    body: "Multiplayer Side Quests are shared challenges with their own rules, time window, players, and leaderboard. Join an official challenge, join a community challenge, or create one for friends.",
   },
   accounts: {
-    title: "Chess accounts",
-    body: "Add your public Lichess or Chess.com username so Side Quest Chess knows which games to check. Side Quest Chess only reads public game records and never needs your chess-site password.",
+    title: "Connecting a chess username",
+    body: "Add your public Lichess or Chess.com username so Side Quest Chess knows which games belong to you. It only reads public game records and never needs your chess-site password.",
   },
 };
 
@@ -3398,8 +3398,8 @@ function HomeFeatureCard({
 function AccountHelpSupportSection({ onOpenHelp }: { onOpenHelp: () => void }) {
   return (
     <AppSection title="Help & Support" action="Open" onAction={onOpenHelp}>
-      <AppRow title="How Side Quest Chess works" meta="Side Quests, proof checks, Coat of Arms, and Multiplayer help." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
-      <AppRow title="Report a problem" meta="Tell us what happened and we’ll take a look." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
+      <AppRow title="How Side Quest Chess works" meta="Start here for Side Quests, proof, chess usernames, and Multiplayer." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
+      <AppRow title="Report a problem" meta="Tell us what you tried, what happened, and where you got stuck." imageSource={SQC_COAT_OF_ARMS_ASSET} onPress={onOpenHelp} />
     </AppSection>
   );
 }
