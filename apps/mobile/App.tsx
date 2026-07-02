@@ -1665,12 +1665,10 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
   function openMultiplayerCreate(questId?: string) {
     scrollViewRef.current?.scrollTo({ y: 0, animated: false });
     setPendingMultiplayerCreateQuestId(questId ?? null);
+    setPendingMultiplayerCreateOpenToken((current) => current + 1);
     setShell((current) => ({ ...current, activeTab: "multiplayerSideQuests", pendingSideQuestCatalogIntent: null }));
     setScrollState((current) => ({ ...current, y: 0 }));
-    requestAnimationFrame(() => {
-      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-      setTimeout(() => setPendingMultiplayerCreateOpenToken((current) => current + 1), 520);
-    });
+    requestAnimationFrame(() => scrollViewRef.current?.scrollTo({ y: 0, animated: false }));
   }
 
   function openCustomSideQuests() {
@@ -1764,6 +1762,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
               pendingMultiplayerCreateOpenToken={pendingMultiplayerCreateOpenToken}
               pendingMultiplayerCreateQuestId={pendingMultiplayerCreateQuestId}
               onConsumePendingMultiplayerCreate={() => {
+                setPendingMultiplayerCreateOpenToken(0);
                 setPendingMultiplayerCreateQuestId(null);
               }}
               onAccountUpdated={loadAccount}
@@ -1811,9 +1810,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
 
   function openMultiplayerCreateFromMenu() {
     setMenuOpen(false);
-    requestAnimationFrame(() => {
-      setTimeout(() => onOpenMultiplayerCreate(), 320);
-    });
+    onOpenMultiplayerCreate();
   }
 
   const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
@@ -7139,7 +7136,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   const [multiplayerHostFilter, setMultiplayerHostFilter] = useState<string | null>(null);
   const [multiplayerCommunityFilter, setMultiplayerCommunityFilter] = useState<MultiplayerCommunityFilter>("open");
   const [multiplayerCommunitySort, setMultiplayerCommunitySort] = useState<MultiplayerCommunitySort>("closing");
-  const [createOpen, setCreateOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(() => Boolean(pendingCreateOpenToken));
   const [inviteKey, setInviteKey] = useState("");
   const [multiplayerReportOpen, setMultiplayerReportOpen] = useState(false);
   const [multiplayerReportMessage, setMultiplayerReportMessage] = useState("");
@@ -9832,7 +9829,7 @@ function FlowStep({ title, body, done = false }: { title: string; body: string; 
 
 
 function getDevTrackerPreviewAccount(account: MobileAccountResponse | null, bootstrap: MobileBootstrap): MobileAccountResponse | null {
-  if (!__DEV__ || isAuthenticatedAccount(account)) return account;
+  if ((!__DEV__ && process.env.EXPO_PUBLIC_SQC_MOBILE_PREVIEW_AUTH !== "1") || isAuthenticatedAccount(account)) return account;
 
   const active = bootstrap.challenges.find((challenge) => challenge.id === "queen-never-heard-of-her") ?? bootstrap.challenges[0] ?? null;
   const completed = bootstrap.challenges.filter((challenge) => challenge.id !== active?.id).slice(0, 2);
@@ -10224,8 +10221,8 @@ const compactStyles = StyleSheet.create({
   homeMenuSpacer: { width: 40, height: 40 },
   homeMenuOverlay: { flex: 1, backgroundColor: "rgba(14,10,7,.018)", justifyContent: "flex-start", alignItems: "stretch", paddingTop: 112, paddingHorizontal: 18 },
   globalMenuOverlay: { paddingHorizontal: 16 },
-  homeMenuBackdrop: { ...StyleSheet.absoluteFillObject },
-  homeMenuPanel: { alignSelf: "flex-start", width: 232, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
+  homeMenuBackdrop: { ...StyleSheet.absoluteFillObject, zIndex: 0, elevation: 0 },
+  homeMenuPanel: { alignSelf: "flex-start", width: 232, marginLeft: 2, gap: 2, paddingVertical: 4, paddingHorizontal: 4, borderRadius: 13, backgroundColor: "rgba(78,54,33,.93)", borderWidth: 1, borderColor: "rgba(245,200,106,.16)", shadowColor: "#000", shadowOpacity: .10, shadowRadius: 7, shadowOffset: { width: 0, height: 5 }, zIndex: 2, elevation: 8 },
   homeMenuItems: { gap: 2 },
   homeMenuItem: { minHeight: 30, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 9, paddingVertical: 5, borderRadius: 9, backgroundColor: "transparent" },
   homeMenuItemActive: { backgroundColor: "rgba(245,200,106,.14)" },
