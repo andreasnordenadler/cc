@@ -171,9 +171,9 @@ if (apk) {
 }
 
 launchFresh();
-let dump = chooseMenuItem("Multiplayer Lobby", "home-to-multiplayer-lobby");
+let dump = chooseMenuItem("Multiplayer Side Quests", "home-to-multiplayer-side-quests");
 try {
-  assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after menu navigation");
+  assertIncludes(dump.xml, "Multiplayer Side Quests", "Multiplayer Side Quests after menu navigation");
   assertIncludes(dump.xml, "Create Multiplayer Side Quest", "Multiplayer create action on lobby");
   assertNotIncludes(dump.xml, "Official public", "legacy community/official metadata wording");
 } finally {
@@ -281,9 +281,9 @@ try {
 
 launchFresh();
 tapUi("Open active Multiplayer Side Quest details", "multiplayer-detail");
-dump = chooseMenuItem("Multiplayer Lobby", "multiplayer-detail-to-lobby");
+dump = chooseMenuItem("Multiplayer Side Quests", "multiplayer-detail-to-side-quests");
 try {
-  assertIncludes(dump.xml, "Multiplayer Lobby", "Multiplayer Lobby after detail menu navigation");
+  assertIncludes(dump.xml, "Multiplayer Side Quests", "Multiplayer Side Quests after detail menu navigation");
 } finally {
   dump.cleanup();
 }

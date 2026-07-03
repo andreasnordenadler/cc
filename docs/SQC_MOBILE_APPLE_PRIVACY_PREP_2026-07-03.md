@@ -3,7 +3,8 @@
 ## Action taken
 
 - Added a dedicated web Privacy Policy route at `/privacy`.
-- Linked the Privacy Policy from `/support`, `/terms`, and the mobile app Help & Support legal panel.
+- Linked the Privacy Policy from `/support`, `/terms`, the global footer, and the mobile app Help & Support legal panel.
+- Verified the live Privacy Policy URL returns HTTP 200 on `https://sidequestchess.com/privacy`.
 - Confirmed current mobile identifiers:
   - App name: `Side Quest Chess`
   - iOS bundle ID: `com.sidequestchess.app`
@@ -54,11 +55,14 @@ Likely not collected:
 - Financial information, unless monetization is added later.
 - Precise location, unless a future feature explicitly adds it.
 
-## Verification target
+## Verification
 
-Before store submission, verify:
+Already verified:
 
-- `https://sidequestchess.com/privacy` returns HTTP 200 after deploy.
-- Mobile Help & Support opens `/privacy`, `/support`, and `/terms`.
-- Store build uses production API and production Clerk publishable key.
+- `https://sidequestchess.com/privacy` returns HTTP 200.
+- Mobile Help & Support has buttons for `/privacy`, `/support`, and `/terms`.
+- Store build config uses production API and production Clerk publishable key.
+
+Before store submission, still verify:
+
 - iOS build succeeds under the selected Apple Developer Team.

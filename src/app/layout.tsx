@@ -111,6 +111,7 @@ export default function RootLayout({
             <span>copyright anno 2026 sidequestchess.com</span>
             <nav aria-label="Footer links">
               <Link href="/support">Support</Link>
+              <Link href="/privacy">Privacy Policy</Link>
               <Link href="/terms">Terms &amp; Conditions</Link>
             </nav>
           </footer>
