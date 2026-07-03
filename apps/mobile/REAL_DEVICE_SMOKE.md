@@ -15,27 +15,27 @@ Distribution status for this gate:
 
 Current candidate to smoke:
 
-- GitHub Release tag: `mobile-v334`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v334>
-- APK filename: `sqc-mobile-android-v334-2026-07-02.apk`
+- GitHub Release tag: `mobile-v335`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v335>
+- APK filename: `sqc-mobile-android-v335-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.334`
-- Android version code: `334`
-- APK SHA256: `75939295de71ed58192a0d345a9db6551edf5af1eca05a09dd25532eb7b8b1c3`
+- Version name: `0.1.335`
+- Android version code: `335`
+- APK SHA256: `4d45f29e956ab6e808473c9f344ef9fe34a198f4f74d51c2faa42802c592b5bc`
 - Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
-- Emulator/source proof: release checks through `mobile-v334` confirm the latest mobile build includes the chess ratings card render on Account, fixed hamburger `Create Multiplayer Side Quest` routing into the create draft flow, provider-specific chess rating snapshots, animated active Solo refresh, the community-creator-inspired Multiplayer create picker with catalog search/browse, source counts, max-four feedback, unsaved discard confirmation, a pinned Create action, signed-in hamburger access inside the full-screen Custom Side Quest builder, explicit Google/Facebook/username-password sign-in choices on the signed-out Account card, Google/Facebook logos on the social sign-in buttons, matching visual treatment for both social buttons, email-code verification for password account creation when Clerk returns `missing_requirements`, and a longer post-menu/post-tab create intent so “Create Multiplayer Side Quest” opens the full creator screen after Android has dismissed the hamburger menu. Signed-in phone smoke remains required for the actual device gate.
+- Emulator/source proof: release checks through `mobile-v335` confirm the latest mobile build includes the chess ratings card render on Account, fixed hamburger `Create Multiplayer Side Quest` routing into the create draft flow, provider-specific chess rating snapshots, animated active Solo refresh, the community-creator-inspired Multiplayer create picker with catalog search/browse, source counts, max-four feedback, unsaved discard confirmation, a pinned Create action, signed-in hamburger access inside the full-screen Custom Side Quest builder, explicit Google/Facebook/username-password sign-in choices on the signed-out Account card, Google/Facebook logos on the social sign-in buttons, matching visual treatment for both social buttons, email-code verification for password account creation when Clerk returns `missing_requirements`, and a longer post-menu/post-tab create intent so “Create Multiplayer Side Quest” opens the full creator screen after Android has dismissed the hamburger menu. Signed-in phone smoke remains required for the actual device gate.
 
 ## Candidate identity
 
-- GitHub Release tag: `mobile-v334`
-- APK filename: `sqc-mobile-android-v334-2026-07-02.apk`
+- GitHub Release tag: `mobile-v335`
+- APK filename: `sqc-mobile-android-v335-2026-07-02.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.334`
-- Android version code: `334`
-- APK SHA256: `75939295de71ed58192a0d345a9db6551edf5af1eca05a09dd25532eb7b8b1c3`
-- Manifest/signer proof: `pnpm mobile:release:candidate-check` passed on 2026-07-02 15:53 CEST; GitHub Release APK package/version identity matches app config, `debuggable=false`, `allowBackup=false`, and signer is not the Android debug identity.
+- Version name: `0.1.335`
+- Android version code: `335`
+- APK SHA256: `4d45f29e956ab6e808473c9f344ef9fe34a198f4f74d51c2faa42802c592b5bc`
+- Manifest/signer proof: `pnpm mobile:release:candidate-check` passed on 2026-07-03 15:06 CEST; GitHub Release APK package/version identity matches app config, `debuggable=false`, `allowBackup=false`, and signer is not the Android debug identity.
 - Tester/device/OS: Pending physical Android device; physical-phone QA is manual on Andreas's side.
-- Test time: 2026-07-02 15:53 CEST candidate identity check only.
+- Test time: 2026-07-03 15:06 CEST candidate identity check only.
 
 ## Install and launch
 
