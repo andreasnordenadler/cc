@@ -108,6 +108,7 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
             <Link href="/challenges" className="button primary">Browse quests</Link>
             <Link href="/connect" className="button secondary">Connect chess username</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
+            <Link href="/privacy" className="button secondary">Privacy Policy</Link>
             <Link href="/terms" className="button secondary">Terms of Use</Link>
           </div>
         </section>

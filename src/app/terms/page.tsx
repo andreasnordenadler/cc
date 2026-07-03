@@ -80,6 +80,7 @@ export default async function TermsPage() {
           </p>
           <div className="button-row hero-actions">
             <Link href="/support" className="button primary">Support & privacy</Link>
+            <Link href="/privacy" className="button secondary">Privacy Policy</Link>
             <Link href="/rules" className="button secondary">Proof rules</Link>
           </div>
         </section>
@@ -122,6 +123,7 @@ export default async function TermsPage() {
           <p>Use support for proof receipts, account data requests, community reports, or privacy questions.</p>
           <div className="button-row">
             <Link href="/support" className="button primary">Open support</Link>
+            <Link href="/privacy" className="button secondary">Privacy Policy</Link>
             <Link href="/verifiers" className="button secondary">Verifier board</Link>
           </div>
         </section>

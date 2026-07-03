@@ -3678,7 +3678,7 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
     }
   }
 
-  async function openLegalPage(path: "/support" | "/terms", label: string) {
+  async function openLegalPage(path: "/privacy" | "/support" | "/terms", label: string) {
     const url = buildMobileUrl(path);
 
     try {
@@ -3740,8 +3740,11 @@ function HelpSupportModal({ visible, onClose, signedIn, authBridge, initialMessa
 
           <View style={compactStyles.multiplayerNativeCard}>
             <Text style={compactStyles.multiplayerCardEyebrow}>Legal & privacy</Text>
-            <Text style={compactStyles.detailPanelCopy}>Read the support and privacy notes or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</Text>
+            <Text style={compactStyles.detailPanelCopy}>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</Text>
             <View style={styles.buttonRow}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Open Side Quest Chess Privacy Policy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/privacy", "Privacy Policy")}>
+                <Text style={compactStyles.detailQuietButtonText}>Privacy Policy</Text>
+              </Pressable>
               <Pressable accessibilityRole="button" accessibilityLabel="Open Side Quest Chess support and privacy" style={compactStyles.detailQuietButton} onPress={() => void openLegalPage("/support", "support and privacy")}>
                 <Text style={compactStyles.detailQuietButtonText}>Support & privacy</Text>
               </Pressable>
