@@ -44,6 +44,7 @@ import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, Mobile
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "officialLeaderboards" | "coatOfArms" | "account";
 type SideQuestCatalogIntent = "official" | "community-discover" | "my-custom" | "create-custom";
+type ChessAccountProvider = "lichess" | "chesscom";
 
 type HelpTopic = "activeSolo" | "solo" | "proof" | "coat" | "multiplayerDetail" | "multiplayer" | "accounts";
 
@@ -1766,6 +1767,7 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
                 setPendingMultiplayerCreateQuestId(null);
               }}
               onAccountUpdated={loadAccount}
+              onScrollToY={(y, animated = true) => scrollViewRef.current?.scrollTo({ y, animated })}
             />
           </>
         ) : null}
@@ -3521,11 +3523,26 @@ function AccountIdentityLine({ name, lichessUsername, chessComUsername }: { name
   );
 }
 
-function ReadinessChip({ label, value }: { label: string; value: string | null }) {
-  return (
-    <View style={[compactStyles.readinessChip, !value && compactStyles.readinessChipMissing]}>
+function ReadinessChip({ label, value, onAdd }: { label: string; value: string | null; onAdd?: () => void }) {
+  const missing = !value;
+  const content = (
+    <>
       <Text style={compactStyles.readinessLabel}>{label}</Text>
       <Text style={compactStyles.readinessValue} numberOfLines={1}>{value ?? "Add"}</Text>
+    </>
+  );
+
+  if (missing && onAdd) {
+    return (
+      <Pressable accessibilityRole="button" accessibilityLabel={`Add ${label} username`} style={[compactStyles.readinessChip, compactStyles.readinessChipMissing]} onPress={onAdd}>
+        {content}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View style={[compactStyles.readinessChip, missing && compactStyles.readinessChipMissing]}>
+      {content}
     </View>
   );
 }
@@ -5894,9 +5911,11 @@ function SocialSignInButtonContent({ provider, label, textStyle }: { provider: "
   );
 }
 
-function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback }) {
+function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, onSelectChallenge, onOpenCompletedQuestDetail, onAccountUpdated, onScrollToY }: { bootstrap: MobileBootstrap; account: MobileAccountResponse | null; authBridge: MobileAuthBridge; onSelectTab: (tab: AppTab) => void; onSelectChallenge: (challengeId: string, nextTab?: AppTab) => void; onOpenChallengeDetail: (challengeId: string) => void; onOpenCompletedQuestDetail: (challengeId: string) => void; onAccountUpdated: AccountUpdatedCallback; onScrollToY: (y: number, animated?: boolean) => void }) {
   const signedIn = isAuthenticatedAccount(account) ? account : null;
   const [helpOpen, setHelpOpen] = useState(false);
+  const [usernameEditorY, setUsernameEditorY] = useState(0);
+  const [usernameFocusRequest, setUsernameFocusRequest] = useState<{ provider: ChessAccountProvider; token: number } | null>(null);
   if (!signedIn) {
     return (
       <View style={compactStyles.stack}>
@@ -5923,6 +5942,13 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
   }
 
   const accountState = signedIn;
+
+  function openUsernameEditor(provider: ChessAccountProvider) {
+    setUsernameFocusRequest({ provider, token: Date.now() });
+    const targetY = Math.max(usernameEditorY - 16, 0);
+    onScrollToY(targetY, true);
+    requestAnimationFrame(() => onScrollToY(targetY, true));
+  }
 
   async function handleLogOut() {
     if (!authBridge.signOut) {
@@ -5959,15 +5985,15 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
         </View>
         <Text style={compactStyles.heroCopy}>{accountState.chessAccounts.hasAny ? "Proof checks ready. Side Quest Chess can check your public Lichess and Chess.com games." : "Add a public chess username before checking Side Quest proof."}</Text>
         <View style={compactStyles.readinessRow}>
-          <ReadinessChip label="Lichess" value={accountState.chessAccounts.lichessUsername} />
-          <ReadinessChip label="Chess.com" value={accountState.chessAccounts.chessComUsername} />
+          <ReadinessChip label="Lichess" value={accountState.chessAccounts.lichessUsername} onAdd={() => openUsernameEditor("lichess")} />
+          <ReadinessChip label="Chess.com" value={accountState.chessAccounts.chessComUsername} onAdd={() => openUsernameEditor("chesscom")} />
         </View>
       </View>
       <AccountSoloSideQuestSection account={accountState} bootstrap={bootstrap} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} />
       <AccountProgressStatsSection account={accountState} onSelectTab={onSelectTab} />
       <ChessStrengthCard account={accountState} />
       <AccountTrophyList account={accountState} onSelectTab={onSelectTab} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} />
-      <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} />
+      <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} focusRequest={usernameFocusRequest} onLayout={(event) => setUsernameEditorY(event.nativeEvent.layout.y)} />
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
@@ -6420,6 +6446,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId,
   onConsumePendingMultiplayerCreate,
   onAccountUpdated,
+  onScrollToY,
 }: {
   activeTab: AppTab;
   bootstrap: MobileBootstrap;
@@ -6441,6 +6468,7 @@ function ActiveScreen({
   pendingMultiplayerCreateQuestId: string | null;
   onConsumePendingMultiplayerCreate: () => void;
   onAccountUpdated: AccountUpdatedCallback;
+  onScrollToY: (y: number, animated?: boolean) => void;
 }) {
   switch (activeTab) {
     case "home":
@@ -6454,7 +6482,7 @@ function ActiveScreen({
     case "coatOfArms":
       return <CoatBoardDashboard bootstrap={bootstrap} account={account} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onClose={() => onSelectTab("home")} />;
     case "account":
-      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} />;
+      return <AccountTrackerDashboard bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onSelectChallenge={onSelectChallenge} onOpenChallengeDetail={onOpenChallengeDetail} onOpenCompletedQuestDetail={onOpenCompletedQuestDetail} onAccountUpdated={onAccountUpdated} onScrollToY={onScrollToY} />;
   }
 }
 
@@ -9583,10 +9611,14 @@ function ChessUsernameEditor({
   account,
   authBridge,
   onSaved,
+  focusRequest,
+  onLayout,
 }: {
   account: MobileAccountState;
   authBridge: MobileAuthBridge;
   onSaved: () => void;
+  focusRequest?: { provider: ChessAccountProvider; token: number } | null;
+  onLayout?: (event: LayoutChangeEvent) => void;
 }) {
   const [runnerDisplayName, setRunnerDisplayName] = useState(account.profile.displayName ?? "");
   const [runnerBio, setRunnerBio] = useState(account.profile.bio ?? "");
@@ -9595,6 +9627,8 @@ function ChessUsernameEditor({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const lichessInputRef = useRef<TextInput>(null);
+  const chessComInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     setRunnerDisplayName(account.profile.displayName ?? "");
@@ -9602,6 +9636,18 @@ function ChessUsernameEditor({
     setLichessUsername(account.chessAccounts.lichessUsername ?? "");
     setChessComUsername(account.chessAccounts.chessComUsername ?? "");
   }, [account.chessAccounts.chessComUsername, account.chessAccounts.lichessUsername, account.profile.bio, account.profile.displayName]);
+
+  useEffect(() => {
+    if (!focusRequest) return;
+    const focusTimer = setTimeout(() => {
+      if (focusRequest.provider === "lichess") {
+        lichessInputRef.current?.focus();
+      } else {
+        chessComInputRef.current?.focus();
+      }
+    }, 260);
+    return () => clearTimeout(focusTimer);
+  }, [focusRequest]);
 
   async function saveUsernames() {
     setSaving(true);
@@ -9621,7 +9667,7 @@ function ChessUsernameEditor({
   }
 
   return (
-    <View style={styles.usernameEditorCard}>
+    <View style={styles.usernameEditorCard} onLayout={onLayout}>
       <Text style={styles.eyebrow}>Profile details</Text>
       <Text style={styles.usernameEditorTitle}>Edit profile and chess usernames</Text>
       <Text style={styles.usernameEditorBody}>Save your public Side Quest Chess display name, brag line, and chess usernames from the app. Website and mobile stay in sync.</Text>
@@ -9647,16 +9693,18 @@ function ChessUsernameEditor({
         />
         <Text style={styles.inputLabel}>Lichess username</Text>
         <TextInput
+          ref={lichessInputRef}
           autoCapitalize="none"
           autoCorrect={false}
           value={lichessUsername}
-          placeholder="e.g. and72nor"
+          placeholder=""
           placeholderTextColor="rgba(255,247,232,.42)"
           style={styles.textInput}
           onChangeText={setLichessUsername}
         />
         <Text style={styles.inputLabel}>Chess.com username</Text>
         <TextInput
+          ref={chessComInputRef}
           autoCapitalize="none"
           autoCorrect={false}
           value={chessComUsername}
