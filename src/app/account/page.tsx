@@ -104,6 +104,15 @@ export default async function MyQuestLogPage() {
     { label: "Custom", value: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Create", href: "/account/custom-side-quests" },
     { label: "Multiplayer", value: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Open", href: "/groupquests" },
   ];
+  const mobileMenuShortcuts = [
+    { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
+    { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/account/custom-side-quests" },
+    { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/account/custom-side-quests#custom-side-quest-builder" },
+    { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
+    { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
+    { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
+    { label: "Help & Support", title: "Get account or proof help", href: "/support" },
+  ];
   const runChecklistItems = [
     {
       label: "1. Identity",
@@ -177,6 +186,20 @@ export default async function MyQuestLogPage() {
               {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
               <Link href="/profile" className="button secondary">Edit profile</Link>
               <Link href="/account/custom-side-quests" className="button secondary">My Custom Side Quests</Link>
+            </div>
+            <div className="account-mobile-shortcuts" aria-label="Mobile menu shortcuts">
+              <div className="account-mobile-shortcuts-head">
+                <span className="eyebrow">Mobile menu shortcuts</span>
+                <p>The account hub now keeps the same high-frequency destinations close together: Solo, Custom, Multiplayer, Trophy Cabinet, and Help &amp; Support.</p>
+              </div>
+              <div className="account-mobile-shortcut-grid">
+                {mobileMenuShortcuts.map((shortcut) => (
+                  <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
+                    <span>{shortcut.label}</span>
+                    <strong>{shortcut.title}</strong>
+                  </Link>
+                ))}
+              </div>
             </div>
             <div className="account-readiness-panel" aria-label="Account readiness and progress">
               <div className="account-readiness-head">

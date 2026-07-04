@@ -38,6 +38,16 @@ const settingsSections = [
   },
 ];
 
+const mobileMenuShortcuts = [
+  { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
+  { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
+  { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
+  { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
+  { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
+  { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
+  { label: "Help & Support", title: "Get account or proof help", href: "/support" },
+];
+
 export default async function SettingsPage() {
   const { userId } = await auth();
   const isSignedIn = Boolean(userId);
@@ -58,6 +68,22 @@ export default async function SettingsPage() {
               {isSignedIn ? "Open My Account" : "Sign in"}
             </Link>
             <Link className="button secondary" href="/support">Help &amp; Support</Link>
+          </div>
+        </section>
+
+        <section className="account-mobile-shortcuts settings-mobile-shortcuts" aria-label="Mobile menu shortcuts">
+          <div className="account-mobile-shortcuts-head">
+            <span className="eyebrow">Mobile menu shortcuts</span>
+            <h2>The same key routes, grouped for web.</h2>
+            <p>Mobile keeps these actions in the hamburger menu; the settings hub now mirrors that grouping so account, support, Custom, Multiplayer, and Trophy Cabinet routes are easy to scan.</p>
+          </div>
+          <div className="account-mobile-shortcut-grid">
+            {mobileMenuShortcuts.map((shortcut) => (
+              <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
+                <span>{shortcut.label}</span>
+                <strong>{shortcut.title}</strong>
+              </Link>
+            ))}
           </div>
         </section>
 
