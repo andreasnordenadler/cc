@@ -34,14 +34,14 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         <div className="nav-actions">
           {isSignedIn ? (
             <>
-              <Link href="/account" className={active === "account" || active === "profile" || active === "connect" ? "nav-pill active" : "nav-pill"}>Account</Link>
-              <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Support</Link>
+              <Link href="/account" className={active === "account" || active === "profile" || active === "connect" ? "nav-pill active" : "nav-pill"}>My Account</Link>
+              <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Help &amp; Support</Link>
               <UserButton />
             </>
           ) : (
             <>
               <AuthActionButtons />
-              <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Support</Link>
+              <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Help &amp; Support</Link>
             </>
           )}
         </div>

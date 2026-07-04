@@ -482,15 +482,35 @@ export default async function Home() {
               <strong>Build and publish</strong>
               <small>Create private drafts or public rules for solo and multiplayer use.</small>
             </Link>
+            <Link href="/custom#custom-side-quest-builder" className="home-mobile-map-item">
+              <span>Create Custom Side Quest</span>
+              <strong>Rule builder</strong>
+              <small>Start the same custom-creation flow exposed from the mobile menu.</small>
+            </Link>
             <Link href="/multiplayer" className="home-mobile-map-item">
               <span>Multiplayer Side Quests</span>
               <strong>Shared tables</strong>
               <small>Join official, public, or invite-code tables with separate proof.</small>
             </Link>
+            <Link href="/groupquests/create" className="home-mobile-map-item">
+              <span>Create Multiplayer Side Quest</span>
+              <strong>Host a table</strong>
+              <small>Pick the Side Quest lineup, invite mode, window, and player rules.</small>
+            </Link>
+            <Link href="/trophy-cabinet" className="home-mobile-map-item">
+              <span>Trophy Cabinet</span>
+              <strong>Coats and receipts</strong>
+              <small>Review unlocked Solo coats, Custom proof, and Multiplayer podium rewards.</small>
+            </Link>
             <Link href={isSignedIn ? "/account" : "/sign-in"} className="home-mobile-map-item">
               <span>{isSignedIn ? "Account" : "Sign in / Account"}</span>
               <strong>Profile and readiness</strong>
               <small>Connect usernames, review trophies, and manage support context.</small>
+            </Link>
+            <Link href="/support" className="home-mobile-map-item">
+              <span>Help &amp; Support</span>
+              <strong>Reports and FAQ</strong>
+              <small>Send account, proof, Community Solo, or Multiplayer context to support.</small>
             </Link>
           </div>
         </section>
