@@ -90,7 +90,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
 
   return (
     <main className="site-shell">
-      <SiteNav isSignedIn active="account" />
+      <SiteNav isSignedIn active="custom" />
 
       <div className="content-wrap quest-detail-wrap">
         <Link href="/account" className="button secondary back-to-hub">← Back to account</Link>

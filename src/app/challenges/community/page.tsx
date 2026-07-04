@@ -51,7 +51,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
         status={selectedCreator ? "creator_filter" : communityFilter}
         onceKey={`community-solo:${selectedCreator ?? "all"}:${communityFilter}:${communitySort}:${communityQuery}:${visibleQuests.length}`}
       />
-      <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
+      <SiteNav isSignedIn={Boolean(userId)} active="community" />
 
       <div className="content-wrap challenges-page-wrap">
         <section className="challenges-clean-hero community-clean-hero" aria-labelledby="community-solo-title">

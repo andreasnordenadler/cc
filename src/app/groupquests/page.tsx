@@ -200,7 +200,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
 
   return (
     <main className="site-shell groupquests-page">
-      <SiteNav isSignedIn={Boolean(userId)} active="groupquests" />
+      <SiteNav isSignedIn={Boolean(userId)} active="multiplayer" />
 
       <div className="content-wrap">
         {!userId ? (

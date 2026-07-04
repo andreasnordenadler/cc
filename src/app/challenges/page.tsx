@@ -36,7 +36,7 @@ export default async function ChallengesPage() {
 
   return (
     <main className="site-shell challenges-page-shell">
-      <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
+      <SiteNav isSignedIn={Boolean(userId)} active="solo" />
 
       <div className="content-wrap challenges-page-wrap">
         <section className="challenges-clean-hero" aria-labelledby="side-quests-title">

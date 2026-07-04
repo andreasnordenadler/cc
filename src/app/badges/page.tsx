@@ -19,7 +19,7 @@ export default async function CoatOfArmsPage() {
 
   return (
     <main className="site-shell">
-      <SiteNav isSignedIn={Boolean(userId)} active="badges" />
+      <SiteNav isSignedIn={Boolean(userId)} active="trophy" />
 
       <div className="content-wrap">
         <section className="hero-card home-badge-vault-card badges-page-hero" aria-label="Coat of arms intro">
