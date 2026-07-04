@@ -456,8 +456,9 @@ export default async function Home() {
               <h2>Same Side Quest Chess loop, wherever you open it.</h2>
               <p>
                 The web entry points now mirror the mobile app sections: Home,
-                Solo Side Quests, Multiplayer Side Quests, Trophy Cabinet, and
-                Account.
+                Solo Side Quests, Community Side Quests, Custom Side Quests,
+                Multiplayer Side Quests, Trophy Cabinet, Account, and Help &amp;
+                Support.
               </p>
             </div>
           </div>

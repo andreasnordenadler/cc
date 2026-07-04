@@ -40,6 +40,7 @@ const settingsSections = [
 
 const mobileMenuShortcuts = [
   { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
+  { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
   { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
   { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
   { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
@@ -75,7 +76,7 @@ export default async function SettingsPage() {
           <div className="account-mobile-shortcuts-head">
             <span className="eyebrow">Mobile menu shortcuts</span>
             <h2>The same key routes, grouped for web.</h2>
-            <p>Mobile keeps these actions in the hamburger menu; the settings hub now mirrors that grouping so account, support, Custom, Multiplayer, and Trophy Cabinet routes are easy to scan.</p>
+            <p>Mobile keeps these actions in the hamburger menu; the settings hub now mirrors that grouping so account, support, Community, Custom, Multiplayer, and Trophy Cabinet routes are easy to scan.</p>
           </div>
           <div className="account-mobile-shortcut-grid">
             {mobileMenuShortcuts.map((shortcut) => (
