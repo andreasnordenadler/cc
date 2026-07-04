@@ -102,6 +102,12 @@ p { color: var(--muted); line-height: 1.5; }
 .hero-actions { margin-top: 22px; }
 .home-choice-button { gap: .28em; }
 .home-choice-button span { color: var(--red); }
+.home-mobile-map-card { background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(245,200,106,.06)); }
+.home-mobile-map-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.home-mobile-map-item { min-height: 142px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; padding: 16px; border: 1px solid rgba(245,200,106,.2); border-radius: 18px; background: rgba(0,0,0,.22); color: var(--text); }
+.home-mobile-map-item span { color: var(--gold); font-size: 12px; font-weight: 950; text-transform: uppercase; letter-spacing: .08em; }
+.home-mobile-map-item strong { font-size: 18px; line-height: 1.1; }
+.home-mobile-map-item small { color: var(--muted); font-size: 13px; line-height: 1.35; }
 
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 22px; }
 .step { padding: 14px; border-radius: 20px; background: rgba(0,0,0,.18); }
@@ -569,6 +575,7 @@ p { color: var(--muted); line-height: 1.5; }
   .site-shell { padding: 12px; }
   .site-nav-inner { align-items: stretch; flex-direction: column; }
   .nav-links { overflow-x: auto; flex-wrap: nowrap; }
+  .home-mobile-map-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hero-grid { grid-template-columns: 1fr; }
   .detail-hero-grid { grid-template-columns: 1fr; }
   .quest-detail-hero-grid, .quest-detail-badge-card { grid-template-columns: 1fr; }
@@ -1873,6 +1880,8 @@ p { color: var(--muted); line-height: 1.5; }
   .nav-actions .button-row, .nav-actions .button-row form, .nav-actions .button-row .button, .nav-actions .nav-pill { width: 100%; }
   .nav-actions .button-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
   .nav-actions .button { min-height: 38px; padding: 9px 12px; }
+  .home-mobile-map-grid { grid-template-columns: 1fr; }
+  .home-mobile-map-item { min-height: 126px; }
 
   .content-wrap { gap: 14px; }
   .card, .hero-card, .challenge-card, .stat-card, .proof-card, .connect-card, .result-poster, .mission-card { border-radius: 22px; }

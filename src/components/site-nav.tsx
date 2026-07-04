@@ -24,10 +24,10 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
             <img src="/brand/sqc-alt-logo-topbar-20260507-v2.png" alt="" />
           </Link>
           <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
-          <Link href="/solo" className={soloActive ? "active" : undefined}>Solo</Link>
-          <Link href="/custom" className={customActive ? "active" : undefined}>Custom</Link>
-          <Link href="/community" className={communityActive ? "active" : undefined}>Community</Link>
-          <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer</Link>
+          <Link href="/solo" className={soloActive ? "active" : undefined}>Solo Side Quests</Link>
+          <Link href="/custom" className={customActive ? "active" : undefined}>My Custom Side Quests</Link>
+          <Link href="/community" className={communityActive ? "active" : undefined}>Community Side Quests</Link>
+          <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer Side Quests</Link>
           <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
         </nav>
 

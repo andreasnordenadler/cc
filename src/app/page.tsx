@@ -446,6 +446,55 @@ export default async function Home() {
           </section>
         ) : null}
 
+        <section
+          className="mission-card home-mobile-map-card"
+          aria-label="Side Quest Chess app sections"
+        >
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">App map</span>
+              <h2>Same Side Quest Chess loop, wherever you open it.</h2>
+              <p>
+                The web entry points now mirror the mobile app sections: Home,
+                Solo Side Quests, Multiplayer Side Quests, Trophy Cabinet, and
+                Account.
+              </p>
+            </div>
+          </div>
+          <div className="home-mobile-map-grid" aria-label="Mobile app section links">
+            <Link href="/" className="home-mobile-map-item">
+              <span>Home</span>
+              <strong>Today&apos;s run</strong>
+              <small>Active quest, proof status, and next actions.</small>
+            </Link>
+            <Link href="/solo" className="home-mobile-map-item">
+              <span>Solo Side Quests</span>
+              <strong>Official deck</strong>
+              <small>Pick one quest, play a fresh public game, then check proof.</small>
+            </Link>
+            <Link href="/community" className="home-mobile-map-item">
+              <span>Community Side Quests</span>
+              <strong>Player-made rules</strong>
+              <small>Browse public custom quests and start them from your account.</small>
+            </Link>
+            <Link href="/custom" className="home-mobile-map-item">
+              <span>My Custom Side Quests</span>
+              <strong>Build and publish</strong>
+              <small>Create private drafts or public rules for solo and multiplayer use.</small>
+            </Link>
+            <Link href="/multiplayer" className="home-mobile-map-item">
+              <span>Multiplayer Side Quests</span>
+              <strong>Shared tables</strong>
+              <small>Join official, public, or invite-code tables with separate proof.</small>
+            </Link>
+            <Link href={isSignedIn ? "/account" : "/sign-in"} className="home-mobile-map-item">
+              <span>{isSignedIn ? "Account" : "Sign in / Account"}</span>
+              <strong>Profile and readiness</strong>
+              <small>Connect usernames, review trophies, and manage support context.</small>
+            </Link>
+          </div>
+        </section>
+
         {!isSignedIn ? (
           <section
             className="mission-card signed-out-multiplayer-callout"
