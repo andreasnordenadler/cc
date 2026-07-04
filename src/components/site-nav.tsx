@@ -2,7 +2,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import AuthActionButtons from "@/components/auth-action-buttons";
 
-type ActiveNavItem = "home" | "solo" | "custom" | "community" | "multiplayer" | "trophy" | "random" | "path" | "challenges" | "groupquests" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "result" | "beta" | "support";
+type ActiveNavItem = "home" | "solo" | "custom" | "community" | "multiplayer" | "trophy" | "random" | "path" | "challenges" | "groupquests" | "leaderboards" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "settings" | "result" | "beta" | "support";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -14,7 +14,9 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const customActive = active === "custom";
   const communityActive = active === "community";
   const multiplayerActive = active === "multiplayer" || active === "groupquests";
+  const leaderboardsActive = active === "leaderboards" || active === "scoreboard";
   const trophyActive = active === "trophy" || active === "badges";
+  const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
 
   return (
     <header className="site-nav softer-site-nav">
@@ -28,13 +30,16 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           <Link href="/custom" className={customActive ? "active" : undefined}>My Custom Side Quests</Link>
           <Link href="/community" className={communityActive ? "active" : undefined}>Community Side Quests</Link>
           <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer Side Quests</Link>
+          <Link href="/leaderboards" className={leaderboardsActive ? "active" : undefined}>Official Leaderboards</Link>
           <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
         </nav>
 
         <div className="nav-actions">
           {isSignedIn ? (
             <>
-              <Link href="/account" className={active === "account" || active === "profile" || active === "connect" ? "nav-pill active" : "nav-pill"}>My Account</Link>
+              <Link href="/account" className={accountActive ? "nav-pill active" : "nav-pill"}>My Account</Link>
+              <Link href="/profile" className={active === "profile" ? "nav-pill active" : "nav-pill"}>Profile</Link>
+              <Link href="/settings" className={active === "settings" ? "nav-pill active" : "nav-pill"}>Settings</Link>
               <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Help &amp; Support</Link>
               <UserButton />
             </>

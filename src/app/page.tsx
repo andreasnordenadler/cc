@@ -492,6 +492,11 @@ export default async function Home() {
               <strong>Shared tables</strong>
               <small>Join official, public, or invite-code tables with separate proof.</small>
             </Link>
+            <Link href="/leaderboards" className="home-mobile-map-item">
+              <span>Official Leaderboards</span>
+              <strong>Weekly races</strong>
+              <small>Follow live official Multiplayer tables and inspect final weekly results.</small>
+            </Link>
             <Link href="/groupquests/create" className="home-mobile-map-item">
               <span>Create Multiplayer Side Quest</span>
               <strong>Host a table</strong>
