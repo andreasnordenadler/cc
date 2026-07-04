@@ -368,9 +368,11 @@ export default function ChallengeDeckBrowser({ challenges, activeChallengeId, co
 
   const visibleComingSoonChallenges = useMemo(() => {
     if (status !== "All") return [];
+    const todayDateKey = getLocalDateKey(new Date());
 
     const filtered = COMING_SOON_CHALLENGES.filter((challenge) => {
       if (!challenge.releaseDate) return false;
+      if (challenge.releaseDate < todayDateKey) return false;
       if (difficulty !== "All" && challenge.difficulty !== difficulty) return false;
       return true;
     });
@@ -562,6 +564,13 @@ function formatReleaseDate(value: string) {
   if (Number.isNaN(date.getTime())) return "soon";
 
   return new Intl.DateTimeFormat("en", { month: "short", day: "numeric" }).format(date);
+}
+
+function getLocalDateKey(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function getDifficultyTone(difficulty: Challenge["difficulty"]) {
