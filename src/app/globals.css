@@ -2115,6 +2115,10 @@ p { color: var(--muted); line-height: 1.5; }
   background: rgba(255,255,255,.075);
   outline: none;
 }
+.side-quest-mode-switch.app-primary {
+  border-color: rgba(245,200,106,.22);
+  background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(96,240,175,.045));
+}
 .side-quest-mode-switch.active {
   border-color: rgba(245,200,106,.5);
   background: linear-gradient(135deg, rgba(245,200,106,.17), rgba(255,255,255,.055));
@@ -2126,6 +2130,7 @@ p { color: var(--muted); line-height: 1.5; }
   letter-spacing: .09em;
   text-transform: uppercase;
 }
+.side-quest-mode-switch.app-primary span { color: #ffe0a3; }
 .side-quest-mode-switch strong { color: var(--ink); font-size: 1rem; line-height: 1.08; }
 .side-quest-mode-switch small { color: var(--muted); font-size: .78rem; line-height: 1.25; }
 .multiplayer-mode-switcher {
