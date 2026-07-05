@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
+import ProofTime from "@/components/proof-time";
+import { ProofPositionMiniBoard } from "@/components/proof-position-board";
 import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES, type Challenge } from "@/lib/challenges";
@@ -16,6 +18,11 @@ export default async function CoatOfArmsPage() {
   const liveBadgeChallenges = CHALLENGES.filter((challenge) => challenge.badgeIdentity.image);
   const earnedLiveBadgeCount = liveBadgeChallenges.filter((challenge) => completedSet.has(challenge.id)).length;
   const proofReceiptCount = getChallengeAttempts(metadata).filter((attempt) => attempt.status === "passed").length;
+  const completedProofBoards = CHALLENGES.map((challenge) => {
+    const latestProof = getLatestPassedAttempt(metadata, challenge.id);
+    if (!latestProof?.finalPositionFen) return null;
+    return { challenge, latestProof };
+  }).filter(Boolean);
 
   return (
     <main className="site-shell">
@@ -85,6 +92,44 @@ export default async function CoatOfArmsPage() {
           </div>
         </section>
 
+        {userId && completedProofBoards.length ? (
+          <section className="mission-card trophy-proof-board-section" aria-label="Verified Trophy Cabinet chess boards">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">SQC proof boards</span>
+                <h2>Verified chess boards in your Trophy Cabinet</h2>
+                <p>
+                  The website now mirrors the app’s completed-proof view: final board positions appear beside saved proof receipts when SQC has a verified FEN.
+                </p>
+              </div>
+              <Link href="/account" className="button secondary">Open Account Trophy Cabinet</Link>
+            </div>
+            <div className="trophy-proof-board-grid">
+              {completedProofBoards.map((item) => {
+                if (!item) return null;
+                const { challenge, latestProof } = item;
+                return (
+                  <Link href={`/challenges/${challenge.id}`} className="trophy-proof-board-card" key={challenge.id}>
+                    <ChallengeBadge challenge={challenge} presentation="art" earned />
+                    <span>
+                      <strong>{challenge.title}</strong>
+                      <small>
+                        {latestProof.lastMoveSan || latestProof.lastMoveUci ? `Final move ${latestProof.lastMoveSan ?? latestProof.lastMoveUci} · ` : null}
+                        <ProofTime value={latestProof.completedGameAt ?? latestProof.checkedAt} />
+                      </small>
+                      <ProofPositionMiniBoard
+                        fen={latestProof.finalPositionFen}
+                        lastMoveUci={latestProof.lastMoveUci}
+                        label={`${challenge.title} Trophy Cabinet proof chess board`}
+                      />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
         <section className="badge-vault-section" aria-label="Live quest coat of arms meanings">
           <div className="badge-description-grid">
             {CHALLENGES.map((challenge) => (
@@ -95,6 +140,12 @@ export default async function CoatOfArmsPage() {
       </div>
     </main>
   );
+}
+
+function getLatestPassedAttempt(metadata: UserMetadataRecord, challengeId: string) {
+  return getChallengeAttempts(metadata, challengeId)
+    .filter((attempt) => attempt.status === "passed")
+    .at(-1) ?? null;
 }
 
 function Fact({ label, value }: { label: string; value: ReactNode }) {

@@ -259,6 +259,20 @@ export default async function MyQuestLogPage() {
               <Link href="/profile" className="button secondary">Edit profile</Link>
               <Link href="/custom" className="button secondary">My Custom Side Quests</Link>
             </div>
+            {activeChallengeRecord && latestActiveAttempt?.status === "passed" ? (
+              <div className="current-proof-board-panel" aria-label={`${activeChallengeRecord.title} current proof board`}>
+                <div>
+                  <span className="eyebrow">SQC proof board</span>
+                  <strong>{latestActiveAttempt.lastMoveSan || latestActiveAttempt.lastMoveUci ? `Final position · ${latestActiveAttempt.lastMoveSan ?? latestActiveAttempt.lastMoveUci}` : "Verified final position"}</strong>
+                  <small>{formatProofProvider(latestActiveAttempt.provider)}{latestActiveAttempt.gameId ? ` · ${latestActiveAttempt.gameId}` : ""}</small>
+                </div>
+                <ProofPositionMiniBoard
+                  fen={latestActiveAttempt.finalPositionFen}
+                  lastMoveUci={latestActiveAttempt.lastMoveUci}
+                  label={`${activeChallengeRecord.title} current verified proof chess board`}
+                />
+              </div>
+            ) : null}
             <div className="account-flow-panel" aria-label="Account flow">
               <div className="account-flow-head">
                 <span className="eyebrow">Account hub</span>
