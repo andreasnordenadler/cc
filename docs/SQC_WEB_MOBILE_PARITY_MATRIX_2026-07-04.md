@@ -44,3 +44,21 @@ Proof captured for this slice:
 - Screenshots: `artifacts/sqc-parity-2026-07-05/desktop-home-nav-static.png` and `artifacts/sqc-parity-2026-07-05/mobile-home-nav-static.png`.
 - Screenshot note: local Next dev serving `/` was blocked by a Clerk session-token redirect loop in the environment, so the screenshot proof uses the actual CSS and updated nav markup in a static Playwright render.
 - Verification: `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed with existing warnings only; `pnpm build` passed; `pnpm --dir apps/mobile typecheck` passed.
+
+## 2026-07-05 Mobile Dock Parity Slice
+
+Mobile bottom tab source in `apps/mobile/App.tsx`: `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, `Account`.
+
+| Website mobile dock item | Status after slice |
+| --- | --- |
+| `Home` | Matched |
+| `Side Quests` | Matched |
+| `Multiplayer Side Quests` | Matched |
+| `Trophy Cabinet` | Matched |
+| `Account` | Matched |
+| `Official Leaderboards` | Removed from the bottom dock to match the app tab bar; still available in the web top/menu navigation and Multiplayer/leaderboard routes. |
+
+Proof captured for this slice:
+
+- Screenshots: `artifacts/sqc-mobile-dock-parity-2026-07-05/home-mobile-web.png` and `artifacts/sqc-mobile-dock-parity-2026-07-05/home-desktop.png`.
+- Verification: `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed with the existing CSS ignore warning; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
