@@ -75,6 +75,11 @@ button, input { font: inherit; }
 .nav-brand-mark img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 14px rgba(0,0,0,.38)) drop-shadow(0 0 16px rgba(255,255,255,.42)); }
 .nav-links a.active, .nav-pill.active { color: var(--gold); background: rgba(245,200,106,.14); border-color: rgba(245,200,106,.24); }
 .nav-pill { color: var(--green); text-decoration: none; }
+.mobile-app-dock { display: none; }
+.mobile-app-dock-item { color: inherit; text-decoration: none; }
+.mobile-app-dock-icon { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.06); overflow: hidden; }
+.mobile-app-dock-icon img { width: 28px; height: 28px; object-fit: contain; }
+.mobile-app-dock-letter, .mobile-app-dock-account { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 11px; background: rgba(245,200,106,.16); color: var(--gold); font-size: 10px; font-weight: 1000; letter-spacing: .03em; }
 .site-footer { width: min(1120px, 92vw); margin: 34px auto 22px; padding: 18px 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,.1); color: var(--muted); }
 .site-footer span { font-size: .82rem; font-weight: 800; letter-spacing: .02em; }
 .site-footer nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -1878,7 +1883,7 @@ p { color: var(--muted); line-height: 1.5; }
 /* Mobile launch polish: scoped to phone widths so the desktop launch-candidate UI stays intact. */
 @media (max-width: 620px) {
   html { scroll-padding-top: 96px; }
-  .site-shell { padding: 10px; }
+  .site-shell { padding: 10px; padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
   .site-nav { top: 8px; margin-bottom: 14px; border-radius: 22px; }
   .site-nav-inner { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px; }
   .nav-links { display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%; gap: 5px; scrollbar-width: none; }
@@ -1891,6 +1896,10 @@ p { color: var(--muted); line-height: 1.5; }
   .nav-actions .button-row, .nav-actions .button-row form, .nav-actions .button-row .button, .nav-actions .nav-pill { width: 100%; }
   .nav-actions .button-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
   .nav-actions .button { min-height: 38px; padding: 9px 12px; }
+  .mobile-app-dock { position: fixed; left: 10px; right: 10px; bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 30; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; width: min(520px, calc(100% - 20px)); margin: 0 auto; padding: 7px; border: 1px solid rgba(245,200,106,.22); border-radius: 24px; background: rgba(8,7,9,.9); box-shadow: 0 18px 70px rgba(0,0,0,.46); backdrop-filter: blur(18px); }
+  .mobile-app-dock-item { display: grid; min-width: 0; justify-items: center; gap: 3px; padding: 4px 2px 5px; border: 1px solid transparent; border-radius: 18px; color: var(--muted); font-size: 10px; font-weight: 950; line-height: 1.05; text-align: center; }
+  .mobile-app-dock-item.active { color: var(--gold); background: rgba(245,200,106,.12); border-color: rgba(245,200,106,.22); }
+  .mobile-app-dock-item.active .mobile-app-dock-icon { border-color: rgba(245,200,106,.32); background: rgba(245,200,106,.14); }
   .home-mobile-map-grid { grid-template-columns: 1fr; }
   .home-mobile-map-item { min-height: 126px; }
 
