@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import ProofPositionBoard from "@/components/proof-position-board";
 import ShareProofActions from "@/components/share-proof-actions";
+import SideQuestModeSwitcher from "@/components/side-quest-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest, type CustomSideQuestRuleConfig } from "@/lib/custom-side-quests";
 import { describeCustomSideQuestRule, describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
@@ -107,6 +108,8 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             <Link className="button secondary" href="/groupquests/create">Use one in Multiplayer</Link>
           </div>
         </section>
+
+        <SideQuestModeSwitcher active="custom" />
 
         {params.saved ? <p className="form-status success" role="status">Custom Side Quest saved. Your account is now in sync.</p> : null}
         {params.updated ? <p className="form-status success" role="status">Custom Side Quest updated. The same quest stays saved.</p> : null}

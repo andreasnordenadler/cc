@@ -2030,6 +2030,43 @@ p { color: var(--muted); line-height: 1.5; }
 .mode-link-card:hover, .mode-link-card:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.38); background: rgba(255,255,255,.08); outline: none; }
 .mode-link-card span { color: var(--gold); font-size: .74rem; font-weight: 950; letter-spacing: .09em; text-transform: uppercase; }
 .mode-link-card strong { color: var(--ink); font-size: 1rem; line-height: 1.15; }
+.side-quest-mode-switcher {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(245,200,106,.2);
+  border-radius: 24px;
+  background: rgba(0,0,0,.18);
+}
+.side-quest-mode-switch {
+  display: grid;
+  gap: 5px;
+  min-height: 118px;
+  padding: 13px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 18px;
+  background: rgba(255,255,255,.045);
+  color: var(--text);
+}
+.side-quest-mode-switch:hover, .side-quest-mode-switch:focus-visible {
+  border-color: rgba(245,200,106,.36);
+  background: rgba(255,255,255,.075);
+  outline: none;
+}
+.side-quest-mode-switch.active {
+  border-color: rgba(245,200,106,.5);
+  background: linear-gradient(135deg, rgba(245,200,106,.17), rgba(255,255,255,.055));
+}
+.side-quest-mode-switch span {
+  color: var(--gold);
+  font-size: .68rem;
+  font-weight: 950;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.side-quest-mode-switch strong { color: var(--ink); font-size: 1rem; line-height: 1.08; }
+.side-quest-mode-switch small { color: var(--muted); font-size: .78rem; line-height: 1.25; }
 .official-side-quest-deck { display: grid; gap: 18px; }
 
 .community-board-card {
@@ -2147,6 +2184,7 @@ p { color: var(--muted); line-height: 1.5; }
 
 @media (max-width: 960px) {
   .challenges-clean-hero, .community-quest-row-card { grid-template-columns: 1fr; }
+  .side-quest-mode-switcher { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .community-quest-badge { justify-content: start; }
   .community-filter-bar { grid-template-columns: 1fr 1fr; }
   .community-search-field { grid-column: 1 / -1; }
@@ -2154,6 +2192,20 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 620px) {
   .community-filter-bar { grid-template-columns: 1fr; }
   .challenges-clean-hero-actions { grid-template-columns: 1fr; }
+  .side-quest-mode-switcher {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding: 7px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .side-quest-mode-switcher::-webkit-scrollbar { display: none; }
+  .side-quest-mode-switch {
+    flex: 0 0 72%;
+    min-height: 112px;
+    scroll-snap-align: start;
+  }
 }
 
 /* SQC Community Solo browse correction — official-style cards + real community coats */

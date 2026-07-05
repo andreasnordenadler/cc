@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
 import ChallengeDeckBrowser from "@/components/challenge-deck-browser";
+import SideQuestModeSwitcher from "@/components/side-quest-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
@@ -58,6 +59,8 @@ export default async function ChallengesPage() {
             </Link>
           </div>
         </section>
+
+        <SideQuestModeSwitcher active="official" />
 
         <div id="solo-side-quest-deck" className="official-side-quest-deck">
           <ChallengeDeckBrowser

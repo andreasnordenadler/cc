@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { CommunitySoloAnalytics, CommunitySoloAnalyticsLink } from "@/components/analytics/community-solo-analytics";
 import CommunityLikeButton from "@/components/community-like-button";
+import SideQuestModeSwitcher from "@/components/side-quest-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { listPublicCommunitySideQuests, type PublicCommunitySideQuest } from "@/lib/community-side-quests";
@@ -73,6 +74,8 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </CommunitySoloAnalyticsLink>
           </div>
         </section>
+
+        <SideQuestModeSwitcher active="community" />
 
         <section className="community-board-card" aria-label="Public Community Solo Side Quest listings">
           <div className="community-board-head">
