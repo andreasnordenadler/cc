@@ -113,6 +113,7 @@ export default async function MyQuestLogPage() {
     { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
     { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
     { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
+    { label: "Settings", title: "Profile and proof tools", href: "/settings" },
     { label: "Help & Support", title: "Get account or proof help", href: "/support" },
   ];
   const runChecklistItems = [

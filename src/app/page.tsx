@@ -458,7 +458,7 @@ export default async function Home() {
                 The web entry points now mirror the mobile app sections: Home,
                 Solo Side Quests, Community Side Quests, Custom Side Quests,
                 Multiplayer Side Quests, Trophy Cabinet, Account, and Help &amp;
-                Support.
+                Support, with Settings kept near account setup.
               </p>
             </div>
           </div>
@@ -512,6 +512,11 @@ export default async function Home() {
               <span>{isSignedIn ? "Account" : "Sign in / Account"}</span>
               <strong>Profile and readiness</strong>
               <small>Connect usernames, review trophies, and manage support context.</small>
+            </Link>
+            <Link href="/settings" className="home-mobile-map-item">
+              <span>Settings</span>
+              <strong>Account tools</strong>
+              <small>Open profile, proof usernames, custom quest management, privacy, and support routes.</small>
             </Link>
             <Link href="/support" className="home-mobile-map-item">
               <span>Help &amp; Support</span>

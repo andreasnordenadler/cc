@@ -22,13 +22,15 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     {
       id: "home",
       label: "Home",
+      labelLines: ["Home"],
       href: "/",
       active: active === "home",
       icon: <span className="mobile-app-dock-letter">SQC</span>,
     },
     {
       id: "solo",
-      label: "Solo",
+      label: "Side Quests",
+      labelLines: ["Side", "Quests"],
       href: "/solo",
       active: soloActive,
       icon: (
@@ -42,7 +44,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     },
     {
       id: "multiplayer",
-      label: "Multiplayer",
+      label: "Multiplayer Side Quests",
+      labelLines: ["Multiplayer", "Side Quests"],
       href: "/multiplayer",
       active: multiplayerActive,
       icon: (
@@ -56,7 +59,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     },
     {
       id: "trophy",
-      label: "Trophy",
+      label: "Trophy Cabinet",
+      labelLines: ["Trophy", "Cabinet"],
       href: "/trophy-cabinet",
       active: trophyActive,
       icon: (
@@ -71,6 +75,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     {
       id: "account",
       label: "Account",
+      labelLines: ["Account"],
       href: isSignedIn ? "/account" : "/sign-in",
       active: accountActive,
       icon: <span className="mobile-app-dock-account">{isSignedIn ? "OK" : "IN"}</span>,
@@ -124,7 +129,11 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
             key={item.id}
           >
             <span className="mobile-app-dock-icon" aria-hidden="true">{item.icon}</span>
-            <span>{item.label}</span>
+            <span className="mobile-app-dock-item-label">
+              {item.labelLines.map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </span>
           </Link>
         ))}
       </nav>
