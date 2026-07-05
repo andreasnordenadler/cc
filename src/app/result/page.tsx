@@ -225,7 +225,7 @@ export default async function ResultPage({
             <p className="muted">
               {latestAttempt ? <ReceiptMeta attempt={latestAttempt} gameLabel={gameLabel} /> : latestAttemptSummary.meta}
             </p>
-            <Link href="/challenges" className="button pink">Try another quest</Link>
+            <Link href="/solo" className="button pink">Try another quest</Link>
           </article>
         </section>
 
@@ -255,7 +255,7 @@ export default async function ResultPage({
             </div>
           </div>
           <div className="button-row">
-            <Link href="/challenges" className="button primary">Browse Solo Side Quests</Link>
+            <Link href="/solo" className="button primary">Browse Solo Side Quests</Link>
             <Link href="/groupquests/public" className="button secondary">Find Multiplayer tables</Link>
           </div>
         </section>

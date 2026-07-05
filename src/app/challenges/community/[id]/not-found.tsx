@@ -13,7 +13,7 @@ export default function CommunitySideQuestNotFound() {
             The Community Solo Side Quest link may be malformed, unpublished, archived, or cleaned up. Draft and private custom Side Quests stay hidden, even if someone guesses a URL.
           </p>
           <div className="button-row hero-actions quest-detail-actions">
-            <Link className="button primary" href="/challenges/community">Browse Community Solo Side Quests</Link>
+            <Link className="button primary" href="/community">Browse Community Solo Side Quests</Link>
             <Link className="button secondary" href="/account">Open your account</Link>
             <Link className="button ghost" href="/support?topic=community-side-quest">Ask Support</Link>
           </div>

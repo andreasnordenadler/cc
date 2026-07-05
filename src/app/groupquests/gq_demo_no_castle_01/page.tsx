@@ -66,7 +66,7 @@ export default async function GroupQuestRoomPage() {
             A sample table for seeing how shared dares, proof checks, leaderboard receipts, and host controls fit together. Personal Solo Side Quest clears stay separate from this Multiplayer Side Quest scoreboard.
           </p>
           <div className="hero-actions button-row">
-            <Link className="button secondary" href="/groupquests">Back to Multiplayer</Link>
+            <Link className="button secondary" href="/multiplayer">Back to Multiplayer</Link>
             <Link className="button primary" href="/groupquests/public">Find a live table</Link>
           </div>
         </section>

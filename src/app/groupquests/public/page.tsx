@@ -56,7 +56,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
             Browse public Multiplayer Side Quest listings, filter by host or status, inspect the rules, proof window, and join conditions before committing your next real chess game to the bit.
           </p>
           <div className="hero-actions button-row">
-            <Link className="button secondary" href="/groupquests">Back to Multiplayer Side Quests</Link>
+            <Link className="button secondary" href="/multiplayer">Back to Multiplayer Side Quests</Link>
             <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
           </div>
         </section>

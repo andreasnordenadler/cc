@@ -75,7 +75,7 @@ export default async function RulesPage() {
             <Link href={`/challenges/${canonicalChallenge.id}`} className="button primary">Try the live verifier</Link>
             <Link href="/account" className="button secondary">Open My Side Quests</Link>
             <Link href="/verifiers" className="button secondary">Open verifier board</Link>
-            <Link href="/challenges" className="button secondary">Browse all quests</Link>
+            <Link href="/solo" className="button secondary">Browse all quests</Link>
           </div>
         </section>
 

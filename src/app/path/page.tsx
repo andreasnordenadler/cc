@@ -83,7 +83,7 @@ export default async function QuestPicksPage() {
                   <Link href="/connect" className="button primary">Connect to start</Link>
                 )}
                 <Link href={`/challenges/${nextChallenge.id}`} className="button secondary">Preview suggested quest</Link>
-                <Link href="/challenges" className="button secondary">Browse all quests</Link>
+                <Link href="/solo" className="button secondary">Browse all quests</Link>
               </div>
             </div>
             <ChallengeBadge challenge={nextChallenge} size="hero" earned={completedSet.has(nextChallenge.id)} />

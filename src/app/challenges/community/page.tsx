@@ -64,11 +64,11 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
             </p>
           </div>
           <div className="challenges-clean-hero-actions" aria-label="Community Solo Side Quest actions">
-            <Link className="mode-link-card" href="/challenges">
+            <Link className="mode-link-card" href="/solo">
               <span>Official deck</span>
               <strong>Back to curated quests</strong>
             </Link>
-            <CommunitySoloAnalyticsLink className="mode-link-card" href="/account/custom-side-quests" type="community_solo_account_handoff" status="browse_hero">
+            <CommunitySoloAnalyticsLink className="mode-link-card" href="/custom" type="community_solo_account_handoff" status="browse_hero">
               <span>Your customs</span>
               <strong>Create or publish</strong>
             </CommunitySoloAnalyticsLink>
@@ -99,12 +99,12 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           {selectedCreatorQuest ? (
             <div className="community-context-note" id={`creator-${selectedCreatorQuest.creatorKey}`}>
               Showing public quests from <strong>{selectedCreatorQuest.creatorName}</strong>. Private drafts and account details stay hidden.
-              <CommunitySoloAnalyticsLink href="/challenges/community" type="community_solo_browse" status="clear_creator_filter">Show everyone</CommunitySoloAnalyticsLink>
+              <CommunitySoloAnalyticsLink href="/community" type="community_solo_browse" status="clear_creator_filter">Show everyone</CommunitySoloAnalyticsLink>
             </div>
           ) : selectedCreator ? (
             <div className="community-context-note" role="status">
               <strong>No public quests for that player right now.</strong> The link may be stale or the quest may have been unpublished.
-              <CommunitySoloAnalyticsLink href="/challenges/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo Side Quests</CommunitySoloAnalyticsLink>
+              <CommunitySoloAnalyticsLink href="/community" type="community_solo_browse" status="creator_filter_miss_clear">Show all Community Solo Side Quests</CommunitySoloAnalyticsLink>
             </div>
           ) : null}
 
@@ -115,7 +115,7 @@ export default async function CommunitySideQuestsPage({ searchParams }: { search
           ) : (
             <div className="community-empty-state" role="status">
               <p>{activeFilterCount ? "No Community Solo Side Quests match those filters. Clear search or try a broader view." : "No public Community Solo Side Quests yet. Publish one from Custom Solo Side Quests when you want the village to see it."}</p>
-              <CommunitySoloAnalyticsLink className="button primary" href={activeFilterCount ? "/challenges/community" : "/account/custom-side-quests"} type={activeFilterCount ? "community_solo_browse" : "community_solo_account_handoff"} status={activeFilterCount ? "empty_clear" : "empty_account_handoff"}>{activeFilterCount ? "Clear filters" : "Open your custom quests"}</CommunitySoloAnalyticsLink>
+              <CommunitySoloAnalyticsLink className="button primary" href={activeFilterCount ? "/community" : "/custom"} type={activeFilterCount ? "community_solo_browse" : "community_solo_account_handoff"} status={activeFilterCount ? "empty_clear" : "empty_account_handoff"}>{activeFilterCount ? "Clear filters" : "Open your custom quests"}</CommunitySoloAnalyticsLink>
             </div>
           )}
         </section>
@@ -141,7 +141,7 @@ function CommunityDiscoveryControls({
 }) {
   const preserveCreator = creator ? <input type="hidden" name="creator" value={creator} /> : null;
   return (
-    <form action="/challenges/community" className="community-filter-bar" role="search" aria-label="Community Solo Side Quest discovery filters">
+    <form action="/community" className="community-filter-bar" role="search" aria-label="Community Solo Side Quest discovery filters">
       {preserveCreator}
       <label className="community-search-field" htmlFor="community-search">
         <span>Search</span>
@@ -166,7 +166,7 @@ function CommunityDiscoveryControls({
         </select>
       </label>
       <button className="button primary" type="submit">Apply</button>
-      {activeFilterCount ? <Link className="button secondary" href="/challenges/community">Clear</Link> : null}
+      {activeFilterCount ? <Link className="button secondary" href="/community">Clear</Link> : null}
     </form>
   );
 }
@@ -201,7 +201,7 @@ function CommunityQuestCard({ quest, likeSummary, signedIn }: { quest: PublicCom
       </div>
       <div className="community-card-actions">
         <CommunitySoloAnalyticsLink className="button primary" href={quest.detailPath} type="community_solo_detail" questId={quest.id} status="card_inspect">Inspect quest</CommunitySoloAnalyticsLink>
-        <CommunitySoloAnalyticsLink className="button secondary" href="/account/custom-side-quests" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
+        <CommunitySoloAnalyticsLink className="button secondary" href="/custom" type="community_solo_account_handoff" questId={quest.id} status="card_start_check">Start from account</CommunitySoloAnalyticsLink>
       </div>
       <div className="community-card-secondary-actions" aria-label={`${quest.title} secondary actions`}>
         <CommunitySoloAnalyticsLink href={quest.creatorBrowsePath} type="community_solo_creator_filter" questId={quest.id} status="card_creator_context">More from player</CommunitySoloAnalyticsLink>

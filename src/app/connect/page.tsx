@@ -54,7 +54,7 @@ export default async function ConnectPage() {
               <a href="#connect-chess-username" className="button primary">
                 {hasChessIdentity ? "Update chess usernames" : "Add chess username"}
               </a>
-              <Link href="/challenges" className="button secondary">Back to quests</Link>
+              <Link href="/solo" className="button secondary">Back to quests</Link>
             </div>
           ) : (
             <div className="button-row hero-actions">

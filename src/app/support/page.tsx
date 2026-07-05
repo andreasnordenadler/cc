@@ -105,7 +105,7 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
             Side Quest Chess checks public chess games, saves your quest progress, and turns completed nonsense into proof receipts. Here is the simple version of what to do when something looks wrong — and what data SQC does, and does not, need.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/challenges" className="button primary">Browse quests</Link>
+            <Link href="/solo" className="button primary">Browse quests</Link>
             <Link href="/connect" className="button secondary">Connect chess username</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
             <Link href="/privacy" className="button secondary">Privacy Policy</Link>

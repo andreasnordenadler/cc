@@ -46,7 +46,7 @@ export default async function VerifiersPage() {
           <div className="button-row hero-actions">
             <Link href="/account" className="button primary">Open My Side Quests</Link>
             <Link href="/rules" className="button secondary">Read proof rules</Link>
-            <Link href="/challenges" className="button secondary">Browse Solo Side Quests</Link>
+            <Link href="/solo" className="button secondary">Browse Solo Side Quests</Link>
           </div>
         </section>
 

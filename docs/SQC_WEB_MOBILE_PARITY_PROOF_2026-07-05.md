@@ -28,6 +28,8 @@
 
 - Updated home primary CTAs and fallback links from older top-level aliases (`/challenges`, `/groupquests`) to canonical mobile-parity routes (`/solo`, `/multiplayer`).
 - Updated Solo hub cross-links to `Community` and `Multiplayer` from older aliases.
+- Updated remaining visible browse/back/account links to prefer the canonical mobile-parity entry routes: `/solo`, `/community`, `/custom`, and `/multiplayer`.
+- Updated the Community Solo discovery form to submit to `/community`, keeping filter/search URLs on the parity route.
 - Left deep route URLs intact where they identify concrete records, public community detail pages, or existing API revalidation paths.
 
 ## Remaining high-impact parity item

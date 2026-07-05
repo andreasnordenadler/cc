@@ -50,7 +50,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
       <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
 
       <div className="content-wrap quest-detail-wrap">
-        <Link href="/challenges/community" className="button secondary back-to-hub">← Back to Community Solo Side Quests</Link>
+        <Link href="/community" className="button secondary back-to-hub">← Back to Community Solo Side Quests</Link>
 
         <section className="hero-card detail-hero quest-detail-hero community-side-quest-detail-hero">
           <div className="quest-detail-meta card-meta quest-card-meta">
@@ -163,7 +163,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
             <span className="eyebrow">Quest review</span>
             <h2>Read the rule before you run it.</h2>
             <p>Check the player label, rule preview, public link, and report path before adding someone else’s strange idea to your own Side Quest run.</p>
-            <Link className="button secondary" href="/challenges/community">Browse more Community Solo Side Quests</Link>
+            <Link className="button secondary" href="/community">Browse more Community Solo Side Quests</Link>
           </article>
           <article className="mission-card groupquests-live-card">
             <span className="eyebrow">Start from account</span>

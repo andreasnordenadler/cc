@@ -65,7 +65,7 @@ export default async function CoatOfArmsPage() {
                 Each coat below now reads like a small quest card: what it asks for, how hard it is, and whether it is already in your Trophy Cabinet.
               </p>
             </div>
-            <Link href="/challenges" className="button secondary">
+            <Link href="/solo" className="button secondary">
               Browse Solo Side Quests
             </Link>
           </div>

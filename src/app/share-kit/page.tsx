@@ -42,7 +42,7 @@ export default function ShareKitPage() {
               Pick a quest, copy the invite, and send your friend straight to the same rules, reward, coat of arms, and proof path.
             </p>
             <div className="button-row hero-actions">
-              <Link href="/challenges" className="button primary">Share a quest</Link>
+              <Link href="/solo" className="button primary">Share a quest</Link>
               <Link href="/random" className="button pink">Spin a random quest</Link>
               <Link href={`/dare/${featured.id}`} className="button secondary">Open featured quest</Link>
             </div>

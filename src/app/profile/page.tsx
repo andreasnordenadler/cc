@@ -129,7 +129,7 @@ export default async function ProfilePage() {
                 <span>Step 2</span>
                 <strong>Add Lichess or Chess.com so SQC can check public games.</strong>
               </div>
-              <Link href="/challenges" className="account-run-checklist-row ready">
+              <Link href="/solo" className="account-run-checklist-row ready">
                 <span>Step 3</span>
                 <strong>Browse Solo Side Quests once your profile is saved.</strong>
               </Link>

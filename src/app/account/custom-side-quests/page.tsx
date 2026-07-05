@@ -104,7 +104,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           </p>
           <div className="hero-actions button-row">
             <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo Side Quest</a>
-            <Link className="button primary" href="/challenges/community">Browse Community Solo Side Quests</Link>
+            <Link className="button primary" href="/community">Browse Community Solo Side Quests</Link>
             <Link className="button secondary" href="/groupquests/create">Use one in Multiplayer</Link>
           </div>
         </section>
@@ -161,13 +161,13 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             ) : (
               <div className="groupquest-empty-state" role="status">
                 <p>No saved Custom Solo Side Quests match this view. Clear the search or switch back to All; private drafts, private rule data, and archived quests stay protected.</p>
-                <Link className="button primary" href="/account/custom-side-quests">Show all saved Side Quests</Link>
+                <Link className="button primary" href="/custom">Show all saved Side Quests</Link>
               </div>
             )
           ) : (
             <div className="groupquest-empty-state" role="status">
               <p>No custom Side Quests yet. Create one here or browse public examples first; your SQC account keeps saved quests ready everywhere you play.</p>
-              <Link className="button primary" href="/challenges/community">Browse public examples</Link>
+              <Link className="button primary" href="/community">Browse public examples</Link>
             </div>
           )}
         </section>
@@ -275,7 +275,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
             <p className="microcopy">For sequence rules, use normal SAN tokens like <strong>e4 e5 Nf3</strong>. Leave optional condition slots set to “No condition”. Existing saved quests with more than six conditions are preserved safely.</p>
             <div className="button-row">
               <button className="button primary" type="submit">{editingQuest ? "Save edits" : "Save Custom Side Quest"}</button>
-              {editingQuest ? <Link className="button secondary" href="/account/custom-side-quests#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/challenges/community">See public examples</Link>}
+              {editingQuest ? <Link className="button secondary" href="/custom#custom-side-quest-builder">Cancel edit</Link> : <Link className="button secondary" href="/community">See public examples</Link>}
             </div>
           </form>
         </section>

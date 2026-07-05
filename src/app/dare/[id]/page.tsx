@@ -103,7 +103,7 @@ export default async function DarePage({
                 <Link href="/connect" className="button primary">Connect to accept quest</Link>
               )}
               <Link href={`/challenges/${challenge.id}`} className="button secondary">Read full rules</Link>
-              <Link href="/challenges" className="button secondary">Browse safer nonsense</Link>
+              <Link href="/solo" className="button secondary">Browse safer nonsense</Link>
             </div>
           </article>
 

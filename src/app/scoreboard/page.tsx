@@ -36,7 +36,7 @@ export default async function ScoreboardPage() {
           </p>
           <div className="hero-actions button-row">
             <Link className="button primary" href="/groupquests/public">Browse all public tables</Link>
-            <Link className="button secondary" href="/groupquests">Open Multiplayer Side Quests</Link>
+            <Link className="button secondary" href="/multiplayer">Open Multiplayer Side Quests</Link>
           </div>
         </section>
 

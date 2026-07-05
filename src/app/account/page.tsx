@@ -188,7 +188,7 @@ export default async function MyQuestLogPage() {
               <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
               {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
               <Link href="/profile" className="button secondary">Edit profile</Link>
-              <Link href="/account/custom-side-quests" className="button secondary">My Custom Side Quests</Link>
+              <Link href="/custom" className="button secondary">My Custom Side Quests</Link>
             </div>
             <div className="account-mobile-shortcuts" aria-label="Mobile menu shortcuts">
               <div className="account-mobile-shortcuts-head">
@@ -246,7 +246,7 @@ export default async function MyQuestLogPage() {
                 )) : <p>No active Multiplayer Side Quests yet.</p>}
               </div>
               <div className="button-row current-mission-multiplayer-actions">
-                <Link href="/groupquests" className="button primary">Open Multiplayer Side Quests</Link>
+                <Link href="/multiplayer" className="button primary">Open Multiplayer Side Quests</Link>
               </div>
             </div>
           </div>
@@ -263,7 +263,7 @@ export default async function MyQuestLogPage() {
                 <strong>{activeChallengeRecord.title}</strong>
               </Link>
             ) : (
-              <Link href="/challenges" className="current-mission-empty">
+              <Link href="/solo" className="current-mission-empty">
                 <div className="quest-log-empty-badge" aria-hidden="true">?</div>
                 <span>Choose a quest</span>
               </Link>
@@ -336,12 +336,12 @@ export default async function MyQuestLogPage() {
                       {completedCustomQuestReceipts.map(({ quest, finishedAt, providerLabel, proofSummary, gameId, trophyCopy }) => (
                         <article className="completed-quest-list-item trophy-card" key={quest.id}>
                           <span className="trophy-card-shine" aria-hidden="true" />
-                          <Link href="/account/custom-side-quests" className="trophy-card-badge" aria-label={`Open ${quest.title} custom Side Quest`}>
+                          <Link href="/custom" className="trophy-card-badge" aria-label={`Open ${quest.title} custom Side Quest`}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={quest.badgeImageUrl || "/badges/custom/clean/custom-coat-knight-gold.png"} alt="" />
                           </Link>
                           <div className="trophy-card-copy">
-                            <Link href="/account/custom-side-quests"><strong>{quest.title}</strong></Link>
+                            <Link href="/custom"><strong>{quest.title}</strong></Link>
                             <em>{trophyCopy.line}</em>
                             <span>{finishedAt ? <>Custom Solo Side Quest proof logged <ProofTime value={finishedAt} /></> : "Custom Solo Side Quest completed, allegedly."}</span>
                             <div className="trophy-proof-panel" aria-label={`${quest.title} proof receipt`}>
@@ -350,7 +350,7 @@ export default async function MyQuestLogPage() {
                               <small>{proofSummary || "Custom Solo Side Quest proof is saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
                             </div>
                             <div className="trophy-card-actions">
-                              <Link href="/account/custom-side-quests" className="button secondary">Open Custom Solo Side Quest receipt</Link>
+                              <Link href="/custom" className="button secondary">Open Custom Solo Side Quest receipt</Link>
                             </div>
                           </div>
                           <span className="won-card-seal solo" aria-hidden="true">
@@ -362,7 +362,7 @@ export default async function MyQuestLogPage() {
                   ) : (
                     <div className="empty-collection-state trophy-empty-state">
                       <p>No completed solo Side Quests yet. Finish one and the coat of arms lands here.</p>
-                      <Link href="/challenges" className="button primary">Choose a Side Quest</Link>
+                      <Link href="/solo" className="button primary">Choose a Side Quest</Link>
                     </div>
                   )}
                 </section>
@@ -393,7 +393,7 @@ export default async function MyQuestLogPage() {
                     )) : (
                       <div className="empty-collection-state trophy-empty-state">
                         <p>No Multiplayer podium scrolls yet. Finish top-three in a completed table and the scroll lands here.</p>
-                        <Link href="/groupquests" className="button primary">Open Multiplayer Side Quests</Link>
+                        <Link href="/multiplayer" className="button primary">Open Multiplayer Side Quests</Link>
                       </div>
                     )}
                   </div>
@@ -403,7 +403,7 @@ export default async function MyQuestLogPage() {
           ) : (
             <div className="empty-collection-state trophy-empty-state">
               <p>No completed side quests yet. Finish one and it will appear here with too much ceremony and not enough dignity.</p>
-              <Link href="/challenges" className="button primary">Choose a Side Quest</Link>
+              <Link href="/solo" className="button primary">Choose a Side Quest</Link>
             </div>
           )}
         </section>

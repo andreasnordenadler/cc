@@ -27,7 +27,7 @@ export default async function NotFoundPage() {
               <p>Browse official Solo Side Quests, find a Multiplayer table, or ask Support if a proof receipt or Community Solo Side Quest link should still exist.</p>
             </div>
             <div className="button-row hero-actions quest-detail-actions">
-              <Link className="button primary" href="/challenges">Browse Solo Side Quests</Link>
+              <Link className="button primary" href="/solo">Browse Solo Side Quests</Link>
               <Link className="button secondary" href="/groupquests/public">Find a Multiplayer table</Link>
               <Link className="button ghost" href="/support">Open support</Link>
             </div>
