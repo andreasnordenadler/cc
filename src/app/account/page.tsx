@@ -70,8 +70,14 @@ export default async function MyQuestLogPage() {
   const activeChallengeRecord = activeChallenge?.id
     ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null
     : null;
+  const activeCustomQuestRecord = activeChallenge?.id
+    ? customSideQuests.find((quest) => quest.id === activeChallenge.id) ?? null
+    : null;
   const hasChessIdentity = [lichessUsername, chessComUsername].some(Boolean);
-  const activeQuestCompleted = activeChallengeRecord ? completedSet.has(activeChallengeRecord.id) : false;
+  const activeQuestCompleted = activeChallenge?.id ? completedSet.has(activeChallenge.id) : false;
+  const latestActiveAttempt = activeChallenge?.id
+    ? getChallengeAttempts(metadata, activeChallenge.id).at(-1) ?? null
+    : null;
   const nextStep = getNextStep({ hasChessIdentity, activeChallengeRecord, activeQuestCompleted });
   const relatedGroupQuests = await listUserRelatedGroupQuests(client, user.id);
   const multiplayerVictories = buildMultiplayerVictories(relatedGroupQuests, user.id);
@@ -103,6 +109,62 @@ export default async function MyQuestLogPage() {
     { label: "Proofs", value: proofReceiptCount.toString(), href: "/account" },
     { label: "Custom", value: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Create", href: "/custom" },
     { label: "Multiplayer", value: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Open", href: "/multiplayer" },
+  ];
+  const activeSoloTitle = activeChallengeRecord?.title ?? activeCustomQuestRecord?.title ?? "Choose a Solo Side Quest";
+  const activeSoloHref = activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : activeCustomQuestRecord ? "/custom" : "/solo";
+  const activeSoloStatus = activeChallenge?.id
+    ? activeQuestCompleted
+      ? "Completed"
+      : latestActiveAttempt?.status === "failed"
+        ? "Try again"
+        : latestActiveAttempt?.status === "passed"
+          ? "Passed"
+          : "Active"
+    : "Choose";
+  const activeSoloMeta = activeChallenge?.id
+    ? `${latestActiveAttempt?.summary ?? "Play a fresh public game, then check proof."}`
+    : "Pick one Solo Side Quest before the next proof run.";
+  const accountFlowRows = [
+    {
+      label: "Solo Side Quest",
+      title: activeSoloTitle,
+      meta: activeSoloMeta,
+      status: activeSoloStatus,
+      href: activeSoloHref,
+      image: activeChallengeRecord?.badgeIdentity.image ?? "/sqc-logo-v11.png",
+    },
+    {
+      label: "Custom Side Quests",
+      title: customSideQuests.length ? "My Custom Side Quests" : "Create Custom Side Quest",
+      meta: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Build a private Solo rule or publish one for the community.",
+      status: customSideQuests.length ? `${customSideQuests.length} made` : "Create",
+      href: "/custom",
+      image: "/badges/custom/clean/custom-coat-knight-gold.png",
+    },
+    {
+      label: "Multiplayer Side Quests",
+      title: activeGroupQuests.length ? "Active Multiplayer Side Quests" : "Browse Multiplayer Side Quests",
+      meta: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Join an official table, join a community table, or create one for friends.",
+      status: activeGroupQuests.length ? `${activeGroupQuests.length} active` : "Open",
+      href: "/multiplayer",
+      image: "/stamps/sqc-multiplayer-seal.png",
+    },
+    {
+      label: "Settings",
+      title: "Profile and account tools",
+      meta: "Edit profile, update chess usernames, and review account readiness.",
+      status: "Open",
+      href: "/settings",
+      image: "/brand/sqc-alt-logo-topbar-20260507-v2.png",
+    },
+    {
+      label: "Help & Support",
+      title: "Proof and account help",
+      meta: "Send support context or review the proof troubleshooting checklist.",
+      status: "Help",
+      href: "/support",
+      image: "/stamps/sqc-wax-seal-canonical.png",
+    },
   ];
   const mobileMenuShortcuts = [
     { label: "Home", title: "Return to the app entry", href: "/" },
@@ -193,6 +255,25 @@ export default async function MyQuestLogPage() {
               {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
               <Link href="/profile" className="button secondary">Edit profile</Link>
               <Link href="/custom" className="button secondary">My Custom Side Quests</Link>
+            </div>
+            <div className="account-flow-panel" aria-label="Account flow">
+              <div className="account-flow-head">
+                <span className="eyebrow">Account hub</span>
+                <p>Your current run in one place: public chess usernames, active Solo proof, Custom Side Quests, Multiplayer tables, Settings, and Support.</p>
+              </div>
+              <div className="account-flow-list">
+                {accountFlowRows.map((row) => (
+                  <Link className="account-flow-row" href={row.href} key={row.label}>
+                    <Image src={row.image} alt="" width={42} height={42} />
+                    <span>
+                      <small>{row.label}</small>
+                      <strong>{row.title}</strong>
+                      <em>{row.meta}</em>
+                    </span>
+                    <b>{row.status}</b>
+                  </Link>
+                ))}
+              </div>
             </div>
             <div className="account-mobile-shortcuts" aria-label="Mobile menu shortcuts">
               <div className="account-mobile-shortcuts-head">

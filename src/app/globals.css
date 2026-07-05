@@ -848,6 +848,19 @@ p { color: var(--muted); line-height: 1.5; }
 .account-status-strip .missing strong { color: var(--gold); }
 .account-status-strip a { color: var(--gold); font-weight: 950; }
 .account-status-strip a:hover, .account-status-strip a:focus-visible { text-decoration: underline; outline: none; }
+.account-flow-panel { display: grid; gap: 10px; width: 100%; max-width: 760px; margin-top: 8px; padding: 12px; border: 1px solid rgba(255,247,232,.14); border-radius: 22px; background: linear-gradient(135deg, rgba(255,247,232,.065), rgba(0,0,0,.12)); }
+.account-flow-head { display: grid; gap: 4px; }
+.account-flow-head .eyebrow { margin-bottom: 0; }
+.account-flow-head p { max-width: 64ch; font-size: .84rem; line-height: 1.35; }
+.account-flow-list { display: grid; gap: 7px; }
+.account-flow-row { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 11px; align-items: center; min-height: 64px; padding: 9px 11px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(0,0,0,.15); color: inherit; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.account-flow-row:hover, .account-flow-row:focus-visible { transform: translateY(-1px); border-color: rgba(245,200,106,.38); background: rgba(245,200,106,.07); outline: none; }
+.account-flow-row img { width: 42px; height: 42px; object-fit: contain; filter: drop-shadow(0 8px 10px rgba(0,0,0,.34)); }
+.account-flow-row > span { display: grid; gap: 2px; min-width: 0; }
+.account-flow-row small { color: var(--gold); font-size: .68rem; font-weight: 1000; letter-spacing: .08em; text-transform: uppercase; }
+.account-flow-row strong { overflow: hidden; color: var(--ink); font-size: .95rem; line-height: 1.08; text-overflow: ellipsis; white-space: nowrap; }
+.account-flow-row em { overflow: hidden; color: var(--muted); font-size: .78rem; font-style: normal; font-weight: 820; line-height: 1.22; text-overflow: ellipsis; white-space: nowrap; }
+.account-flow-row b { padding: 6px 9px; border: 1px solid rgba(96,240,175,.22); border-radius: 999px; color: rgba(210,255,232,.96); font-size: .68rem; line-height: 1; text-transform: uppercase; white-space: nowrap; background: rgba(96,240,175,.08); }
 .account-readiness-panel { display: grid; gap: 10px; width: 100%; max-width: 760px; margin-top: 8px; padding: 12px; border: 1px solid rgba(96,240,175,.18); border-radius: 22px; background: rgba(0,0,0,.12); }
 .account-readiness-head { display: grid; gap: 4px; }
 .account-readiness-head .eyebrow { margin-bottom: 0; }
@@ -888,7 +901,7 @@ p { color: var(--muted); line-height: 1.5; }
 .active-multiplayer-row strong { color: var(--ink); font-size: .95rem; line-height: 1.08; }
 .active-multiplayer-row span { color: var(--muted); font-size: .78rem; font-weight: 850; line-height: 1.25; }
 @media (max-width: 860px) { .current-mission-card { grid-template-columns: 1fr; } .current-mission-visual { justify-items: start; } .current-mission-coat, .current-mission-empty { width: min(100%, 320px); } .account-mobile-shortcut-grid, .account-readiness-grid, .account-progress-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 620px) { .current-mission-identity-row { align-items: start; } .account-status-strip { width: 100%; } .active-multiplayer-row { grid-template-columns: 34px minmax(0, 1fr); } .active-multiplayer-row span { grid-column: 2; } .account-run-checklist-row { grid-template-columns: 1fr; gap: 4px; } .account-mobile-shortcut-grid, .account-readiness-grid, .account-progress-grid { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .current-mission-identity-row { align-items: start; } .account-status-strip { width: 100%; } .account-flow-row { grid-template-columns: 38px minmax(0, 1fr); align-items: start; } .account-flow-row b { grid-column: 2; justify-self: start; } .account-flow-row em { white-space: normal; } .active-multiplayer-row { grid-template-columns: 34px minmax(0, 1fr); } .active-multiplayer-row span { grid-column: 2; } .account-run-checklist-row { grid-template-columns: 1fr; gap: 4px; } .account-mobile-shortcut-grid, .account-readiness-grid, .account-progress-grid { grid-template-columns: 1fr; } }
 .focused-quest-hero .hero-copy { max-width: 760px; }
 .account-connection-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
 .connection-card { display: grid; gap: 6px; padding: 18px; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: rgba(255,255,255,.055); }
