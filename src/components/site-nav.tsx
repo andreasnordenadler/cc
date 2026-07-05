@@ -35,6 +35,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         </nav>
 
         <div className="nav-actions">
+          <Link href="/custom#custom-side-quest-builder" className={customActive ? "nav-pill nav-shortcut active" : "nav-pill nav-shortcut"}>Create Custom</Link>
+          <Link href="/groupquests/create" className={multiplayerActive ? "nav-pill nav-shortcut active" : "nav-pill nav-shortcut"}>Create Multiplayer</Link>
           {isSignedIn ? (
             <>
               <Link href="/account" className={accountActive ? "nav-pill active" : "nav-pill"}>My Account</Link>
