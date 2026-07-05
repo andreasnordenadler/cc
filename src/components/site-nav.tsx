@@ -18,6 +18,20 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const leaderboardsActive = active === "leaderboards" || active === "scoreboard";
   const trophyActive = active === "trophy" || active === "badges";
   const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
+  const menuItems = [
+    { id: "home", label: "Home", href: "/", active: active === "home" },
+    { id: "solo", label: "Solo Side Quests", href: "/solo", active: soloActive },
+    { id: "community", label: "Community Side Quests", href: "/community", active: communityActive },
+    { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive },
+    { id: "create-custom", label: "Create Custom Side Quest", href: "/custom#custom-side-quest-builder", active: false },
+    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive },
+    { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false },
+    { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive },
+    { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive },
+    { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: isSignedIn ? "/account" : "/sign-in", active: accountActive },
+    { id: "settings", label: "Settings", href: "/settings", active: active === "settings" },
+    { id: "support", label: "Help & Support", href: "/support", active: active === "support" },
+  ];
   const mobileDockItems = [
     {
       id: "home",
@@ -88,7 +102,12 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         <div className="site-nav-inner">
           <nav className="nav-links" aria-label="Primary">
             <Link href="/" className="nav-brand-mark" aria-label="Side Quest Chess home">
-              <img src="/brand/sqc-alt-logo-topbar-20260507-v2.png" alt="" />
+              <Image
+                alt=""
+                height={44}
+                src="/brand/sqc-alt-logo-topbar-20260507-v2.png"
+                width={76}
+              />
             </Link>
             <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
             <Link href="/solo" className={soloActive ? "active" : undefined}>Solo</Link>
@@ -100,6 +119,24 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           </nav>
 
           <div className="nav-actions">
+            <details className="mobile-app-menu">
+              <summary aria-label="Open main menu">
+                <span aria-hidden="true"></span>
+                <strong>Menu</strong>
+              </summary>
+              <div className="mobile-app-menu-panel" aria-label="Main menu">
+                {menuItems.map((item) => (
+                  <Link
+                    aria-current={item.active ? "page" : undefined}
+                    className={item.active ? "mobile-app-menu-item active" : "mobile-app-menu-item"}
+                    href={item.href}
+                    key={item.id}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </details>
             <Link href="/custom#custom-side-quest-builder" className={customActive ? "nav-pill nav-shortcut active" : "nav-pill nav-shortcut"}>Create Custom</Link>
             <Link href="/groupquests/create" className={multiplayerActive ? "nav-pill nav-shortcut active" : "nav-pill nav-shortcut"}>Create Multiplayer</Link>
             {isSignedIn ? (

@@ -81,6 +81,19 @@ button, input { font: inherit; }
 .mobile-app-dock-icon img { width: 28px; height: 28px; object-fit: contain; }
 .mobile-app-dock-letter, .mobile-app-dock-account { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 11px; background: rgba(245,200,106,.16); color: var(--gold); font-size: 10px; font-weight: 1000; letter-spacing: .03em; }
 .mobile-app-dock-item-label { display: grid; gap: 0; max-width: 100%; line-height: 1.04; overflow-wrap: normal; }
+.mobile-app-menu { position: relative; display: none; }
+.mobile-app-menu summary { min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(245,200,106,.2); border-radius: 999px; background: rgba(245,200,106,.12); color: var(--gold); cursor: pointer; list-style: none; font-size: 12px; font-weight: 950; }
+.mobile-app-menu summary::-webkit-details-marker { display: none; }
+.mobile-app-menu summary span,
+.mobile-app-menu summary span::before,
+.mobile-app-menu summary span::after { display: block; width: 16px; height: 2px; border-radius: 999px; background: currentColor; content: ""; }
+.mobile-app-menu summary span { position: relative; }
+.mobile-app-menu summary span::before { position: absolute; top: -5px; left: 0; }
+.mobile-app-menu summary span::after { position: absolute; top: 5px; left: 0; }
+.mobile-app-menu-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; display: grid; gap: 5px; width: min(320px, calc(100vw - 28px)); padding: 8px; border: 1px solid rgba(245,200,106,.22); border-radius: 22px; background: rgba(8,7,9,.96); box-shadow: 0 24px 80px rgba(0,0,0,.5); backdrop-filter: blur(18px); }
+.mobile-app-menu-item { min-height: 38px; display: flex; align-items: center; padding: 9px 11px; border: 1px solid rgba(255,255,255,.08); border-radius: 15px; background: rgba(255,255,255,.045); color: var(--muted); font-size: 13px; font-weight: 900; }
+.mobile-app-menu-item.active { border-color: rgba(245,200,106,.32); background: rgba(245,200,106,.13); color: var(--gold); }
+.mobile-app-menu-item:hover, .mobile-app-menu-item:focus-visible { border-color: rgba(245,200,106,.36); color: var(--ink); outline: none; }
 .site-footer { width: min(1120px, 92vw); margin: 34px auto 22px; padding: 18px 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,.1); color: var(--muted); }
 .site-footer span { font-size: .82rem; font-weight: 800; letter-spacing: .02em; }
 .site-footer nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -1894,6 +1907,9 @@ p { color: var(--muted); line-height: 1.5; }
   .nav-links a { flex: 0 0 auto; }
   .nav-links a:not(.nav-brand-mark), .nav-pill { min-height: 36px; padding: 8px 9px; display: inline-flex; align-items: center; justify-content: center; text-align: center; font-size: 11px; line-height: 1.05; white-space: normal; }
   .nav-actions { width: 100%; justify-content: stretch; }
+  .mobile-app-menu { display: block; width: 100%; }
+  .mobile-app-menu summary { width: 100%; justify-content: center; }
+  .mobile-app-menu-panel { left: 0; right: 0; width: 100%; }
   .nav-actions .button-row, .nav-actions .button-row form, .nav-actions .button-row .button, .nav-actions .nav-pill { width: 100%; }
   .nav-actions .button-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
   .nav-actions .button { min-height: 38px; padding: 9px 12px; }
