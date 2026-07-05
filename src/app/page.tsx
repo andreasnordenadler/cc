@@ -744,7 +744,7 @@ export default async function Home() {
               </div>
 
               <div className="home-multiplayer-quests-footer">
-                <Link href="/account" className="button secondary">
+                <Link href="/trophy-cabinet" className="button secondary">
                   Open Trophy Cabinet
                 </Link>
                 <Link href="/badges" className="button secondary">
