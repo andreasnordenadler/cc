@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
+import { ProofPositionMiniBoard } from "@/components/proof-position-board";
 import RatingPill from "@/components/rating-pill";
 import ShareProofActions from "@/components/share-proof-actions";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
@@ -228,6 +229,8 @@ export default async function MyQuestLogPage() {
       providerLabel,
       proofSummary: latestProof?.summary,
       gameId: latestProof?.gameId,
+      finalPositionFen: latestProof?.finalPositionFen,
+      lastMoveUci: latestProof?.lastMoveUci,
       trophyCopy: getAwkwardTrophyCopy(completedChallenges.length + index),
     };
   });
@@ -409,6 +412,11 @@ export default async function MyQuestLogPage() {
                                 <span>Receipt</span>
                                 <strong>{formatProofProvider(latestProof?.provider)}{latestProof?.gameId ? ` · ${latestProof.gameId}` : ""}</strong>
                                 <small>{latestProof?.summary || `${challenge.badgeIdentity.name} unlocked.`} <RatingPill value={challenge.reward} /></small>
+                                <ProofPositionMiniBoard
+                                  fen={latestProof?.finalPositionFen}
+                                  lastMoveUci={latestProof?.lastMoveUci}
+                                  label={`${challenge.title} verified proof chess board`}
+                                />
                               </div>
                               <div className="trophy-card-actions">
                                 <Link href={proofPath} className="button secondary">Open proof receipt</Link>
@@ -426,7 +434,7 @@ export default async function MyQuestLogPage() {
                           </article>
                         );
                       })}
-                      {completedCustomQuestReceipts.map(({ quest, finishedAt, providerLabel, proofSummary, gameId, trophyCopy }) => (
+                      {completedCustomQuestReceipts.map(({ quest, finishedAt, providerLabel, proofSummary, gameId, finalPositionFen, lastMoveUci, trophyCopy }) => (
                         <article className="completed-quest-list-item trophy-card" key={quest.id}>
                           <span className="trophy-card-shine" aria-hidden="true" />
                           <Link href="/custom" className="trophy-card-badge" aria-label={`Open ${quest.title} custom Side Quest`}>
@@ -437,11 +445,16 @@ export default async function MyQuestLogPage() {
                             <Link href="/custom"><strong>{quest.title}</strong></Link>
                             <em>{trophyCopy.line}</em>
                             <span>{finishedAt ? <>Custom Solo Side Quest proof logged <ProofTime value={finishedAt} /></> : "Custom Solo Side Quest completed, allegedly."}</span>
-                            <div className="trophy-proof-panel" aria-label={`${quest.title} proof receipt`}>
-                              <span>Receipt</span>
-                              <strong>{providerLabel}{gameId ? ` · ${gameId}` : ""}</strong>
-                              <small>{proofSummary || "Custom Solo Side Quest proof is saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
-                            </div>
+                              <div className="trophy-proof-panel" aria-label={`${quest.title} proof receipt`}>
+                                <span>Receipt</span>
+                                <strong>{providerLabel}{gameId ? ` · ${gameId}` : ""}</strong>
+                                <small>{proofSummary || "Custom Solo Side Quest proof is saved to your account ledger. Open My Custom Side Quests for board evidence and controls."}</small>
+                                <ProofPositionMiniBoard
+                                  fen={finalPositionFen}
+                                  lastMoveUci={lastMoveUci}
+                                  label={`${quest.title} custom proof chess board`}
+                                />
+                              </div>
                             <div className="trophy-card-actions">
                               <Link href="/custom" className="button secondary">Open Custom Solo Side Quest receipt</Link>
                             </div>

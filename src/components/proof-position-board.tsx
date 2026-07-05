@@ -30,6 +30,40 @@ type ProofPositionBoardProps = {
   variant?: "completed" | "receipt";
 };
 
+type ProofPositionMiniBoardProps = {
+  fen?: string | null;
+  lastMoveUci?: string | null;
+  label?: string;
+};
+
+export function ProofPositionMiniBoard({
+  fen,
+  lastMoveUci,
+  label = "Verified proof chess board",
+}: ProofPositionMiniBoardProps) {
+  const board = fen ? parseFenBoard(fen, lastMoveUci ?? undefined) : null;
+
+  if (!board) {
+    return null;
+  }
+
+  return (
+    <div className="proof-board-wrap compact-proof-board-wrap" data-board-state="ready">
+      <div className="proof-board compact-proof-board" role="img" aria-label={label}>
+        {board.map((square) => (
+          <span
+            key={square.square}
+            className={`proof-board-square ${square.highlight ? "highlight" : ""}`}
+            aria-label={`${square.square}${square.piece ? ` ${square.piece}` : " empty"}`}
+          >
+            {square.piece ? PIECES[square.piece] : null}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ProofPositionBoard({
   attempt,
   challenge,
