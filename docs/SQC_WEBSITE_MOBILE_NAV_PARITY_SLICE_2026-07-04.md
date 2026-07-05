@@ -39,3 +39,25 @@ Mobile `apps/mobile/App.tsx` exposes these primary destinations:
 - Add mobile-style menu shortcuts inside signed-in account pages for `Create Custom Side Quest`, `Create Multiplayer Side Quest`, and `Help & Support`.
 - Review whether `/scoreboard` should be renamed in user-facing copy to `Official Leaderboards` everywhere, now that `/leaderboards` exists.
 - Continue route-level screenshot checks on authenticated account/custom flows when a test account is available.
+
+## 2026-07-05 continuation — label and leaderboard shortcut parity
+
+Source check: mobile still treats `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, and `Account` as the tab bar, with hamburger entries for `Solo Side Quests`, `My Custom Side Quests`, `Create Custom Side Quest`, `Create Multiplayer Side Quest`, and `Help & Support`. The app also has an `officialLeaderboards` screen for `Official Leaderboards`.
+
+Changes:
+
+- Shortened the website primary nav labels to the app-like top-level lanes: `Home`, `Solo`, `Custom`, `Community`, `Multiplayer`, `Leaderboards`, and `Trophy Cabinet`.
+- Added `Official Leaderboards` to the Account and Settings mobile-menu shortcut grids so the web account/settings hubs expose the app's official leaderboard screen alongside Solo, Custom, Multiplayer, Trophy Cabinet, and Help & Support.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx src/app/account/page.tsx src/app/settings/page.tsx` passed with the pre-existing `@next/next/no-img-element` nav-logo warning.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed.
+- Screenshots captured:
+  - `artifacts/sqc-parity-official-leaderboards-shortcuts-2026-07-05/settings-desktop.png`
+  - `artifacts/sqc-parity-official-leaderboards-shortcuts-2026-07-05/settings-mobile.png`
+
+Remaining:
+
+- Authenticated `/account` shortcut screenshot still needs a signed-in browser session or test account.

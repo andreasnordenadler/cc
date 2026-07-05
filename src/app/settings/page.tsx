@@ -45,6 +45,7 @@ const mobileMenuShortcuts = [
   { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
   { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
   { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
+  { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
   { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
   { label: "Help & Support", title: "Get account or proof help", href: "/support" },
 ];
