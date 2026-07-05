@@ -32,6 +32,15 @@
 - Updated the Community Solo discovery form to submit to `/community`, keeping filter/search URLs on the parity route.
 - Left deep route URLs intact where they identify concrete records, public community detail pages, or existing API revalidation paths.
 
+## 2026-07-05 account/menu parity slice
+
+- Re-checked mobile source labels in `apps/mobile/App.tsx`: bottom tabs remain `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, `Account`; hamburger order is `Home`, `Solo Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, `My Custom Side Quests`, `Create Custom Side Quest`, `Create Multiplayer Side Quest`, `My Account`/`Sign in / Account`, `Help & Support`.
+- Updated the website mobile menu to follow that mobile hamburger order first, with compact glyph badges so the menu reads closer to the native app list.
+- Updated the signed-in web account shortcut panel to follow the same mobile hamburger order first, then separated web companion destinations (`Community Side Quests`, `Official Leaderboards`, `Settings`).
+- Swapped remaining account-level browse links from alias routes to canonical mobile-parity entries (`/solo`, `/custom`, `/multiplayer`) while keeping concrete detail URLs such as `/challenges/[id]` and `/groupquests/[id]` intact.
+- Screenshot proof: `artifacts/sqc-parity-2026-07-05-account-menu/desktop-home-nav.png` and `artifacts/sqc-parity-2026-07-05-account-menu/mobile-home-menu-open.png`.
+- Verification: `pnpm lint -- src/components/site-nav.tsx src/app/account/page.tsx src/app/globals.css` passed with the expected CSS ignore warning; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed.
+
 ## Remaining high-impact parity item
 
 Bring the signed-in website Account home closer to the mobile Account tab by grouping chess username readiness, active Solo proof, Custom Side Quest management, Multiplayer participation, Settings, and Help & Support in the same order as the mobile account/support flow.

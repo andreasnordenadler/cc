@@ -19,18 +19,18 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const trophyActive = active === "trophy" || active === "badges";
   const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
   const menuItems = [
-    { id: "home", label: "Home", href: "/", active: active === "home" },
-    { id: "solo", label: "Solo Side Quests", href: "/solo", active: soloActive },
-    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive },
-    { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive },
-    { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive },
-    { id: "create-custom", label: "Create Custom Side Quest", href: "/custom#custom-side-quest-builder", active: false },
-    { id: "community", label: "Community Side Quests", href: "/community", active: communityActive },
-    { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive },
-    { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false },
-    { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: isSignedIn ? "/account" : "/sign-in", active: accountActive },
-    { id: "settings", label: "Settings", href: "/settings", active: active === "settings" },
-    { id: "support", label: "Help & Support", href: "/support", active: active === "support" },
+    { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
+    { id: "solo", label: "Solo Side Quests", href: "/solo", active: soloActive, glyph: "SQ" },
+    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
+    { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },
+    { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive, glyph: "CS" },
+    { id: "create-custom", label: "Create Custom Side Quest", href: "/custom#custom-side-quest-builder", active: false, glyph: "+C" },
+    { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false, glyph: "+M" },
+    { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: isSignedIn ? "/account" : "/sign-in", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
+    { id: "support", label: "Help & Support", href: "/support", active: active === "support", glyph: "HP" },
+    { id: "community", label: "Community Side Quests", href: "/community", active: communityActive, glyph: "CO" },
+    { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive, glyph: "LB" },
+    { id: "settings", label: "Settings", href: "/settings", active: active === "settings", glyph: "ST" },
   ];
   const mobileDockItems = [
     {
@@ -132,7 +132,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
                     href={item.href}
                     key={item.id}
                   >
-                    {item.label}
+                    <span className="mobile-app-menu-glyph" aria-hidden="true">{item.glyph}</span>
+                    <span>{item.label}</span>
                   </Link>
                 ))}
               </div>

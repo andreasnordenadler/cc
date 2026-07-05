@@ -91,8 +91,10 @@ button, input { font: inherit; }
 .mobile-app-menu summary span::before { position: absolute; top: -5px; left: 0; }
 .mobile-app-menu summary span::after { position: absolute; top: 5px; left: 0; }
 .mobile-app-menu-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; display: grid; gap: 5px; width: min(320px, calc(100vw - 28px)); padding: 8px; border: 1px solid rgba(245,200,106,.22); border-radius: 22px; background: rgba(8,7,9,.96); box-shadow: 0 24px 80px rgba(0,0,0,.5); backdrop-filter: blur(18px); }
-.mobile-app-menu-item { min-height: 38px; display: flex; align-items: center; padding: 9px 11px; border: 1px solid rgba(255,255,255,.08); border-radius: 15px; background: rgba(255,255,255,.045); color: var(--muted); font-size: 13px; font-weight: 900; }
+.mobile-app-menu-item { min-height: 38px; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 9px; align-items: center; padding: 8px 10px; border: 1px solid rgba(255,255,255,.08); border-radius: 15px; background: rgba(255,255,255,.045); color: var(--muted); font-size: 13px; font-weight: 900; }
+.mobile-app-menu-glyph { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1px solid rgba(255,255,255,.1); border-radius: 11px; background: rgba(255,255,255,.055); color: var(--gold); font-size: 9px; font-weight: 1000; letter-spacing: 0; line-height: 1; }
 .mobile-app-menu-item.active { border-color: rgba(245,200,106,.32); background: rgba(245,200,106,.13); color: var(--gold); }
+.mobile-app-menu-item.active .mobile-app-menu-glyph { border-color: rgba(245,200,106,.36); background: rgba(245,200,106,.16); color: var(--ink); }
 .mobile-app-menu-item:hover, .mobile-app-menu-item:focus-visible { border-color: rgba(245,200,106,.36); color: var(--ink); outline: none; }
 .site-footer { width: min(1120px, 92vw); margin: 34px auto 22px; padding: 18px 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,.1); color: var(--muted); }
 .site-footer span { font-size: .82rem; font-weight: 800; letter-spacing: .02em; }
@@ -855,6 +857,7 @@ p { color: var(--muted); line-height: 1.5; }
 .account-mobile-shortcuts-head .eyebrow { margin-bottom: 0; }
 .account-mobile-shortcuts-head p { max-width: 64ch; font-size: .84rem; line-height: 1.35; }
 .account-mobile-shortcut-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.account-mobile-shortcut-grid.companion { padding-top: 8px; border-top: 1px solid rgba(255,255,255,.1); }
 .account-mobile-shortcut { display: grid; gap: 4px; min-width: 0; min-height: 76px; align-content: start; padding: 11px 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 16px; background: rgba(0,0,0,.14); color: inherit; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .account-mobile-shortcut:hover, .account-mobile-shortcut:focus-visible { transform: translateY(-1px); border-color: rgba(245,200,106,.42); background: rgba(245,200,106,.08); outline: none; }
 .account-mobile-shortcut span { color: var(--gold); font-size: .68rem; font-weight: 1000; letter-spacing: .08em; line-height: 1.12; text-transform: uppercase; }

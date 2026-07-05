@@ -101,20 +101,24 @@ export default async function MyQuestLogPage() {
   const progressItems = [
     { label: "Completed", value: completedChallenges.length.toString(), href: "/account" },
     { label: "Proofs", value: proofReceiptCount.toString(), href: "/account" },
-    { label: "Custom", value: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Create", href: "/account/custom-side-quests" },
-    { label: "Multiplayer", value: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Open", href: "/groupquests" },
+    { label: "Custom", value: customSideQuests.length ? `${publishedCustomSideQuestCount} playable · ${draftCustomSideQuestCount} draft${draftCustomSideQuestCount === 1 ? "" : "s"}` : "Create", href: "/custom" },
+    { label: "Multiplayer", value: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Open", href: "/multiplayer" },
   ];
   const mobileMenuShortcuts = [
+    { label: "Home", title: "Return to the app entry", href: "/" },
     { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
-    { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
-    { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/account/custom-side-quests" },
-    { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/account/custom-side-quests#custom-side-quest-builder" },
     { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
-    { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
-    { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
     { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
-    { label: "Settings", title: "Profile and proof tools", href: "/settings" },
+    { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
+    { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
+    { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
+    { label: "My Account", title: "Profile and proof tools", href: "/account" },
     { label: "Help & Support", title: "Get account or proof help", href: "/support" },
+  ];
+  const webCompanionShortcuts = [
+    { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
+    { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
+    { label: "Settings", title: "Profile and proof tools", href: "/settings" },
   ];
   const runChecklistItems = [
     {
@@ -132,7 +136,7 @@ export default async function MyQuestLogPage() {
     {
       label: "3. Next quest",
       value: activeChallengeRecord ? `${activeChallengeRecord.title}${activeQuestCompleted ? " is complete" : " is active"}` : "Pick a Solo Side Quest to judge next.",
-      href: activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/challenges",
+      href: activeChallengeRecord ? `/challenges/${activeChallengeRecord.id}` : "/solo",
       ready: Boolean(activeChallengeRecord),
     },
   ];
@@ -193,10 +197,18 @@ export default async function MyQuestLogPage() {
             <div className="account-mobile-shortcuts" aria-label="Mobile menu shortcuts">
               <div className="account-mobile-shortcuts-head">
                 <span className="eyebrow">Mobile menu shortcuts</span>
-                <p>The account hub now keeps the same high-frequency destinations close together: Solo, Community, Custom, Multiplayer, Trophy Cabinet, and Help &amp; Support.</p>
+                <p>The account hub now follows the mobile hamburger order first: Home, Solo, Multiplayer, Trophy Cabinet, Custom, account, and Help &amp; Support.</p>
               </div>
               <div className="account-mobile-shortcut-grid">
                 {mobileMenuShortcuts.map((shortcut) => (
+                  <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
+                    <span>{shortcut.label}</span>
+                    <strong>{shortcut.title}</strong>
+                  </Link>
+                ))}
+              </div>
+              <div className="account-mobile-shortcut-grid companion">
+                {webCompanionShortcuts.map((shortcut) => (
                   <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
                     <span>{shortcut.label}</span>
                     <strong>{shortcut.title}</strong>
@@ -434,7 +446,7 @@ function getNextStep({
     return {
       title: "Pick one side quest.",
       copy: "Choose the ridiculous rule SQC should judge after your next public game.",
-      href: "/challenges",
+      href: "/solo",
       cta: "Pick a Side Quest",
     };
   }
@@ -443,7 +455,7 @@ function getNextStep({
     return {
       title: "Quest finished. Pick your next one.",
       copy: `${activeChallengeRecord.title} is complete. Your coat of arms is sealed; choose the next bad idea whenever you are ready.`,
-      href: "/challenges",
+      href: "/solo",
       cta: "Pick your next quest",
     };
   }
