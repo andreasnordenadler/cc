@@ -31,10 +31,10 @@ const settingsSections = [
   },
   {
     label: "Help",
-    title: "Support and privacy",
+    title: "Help & Support",
     copy: "Review data basics, send support context, and find the proof troubleshooting checklist from the mobile help modal.",
     href: "/support",
-    action: "Open support",
+    action: "Open Help & Support",
   },
 ];
 

@@ -79,7 +79,7 @@ export default async function TermsPage() {
             Side Quest Chess is built for ridiculous chess challenges, public-game proof receipts, and friendly competition. These terms set the basic guardrails for using it.
           </p>
           <div className="button-row hero-actions">
-            <Link href="/support" className="button primary">Support & privacy</Link>
+            <Link href="/support" className="button primary">Help &amp; Support</Link>
             <Link href="/privacy" className="button secondary">Privacy Policy</Link>
             <Link href="/rules" className="button secondary">Proof rules</Link>
           </div>

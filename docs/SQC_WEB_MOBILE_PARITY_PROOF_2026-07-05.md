@@ -93,3 +93,18 @@ Proof:
 - Screenshot proof: `artifacts/sqc-account-support-parity-2026-07-06/support-desktop.png`, `artifacts/sqc-account-support-parity-2026-07-06/support-mobile-web.png`, and `artifacts/sqc-account-support-parity-2026-07-06/account-mobile-signed-out.png`.
 - Verification: `pnpm lint -- src/app/account/page.tsx src/app/support/page.tsx` passed; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
 - Screenshot limitation: signed-in Account row order was verified by code and build, but screenshot capture used the signed-out Account state because no authenticated browser session was available.
+
+## 2026-07-06 settings/support label parity slice
+
+- Re-checked native `TABS`, `GlobalHamburgerMenu`, `AccountShell`, `HelpSupportModal`, and `OfficialMultiplayerLeaderboardsScreen` in `apps/mobile/App.tsx`.
+- Confirmed the current web route map still covers the prioritized entry points: `/solo`, `/custom`, `/community`, `/multiplayer`, `/leaderboards`, `/account`, `/profile`, `/settings`, `/support`, and `/`.
+- Kept the mobile-web dock unchanged because it matches the five visible native bottom tabs; `Official Leaderboards` remains available from top nav/menu and the Multiplayer route, matching its internal mobile screen status.
+- Tightened the remaining top-level support label drift: `/settings` now calls the support destination `Help & Support`, and `/terms` links to `/support` with the same label instead of the older `Support & privacy` copy.
+- Left the unrelated untracked research note `docs/research/SQC_MONETIZATION_RESEARCH_RECOMMENDATIONS_2026-07-01.md` untouched.
+
+Proof:
+
+- Screenshot proof: `artifacts/sqc-settings-support-label-parity-2026-07-06/settings-desktop.png`, `artifacts/sqc-settings-support-label-parity-2026-07-06/settings-mobile-web.png`, `artifacts/sqc-settings-support-label-parity-2026-07-06/terms-desktop.png`, and `artifacts/sqc-settings-support-label-parity-2026-07-06/terms-mobile-web.png`.
+- Text sanity check on `/settings` and `/terms`: both pages contain `Help & Support`; neither contains the stale `Support & privacy` or `Support and privacy` label.
+- Verification: `pnpm lint -- src/app/settings/page.tsx src/app/terms/page.tsx` passed; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
+- Screenshot server: `pnpm exec next start -p 3056` after build.
