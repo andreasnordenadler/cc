@@ -44,3 +44,10 @@
 ## Remaining high-impact parity item
 
 Bring the signed-in website Account home closer to the mobile Account tab by grouping chess username readiness, active Solo proof, Custom Side Quest management, Multiplayer participation, Settings, and Help & Support in the same order as the mobile account/support flow.
+
+## 2026-07-05 home/onboarding entry slice
+
+- Re-checked the mobile Home source in `apps/mobile/App.tsx`: the first-run choice ladder exposes `Go on a Solo Side Quest`, `Join a Multiplayer Side Quest`, `Surprise me with a random Solo Side Quest`, and `Find your own path`.
+- Added a compact website home quick-start band above the signed-out explainer and app map so desktop and mobile web present those same four entry decisions before the larger route catalog.
+- Kept the existing hero, app map, signed-in proof controls, and route aliases intact; this slice only changes the home entry hierarchy and responsive CSS.
+- Screenshot proof captured from local Next dev: `artifacts/sqc-home-entry-parity-2026-07-05/desktop-home-entry.png` and `artifacts/sqc-home-entry-parity-2026-07-05/mobile-home-entry.png`.

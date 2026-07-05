@@ -405,6 +405,49 @@ export default async function Home() {
           </aside>
         </section>
 
+        <section
+          className="mission-card mobile-home-quickstart-card"
+          aria-label="Mobile-style quick start"
+        >
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Quick start</span>
+              <h2>Start from the same choices the mobile app puts first.</h2>
+              <p>
+                The native Home screen leads with Solo, Multiplayer, a random Solo
+                shortcut, and a way to browse your own path. These web shortcuts
+                keep the same entry points visible before the larger app map.
+              </p>
+            </div>
+          </div>
+          <div className="mobile-home-quickstart-grid">
+            <Link href="/solo" className="mobile-home-quickstart-action primary">
+              <span>Solo</span>
+              <strong>Go on a Solo Side Quest</strong>
+              <small>Pick one rule, play a fresh public game, then check proof.</small>
+            </Link>
+            <Link href="/multiplayer" className="mobile-home-quickstart-action">
+              <span>Multiplayer</span>
+              <strong>Join a Multiplayer Side Quest</strong>
+              <small>Browse official, public, or invite-code tables.</small>
+            </Link>
+            <div className="mobile-home-quickstart-action random">
+              <span>Random</span>
+              <strong>Surprise me with a Solo Side Quest</strong>
+              <RandomSoloQuestLink
+                challengeIds={randomSoloQuestIds}
+                activeChallengeId={activeIncompleteChallengeId}
+                completedChallengeIds={progress.completedChallengeIds}
+              />
+            </div>
+            <Link href="/solo" className="mobile-home-quickstart-action">
+              <span>Browse</span>
+              <strong>Find your own path</strong>
+              <small>Open the full Solo deck, including official and community routes.</small>
+            </Link>
+          </div>
+        </section>
+
         {!isSignedIn ? (
           <section
             className="mission-card signed-out-explainer"

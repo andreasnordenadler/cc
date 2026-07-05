@@ -664,6 +664,16 @@ p { color: var(--muted); line-height: 1.5; }
 .heroism-custom-path a:hover, .heroism-custom-path a:focus-visible { text-decoration: underline; outline: none; }
 .home-random-solo-path { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .home-random-solo-path p { margin: 0; }
+.mobile-home-quickstart-card { background: radial-gradient(circle at 12% 0%, rgba(96,240,175,.13), transparent 34%), linear-gradient(135deg, rgba(255,255,255,.08), rgba(245,200,106,.055)); }
+.mobile-home-quickstart-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.mobile-home-quickstart-action { min-height: 158px; display: grid; align-content: start; gap: 9px; padding: 15px; border: 1px solid rgba(255,255,255,.13); border-radius: 20px; background: rgba(0,0,0,.18); color: inherit; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.mobile-home-quickstart-action:hover, .mobile-home-quickstart-action:focus-visible { transform: translateY(-2px); border-color: rgba(245,200,106,.38); background: rgba(245,200,106,.075); outline: none; }
+.mobile-home-quickstart-action.primary { border-color: rgba(96,240,175,.28); background: radial-gradient(circle at 92% 0%, rgba(96,240,175,.16), transparent 38%), rgba(96,240,175,.08); }
+.mobile-home-quickstart-action span { width: fit-content; padding: 6px 9px; border: 1px solid rgba(245,200,106,.22); border-radius: 999px; color: var(--gold); background: rgba(245,200,106,.09); font-size: .68rem; font-weight: 950; letter-spacing: .09em; line-height: 1; text-transform: uppercase; }
+.mobile-home-quickstart-action strong { color: var(--ink); font-size: 1.05rem; line-height: 1.1; }
+.mobile-home-quickstart-action small { color: var(--muted); font-size: .85rem; font-weight: 820; line-height: 1.35; }
+.mobile-home-quickstart-action.random { justify-items: start; }
+.mobile-home-quickstart-action.random .random-solo-link { align-self: end; margin-top: auto; }
 .signed-out-quest-preview .quest-list-item { width: min(100%, 360px); gap: 12px; justify-items: center; transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease; }
 .signed-out-quest-preview .quest-list-item:hover, .signed-out-quest-preview .quest-list-item:focus-visible { transform: translateY(-3px) scale(1.025); background: var(--quest-pick-hover, rgba(245,200,106,.1)) !important; border-color: var(--quest-pick-border, rgba(245,200,106,.36)) !important; box-shadow: 0 18px 42px rgba(0,0,0,.24), 0 0 34px var(--quest-pick-shadow, rgba(245,200,106,.12)) !important; outline: none; }
 .signed-out-quest-preview .quest-list-item strong { max-width: 20ch; font-size: 1.12rem; line-height: 1.05; }
@@ -707,7 +717,7 @@ p { color: var(--muted); line-height: 1.5; }
 .active-quest-home-actions { grid-area: actions; }
 @media (max-width: 720px) { .active-quest-home-card { grid-template-columns: 1fr; grid-template-areas: "coat" "head" "meta" "copy" "latest" "actions"; text-align: center; justify-items: center; } .active-quest-home-card .section-head { justify-content: center; } .active-quest-home-card .active-quest-home-meta { width: 100%; } .home-active-run-panel { grid-template-columns: 1fr; } .home-active-run-card { text-align: left; } .active-quest-home-actions { justify-content: center; } }
 .quieter-secondary-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-@media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } .signed-out-quest-preview { grid-template-columns: 1fr; } .signed-out-home-hero .simplified-home-hero { min-height: 0; } }
+@media (max-width: 860px) { .clean-home-hero { grid-template-columns: 1fr; } .text-brand { width: max-content; } .signed-out-quest-preview { grid-template-columns: 1fr; } .signed-out-home-hero .simplified-home-hero { min-height: 0; } .mobile-home-quickstart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 
 /* Recommended first quests: show badge/logo art beside each quest. */
@@ -1933,6 +1943,7 @@ p { color: var(--muted); line-height: 1.5; }
   .mobile-app-dock-item { display: grid; min-width: 0; justify-items: center; gap: 3px; padding: 4px 2px 5px; border: 1px solid transparent; border-radius: 18px; color: var(--muted); font-size: 9px; font-weight: 950; line-height: 1.04; text-align: center; }
   .mobile-app-dock-item.active { color: var(--gold); background: rgba(245,200,106,.12); border-color: rgba(245,200,106,.22); }
   .mobile-app-dock-item.active .mobile-app-dock-icon { border-color: rgba(245,200,106,.32); background: rgba(245,200,106,.14); }
+  .mobile-home-quickstart-grid,
   .home-mobile-map-grid { grid-template-columns: 1fr; }
   .home-mobile-map-item { min-height: 126px; }
 
