@@ -45,6 +45,23 @@
 
 Bring the signed-in website Account home closer to the mobile Account tab by grouping chess username readiness, active Solo proof, Custom Side Quest management, Multiplayer participation, Settings, and Help & Support in the same order as the mobile account/support flow.
 
+## 2026-07-05 profile/account language slice
+
+- Re-checked the mobile Account/profile language in `apps/mobile/App.tsx`: the native account flow talks about public chess usernames, proof checks, Account, Side Quests, Trophy Cabinet, and Help & Support without exposing the older `runner`/`run` framing in top-level profile setup.
+- Updated `/profile` visible copy to use player-facing `Player profile`, `Player name`, `Profile line`, `Ready for proof`, and `Side Quest Chess can check public games` language.
+- Preserved the existing form field names and user-metadata helpers, since `runnerDisplayName` / `runnerBio` remain internal storage/API concepts.
+- Left the unrelated untracked research note `docs/research/SQC_MONETIZATION_RESEARCH_RECOMMENDATIONS_2026-07-01.md` untouched.
+
+Proof:
+
+- Desktop screenshot: `artifacts/sqc-profile-language-parity-2026-07-05/profile-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-profile-language-parity-2026-07-05/profile-mobile-web.png`.
+- `pnpm lint -- src/app/profile/page.tsx` passed.
+- `pnpm exec tsc --noEmit --pretty false` passed.
+- `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Screenshot server `pnpm exec next start -p 3047` rendered `/profile`; it also emitted the existing Clerk session-token redirect-loop warning during anonymous loads.
+
 ## 2026-07-05 home/onboarding entry slice
 
 - Re-checked the mobile Home source in `apps/mobile/App.tsx`: the first-run choice ladder exposes `Go on a Solo Side Quest`, `Join a Multiplayer Side Quest`, `Surprise me with a random Solo Side Quest`, and `Find your own path`.
