@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestDraftBuilder from "@/components/group-quest-draft-builder";
+import MultiplayerModeSwitcher from "@/components/multiplayer-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
 import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
@@ -65,6 +66,8 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
             <h1>Build a Multiplayer Side Quest. Blame your friends later.</h1>
           </div>
         </section>
+
+        <MultiplayerModeSwitcher active="create" />
 
         <section className="mission-card groupquests-create-card" aria-label="Multiplayer Side Quest draft builder">
           <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests, ...publicCommunityQuests]} initialQuestId={requestedQuestId} />

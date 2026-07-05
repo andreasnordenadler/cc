@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import MultiplayerModeSwitcher from "@/components/multiplayer-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { listPublicGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 
@@ -38,6 +39,8 @@ export default async function ScoreboardPage() {
             <Link className="button secondary" href="/groupquests">Open Multiplayer Side Quests</Link>
           </div>
         </section>
+
+        <MultiplayerModeSwitcher active="official" />
 
         <section className="mission-card official-scoreboard-guide" aria-label="Official leaderboard guide">
           <div className="section-head">

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import GroupQuestInviteKeyJoin from "@/components/group-quest-invite-key-join";
+import MultiplayerModeSwitcher from "@/components/multiplayer-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQuest } from "@/lib/groupquests";
 
@@ -212,6 +213,8 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
             </p>
           </section>
         ) : null}
+
+        <MultiplayerModeSwitcher active="overview" />
 
         {userId ? (
           <>

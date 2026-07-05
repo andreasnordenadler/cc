@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import CommunityLikeButton from "@/components/community-like-button";
+import MultiplayerModeSwitcher from "@/components/multiplayer-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { listPublicGroupQuests } from "@/lib/groupquests";
@@ -59,6 +60,8 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
             <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
           </div>
         </section>
+
+        <MultiplayerModeSwitcher active="community" />
 
         <section className="mission-card public-groupquests-list-card" aria-label="Public Multiplayer Side Quest listings">
           <div className="section-head">

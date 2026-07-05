@@ -2067,6 +2067,14 @@ p { color: var(--muted); line-height: 1.5; }
 }
 .side-quest-mode-switch strong { color: var(--ink); font-size: 1rem; line-height: 1.08; }
 .side-quest-mode-switch small { color: var(--muted); font-size: .78rem; line-height: 1.25; }
+.multiplayer-mode-switcher {
+  border-color: rgba(96,240,175,.18);
+  background: linear-gradient(135deg, rgba(96,240,175,.075), rgba(0,0,0,.18));
+}
+.multiplayer-mode-switcher .side-quest-mode-switch.active {
+  border-color: rgba(96,240,175,.46);
+  background: linear-gradient(135deg, rgba(96,240,175,.14), rgba(245,200,106,.075));
+}
 .official-side-quest-deck { display: grid; gap: 18px; }
 
 .community-board-card {
