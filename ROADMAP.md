@@ -100,6 +100,14 @@
 Last updated: 2026-06-15 15:29 Europe/Stockholm
 Owner: Sam  
 Status: SQC-website-parity-sprint / mobile-app-parity-target
+
+## Active queue update — 2026-07-04 SQC website mobile-language parity
+
+- [ ] Align website terminology and player-facing language with the mobile app.
+  - added_at: 2026-07-04 15:58 Europe/Stockholm
+  - source: Andreas flagged during the SQC website/app parity sprint that website terminology must match the mobile app; specifically old/internal wording such as `runs`, `SQC`, and `sqc` should not leak where the app uses different player-facing language.
+  - scope: audit and clean visible website copy across home, sign-in/sign-up, account/profile/connect, Solo, Custom Solo, Community Solo, Multiplayer, Trophy Cabinet, Leaderboards, proof receipts, support, and legal/support helper text where appropriate; keep technical identifiers, asset names, route slugs, storage keys, analytics enums, and non-visible API/internal strings unchanged unless they surface to players.
+  - proof_required: mobile app vocabulary spot-check, website grep before/after for flagged terminology, targeted lint/build for touched files, and browser/screenshot proof for representative surfaces.
 ## Active queue update — 2026-06-15 SQC Mobile hamburger custom-create shortcut
 
 - [x] Add a `Create Custom Side Quest` hamburger menu item before `Create Multiplayer Side Quest`.
