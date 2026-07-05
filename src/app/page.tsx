@@ -326,13 +326,13 @@ export default async function Home() {
               aria-label="Choose Solo Side Quest or Multiplayer Side Quest mode"
             >
               <Link
-                href="/challenges"
+                href="/solo"
                 className="button primary home-choice-button"
               >
                 Go on a <span>Solo Side Quest</span>
               </Link>
               <Link
-                href="/groupquests"
+                href="/multiplayer"
                 className="button primary home-choice-button"
               >
                 Join a <span>Multiplayer</span> Side Quest
@@ -399,7 +399,7 @@ export default async function Home() {
                 completedChallengeIds={progress.completedChallengeIds}
               />
               <p>
-                Or go <Link href="/challenges">find your own path</Link>.
+                Or go <Link href="/solo">find your own path</Link>.
               </p>
             </div>
           </aside>
@@ -541,7 +541,7 @@ export default async function Home() {
                   friends.
                 </p>
               </div>
-              <Link href="/groupquests" className="button secondary">
+              <Link href="/multiplayer" className="button secondary">
                 Join Multiplayer Side Quests
               </Link>
             </div>
@@ -649,12 +649,12 @@ export default async function Home() {
                     Add chess username
                   </Link>
                 ) : (
-                  <Link href="/challenges" className="button primary">
+                  <Link href="/solo" className="button primary">
                     Choose a quest
                   </Link>
                 )}
                 <Link
-                  href={activeSoloQuest ? activeSoloQuest.href : "/challenges"}
+                  href={activeSoloQuest ? activeSoloQuest.href : "/solo"}
                   className="button secondary"
                 >
                   {activeSoloQuest
@@ -944,7 +944,7 @@ export default async function Home() {
               </div>
 
               <div className="home-multiplayer-quests-footer">
-                <Link href="/groupquests" className="button secondary">
+                <Link href="/multiplayer" className="button secondary">
                   All Multiplayer Side Quests
                 </Link>
               </div>

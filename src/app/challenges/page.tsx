@@ -49,11 +49,11 @@ export default async function ChallengesPage() {
             </p>
           </div>
           <div className="challenges-clean-hero-actions" aria-label="Other Side Quest modes">
-            <Link href="/challenges/community" className="mode-link-card">
+            <Link href="/community" className="mode-link-card">
               <span>Community Solo Side Quests</span>
               <strong>Player-made rules</strong>
             </Link>
-            <Link href="/groupquests" className="mode-link-card">
+            <Link href="/multiplayer" className="mode-link-card">
               <span>Multiplayer</span>
               <strong>Shared chaos</strong>
             </Link>
