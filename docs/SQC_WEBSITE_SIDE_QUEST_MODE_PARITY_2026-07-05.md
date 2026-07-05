@@ -66,3 +66,29 @@ Verification:
 - `pnpm build` passed with the existing Next workspace-root warning.
 - Desktop screenshot: `artifacts/sqc-multiplayer-signedout-parity-2026-07-05/multiplayer-desktop.png`.
 - Mobile-web screenshot: `artifacts/sqc-multiplayer-signedout-parity-2026-07-05/multiplayer-mobile-web.png`.
+
+## 2026-07-05 continuation - signed-out Account entry parity
+
+Source check: mobile `AccountTrackerDashboard` keeps Account as a first-class screen before authentication, with the copy "Sign in, then go make terrible chess decisions.", a primary sign-in action, a Browse Side Quests action, and an Account sync checklist.
+
+| Mobile Account surface | Mobile source | Website coverage after slice | Status |
+| --- | --- | --- | --- |
+| Account tab while signed out | bottom tab `Account` opens Account screen | `/account` now renders a signed-out Account screen instead of redirecting immediately to `/sign-in` | Improved |
+| Sign-in/account hamburger item | `Sign in / Account` opens Account screen | web mobile-app menu now links signed-out `Sign in / Account` to `/account` | Improved |
+| Bottom Account tab | bottom tab `Account` opens Account screen | web mobile dock Account now links signed-out users to `/account` | Improved |
+| Browse before sign-in | mobile account screen secondary `Browse Side Quests` action | signed-out `/account` includes `Browse Side Quests` and an account sync checklist | Improved |
+
+Implemented proof:
+
+- Removed the signed-out `/account` hard redirect so the web Account route behaves like the mobile Account tab.
+- Added a compact signed-out Account screen with mobile-matched headline, sign-in CTA, browse CTA, and sync/readiness checklist.
+- Updated `SiteNav` account destinations so the mobile-web menu and bottom dock both enter `/account` before auth.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx src/app/account/page.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-account-signedout-parity-2026-07-05/account-desktop-static.png`.
+- Mobile-web screenshot: `artifacts/sqc-account-signedout-parity-2026-07-05/account-mobile-web-static.png`.
+- Screenshot note: local Next `/account` rendering is still blocked by the existing Clerk session-token redirect loop, so these screenshots use a static Playwright render of the changed Account markup and production CSS.

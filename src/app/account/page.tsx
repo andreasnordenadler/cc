@@ -8,7 +8,6 @@ import ShareProofActions from "@/components/share-proof-actions";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import SiteNav from "@/components/site-nav";
-import { redirect } from "next/navigation";
 import { CHALLENGES } from "@/lib/challenges";
 import { buildPublicProofPath, publicProofImagePath } from "@/lib/proof-share";
 import {
@@ -40,7 +39,48 @@ export default async function MyQuestLogPage() {
   const user = await currentUser();
 
   if (!user) {
-    redirect("/sign-in");
+    return (
+      <main className="site-shell">
+        <SiteNav isSignedIn={false} active="account" />
+        <div className="content-wrap app-parity-account">
+          <section className="mission-card current-mission-card app-account-hero-card">
+            <div className="current-mission-copy">
+              <span className="eyebrow">Account</span>
+              <h1>Sign in, then go make terrible chess decisions.</h1>
+              <p className="hero-copy">
+                Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, Multiplayer tables, and proof cards.
+              </p>
+              <div className="button-row hero-actions">
+                <Link href="/sign-in" className="button primary">Continue with Google</Link>
+                <Link href="/solo" className="button secondary">Browse Side Quests</Link>
+              </div>
+            </div>
+          </section>
+
+          <section className="mission-card" aria-label="Account sync">
+            <span className="eyebrow">Account sync</span>
+            <h2>Browse now. Save progress after sign-in.</h2>
+            <p>
+              The mobile app keeps Account as a full screen even before sign-in. This web Account entry now does the same: it explains what sync unlocks and keeps browsing one tap away.
+            </p>
+            <div className="account-run-checklist" aria-label="Signed-out account setup steps">
+              <Link href="/solo" className="account-run-checklist-row ready">
+                <span>Browse quests</span>
+                <strong>Quest goals, rewards, and Coat of Arms previews are available before sign-in.</strong>
+              </Link>
+              <Link href="/sign-in" className="account-run-checklist-row missing">
+                <span>Account sign-in</span>
+                <strong>Sign in to save progress, proof receipts, and custom Side Quests.</strong>
+              </Link>
+              <div className="account-run-checklist-row missing">
+                <span>Chess username</span>
+                <strong>Add Lichess or Chess.com after sign-in so proof checks can run.</strong>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    );
   }
 
   const client = await clerkClient();
