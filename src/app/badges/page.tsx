@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import ChallengeBadge from "@/components/challenge-badge";
 import ProofTime from "@/components/proof-time";
 import { ProofPositionMiniBoard } from "@/components/proof-position-board";
-import RatingPill from "@/components/rating-pill";
 import SiteNav from "@/components/site-nav";
-import { CHALLENGES, type Challenge } from "@/lib/challenges";
+import { CHALLENGES } from "@/lib/challenges";
 import { getChallengeAttempts, getChallengeProgress, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export default async function CoatOfArmsPage() {
@@ -28,31 +28,22 @@ export default async function CoatOfArmsPage() {
     <main className="site-shell">
       <SiteNav isSignedIn={Boolean(userId)} active="trophy" />
 
-      <div className="content-wrap">
-        <section className="hero-card home-badge-vault-card badges-page-hero" aria-label="Coat of arms intro">
-          <h1>Every bad idea deserves a coat of arms.</h1>
-          <div className="home-badge-art-row badges-live-roster" aria-label="Current live Side Quest Chess coats of arms">
-            {liveBadgeChallenges.map((challenge) => (
-              <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="home-badge-art-link badge-live-roster-link" aria-label={`Open ${challenge.title} quest`}>
-                <ChallengeBadge challenge={challenge} presentation="art" earned={completedSet.has(challenge.id)} />
-                <span>{challenge.title}</span>
-              </Link>
-            ))}
+      <div className="content-wrap app-parity-account app-parity-trophy">
+        <section className="mission-card trophy-app-hero" aria-label="Trophy Cabinet">
+          <div className="trophy-app-hero-art" aria-hidden="true">
+            <Image src="/sqc-logo-v11.png" alt="" width={172} height={172} />
           </div>
-        </section>
-
-        <section className="mission-card" aria-label="Coat of Arms progress">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Trophy Cabinet status</span>
-              <h2>{userId ? "Your Coat of Arms progress" : "Unlock your first Coat of Arms"}</h2>
+              <span className="eyebrow">Trophy Cabinet</span>
+              <h1>{userId ? "Your Coat of Arms" : "No Coat of Arms yet"}</h1>
               <p>
                 {userId
-                  ? "Your earned-vs-live Coat of Arms progress is ready here, with quick paths back to receipts and account trophies."
-                  : "Sign in when you want SQC to remember earned coats, proof receipts, Custom Solo Side Quest trophies, and Multiplayer podium scrolls."}
+                  ? "Completed Side Quests, proof boards, and saved receipts."
+                  : "Complete a Side Quest to unlock your first trophy."}
               </p>
             </div>
-            <Link href={userId ? "/account" : "/sign-in"} className="button secondary">
+            <Link href={userId ? "/account" : "/sign-in"} className="button primary">
               {userId ? "Open Trophy Cabinet" : "Sign in to save coats"}
             </Link>
           </div>
@@ -63,60 +54,54 @@ export default async function CoatOfArmsPage() {
           </div>
         </section>
 
-        <section className="mission-card badge-vault-guide" aria-label="Coat room guide">
+        <section className="mission-card app-trophy-row-panel" aria-label="Live Side Quest coats">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Coat room guide</span>
-              <h2>Pick a crest, run the quest, keep the receipt.</h2>
-              <p>
-                Each coat below now reads like a small quest card: what it asks for, how hard it is, and whether it is already in your Trophy Cabinet.
-              </p>
+              <span className="eyebrow">Side Quest coats</span>
+              <h2>Live trophies</h2>
             </div>
             <Link href="/solo" className="button secondary">
               Browse Solo Side Quests
             </Link>
           </div>
-          <div className="badge-guide-steps" aria-label="How coats unlock">
-            <div>
-              <strong>1. Choose the crest</strong>
-              <span>Open any coat to inspect the matching Solo Side Quest.</span>
-            </div>
-            <div>
-              <strong>2. Play a public game</strong>
-              <span>SQC checks Lichess or Chess.com proof after the quest starts.</span>
-            </div>
-            <div>
-              <strong>3. Save the proof</strong>
-              <span>Passed runs become receipt links and Trophy Cabinet entries.</span>
-            </div>
+          <div className="app-row-list" aria-label="Current live Side Quest Chess coats of arms">
+            {liveBadgeChallenges.map((challenge) => (
+              <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="app-proof-row" aria-label={`Open ${challenge.title} quest`}>
+                <ChallengeBadge challenge={challenge} presentation="art" earned={completedSet.has(challenge.id)} />
+                <span>
+                  <small>{completedSet.has(challenge.id) ? "In your Trophy Cabinet" : "Ready to earn"}</small>
+                  <strong>{challenge.title}</strong>
+                  <em>{challenge.objective}</em>
+                </span>
+                <b>{challenge.difficulty}</b>
+              </Link>
+            ))}
           </div>
         </section>
 
         {userId && completedProofBoards.length ? (
-          <section className="mission-card trophy-proof-board-section" aria-label="Verified Trophy Cabinet chess boards">
+          <section className="mission-card trophy-proof-board-section app-trophy-row-panel" aria-label="Verified Trophy Cabinet chess boards">
             <div className="section-head">
               <div>
                 <span className="eyebrow">SQC proof boards</span>
-                <h2>Verified chess boards in your Trophy Cabinet</h2>
-                <p>
-                  The website now mirrors the app’s completed-proof view: final board positions appear beside saved proof receipts when SQC has a verified FEN.
-                </p>
+                <h2>Verified boards</h2>
               </div>
               <Link href="/account" className="button secondary">Open Account Trophy Cabinet</Link>
             </div>
-            <div className="trophy-proof-board-grid">
+            <div className="app-row-list trophy-proof-board-grid">
               {completedProofBoards.map((item) => {
                 if (!item) return null;
                 const { challenge, latestProof } = item;
                 return (
-                  <Link href={`/challenges/${challenge.id}`} className="trophy-proof-board-card" key={challenge.id}>
+                  <Link href={`/challenges/${challenge.id}`} className="trophy-proof-board-card app-proof-row proof-board-row" key={challenge.id}>
                     <ChallengeBadge challenge={challenge} presentation="art" earned />
                     <span>
+                      <small>Completed proof</small>
                       <strong>{challenge.title}</strong>
-                      <small>
+                      <em>
                         {latestProof.lastMoveSan || latestProof.lastMoveUci ? `Final move ${latestProof.lastMoveSan ?? latestProof.lastMoveUci} · ` : null}
                         <ProofTime value={latestProof.completedGameAt ?? latestProof.checkedAt} />
-                      </small>
+                      </em>
                       <ProofPositionMiniBoard
                         fen={latestProof.finalPositionFen}
                         lastMoveUci={latestProof.lastMoveUci}
@@ -129,14 +114,6 @@ export default async function CoatOfArmsPage() {
             </div>
           </section>
         ) : null}
-
-        <section className="badge-vault-section" aria-label="Live quest coat of arms meanings">
-          <div className="badge-description-grid">
-            {CHALLENGES.map((challenge) => (
-              <BadgeMeaningCard key={challenge.id} challenge={challenge} earned={completedSet.has(challenge.id)} />
-            ))}
-          </div>
-        </section>
       </div>
     </main>
   );
@@ -154,39 +131,5 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
-  );
-}
-
-function BadgeMeaningCard({ challenge, earned }: { challenge: Challenge; earned: boolean }) {
-  return (
-    <Link href={`/challenges/${challenge.id}`} className="mission-card badge-meaning-card" aria-label={`Open ${challenge.title} quest`}>
-      <span className="badge-meaning-art-link" aria-hidden="true">
-        <ChallengeBadge challenge={challenge} presentation="art" earned={earned} />
-      </span>
-      <span className="badge-meaning-copy">
-        <span className={earned ? "badge-meaning-status earned" : "badge-meaning-status"}>{earned ? "In your Trophy Cabinet" : "Ready to earn"}</span>
-        <h2>{challenge.badgeIdentity.name}</h2>
-        <span className="badge-run-preview" aria-label={`${challenge.title} run preview`}>
-          <span>{challenge.difficulty}</span>
-          <RatingPill value={challenge.reward} />
-          <span>{challenge.category}</span>
-        </span>
-        <p>{challenge.objective}</p>
-        <dl>
-          <div>
-            <dt>Shield</dt>
-            <dd>{challenge.badgeIdentity.heraldry.shield}</dd>
-          </div>
-          <div>
-            <dt>Meaning</dt>
-            <dd>{challenge.badgeIdentity.heraldry.meaning}</dd>
-          </div>
-          <div>
-            <dt>Next step</dt>
-            <dd>Open {challenge.title} to start the run or check proof.</dd>
-          </div>
-        </dl>
-      </span>
-    </Link>
   );
 }

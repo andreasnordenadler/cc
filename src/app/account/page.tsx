@@ -18,7 +18,6 @@ import {
   getChessComUsername,
   getLichessUsername,
   getPreferredRunnerName,
-  getRunnerBio,
   getRunnerDisplayName,
   shouldPreselectDefaultStarterQuest,
   type UserMetadataRecord,
@@ -54,7 +53,6 @@ export default async function MyQuestLogPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const savedRunnerDisplayName = getRunnerDisplayName(metadata);
-  const runnerBio = getRunnerBio(metadata);
   const activeChallenge = getActiveChallenge(metadata);
   const runnerDisplayName = getPreferredRunnerName(metadata, {
     firstName: user.firstName,
@@ -99,12 +97,6 @@ export default async function MyQuestLogPage() {
   const joinedActiveGroupQuestCount = activeGroupQuests.length - hostedActiveGroupQuestCount;
   const publishedCustomSideQuestCount = customSideQuests.filter((quest) => quest.lifecycle !== "archived" && quest.lifecycle !== "draft").length;
   const draftCustomSideQuestCount = customSideQuests.filter((quest) => quest.lifecycle === "draft").length;
-  const readinessItems = [
-    { label: "Profile", value: savedRunnerDisplayName ? savedRunnerDisplayName : "Add display name", ready: Boolean(savedRunnerDisplayName), href: "/profile" },
-    { label: "Brag line", value: runnerBio ? "Saved" : "Add short bio", ready: Boolean(runnerBio), href: "/profile" },
-    { label: "Lichess", value: lichessUsername || "Add username", ready: Boolean(lichessUsername), href: "/connect" },
-    { label: "Chess.com", value: chessComUsername || "Add username", ready: Boolean(chessComUsername), href: "/connect" },
-  ];
   const progressItems = [
     { label: "Completed", value: completedChallenges.length.toString(), href: "/account" },
     { label: "Proofs", value: proofReceiptCount.toString(), href: "/account" },
@@ -167,22 +159,6 @@ export default async function MyQuestLogPage() {
       image: "/stamps/sqc-wax-seal-canonical.png",
     },
   ];
-  const mobileMenuShortcuts = [
-    { label: "Home", title: "Return to the app entry", href: "/" },
-    { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
-    { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
-    { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
-    { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
-    { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
-    { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
-    { label: "My Account", title: "Profile and proof tools", href: "/account" },
-    { label: "Help & Support", title: "Get account or proof help", href: "/support" },
-  ];
-  const webCompanionShortcuts = [
-    { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
-    { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
-    { label: "Settings", title: "Profile and proof tools", href: "/settings" },
-  ];
   const runChecklistItems = [
     {
       label: "1. Identity",
@@ -239,10 +215,10 @@ export default async function MyQuestLogPage() {
     <main className="site-shell">
       <SiteNav isSignedIn active="account" />
 
-      <div className="content-wrap my-quest-log focused-quest-log">
-        <section className="mission-card current-mission-card" aria-label="Current mission">
+      <div className="content-wrap my-quest-log focused-quest-log app-parity-account">
+        <section className="mission-card current-mission-card app-account-hero-card" aria-label="Account dashboard">
           <div className="current-mission-copy">
-            <span className="eyebrow">Current mission</span>
+            <span className="eyebrow">Account</span>
             <div className="current-mission-identity-row">
               <h1>{runnerDisplayName}</h1>
               <div className="account-status-strip" aria-label="Connected chess accounts">
@@ -253,12 +229,6 @@ export default async function MyQuestLogPage() {
             </div>
             <h2>{nextStep.title}</h2>
             <p>{nextStep.copy}</p>
-            <div className="button-row">
-              <Link href={nextStep.href} className="button primary">{nextStep.cta}</Link>
-              {activeQuestCompleted && activeChallengeRecord ? <Link href={`/challenges/${activeChallengeRecord.id}`} className="button secondary">Open completed quest</Link> : null}
-              <Link href="/profile" className="button secondary">Edit profile</Link>
-              <Link href="/custom" className="button secondary">My Custom Side Quests</Link>
-            </div>
             {activeChallengeRecord && latestActiveAttempt?.status === "passed" ? (
               <div className="current-proof-board-panel" aria-label={`${activeChallengeRecord.title} current proof board`}>
                 <div>
@@ -275,8 +245,7 @@ export default async function MyQuestLogPage() {
             ) : null}
             <div className="account-flow-panel" aria-label="Account flow">
               <div className="account-flow-head">
-                <span className="eyebrow">Account hub</span>
-                <p>Your current run in one place: public chess usernames, active Solo proof, Custom Side Quests, Multiplayer tables, Settings, and Support.</p>
+                <span className="eyebrow">Run dashboard</span>
               </div>
               <div className="account-flow-list">
                 {accountFlowRows.map((row) => (
@@ -292,44 +261,13 @@ export default async function MyQuestLogPage() {
                 ))}
               </div>
             </div>
-            <div className="account-mobile-shortcuts" aria-label="Mobile menu shortcuts">
-              <div className="account-mobile-shortcuts-head">
-                <span className="eyebrow">Mobile menu shortcuts</span>
-                <p>The account hub now follows the mobile hamburger order first: Home, Solo, Multiplayer, Trophy Cabinet, Custom, account, and Help &amp; Support.</p>
-              </div>
-              <div className="account-mobile-shortcut-grid">
-                {mobileMenuShortcuts.map((shortcut) => (
-                  <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
-                    <span>{shortcut.label}</span>
-                    <strong>{shortcut.title}</strong>
-                  </Link>
-                ))}
-              </div>
-              <div className="account-mobile-shortcut-grid companion">
-                {webCompanionShortcuts.map((shortcut) => (
-                  <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
-                    <span>{shortcut.label}</span>
-                    <strong>{shortcut.title}</strong>
-                  </Link>
-                ))}
-              </div>
-            </div>
-            <div className="account-readiness-panel" aria-label="Account readiness and progress">
+            <div className="account-readiness-panel app-account-status-panel" aria-label="Account readiness and progress">
               <div className="account-readiness-head">
-                <span className="eyebrow">Account readiness</span>
-                <p>Your run setup at a glance: public SQC identity, chess username for proof checks, active Solo Side Quest, saved proof receipts, Custom Solo Side Quests, and Multiplayer activity.</p>
+                <span className="eyebrow">Readiness</span>
               </div>
               <div className="account-run-checklist" aria-label="Ready to run checklist">
                 {runChecklistItems.map((item) => (
                   <Link className={`account-run-checklist-row ${item.ready ? "ready" : "missing"}`} href={item.href} key={item.label}>
-                    <span>{item.label}</span>
-                    <strong>{item.value}</strong>
-                  </Link>
-                ))}
-              </div>
-              <div className="account-readiness-grid" aria-label="Profile readiness">
-                {readinessItems.map((item) => (
-                  <Link className={`account-readiness-chip ${item.ready ? "ready" : "missing"}`} href={item.href} key={item.label}>
                     <span>{item.label}</span>
                     <strong>{item.value}</strong>
                   </Link>
@@ -381,14 +319,15 @@ export default async function MyQuestLogPage() {
           </div>
         </section>
 
-        <section className="mission-card quest-log-collection-card awkward-trophy-case">
+        <section className="mission-card quest-log-collection-card awkward-trophy-case app-account-trophy-card">
           <div className="section-head trophy-case-head">
             <div>
-              <h2>{completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length ? "A deeply unnecessary trophy cabinet." : "No completed side quests yet."}</h2>
+              <span className="eyebrow">Trophy Cabinet</span>
+              <h2>{completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length ? "Unlocked items" : "No Coat of Arms yet"}</h2>
               <p>
                 {completedChallenges.length || completedCustomQuestReceipts.length || multiplayerVictories.length
-                  ? "Officially impressive. Socially complicated. Please admire responsibly."
-                  : "No tiny heraldic paperwork yet. The shame is currently very organized."}
+                  ? "Completed Solo, Custom, and Multiplayer results live here."
+                  : "Complete a Side Quest to unlock your first trophy."}
               </p>
             </div>
           </div>
