@@ -77,3 +77,19 @@ Proof:
 - Screenshot proof: `artifacts/sqc-official-leaderboard-dock-parity-2026-07-05/home-desktop.png`, `artifacts/sqc-official-leaderboard-dock-parity-2026-07-05/home-mobile-dock.png`, and `artifacts/sqc-official-leaderboard-dock-parity-2026-07-05/leaderboards-mobile-dock-active.png`.
 - Verification: `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed with the existing CSS ignore warning; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
 - Remaining parity nuance: native Android still does not list `Official Leaderboards` in the five visible `TABS` array, so this website slice improves discoverability for the route while mobile product can still decide whether to promote that screen into native bottom navigation.
+
+## 2026-07-06 account/support parity slice
+
+- Re-checked mobile `TABS`, hamburger order, `AccountShell`, and `HelpSupportModal` topics in `apps/mobile/App.tsx`.
+- Kept the website mobile dock aligned with the native five visible tabs: `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, and `Account`.
+- Added a `Trophy Cabinet` destination into the signed-in web Account flow list so Account now surfaces Solo, Custom, Multiplayer, Trophy Cabinet, Settings, and Help & Support in one mobile-like dashboard path.
+- Renamed the web support route heading/metadata from `Support & privacy` to `Help & Support` while keeping privacy details on the page, matching the mobile hamburger label.
+- Left the unrelated untracked research note `docs/research/SQC_MONETIZATION_RESEARCH_RECOMMENDATIONS_2026-07-01.md` untouched.
+
+Proof:
+
+- Mobile source: `apps/mobile/App.tsx` lines around `TABS`, `GlobalHamburgerMenu`, `AccountShell`, and support topics.
+- Website routes: `src/components/site-nav.tsx`, `src/app/account/page.tsx`, `src/app/support/page.tsx`, `src/app/settings/page.tsx`, `src/app/page.tsx`, `src/app/solo/page.tsx`, `src/app/multiplayer/page.tsx`.
+- Screenshot proof: `artifacts/sqc-account-support-parity-2026-07-06/support-desktop.png`, `artifacts/sqc-account-support-parity-2026-07-06/support-mobile-web.png`, and `artifacts/sqc-account-support-parity-2026-07-06/account-mobile-signed-out.png`.
+- Verification: `pnpm lint -- src/app/account/page.tsx src/app/support/page.tsx` passed; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
+- Screenshot limitation: signed-in Account row order was verified by code and build, but screenshot capture used the signed-out Account state because no authenticated browser session was available.

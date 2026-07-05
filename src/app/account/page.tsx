@@ -183,6 +183,16 @@ export default async function MyQuestLogPage() {
       image: "/stamps/sqc-multiplayer-seal.png",
     },
     {
+      label: "Trophy Cabinet",
+      title: completedChallenges.length || completedCustomSideQuests.length || multiplayerVictories.length ? "Unlocked coats and podium scrolls" : "No Coat of Arms yet",
+      meta: completedChallenges.length || completedCustomSideQuests.length || multiplayerVictories.length
+        ? `${completedChallenges.length + completedCustomSideQuests.length} solo coat${completedChallenges.length + completedCustomSideQuests.length === 1 ? "" : "s"} · ${multiplayerVictories.length} Multiplayer podium scroll${multiplayerVictories.length === 1 ? "" : "s"}`
+        : "Complete a Solo, Custom, or Multiplayer Side Quest and the reward lands here.",
+      status: completedChallenges.length || completedCustomSideQuests.length || multiplayerVictories.length ? "Open" : "Empty",
+      href: "/trophy-cabinet",
+      image: "/badges/v6/proof-loop-test-badge.png",
+    },
+    {
       label: "Settings",
       title: "Profile and account tools",
       meta: "Edit profile, update chess usernames, and review account readiness.",

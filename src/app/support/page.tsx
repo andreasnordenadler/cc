@@ -7,11 +7,11 @@ import { getSupportMessages } from "@/lib/analytics";
 import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getChessComUsername, getLichessUsername, getRunnerDisplayName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata: Metadata = {
-  title: "Support & privacy — Side Quest Chess",
+  title: "Help & Support — Side Quest Chess",
   description:
-    "Support and privacy notes for Side Quest Chess: public-game checks, proof receipts, account setup, and what to send when something looks wrong.",
+    "Help and support notes for Side Quest Chess: public-game checks, proof receipts, account setup, and what to send when something looks wrong.",
   openGraph: {
-    title: "Support & privacy — Side Quest Chess",
+    title: "Help & Support — Side Quest Chess",
     description:
       "What Side Quest Chess reads, what it never asks for, and how to report proof or account issues.",
     url: "/support",
@@ -110,7 +110,8 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
 
       <div className="content-wrap">
         <section className="hero-card support-launch-hero">
-          <h1>Support & privacy.</h1>
+          <span className="eyebrow">Help &amp; Support</span>
+          <h1>Help &amp; Support.</h1>
           <p className="hero-copy">
             Side Quest Chess checks public chess games, saves your quest progress, and turns completed nonsense into proof receipts. Here is the simple version of what to do when something looks wrong — and what data SQC does, and does not, need.
           </p>
