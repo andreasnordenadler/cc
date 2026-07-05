@@ -95,7 +95,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
             <Link href="/custom" className={customActive ? "active" : undefined}>Custom</Link>
             <Link href="/community" className={communityActive ? "active" : undefined}>Community</Link>
             <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer</Link>
-            <Link href="/leaderboards" className={leaderboardsActive ? "active" : undefined}>Leaderboards</Link>
+            <Link href="/leaderboards" className={leaderboardsActive ? "active" : undefined}>Official Leaderboards</Link>
             <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
           </nav>
 

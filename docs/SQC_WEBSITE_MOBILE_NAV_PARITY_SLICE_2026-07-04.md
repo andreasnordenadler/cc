@@ -61,3 +61,25 @@ Verification:
 Remaining:
 
 - Authenticated `/account` shortcut screenshot still needs a signed-in browser session or test account.
+
+## 2026-07-05 continuation — exact official leaderboard nav label
+
+Source check: mobile `apps/mobile/App.tsx` still defines the top-level screen type `officialLeaderboards` and renders it as `Official Leaderboards.` in `OfficialMultiplayerLeaderboardsScreen`. The web already had `/leaderboards` as an alias for the official scoreboard route and exposed the same shortcut from Home, Account, and Settings.
+
+Change:
+
+- Updated the website primary nav label from `Leaderboards` to `Official Leaderboards` so the top-level web route now matches the mobile app screen name exactly while preserving `/leaderboards` and `/scoreboard`.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx` passed with the pre-existing `@next/next/no-img-element` nav-logo warning.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed.
+- Local screenshot smoke on `http://localhost:3024/leaderboards` captured:
+  - `artifacts/sqc-parity-official-nav-label-2026-07-05/leaderboards-desktop.png`
+  - `artifacts/sqc-parity-official-nav-label-2026-07-05/leaderboards-mobile-web-nav-scrolled.png`
+
+Remaining:
+
+- Mobile app hamburger does not currently expose `Official Leaderboards` even though the app has the screen type. Consider adding that app-side menu item in a mobile release slice.
+- Authenticated `/account` shortcut screenshot still needs a signed-in browser session or test account.
