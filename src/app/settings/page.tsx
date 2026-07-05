@@ -39,15 +39,20 @@ const settingsSections = [
 ];
 
 const mobileMenuShortcuts = [
+  { label: "Home", title: "Return to the app entry", href: "/" },
   { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
-  { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
+  { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
+  { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
   { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
   { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
-  { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
   { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
-  { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
-  { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
+  { label: "My Account", title: "Profile and proof tools", href: "/account" },
   { label: "Help & Support", title: "Get account or proof help", href: "/support" },
+];
+
+const webCompanionShortcuts = [
+  { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
+  { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
 ];
 
 export default async function SettingsPage() {
@@ -77,10 +82,18 @@ export default async function SettingsPage() {
           <div className="account-mobile-shortcuts-head">
             <span className="eyebrow">Mobile menu shortcuts</span>
             <h2>The same key routes, grouped for web.</h2>
-            <p>Mobile keeps these actions in the hamburger menu; the settings hub now mirrors that grouping so account, support, Community, Custom, Multiplayer, and Trophy Cabinet routes are easy to scan.</p>
+            <p>Mobile keeps these actions in the hamburger menu; the settings hub mirrors that order first, with web-only Community and Leaderboard shortcuts separated below.</p>
           </div>
           <div className="account-mobile-shortcut-grid">
             {mobileMenuShortcuts.map((shortcut) => (
+              <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
+                <span>{shortcut.label}</span>
+                <strong>{shortcut.title}</strong>
+              </Link>
+            ))}
+          </div>
+          <div className="account-mobile-shortcut-grid companion">
+            {webCompanionShortcuts.map((shortcut) => (
               <Link className="account-mobile-shortcut" href={shortcut.href} key={shortcut.href}>
                 <span>{shortcut.label}</span>
                 <strong>{shortcut.title}</strong>
