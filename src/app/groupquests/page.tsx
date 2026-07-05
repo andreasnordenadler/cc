@@ -112,6 +112,8 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
   const { userId } = await auth();
   const resolvedSearchParams = await searchParams;
   const inviteKey = typeof resolvedSearchParams?.inviteKey === "string" ? resolvedSearchParams.inviteKey : "";
+  const client = await clerkClient();
+  const publicQuests = await listPublicGroupQuests(client);
   let activeRooms: Array<{ title: string; status: string; meta: string; next: string; href: string; action: string; tone: string }> = [];
   let officialRooms: typeof activeRooms = [];
   let publicRooms: typeof activeRooms = [];
@@ -120,9 +122,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
   let officialWeeks: Array<{ id: string; label: string; rangeLabel: string; rooms: Array<{ title: string; meta: string; href: string; action: string }> }> = [];
 
   if (userId) {
-    const client = await clerkClient();
     const ownQuests = await listUserRelatedGroupQuests(client, userId);
-    const publicQuests = await listPublicGroupQuests(client);
 
     activeRooms = ownQuests
       .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
@@ -154,10 +154,6 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
         };
       });
 
-    const openPublicQuests = publicQuests
-      .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
-      .sort((a, b) => Number(Boolean(b.official)) - Number(Boolean(a.official)) || toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
-      .slice(0, 12);
     const finishedOfficialQuests = publicQuests
       .filter((quest) => quest.official && deriveQuestState(quest.startAt, quest.endAt).status === "Finished")
       .sort((a, b) => toTimestamp(b.endAt) - toTimestamp(a.endAt));
@@ -169,10 +165,16 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
       action: "Results",
     }));
     officialWeeks = buildOfficialWeeks(finishedOfficialQuests);
+  }
 
-    officialRooms = openPublicQuests.filter((quest) => quest.official).map((quest) => {
+  const openPublicQuests = publicQuests
+    .filter((quest) => deriveQuestState(quest.startAt, quest.endAt).status !== "Finished")
+    .sort((a, b) => Number(Boolean(b.official)) - Number(Boolean(a.official)) || toTimestamp(b.createdAt) - toTimestamp(a.createdAt))
+    .slice(0, 12);
+
+  officialRooms = openPublicQuests.filter((quest) => quest.official).map((quest) => {
         const isHost = quest.hostUserId === userId;
-        const isParticipant = quest.participants.some((participant) => participant.userId === userId);
+        const isParticipant = Boolean(userId && quest.participants.some((participant) => participant.userId === userId));
         return {
           title: quest.name,
           status: "Open",
@@ -184,9 +186,9 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
         };
       });
 
-    publicRooms = openPublicQuests.filter((quest) => !quest.official).map((quest) => {
+  publicRooms = openPublicQuests.filter((quest) => !quest.official).map((quest) => {
         const isHost = quest.hostUserId === userId;
-        const isParticipant = quest.participants.some((participant) => participant.userId === userId);
+        const isParticipant = Boolean(userId && quest.participants.some((participant) => participant.userId === userId));
         return {
           title: quest.name,
           status: "Open",
@@ -197,7 +199,6 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
           tone: "green",
         };
       });
-  }
 
   return (
     <main className="site-shell groupquests-page">
@@ -497,6 +498,74 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                     <span>{card.action}</span>
                   </Link>
                 ))}
+              </div>
+            </section>
+
+            <section className="mission-card groupquests-user-overview signed-out-multiplayer-browse" aria-label="Browse Multiplayer Side Quests">
+              <div className="section-head groupquests-command-head">
+                <div>
+                  <span className="eyebrow">Browse before sign-in</span>
+                  <h2>Official and Community Multiplayer Side Quests.</h2>
+                  <p>The mobile app opens Multiplayer on Official first, with Community one switch away. Web visitors can inspect those same public entry points before signing in to join.</p>
+                </div>
+                <Image alt="" className="groupquests-command-seal" height={112} src="/stamps/sqc-multiplayer-seal.png" width={112} />
+              </div>
+
+              <div className="groupquests-timeline-list" aria-label="Public Multiplayer Side Quest browse lanes">
+                <section className="groupquests-list-section official" aria-label="Official SQC Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Official SQC Multiplayer Side Quests</h3>
+                      <p>Curated SQC public events, shown first like the mobile Multiplayer tab.</p>
+                    </div>
+                    <span className="badge gold">{officialRooms.length}</span>
+                  </div>
+                  {officialRooms.length ? (
+                    <div className="groupquests-compact-room-list">
+                      {officialRooms.map((room) => (
+                        <Link className={`groupquests-compact-room official ${room.tone}`} href={room.href} key={room.href}>
+                          <strong>{room.status}</strong>
+                          <div>
+                            <small className="official-sqc-badge">Official SQC</small>
+                            <h4>{room.title}</h4>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.next}</span>
+                          <em>{room.action}</em>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>No official SQC Multiplayer Side Quests available right now.</p>}
+                </section>
+
+                <section className="groupquests-list-section" aria-label="Community Multiplayer Side Quests">
+                  <div className="groupquests-list-heading">
+                    <div>
+                      <h3>Community Multiplayer Side Quests</h3>
+                      <p>Public player-hosted tables anyone can inspect before joining.</p>
+                    </div>
+                    <span className="badge gold">{publicRooms.length}</span>
+                  </div>
+                  <div className="button-row">
+                    <Link className="button secondary" href="/groupquests/public">Open discovery filters</Link>
+                    <Link className="button ghost" href="/sign-in">Sign in to join</Link>
+                  </div>
+                  {publicRooms.length ? (
+                    <div className="groupquests-compact-room-list">
+                      {publicRooms.map((room) => (
+                        <Link className={`groupquests-compact-room ${room.tone}`} href={room.href} key={room.href}>
+                          <strong>{room.status}</strong>
+                          <div>
+                            <h4>{room.title}</h4>
+                            <p>{room.meta}</p>
+                          </div>
+                          <span>{room.next}</span>
+                          <em>{room.action}</em>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : <p>No public Community Multiplayer Side Quests available right now.</p>}
+                </section>
               </div>
             </section>
 

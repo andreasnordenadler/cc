@@ -41,3 +41,28 @@ This cron slice keeps the mobile app as the product source and narrows the websi
 
 - The website still uses separate routes where the mobile app uses in-shell tab and intent state.
 - Multiplayer has a similar Official/Community segmented catalog on mobile; website route coverage exists, but the browse UI is not identical.
+
+## 2026-07-05 continuation - signed-out Multiplayer browse parity
+
+Source check: `apps/mobile/App.tsx` opens `MultiplayerSideQuestsScreen` with `multiplayerCatalogTab` defaulting to `official`, a two-way Official/Community switch, signed-out official/community browse rows, and create/private-invite actions after the catalog lanes.
+
+| Mobile Multiplayer surface | Mobile source | Website coverage after slice | Status |
+| --- | --- | --- | --- |
+| Official Multiplayer Side Quests | `multiplayerCatalogTab === "official"` | `/multiplayer` now fetches public group quests for signed-out visitors and renders official rows before sign-in | Improved |
+| Community Multiplayer Side Quests | `multiplayerCatalogTab === "community"` | `/multiplayer` now renders public community rows before sign-in plus `/groupquests/public` filters | Improved |
+| Create Multiplayer Side Quest | mobile create modal and hamburger create action | `/groupquests/create` remains exposed from the switcher and logged-out action cards | Covered |
+| My active Multiplayer Side Quests | mobile community active/joined/hosted lane | `/multiplayer` keeps the signed-in active/joined/hosted overview | Covered |
+
+Implemented proof:
+
+- Updated `MultiplayerModeSwitcher` ordering and labels to match the mobile mental model: Official, Community, Create, then My active.
+- Moved public Multiplayer listing fetches outside the signed-in-only branch so signed-out web visitors can inspect official and community public tables, matching the mobile signed-out browse behavior.
+- Added a signed-out `/multiplayer` browse section with separate Official SQC and Community lanes before private invite and create actions.
+
+Verification:
+
+- `pnpm lint -- src/components/multiplayer-mode-switcher.tsx src/app/groupquests/page.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-multiplayer-signedout-parity-2026-07-05/multiplayer-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-multiplayer-signedout-parity-2026-07-05/multiplayer-mobile-web.png`.

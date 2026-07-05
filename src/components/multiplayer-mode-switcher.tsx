@@ -14,32 +14,32 @@ const multiplayerModes: Array<{
   href: string;
 }> = [
   {
-    id: "overview",
-    label: "My Tables",
-    title: "Multiplayer Side Quests",
-    copy: "Resume active, joined, hosted, and private-code tables.",
-    href: "/multiplayer",
+    id: "official",
+    label: "Official Side Quests",
+    title: "Official Multiplayer",
+    copy: "Join SQC official runs and inspect final weekly results.",
+    href: "/leaderboards",
   },
   {
     id: "community",
-    label: "Community",
-    title: "Public tables",
-    copy: "Browse open, joined, hosted, and finished community runs.",
+    label: "Community Side Quests",
+    title: "Community Multiplayer",
+    copy: "Browse open, joined, hosted, and finished public runs.",
     href: "/groupquests/public",
   },
   {
     id: "create",
-    label: "Create",
+    label: "Create Multiplayer Side Quest",
     title: "Create Multiplayer",
     copy: "Pick Side Quests, proof window, access, and rules.",
     href: "/groupquests/create",
   },
   {
-    id: "official",
-    label: "Official",
-    title: "Official Leaderboards",
-    copy: "Track weekly official runs, final results, and archives.",
-    href: "/leaderboards",
+    id: "overview",
+    label: "My active",
+    title: "My Multiplayer Side Quests",
+    copy: "Resume active, joined, hosted, and invite-code tables.",
+    href: "/multiplayer",
   },
 ];
 
