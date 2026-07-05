@@ -87,6 +87,14 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
       ),
     },
     {
+      id: "leaderboards",
+      label: "Official Leaderboards",
+      labelLines: ["Leaders"],
+      href: "/leaderboards",
+      active: leaderboardsActive,
+      icon: <span className="mobile-app-dock-letter">LB</span>,
+    },
+    {
       id: "account",
       label: "Account",
       labelLines: ["Account"],

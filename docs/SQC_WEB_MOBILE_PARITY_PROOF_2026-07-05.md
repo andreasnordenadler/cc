@@ -51,3 +51,12 @@ Bring the signed-in website Account home closer to the mobile Account tab by gro
 - Added a compact website home quick-start band above the signed-out explainer and app map so desktop and mobile web present those same four entry decisions before the larger route catalog.
 - Kept the existing hero, app map, signed-in proof controls, and route aliases intact; this slice only changes the home entry hierarchy and responsive CSS.
 - Screenshot proof captured from local Next dev: `artifacts/sqc-home-entry-parity-2026-07-05/desktop-home-entry.png` and `artifacts/sqc-home-entry-parity-2026-07-05/mobile-home-entry.png`.
+
+## 2026-07-05 official leaderboard dock slice
+
+- Re-checked the mobile navigation source in `apps/mobile/App.tsx`: visible native bottom tabs are `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, and `Account`; the same `AppTab` union also includes `officialLeaderboards`, rendered by `OfficialMultiplayerLeaderboardsScreen`.
+- Website route coverage was already present at `/leaderboards`, but mobile web only exposed it through top nav/menu. Added an `Official Leaderboards` item to the mobile-web dock so the official competitive surface is reachable beside Multiplayer and Trophy Cabinet on small screens.
+- Adjusted the mobile-web dock from five to six stable columns and tightened label sizing so the new route does not crowd the existing core tabs.
+- Screenshot proof: `artifacts/sqc-official-leaderboard-dock-parity-2026-07-05/home-desktop.png`, `artifacts/sqc-official-leaderboard-dock-parity-2026-07-05/home-mobile-dock.png`, and `artifacts/sqc-official-leaderboard-dock-parity-2026-07-05/leaderboards-mobile-dock-active.png`.
+- Verification: `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed with the existing CSS ignore warning; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
+- Remaining parity nuance: native Android still does not list `Official Leaderboards` in the five visible `TABS` array, so this website slice improves discoverability for the route while mobile product can still decide whether to promote that screen into native bottom navigation.
