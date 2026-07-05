@@ -551,7 +551,7 @@ export default async function Home() {
               <strong>Coats and receipts</strong>
               <small>Review unlocked Solo coats, Custom proof, and Multiplayer podium rewards.</small>
             </Link>
-            <Link href={isSignedIn ? "/account" : "/sign-in"} className="home-mobile-map-item">
+            <Link href="/account" className="home-mobile-map-item">
               <span>{isSignedIn ? "Account" : "Sign in / Account"}</span>
               <strong>Profile and readiness</strong>
               <small>Connect usernames, review trophies, and manage support context.</small>

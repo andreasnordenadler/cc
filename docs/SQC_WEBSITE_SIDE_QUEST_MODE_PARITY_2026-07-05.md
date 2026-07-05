@@ -42,6 +42,29 @@ This cron slice keeps the mobile app as the product source and narrows the websi
 - The website still uses separate routes where the mobile app uses in-shell tab and intent state.
 - Multiplayer has a similar Official/Community segmented catalog on mobile; website route coverage exists, but the browse UI is not identical.
 
+## 2026-07-05 continuation - signed-out Account entry route parity
+
+Source check: mobile `AccountTrackerDashboard` stays a first-class Account screen when signed out. The web `/account` route already mirrors that screen, but two home/settings shortcuts still bypassed it and went straight to Clerk sign-in.
+
+| Mobile Account entry | Mobile source | Website coverage after slice | Status |
+| --- | --- | --- | --- |
+| Account tab while signed out | bottom tab `Account` opens Account screen | home App Map `Sign in / Account` now links to `/account` | Improved |
+| Settings account action while signed out | account/settings support routes keep Account as the readiness hub | Settings primary CTA now opens `/account` instead of bypassing the hub | Improved |
+| Account sign-in action | signed-out Account screen contains the actual sign-in CTA | `/account` remains the single signed-out Account handoff before auth | Covered |
+
+Implemented proof:
+
+- Updated the Home App Map signed-out `Sign in / Account` tile to enter `/account`.
+- Updated the Settings signed-out primary action to `Open Sign in / Account`, also entering `/account`.
+
+Verification:
+
+- `pnpm lint -- src/app/page.tsx src/app/settings/page.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-account-entry-route-parity-2026-07-05/home-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-account-entry-route-parity-2026-07-05/home-mobile-web.png`.
+
 ## 2026-07-05 continuation - signed-out Multiplayer browse parity
 
 Source check: `apps/mobile/App.tsx` opens `MultiplayerSideQuestsScreen` with `multiplayerCatalogTab` defaulting to `official`, a two-way Official/Community switch, signed-out official/community browse rows, and create/private-invite actions after the catalog lanes.

@@ -71,8 +71,8 @@ export default async function SettingsPage() {
             The mobile app keeps profile, chess usernames, custom quests, and support close to Account. This web settings hub puts those same destinations in one place.
           </p>
           <div className="button-row hero-actions">
-            <Link className="button primary" href={isSignedIn ? "/account" : "/sign-in"}>
-              {isSignedIn ? "Open My Account" : "Sign in"}
+            <Link className="button primary" href="/account">
+              {isSignedIn ? "Open My Account" : "Open Sign in / Account"}
             </Link>
             <Link className="button secondary" href="/support">Help &amp; Support</Link>
           </div>
