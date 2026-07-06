@@ -2416,6 +2416,64 @@ p { color: var(--muted); line-height: 1.5; }
   filter: blur(22px);
 }
 .app-side-quest-emblem img { position: relative; width: 82%; height: 82%; object-fit: contain; }
+.app-side-quest-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+.app-side-quest-stats span {
+  padding: 7px 10px;
+  border: 1px solid rgba(245,200,106,.18);
+  border-radius: 999px;
+  background: rgba(245,200,106,.08);
+  color: rgba(255,247,232,.82);
+  font-size: .78rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.app-side-quest-current {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid rgba(245,200,106,.18);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(245,200,106,.095), rgba(0,0,0,.18));
+}
+.app-side-quest-current-copy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+.app-side-quest-current-copy h2 { margin: 0; color: var(--ink); font-size: clamp(1.35rem, 2vw, 2rem); line-height: 1.05; }
+.app-side-quest-current-copy p { max-width: 62ch; margin: 0; color: var(--muted); }
+.app-side-quest-current-badge {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: min(160px, 28vw);
+  padding: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 20px;
+  background: rgba(0,0,0,.2);
+  color: var(--gold);
+  text-align: center;
+  transition: transform .16s ease, border-color .16s ease;
+}
+.app-side-quest-current-badge:hover,
+.app-side-quest-current-badge:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(245,200,106,.4);
+  outline: none;
+}
+.app-side-quest-current-badge img { width: min(94px, 100%); height: auto; object-fit: contain; }
+.app-side-quest-current-badge span {
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
 .app-side-quest-intents { display: grid; gap: 10px; }
 .app-side-quest-intent {
   display: grid;
@@ -2605,6 +2663,16 @@ p { color: var(--muted); line-height: 1.5; }
   .challenges-clean-hero-actions { grid-template-columns: 1fr; }
   .app-side-quest-hub-hero { grid-template-columns: 1fr; }
   .app-side-quest-emblem { width: 124px; justify-self: start; }
+  .app-side-quest-current {
+    grid-template-columns: 1fr;
+  }
+  .app-side-quest-current-badge {
+    width: 100%;
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start;
+    text-align: left;
+  }
+  .app-side-quest-current-badge img { width: 68px; }
   .app-side-quest-intent {
     grid-template-columns: auto minmax(0, 1fr);
     align-items: start;
