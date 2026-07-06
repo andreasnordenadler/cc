@@ -48,7 +48,7 @@ export default async function MyQuestLogPage() {
               <span className="eyebrow">Account</span>
               <h1>Sign in, then go make terrible chess decisions.</h1>
               <p className="hero-copy">
-                Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, Multiplayer tables, and proof cards.
+                Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, Multiplayer Side Quests, and proof cards.
               </p>
               <div className="button-row hero-actions">
                 <Link href="/sign-in" className="button primary">Continue with Google</Link>
@@ -177,7 +177,7 @@ export default async function MyQuestLogPage() {
     {
       label: "Multiplayer Side Quests",
       title: activeGroupQuests.length ? "Active Multiplayer Side Quests" : "Browse Multiplayer Side Quests",
-      meta: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Join an official table, join a community table, or create one for friends.",
+      meta: activeGroupQuests.length ? `${hostedActiveGroupQuestCount} hosted · ${joinedActiveGroupQuestCount} joined` : "Join an official quest, join a community quest, or create one for friends.",
       status: activeGroupQuests.length ? `${activeGroupQuests.length} active` : "Open",
       href: "/multiplayer",
       image: "/stamps/sqc-multiplayer-seal.png",
@@ -501,7 +501,7 @@ export default async function MyQuestLogPage() {
                       </Link>
                     )) : (
                       <div className="empty-collection-state trophy-empty-state">
-                        <p>No Multiplayer podium scrolls yet. Finish top-three in a completed table and the scroll lands here.</p>
+                        <p>No Multiplayer podium scrolls yet. Finish top-three in a completed Multiplayer Side Quest and the scroll lands here.</p>
                         <Link href="/multiplayer" className="button primary">Open Multiplayer Side Quests</Link>
                       </div>
                     )}

@@ -11,7 +11,7 @@ const settingsSections = [
   {
     label: "Profile",
     title: "Player profile",
-    copy: "Set the name, short line, and public identity used on proof receipts, leaderboards, and Multiplayer Side Quest tables.",
+    copy: "Set the name, short line, and public identity used on proof receipts, leaderboards, and Multiplayer Side Quests.",
     href: "/profile",
     action: "Edit profile",
   },
@@ -41,11 +41,11 @@ const settingsSections = [
 const mobileMenuShortcuts = [
   { label: "Home", title: "Return to the app entry", href: "/" },
   { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
-  { label: "Multiplayer Side Quests", title: "Browse shared tables", href: "/multiplayer" },
+  { label: "Multiplayer Side Quests", title: "Browse shared quests", href: "/multiplayer" },
   { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
   { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
   { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
-  { label: "Create Multiplayer Side Quest", title: "Host a table", href: "/groupquests/create" },
+  { label: "Create Multiplayer Side Quest", title: "Host a shared quest", href: "/groupquests/create" },
   { label: "My Account", title: "Profile and proof tools", href: "/account" },
   { label: "Help & Support", title: "Get account or proof help", href: "/support" },
 ];
@@ -107,7 +107,7 @@ export default async function SettingsPage() {
             <div>
               <span className="eyebrow">Account tools</span>
               <h2>Profile, proof, custom rules, and support.</h2>
-              <p>Use these routes to keep receipts, leaderboards, and Multiplayer tables tied to the right public chess identity.</p>
+              <p>Use these routes to keep receipts, leaderboards, and Multiplayer Side Quests tied to the right public chess identity.</p>
             </div>
           </div>
           <div className="home-mobile-map-grid">

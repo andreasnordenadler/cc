@@ -27,9 +27,9 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
         <section className="hero-card auth-copy-card auth-copy-card-filled">
           <div>
             <span className="eyebrow">Start your SQC account</span>
-            <h1>Make a runner profile for your Side Quests.</h1>
+            <h1>Make a player profile for your Side Quests.</h1>
             <p className="hero-copy">
-              One lightweight account saves your active run, proof receipts, coats of arms, and Multiplayer Side Quest tables.
+              One lightweight account saves your active Side Quest, proof receipts, coats of arms, and Multiplayer Side Quests.
             </p>
           </div>
 
@@ -37,7 +37,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             <div>
               <strong>1</strong>
               <span>Create the account</span>
-              <small>Use it to keep runs, coats, receipts, and tables tied to the same runner profile.</small>
+              <small>Use it to keep quests, coats, and receipts tied to the same player profile.</small>
             </div>
             <div>
               <strong>2</strong>
@@ -47,7 +47,7 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
             <div>
               <strong>3</strong>
               <span>Pick a first run</span>
-              <small>Start with Any Game Counts, browse Solo Side Quests, or join a Multiplayer table.</small>
+              <small>Start with Any Game Counts, browse Solo Side Quests, or join a Multiplayer Side Quest.</small>
             </div>
           </div>
 

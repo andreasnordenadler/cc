@@ -73,7 +73,7 @@ export default async function ProfilePage() {
             <div className="account-readiness-panel" aria-label="Profile readiness">
               <div className="account-readiness-head">
                 <span className="eyebrow">Ready for proof</span>
-                <p>Save these basics once, then Side Quest Chess can use the same profile across Solo Side Quests, Multiplayer tables, proof receipts, and leaderboards.</p>
+                <p>Save these basics once, then Side Quest Chess can use the same profile across Solo Side Quests, Multiplayer Side Quests, proof receipts, and leaderboards.</p>
               </div>
               <div className="account-readiness-grid">
                 {readinessItems.map((item) => (

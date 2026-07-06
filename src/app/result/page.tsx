@@ -251,12 +251,12 @@ export default async function ResultPage({
             </div>
             <div className="flow-step ready">
               <strong>Continue</strong>
-              <p>Pick another Solo Side Quest or find a shared Multiplayer table.</p>
+              <p>Pick another Solo Side Quest or find a shared Multiplayer Side Quest.</p>
             </div>
           </div>
           <div className="button-row">
             <Link href="/solo" className="button primary">Browse Solo Side Quests</Link>
-            <Link href="/groupquests/public" className="button secondary">Find Multiplayer tables</Link>
+            <Link href="/groupquests/public" className="button secondary">Find Multiplayer Side Quests</Link>
           </div>
         </section>
       </div>

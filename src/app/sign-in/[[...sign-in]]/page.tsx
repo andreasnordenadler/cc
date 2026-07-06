@@ -29,7 +29,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <span className="eyebrow">SQC account</span>
             <h1>Sign in, then go make terrible chess decisions.</h1>
             <p className="hero-copy">
-              Your account remembers your runner profile, public chess usernames, active Side Quest, coats, proof receipts, and Multiplayer tables.
+              Your account remembers your player profile, public chess usernames, active Side Quest, coats, proof receipts, and Multiplayer Side Quests.
             </p>
           </div>
 
@@ -37,7 +37,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
             <div>
               <strong>1</strong>
               <span>Open your run</span>
-              <small>Return to the Side Quest, table, or proof receipt you were trying to reach.</small>
+              <small>Return to the Side Quest, Multiplayer Side Quest, or proof receipt you were trying to reach.</small>
             </div>
             <div>
               <strong>2</strong>

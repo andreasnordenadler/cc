@@ -108,3 +108,18 @@ Proof:
 - Text sanity check on `/settings` and `/terms`: both pages contain `Help & Support`; neither contains the stale `Support & privacy` or `Support and privacy` label.
 - Verification: `pnpm lint -- src/app/settings/page.tsx src/app/terms/page.tsx` passed; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
 - Screenshot server: `pnpm exec next start -p 3056` after build.
+
+## 2026-07-06 top-level copy parity slice
+
+- Re-checked `apps/mobile/App.tsx` for the current top-level labels: Home, Solo Side Quests, Multiplayer Side Quests, Trophy Cabinet, Account, Help & Support, and player-facing account language.
+- Updated top-level web entry copy on Home, Account, Profile, Settings, Connect, Sign in, Sign up, Help & Support, Result, not-found, Public Multiplayer discovery, Official Leaderboards, and the shared Multiplayer mode switcher/invite form.
+- Replaced remaining entry-level `Multiplayer table`/`public tables`/`runner profile` phrasing with `Multiplayer Side Quest`, `public Multiplayer Side Quests`, and `player profile` language while leaving implementation names, route aliases, CSS classes, and deeper detail components untouched.
+- Left the unrelated untracked research note `docs/research/SQC_MONETIZATION_RESEARCH_RECOMMENDATIONS_2026-07-01.md` untouched.
+
+Proof:
+
+- Desktop screenshots: `artifacts/sqc-top-level-copy-parity-2026-07-06/home-desktop.png`, `artifacts/sqc-top-level-copy-parity-2026-07-06/leaderboards-desktop.png`.
+- Mobile-web screenshots: `artifacts/sqc-top-level-copy-parity-2026-07-06/public-multiplayer-mobile.png`, `artifacts/sqc-top-level-copy-parity-2026-07-06/support-mobile.png`.
+- Text sanity check confirmed the touched top-level files now expose `Multiplayer Side Quests`, `Browse public Multiplayer Side Quests`, `Host a shared quest`, `Separate scored quests`, and `player profile` copy.
+- Verification: `pnpm lint -- src/app/page.tsx src/app/not-found.tsx src/app/support/page.tsx src/app/scoreboard/page.tsx src/app/account/page.tsx src/app/profile/page.tsx src/app/settings/page.tsx src/app/groupquests/public/page.tsx src/app/result/page.tsx src/app/connect/page.tsx 'src/app/sign-in/[[...sign-in]]/page.tsx' 'src/app/sign-up/[[...sign-up]]/page.tsx' src/components/multiplayer-mode-switcher.tsx src/components/group-quest-invite-key-join.tsx` passed; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
+- Screenshot server: `pnpm exec next start -p 3058` after build.

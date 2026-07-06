@@ -32,10 +32,10 @@ export default async function ScoreboardPage() {
           <span className="eyebrow">Official Leaderboards</span>
           <h1>Track the official SQC race.</h1>
           <p className="hero-copy">
-            Three official Multiplayer Side Quests run in weekly sets. Follow the live tables, open final podium receipts, and browse the weekly archive from the SQC leaderboard hall.
+            Three official Multiplayer Side Quests run in weekly sets. Follow the live quests, open final podium receipts, and browse the weekly archive from the SQC leaderboard hall.
           </p>
           <div className="hero-actions button-row">
-            <Link className="button primary" href="/groupquests/public">Browse all public tables</Link>
+            <Link className="button primary" href="/groupquests/public">Browse public Multiplayer Side Quests</Link>
             <Link className="button secondary" href="/multiplayer">Open Multiplayer Side Quests</Link>
           </div>
         </section>
@@ -46,13 +46,13 @@ export default async function ScoreboardPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">How the hall works</span>
-              <h2>Pick a table, prove games, keep the receipt.</h2>
-              <p>Official leaderboards use the same verifier-backed Multiplayer flow as regular SQC tables, with final rows kept open after the window closes.</p>
+              <h2>Pick a Multiplayer Side Quest, prove games, keep the receipt.</h2>
+              <p>Official leaderboards use the same verifier-backed Multiplayer flow as regular SQC quests, with final rows kept open after the window closes.</p>
             </div>
           </div>
           <div className="official-scoreboard-guide-steps">
             <div>
-              <strong>1. Join the open table</strong>
+              <strong>1. Join the open quest</strong>
               <span>Open an active official Multiplayer Side Quest before the run window ends.</span>
             </div>
             <div>
@@ -61,7 +61,7 @@ export default async function ScoreboardPage() {
             </div>
             <div>
               <strong>3. Review the receipt</strong>
-              <span>Final podiums link back to the table so proof trails and reward context stay inspectable.</span>
+              <span>Final podiums link back to the quest so proof trails and reward context stay inspectable.</span>
             </div>
           </div>
         </section>
@@ -71,7 +71,7 @@ export default async function ScoreboardPage() {
             <div>
               <span className="eyebrow">Active now</span>
               <h2>Official leaderboards currently open.</h2>
-              <p>Join while a window is open, refresh real proof, and climb the table before the deadline.</p>
+              <p>Join while a window is open, refresh real proof, and climb the leaderboard before the deadline.</p>
             </div>
             <span className="badge gold">{currentOfficial.length}</span>
           </div>
@@ -81,8 +81,8 @@ export default async function ScoreboardPage() {
             </div>
           ) : (
             <div className="groupquest-empty-state" role="status">
-              <p>No active official week right now. The latest official tables are archived below; public Multiplayer tables may still be open.</p>
-              <Link className="button secondary" href="/groupquests/public?status=all">Check public Multiplayer tables</Link>
+              <p>No active official week right now. The latest official Multiplayer Side Quests are archived below; public Multiplayer Side Quests may still be open.</p>
+              <Link className="button secondary" href="/groupquests/public?status=all">Check public Multiplayer Side Quests</Link>
             </div>
           )}
         </section>
@@ -92,7 +92,7 @@ export default async function ScoreboardPage() {
             <div>
               <span className="eyebrow">Previous week</span>
               <h2>Latest final results.</h2>
-              <p>Finished official tables stay inspectable with final leaderboard rows and detail links.</p>
+              <p>Finished official Multiplayer Side Quests stay inspectable with final leaderboard rows and detail links.</p>
             </div>
             <span className="badge gold">{latestFinished.length}</span>
           </div>
@@ -176,7 +176,7 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
         ) : null}
       </div>
       <div className="official-scoreboard-next-step">
-        <span>{winner ? `Winner: ${winner.leaderboardName}` : compact ? status : "Open table"}</span>
+        <span>{winner ? `Winner: ${winner.leaderboardName}` : compact ? status : "Open quest"}</span>
         <Link className="button secondary compact-button" href={`/groupquests/${quest.id}`}>{final ? "View final receipt" : "Open leaderboard"}</Link>
       </div>
     </article>
@@ -198,14 +198,14 @@ function getPodiumRows(quest: ServerGroupQuest) {
 }
 
 function getViewerOfficialContext({ final, status, viewerCompletedCount, viewerIsHost, viewerJoined, viewerUserId }: { final: boolean; status: string; viewerCompletedCount: number; viewerIsHost: boolean; viewerJoined: boolean; viewerUserId?: string | null }) {
-  if (!viewerUserId) return status === "Finished" ? "Sign in to compare this final table with your account." : "Sign in to join from the detail page.";
-  if (viewerIsHost) return "Hosted by you · open the detail page to manage the table.";
+  if (!viewerUserId) return status === "Finished" ? "Sign in to compare this final quest with your account." : "Sign in to join from the detail page.";
+  if (viewerIsHost) return "Hosted by you · open the detail page to manage the quest.";
   if (viewerJoined) {
     const proofCopy = `${viewerCompletedCount} verified quest${viewerCompletedCount === 1 ? "" : "s"}`;
     if (final) return `You joined · final result saved · ${proofCopy}.`;
     return `Joined by you · open to check latest proof · ${proofCopy}.`;
   }
-  if (status === "Finished") return "You did not join this finished official table.";
+  if (status === "Finished") return "You did not join this finished official quest.";
   return "Not joined yet · open the detail page to join.";
 }
 

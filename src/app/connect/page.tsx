@@ -28,7 +28,7 @@ export default async function ConnectPage() {
     },
     {
       label: "Start a run",
-      value: "Pick a Solo Side Quest, Community Solo Side Quest, or Multiplayer table.",
+      value: "Pick a Solo Side Quest, Community Solo Side Quest, or Multiplayer Side Quest.",
       ready: hasChessIdentity,
     },
     {

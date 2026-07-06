@@ -46,8 +46,8 @@ const supportTopics = [
   },
   {
     label: "Multiplayer Side Quests",
-    value: "Separate scored tables",
-    copy: "Browse shared Multiplayer Side Quests, create your own, or join official tables. Multiplayer progress is scored separately from your Solo Side Quest.",
+    value: "Separate scored quests",
+    copy: "Browse shared Multiplayer Side Quests, create your own, or join official ones. Multiplayer progress is scored separately from your Solo Side Quest.",
   },
   {
     label: "Connecting chess accounts",
@@ -68,7 +68,7 @@ const reportChecklist = [
   },
   {
     label: "Community report",
-    copy: "For Community Solo Side Quests or Multiplayer, include the quest/table link and the public player or host name shown on SQC.",
+    copy: "For Community Solo Side Quests or Multiplayer, include the quest link and the public player or host name shown on SQC.",
   },
 ];
 

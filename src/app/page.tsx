@@ -429,7 +429,7 @@ export default async function Home() {
             <Link href="/multiplayer" className="mobile-home-quickstart-action">
               <span>Multiplayer</span>
               <strong>Join a Multiplayer Side Quest</strong>
-              <small>Browse official, public, or invite-code tables.</small>
+              <small>Browse official, public, or invite-code Multiplayer Side Quests.</small>
             </Link>
             <div className="mobile-home-quickstart-action random">
               <span>Random</span>
@@ -533,17 +533,17 @@ export default async function Home() {
             </Link>
             <Link href="/multiplayer" className="home-mobile-map-item">
               <span>Multiplayer Side Quests</span>
-              <strong>Shared tables</strong>
-              <small>Join official, public, or invite-code tables with separate proof.</small>
+              <strong>Shared quests</strong>
+              <small>Join official, public, or invite-code Multiplayer Side Quests with separate proof.</small>
             </Link>
             <Link href="/leaderboards" className="home-mobile-map-item">
               <span>Official Leaderboards</span>
               <strong>Weekly races</strong>
-              <small>Follow live official Multiplayer tables and inspect final weekly results.</small>
+              <small>Follow live official Multiplayer Side Quests and inspect final weekly results.</small>
             </Link>
             <Link href="/groupquests/create" className="home-mobile-map-item">
               <span>Create Multiplayer Side Quest</span>
-              <strong>Host a table</strong>
+              <strong>Host a shared quest</strong>
               <small>Pick the Side Quest lineup, invite mode, window, and player rules.</small>
             </Link>
             <Link href="/trophy-cabinet" className="home-mobile-map-item">

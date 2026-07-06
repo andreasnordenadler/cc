@@ -67,14 +67,14 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
           <div className="section-head">
             <div>
               <span className="eyebrow">Open listings</span>
-              <h2>Pick a table before the nonsense starts.</h2>
-              <p>{selectedHostQuest ? `Showing public Community Multiplayer tables hosted by ${selectedHostQuest.hostName}. Private invite-only tables and account details stay hidden.` : "Public Multiplayer Side Quests collect open tables anyone can inspect before joining."}</p>
+              <h2>Pick a Multiplayer Side Quest before the nonsense starts.</h2>
+              <p>{selectedHostQuest ? `Showing public Community Multiplayer Side Quests hosted by ${selectedHostQuest.hostName}. Private invite-only quests and account details stay hidden.` : "Public Multiplayer Side Quests collect open listings anyone can inspect before joining."}</p>
             </div>
             <span className="badge gold">{totalQuests}</span>
           </div>
           <form className="groupquest-empty-state public-multiplayer-discovery-panel" action="/groupquests/public" aria-label="Filter public Multiplayer Side Quests">
             <div className="community-discovery-intro">
-              <span className="eyebrow">Find a table</span>
+              <span className="eyebrow">Find a quest</span>
               <h3>Choose a Multiplayer run with the rules in view.</h3>
               <p>Search by title, host, or provider, then inspect the proof window before joining. Private invite codes and account details stay hidden.</p>
             </div>
@@ -103,14 +103,14 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
               {officialQuests.length ? (
                 <PublicQuestSection
                   title={selectedStatus === "finished" ? "Official SQC Multiplayer archive" : "Official SQC Multiplayer Side Quests"}
-                  copy={selectedStatus === "finished" ? "Final official SQC leaderboards and podium receipts stay inspectable after the event window closes." : "Curated SQC events, highlighted first for players who want the cleanest public table to join."}
+                  copy={selectedStatus === "finished" ? "Final official SQC leaderboards and podium receipts stay inspectable after the event window closes." : "Curated SQC events, highlighted first for players who want the cleanest public Multiplayer Side Quest to join."}
                   quests={officialQuests}
                 />
               ) : null}
               {communityQuests.length ? (
                 <PublicQuestSection
                   title="Public Multiplayer Side Quests"
-                  copy="Community-created public tables anyone can inspect and join."
+                  copy="Community-created public Multiplayer Side Quests anyone can inspect and join."
                   quests={communityQuests}
                 />
               ) : null}

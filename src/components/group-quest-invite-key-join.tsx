@@ -54,7 +54,7 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn, initialInviteKey =
       </label>
       <button className="button primary" disabled={busy} type="submit">{busy ? "Opening…" : "Open invite"}</button>
       {error ? <p className="groupquest-join-error" role="alert">{error}</p> : null}
-      <p className="microcopy">Use this only for private Multiplayer Side Quests. Public tables stay browsable below.</p>
+      <p className="microcopy">Use this only for private Multiplayer Side Quests. Public quests stay browsable below.</p>
     </form>
   );
 }
