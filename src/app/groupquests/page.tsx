@@ -215,7 +215,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
           </section>
         ) : null}
 
-        <MultiplayerModeSwitcher active="overview" />
+        <MultiplayerModeSwitcher active="official" />
 
         {userId ? (
           <>
@@ -255,9 +255,9 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
             <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
-                  <span className="eyebrow">Choose your Multiplayer Side Quest</span>
-                  <h2>Public, private, or hosted by you.</h2>
-                  <p>Start from the route that matches how your group wants to play, then inspect rules before anyone commits.</p>
+                  <span className="eyebrow">Community · create · join</span>
+                  <h2>Switch modes like the mobile Multiplayer screen.</h2>
+                  <p>Official Multiplayer Side Quests stay first. Community discovery, host creation, and private-code joining remain one tap away.</p>
                 </div>
               </div>
               <div className="groupquests-table-guide-grid">
@@ -290,7 +290,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               </p>
             </section>
 
-            <section className="mission-card groupquests-user-overview" aria-label="Your Multiplayer Side Quests overview">
+            <section className="mission-card groupquests-user-overview" id="my-multiplayer-side-quests" aria-label="Your Multiplayer Side Quests overview">
               <div className="section-head groupquests-command-head">
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
@@ -485,9 +485,9 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
             <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
-                  <span className="eyebrow">Choose your Multiplayer Side Quest</span>
-                  <h2>Public, private, or hosted by you.</h2>
-                  <p>Use the route that matches your group. Every Multiplayer Side Quest still shows its rules before anyone joins.</p>
+                  <span className="eyebrow">Community · create · join</span>
+                  <h2>Switch modes like the mobile Multiplayer screen.</h2>
+                  <p>Official Multiplayer Side Quests stay first. Community discovery, host creation, and private-code joining remain one tap away.</p>
                 </div>
               </div>
               <div className="groupquests-table-guide-grid">

@@ -18,8 +18,8 @@ const multiplayerModes: Array<{
     id: "official",
     label: "Official Side Quests",
     title: "Official Multiplayer",
-    copy: "Join SQC official runs and inspect final weekly results.",
-    href: "/leaderboards",
+    copy: "Default mobile entry: join official runs and inspect results.",
+    href: "/multiplayer",
     group: "catalog",
   },
   {
@@ -32,10 +32,10 @@ const multiplayerModes: Array<{
   },
   {
     id: "overview",
-    label: "My active",
+    label: "My active / join",
     title: "My Multiplayer Side Quests",
-    copy: "Resume active, joined, hosted, and invite-code quests.",
-    href: "/multiplayer",
+    copy: "Resume joined tables or enter a private host code.",
+    href: "/multiplayer#my-multiplayer-side-quests",
     group: "actions",
   },
   {
