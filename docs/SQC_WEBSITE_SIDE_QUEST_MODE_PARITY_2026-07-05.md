@@ -142,3 +142,31 @@ Verification:
 - Desktop screenshot: `artifacts/sqc-mobile-tab-dock-parity-2026-07-06/home-desktop.png`.
 - Mobile-web screenshot: `artifacts/sqc-mobile-tab-dock-parity-2026-07-06/home-mobile-viewport-tab-dock.png`.
 - Active Side Quest tab screenshot: `artifacts/sqc-mobile-tab-dock-parity-2026-07-06/solo-mobile-viewport-active-tab.png`.
+
+## 2026-07-06 continuation - top-level route visibility parity
+
+Source check: mobile `apps/mobile/App.tsx` still centers the app around `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, and `Account`, with menu actions for custom creation, multiplayer creation, and support. The website already had route coverage for Solo, Custom, Community, Multiplayer, Account, Settings, Support, and Official Leaderboards, but several parity destinations were only discoverable through `More` or absent from the app-style web menu.
+
+| Mobile / parity destination | Website coverage after slice | Status |
+| --- | --- | --- |
+| Solo Side Quests | Primary nav links directly to `/solo` as `Solo` | Covered |
+| My Custom Side Quests | Primary nav links directly to `/custom` as `Custom`; app-style menu includes `My Custom Side Quests` | Improved |
+| Community Side Quests | Primary nav links directly to `/community`; app-style menu includes `Community Side Quests` | Improved |
+| Multiplayer Side Quests | Primary nav links directly to `/multiplayer` as `Multiplayer`; app-style menu remains direct | Covered |
+| Official Leaderboards | Primary nav links directly to `/leaderboards`; app-style menu includes `Official Leaderboards` | Improved |
+| Trophy Cabinet | Primary nav and phone dock keep `/trophy-cabinet` | Covered |
+| Account / Settings / Support | App-style menu now includes `Settings`, `Sign in / Account` or `My Account`, and `Help & Support` | Improved |
+
+Implemented proof:
+
+- Promoted `Custom`, `Community`, and `Official Leaderboards` into the desktop primary nav so mandatory parity lanes are visible without opening `More`.
+- Expanded the mobile-web app menu to include Community, Official Leaderboards, and Settings alongside the existing mobile app menu destinations.
+- Kept the five-item phone bottom dock unchanged because it already matches the mobile app tab bar.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-top-level-route-visibility-parity-2026-07-06/solo-desktop-primary-nav.png`.
+- Mobile-web app-menu screenshot: `artifacts/sqc-top-level-route-visibility-parity-2026-07-06/solo-mobile-app-menu-expanded.png`.

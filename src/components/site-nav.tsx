@@ -22,15 +22,18 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const leaderboardsActive = active === "leaderboards" || active === "scoreboard";
   const trophyActive = active === "trophy" || active === "badges";
   const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
-  const moreActive = customActive || communityActive || leaderboardsActive || active === "support" || active === "settings";
+  const moreActive = active === "support" || active === "settings";
   const menuItems = [
     { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
     { id: "solo", label: "Solo Side Quests", href: "/solo", active: soloActive, glyph: "SQ" },
-    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
-    { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },
+    { id: "community", label: "Community Side Quests", href: "/community", active: communityActive, glyph: "CM" },
     { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive, glyph: "CS" },
     { id: "create-custom", label: "Create Custom Side Quest", href: "/custom#custom-side-quest-builder", active: false, glyph: "+C" },
+    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
     { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false, glyph: "+M" },
+    { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },
+    { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive, glyph: "LB" },
+    { id: "settings", label: "Settings", href: "/settings", active: active === "settings", glyph: "ST" },
     { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support", glyph: "HP" },
   ];
@@ -64,8 +67,11 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
               />
             </Link>
             <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
-            <Link href="/solo" className={soloActive ? "active" : undefined}>Solo Side Quests</Link>
-            <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer Side Quests</Link>
+            <Link href="/solo" className={soloActive ? "active" : undefined}>Solo</Link>
+            <Link href="/custom" className={customActive ? "active" : undefined}>Custom</Link>
+            <Link href="/community" className={communityActive ? "active" : undefined}>Community</Link>
+            <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer</Link>
+            <Link href="/leaderboards" className={leaderboardsActive ? "active" : undefined}>Official Leaderboards</Link>
             <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
             <Link href="/account" className={accountActive ? "active" : undefined}>{isSignedIn ? "My Account" : "Sign in / Account"}</Link>
             <details className={moreActive ? "nav-more-menu active" : "nav-more-menu"}>
