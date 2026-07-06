@@ -40,7 +40,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "settings", label: "Settings", href: "/settings", active: active === "settings", glyph: "ST" },
   ];
   const dockItems: MobileDockItem[] = [
-    { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
+    { id: "home", label: "Home", href: "/", active: active === "home", image: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
     { id: "solo", label: "Side Quests", href: "/solo", active: sideQuestTabActive, image: "/sqc-logo-v11.png" },
     { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerTabActive, glyph: "MP" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, image: "/badges/v6/proof-loop-test-badge.png" },

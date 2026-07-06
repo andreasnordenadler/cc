@@ -275,3 +275,29 @@ Verification:
 - Desktop screenshot: `artifacts/sqc-primary-route-label-parity-2026-07-06/solo-desktop-primary-nav.png`.
 - Mobile-web screenshot: `artifacts/sqc-primary-route-label-parity-2026-07-06/community-mobile-dock.png`.
 - Screenshot assertion: desktop nav labels included `Home`, `Solo`, `Custom`, `Community`, `Multiplayer`, `Trophy Cabinet`, and `Sign in / Account`; mobile Community kept the `Side Quests` dock item active.
+
+## 2026-07-06 continuation - Home dock icon parity
+
+Source check: mobile `apps/mobile/App.tsx` defines the Home bottom tab with the SQC topbar logo image (`/brand/sqc-alt-logo-topbar-20260507-v2.png`), while the previous web phone dock used the text glyph `HM`.
+
+| Mobile bottom tab | Mobile source | Website route coverage after slice | Status |
+| --- | --- | --- | --- |
+| Home | `TABS` id `home`, image `/brand/sqc-alt-logo-topbar-20260507-v2.png` | phone-width web dock now uses the same topbar logo image for `/` | Improved |
+| Side Quests | `TABS` id `sideQuests`, image `/sqc-logo-v11.png` | unchanged matching SQC logo image for `/solo` family | Covered |
+| Multiplayer Side Quests | vector account-group icon | unchanged compact web glyph for `/multiplayer` family | Covered |
+| Trophy Cabinet | `TABS` id `coatOfArms`, image `/badges/v6/proof-loop-test-badge.png` | unchanged matching trophy image for `/trophy-cabinet` | Covered |
+| Account | vector account-circle / signed-in shield state | unchanged compact signed-in/signed-out web glyph for `/account` family | Covered |
+
+Implemented proof:
+
+- Replaced the phone dock Home `HM` text glyph with the same SQC topbar logo image used by the native app tab.
+- Kept routes, labels, and active-state mapping unchanged.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-home-dock-icon-parity-2026-07-06/home-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-home-dock-icon-parity-2026-07-06/home-mobile-dock-icon.png`.
+- Screenshot note: local Next route rendering still hits the existing Clerk development-key session-token redirect loop, so these screenshots use a static Playwright render of the changed nav and dock markup; the mobile assertion confirmed the active Home dock icon uses `/brand/sqc-alt-logo-topbar-20260507-v2.png`.
