@@ -412,11 +412,10 @@ export default async function Home() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Quick start</span>
-              <h2>Start from the same choices the mobile app puts first.</h2>
+              <h2>Pick the kind of bad idea you want today.</h2>
               <p>
-                The native Home screen leads with Solo, Multiplayer, a random Solo
-                shortcut, and a way to browse your own path. These web shortcuts
-                keep the same entry points visible before the larger app map.
+                Start a Solo Side Quest, join a Multiplayer Side Quest, roll a
+                random dare, or browse until one feels dangerous enough.
               </p>
             </div>
           </div>
@@ -496,12 +495,11 @@ export default async function Home() {
           <div className="section-head">
             <div>
               <span className="eyebrow">App map</span>
-              <h2>Same Side Quest Chess loop, wherever you open it.</h2>
+              <h2>Everything starts from the same Side Quest loop.</h2>
               <p>
-                The web entry points now mirror the mobile app sections: Home,
-                Solo Side Quests, Community Side Quests, Custom Side Quests,
-                Multiplayer Side Quests, Trophy Cabinet, Account, and Help &amp;
-                Support, with Settings kept near account setup.
+                Choose a quest, play on Lichess or Chess.com, check proof, and
+                keep the useful account, trophy, custom, multiplayer, and support
+                paths within reach.
               </p>
             </div>
           </div>
@@ -516,10 +514,15 @@ export default async function Home() {
               <strong>Official deck</strong>
               <small>Pick one quest, play a fresh public game, then check proof.</small>
             </Link>
-            <Link href="/community" className="home-mobile-map-item">
-              <span>Community Side Quests</span>
-              <strong>Player-made rules</strong>
-              <small>Browse public custom quests and start them from your account.</small>
+            <Link href="/multiplayer" className="home-mobile-map-item">
+              <span>Multiplayer Side Quests</span>
+              <strong>Shared quests</strong>
+              <small>Join official, public, or invite-code Multiplayer Side Quests with separate proof.</small>
+            </Link>
+            <Link href="/trophy-cabinet" className="home-mobile-map-item">
+              <span>Trophy Cabinet</span>
+              <strong>Coats and receipts</strong>
+              <small>Review unlocked Solo coats, Custom proof, and Multiplayer podium rewards.</small>
             </Link>
             <Link href="/custom" className="home-mobile-map-item">
               <span>My Custom Side Quests</span>
@@ -529,42 +532,37 @@ export default async function Home() {
             <Link href="/custom#custom-side-quest-builder" className="home-mobile-map-item">
               <span>Create Custom Side Quest</span>
               <strong>Rule builder</strong>
-              <small>Start the same custom-creation flow exposed from the mobile menu.</small>
-            </Link>
-            <Link href="/multiplayer" className="home-mobile-map-item">
-              <span>Multiplayer Side Quests</span>
-              <strong>Shared quests</strong>
-              <small>Join official, public, or invite-code Multiplayer Side Quests with separate proof.</small>
-            </Link>
-            <Link href="/leaderboards" className="home-mobile-map-item">
-              <span>Official Leaderboards</span>
-              <strong>Weekly races</strong>
-              <small>Follow live official Multiplayer Side Quests and inspect final weekly results.</small>
+              <small>Open the rule builder and save a private draft or public challenge.</small>
             </Link>
             <Link href="/groupquests/create" className="home-mobile-map-item">
               <span>Create Multiplayer Side Quest</span>
               <strong>Host a shared quest</strong>
               <small>Pick the Side Quest lineup, invite mode, window, and player rules.</small>
             </Link>
-            <Link href="/trophy-cabinet" className="home-mobile-map-item">
-              <span>Trophy Cabinet</span>
-              <strong>Coats and receipts</strong>
-              <small>Review unlocked Solo coats, Custom proof, and Multiplayer podium rewards.</small>
-            </Link>
             <Link href="/account" className="home-mobile-map-item">
               <span>{isSignedIn ? "Account" : "Sign in / Account"}</span>
               <strong>Profile and readiness</strong>
               <small>Connect usernames, review trophies, and manage support context.</small>
             </Link>
-            <Link href="/settings" className="home-mobile-map-item">
-              <span>Settings</span>
-              <strong>Account tools</strong>
-              <small>Open profile, proof usernames, custom quest management, privacy, and support routes.</small>
-            </Link>
             <Link href="/support" className="home-mobile-map-item">
               <span>Help &amp; Support</span>
               <strong>Reports and FAQ</strong>
               <small>Send account, proof, Community Solo, or Multiplayer context to support.</small>
+            </Link>
+            <Link href="/community" className="home-mobile-map-item companion">
+              <span>Community Side Quests</span>
+              <strong>Player-made rules</strong>
+              <small>Browse public custom quests and start them from your account.</small>
+            </Link>
+            <Link href="/leaderboards" className="home-mobile-map-item companion">
+              <span>Official Leaderboards</span>
+              <strong>Weekly races</strong>
+              <small>Follow live official Multiplayer Side Quests and inspect final weekly results.</small>
+            </Link>
+            <Link href="/settings" className="home-mobile-map-item companion">
+              <span>Settings</span>
+              <strong>Account tools</strong>
+              <small>Open profile, proof usernames, custom quest management, privacy, and support routes.</small>
             </Link>
           </div>
         </section>

@@ -39,70 +39,6 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "settings", label: "Settings", href: "/settings", active: active === "settings" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support" },
   ];
-  const mobileDockItems = [
-    {
-      id: "home",
-      label: "Home",
-      labelLines: ["Home"],
-      href: "/",
-      active: active === "home",
-      icon: <span className="mobile-app-dock-letter">SQC</span>,
-    },
-    {
-      id: "solo",
-      label: "Side Quests",
-      labelLines: ["Side", "Quests"],
-      href: "/solo",
-      active: soloActive,
-      icon: (
-        <Image
-          alt=""
-          height={28}
-          src="/sqc-logo-v11.png"
-          width={28}
-        />
-      ),
-    },
-    {
-      id: "multiplayer",
-      label: "Multiplayer Side Quests",
-      labelLines: ["Multiplayer", "Side Quests"],
-      href: "/multiplayer",
-      active: multiplayerActive,
-      icon: (
-        <Image
-          alt=""
-          height={28}
-          src="/stamps/sqc-multiplayer-seal.png"
-          width={28}
-        />
-      ),
-    },
-    {
-      id: "trophy",
-      label: "Trophy Cabinet",
-      labelLines: ["Trophy", "Cabinet"],
-      href: "/trophy-cabinet",
-      active: trophyActive,
-      icon: (
-        <Image
-          alt=""
-          height={28}
-          src="/badges/v6/proof-loop-test-badge.png"
-          width={28}
-        />
-      ),
-    },
-    {
-      id: "account",
-      label: "Account",
-      labelLines: ["Account"],
-      href: "/account",
-      active: accountActive,
-      icon: <span className="mobile-app-dock-account">{isSignedIn ? "OK" : "IN"}</span>,
-    },
-  ];
-
   return (
     <>
       <header className="site-nav softer-site-nav">
@@ -171,24 +107,6 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         </div>
       </header>
 
-      <nav className="mobile-app-dock" aria-label="Mobile app tabs">
-        {mobileDockItems.map((item) => (
-          <Link
-            aria-current={item.active ? "page" : undefined}
-            aria-label={`Open ${item.label}`}
-            className={item.active ? "mobile-app-dock-item active" : "mobile-app-dock-item"}
-            href={item.href}
-            key={item.id}
-          >
-            <span className="mobile-app-dock-icon" aria-hidden="true">{item.icon}</span>
-            <span className="mobile-app-dock-item-label">
-              {item.labelLines.map((line) => (
-                <span key={line}>{line}</span>
-              ))}
-            </span>
-          </Link>
-        ))}
-      </nav>
     </>
   );
 }
