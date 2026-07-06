@@ -30,9 +30,11 @@ export default async function ScoreboardPage() {
       <div className="content-wrap leaderboard-coming-soon-page">
         <section className="hero-card leaderboard-coming-soon-hero">
           <span className="eyebrow">Official Leaderboards</span>
-          <h1>Track the official SQC race.</h1>
+          <h1>Official Leaderboards.</h1>
           <p className="hero-copy">
-            Three official Multiplayer Side Quests run in weekly sets. Follow the live quests, open final podium receipts, and browse the weekly archive from the SQC leaderboard hall.
+            {userId
+              ? "Three official Multiplayer Side Quests run every week — easy, medium, and hard. Track the live race, then review final weekly results."
+              : "Sign in to see active official weekly leaderboards, final results, and the official archive."}
           </p>
           <div className="hero-actions button-row">
             <Link className="button primary" href="/groupquests/public">Browse public Multiplayer Side Quests</Link>
@@ -69,8 +71,8 @@ export default async function ScoreboardPage() {
         <section className="mission-card" aria-label="Current official Multiplayer leaderboards">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Active now</span>
-              <h2>Official leaderboards currently open.</h2>
+              <span className="eyebrow">Current week</span>
+              <h2>Active official leaderboards.</h2>
               <p>Join while a window is open, refresh real proof, and climb the leaderboard before the deadline.</p>
             </div>
             <span className="badge gold">{currentOfficial.length}</span>
