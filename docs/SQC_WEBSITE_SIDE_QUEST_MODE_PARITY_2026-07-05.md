@@ -248,3 +248,30 @@ Verification:
 - Desktop screenshot: `artifacts/sqc-community-detail-nav-parity-2026-07-06/community-detail-desktop-static.png`.
 - Mobile-web screenshot: `artifacts/sqc-community-detail-nav-parity-2026-07-06/community-detail-mobile-static.png`.
 - Screenshot note: screenshots use the Community detail not-found route because the populated detail view depends on live Clerk-backed public custom quest data; Playwright assertions confirmed active nav labels `Community` and `Side Quests`.
+
+## 2026-07-06 continuation - primary route label parity repair
+
+Source check: mobile `apps/mobile/App.tsx` keeps the bottom tab family compact (`Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, `Account`) and exposes Custom/Community through the Side Quest surface. The website routes already cover those areas, but the desktop primary nav had drifted back to long Solo/Multiplayer labels while Custom and Community were tucked behind `More`.
+
+| Mobile / parity destination | Website route coverage after slice | Status |
+| --- | --- | --- |
+| Solo Side Quests | Primary nav links to `/solo` as `Solo`; app-style menu still says `Solo Side Quests` | Covered |
+| My Custom Side Quests | Primary nav links to `/custom` as `Custom`; app-style menu still says `My Custom Side Quests` | Improved |
+| Community Side Quests | Primary nav links to `/community` as `Community`; app-style menu still says `Community Side Quests` | Improved |
+| Multiplayer Side Quests | Primary nav links to `/multiplayer` as `Multiplayer`; phone dock remains `Multiplayer Side Quests` | Covered |
+| Account / Settings / Support | Account remains top-level; Settings and Help & Support stay in the app-style menu / More | Covered |
+
+Implemented proof:
+
+- Restored compact desktop primary navigation labels for the top-level product routes: `Solo`, `Custom`, `Community`, and `Multiplayer`.
+- Removed duplicate Custom and Community entries from `More`, keeping `More` focused on create/support/settings/leaderboard actions.
+- Kept the phone bottom dock and app-style hamburger labels unchanged so mobile-web still mirrors the native app tabs and menu wording.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-primary-route-label-parity-2026-07-06/solo-desktop-primary-nav.png`.
+- Mobile-web screenshot: `artifacts/sqc-primary-route-label-parity-2026-07-06/community-mobile-dock.png`.
+- Screenshot assertion: desktop nav labels included `Home`, `Solo`, `Custom`, `Community`, `Multiplayer`, `Trophy Cabinet`, and `Sign in / Account`; mobile Community kept the `Side Quests` dock item active.
