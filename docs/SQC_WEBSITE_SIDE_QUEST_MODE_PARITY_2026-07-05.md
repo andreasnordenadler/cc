@@ -115,3 +115,30 @@ Verification:
 - Desktop screenshot: `artifacts/sqc-account-signedout-parity-2026-07-05/account-desktop-static.png`.
 - Mobile-web screenshot: `artifacts/sqc-account-signedout-parity-2026-07-05/account-mobile-web-static.png`.
 - Screenshot note: local Next `/account` rendering is still blocked by the existing Clerk session-token redirect loop, so these screenshots use a static Playwright render of the changed Account markup and production CSS.
+
+## 2026-07-06 continuation - mobile tab dock parity
+
+Source check: mobile `apps/mobile/App.tsx` defines the bottom app tabs as `Home`, `Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, and `Account`. The website had the matching routes and hamburger/menu entry points, but phone-width web still lacked the app-like bottom tab structure.
+
+| Mobile tab | Mobile source | Website coverage after slice | Status |
+| --- | --- | --- | --- |
+| Home | `TABS` id `home` | fixed phone-width web dock links to `/` and marks Home active | Improved |
+| Side Quests | `TABS` id `sideQuests` | fixed phone-width web dock links to `/solo` and marks Solo/Side Quest routes active | Improved |
+| Multiplayer Side Quests | `TABS` id `multiplayerSideQuests` | fixed phone-width web dock links to `/multiplayer` and marks Multiplayer routes active | Improved |
+| Trophy Cabinet | `TABS` id `coatOfArms` | fixed phone-width web dock links to `/trophy-cabinet` and marks trophy/badge routes active | Improved |
+| Account | `TABS` id `account` | fixed phone-width web dock links to `/account`, including signed-out Account entry parity | Improved |
+
+Implemented proof:
+
+- Added a phone-width `mobile-tab-dock` to `SiteNav` with the same five primary app tabs and active state mapping.
+- Kept desktop navigation unchanged; the dock only appears under the existing phone-width media query and uses the existing mobile bottom padding.
+- Reused existing SQC image assets for Side Quests and Trophy Cabinet, with compact text glyphs for Home, Multiplayer, and Account.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed; ESLint warned that `src/app/globals.css` is ignored by the config.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-mobile-tab-dock-parity-2026-07-06/home-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-mobile-tab-dock-parity-2026-07-06/home-mobile-viewport-tab-dock.png`.
+- Active Side Quest tab screenshot: `artifacts/sqc-mobile-tab-dock-parity-2026-07-06/solo-mobile-viewport-active-tab.png`.

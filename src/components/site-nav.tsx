@@ -10,6 +10,10 @@ type SiteNavProps = {
   active: ActiveNavItem;
 };
 
+type MobileDockItem =
+  | { id: string; label: string; href: string; active: boolean; image: string; glyph?: never }
+  | { id: string; label: string; href: string; active: boolean; glyph: string; image?: never };
+
 export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const soloActive = active === "solo" || active === "challenges" || active === "random" || active === "path";
   const customActive = active === "custom";
@@ -29,6 +33,13 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false, glyph: "+M" },
     { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support", glyph: "HP" },
+  ];
+  const dockItems: MobileDockItem[] = [
+    { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
+    { id: "solo", label: "Side Quests", href: "/solo", active: soloActive, image: "/sqc-logo-v11.png" },
+    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
+    { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, image: "/badges/v6/proof-loop-test-badge.png" },
+    { id: "account", label: "Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
   ];
   const moreItems = [
     { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive },
@@ -107,6 +118,25 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         </div>
       </header>
 
+      <nav className="mobile-tab-dock" aria-label="Mobile app tabs">
+        {dockItems.map((item) => (
+          <Link
+            aria-current={item.active ? "page" : undefined}
+            className={item.active ? "mobile-tab-item active" : "mobile-tab-item"}
+            href={item.href}
+            key={item.id}
+          >
+            <span className="mobile-tab-icon" aria-hidden="true">
+              {item.image ? (
+                <Image alt="" height={30} src={item.image} width={30} />
+              ) : (
+                <span>{item.glyph}</span>
+              )}
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
     </>
   );
 }
