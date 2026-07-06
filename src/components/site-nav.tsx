@@ -18,6 +18,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const leaderboardsActive = active === "leaderboards" || active === "scoreboard";
   const trophyActive = active === "trophy" || active === "badges";
   const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
+  const moreActive = customActive || communityActive || leaderboardsActive || active === "support" || active === "settings";
   const menuItems = [
     { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
     { id: "solo", label: "Solo Side Quests", href: "/solo", active: soloActive, glyph: "SQ" },
@@ -28,9 +29,15 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false, glyph: "+M" },
     { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support", glyph: "HP" },
-    { id: "community", label: "Community Side Quests", href: "/community", active: communityActive, glyph: "CO" },
-    { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive, glyph: "LB" },
-    { id: "settings", label: "Settings", href: "/settings", active: active === "settings", glyph: "ST" },
+  ];
+  const moreItems = [
+    { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive },
+    { id: "create-custom", label: "Create Custom Side Quest", href: "/custom#custom-side-quest-builder", active: false },
+    { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false },
+    { id: "community", label: "Community Side Quests", href: "/community", active: communityActive },
+    { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive },
+    { id: "settings", label: "Settings", href: "/settings", active: active === "settings" },
+    { id: "support", label: "Help & Support", href: "/support", active: active === "support" },
   ];
   return (
     <header className="site-nav softer-site-nav">
@@ -48,9 +55,22 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           <Link href="/solo" className={soloActive ? "active" : undefined}>Solo Side Quests</Link>
           <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer Side Quests</Link>
           <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
-          <Link href="/custom" className={customActive ? "active" : undefined}>My Custom Side Quests</Link>
-          <Link href="/community" className={communityActive ? "active" : undefined}>Community Side Quests</Link>
-          <Link href="/leaderboards" className={leaderboardsActive ? "active" : undefined}>Official Leaderboards</Link>
+          <Link href="/account" className={accountActive ? "active" : undefined}>{isSignedIn ? "My Account" : "Sign in / Account"}</Link>
+          <details className={moreActive ? "nav-more-menu active" : "nav-more-menu"}>
+            <summary>More</summary>
+            <div className="nav-more-menu-panel" aria-label="More Side Quest Chess routes">
+              {moreItems.map((item) => (
+                <Link
+                  aria-current={item.active ? "page" : undefined}
+                  className={item.active ? "active" : undefined}
+                  href={item.href}
+                  key={item.id}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </details>
         </nav>
 
         <div className="nav-actions">
@@ -73,21 +93,14 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
               ))}
             </div>
           </details>
-          <Link href="/custom#custom-side-quest-builder" className={customActive ? "nav-pill nav-shortcut active" : "nav-pill nav-shortcut"}>Create Custom</Link>
-          <Link href="/groupquests/create" className={multiplayerActive ? "nav-pill nav-shortcut active" : "nav-pill nav-shortcut"}>Create Multiplayer</Link>
           {isSignedIn ? (
             <>
-              <Link href="/account" className={accountActive ? "nav-pill active" : "nav-pill"}>My Account</Link>
               <Link href="/profile" className={active === "profile" ? "nav-pill active" : "nav-pill"}>Profile</Link>
               <Link href="/settings" className={active === "settings" ? "nav-pill active" : "nav-pill"}>Settings</Link>
-              <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Help &amp; Support</Link>
               <UserButton />
             </>
           ) : (
-            <>
-              <AuthActionButtons />
-              <Link href="/support" className={active === "support" ? "nav-pill active" : "nav-pill"}>Help &amp; Support</Link>
-            </>
+            <AuthActionButtons />
           )}
         </div>
       </div>
