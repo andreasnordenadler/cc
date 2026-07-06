@@ -42,20 +42,24 @@ export default async function ChallengesPage() {
       <div className="content-wrap challenges-page-wrap">
         <section className="challenges-clean-hero" aria-labelledby="side-quests-title">
           <div>
-            <span className="eyebrow">Side Quests</span>
-            <h1 id="side-quests-title">Choose the next rule you’ll regret.</h1>
+            <span className="eyebrow">Solo Side Quests</span>
+            <h1 id="side-quests-title">Choose your next Side Quest.</h1>
             <p>
-              Official Solo Side Quests are the curated SQC deck: clear rules, live proof checks, and coat-of-arms rewards.
+              Pick one Side Quest, play on Lichess or Chess.com, then come back for automatic proof and a coat-of-arms reward.
             </p>
           </div>
-          <div className="challenges-clean-hero-actions" aria-label="Other Side Quest modes">
+          <div className="challenges-clean-hero-actions" aria-label="Solo Side Quest actions">
+            <Link href="/custom#custom-side-quest-builder" className="mode-link-card">
+              <span>Create Custom Side Quest</span>
+              <strong>Build a Side Quest</strong>
+            </Link>
             <Link href="/community" className="mode-link-card">
               <span>Community Solo Side Quests</span>
-              <strong>Player-made rules</strong>
+              <strong>Browse Community Side Quests</strong>
             </Link>
             <Link href="/multiplayer" className="mode-link-card">
-              <span>Multiplayer</span>
-              <strong>Shared chaos</strong>
+              <span>Multiplayer Side Quests</span>
+              <strong>Join a shared run</strong>
             </Link>
           </div>
         </section>
