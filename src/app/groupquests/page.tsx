@@ -28,36 +28,36 @@ const overviewSteps = [
 
 const loggedOutActions = [
   {
-    title: "Host a table",
+    title: "Host a Multiplayer Side Quest",
     copy: "Pick the quest stack, proof window, and invite style, then bring friends into a shared run.",
     action: "Create Multiplayer Side Quest",
     href: "/groupquests/create",
   },
   {
-    title: "Join a public table",
-    copy: "Browse open Multiplayer Side Quests, inspect the rule preview, and choose a table that fits your next game.",
-    action: "Browse Public Tables",
+    title: "Join a public Multiplayer Side Quest",
+    copy: "Browse open Multiplayer Side Quests, inspect the rule preview, and choose one that fits your next game.",
+    action: "Browse Public Multiplayer Side Quests",
     href: "/groupquests/public",
   },
 ];
 
 const tableGuideCards = [
   {
-    title: "Public table",
+    title: "Public Multiplayer Side Quest",
     copy: "Open discovery, visible rules, and a leaderboard anyone can inspect before joining.",
-    action: "Browse public tables",
+    action: "Browse public Multiplayer Side Quests",
     href: "/groupquests/public",
   },
   {
     title: "Private host code",
-    copy: "Use a host code when the table is for a known group and should stay out of public discovery.",
+    copy: "Use a host code when the Multiplayer Side Quest is for a known group and should stay out of public discovery.",
     action: "Enter code",
     href: "#private-invite",
   },
   {
     title: "Host your own",
     copy: "Create a launch-ready Multiplayer Side Quest with official or Custom Solo Side Quest rules and proof settings.",
-    action: "Build a table",
+    action: "Build a Multiplayer Side Quest",
     href: "/groupquests/create",
   },
 ];
@@ -252,10 +252,10 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               </div>
             </section>
 
-            <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest table">
+            <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
-                  <span className="eyebrow">Choose your table</span>
+                  <span className="eyebrow">Choose your Multiplayer Side Quest</span>
                   <h2>Public, private, or hosted by you.</h2>
                   <p>Start from the route that matches how your group wants to play, then inspect rules before anyone commits.</p>
                 </div>
@@ -276,7 +276,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                 <div>
                   <span className="eyebrow">Private invite</span>
                   <h2>Join by host code.</h2>
-                  <p>Paste a private Multiplayer Side Quest code here. Private tables stay hidden from public discovery.</p>
+                  <p>Paste a private Multiplayer Side Quest code here. Private Multiplayer Side Quests stay hidden from public discovery.</p>
                 </div>
               </div>
               <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
@@ -294,8 +294,8 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <div className="section-head groupquests-command-head">
                 <div>
                   <span className="eyebrow">My Multiplayer Side Quests</span>
-                  <h2>Your Multiplayer table room.</h2>
-                  <p>Active tables, open public runs, and finished proof receipts are grouped so the next action is clear.</p>
+                  <h2>Your Multiplayer Side Quest hub.</h2>
+                  <p>Active Multiplayer Side Quests, open public runs, and finished proof receipts are grouped so the next action is clear.</p>
                 </div>
                 <Image alt="" className="groupquests-command-seal" height={112} src="/stamps/sqc-multiplayer-seal.png" width={112} />
               </div>
@@ -471,10 +471,10 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <div>
                 <h2>A shared run with proof everyone can trust.</h2>
                 <p>
-                  Multiplayer Side Quests turn normal chess nights into a table challenge: one player hosts, everyone reviews the quest stack and game rules, then SQC checks real Lichess or Chess.com games for valid proof.
+                  Multiplayer Side Quests turn normal chess nights into a shared challenge: one player hosts, everyone reviews the quest stack and game rules, then SQC checks real Lichess or Chess.com games for valid proof.
                 </p>
                 <p>
-                  Each table has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters, but Multiplayer standings only count proof earned inside that table.
+                  Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters, but Multiplayer standings only count proof earned inside that shared event.
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
@@ -482,12 +482,12 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               </div>
             </section>
 
-            <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest table">
+            <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
-                  <span className="eyebrow">Choose your table</span>
+                  <span className="eyebrow">Choose your Multiplayer Side Quest</span>
                   <h2>Public, private, or hosted by you.</h2>
-                  <p>Use the route that matches your group. Every table still shows its rules before anyone joins.</p>
+                  <p>Use the route that matches your group. Every Multiplayer Side Quest still shows its rules before anyone joins.</p>
                 </div>
               </div>
               <div className="groupquests-table-guide-grid">
@@ -574,7 +574,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                 <div>
                   <span className="eyebrow">Private invite</span>
                   <h2>Have a host code?</h2>
-                  <p>Paste a private Multiplayer Side Quest code after signing in. Public tables stay open to browse.</p>
+                  <p>Paste a private Multiplayer Side Quest code after signing in. Public Multiplayer Side Quests stay open to browse.</p>
                 </div>
               </div>
               <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
