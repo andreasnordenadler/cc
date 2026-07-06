@@ -4,7 +4,7 @@ import SiteNav from "@/components/site-nav";
 export default function CommunitySideQuestNotFound() {
   return (
     <main className="site-shell">
-      <SiteNav isSignedIn={false} active="challenges" />
+      <SiteNav isSignedIn={false} active="community" />
       <div className="content-wrap quest-detail-wrap">
         <section className="hero-card detail-hero quest-detail-hero community-side-quest-detail-hero">
           <span className="eyebrow">Community Solo Side Quest</span>

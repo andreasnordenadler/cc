@@ -18,8 +18,10 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const soloActive = active === "solo" || active === "challenges" || active === "random" || active === "path";
   const customActive = active === "custom";
   const communityActive = active === "community";
+  const sideQuestTabActive = soloActive || customActive || communityActive;
   const multiplayerActive = active === "multiplayer" || active === "groupquests";
   const leaderboardsActive = active === "leaderboards" || active === "scoreboard";
+  const multiplayerTabActive = multiplayerActive || leaderboardsActive;
   const trophyActive = active === "trophy" || active === "badges";
   const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
   const moreActive = active === "support" || active === "settings";
@@ -39,8 +41,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   ];
   const dockItems: MobileDockItem[] = [
     { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
-    { id: "solo", label: "Side Quests", href: "/solo", active: soloActive, image: "/sqc-logo-v11.png" },
-    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
+    { id: "solo", label: "Side Quests", href: "/solo", active: sideQuestTabActive, image: "/sqc-logo-v11.png" },
+    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerTabActive, glyph: "MP" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, image: "/badges/v6/proof-loop-test-badge.png" },
     { id: "account", label: "Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
   ];

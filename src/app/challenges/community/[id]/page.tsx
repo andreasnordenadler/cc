@@ -47,7 +47,7 @@ export default async function CommunitySideQuestDetailPage({ params }: { params:
   return (
     <main className="site-shell">
       <CommunitySoloAnalytics type="community_solo_detail" questId={quest.id} status="detail_view" onceKey={`community-solo-detail:${quest.id}`} />
-      <SiteNav isSignedIn={Boolean(userId)} active="challenges" />
+      <SiteNav isSignedIn={Boolean(userId)} active="community" />
 
       <div className="content-wrap quest-detail-wrap">
         <Link href="/community" className="button secondary back-to-hub">← Back to Community Solo Side Quests</Link>

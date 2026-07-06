@@ -170,3 +170,81 @@ Verification:
 - `pnpm build` passed with the existing Next workspace-root warning.
 - Desktop screenshot: `artifacts/sqc-top-level-route-visibility-parity-2026-07-06/solo-desktop-primary-nav.png`.
 - Mobile-web app-menu screenshot: `artifacts/sqc-top-level-route-visibility-parity-2026-07-06/solo-mobile-app-menu-expanded.png`.
+
+## 2026-07-06 continuation - Side Quest tab active-state parity
+
+Source check: mobile `apps/mobile/App.tsx` keeps Solo, Community discover, My Custom, and Create Custom inside the single `sideQuests` tab via `pendingSideQuestCatalogIntent`. The website already had route coverage and switchers for those modes, but the phone-width web bottom dock only marked `Side Quests` active on Solo/official routes.
+
+| Mobile Side Quest mode | Mobile source | Website coverage after slice | Status |
+| --- | --- | --- | --- |
+| Official Solo Side Quests | `activeTab === "sideQuests"` with official/default catalog | `/solo`, `/challenges`, `/random`, and `/path` keep the Side Quests dock tab active | Covered |
+| Community Side Quests | `pendingSideQuestCatalogIntent` / community discover mode inside `sideQuests` | `/community` and `/challenges/community` now keep the Side Quests dock tab active | Improved |
+| My Custom Side Quests | hamburger action sets `activeTab: "sideQuests"` and `pendingSideQuestCatalogIntent: "my-custom"` | `/custom` and `/account/custom-side-quests` now keep the Side Quests dock tab active | Improved |
+| Create Custom Side Quest | hamburger action sets `activeTab: "sideQuests"` and `pendingSideQuestCatalogIntent: "create-custom"` | `/custom#custom-side-quest-builder` remains in the Side Quests family and shares the same dock active state | Improved |
+
+Implemented proof:
+
+- Updated the web phone dock active-state mapping so `Side Quests` is selected for Solo, Community, and Custom website routes, matching the mobile app's single Side Quest shell tab.
+- Left desktop navigation destinations unchanged.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-sidequest-tab-active-parity-2026-07-06/community-desktop.png`.
+- Mobile-web Community screenshot: `artifacts/sqc-sidequest-tab-active-parity-2026-07-06/community-mobile-sidequest-tab-active.png`.
+- Mobile-web Custom screenshot: `artifacts/sqc-sidequest-tab-active-parity-2026-07-06/custom-mobile-sidequest-tab-active.png`.
+- Screenshot note: local Next route rendering is still blocked by the existing Clerk session-token redirect loop, so these screenshots use a static Playwright render of the changed dock state; both mobile captures reported the active dock item as `Side Quests`.
+
+## 2026-07-06 continuation - Multiplayer leaderboard dock parity
+
+Source check: mobile `apps/mobile/App.tsx` defines the bottom tab family as Home, Side Quests, Multiplayer Side Quests, Trophy Cabinet, and Account. It also has an `officialLeaderboards` shell screen for official multiplayer results, but no separate bottom tab for leaderboards.
+
+| Mobile top-level area | Mobile source | Website route coverage after slice | Status |
+| --- | --- | --- | --- |
+| Home / onboarding entry | `activeTab === "home"` / `TodayDashboard` | `/` keeps the Home dock item active | Covered |
+| Solo, Community, Custom | `activeTab === "sideQuests"` plus `pendingSideQuestCatalogIntent` | `/solo`, `/community`, `/custom`, `/challenges`, `/random`, `/path`, and `/account/custom-side-quests` keep the Side Quests dock item active | Covered |
+| Multiplayer Side Quests | `activeTab === "multiplayerSideQuests"` / `MultiplayerSideQuestsScreen` | `/multiplayer`, `/groupquests`, `/groupquests/public`, `/groupquests/create`, and detail/edit pages keep the Multiplayer dock item active | Covered |
+| Official multiplayer leaderboards | `activeTab === "officialLeaderboards"` / `OfficialMultiplayerLeaderboardsScreen` | `/leaderboards` and `/scoreboard` now keep the Multiplayer dock item active instead of leaving the phone dock with no selected tab | Improved |
+| Trophy Cabinet | `activeTab === "coatOfArms"` | `/trophy-cabinet` and `/badges` keep the Trophy Cabinet dock item active | Covered |
+| Account / profile / settings | `activeTab === "account"` / `AccountTrackerDashboard` | `/account`, `/profile`, `/connect`, and `/settings` keep the Account dock item active | Covered |
+| Support | hamburger `Help & Support` opens support flow | `/support` remains reachable from the web app menu; no bottom dock tab, matching mobile's non-tab support entry | Covered |
+
+Implemented proof:
+
+- Updated the web phone dock active-state mapping so Official Leaderboards and Scoreboard remain inside the Multiplayer Side Quests top-level tab family.
+- Left desktop navigation destinations unchanged; the Official Leaderboards top nav item still highlights independently on desktop.
+
+Verification:
+
+- `pnpm lint -- src/components/site-nav.tsx` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-multiplayer-leaderboard-dock-parity-2026-07-06/leaderboards-desktop.png`.
+- Mobile-web Leaderboards screenshot: `artifacts/sqc-multiplayer-leaderboard-dock-parity-2026-07-06/leaderboards-mobile-multiplayer-tab-active.png`.
+- Screenshot note: the local route rendered and the Playwright assertion confirmed the mobile dock active item as `Multiplayer Side Quests`; the dev server still logged the existing Clerk development-key session-token redirect warning.
+
+## 2026-07-06 continuation - Community detail nav parity
+
+Source check: mobile `apps/mobile/App.tsx` renders Community Solo Side Quest discovery and detail handoff inside `activeTab === "sideQuests"` via `QuestBoardDashboard`. The website community detail route already used the Side Quest shell, but desktop navigation highlighted the generic official challenge family instead of Community.
+
+| Mobile Side Quest surface | Mobile source | Website route coverage after slice | Status |
+| --- | --- | --- | --- |
+| Community catalog | `sideQuestCatalogTab === "community"` / discover mode | `/community` and `/challenges/community` keep Community selected | Covered |
+| Community detail | community detail opened from the Side Quest shell | `/challenges/community/[id]` now keeps Community selected in the desktop nav and Side Quests selected in the phone dock | Improved |
+| Missing community detail | same Community Side Quest family fallback | `/challenges/community/[id]` not-found now keeps Community selected instead of falling back to official challenges | Improved |
+
+Implemented proof:
+
+- Updated the Community Solo Side Quest detail and not-found pages to pass `active="community"` into `SiteNav`.
+- Kept official `/challenges/[id]` and dare routes unchanged so official Solo Side Quest details still highlight the Solo/Side Quests family.
+
+Verification:
+
+- `pnpm lint -- 'src/app/challenges/community/[id]/page.tsx' 'src/app/challenges/community/[id]/not-found.tsx'` passed.
+- `pnpm --dir apps/mobile typecheck` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Desktop screenshot: `artifacts/sqc-community-detail-nav-parity-2026-07-06/community-detail-desktop-static.png`.
+- Mobile-web screenshot: `artifacts/sqc-community-detail-nav-parity-2026-07-06/community-detail-mobile-static.png`.
+- Screenshot note: screenshots use the Community detail not-found route because the populated detail view depends on live Clerk-backed public custom quest data; Playwright assertions confirmed active nav labels `Community` and `Side Quests`.
