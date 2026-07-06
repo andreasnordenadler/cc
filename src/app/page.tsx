@@ -529,7 +529,7 @@ export default async function Home() {
               <strong>Build and publish</strong>
               <small>Create private drafts or public rules for solo and multiplayer use.</small>
             </Link>
-            <Link href="/custom#custom-side-quest-builder" className="home-mobile-map-item">
+            <Link href="/create-custom-side-quest" className="home-mobile-map-item">
               <span>Create Custom Side Quest</span>
               <strong>Rule builder</strong>
               <small>Open the rule builder and save a private draft or public challenge.</small>

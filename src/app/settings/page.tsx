@@ -44,7 +44,7 @@ const mobileMenuShortcuts = [
   { label: "Multiplayer Side Quests", title: "Browse shared quests", href: "/multiplayer" },
   { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
   { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
-  { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/custom#custom-side-quest-builder" },
+  { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/create-custom-side-quest" },
   { label: "Create Multiplayer Side Quest", title: "Host a shared quest", href: "/groupquests/create" },
   { label: "My Account", title: "Profile and proof tools", href: "/account" },
   { label: "Help & Support", title: "Get account or proof help", href: "/support" },

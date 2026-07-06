@@ -49,7 +49,7 @@ export default async function ChallengesPage() {
             </p>
           </div>
           <div className="challenges-clean-hero-actions" aria-label="Solo Side Quest actions">
-            <Link href="/custom#custom-side-quest-builder" className="mode-link-card">
+            <Link href="/create-custom-side-quest" className="mode-link-card">
               <span>Create Custom Side Quest</span>
               <strong>Build a Side Quest</strong>
             </Link>

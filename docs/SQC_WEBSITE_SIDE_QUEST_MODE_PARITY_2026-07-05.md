@@ -326,3 +326,30 @@ Verification:
 - `curl -I -L --max-redirs 5 http://localhost:3000/side-quests` returned `HTTP/1.1 200 OK` with signed-out Clerk state, so this route did not hit the known local refresh-loop blocker.
 - Desktop screenshot: `artifacts/sqc-side-quests-hub-intent-parity-2026-07-06/side-quests-desktop.png`.
 - Mobile-web screenshot: `artifacts/sqc-side-quests-hub-intent-parity-2026-07-06/side-quests-mobile.png`.
+
+## 2026-07-07 continuation - Create Custom Side Quest intent route parity
+
+Source check: mobile `apps/mobile/App.tsx` opens custom creation by setting `pendingSideQuestCatalogIntent` to `create-custom` from the hamburger menu, activating the Side Quests tab, switching to the custom/community catalog surface, and opening the custom editor. The prior website route `/create-custom-side-quest` silently redirected to `/custom#custom-side-quest-builder`, so the create intent had no visible app screen for signed-out users and several shortcut surfaces still pointed directly at the protected builder hash.
+
+| Mobile create-custom behavior | Website coverage after slice | Status |
+| --- | --- | --- |
+| Hamburger action label `Create Custom Side Quest` | `/create-custom-side-quest` is now a dedicated app-style route with the same label and Side Quests tab context | Improved |
+| Opens the Side Quests catalog create intent | `SideQuestModeSwitcher active="create"` marks the create path as the active Side Quest mode | Improved |
+| Opens the custom editor for authenticated users | Signed-in users redirect straight to `/account/custom-side-quests#custom-side-quest-builder` | Preserved |
+| Signed-out account gate | Signed-out users see the create flow, sign-in action, community browsing fallback, and builder steps before auth | Improved |
+
+Implemented proof:
+
+- Replaced the silent `/create-custom-side-quest` alias with a dedicated signed-out Create Custom Side Quest screen.
+- Kept authenticated users on the existing account-backed builder so custom quest save/edit/proof logic stays untouched.
+- Routed the app menu, Side Quest mode switcher, Side Quests hub, official Solo hero, Home app map, and Settings menu shortcut through `/create-custom-side-quest`.
+- Added route-level spacing for the new create screen so the app dock remains visible without becoming the only visible call to action near the bottom of the route.
+
+Verification:
+
+- `pnpm lint -- src/app/create-custom-side-quest/page.tsx src/app/globals.css src/components/side-quest-mode-switcher.tsx src/components/site-nav.tsx src/app/side-quests/page.tsx src/app/challenges/page.tsx src/app/page.tsx src/app/settings/page.tsx` passed for TS/TSX files; ESLint reported the expected warning that `src/app/globals.css` is ignored because no matching lint configuration is supplied.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- Playwright against `pnpm start` loaded `http://localhost:3000/create-custom-side-quest` at desktop and mobile widths, confirmed the H1 `Start the rule builder from Side Quests.`, confirmed the active Side Quest mode is `Create Custom Side Quest`, and found two sign-in links on the signed-out create flow.
+- Desktop screenshot: `artifacts/sqc-create-custom-intent-route-parity-2026-07-07/create-custom-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-create-custom-intent-route-parity-2026-07-07/create-custom-mobile.png`.
+- Local server note: Clerk still logs the existing development-key session-token redirect-loop warning during local page loads, but this signed-out route rendered and screenshot capture completed.

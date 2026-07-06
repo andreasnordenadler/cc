@@ -39,7 +39,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "leaderboards", label: "Official Leaderboards", href: "/leaderboards", active: leaderboardsActive, glyph: "LB" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },
     { id: "custom", label: "My Custom Side Quests", href: "/custom", active: customActive, glyph: "CS" },
-    { id: "create-custom", label: "Create Custom Side Quest", href: "/custom#custom-side-quest-builder", active: false, glyph: "+C" },
+    { id: "create-custom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", active: false, glyph: "+C" },
     { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false, glyph: "+M" },
     { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support", glyph: "HP" },

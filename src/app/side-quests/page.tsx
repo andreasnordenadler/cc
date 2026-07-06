@@ -46,7 +46,7 @@ const sideQuestIntents = [
     label: "Create Custom Side Quest",
     title: "Create Custom Side Quest",
     copy: "Start the Custom Side Quest builder path from the same Side Quests surface.",
-    href: "/custom#custom-side-quest-builder",
+    href: "/create-custom-side-quest",
     badge: "Create",
     image: "/badges/custom/custom-win-queen.png",
   },
@@ -135,7 +135,7 @@ export default async function SideQuestsPage() {
               <Link className="button primary" href={activeQuestHref}>
                 {activeQuestTitle ? "Open current Side Quest" : "Browse Official Side Quests"}
               </Link>
-              <Link className="button secondary" href="/custom#custom-side-quest-builder">
+              <Link className="button secondary" href="/create-custom-side-quest">
                 Build a Side Quest
               </Link>
             </div>

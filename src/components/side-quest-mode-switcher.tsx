@@ -43,7 +43,7 @@ const sideQuestModes: Array<{
     label: "Create Custom Side Quest",
     title: "Rule builder",
     copy: "Start the app's Custom Side Quest creation path.",
-    href: "/custom#custom-side-quest-builder",
+    href: "/create-custom-side-quest",
     group: "library",
   },
 ];

@@ -2529,6 +2529,9 @@ p { color: var(--muted); line-height: 1.5; }
 .app-side-quest-proof-note { gap: 8px; border-radius: 22px; }
 .app-side-quest-proof-note h2 { margin: 0; font-size: 1.25rem; }
 .app-side-quest-proof-note p:last-child { margin: 0; color: var(--muted); }
+.app-create-custom-route { gap: 28px; padding-bottom: 152px; }
+.app-create-custom-route .side-quest-mode-switcher { margin-bottom: 18px; }
+.app-create-custom-route .mission-card { scroll-margin-bottom: 130px; }
 .multiplayer-mode-switcher {
   border-color: rgba(96,240,175,.18);
   background: linear-gradient(135deg, rgba(96,240,175,.075), rgba(0,0,0,.18));
