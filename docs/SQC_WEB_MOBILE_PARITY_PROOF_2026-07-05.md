@@ -123,3 +123,17 @@ Proof:
 - Text sanity check confirmed the touched top-level files now expose `Multiplayer Side Quests`, `Browse public Multiplayer Side Quests`, `Host a shared quest`, `Separate scored quests`, and `player profile` copy.
 - Verification: `pnpm lint -- src/app/page.tsx src/app/not-found.tsx src/app/support/page.tsx src/app/scoreboard/page.tsx src/app/account/page.tsx src/app/profile/page.tsx src/app/settings/page.tsx src/app/groupquests/public/page.tsx src/app/result/page.tsx src/app/connect/page.tsx 'src/app/sign-in/[[...sign-in]]/page.tsx' 'src/app/sign-up/[[...sign-up]]/page.tsx' src/components/multiplayer-mode-switcher.tsx src/components/group-quest-invite-key-join.tsx` passed; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
 - Screenshot server: `pnpm exec next start -p 3058` after build.
+
+## 2026-07-06 mobile-web navigation chrome parity slice
+
+- Re-checked `apps/mobile/App.tsx`: the native bottom tab component is still present in code but is no longer rendered from `MobileShell`; signed-in navigation is the floating `GlobalHamburgerMenu`, and signed-out users use in-screen Home entry actions.
+- Website mismatch selected for this slice: small-width web still rendered a fixed `mobile-app-dock` bottom tab bar, creating a navigation surface the current native app no longer shows.
+- Removed the website mobile-web bottom dock render from `src/components/site-nav.tsx` and deleted the phone-width dock CSS, keeping the floating hamburger menu and desktop top nav intact.
+- Reduced phone `.site-shell` bottom padding now that there is no fixed bottom dock reserving space.
+- Left route aliases and product labels untouched; this slice is only navigation chrome parity.
+
+Proof:
+
+- Screenshot proof: `artifacts/sqc-mobile-web-nav-chrome-parity-2026-07-06/home-desktop.png`, `artifacts/sqc-mobile-web-nav-chrome-parity-2026-07-06/home-mobile.png`, and `artifacts/sqc-mobile-web-nav-chrome-parity-2026-07-06/home-mobile-menu-open.png`.
+- Verification: `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed with the existing CSS ignored-file warning; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
+- Screenshot server: `pnpm exec next start -p 3060` after build.
