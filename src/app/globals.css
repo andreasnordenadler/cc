@@ -2152,17 +2152,23 @@ p { color: var(--muted); line-height: 1.5; }
 .mode-link-card strong { color: var(--ink); font-size: 1rem; line-height: 1.15; }
 .side-quest-mode-switcher {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
   padding: 8px;
   border: 1px solid rgba(245,200,106,.2);
   border-radius: 24px;
   background: rgba(0,0,0,.18);
 }
+.side-quest-catalog-tabs,
+.side-quest-library-actions {
+  display: grid;
+  gap: 8px;
+}
+.side-quest-catalog-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.side-quest-library-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .side-quest-mode-switch {
   display: grid;
   gap: 5px;
-  min-height: 118px;
+  min-height: 104px;
   padding: 13px;
   border: 1px solid rgba(255,255,255,.12);
   border-radius: 18px;
@@ -2175,9 +2181,11 @@ p { color: var(--muted); line-height: 1.5; }
   outline: none;
 }
 .side-quest-mode-switch.app-primary {
+  min-height: 112px;
   border-color: rgba(245,200,106,.22);
   background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(96,240,175,.045));
 }
+.side-quest-catalog-tabs .side-quest-mode-switch.app-primary { align-content: center; }
 .side-quest-mode-switch.active {
   border-color: rgba(245,200,106,.5);
   background: linear-gradient(135deg, rgba(245,200,106,.17), rgba(255,255,255,.055));
@@ -2192,6 +2200,11 @@ p { color: var(--muted); line-height: 1.5; }
 .side-quest-mode-switch.app-primary span { color: #ffe0a3; }
 .side-quest-mode-switch strong { color: var(--ink); font-size: 1rem; line-height: 1.08; }
 .side-quest-mode-switch small { color: var(--muted); font-size: .78rem; line-height: 1.25; }
+.side-quest-library-actions .side-quest-mode-switch {
+  min-height: 86px;
+  padding-block: 11px;
+}
+.side-quest-library-actions .side-quest-mode-switch span { color: rgba(255,247,232,.72); }
 .multiplayer-mode-switcher {
   border-color: rgba(96,240,175,.18);
   background: linear-gradient(135deg, rgba(96,240,175,.075), rgba(0,0,0,.18));
@@ -2317,7 +2330,6 @@ p { color: var(--muted); line-height: 1.5; }
 
 @media (max-width: 960px) {
   .challenges-clean-hero, .community-quest-row-card { grid-template-columns: 1fr; }
-  .side-quest-mode-switcher { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .community-quest-badge { justify-content: start; }
   .community-filter-bar { grid-template-columns: 1fr 1fr; }
   .community-search-field { grid-column: 1 / -1; }
@@ -2325,20 +2337,11 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 620px) {
   .community-filter-bar { grid-template-columns: 1fr; }
   .challenges-clean-hero-actions { grid-template-columns: 1fr; }
-  .side-quest-mode-switcher {
-    display: flex;
-    gap: 7px;
-    overflow-x: auto;
-    padding: 7px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-  }
-  .side-quest-mode-switcher::-webkit-scrollbar { display: none; }
-  .side-quest-mode-switch {
-    flex: 0 0 72%;
-    min-height: 112px;
-    scroll-snap-align: start;
-  }
+  .side-quest-mode-switcher { padding: 7px; }
+  .side-quest-catalog-tabs,
+  .side-quest-library-actions { grid-template-columns: 1fr; }
+  .side-quest-mode-switch,
+  .side-quest-mode-switch.app-primary { min-height: 0; }
 }
 
 /* SQC Community Solo browse correction — official-style cards + real community coats */

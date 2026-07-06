@@ -12,23 +12,23 @@ const sideQuestModes: Array<{
   title: string;
   copy: string;
   href: string;
-  appPrimary?: boolean;
+  group: "catalog" | "library";
 }> = [
   {
     id: "official",
-    label: "Official Side Quests",
+    label: "Official",
     title: "Curated Solo Side Quests",
-    copy: "The app's official deck with proof checks and coat rewards.",
+    copy: "SQC's official Solo deck with proof checks and coat rewards.",
     href: "/solo",
-    appPrimary: true,
+    group: "catalog",
   },
   {
     id: "community",
-    label: "Community Side Quests",
-    title: "Player-made Solo rules",
-    copy: "Discover public Side Quests from the SQC community.",
+    label: "Community",
+    title: "Community Solo Side Quests",
+    copy: "Player-made public Solo rules, likes, creator context, and report handoff.",
     href: "/community",
-    appPrimary: true,
+    group: "catalog",
   },
   {
     id: "custom",
@@ -36,6 +36,7 @@ const sideQuestModes: Array<{
     title: "Saved customs",
     copy: "Private drafts, public releases, and archived ideas.",
     href: "/custom",
+    group: "library",
   },
   {
     id: "create",
@@ -43,28 +44,51 @@ const sideQuestModes: Array<{
     title: "Rule builder",
     copy: "Start the app's Custom Side Quest creation path.",
     href: "/custom#custom-side-quest-builder",
+    group: "library",
   },
 ];
 
 export default function SideQuestModeSwitcher({ active }: SideQuestModeSwitcherProps) {
+  const catalogModes = sideQuestModes.filter((mode) => mode.group === "catalog");
+  const libraryModes = sideQuestModes.filter((mode) => mode.group === "library");
+
   return (
     <nav className="side-quest-mode-switcher" aria-label="Side Quest modes">
-      {sideQuestModes.map((mode) => (
-        <Link
-          aria-current={active === mode.id ? "page" : undefined}
-          className={[
-            "side-quest-mode-switch",
-            mode.appPrimary ? "app-primary" : "",
-            active === mode.id ? "active" : "",
-          ].filter(Boolean).join(" ")}
-          href={mode.href}
-          key={mode.id}
-        >
-          <span>{mode.label}</span>
-          <strong>{mode.title}</strong>
-          <small>{mode.copy}</small>
-        </Link>
-      ))}
+      <div className="side-quest-catalog-tabs" aria-label="Solo Side Quest catalog">
+        {catalogModes.map((mode) => (
+          <Link
+            aria-current={active === mode.id ? "page" : undefined}
+            className={[
+              "side-quest-mode-switch",
+              "app-primary",
+              active === mode.id ? "active" : "",
+            ].filter(Boolean).join(" ")}
+            href={mode.href}
+            key={mode.id}
+          >
+            <span>{mode.label}</span>
+            <strong>{mode.title}</strong>
+            <small>{mode.copy}</small>
+          </Link>
+        ))}
+      </div>
+      <div className="side-quest-library-actions" aria-label="Custom Solo Side Quest actions">
+        {libraryModes.map((mode) => (
+          <Link
+            aria-current={active === mode.id ? "page" : undefined}
+            className={[
+              "side-quest-mode-switch",
+              active === mode.id ? "active" : "",
+            ].filter(Boolean).join(" ")}
+            href={mode.href}
+            key={mode.id}
+          >
+            <span>{mode.label}</span>
+            <strong>{mode.title}</strong>
+            <small>{mode.copy}</small>
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }
