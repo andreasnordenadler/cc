@@ -12,6 +12,7 @@ const multiplayerModes: Array<{
   title: string;
   copy: string;
   href: string;
+  group: "catalog" | "actions";
 }> = [
   {
     id: "official",
@@ -19,6 +20,7 @@ const multiplayerModes: Array<{
     title: "Official Multiplayer",
     copy: "Join SQC official runs and inspect final weekly results.",
     href: "/leaderboards",
+    group: "catalog",
   },
   {
     id: "community",
@@ -26,13 +28,7 @@ const multiplayerModes: Array<{
     title: "Community Multiplayer",
     copy: "Browse open, joined, hosted, and finished public runs.",
     href: "/groupquests/public",
-  },
-  {
-    id: "create",
-    label: "Create Multiplayer Side Quest",
-    title: "Create Multiplayer",
-    copy: "Pick Side Quests, proof window, access, and rules.",
-    href: "/groupquests/create",
+    group: "catalog",
   },
   {
     id: "overview",
@@ -40,24 +36,56 @@ const multiplayerModes: Array<{
     title: "My Multiplayer Side Quests",
     copy: "Resume active, joined, hosted, and invite-code quests.",
     href: "/multiplayer",
+    group: "actions",
+  },
+  {
+    id: "create",
+    label: "Create Multiplayer Side Quest",
+    title: "Create Multiplayer",
+    copy: "Pick Side Quests, proof window, access, and rules.",
+    href: "/groupquests/create",
+    group: "actions",
   },
 ];
 
 export default function MultiplayerModeSwitcher({ active }: MultiplayerModeSwitcherProps) {
+  const catalogModes = multiplayerModes.filter((mode) => mode.group === "catalog");
+  const actionModes = multiplayerModes.filter((mode) => mode.group === "actions");
+
   return (
     <nav className="side-quest-mode-switcher multiplayer-mode-switcher" aria-label="Multiplayer Side Quest modes">
-      {multiplayerModes.map((mode) => (
-        <Link
-          aria-current={active === mode.id ? "page" : undefined}
-          className={active === mode.id ? "side-quest-mode-switch active" : "side-quest-mode-switch"}
-          href={mode.href}
-          key={mode.id}
-        >
-          <span>{mode.label}</span>
-          <strong>{mode.title}</strong>
-          <small>{mode.copy}</small>
-        </Link>
-      ))}
+      <div className="side-quest-catalog-tabs" aria-label="Multiplayer catalog">
+        {catalogModes.map((mode) => (
+          <Link
+            aria-current={active === mode.id ? "page" : undefined}
+            className={[
+              "side-quest-mode-switch",
+              "app-primary",
+              active === mode.id ? "active" : "",
+            ].filter(Boolean).join(" ")}
+            href={mode.href}
+            key={mode.id}
+          >
+            <span>{mode.label}</span>
+            <strong>{mode.title}</strong>
+            <small>{mode.copy}</small>
+          </Link>
+        ))}
+      </div>
+      <div className="side-quest-library-actions" aria-label="Multiplayer actions">
+        {actionModes.map((mode) => (
+          <Link
+            aria-current={active === mode.id ? "page" : undefined}
+            className={active === mode.id ? "side-quest-mode-switch active" : "side-quest-mode-switch"}
+            href={mode.href}
+            key={mode.id}
+          >
+            <span>{mode.label}</span>
+            <strong>{mode.title}</strong>
+            <small>{mode.copy}</small>
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 }
