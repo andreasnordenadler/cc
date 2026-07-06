@@ -12,7 +12,8 @@ type BuilderQuest = {
   source?: "official" | "custom" | "community" | "snapshot";
 };
 
-const defaultInviteCopy = "A friend invited you to a chess side quest. Try to win real games while completing weird objectives, then Side Quest Chess checks the public proof and updates the competition leaderboard.";
+const defaultInviteCopy = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
+const maxSelectedQuests = 4;
 const storagePrefix = "sqc-groupquest-draft:";
 const successCriteria = "First to complete all quests wins. If nobody finishes, best verified progress at the deadline wins.";
 
@@ -164,10 +165,11 @@ function getQuestSourceLabel(source: BuilderQuest["source"]) {
 
 export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { quests: BuilderQuest[]; initialQuestId?: string }) {
   const [name, setName] = useState("No Castle Night");
-  const defaultQuestId = quests.find((quest) => quest.id === "knights-before-coffee")?.id ?? quests[0]?.id ?? "";
-  const preselectedQuestId = initialQuestId && quests.some((quest) => quest.id === initialQuestId) ? initialQuestId : defaultQuestId;
-  const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(preselectedQuestId ? [preselectedQuestId] : []);
+  const preselectedQuestId = initialQuestId && quests.some((quest) => quest.id === initialQuestId) ? initialQuestId : undefined;
+  const defaultQuestIds = preselectedQuestId ? [preselectedQuestId] : quests.slice(0, 3).map((quest) => quest.id);
+  const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(defaultQuestIds.slice(0, maxSelectedQuests));
   const [questPickerOpen, setQuestPickerOpen] = useState(false);
+  const [questSelectionError, setQuestSelectionError] = useState("");
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
   const [inviteKey, setInviteKey] = useState(() => makeInviteKey("No Castle Night"));
   const [inviteCopy, setInviteCopy] = useState(defaultInviteCopy);
@@ -237,6 +239,11 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
   }
 
   async function saveMultiplayerSideQuest() {
+    if (!selectedQuestIds.length) {
+      setSaveError("Choose at least one Side Quest before creating.");
+      return;
+    }
+
     setSaving(true);
     setSaveError("");
 
@@ -289,8 +296,14 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
   function toggleQuest(questId: string) {
     setSelectedQuestIds((current) => {
       if (current.includes(questId)) {
+        setQuestSelectionError("");
         return current.length > 1 ? current.filter((id) => id !== questId) : current;
       }
+      if (current.length >= maxSelectedQuests) {
+        setQuestSelectionError(`Choose up to ${maxSelectedQuests} Side Quests. Remove one before adding another.`);
+        return current;
+      }
+      setQuestSelectionError("");
       return [...current, questId];
     });
   }
@@ -302,7 +315,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
         <div className="groupquests-builder-form">
           <div className="groupquests-quickstart-note" role="note">
             <strong>Host setup</strong>
-            <span>Defaults are launch-safe: one Side Quest, public listing, one-week window, and Lichess or Chess.com proof. Published Custom Solo Side Quests can join the stack too.</span>
+            <span>Defaults mirror the mobile create flow: Official Side Quests selected, public listing, one-week window, and Lichess or Chess.com proof.</span>
           </div>
 
           <div className="groupquests-builder-guide" aria-label="Multiplayer Side Quest setup guide">
@@ -340,8 +353,8 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
             <div className="groupquests-picker-head">
               <div>
                 <span>3 · Quest stack</span>
-                <strong>{selectedQuests.length} selected</strong>
-                <small>Choose at least one objective. Players race the same stack from top to bottom.</small>
+                <strong>{selectedQuests.length}/{maxSelectedQuests} selected</strong>
+                <small>Choose at least one Side Quest. Players race the same stack from top to bottom.</small>
               </div>
               {!questPickerOpen ? (
                 <button className="button primary" type="button" onClick={() => setQuestPickerOpen(true)}>
@@ -359,23 +372,26 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                 <div className="groupquests-picker-panel">
                   {quests.map((quest) => {
                     const checked = selectedQuestIds.includes(quest.id);
+                    const maxed = !checked && selectedQuestIds.length >= maxSelectedQuests;
                     const sourceLabel = getQuestSourceLabel(quest.source);
                     return (
-                      <label className={checked ? "active" : undefined} key={quest.id}>
+                      <label className={checked ? "active" : maxed ? "disabled" : undefined} key={quest.id}>
                         <input
                           checked={checked}
+                          disabled={maxed}
                           onChange={() => toggleQuest(quest.id)}
                           type="checkbox"
                         />
                         <span>
                           <em>{sourceLabel}</em>
                           <strong>{quest.title}</strong>
-                          <small className="inline-rating-copy">{quest.source === "official" ? quest.difficulty : sourceLabel} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
+                          <small className="inline-rating-copy">{maxed ? "Max 4" : quest.source === "official" ? quest.difficulty : sourceLabel} <RatingPill value={quest.reward} plus={false} /> {quest.objective}</small>
                         </span>
                       </label>
                     );
                   })}
                 </div>
+                {questSelectionError ? <p className="groupquest-join-error" role="alert">{questSelectionError}</p> : null}
                 <div className="groupquests-picker-footer">
                   <button className="button primary" type="button" onClick={() => setQuestPickerOpen(false)}>
                     Done
@@ -495,7 +511,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
           <div className="groupquests-preview-quest-stack">
             <div className="groupquests-preview-stack-head">
               <strong>Quest stack</strong>
-              <span>{selectedQuests.length} selected</span>
+              <span>{selectedQuests.length}/{maxSelectedQuests} selected</span>
             </div>
             <ol>
               {selectedQuests.map((quest, index) => (
@@ -542,11 +558,11 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
       <div className="groupquests-create-actions" aria-label="Create Multiplayer Side Quest actions">
         <div>
           <strong>Ready to host?</strong>
-          <span>Save the table, review the invite page, then share the link or private host code.</span>
+          <span>Create the Multiplayer Side Quest, review the invite page, then share the link or private host code.</span>
         </div>
         {saveError ? <p className="groupquest-join-error" role="alert">{saveError}</p> : null}
         <button className="button primary" disabled={saving} onClick={saveMultiplayerSideQuest} type="button">
-          {saving ? "Saving…" : "Save Multiplayer Side Quest"}
+          {saving ? "Creating..." : "Create Multiplayer Side Quest"}
         </button>
       </div>
     </div>
