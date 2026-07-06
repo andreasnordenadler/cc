@@ -9,12 +9,12 @@ import { listPublicGroupQuests, listUserRelatedGroupQuests, type ServerGroupQues
 const overviewSteps = [
   {
     title: "Create",
-    copy: "Pick one or more side quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
+    copy: "Pick one or more Side Quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
     href: "/groupquests/create",
   },
   {
     title: "Invite",
-    copy: "Share the invite link so players can inspect the side quests, proof window, and join conditions before committing.",
+    copy: "Share the invite link so players can inspect the Side Quests, proof window, and join conditions before committing.",
   },
   {
     title: "Play",
@@ -29,7 +29,7 @@ const overviewSteps = [
 const loggedOutActions = [
   {
     title: "Host a Multiplayer Side Quest",
-    copy: "Pick the quest stack, proof window, and invite style, then bring friends into a shared run.",
+    copy: "Pick the Side Quest stack, proof window, and invite style, then bring friends into a shared challenge.",
     action: "Create Multiplayer Side Quest",
     href: "/groupquests/create",
   },
@@ -64,7 +64,7 @@ const tableGuideCards = [
 
 export const metadata = {
   title: "Multiplayer Side Quests · Side Quest Chess",
-  description: "Side Quest Chess Multiplayer Side Quests for shared side quests, fresh proof, and multiplayer leaderboards.",
+  description: "Side Quest Chess Multiplayer Side Quests for shared Side Quests, fresh proof, and multiplayer leaderboards.",
 };
 
 function toTimestamp(value: string) {
@@ -208,7 +208,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
         {!userId ? (
           <section className="hero-card groupquests-hero">
             <span className="eyebrow">Multiplayer Side Quests</span>
-            <h1>Chess dares for a shared table.</h1>
+            <h1>Shared chess challenges with proof.</h1>
             <p className="hero-copy">
               Sign in to host or join a Multiplayer Side Quest. Pick the challenge, agree on the proof rules, then let SQC keep the leaderboard honest.
             </p>
@@ -286,7 +286,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <span className="eyebrow">Proof rule</span>
               <h2>Personal proof and multiplayer proof are different ledgers.</h2>
               <p>
-                Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.
+                Finishing a Solo Side Quest still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified challenge progress, and multiplayer celebration.
               </p>
             </section>
 
@@ -324,7 +324,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                         </Link>
                       ))}
                     </div>
-                  ) : <p>No active Multiplayer Side Quests yet. Create or join a table to start your first shared run.</p>}
+                  ) : <p>No active Multiplayer Side Quests yet. Create or join a Multiplayer Side Quest to start your first shared challenge.</p>}
                 </section>
 
                 <section className="groupquests-list-section official" aria-label="Official SQC Multiplayer Side Quests">
@@ -471,14 +471,14 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <div>
                 <h2>A shared run with proof everyone can trust.</h2>
                 <p>
-                  Multiplayer Side Quests turn normal chess nights into a shared challenge: one player hosts, everyone reviews the quest stack and game rules, then SQC checks real Lichess or Chess.com games for valid proof.
+                  Multiplayer Side Quests turn normal chess nights into a shared challenge: one player hosts, everyone reviews the Side Quest stack and game rules, then SQC checks real Lichess or Chess.com games for valid proof.
                 </p>
                 <p>
                   Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters, but Multiplayer standings only count proof earned inside that shared event.
                 </p>
               </div>
               <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
-                <Image alt="Noble players around a chess table during a Multiplayer Side Quest" className="groupquests-knight-competition-art" height={1024} priority={false} src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png" width={1024} />
+                <Image alt="Noble players during a Multiplayer Side Quest" className="groupquests-knight-competition-art" height={1024} priority={false} src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png" width={1024} />
               </div>
             </section>
 
@@ -542,7 +542,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                   <div className="groupquests-list-heading">
                     <div>
                       <h3>Community Multiplayer Side Quests</h3>
-                      <p>Public player-hosted tables anyone can inspect before joining.</p>
+                      <p>Public player-hosted Multiplayer Side Quests anyone can inspect before joining.</p>
                     </div>
                     <span className="badge gold">{publicRooms.length}</span>
                   </div>
@@ -627,7 +627,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
               <span className="eyebrow">Proof rule</span>
               <h2>Personal proof and multiplayer proof are different ledgers.</h2>
               <p>
-                Finishing a side quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.
+                Finishing a Solo Side Quest still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified challenge progress, and multiplayer celebration.
               </p>
             </section>
           </>

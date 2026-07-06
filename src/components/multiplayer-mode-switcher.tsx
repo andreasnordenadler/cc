@@ -34,7 +34,7 @@ const multiplayerModes: Array<{
     id: "overview",
     label: "My active / join",
     title: "My Multiplayer Side Quests",
-    copy: "Resume joined tables or enter a private host code.",
+    copy: "Resume joined Multiplayer Side Quests or enter a private host code.",
     href: "/multiplayer#my-multiplayer-side-quests",
     group: "actions",
   },
