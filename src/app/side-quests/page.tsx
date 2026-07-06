@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient, currentUser } from "@clerk/nextjs/server";
+import ChallengeDeckBrowser from "@/components/challenge-deck-browser";
 import SideQuestModeSwitcher from "@/components/side-quest-mode-switcher";
 import SiteNav from "@/components/site-nav";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
 import {
   getActiveChallenge,
@@ -56,11 +58,18 @@ export default async function SideQuestsPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
   let metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const client = await clerkClient();
   if (user && shouldPreselectDefaultStarterQuest(metadata)) {
     metadata = withDefaultStarterQuest(metadata);
-    const client = await clerkClient();
     await client.users.updateUserMetadata(user.id, { publicMetadata: metadata });
   }
+  const likeSummaries = await getCommunityLikeSummaries(client, userId);
+  const officialLikeSummaries = Object.fromEntries(
+    CHALLENGES.map((challenge) => [
+      challenge.id,
+      likeSummaries.get("solo", challenge.id),
+    ]),
+  );
   const privateMetadata = user?.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
   const progress = getChallengeProgress(metadata);
   const completedSet = new Set(progress.completedChallengeIds);
@@ -92,6 +101,9 @@ export default async function SideQuestsPage() {
       ? "Completed Side Quest"
       : "Active Side Quest"
     : "No active Side Quest";
+  const activeIncompleteChallengeId = activeOfficialQuest && !completedSet.has(activeOfficialQuest.id)
+    ? activeOfficialQuest.id
+    : undefined;
 
   return (
     <main className="site-shell challenges-page-shell">
@@ -164,11 +176,28 @@ export default async function SideQuestsPage() {
           ))}
         </section>
 
+        <section className="official-side-quest-deck" aria-labelledby="official-side-quest-deck-title">
+          <div className="solo-deck-app-heading">
+            <span className="eyebrow">Solo Side Quest deck</span>
+            <h2 id="official-side-quest-deck-title">Tap a Coat of Arms to review the rule.</h2>
+            <p>
+              This is the official mobile deck on the web tab destination, with active and completed state carried from your SQC account.
+            </p>
+          </div>
+          <ChallengeDeckBrowser
+            challenges={CHALLENGES}
+            activeChallengeId={activeIncompleteChallengeId}
+            completedChallengeIds={progress.completedChallengeIds}
+            likeSummaries={officialLikeSummaries}
+            signedIn={Boolean(userId)}
+          />
+        </section>
+
         <section className="mission-card app-side-quest-proof-note" aria-labelledby="side-quest-parity-proof-title">
           <p className="eyebrow">Parity note</p>
           <h2 id="side-quest-parity-proof-title">Mobile app intent coverage</h2>
           <p>
-            Source: apps/mobile/App.tsx defines SideQuestCatalogIntent as official, community-discover, my-custom, and create-custom. This page now exposes those four intents from /side-quests instead of sending the route directly to only the official catalog.
+            Source: apps/mobile/App.tsx defines SideQuestCatalogIntent as official, community-discover, my-custom, and create-custom. This page exposes those four intents and keeps the official Solo deck on the same app-style Side Quests screen.
           </p>
         </section>
       </div>
