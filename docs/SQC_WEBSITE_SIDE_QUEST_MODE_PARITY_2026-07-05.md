@@ -301,3 +301,28 @@ Verification:
 - Desktop screenshot: `artifacts/sqc-home-dock-icon-parity-2026-07-06/home-desktop.png`.
 - Mobile-web screenshot: `artifacts/sqc-home-dock-icon-parity-2026-07-06/home-mobile-dock-icon.png`.
 - Screenshot note: local Next route rendering still hits the existing Clerk development-key session-token redirect loop, so these screenshots use a static Playwright render of the changed nav and dock markup; the mobile assertion confirmed the active Home dock icon uses `/brand/sqc-alt-logo-topbar-20260507-v2.png`.
+
+## 2026-07-06 continuation - Side Quests hub intent parity
+
+Source check: mobile `apps/mobile/App.tsx` defines `SideQuestCatalogIntent` as `official`, `community-discover`, `my-custom`, and `create-custom`. The previous `/side-quests` route was only an alias to the official challenges catalog.
+
+| Mobile Side Quest intent | Website route coverage after slice | Status |
+| --- | --- | --- |
+| `official` | `/side-quests` now links into `/solo` and keeps the Side Quests app tab active | Improved |
+| `community-discover` | `/side-quests` now exposes `Community Side Quests` into `/community` | Improved |
+| `my-custom` | `/side-quests` now exposes `My Custom Side Quests` into `/custom` | Improved |
+| `create-custom` | `/side-quests` now exposes `Create Custom Side Quest` into `/custom#custom-side-quest-builder` | Improved |
+
+Implemented proof:
+
+- Replaced the `/side-quests` alias with an app-style Side Quests hub that mirrors the mobile catalog intents.
+- Reused the existing `SideQuestModeSwitcher` and deeper official/community/custom routes so proof and account logic stay untouched.
+- Added route-specific responsive styling for the hub cards and parity proof note.
+
+Verification:
+
+- `pnpm lint -- src/app/side-quests/page.tsx` passed.
+- `pnpm build` passed with the existing Next workspace-root warning.
+- `curl -I -L --max-redirs 5 http://localhost:3000/side-quests` returned `HTTP/1.1 200 OK` with signed-out Clerk state, so this route did not hit the known local refresh-loop blocker.
+- Desktop screenshot: `artifacts/sqc-side-quests-hub-intent-parity-2026-07-06/side-quests-desktop.png`.
+- Mobile-web screenshot: `artifacts/sqc-side-quests-hub-intent-parity-2026-07-06/side-quests-mobile.png`.

@@ -2394,6 +2394,83 @@ p { color: var(--muted); line-height: 1.5; }
   padding-block: 11px;
 }
 .side-quest-library-actions .side-quest-mode-switch span { color: rgba(255,247,232,.72); }
+.app-side-quest-hub { max-width: 980px; padding-bottom: 112px; }
+.app-side-quest-hub-hero { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.app-side-quest-emblem {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(112px, 18vw, 180px);
+  aspect-ratio: 1;
+  border-radius: 28px;
+  border: 1px solid rgba(245,200,106,.24);
+  background: rgba(0,0,0,.22);
+  overflow: hidden;
+}
+.app-side-quest-emblem::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: rgba(245,200,106,.18);
+  filter: blur(22px);
+}
+.app-side-quest-emblem img { position: relative; width: 82%; height: 82%; object-fit: contain; }
+.app-side-quest-intents { display: grid; gap: 10px; }
+.app-side-quest-intent {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 104px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  background: rgba(255,255,255,.052);
+  color: var(--text);
+  box-shadow: 0 18px 44px rgba(0,0,0,.16);
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.app-side-quest-intent:hover,
+.app-side-quest-intent:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(245,200,106,.38);
+  background: rgba(255,255,255,.08);
+  outline: none;
+}
+.app-side-quest-intent-image {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background: rgba(0,0,0,.18);
+}
+.app-side-quest-intent-image img { width: 58px; height: 58px; object-fit: contain; }
+.app-side-quest-intent-copy { display: grid; gap: 4px; min-width: 0; }
+.app-side-quest-intent-copy > span,
+.app-side-quest-intent-badge {
+  color: var(--gold);
+  font-size: .72rem;
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.app-side-quest-intent-copy strong { color: var(--ink); font-size: 1.13rem; line-height: 1.15; }
+.app-side-quest-intent-copy small { color: var(--muted); font-size: .91rem; line-height: 1.35; }
+.app-side-quest-intent-badge {
+  justify-self: end;
+  width: max-content;
+  max-width: 140px;
+  padding: 6px 9px;
+  border: 1px solid rgba(245,200,106,.28);
+  border-radius: 999px;
+  background: rgba(245,200,106,.1);
+  text-align: center;
+}
+.app-side-quest-proof-note { gap: 8px; border-radius: 22px; }
+.app-side-quest-proof-note h2 { margin: 0; font-size: 1.25rem; }
+.app-side-quest-proof-note p:last-child { margin: 0; color: var(--muted); }
 .multiplayer-mode-switcher {
   border-color: rgba(96,240,175,.18);
   background: linear-gradient(135deg, rgba(96,240,175,.075), rgba(0,0,0,.18));
@@ -2526,6 +2603,13 @@ p { color: var(--muted); line-height: 1.5; }
 @media (max-width: 620px) {
   .community-filter-bar { grid-template-columns: 1fr; }
   .challenges-clean-hero-actions { grid-template-columns: 1fr; }
+  .app-side-quest-hub-hero { grid-template-columns: 1fr; }
+  .app-side-quest-emblem { width: 124px; justify-self: start; }
+  .app-side-quest-intent {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+  .app-side-quest-intent-badge { grid-column: 2; justify-self: start; }
   .side-quest-mode-switcher { padding: 7px; }
   .side-quest-catalog-tabs,
   .side-quest-library-actions { grid-template-columns: 1fr; }
