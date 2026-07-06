@@ -46,13 +46,14 @@ export default async function MyQuestLogPage() {
           <section className="mission-card current-mission-card app-account-hero-card">
             <div className="current-mission-copy">
               <span className="eyebrow">Account</span>
-              <h1>Sign in, then go make terrible chess decisions.</h1>
+              <h1>Sign in to continue.</h1>
               <p className="hero-copy">
-                Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, Multiplayer Side Quests, and proof cards.
+                Chess, but with stupidly hard side quests - solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.
               </p>
               <div className="button-row hero-actions">
-                <Link href="/sign-in" className="button primary">Continue with Google</Link>
-                <Link href="/solo" className="button secondary">Browse Side Quests</Link>
+                <Link href="/solo" className="button secondary">Browse Solo Side Quests</Link>
+                <Link href="/multiplayer" className="button secondary">Browse Multiplayer Side Quests</Link>
+                <Link href="/sign-in" className="button primary">Choose sign-in method</Link>
               </div>
             </div>
           </section>
@@ -65,12 +66,16 @@ export default async function MyQuestLogPage() {
             </p>
             <div className="account-run-checklist" aria-label="Signed-out account setup steps">
               <Link href="/solo" className="account-run-checklist-row ready">
-                <span>Browse quests</span>
+                <span>Browse Solo Side Quests</span>
                 <strong>Quest goals, rewards, and Coat of Arms previews are available before sign-in.</strong>
+              </Link>
+              <Link href="/multiplayer" className="account-run-checklist-row ready">
+                <span>Browse Multiplayer Side Quests</span>
+                <strong>Official and community tables stay browsable before Account sync.</strong>
               </Link>
               <Link href="/sign-in" className="account-run-checklist-row missing">
                 <span>Account sign-in</span>
-                <strong>Sign in to save progress, proof receipts, and custom Side Quests.</strong>
+                <strong>Choose a sign-in method to save progress, proof receipts, and custom Side Quests.</strong>
               </Link>
               <div className="account-run-checklist-row missing">
                 <span>Chess username</span>
