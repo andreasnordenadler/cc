@@ -81,6 +81,12 @@ button, input { font: inherit; }
 .nav-more-menu.active summary, .nav-more-menu[open] summary { color: var(--gold); background: rgba(245,200,106,.14); border-color: rgba(245,200,106,.24); }
 .nav-more-menu-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; display: grid; gap: 5px; width: min(290px, calc(100vw - 28px)); padding: 8px; border: 1px solid rgba(245,200,106,.22); border-radius: 22px; background: rgba(8,7,9,.96); box-shadow: 0 24px 80px rgba(0,0,0,.5); backdrop-filter: blur(18px); }
 .nav-more-menu-panel a { display: block; border-color: rgba(255,255,255,.08); border-radius: 15px; background: rgba(255,255,255,.045); }
+.mobile-app-dock { display: none; }
+.mobile-app-dock-item { color: inherit; text-decoration: none; }
+.mobile-app-dock-icon { display: inline-grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.06); overflow: hidden; }
+.mobile-app-dock-icon img { width: 28px; height: 28px; object-fit: contain; }
+.mobile-app-dock-letter, .mobile-app-dock-account { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 11px; background: rgba(245,200,106,.16); color: var(--gold); font-size: 10px; font-weight: 1000; letter-spacing: .03em; }
+.mobile-app-dock-item-label { display: grid; gap: 0; max-width: 100%; line-height: 1.04; overflow-wrap: normal; }
 .mobile-app-menu { position: relative; display: none; }
 .mobile-app-menu summary { min-height: 36px; display: inline-flex; align-items: center; gap: 8px; padding: 8px 11px; border: 1px solid rgba(245,200,106,.2); border-radius: 999px; background: rgba(245,200,106,.12); color: var(--gold); cursor: pointer; list-style: none; font-size: 12px; font-weight: 950; }
 .mobile-app-menu summary::-webkit-details-marker { display: none; }
@@ -1987,7 +1993,7 @@ p { color: var(--muted); line-height: 1.5; }
 /* Mobile launch polish: scoped to phone widths so the desktop launch-candidate UI stays intact. */
 @media (max-width: 620px) {
   html { scroll-padding-top: 96px; }
-  .site-shell { padding: 10px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+  .site-shell { padding: 10px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
   .site-nav { top: 8px; margin-bottom: 14px; border-radius: 22px; }
   .site-nav-inner { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px; }
   .nav-links { display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%; gap: 5px; scrollbar-width: none; }
@@ -2012,6 +2018,10 @@ p { color: var(--muted); line-height: 1.5; }
   .softer-site-nav .mobile-app-menu summary { width: 42px; min-height: 42px; justify-content: center; padding: 0; border-radius: 21px; background: rgba(6,5,7,.68); box-shadow: 0 10px 28px rgba(0,0,0,.34); backdrop-filter: blur(14px); }
   .softer-site-nav .mobile-app-menu summary strong { display: none; }
   .softer-site-nav .mobile-app-menu-panel { left: 0; right: auto; width: min(320px, calc(100vw - 24px)); }
+  .mobile-app-dock { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 30; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; width: min(560px, calc(100% - 16px)); margin: 0 auto; padding: 6px; border: 1px solid rgba(245,200,106,.22); border-radius: 24px; background: rgba(8,7,9,.9); box-shadow: 0 18px 70px rgba(0,0,0,.46); backdrop-filter: blur(18px); }
+  .mobile-app-dock-item { display: grid; min-width: 0; justify-items: center; gap: 3px; padding: 4px 1px 5px; border: 1px solid transparent; border-radius: 17px; color: var(--muted); font-size: 8px; font-weight: 950; line-height: 1.04; text-align: center; }
+  .mobile-app-dock-item.active { color: var(--gold); background: rgba(245,200,106,.12); border-color: rgba(245,200,106,.22); }
+  .mobile-app-dock-item.active .mobile-app-dock-icon { border-color: rgba(245,200,106,.32); background: rgba(245,200,106,.14); }
   .mobile-home-quickstart-grid,
   .home-mobile-map-grid { grid-template-columns: 1fr; }
   .home-mobile-map-item { min-height: 126px; }
@@ -2085,7 +2095,7 @@ p { color: var(--muted); line-height: 1.5; }
 
   .result-poster { padding: 18px; }
   .proof-victory-scroll .victory-scroll-seal, .account-victory-scroll .victory-scroll-seal { width: 84px; }
-  .site-footer { width: 100%; margin-top: 24px; justify-content: center; text-align: center; }
+  .site-footer { width: 100%; margin-top: 24px; margin-bottom: calc(86px + env(safe-area-inset-bottom)); justify-content: center; text-align: center; }
   .site-footer nav { justify-content: center; }
 }
 

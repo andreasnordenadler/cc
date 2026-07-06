@@ -39,71 +39,156 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "settings", label: "Settings", href: "/settings", active: active === "settings" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support" },
   ];
-  return (
-    <header className="site-nav softer-site-nav">
-      <div className="site-nav-inner">
-        <nav className="nav-links" aria-label="Primary">
-          <Link href="/" className="nav-brand-mark" aria-label="Side Quest Chess home">
-            <Image
-              alt=""
-              height={44}
-              src="/brand/sqc-alt-logo-topbar-20260507-v2.png"
-              width={76}
-            />
-          </Link>
-          <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
-          <Link href="/solo" className={soloActive ? "active" : undefined}>Solo Side Quests</Link>
-          <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer Side Quests</Link>
-          <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
-          <Link href="/account" className={accountActive ? "active" : undefined}>{isSignedIn ? "My Account" : "Sign in / Account"}</Link>
-          <details className={moreActive ? "nav-more-menu active" : "nav-more-menu"}>
-            <summary>More</summary>
-            <div className="nav-more-menu-panel" aria-label="More Side Quest Chess routes">
-              {moreItems.map((item) => (
-                <Link
-                  aria-current={item.active ? "page" : undefined}
-                  className={item.active ? "active" : undefined}
-                  href={item.href}
-                  key={item.id}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </details>
-        </nav>
+  const mobileDockItems = [
+    {
+      id: "home",
+      label: "Home",
+      labelLines: ["Home"],
+      href: "/",
+      active: active === "home",
+      icon: <span className="mobile-app-dock-letter">SQC</span>,
+    },
+    {
+      id: "solo",
+      label: "Side Quests",
+      labelLines: ["Side", "Quests"],
+      href: "/solo",
+      active: soloActive,
+      icon: (
+        <Image
+          alt=""
+          height={28}
+          src="/sqc-logo-v11.png"
+          width={28}
+        />
+      ),
+    },
+    {
+      id: "multiplayer",
+      label: "Multiplayer Side Quests",
+      labelLines: ["Multiplayer", "Side Quests"],
+      href: "/multiplayer",
+      active: multiplayerActive,
+      icon: (
+        <Image
+          alt=""
+          height={28}
+          src="/stamps/sqc-multiplayer-seal.png"
+          width={28}
+        />
+      ),
+    },
+    {
+      id: "trophy",
+      label: "Trophy Cabinet",
+      labelLines: ["Trophy", "Cabinet"],
+      href: "/trophy-cabinet",
+      active: trophyActive,
+      icon: (
+        <Image
+          alt=""
+          height={28}
+          src="/badges/v6/proof-loop-test-badge.png"
+          width={28}
+        />
+      ),
+    },
+    {
+      id: "account",
+      label: "Account",
+      labelLines: ["Account"],
+      href: "/account",
+      active: accountActive,
+      icon: <span className="mobile-app-dock-account">{isSignedIn ? "OK" : "IN"}</span>,
+    },
+  ];
 
-        <div className="nav-actions">
-          <details className="mobile-app-menu">
-            <summary aria-label="Open main menu">
-              <span aria-hidden="true"></span>
-              <strong>Menu</strong>
-            </summary>
-            <div className="mobile-app-menu-panel" aria-label="Main menu">
-              {menuItems.map((item) => (
-                <Link
-                  aria-current={item.active ? "page" : undefined}
-                  className={item.active ? "mobile-app-menu-item active" : "mobile-app-menu-item"}
-                  href={item.href}
-                  key={item.id}
-                >
-                  <span className="mobile-app-menu-glyph" aria-hidden="true">{item.glyph}</span>
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </div>
-          </details>
-          {isSignedIn ? (
-            <>
-              <Link href="/profile" className={active === "profile" ? "nav-pill active" : "nav-pill"}>Profile</Link>
-              <Link href="/settings" className={active === "settings" ? "nav-pill active" : "nav-pill"}>Settings</Link>
-              <UserButton />
-            </>
-          ) : (
-            <AuthActionButtons />
-          )}
+  return (
+    <>
+      <header className="site-nav softer-site-nav">
+        <div className="site-nav-inner">
+          <nav className="nav-links" aria-label="Primary">
+            <Link href="/" className="nav-brand-mark" aria-label="Side Quest Chess home">
+              <Image
+                alt=""
+                height={44}
+                src="/brand/sqc-alt-logo-topbar-20260507-v2.png"
+                width={76}
+              />
+            </Link>
+            <Link href="/" className={active === "home" ? "active" : undefined}>Home</Link>
+            <Link href="/solo" className={soloActive ? "active" : undefined}>Solo Side Quests</Link>
+            <Link href="/multiplayer" className={multiplayerActive ? "active" : undefined}>Multiplayer Side Quests</Link>
+            <Link href="/trophy-cabinet" className={trophyActive ? "active" : undefined}>Trophy Cabinet</Link>
+            <Link href="/account" className={accountActive ? "active" : undefined}>{isSignedIn ? "My Account" : "Sign in / Account"}</Link>
+            <details className={moreActive ? "nav-more-menu active" : "nav-more-menu"}>
+              <summary>More</summary>
+              <div className="nav-more-menu-panel" aria-label="More Side Quest Chess routes">
+                {moreItems.map((item) => (
+                  <Link
+                    aria-current={item.active ? "page" : undefined}
+                    className={item.active ? "active" : undefined}
+                    href={item.href}
+                    key={item.id}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </details>
+          </nav>
+
+          <div className="nav-actions">
+            <details className="mobile-app-menu">
+              <summary aria-label="Open main menu">
+                <span aria-hidden="true"></span>
+                <strong>Menu</strong>
+              </summary>
+              <div className="mobile-app-menu-panel" aria-label="Main menu">
+                {menuItems.map((item) => (
+                  <Link
+                    aria-current={item.active ? "page" : undefined}
+                    className={item.active ? "mobile-app-menu-item active" : "mobile-app-menu-item"}
+                    href={item.href}
+                    key={item.id}
+                  >
+                    <span className="mobile-app-menu-glyph" aria-hidden="true">{item.glyph}</span>
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </details>
+            {isSignedIn ? (
+              <>
+                <Link href="/profile" className={active === "profile" ? "nav-pill active" : "nav-pill"}>Profile</Link>
+                <Link href="/settings" className={active === "settings" ? "nav-pill active" : "nav-pill"}>Settings</Link>
+                <UserButton />
+              </>
+            ) : (
+              <AuthActionButtons />
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <nav className="mobile-app-dock" aria-label="Mobile app tabs">
+        {mobileDockItems.map((item) => (
+          <Link
+            aria-current={item.active ? "page" : undefined}
+            aria-label={`Open ${item.label}`}
+            className={item.active ? "mobile-app-dock-item active" : "mobile-app-dock-item"}
+            href={item.href}
+            key={item.id}
+          >
+            <span className="mobile-app-dock-icon" aria-hidden="true">{item.icon}</span>
+            <span className="mobile-app-dock-item-label">
+              {item.labelLines.map((line) => (
+                <span key={line}>{line}</span>
+              ))}
+            </span>
+          </Link>
+        ))}
+      </nav>
+    </>
   );
 }
