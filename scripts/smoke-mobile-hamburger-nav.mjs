@@ -256,6 +256,8 @@ try {
   assertIncludes(dump.xml, "Create Multiplayer Side Quest", "Create Multiplayer Side Quest modal");
   assertIncludes(dump.xml, "Start a shared Multiplayer Side Quest", "shared Multiplayer Side Quest create screen");
   assertIncludes(dump.xml, "Quest name", "Multiplayer create form name field");
+  assertNotIncludes(dump.xml, "Official Multiplayer Side Quests", "Create Multiplayer menu action must not land on the official Multiplayer list");
+  assertNotIncludes(dump.xml, "Latest finished official set", "Create Multiplayer menu action must not show the official Multiplayer results shelf");
   assertNotIncludes(dump.xml, "Host Multiplayer", "legacy Host Multiplayer label");
 } finally {
   dump.cleanup();

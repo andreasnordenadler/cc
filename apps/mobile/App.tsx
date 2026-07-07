@@ -6479,7 +6479,7 @@ function ActiveScreen({
     case "sideQuests":
       return <QuestBoardDashboard bootstrap={bootstrap} selectedChallenge={selectedChallenge} pendingSideQuestDetailId={pendingSideQuestDetailId} pendingCompletedDetailId={pendingCompletedDetailId} pendingSideQuestCatalogIntent={pendingSideQuestCatalogIntent} onConsumePendingQuestOpen={onConsumePendingQuestOpen} account={account} authBridge={authBridge} onSelectChallenge={onSelectChallenge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} onOpenChallengeDetail={onOpenChallengeDetail} onOpenMultiplayerCreate={onOpenMultiplayerCreate} onOpenSupport={onOpenSupport} />;
     case "multiplayerSideQuests":
-      return <MultiplayerSideQuestsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpenToken={pendingMultiplayerCreateOpenToken} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
+      return <MultiplayerSideQuestsScreen key={`multiplayer-${pendingMultiplayerCreateOpenToken || "browse"}`} bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} pendingCreateOpenToken={pendingMultiplayerCreateOpenToken} pendingCreateQuestId={pendingMultiplayerCreateQuestId} onConsumePendingCreateOpen={onConsumePendingMultiplayerCreate} onAccountUpdated={onAccountUpdated} />;
     case "officialLeaderboards":
       return <OfficialMultiplayerLeaderboardsScreen bootstrap={bootstrap} account={account} authBridge={authBridge} onSelectTab={onSelectTab} onAccountUpdated={onAccountUpdated} />;
     case "coatOfArms":
@@ -7245,12 +7245,9 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
       }
     }
-    const openTimer = setTimeout(() => {
-      setCreateOpen(true);
-      onConsumePendingCreateOpen?.();
-    }, Platform.OS === "android" ? 50 : 0);
+    const openTimer = setTimeout(() => setCreateOpen(true), Platform.OS === "android" ? 50 : 0);
     return () => clearTimeout(openTimer);
-  }, [createQuestChoices, onConsumePendingCreateOpen, pendingCreateOpenToken, pendingCreateQuestId]);
+  }, [createQuestChoices, pendingCreateOpenToken, pendingCreateQuestId]);
 
   const overviewSteps = [
     {
@@ -7341,6 +7338,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
       });
       const createdGroupQuestId = result.groupQuestId ?? "new";
       setCreateOpen(false);
+      onConsumePendingCreateOpen?.();
       resetCreateDraft();
       await Promise.resolve(onAccountUpdated());
       await waitMs(450);
@@ -7385,6 +7383,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
   function closeCreateBuilder() {
     if (!createQuestDraftIsDirty) {
       setCreateOpen(false);
+      onConsumePendingCreateOpen?.();
       return;
     }
 
@@ -7396,6 +7395,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         onPress: () => {
           resetCreateDraft();
           setCreateOpen(false);
+          onConsumePendingCreateOpen?.();
         },
       },
     ]);
