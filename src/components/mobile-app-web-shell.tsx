@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import type { Challenge } from "@/lib/challenges";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -10,6 +11,7 @@ type MobileAppWebShellProps = {
   displayName?: string | null;
   lichessUsername?: string | null;
   chessComUsername?: string | null;
+  children?: ReactNode;
 };
 
 const soloRows = [
@@ -49,6 +51,7 @@ export default function MobileAppWebShell({
   displayName,
   lichessUsername,
   chessComUsername,
+  children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
   const chessIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" · ");
@@ -103,15 +106,23 @@ export default function MobileAppWebShell({
         </header>
       )}
 
-      <section className="mobile-web-screen" aria-label="Home">
-        {!signedIn ? (
+      {activeTab !== "home" ? (
+        <Link href="/" className="mobile-web-close-screen" aria-label={activeTab === "sideQuests" ? "Close Solo Side Quests" : "Close screen"}>
+          x
+        </Link>
+      ) : null}
+
+      <section className="mobile-web-screen" aria-label={activeTab === "sideQuests" ? "Solo Side Quests" : "Home"}>
+        {children ? children : null}
+
+        {!children && !signedIn ? (
           <div className="mobile-web-guest-coat" aria-hidden="true">
             <Image className="mobile-web-coat-glow" alt="" src={coatGlowImage} width={220} height={220} priority />
             <Image className="mobile-web-coat" alt="" src={coatImage} width={176} height={176} priority />
           </div>
         ) : null}
 
-        {!signedIn ? (
+        {!children && !signedIn ? (
           <div className="mobile-web-guest-panel">
             <h2>Sign in to continue.</h2>
             <p>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.</p>
@@ -123,14 +134,14 @@ export default function MobileAppWebShell({
           </div>
         ) : null}
 
-        {signedIn && !chessIdentity ? (
+        {!children && signedIn && !chessIdentity ? (
           <Link href="/account" className="mobile-web-blocker-panel">
             <strong>Connect a chess username</strong>
             <span>SQC needs Lichess or Chess.com before it can check real games.</span>
           </Link>
         ) : null}
 
-        {signedIn ? (
+        {!children && signedIn ? (
           <>
             <MobileSection title="No active Solo Side Quest" actionLabel="Explore More Solo Side Quests" href="/side-quests" image={coatImage} glow={coatGlowImage}>
               {soloRows.map((row) => (
@@ -176,6 +187,67 @@ export default function MobileAppWebShell({
   );
 }
 
+export function MobileSoloSideQuestsScreen({
+  challenges,
+  activeChallengeId,
+  completedChallengeIds,
+}: {
+  challenges: Challenge[];
+  activeChallengeId?: string | null;
+  completedChallengeIds?: string[];
+}) {
+  const completedSet = new Set(completedChallengeIds ?? []);
+  const sortedChallenges = [...challenges].sort((a, b) => {
+    if (a.id === activeChallengeId) return -1;
+    if (b.id === activeChallengeId) return 1;
+    const aCompleted = completedSet.has(a.id);
+    const bCompleted = completedSet.has(b.id);
+    if (aCompleted !== bCompleted) return aCompleted ? 1 : -1;
+    const difficultyDelta = difficultyRank(a.difficulty) - difficultyRank(b.difficulty);
+    if (difficultyDelta !== 0) return difficultyDelta;
+    if (a.reward !== b.reward) return a.reward - b.reward;
+    return a.title.localeCompare(b.title);
+  });
+
+  return (
+    <>
+      <div className="mobile-web-sidequest-emblem" aria-hidden="true">
+        <Image className="mobile-web-section-glow" alt="" src={coatGlowImage} width={128} height={128} priority />
+        <Image className="mobile-web-section-art" alt="" src={coatImage} width={94} height={94} priority />
+      </div>
+
+      <div className="mobile-web-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="mobile-web-brand-tab official active" role="tab" aria-selected="true">
+          Official Side Quests
+        </Link>
+        <span className="mobile-web-brand-tab-switch" aria-hidden="true" />
+        <Link href="/community-side-quests" className="mobile-web-brand-tab community" role="tab" aria-selected="false">
+          Community Side Quests
+        </Link>
+      </div>
+
+      <section className="mobile-web-app-section" aria-labelledby="official-side-quests-title">
+        <div className="mobile-web-section-head">
+          <h1 id="official-side-quests-title">Official Side Quests</h1>
+          <span className="mobile-web-section-count">{sortedChallenges.length} official</span>
+        </div>
+        <div className="mobile-web-catalog-rows">
+          {sortedChallenges.map((challenge) => (
+            <AppRow
+              key={challenge.id}
+              title={challenge.title}
+              meta={challenge.objective}
+              status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
+              href={`/challenges/${challenge.id}`}
+              image={challenge.badgeIdentity.image ?? coatImage}
+            />
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
 function MobileSection({
   title,
   actionLabel,
@@ -216,6 +288,14 @@ function isActiveMenuItem(id: string, activeTab: AppTab) {
   if (id === "coats") return activeTab === "coatOfArms";
   if (id === "account") return activeTab === "account";
   return false;
+}
+
+function difficultyRank(difficulty: Challenge["difficulty"]) {
+  if (difficulty === "Easy") return 1;
+  if (difficulty === "Medium") return 2;
+  if (difficulty === "Hard") return 3;
+  if (difficulty === "Brutal") return 4;
+  return 5;
 }
 
 function AppRow({

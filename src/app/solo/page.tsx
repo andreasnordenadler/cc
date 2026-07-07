@@ -1,1 +1,1 @@
-export { default } from "../challenges/page";
+export { default } from "../side-quests/page";
