@@ -2,6 +2,8 @@
 
 Date: 2026-07-07
 
+Run refresh: 2026-07-08
+
 Purpose: capture the current mobile app home/navigation model before any clean web rebuild slices. The mobile app is the visible UI/product template; old web chrome, public logo treatment, and old website navigation remain suspect unless this file proves otherwise from current mobile source.
 
 ## Source Inspected
@@ -13,6 +15,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - Signed-in global menu: `GlobalHamburgerMenu` at lines 1802-1848.
 - Close control for non-home screens: `FixedScreenCloseButton` at lines 1791-1799.
 - Stale/dead-code caution: `BottomNav` still exists at lines 6395-6427, but `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the function definition, so it is not mounted in the active render path.
+- 2026-07-08 recheck: `rg -n "BottomNav\\(" apps/mobile/App.tsx` still returns only the function definition, and the active `MobileShell` render path still mounts `GlobalHamburgerMenu` only for authenticated accounts.
 
 ## Current Mobile Home Model
 
@@ -91,4 +94,5 @@ Menu behavior:
 ## Current Clean Preview Mismatch Notes
 
 - The clean web shell already follows the current mobile direction for the root: no signed-out nav, signed-in hamburger/header/profile model, and no persistent bottom nav.
+- The provided preview URL was still serving an older deployed baseline during the 2026-07-08 recheck; its HTML contained `site-nav` / `mobile-app-menu` markers plus old `sqc-logo` asset references. That preview should be replaced by a fresh preview deploy from this clean branch before judging the rebuilt shell.
 - Remaining risk for later slices: the web component must keep using this current mobile source checklist instead of older preview screenshots or dormant mobile `BottomNav` code.
