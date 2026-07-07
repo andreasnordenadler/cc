@@ -54,6 +54,11 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
     difficulty: challenge.difficulty,
     source: "official" as const,
   }));
+  const officialCount = builderQuests.length;
+  const communityCount = customQuests.length + publicCommunityQuests.length;
+  const preselectedQuest = requestedQuestId
+    ? [...builderQuests, ...customQuests, ...publicCommunityQuests].find((quest) => quest.id === requestedQuestId)
+    : null;
 
   return (
     <main className="site-shell groupquests-page">
@@ -64,10 +69,61 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
           <div>
             <span className="eyebrow">Create Multiplayer Side Quest</span>
             <h1>Build a Multiplayer Side Quest. Blame your friends later.</h1>
+            <p>Pick up to four Side Quests, set the time window, then share the table with players.</p>
           </div>
         </section>
 
         <MultiplayerModeSwitcher active="create" />
+
+        <section className="mission-card groupquests-create-mobile-map" aria-label="Mobile create Multiplayer Side Quest flow">
+          <div className="section-head compact">
+            <div>
+              <span className="eyebrow">Create</span>
+              <h2>Create a Community Multiplayer Side Quest.</h2>
+              <p>The mobile app starts this flow inside Multiplayer, then asks for name, invite copy, Side Quest stack, provider rules, proof window, and visibility.</p>
+            </div>
+            <div className="create-max-pill">
+              <strong>Max 4</strong>
+              <span>Side Quests</span>
+            </div>
+          </div>
+
+          <div className="groupquests-create-source-summary" aria-label="Create Side Quest source tabs">
+            <div className="groupquests-create-source-tab official">
+              <span>Official Side Quests</span>
+              <strong>{officialCount}</strong>
+              <small>Default mobile picker source.</small>
+            </div>
+            <div className="groupquests-create-source-tab community">
+              <span>Community Side Quests</span>
+              <strong>{communityCount}</strong>
+              <small>Your custom quests plus public community rules.</small>
+            </div>
+          </div>
+
+          <div className="groupquests-create-flow-grid" aria-label="Create Multiplayer Side Quest mobile fields">
+            <div>
+              <span>1</span>
+              <strong>Name and invite copy</strong>
+              <p>A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.</p>
+            </div>
+            <div>
+              <span>2</span>
+              <strong>Pick Side Quests</strong>
+              <p>{preselectedQuest ? `${preselectedQuest.title} is preselected from the catalog.` : "Official opens first; Community/Custom is one switch away."}</p>
+            </div>
+            <div>
+              <span>3</span>
+              <strong>Provider and rules</strong>
+              <p>Lichess or Chess.com, plus time control, rated state, and player color constraints.</p>
+            </div>
+            <div>
+              <span>4</span>
+              <strong>Proof window and invite</strong>
+              <p>Public listing, unlisted link, or private host code with a clear start and deadline.</p>
+            </div>
+          </div>
+        </section>
 
         <section className="mission-card groupquests-create-card" aria-label="Multiplayer Side Quest draft builder">
           <GroupQuestDraftBuilder quests={[...builderQuests, ...customQuests, ...publicCommunityQuests]} initialQuestId={requestedQuestId} />
