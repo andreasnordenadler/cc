@@ -309,10 +309,22 @@ body::after {
 
 .sqc-quest-mark {
   position: relative;
-  width: 136px;
-  height: 136px;
-  border-radius: 42px;
-  box-shadow: 0 22px 60px rgba(245, 200, 106, .14);
+  width: 166px;
+  height: 176px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sqc-quest-mark .sqc-mark-glow {
+  width: 166px;
+  height: 176px;
+}
+
+.sqc-quest-mark .sqc-mark-image {
+  width: 132px;
+  height: 148px;
 }
 
 .sqc-mark-glow,

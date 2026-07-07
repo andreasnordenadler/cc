@@ -25,6 +25,7 @@ This checklist is the first gate for the clean web rebuild sprint. The visible w
 - Rechecked identity/header details: `apps/mobile/App.tsx` lines 2181-2198 render the signed-in centered identity and right account circle; lines 3504-3524 render platform chips for `lichess` / `chess.com`; lines 10250-10280 define the 40px header controls, identity sizing, and brown hamburger menu panel.
 - Rechecked home panel details: `apps/mobile/App.tsx` lines 2200-2261 render the missing-chess-account blocker, empty Solo panel, refresh affordance, and pull-to-refresh hint; lines 2303-2445 render Active Multiplayer and Trophy Cabinet panels.
 - Asset hash proof remains current: `apps/mobile/assets/sqc-coat-of-arms.png`, `apps/mobile/assets/badges/glow/sqc-coat-generic-glow.png`, and `apps/mobile/assets/stamps/sqc-multiplayer-seal.png` match their `public/mobile-source/...` copies by SHA-256.
+- 2026-07-07 follow-up recheck for the clean preview sprint runner: signed-out mobile source at `apps/mobile/App.tsx` lines 2152-2178 shows the centered `Side Quest Chess` title, unframed coat/glow art, Solo/Multiplayer browse actions, and `Choose sign-in method`. The web cleanup slice keeps that model and removes the stale rounded logo-tile frame from the signed-out root coat art in `src/app/mobile-web.css`.
 
 ## Current Mobile Model
 
