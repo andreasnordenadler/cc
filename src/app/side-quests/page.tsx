@@ -40,7 +40,7 @@ const sideQuestIntents = [
     label: "My Custom Side Quests",
     title: "My Custom Side Quests",
     copy: "Your saved custom Side Quests, drafts, published rules, and archived ideas.",
-    href: "/custom",
+    href: "/my-custom-side-quests",
     badge: "Library",
     image: "/badges/custom/clean/custom-coat-rook-silver.png",
   },

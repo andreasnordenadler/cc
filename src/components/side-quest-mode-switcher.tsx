@@ -35,7 +35,7 @@ const sideQuestModes: Array<{
     label: "My Custom Side Quests",
     title: "Saved customs",
     copy: "Private drafts, public releases, and archived ideas.",
-    href: "/custom",
+    href: "/my-custom-side-quests",
     group: "library",
   },
   {
