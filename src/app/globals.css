@@ -312,6 +312,17 @@ p { color: var(--muted); line-height: 1.5; }
 .leaderboard-preview-row span { color: var(--ink); font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .leaderboard-preview-row em { color: var(--green); font-size: .85rem; font-style: normal; font-weight: 950; }
 .official-scoreboard-list { display: grid; gap: 10px; }
+.official-mobile-map-card { display: grid; gap: 16px; }
+.official-mobile-map-list { display: grid; gap: 10px; }
+.official-mobile-map-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(255,255,255,.035)); color: var(--ink); text-decoration: none; }
+.official-mobile-map-row:hover, .official-mobile-map-row:focus-visible { border-color: rgba(245,200,106,.32); transform: translateY(-1px); }
+.official-mobile-map-seal { display: grid; place-items: center; width: 58px; height: 58px; border: 1px solid rgba(245,200,106,.2); border-radius: 16px; background: rgba(0,0,0,.18); }
+.official-mobile-map-seal img { width: 48px; height: 48px; object-fit: contain; }
+.official-mobile-map-copy { display: grid; gap: 3px; min-width: 0; }
+.official-mobile-map-copy small { color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.official-mobile-map-copy strong { color: var(--ink); font-size: 1rem; font-weight: 950; line-height: 1.2; overflow-wrap: anywhere; }
+.official-mobile-map-copy em { color: var(--muted); font-size: .82rem; font-style: normal; font-weight: 800; line-height: 1.35; }
+.official-mobile-map-row b { color: var(--green); font-size: .8rem; font-weight: 950; text-align: right; white-space: nowrap; }
 .official-scoreboard-guide { display: grid; gap: 16px; }
 .official-scoreboard-guide-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .official-scoreboard-guide-steps div { display: grid; gap: 6px; padding: 14px; border: 1px solid rgba(245,200,106,.16); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.12)); }
@@ -341,7 +352,7 @@ p { color: var(--muted); line-height: 1.5; }
 .official-scoreboard-podium b { color: var(--gold); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .official-scoreboard-podium span { min-width: 0; color: var(--ink); font-size: .82rem; font-weight: 950; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .official-scoreboard-podium small { text-align: right; }
-@media (max-width: 760px) { .official-scoreboard-guide-steps, .official-week-slots { grid-template-columns: 1fr; } .official-scoreboard-row { grid-template-columns: 1fr; align-items: start; } .official-scoreboard-next-step { justify-items: start; text-align: left; } .official-scoreboard-podium li { grid-template-columns: 1fr; gap: 3px; } .official-scoreboard-podium small { text-align: left; } }
+@media (max-width: 760px) { .official-scoreboard-guide-steps, .official-week-slots { grid-template-columns: 1fr; } .official-mobile-map-row { grid-template-columns: auto minmax(0, 1fr); align-items: start; } .official-mobile-map-row b { grid-column: 2; text-align: left; } .official-scoreboard-row { grid-template-columns: 1fr; align-items: start; } .official-scoreboard-next-step { justify-items: start; text-align: left; } .official-scoreboard-podium li { grid-template-columns: 1fr; gap: 3px; } .official-scoreboard-podium small { text-align: left; } }
 .auth-reassurance-grid { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .auth-reassurance-grid span { padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(96,240,175,.26); background: rgba(96,240,175,.1); color: var(--green); font-size: .82rem; font-weight: 900; }
 .support-launch-hero { display: grid; justify-items: center; text-align: center; }

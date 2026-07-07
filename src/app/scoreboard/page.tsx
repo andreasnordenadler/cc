@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import MultiplayerModeSwitcher from "@/components/multiplayer-mode-switcher";
@@ -23,6 +24,35 @@ export default async function ScoreboardPage() {
   const latestFinished = finishedOfficial.slice(0, 3);
   const weeklyArchive = buildOfficialWeeks(finishedOfficial.slice(3));
   const officialWeekSlots = buildOfficialWeekSlots(currentOfficial);
+  const mobileOfficialRows = [
+    {
+      eyebrow: "Current week",
+      title: "Active official leaderboards.",
+      meta: currentOfficial.length
+        ? `${currentOfficial.length} active official Multiplayer Side Quest${currentOfficial.length === 1 ? "" : "s"}`
+        : "No official leaderboards are active right now.",
+      href: currentOfficial[0] ? `/groupquests/${currentOfficial[0].id}` : "/groupquests/public?status=all",
+      action: currentOfficial.length ? "Open current" : "Browse public",
+    },
+    {
+      eyebrow: "Previous week",
+      title: "Latest final results.",
+      meta: latestFinished.length
+        ? `${latestFinished.length} final official result${latestFinished.length === 1 ? "" : "s"}`
+        : "Final results will appear after the next official set closes.",
+      href: latestFinished[0] ? `/groupquests/${latestFinished[0].id}` : "/multiplayer",
+      action: latestFinished.length ? "View results" : "Open Multiplayer",
+    },
+    {
+      eyebrow: "Archive",
+      title: "Browse older official weeks.",
+      meta: weeklyArchive.length
+        ? `${weeklyArchive.length} archived official week${weeklyArchive.length === 1 ? "" : "s"}`
+        : "Older weekly official sets will be listed once they exist.",
+      href: weeklyArchive[0] ? `#official-week-${weeklyArchive[0].id}` : "/official-leaderboards",
+      action: weeklyArchive.length ? "Open archive" : "Waiting",
+    },
+  ];
 
   return (
     <main className="site-shell">
@@ -44,6 +74,32 @@ export default async function ScoreboardPage() {
         </section>
 
         <MultiplayerModeSwitcher active="official" />
+
+        <section className="mission-card official-mobile-map-card" aria-label="Mobile Official Leaderboards structure">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Mobile screen map</span>
+              <h2>Current week, previous week, and archive.</h2>
+              <p>The mobile app keeps Official Leaderboards as a hamburger-only screen with three app-row sections. This web route now exposes that same structure before the fuller leaderboard tables.</p>
+            </div>
+            <span className="badge gold">official</span>
+          </div>
+          <div className="official-mobile-map-list">
+            {mobileOfficialRows.map((row) => (
+              <Link className="official-mobile-map-row" href={row.href} key={row.eyebrow}>
+                <span className="official-mobile-map-seal" aria-hidden="true">
+                  <Image alt="" height={52} src="/stamps/sqc-multiplayer-seal.png" width={52} />
+                </span>
+                <span className="official-mobile-map-copy">
+                  <small>{row.eyebrow}</small>
+                  <strong>{row.title}</strong>
+                  <em>{row.meta}</em>
+                </span>
+                <b>{row.action}</b>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         <section className="mission-card official-scoreboard-guide" aria-label="Official leaderboard guide">
           <div className="section-head">
@@ -151,7 +207,7 @@ export default async function ScoreboardPage() {
           {weeklyArchive.length ? (
             <div className="leaderboard-preview-grid">
               {weeklyArchive.map((week) => (
-                <article className="mission-card leaderboard-blur-card" key={week.id}>
+                <article className="mission-card leaderboard-blur-card" id={`official-week-${week.id}`} key={week.id}>
                   <h3>{week.label}</h3>
                   <p>{week.rangeLabel} · {week.quests.length} official result{week.quests.length === 1 ? "" : "s"}</p>
                   <div className="official-scoreboard-list">
