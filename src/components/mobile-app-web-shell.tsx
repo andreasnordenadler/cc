@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Challenge } from "@/lib/challenges";
@@ -14,26 +13,17 @@ type MobileAppWebShellProps = {
   children?: ReactNode;
 };
 
-const multiplayerRows = [
-  {
-    title: "No active Multiplayer Side Quests",
-    meta: "Join or host shared challenges with friends.",
-    status: "Explore",
-    href: "/multiplayer",
-    glyph: "groups",
-  },
-  {
-    title: "Create a Multiplayer Side Quest",
-    meta: "Choose quests, time window, provider, and invite friends.",
-    status: "Create",
-    href: "/create-multiplayer-side-quest",
-    glyph: "add",
-  },
+const menuItems = [
+  { id: "home", label: "Home", href: "/", icon: "home" },
+  { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", icon: "flag" },
+  { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", icon: "group" },
+  { id: "coats", label: "Trophy Cabinet", href: "/trophy-cabinet", icon: "shield" },
+  { id: "custom", label: "My Custom Side Quests", href: "/custom-side-quests", icon: "edit" },
+  { id: "createCustom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", icon: "plus" },
+  { id: "createMultiplayer", label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest", icon: "plus" },
+  { id: "account", label: "My Account", href: "/account", icon: "person" },
+  { id: "support", label: "Help & Support", href: "/support", icon: "help" },
 ];
-
-const coatImage = "/mobile-source/sqc-coat-of-arms.png";
-const coatGlowImage = "/mobile-source/badges/glow/sqc-coat-generic-glow.png";
-const multiplayerSealImage = "/mobile-source/stamps/sqc-multiplayer-seal.png";
 
 export default function MobileAppWebShell({
   activeTab,
@@ -44,173 +34,157 @@ export default function MobileAppWebShell({
   children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
-  const menuItems = [
-    { id: "home", label: "Home", href: "/", glyph: "home" },
-    { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", glyph: "flag" },
-    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", glyph: "groups" },
-    { id: "coats", label: "Trophy Cabinet", href: "/trophy-cabinet", glyph: "shield" },
-    { id: "custom", label: "My Custom Side Quests", href: "/custom-side-quests", glyph: "edit" },
-    { id: "createCustom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", glyph: "add" },
-    { id: "createMultiplayer", label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest", glyph: "add" },
-    { id: "account", label: signedIn ? "My Account" : "Sign in / Account", href: "/account", glyph: "person" },
-    { id: "support", label: "Help & Support", href: "/support", glyph: "help" },
-  ];
+  const hasChessAccount = Boolean(lichessUsername || chessComUsername);
 
   return (
-    <main className="mobile-web-app-shell">
+    <main className="sqc-mobile-web" data-source="active-mobile-today-dashboard">
+      <div className="sqc-mobile-backdrop" aria-hidden="true" />
+
       {signedIn ? (
         <>
-          <details className="mobile-web-floating-menu">
-            <summary aria-label="Open main menu" title="Main menu">
-              <span aria-hidden="true" />
+          <details className="sqc-menu">
+            <summary aria-label="Open main menu">
+              <span />
             </summary>
-            <nav className="mobile-web-menu-panel" aria-label="Main menu">
+            <nav aria-label="Main menu" className="sqc-menu-panel">
               {menuItems.map((item) => (
                 <Link
-                  aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}
-                  href={item.href}
                   key={item.id}
-                  className={isActiveMenuItem(item.id, activeTab) ? "mobile-web-menu-row active" : "mobile-web-menu-row"}
+                  href={item.href}
+                  className={isActiveMenuItem(item.id, activeTab) ? "sqc-menu-row active" : "sqc-menu-row"}
+                  aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}
                 >
-                  <IconBox glyph={item.glyph} />
+                  <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
                   <span>{item.label}</span>
                 </Link>
               ))}
             </nav>
           </details>
 
-          <header className="mobile-web-signed-in-header" aria-label="App header">
-            <div className="mobile-web-identity">
+          <header className="sqc-app-header">
+            <div className="sqc-identity">
               <strong>{displayName || "Side Quest Chess"}</strong>
-              {lichessUsername || chessComUsername ? (
-                <span className="mobile-web-identity-accounts">
-                  {lichessUsername ? (
-                    <span className="mobile-web-identity-account">
-                      <span className="mobile-web-identity-platform lichess">lichess</span>
-                      <small>{lichessUsername}</small>
-                    </span>
-                  ) : null}
-                  {chessComUsername ? (
-                    <span className="mobile-web-identity-account">
-                      <span className="mobile-web-identity-platform chesscom">chess.com</span>
-                      <small>{chessComUsername}</small>
-                    </span>
-                  ) : null}
-                </span>
-              ) : null}
+              <span>
+                {lichessUsername ? <small>lichess · {lichessUsername}</small> : null}
+                {chessComUsername ? <small>chess.com · {chessComUsername}</small> : null}
+                {!hasChessAccount ? <small>Chess account not connected</small> : null}
+              </span>
             </div>
-            <Link href="/account" className="mobile-web-account-dot" aria-label="Open account settings">
+            <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
               {profileInitial}
             </Link>
           </header>
         </>
       ) : (
-        <header className="mobile-web-guest-header" aria-label="App header">
+        <header className="sqc-app-header guest">
           <h1>Side Quest Chess</h1>
         </header>
       )}
 
       {activeTab !== "home" ? (
-        <Link href="/" className="mobile-web-close-screen" aria-label={activeTab === "sideQuests" ? "Close Solo Side Quests" : "Close screen"}>
-          x
+        <Link href="/" className="sqc-close-screen" aria-label="Close screen">
+          <span aria-hidden="true" />
         </Link>
       ) : null}
 
-      <section className="mobile-web-screen" aria-label={activeTab === "sideQuests" ? "Solo Side Quests" : "Home"}>
-        {children ? children : null}
-
-        {!children && !signedIn ? (
-          <div className="mobile-web-guest-coat" aria-hidden="true">
-            <Image className="mobile-web-coat-glow" alt="" src={coatGlowImage} width={220} height={220} priority />
-            <Image className="mobile-web-coat" alt="" src={coatImage} width={176} height={176} priority />
-          </div>
-        ) : null}
-
-        {!children && !signedIn ? (
-          <div className="mobile-web-guest-panel">
-            <h2>Sign in to continue.</h2>
-            <p>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.</p>
-            <div className="mobile-web-action-row">
-              <Link href="/side-quests" className="mobile-web-secondary-action">Browse Solo Side Quests</Link>
-              <Link href="/multiplayer" className="mobile-web-secondary-action">Browse Multiplayer Side Quests</Link>
-            </div>
-            <Link href="/account" className="mobile-web-primary-action mobile-web-centered-action">Choose sign-in method</Link>
-          </div>
-        ) : null}
-
-        {!children && signedIn && !lichessUsername && !chessComUsername ? (
-          <Link href="/account" className="mobile-web-blocker-panel">
-            <strong>Connect a chess username</strong>
-            <span>SQC needs Lichess or Chess.com before it can check real games.</span>
-          </Link>
-        ) : null}
-
-        {!children && signedIn ? (
-          <>
-            <section className="mobile-web-active-solo-section" aria-label="Active Solo Side Quest">
-              <span className="mobile-web-active-solo-refresh" aria-hidden="true">
-                ↻
-              </span>
-              <div className="mobile-web-empty-quest-panel">
-                <div className="mobile-web-empty-quest-hero-row">
-                  <span className="mobile-web-empty-quest-coat-wrap" aria-hidden="true">
-                    <Image className="mobile-web-empty-quest-coat-glow" alt="" src={coatGlowImage} width={104} height={108} />
-                    <Image className="mobile-web-empty-quest-coat" alt="" src={coatImage} width={82} height={82} />
-                  </span>
-                  <span className="mobile-web-current-quest-text">
-                    <strong>Choose a Solo Side Quest</strong>
-                    <small>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</small>
-                  </span>
-                </div>
-                <Link href="/side-quests" className="mobile-web-primary-action mobile-web-fit-action">Explore Solo Side Quests</Link>
-              </div>
-            </section>
-
-            <div className="mobile-web-refresh-hint" aria-hidden="true">
-              <span>↓</span>
-              <small>Pull down to refresh</small>
-            </div>
-
-            <section className="mobile-web-active-multiplayer-section" aria-label="Active Multiplayer Side Quests">
-              <Link href="/multiplayer" className="mobile-web-active-multiplayer-summary">
-                <span className="mobile-web-multiplayer-hero-marker" aria-hidden="true">
-                  <Image className="mobile-web-multiplayer-hero-glow" alt="" src={coatGlowImage} width={142} height={152} />
-                  <Image className="mobile-web-multiplayer-hero-seal" alt="" src={multiplayerSealImage} width={100} height={100} />
-                </span>
-                <span className="mobile-web-pill">Active Multiplayer Side Quests</span>
-                <strong>No active Multiplayer Side Quests</strong>
-              </Link>
-              <div className="mobile-web-row-list framed">
-                {multiplayerRows.slice(0, 1).map((row) => (
-                  <AppRow key={row.title} {...row} />
-                ))}
-              </div>
-              <Link href="/multiplayer" className="mobile-web-secondary-action mobile-web-full-action">Explore More Multiplayer Side Quests</Link>
-            </section>
-
-            <section className="mobile-web-trophy-cabinet-section" aria-label="Trophy Cabinet">
-              <Link href="/trophy-cabinet" className="mobile-web-active-multiplayer-summary">
-                <span className="mobile-web-trophy-hero-marker" aria-hidden="true">
-                  <Image className="mobile-web-trophy-hero-glow" alt="" src={coatGlowImage} width={156} height={166} />
-                  <Image className="mobile-web-trophy-hero-coat" alt="" src={coatImage} width={112} height={126} />
-                </span>
-                <span className="mobile-web-pill">Trophy Cabinet</span>
-              </Link>
-              <div className="mobile-web-row-list framed">
-                <AppRow
-                  title="No Coat of Arms yet"
-                  meta="Complete a Side Quest to unlock your first trophy."
-                  status="Explore"
-                  href="/side-quests"
-                  image={coatImage}
-                />
-              </div>
-              <Link href="/trophy-cabinet" className="mobile-web-secondary-action mobile-web-full-action">Open Trophy Cabinet</Link>
-            </section>
-          </>
-        ) : null}
+      <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
+        {children ?? (
+          signedIn ? (
+            <SignedInHome hasChessAccount={hasChessAccount} />
+          ) : (
+            <GuestHome />
+          )
+        )}
       </section>
     </main>
+  );
+}
+
+function GuestHome() {
+  return (
+    <div className="sqc-stack">
+      <section className="sqc-guest-hero" aria-label="Side Quest Chess introduction">
+        <div className="sqc-quest-mark" aria-hidden="true">
+          <span>♞</span>
+        </div>
+        <h2>Sign in to continue.</h2>
+        <p>
+          Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first;
+          sign in when you want SQC to save progress, verify proof, or join a table.
+        </p>
+        <div className="sqc-action-pair">
+          <Link href="/side-quests" className="sqc-secondary-action">Browse Solo Side Quests</Link>
+          <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>
+        </div>
+        <Link href="/account" className="sqc-primary-action">Choose sign-in method</Link>
+      </section>
+
+      <section className="sqc-panel">
+        <span className="sqc-eyebrow">What happens after sign-in</span>
+        <h2>A tiny ritual, not another chess dashboard.</h2>
+        <div className="sqc-flow">
+          <FlowStep title="Choose solo or multiplayer" body="Start one Side Quest for yourself, or join a shared table when the bad idea deserves witnesses." />
+          <FlowStep title="Play where you already play" body="Use a normal public Lichess or Chess.com game. SQC never asks for chess-site passwords." />
+          <FlowStep title="Get the receipt" body="SQC checks your latest public game and updates proof, progress, and leaderboard results." />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
+  return (
+    <div className="sqc-stack">
+      {!hasChessAccount ? (
+        <Link href="/account" className="sqc-blocker">
+          <strong>Connect a chess username</strong>
+          <span>SQC needs Lichess or Chess.com before it can check real games.</span>
+        </Link>
+      ) : null}
+
+      <section className="sqc-current-card">
+        <button className="sqc-refresh" type="button" aria-label="Refresh active Solo Side Quest">
+          <span aria-hidden="true" />
+        </button>
+        <div className="sqc-current-body">
+          <div className="sqc-current-mark" aria-hidden="true">♘</div>
+          <div>
+            <p className="sqc-pill">Active Solo Side Quest</p>
+            <h2>Choose a Solo Side Quest</h2>
+            <p>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</p>
+          </div>
+        </div>
+        <Link href="/side-quests" className="sqc-primary-action fit">Explore Solo Side Quests</Link>
+      </section>
+
+      <div className="sqc-refresh-hint" aria-hidden="true">
+        <span />
+        <small>Pull down to refresh</small>
+      </div>
+
+      <section className="sqc-home-section">
+        <div className="sqc-section-hero">
+          <div className="sqc-section-mark group" aria-hidden="true">♟</div>
+          <p className="sqc-pill">Active Multiplayer Side Quests</p>
+          <h2>No active Multiplayer Side Quests</h2>
+        </div>
+        <div className="sqc-row-list">
+          <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" href="/multiplayer" />
+        </div>
+        <Link href="/multiplayer" className="sqc-secondary-action full">Explore More Multiplayer Side Quests</Link>
+      </section>
+
+      <section className="sqc-home-section">
+        <div className="sqc-section-hero">
+          <div className="sqc-section-mark trophy" aria-hidden="true">♜</div>
+          <p className="sqc-pill">Trophy Cabinet</p>
+        </div>
+        <div className="sqc-row-list">
+          <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" />
+        </div>
+        <Link href="/trophy-cabinet" className="sqc-secondary-action full">Open Trophy Cabinet</Link>
+      </section>
+    </div>
   );
 }
 
@@ -237,28 +211,22 @@ export function MobileSoloSideQuestsScreen({
   });
 
   return (
-    <>
-      <div className="mobile-web-sidequest-emblem" aria-hidden="true">
-        <Image className="mobile-web-section-glow" alt="" src={coatGlowImage} width={128} height={128} priority />
-        <Image className="mobile-web-section-art" alt="" src={coatImage} width={94} height={94} priority />
-      </div>
-
-      <div className="mobile-web-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
-        <Link href="/side-quests" className="mobile-web-brand-tab official active" role="tab" aria-selected="true">
-          Official Side Quests
-        </Link>
-        <span className="mobile-web-brand-tab-switch" aria-hidden="true" />
-        <Link href="/community-side-quests" className="mobile-web-brand-tab community" role="tab" aria-selected="false">
-          Community Side Quests
-        </Link>
-      </div>
-
-      <section className="mobile-web-app-section" aria-labelledby="official-side-quests-title">
-        <div className="mobile-web-section-head">
-          <h1 id="official-side-quests-title">Official Side Quests</h1>
-          <span className="mobile-web-section-count">{sortedChallenges.length} official</span>
+    <div className="sqc-stack">
+      <section className="sqc-panel hero">
+        <span className="sqc-eyebrow">Solo Side Quests</span>
+        <h1>Official Side Quests</h1>
+        <p>Choose one Solo Side Quest, play a fresh public game, then come back for proof.</p>
+        <div className="sqc-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+          <Link href="/side-quests" className="active" role="tab" aria-selected="true">Official</Link>
+          <Link href="/community-side-quests" role="tab" aria-selected="false">Community</Link>
         </div>
-        <div className="mobile-web-catalog-rows">
+      </section>
+
+      <section className="sqc-panel list">
+        <div className="sqc-list-head">
+          <h2>{sortedChallenges.length} official Side Quests</h2>
+        </div>
+        <div className="sqc-catalog">
           {sortedChallenges.map((challenge) => (
             <AppRow
               key={challenge.id}
@@ -266,12 +234,36 @@ export function MobileSoloSideQuestsScreen({
               meta={challenge.objective}
               status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
               href={`/challenges/${challenge.id}`}
-              image={challenge.badgeIdentity.image ?? coatImage}
             />
           ))}
         </div>
       </section>
-    </>
+    </div>
+  );
+}
+
+function FlowStep({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="sqc-flow-step">
+      <span aria-hidden="true" />
+      <div>
+        <strong>{title}</strong>
+        <p>{body}</p>
+      </div>
+    </div>
+  );
+}
+
+function AppRow({ title, meta, status, href }: { title: string; meta: string; status: string; href: string }) {
+  return (
+    <Link href={href} className="sqc-app-row">
+      <span className="sqc-row-icon" aria-hidden="true">♞</span>
+      <span className="sqc-row-copy">
+        <strong>{title}</strong>
+        <small>{meta}</small>
+      </span>
+      <span className="sqc-row-status">{status}</span>
+    </Link>
   );
 }
 
@@ -290,39 +282,4 @@ function difficultyRank(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return 3;
   if (difficulty === "Brutal") return 4;
   return 5;
-}
-
-function AppRow({
-  title,
-  meta,
-  status,
-  href,
-  image,
-  glyph,
-}: {
-  title: string;
-  meta: string;
-  status: string;
-  href: string;
-  image?: string;
-  glyph?: string;
-}) {
-  return (
-    <Link href={href} className="mobile-web-app-row">
-      <span className="mobile-web-row-art" aria-hidden="true">
-        {image ? <Image alt="" src={image} width={48} height={48} /> : <IconBox glyph={glyph ?? ""} />}
-      </span>
-      <span className="mobile-web-row-copy">
-        <strong>{title}</strong>
-        <small>{meta}</small>
-      </span>
-      <span className="mobile-web-row-status">{status}</span>
-    </Link>
-  );
-}
-
-function IconBox({ glyph, small = false }: { glyph: string; small?: boolean }) {
-  return (
-    <span className={`${small ? "mobile-web-icon-box small" : "mobile-web-icon-box"} glyph-${glyph}`} aria-hidden="true" />
-  );
 }
