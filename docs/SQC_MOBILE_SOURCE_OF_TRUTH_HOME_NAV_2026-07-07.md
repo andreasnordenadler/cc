@@ -1,65 +1,69 @@
-# SQC Mobile Source Of Truth - Home / Navigation - 2026-07-07
+# SQC Mobile Source Of Truth - Home And Navigation - 2026-07-07
 
-Sprint source: `docs/SQC_MOBILE_APP_WEB_REBUILD_SPRINT_2026-07-07.md`
+This checklist is the first gate for the clean web rebuild sprint. The visible web shell must follow the current mobile app, not the old website.
 
-Verified source file: `apps/mobile/App.tsx`
+## Source Inspected
 
-## Current App Shell
+- `apps/mobile/App.tsx`
+- Current home screen: `TodayDashboard`
+- Current app shell/navigation: `MobileShell`, `GlobalHamburgerMenu`, `FixedScreenCloseButton`
+- Older `HomeScreen` and `BottomNav` implementations are present in source but are not rendered by `ActiveScreen` / `MobileShell`; do not use them as visible web source.
 
-- The app root renders `SafeAreaView`, `StatusBar`, `GradientBackdrop`, a very faint app watermark, and a scroll view with top padding. Source: `apps/mobile/App.tsx` around `ActiveScreen` render.
-- The active app shell renders `GlobalHamburgerMenu` only when the account is authenticated.
-- Non-home screens get a fixed close button that returns to home.
-- `BottomNav` exists in source, but there is no current render call for it. It is not current visible product truth for this rebuild.
+## Current Mobile Home: Signed Out
 
-## Signed-Out Home
-
-- Header is centered text: `Side Quest Chess`.
-- No hamburger menu appears while signed out.
-- Brand art is the current coat of arms with `SQC_GENERIC_COAT_GLOW_ASSET` behind `SQC_COAT_OF_ARMS_ASSET`, not the old public website logo treatment.
-- Primary content is centered:
+- Top identity: centered text title `Side Quest Chess`.
+- Brand treatment: generic Coat of Arms artwork over the generic glow asset, not the old public wordmark/logo treatment.
+- No hamburger menu while signed out.
+- No persistent bottom navigation.
+- Primary content: centered sign-in panel with:
   - `Sign in to continue.`
-  - Browse Solo Side Quests.
-  - Browse Multiplayer Side Quests.
-  - `Choose sign-in method`.
-- The signed-out copy says: `Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.`
+  - copy beginning `Chess, but with stupidly hard side quests`
+  - actions for Solo browse, Multiplayer browse, and `Choose sign-in method`.
 
-## Signed-In Home Header
+## Current Mobile Home: Signed In
 
-- Header height is 40px and is visually aligned with the hamburger and account avatar/dot.
-- Hamburger is a 40px circular control on the left.
-- Identity is centered between controls.
-- Account avatar/dot is a 40px circular control on the right.
-- Identity shows display name and connected chess accounts; missing chess accounts should prompt account connection.
+- Top identity: centered account identity line between two fixed circular controls.
+- Left control: circular hamburger menu.
+- Right control: circular account/avatar button.
+- Missing chess username state: blocker panel `Connect a chess username`.
+- Home sections appear as stacked app panels:
+  - Active Solo Side Quest
+  - Pull down to refresh hint
+  - Active Multiplayer Side Quests
+  - Trophy Cabinet
+- Brand/section art uses the current app Coat of Arms, generic glow, and Multiplayer seal assets in app panels.
 
-## Signed-In Menu
+## Current Mobile Navigation
 
-Current menu item order:
+- The rendered primary navigation is the hamburger menu, available only for authenticated accounts in the app shell.
+- Menu items, in order:
+  - Home
+  - Solo Side Quests
+  - Multiplayer Side Quests
+  - Trophy Cabinet
+  - My Custom Side Quests
+  - Create Custom Side Quest
+  - Create Multiplayer Side Quest
+  - My Account / Sign in / Account
+  - Help & Support
+- Non-home screens use a fixed circular close button that returns to Home.
+- Persistent bottom navigation is not rendered by `MobileShell`; existing `BottomNav` source is stale for this sprint unless the current app starts rendering it again.
 
-1. Home
-2. Solo Side Quests
-3. Multiplayer Side Quests
-4. Trophy Cabinet
-5. My Custom Side Quests
-6. Create Custom Side Quest
-7. Create Multiplayer Side Quest
-8. My Account / Sign in / Account
-9. Help & Support
+## Web Translation Rules For This Sprint
 
-Menu styling:
+- Do not preserve old website chrome, public wordmark lockups, old logo watermarks, or bottom tab bars.
+- Use old web code only for auth, APIs, proof/data logic, route compatibility, and server-side plumbing.
+- Current app assets that are verified acceptable for visible web shell:
+  - `/mobile-source/sqc-coat-of-arms.png`
+  - `/mobile-source/badges/glow/sqc-coat-generic-glow.png`
+  - `/mobile-source/stamps/sqc-multiplayer-seal.png`
+- A web slice fails the gate if it looks like the old website with app-like parts instead of this current mobile app model translated to browser constraints.
 
-- Panel width is 232px in native source, brown translucent background, 13px radius, tight 2px row gap.
-- Rows are compact, icon plus label, active row highlighted with translucent gold.
+## Baseline Preview Mismatch Found
 
-## Web Rebuild Decisions
+Preview checked: `https://cc-knpvy8h8y-andreas-nordenadlers-projects.vercel.app`
 
-- Do not preserve the old website topbar, public logo lockup, or persistent bottom dock as visible UI.
-- Use old web routes only as compatibility targets for auth, account, proof, and route compatibility.
-- Browser translation may use real links instead of native callbacks, but the visible navigation model should be the hamburger/menu model above.
-- Root signed-out shell should remain centered and coat-led; root signed-in shell should use centered identity, hamburger, account dot, and home content sections.
-
-## Checklist For Future Slices
-
-- Confirm screen-specific header and menu behavior in `apps/mobile/App.tsx` before editing web UI.
-- Confirm whether the native screen is signed-out browse, signed-in home, modal/detail, or non-home full screen.
-- Do not add persistent bottom navigation unless a current rendered mobile app path proves it.
-- Do not use `/sqc-logo-v11.png` or old `/brand/*` logo lockups for visible chrome unless the current mobile app surface proves it.
+- HTTP status: 200.
+- DOM/screenshot proof captured locally at `artifacts/sqc-mobile-web-clean-current-preview-home.png`.
+- Mismatch: the preview still shows old public logo images and a persistent bottom tab bar.
+- Next action: deploy a fresh preview from `sqc-mobile-app-web-rebuild-clean`, whose local root shell removes that stale bottom-nav/logo baseline.
