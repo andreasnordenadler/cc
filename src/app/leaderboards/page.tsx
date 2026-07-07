@@ -1,3 +1,7 @@
+import { redirect } from "next/navigation";
+
 export const dynamic = "force-dynamic";
-export { metadata } from "../scoreboard/page";
-export { default } from "../scoreboard/page";
+
+export default function LeaderboardsPage() {
+  redirect("/multiplayer");
+}

@@ -1,1 +1,5 @@
-export { default } from "../leaderboards/page";
+import { redirect } from "next/navigation";
+
+export default function OfficialLeaderboardsPage() {
+  redirect("/multiplayer");
+}
