@@ -14,17 +14,10 @@ type MobileAppWebShellProps = {
 
 const soloRows = [
   {
-    title: "No active Solo Side Quest",
-    meta: "Pick one Solo Side Quest, play a fresh public game, then check proof.",
+    title: "Choose a Solo Side Quest",
+    meta: "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.",
     status: "Explore",
     href: "/side-quests",
-    image: "/mobile-source/sqc-coat-of-arms.png",
-  },
-  {
-    title: "Connect a chess username",
-    meta: "SQC reads public Lichess or Chess.com games. No chess-site password needed.",
-    status: "Account",
-    href: "/account",
     image: "/mobile-source/sqc-coat-of-arms.png",
   },
 ];
@@ -137,38 +130,47 @@ export default function MobileAppWebShell({
           </Link>
         ) : null}
 
-        <MobileSection title={signedIn ? "No active Solo Side Quest" : "Choose a Solo Side Quest"} actionLabel="Explore Solo Side Quests" href="/side-quests" image={coatImage} glow={coatGlowImage}>
-          {soloRows.map((row) => (
-            <AppRow key={row.title} {...row} />
-          ))}
-        </MobileSection>
+        {signedIn ? (
+          <>
+            <MobileSection title="No active Solo Side Quest" actionLabel="Explore More Solo Side Quests" href="/side-quests" image={coatImage} glow={coatGlowImage}>
+              {soloRows.map((row) => (
+                <AppRow key={row.title} {...row} />
+              ))}
+            </MobileSection>
 
-        <MobileSection title="No active Multiplayer Side Quests" actionLabel="Explore More Multiplayer Side Quests" href="/multiplayer" image={multiplayerSealImage} glow={coatGlowImage}>
-          {multiplayerRows.map((row) => (
-            <AppRow key={row.title} {...row} />
-          ))}
-        </MobileSection>
-
-        <section className="mobile-web-panel" aria-label="Trophy Cabinet">
-          <div className="mobile-web-section-hero" aria-hidden="true">
-            <Image className="mobile-web-section-glow" alt="" src={coatGlowImage} width={128} height={128} />
-            <Image className="mobile-web-section-art" alt="" src={coatImage} width={94} height={94} />
-          </div>
-          <div className="mobile-web-section-head">
-            <div>
-              <span className="mobile-web-eyebrow">Trophy Cabinet</span>
-              <h2>No Coat of Arms yet</h2>
+            <div className="mobile-web-refresh-hint" aria-hidden="true">
+              <span>↓</span>
+              <small>Pull down to refresh</small>
             </div>
-            <Link href="/trophy-cabinet" className="mobile-web-text-action">Open</Link>
-          </div>
-          <AppRow
-            title="Complete a Side Quest"
-            meta="Unlocked coats stay in your account and appear in the Trophy Cabinet."
-            status="Explore"
-            href="/side-quests"
-            image="/badges/v6/proof-loop-test-badge.png"
-          />
-        </section>
+
+            <MobileSection title="No active Multiplayer Side Quests" actionLabel="Explore More Multiplayer Side Quests" href="/multiplayer" image={multiplayerSealImage} glow={coatGlowImage}>
+              {multiplayerRows.map((row) => (
+                <AppRow key={row.title} {...row} />
+              ))}
+            </MobileSection>
+
+            <section className="mobile-web-panel" aria-label="Trophy Cabinet">
+              <div className="mobile-web-section-hero" aria-hidden="true">
+                <Image className="mobile-web-section-glow" alt="" src={coatGlowImage} width={128} height={128} />
+                <Image className="mobile-web-section-art" alt="" src={coatImage} width={94} height={94} />
+              </div>
+              <div className="mobile-web-section-head">
+                <div>
+                  <span className="mobile-web-eyebrow">Trophy Cabinet</span>
+                  <h2>No Coat of Arms yet</h2>
+                </div>
+                <Link href="/trophy-cabinet" className="mobile-web-text-action">Open</Link>
+              </div>
+              <AppRow
+                title="Complete a Side Quest"
+                meta="Unlocked coats stay in your account and appear in the Trophy Cabinet."
+                status="Explore"
+                href="/side-quests"
+                image="/badges/v6/proof-loop-test-badge.png"
+              />
+            </section>
+          </>
+        ) : null}
       </section>
     </main>
   );

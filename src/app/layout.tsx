@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 
 const clerkAppearance = {
   options: {
-    logoImageUrl: "/sqc-logo-v11.png",
+    logoImageUrl: "/mobile-source/sqc-coat-of-arms.png",
     logoLinkUrl: "/",
     logoPlacement: "inside" as const,
     socialButtonsPlacement: "top" as const,

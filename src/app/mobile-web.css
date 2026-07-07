@@ -231,10 +231,6 @@ body::after {
   justify-items: center;
   gap: 13px;
   padding: 17px 15px;
-  border: 1px solid rgba(245, 200, 106, .16);
-  border-radius: 24px;
-  background: rgba(255, 247, 232, .078);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, .24);
   text-align: center;
 }
 
@@ -329,6 +325,25 @@ body::after {
   margin-top: 70px;
   padding: 13px;
   padding-top: 24px;
+}
+
+.mobile-web-refresh-hint {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: -2px 0 -4px;
+  color: rgba(199, 189, 169, .72);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.mobile-web-refresh-hint span {
+  color: rgba(245, 200, 106, .82);
+  font-size: 9px;
+  font-weight: 1000;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .mobile-web-section-hero {
