@@ -40,19 +40,19 @@ const inviteModes = [
   {
     id: "private-key",
     label: "Private host code",
-    copy: "Only players with the host code can join. The table stays out of public discovery.",
+    copy: "Only players with the host code can join. The Multiplayer Side Quest stays out of public discovery.",
   },
 ];
 
 const hostPrepCards = [
   {
     step: "1",
-    title: "Name the table",
+    title: "Name the Multiplayer Side Quest",
     copy: "Give friends a clear hook and invite message before sharing.",
   },
   {
     step: "2",
-    title: "Pick the run",
+    title: "Pick the Side Quest stack",
     copy: "Stack official quests or launch-ready Custom Solo Side Quests.",
   },
   {
@@ -557,7 +557,7 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
             <div className="groupquests-rule-builder" aria-label="Host game settings">
               <div>
                 <span className="groupquests-rule-title">7 · Host game settings</span>
-                <p>Automatic checks currently enforce the Side Quest objective, public provider, and event window. These extra settings describe the intended run while verifier coverage expands.</p>
+                <p>Automatic checks currently enforce the Side Quest objective, public provider, and event window. These extra settings describe the intended Multiplayer Side Quest while verifier coverage expands.</p>
               </div>
               <div className="groupquests-rule-grid">
                 {gameRuleGroups.map((group) => (

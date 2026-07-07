@@ -48,7 +48,7 @@ export default async function MyQuestLogPage() {
               <span className="eyebrow">Account</span>
               <h1>Sign in to continue.</h1>
               <p className="hero-copy">
-                Chess, but with stupidly hard side quests - solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.
+                Chess, but with stupidly hard side quests - solo or multiplayer. Browse the live Side Quests first; sign in when you want SQC to save progress, verify proof, or join a Multiplayer Side Quest.
               </p>
               <div className="button-row hero-actions">
                 <Link href="/solo" className="button secondary">Browse Solo Side Quests</Link>
@@ -71,7 +71,7 @@ export default async function MyQuestLogPage() {
               </Link>
               <Link href="/multiplayer" className="account-run-checklist-row ready">
                 <span>Browse Multiplayer Side Quests</span>
-                <strong>Official and community tables stay browsable before Account sync.</strong>
+                <strong>Official and community Multiplayer Side Quests stay browsable before Account sync.</strong>
               </Link>
               <Link href="/sign-in" className="account-run-checklist-row missing">
                 <span>Account sign-in</span>
@@ -318,7 +318,7 @@ export default async function MyQuestLogPage() {
             </div>
             <div className="account-readiness-panel app-account-status-panel" aria-label="Account readiness and progress">
               <div className="account-readiness-head">
-                <span className="eyebrow">Readiness</span>
+                <span className="eyebrow">Account readiness</span>
               </div>
               <div className="account-run-checklist" aria-label="Ready to run checklist">
                 {runChecklistItems.map((item) => (

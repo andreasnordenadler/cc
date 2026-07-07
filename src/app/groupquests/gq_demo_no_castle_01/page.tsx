@@ -26,26 +26,26 @@ const settingCards = [
 ];
 
 const proofChecklist = [
-  { label: "Joined participant", state: "Done", tone: "green", copy: "Your SQC account is on this table before the proof window starts." },
+  { label: "Joined participant", state: "Done", tone: "green", copy: "Your SQC account joined this Multiplayer Side Quest before the proof window starts." },
   { label: "After start time", state: "Done", tone: "green", copy: "Only fresh public games played after joining count for this leaderboard." },
-  { label: "Blitz 5+3", state: "Required", tone: "gold", copy: "Play the locked clock so every runner faces the same dare." },
+  { label: "Blitz 5+3", state: "Required", tone: "gold", copy: "Play the locked clock so every player faces the same dare." },
   { label: "No castling", state: "Required", tone: "gold", copy: "Finish the game without castling on either side of the board." },
 ];
 
 const proofChoices = [
   { title: "Fastest check", copy: "SQC checks the latest eligible public game for your connected Lichess or Chess.com username." },
-  { title: "Receipt trail", copy: "Passed, failed, and pending checks stay attached to the table so the leaderboard remains explainable." },
+  { title: "Receipt trail", copy: "Passed, failed, and pending checks stay attached to the Multiplayer Side Quest so the leaderboard remains explainable." },
 ];
 
 const hostControls = [
-  { title: "Invite management", copy: "Copy the table link, pause joining, or send players to the public table list." },
-  { title: "Proof review", copy: "Review which public-game checks passed the locked Multiplayer rules and which need another run." },
+  { title: "Invite management", copy: "Copy the invite link, pause joining, or send players to public Multiplayer Side Quest discovery." },
+  { title: "Proof review", copy: "Review which public-game checks passed the locked Multiplayer rules and which need another proof attempt." },
   { title: "Window control", copy: "Extend, close, or finish the Multiplayer Side Quest while keeping the leaderboard receipt clear." },
 ];
 
 export const metadata = {
   title: "No Castle Night · Multiplayer Side Quests · Side Quest Chess",
-  description: "Sample Side Quest Chess Multiplayer table with player proof status, leaderboard receipts, and host controls.",
+  description: "Sample Side Quest Chess Multiplayer Side Quest with player proof status, leaderboard receipts, and host controls.",
 };
 
 export default async function GroupQuestRoomPage() {
@@ -63,11 +63,11 @@ export default async function GroupQuestRoomPage() {
           <span className="eyebrow">Multiplayer Side Quest detail</span>
           <h1>No Castle Night</h1>
           <p className="hero-copy">
-            A sample table for seeing how shared dares, proof checks, leaderboard receipts, and host controls fit together. Personal Solo Side Quest clears stay separate from this Multiplayer Side Quest scoreboard.
+            A sample Multiplayer Side Quest for seeing how shared dares, proof checks, leaderboard receipts, and host controls fit together. Personal Solo Side Quest clears stay separate from this Multiplayer Side Quest scoreboard.
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/multiplayer">Back to Multiplayer</Link>
-            <Link className="button primary" href="/groupquests/public">Find a live table</Link>
+            <Link className="button primary" href="/groupquests/public">Find a live Multiplayer Side Quest</Link>
           </div>
         </section>
 
@@ -83,13 +83,13 @@ export default async function GroupQuestRoomPage() {
             Everyone tries the same Side Quest inside the same time window. Previous personal clears do not auto-complete this Multiplayer Side Quest.
           </p>
 
-          <div className="groupquests-next-action" aria-label="Next step for this sample table">
+          <div className="groupquests-next-action" aria-label="Next step for this sample Multiplayer Side Quest">
             <div>
               <span className="eyebrow">Next step</span>
-              <h3>Use the live table list when you are ready to join.</h3>
-              <p>This sample explains the shape of a Multiplayer table. Real joins, checks, and receipts happen from public or invited tables.</p>
+              <h3>Use public discovery when you are ready to join.</h3>
+              <p>This sample explains the shape of a Multiplayer Side Quest. Real joins, checks, and receipts happen from public or invited Multiplayer Side Quests.</p>
             </div>
-            <Link className="button primary" href="/groupquests/public">Browse live tables</Link>
+            <Link className="button primary" href="/groupquests/public">Browse live Multiplayer Side Quests</Link>
           </div>
 
           <div className="groupquests-status-strip" aria-label="Competition status">
@@ -105,7 +105,7 @@ export default async function GroupQuestRoomPage() {
             <span className="eyebrow">Participant view</span>
             <h2>Know what SQC will check before you play.</h2>
             <p>
-              A joined runner needs a fresh public game that satisfies every locked rule below. Solo Side Quest progress is not imported into this leaderboard.
+              A joined player needs a fresh public game that satisfies every locked rule below. Solo Side Quest progress is not imported into this leaderboard.
             </p>
             <div className="groupquests-proof-checklist">
               {proofChecklist.map((item) => (
@@ -122,7 +122,7 @@ export default async function GroupQuestRoomPage() {
               ))}
             </div>
             <div className="button-row">
-              <Link className="button primary" href="/groupquests/public">Join a live table</Link>
+              <Link className="button primary" href="/groupquests/public">Join a live Multiplayer Side Quest</Link>
               <Link className="button secondary" href="/rules">Review proof rules</Link>
             </div>
           </article>
@@ -145,7 +145,7 @@ export default async function GroupQuestRoomPage() {
               <>
                 <h2>Sign in to host a Multiplayer Side Quest.</h2>
                 <p>
-                  Anyone can open an invite link and review the rules. Creating and managing a Multiplayer table requires an SQC account.
+                  Anyone can open an invite link and review the rules. Creating and managing a Multiplayer Side Quest requires an SQC account.
                 </p>
                 <Link className="button primary" href="/sign-in">Sign in to host</Link>
               </>
@@ -225,7 +225,7 @@ export default async function GroupQuestRoomPage() {
           <span className="eyebrow">Completion state rule</span>
           <h2>Personal proof and Multiplayer proof are different receipts.</h2>
           <p>
-            If you already earned a Coat of Arms for a Solo Side Quest, that stays yours. This Multiplayer Side Quest has its own receipt: joined participant, eligible window, locked table rules, verified progress, and leaderboard celebration.
+            If you already earned a Coat of Arms for a Solo Side Quest, that stays yours. This Multiplayer Side Quest has its own receipt: joined participant, eligible window, locked Multiplayer rules, verified progress, and leaderboard celebration.
           </p>
         </section>
       </div>
