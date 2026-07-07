@@ -15,6 +15,7 @@
     "mobile:release:candidate-check": "node scripts/check-mobile-release-candidate.mjs",
     "mobile:release:device-install": "node scripts/install-mobile-release-candidate.mjs",
     "mobile:release:github": "node scripts/mobile-release.mjs --github-release",
+    "mobile:store:android": "node scripts/mobile-store-android.mjs",
     "qa:multiplayer:local": "node scripts/multiplayer-qa-local.cjs",
     "qa:launch:local": "node scripts/launch-qa-local.cjs",
     "qa:launch:providers": "node scripts/launch-qa-providers.mjs",
