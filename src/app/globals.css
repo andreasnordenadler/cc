@@ -1255,6 +1255,12 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-list-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: start; }
 .groupquests-list-heading h3 { margin: 0; color: var(--ink); font-size: 1.05rem; line-height: 1.05; }
 .groupquests-list-heading p { margin-top: 3px; font-size: .82rem; }
+.multiplayer-community-shortcut-panel { display: grid; gap: 8px; padding: 10px 11px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(0,0,0,.13); }
+.multiplayer-community-shortcut-panel > span { color: var(--gold); font-size: .68rem; font-weight: 950; letter-spacing: .1em; text-transform: uppercase; }
+.multiplayer-community-shortcut-panel > div { display: flex; flex-wrap: wrap; gap: 7px; }
+.filter-chip { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 7px 10px; border: 1px solid rgba(96,240,175,.24); border-radius: 999px; background: rgba(96,240,175,.09); color: var(--ink); font-size: .78rem; font-weight: 950; line-height: 1; text-decoration: none; }
+.filter-chip.muted { border-color: rgba(245,200,106,.2); background: rgba(245,200,106,.08); color: var(--muted); }
+.filter-chip:hover, .filter-chip:focus-visible { border-color: rgba(245,200,106,.48); background: rgba(255,255,255,.08); color: var(--gold); outline: none; }
 .groupquests-compact-room-list, .groupquests-finished-list { display: grid; gap: 8px; }
 .groupquests-compact-room { display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(130px, .38fr) auto; gap: 10px; align-items: center; padding: 11px 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 17px; background: rgba(255,255,255,.055); transition: transform .16s ease, border-color .16s ease, background .16s ease; }
 .groupquests-compact-room:hover, .groupquests-compact-room:focus-visible, .groupquests-finished-row:hover, .groupquests-finished-row:focus-visible { transform: translateY(-1px); border-color: rgba(245,200,106,.4); background: rgba(255,255,255,.085); outline: none; }

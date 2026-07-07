@@ -68,6 +68,21 @@ const tableGuideCards = [
   },
 ];
 
+const mobileCommunityFilterShortcuts = [
+  { label: "Open", href: "/groupquests/public?status=open", signedOut: true },
+  { label: "All", href: "/groupquests/public?status=all", signedOut: true },
+  { label: "Joined", href: "/groupquests/public?status=joined", signedOut: false },
+  { label: "Hosted", href: "/groupquests/public?status=hosted", signedOut: false },
+  { label: "Finished", href: "/groupquests/public?status=finished", signedOut: false },
+];
+
+const mobileCommunitySortShortcuts = [
+  { label: "Sort: Closing", href: "/groupquests/public?sort=closing" },
+  { label: "Sort: Liked", href: "/groupquests/public?sort=liked" },
+  { label: "Sort: New", href: "/groupquests/public?sort=newest" },
+  { label: "Sort: Players", href: "/groupquests/public?sort=players" },
+];
+
 export const metadata = {
   title: "Multiplayer Side Quests · Side Quest Chess",
   description: "Side Quest Chess Multiplayer Side Quests for shared Side Quests, fresh proof, and multiplayer leaderboards.",
@@ -502,8 +517,20 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                   </div>
                   <div className="button-row">
                     <Link className="button secondary" href="/groupquests/public">Open discovery filters</Link>
-                    <Link className="button ghost" href="/groupquests/public?status=joined">Joined by me</Link>
-                    <Link className="button ghost" href="/groupquests/public?status=hosted">Hosted by me</Link>
+                  </div>
+                  <div className="multiplayer-community-shortcut-panel" aria-label="Community Multiplayer mobile filters">
+                    <span>Mobile filters</span>
+                    <div>
+                      {mobileCommunityFilterShortcuts.map((filter) => (
+                        <Link className="filter-chip" href={filter.href} key={filter.label}>{filter.label}</Link>
+                      ))}
+                    </div>
+                    <span>Mobile sort</span>
+                    <div>
+                      {mobileCommunitySortShortcuts.map((sort) => (
+                        <Link className="filter-chip muted" href={sort.href} key={sort.label}>{sort.label}</Link>
+                      ))}
+                    </div>
                   </div>
 
                   {publicRooms.length ? (
@@ -620,6 +647,20 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                   <div className="button-row">
                     <Link className="button secondary" href="/groupquests/public">Open discovery filters</Link>
                     <Link className="button ghost" href="/sign-in">Sign in to join</Link>
+                  </div>
+                  <div className="multiplayer-community-shortcut-panel" aria-label="Community Multiplayer mobile guest filters">
+                    <span>Mobile guest filters</span>
+                    <div>
+                      {mobileCommunityFilterShortcuts.filter((filter) => filter.signedOut).map((filter) => (
+                        <Link className="filter-chip" href={filter.href} key={filter.label}>{filter.label}</Link>
+                      ))}
+                    </div>
+                    <span>Mobile sort</span>
+                    <div>
+                      {mobileCommunitySortShortcuts.map((sort) => (
+                        <Link className="filter-chip muted" href={sort.href} key={sort.label}>{sort.label}</Link>
+                      ))}
+                    </div>
                   </div>
                   {publicRooms.length ? (
                     <div className="groupquests-compact-room-list">
