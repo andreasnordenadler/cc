@@ -290,6 +290,169 @@ export function MobileSimpleScreen({
   );
 }
 
+export function MobileMultiplayerSideQuestsScreen({
+  selectedTab,
+  signedIn,
+}: {
+  selectedTab: "official" | "community";
+  signedIn: boolean;
+}) {
+  return (
+    <div className="sqc-stack">
+      <div className="sqc-screen-emblem" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image multiplayer" alt="" src={mobileAsset.multiplayerSeal} width={118} height={118} priority />
+      </div>
+
+      <div className="sqc-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
+        <Link
+          href="/multiplayer"
+          className={selectedTab === "official" ? "sqc-brand-tab official active" : "sqc-brand-tab official"}
+          role="tab"
+          aria-selected={selectedTab === "official"}
+        >
+          Official Side Quests
+        </Link>
+        <Link
+          href={selectedTab === "official" ? "/multiplayer-side-quests" : "/multiplayer"}
+          className="sqc-brand-switch"
+          aria-label={selectedTab === "official" ? "Switch to Community Multiplayer Side Quests" : "Switch to Official Multiplayer Side Quests"}
+        >
+          <span aria-hidden="true" />
+        </Link>
+        <Link
+          href="/multiplayer-side-quests"
+          className={selectedTab === "community" ? "sqc-brand-tab community active" : "sqc-brand-tab community"}
+          role="tab"
+          aria-selected={selectedTab === "community"}
+        >
+          Community Side Quests
+        </Link>
+      </div>
+
+      {selectedTab === "official" ? <OfficialMultiplayerPanel signedIn={signedIn} /> : <CommunityMultiplayerPanel signedIn={signedIn} />}
+    </div>
+  );
+}
+
+function OfficialMultiplayerPanel({ signedIn }: { signedIn: boolean }) {
+  return (
+    <>
+      <section className="sqc-native-card" aria-label="SQC Official Multiplayer Side Quests">
+        <div className="sqc-list-head inline">
+          <h2>Official Multiplayer Side Quests</h2>
+          <span>0 official</span>
+        </div>
+        <div className="sqc-empty-panel">
+          <strong>Official Multiplayer Side Quests</strong>
+          <span>No official Multiplayer Side Quests are open right now.</span>
+        </div>
+      </section>
+
+      {signedIn ? (
+        <>
+          <section className="sqc-native-card green" aria-label="Latest finished official Multiplayer Side Quest results">
+            <span className="sqc-card-eyebrow">Latest finished official set</span>
+            <h2>Gold, silver, bronze.</h2>
+            <p>The latest completed official weekly set appears here after the leaderboard closes.</p>
+            <p>Results will appear here after the first official weekly set finishes.</p>
+          </section>
+
+          <section className="sqc-native-card green" aria-label="Browse earlier official Multiplayer Side Quest results">
+            <span className="sqc-card-eyebrow">Earlier official weeks</span>
+            <h2>Browse weekly results.</h2>
+            <p>Finished official Multiplayer Side Quest sets are grouped by week so we can keep running this weekly.</p>
+            <p>Earlier weekly result sets will appear here after the next official cycle closes.</p>
+          </section>
+        </>
+      ) : null}
+    </>
+  );
+}
+
+function CommunityMultiplayerPanel({ signedIn }: { signedIn: boolean }) {
+  return (
+    <>
+      <section className="sqc-empty-panel standalone">
+        <strong>Community Multiplayer Side Quests</strong>
+        <span>
+          {signedIn
+            ? "These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community."
+            : "Browse public Multiplayer Side Quests from the Side Quest Chess community. Sign in when you want to join one."}
+        </span>
+      </section>
+
+      {signedIn ? (
+        <>
+          <section className="sqc-native-card green" aria-label="Your Multiplayer Side Quests">
+            <span className="sqc-card-eyebrow">Active · joined and hosted</span>
+            <h2>Your active Multiplayer Side Quests.</h2>
+            <p>Joined and hosted Multiplayer Side Quests come first so your current tables are easy to resume.</p>
+            <div className="sqc-empty-panel">
+              <strong>No active Multiplayer Side Quests yet.</strong>
+              <span>Join an open Multiplayer Side Quest, paste an invite code, or create your own.</span>
+            </div>
+          </section>
+
+          <section className="sqc-native-card green" aria-label="Finished Multiplayer Side Quests">
+            <span className="sqc-card-eyebrow">Recently finished · 0</span>
+            <h2>Recently finished Multiplayer Side Quests.</h2>
+            <p>No finished Multiplayer Side Quests yet.</p>
+          </section>
+        </>
+      ) : null}
+
+      <section className="sqc-native-card green" aria-label="Community Multiplayer Side Quests">
+        <span className="sqc-card-eyebrow">Available to join · community</span>
+        <h2>Community Multiplayer Side Quests.</h2>
+        <p>{signedIn ? "Public player-hosted Multiplayer Side Quests appear after your active and recently finished tables." : "Public player-hosted Multiplayer Side Quests you can inspect before signing in."}</p>
+        <div className="sqc-community-browse-panel">
+          <label className="sqc-search-shell">
+            <input readOnly placeholder="Search multiplayer community" aria-label="Search multiplayer community" />
+          </label>
+          <div className="sqc-community-controls">
+            <div className="sqc-filter-row">
+              <span className="active">Open</span>
+              <span>All</span>
+              {signedIn ? (
+                <>
+                  <span>Joined</span>
+                  <span>Hosted</span>
+                  <span>Finished</span>
+                </>
+              ) : null}
+            </div>
+            <span className="sqc-sort-pill">Sort: Closing</span>
+          </div>
+        </div>
+        <p>No public community Multiplayer Side Quests right now.</p>
+      </section>
+
+      {signedIn ? (
+        <>
+          <section className="sqc-native-card green" aria-label="Create Multiplayer Side Quest fast action">
+            <span className="sqc-card-eyebrow">Create</span>
+            <h2>Create a Community Multiplayer Side Quest.</h2>
+            <p>Pick up to four Side Quests, set the time window, then share the table with players.</p>
+            <Link href="/create-multiplayer-side-quest" className="sqc-primary-action">Create Multiplayer Side Quest</Link>
+          </section>
+
+          <section className="sqc-native-card green" aria-label="Join private Multiplayer Side Quest">
+            <span className="sqc-card-eyebrow">Invite Code</span>
+            <h2>Join private Multiplayer Side Quest.</h2>
+            <p>Paste an invite code from the host to join a private Multiplayer Side Quest.</p>
+            <label className="sqc-form-row">
+              <span>Invite code</span>
+              <input readOnly placeholder="e.g. nocastle-ab12cd" aria-label="Invite code" />
+            </label>
+            <span className="sqc-secondary-action full">Join with code</span>
+          </section>
+        </>
+      ) : null}
+    </>
+  );
+}
+
 export function MobileCreateMultiplayerScreen() {
   return (
     <div className="sqc-stack">

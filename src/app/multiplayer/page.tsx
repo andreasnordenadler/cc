@@ -1,4 +1,4 @@
-import MobileAppWebShell, { MobileSimpleScreen } from "@/components/mobile-app-web-shell";
+import MobileAppWebShell, { MobileMultiplayerSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -29,26 +29,7 @@ export default async function MultiplayerPage() {
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
     >
-      <MobileSimpleScreen
-        eyebrow="Multiplayer Side Quests"
-        title="Official Multiplayer Side Quests"
-        body="No official Multiplayer Side Quests are open right now."
-        primaryAction={{ label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" }}
-        rows={[
-          {
-            title: "Community Multiplayer Side Quests",
-            meta: user ? "These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community." : "Browse public Multiplayer Side Quests from the Side Quest Chess community. Sign in when you want to join one.",
-            status: "Explore",
-            href: "/multiplayer-side-quests",
-          },
-          {
-            title: "Start a shared Multiplayer Side Quest.",
-            meta: "Choose the rules, create the Multiplayer Side Quest, then share the invite with players.",
-            status: "Create",
-            href: "/create-multiplayer-side-quest",
-          },
-        ]}
-      />
+      <MobileMultiplayerSideQuestsScreen selectedTab="official" signedIn={Boolean(user)} />
     </MobileAppWebShell>
   );
 }
