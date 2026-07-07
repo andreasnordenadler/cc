@@ -34,7 +34,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     "Side Quest Chess";
   const menuItems = [
     { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
-    { id: "solo", label: "Side Quests", href: "/side-quests", active: soloActive, glyph: "SQ" },
+    { id: "solo", label: "Solo Side Quests", href: "/side-quests", active: soloActive, glyph: "SQ" },
     { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
     { id: "leaderboards", label: "Official Leaderboards", href: "/official-leaderboards", active: leaderboardsActive, glyph: "LB" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },

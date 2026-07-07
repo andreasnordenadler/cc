@@ -7,7 +7,7 @@ This slice compares mobile app top-level destinations with website routes and re
 | Mobile destination | Mobile source | Website coverage | Status | Slice note |
 | --- | --- | --- | --- | --- |
 | Home / onboarding entry | `activeTab: "home"`, bottom tab `Home`, signed-out Account copy, home feature cards | `/`, `/sign-in`, `/sign-up` | Covered | Home already exposes active quest, onboarding explanation, app map, account prompts, Solo and Multiplayer entry points. |
-| Solo Side Quests | `sideQuests`, hamburger `Solo Side Quests` | `/solo`, `/challenges`, `/challenges/[id]`, `/random`, `/path` | Covered | Website has equivalent official Solo catalog and detail routes. |
+| Solo Side Quests | `sideQuests`, hamburger `Solo Side Quests` | `/side-quests`, `/solo`, `/solo-side-quests`, `/challenges`, `/challenges/[id]`, `/random`, `/path` | Improved | Website has equivalent official Solo catalog and detail routes; the web hamburger drawer now uses the mobile drawer label `Solo Side Quests` while the dock stays `Side Quests`. |
 | My Custom Side Quests | mobile `pendingSideQuestCatalogIntent: "my-custom"` and hamburger `My Custom Side Quests` | `/custom`, `/account/custom-side-quests` | Covered | Website keeps custom management as a route and home entry. |
 | Create Custom Side Quest | mobile `pendingSideQuestCatalogIntent: "create-custom"` and hamburger create action | `/custom#custom-side-quest-builder`, `/account/custom-side-quests` | Covered | Website has builder entry from home app map. |
 | Community Side Quests | mobile Side Quests screen `community-discover` browse mode | `/community`, `/challenges/community`, `/challenges/community/[id]` | Covered | Website has public community Solo routes and nav entry. |
