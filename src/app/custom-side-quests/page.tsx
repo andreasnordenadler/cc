@@ -28,13 +28,12 @@ export default async function CustomSideQuestsPage() {
     >
       <MobileSimpleScreen
         eyebrow="My Custom Side Quests"
-        title="Build your own bad chess idea."
-        body="Create private drafts or publish custom Solo rules that can be used for personal attempts and Multiplayer tables."
-        primaryAction={{ label: "Create Custom Side Quest", href: "/create-custom-side-quest" }}
-        secondaryAction={{ label: "Browse Official Side Quests", href: "/side-quests" }}
+        title="Build your own Side Quest"
+        body="Create rules, keep drafts private, publish when ready, and use them solo or in Multiplayer Side Quests you host."
+        primaryAction={{ label: "Build a Side Quest", href: "/create-custom-side-quest" }}
+        secondaryAction={{ label: "Add/Create a New Side Quest", href: "/create-custom-side-quest" }}
         rows={[
-          { title: "No custom Side Quests yet", meta: "Start with a simple rule, then tune it before sharing.", status: "Create", href: "/create-custom-side-quest" },
-          { title: "Community Side Quests", meta: "Browse player-made rules after the catalog slice is rebuilt.", status: "Soon", href: "/community-side-quests" },
+          { title: "Your custom Side Quests are empty.", meta: "Create a draft first, then publish it when the rule feels ready.", status: "Create", href: "/create-custom-side-quest" },
         ]}
       />
     </MobileAppWebShell>

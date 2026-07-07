@@ -32,9 +32,9 @@ export default async function MultiplayerPage() {
       <MobileSimpleScreen
         eyebrow="Multiplayer Side Quests"
         title="Same nonsense, now with witnesses."
-        body="Join official tables, discover community tables, or create a shared Side Quest for friends."
-        primaryAction={{ label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" }}
-        secondaryAction={{ label: "Browse Official Tables", href: "/multiplayer-side-quests" }}
+        body="Join public Multiplayer Side Quests, inspect the rules before committing, or sign in when you want to create one and invite friends."
+        primaryAction={{ label: "Join Multiplayer Side Quests", href: "/multiplayer-side-quests" }}
+        secondaryAction={{ label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" }}
         rows={[
           {
             title: "No active Multiplayer Side Quests",
@@ -43,8 +43,8 @@ export default async function MultiplayerPage() {
             href: "/multiplayer-side-quests",
           },
           {
-            title: "Create a Multiplayer Side Quest",
-            meta: "Choose quests, time window, provider rules, and invite friends.",
+            title: "Start a shared Multiplayer Side Quest.",
+            meta: "Choose the rules, create the Multiplayer Side Quest, then share the invite with players.",
             status: "Create",
             href: "/create-multiplayer-side-quest",
           },

@@ -32,14 +32,14 @@ export default async function SupportPage() {
     >
       <MobileSimpleScreen
         eyebrow="Help & Support"
-        title="Proof, account, and Multiplayer help."
-        body="SQC checks public chess games, saves quest progress, and turns completed Side Quests into receipts."
-        primaryAction={{ label: "Open Account", href: "/account" }}
+        title="How can we help?"
+        body="New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer."
+        primaryAction={{ label: "Open", href: "/account" }}
         secondaryAction={{ label: "Browse Side Quests", href: "/side-quests" }}
         rows={[
-          { title: "Why proof may not verify", meta: "Use a public, finished game on the connected username after choosing the Side Quest.", status: "Proof", href: "/side-quests" },
-          { title: "Connecting chess accounts", meta: "SQC reads public games by username only. It never needs a chess-site password.", status: "Account", href: "/account" },
-          { title: "Multiplayer Side Quests", meta: "Join while the table is open, play inside the window, then refresh proof.", status: "Shared", href: "/multiplayer" },
+          { title: "How Side Quest Chess works", meta: "Start here for Side Quests, proof, chess usernames, and Multiplayer.", status: "Open", href: "/support" },
+          { title: "Report a problem", meta: "Tell us what you tried, what happened, and where you got stuck.", status: "Open", href: "/support" },
+          { title: "Connecting a chess username", meta: "Add a public Lichess or Chess.com username first. SQC never needs your chess-site password.", status: "Open", href: "/account" },
         ]}
       />
     </MobileAppWebShell>

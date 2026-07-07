@@ -27,20 +27,14 @@ export default async function TrophyCabinetPage() {
       <MobileSimpleScreen
         eyebrow="Trophy Cabinet"
         title="No Coat of Arms yet"
-        body="Complete a Solo, Custom, or Multiplayer Side Quest and the reward lands here."
+        body="Complete a Side Quest to unlock your first trophy."
         primaryAction={{ label: "Explore Solo Side Quests", href: "/side-quests" }}
         rows={[
           {
-            title: "Solo Coat of Arms",
-            meta: "Complete a Solo Side Quest to unlock your first coat.",
-            status: "Empty",
+            title: "No Coat of Arms yet",
+            meta: "Complete a Side Quest to unlock your first trophy.",
+            status: "Explore",
             href: "/side-quests",
-          },
-          {
-            title: "Multiplayer podium scrolls",
-            meta: "Finish shared Side Quests to earn final table rewards.",
-            status: "Empty",
-            href: "/multiplayer",
           },
         ]}
       />

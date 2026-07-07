@@ -27,37 +27,31 @@ export default async function AccountPage() {
       chessComUsername={chessComUsername}
     >
       <MobileSimpleScreen
-        eyebrow="Account"
+        eyebrow={user ? "Account sync" : "Account"}
         title={user ? "My Account" : "Sign in, then go make terrible chess decisions."}
         body={
           user
-            ? "Manage the profile and public chess usernames SQC uses for proof, progress, custom Side Quests, and Multiplayer Side Quests."
-            : "Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, Multiplayer Side Quests, and proof cards."
+            ? "Side Quest Chess keeps browsing available and syncs progress after sign-in."
+            : "Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, and proof cards."
         }
-        primaryAction={user ? { label: "Update chess usernames", href: "/settings" } : { label: "Choose sign-in method", href: "/sign-in" }}
+        primaryAction={user ? { label: "Sync account", href: "/settings" } : { label: "Choose sign-in method", href: "/sign-in" }}
         secondaryAction={{ label: "Browse Side Quests", href: "/side-quests" }}
         rows={[
           {
-            title: "Lichess username",
-            meta: lichessUsername || "Not connected yet.",
-            status: lichessUsername ? "Ready" : "Missing",
+            title: "Chess username",
+            meta: lichessUsername || chessComUsername ? "At least one chess username is connected to your SQC account." : "Add Lichess or Chess.com here before serious proof runs.",
+            status: lichessUsername || chessComUsername ? "Done" : "Open",
             href: "/settings",
           },
           {
-            title: "Chess.com username",
-            meta: chessComUsername || "Not connected yet.",
-            status: chessComUsername ? "Ready" : "Missing",
-            href: "/settings",
-          },
-          {
-            title: "Active Solo Side Quest",
-            meta: "Pick one Solo Side Quest before the next proof run.",
-            status: "Choose",
+            title: "Active quest",
+            meta: "Choose any Side Quest before checking proof.",
+            status: "Open",
             href: "/side-quests",
           },
           {
-            title: "Multiplayer Side Quests",
-            meta: "Join an official table, join a community table, or create one for friends.",
+            title: "Active Multiplayer Side Quests",
+            meta: "Join or host shared challenges with friends.",
             status: "Open",
             href: "/multiplayer",
           },

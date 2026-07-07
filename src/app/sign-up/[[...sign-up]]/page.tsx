@@ -24,9 +24,9 @@ export default async function SignUpPage({ searchParams }: SignUpPageProps) {
     <MobileAppWebShell activeTab="account" signedIn={false}>
       <div className="sqc-stack">
         <section className="sqc-panel hero">
-          <span className="sqc-eyebrow">Start your SQC account</span>
-          <h1>Make a player profile for your Side Quests.</h1>
-          <p>One lightweight account saves your active Side Quest, proof receipts, coats of arms, and Multiplayer Side Quests.</p>
+          <span className="sqc-eyebrow">Account</span>
+          <h1>Choose how to sign in.</h1>
+          <p>Sign in to save progress, verify proof, manage Multiplayer Quests, and keep your Coat of Arms progress synced.</p>
         </section>
         <section className="sqc-auth-card" aria-label="Sign up form">
           <SignUp signInUrl={signInUrl} fallbackRedirectUrl={returnTo} />

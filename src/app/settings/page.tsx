@@ -30,15 +30,14 @@ export default async function SettingsPage() {
       chessComUsername={getChessComUsername(metadataRecord)}
     >
       <MobileSimpleScreen
-        eyebrow="Settings"
-        title="Keep your Side Quest Chess account ready."
-        body="Profile, public chess usernames, custom rules, and support live close to Account in the mobile app."
-        primaryAction={{ label: "Open My Account", href: "/account" }}
+        eyebrow="Account sync"
+        title="Your progress stays connected."
+        body="Side Quest Chess keeps browsing available and syncs progress after sign-in."
+        primaryAction={{ label: "Sync account", href: "/account" }}
         rows={[
-          { title: "Player profile", meta: "Set the name SQC should show on proof receipts and Multiplayer tables.", status: "Open", href: "/profile" },
-          { title: "Chess usernames", meta: "Add the public Lichess or Chess.com usernames SQC can check for proof.", status: "Update", href: "/account" },
-          { title: "Custom Side Quests", meta: "Manage private drafts and player-made rules.", status: "Open", href: "/custom-side-quests" },
-          { title: "Help & Support", meta: "Proof troubleshooting, account help, and support context.", status: "Help", href: "/support" },
+          { title: "Progress sync", meta: "Sign in to save progress", status: "Open", href: "/account" },
+          { title: "Chess username", meta: "Add Lichess or Chess.com here before serious proof runs.", status: "Open", href: "/account" },
+          { title: "Display name", meta: "Display name", status: "Open", href: "/profile" },
         ]}
       />
     </MobileAppWebShell>

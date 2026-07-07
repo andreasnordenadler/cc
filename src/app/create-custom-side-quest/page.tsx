@@ -25,14 +25,14 @@ export default async function CreateCustomSideQuestPage() {
       chessComUsername={getChessComUsername(metadataRecord)}
     >
       <MobileSimpleScreen
-        eyebrow="Create Custom Side Quest"
-        title="Create a custom Solo rule."
-        body="Start from a clear chess condition, then save it as a private draft or publish it for community play."
-        primaryAction={{ label: "Back to My Custom Side Quests", href: "/custom-side-quests" }}
+        eyebrow="Custom Side Quest"
+        title="Build your Side Quest."
+        body="Choose what should happen in a real game. SQC will check it after you play."
+        primaryAction={{ label: "Build a Side Quest", href: "/custom-side-quests" }}
         rows={[
-          { title: "Template: Win the game", meta: "Complete the Side Quest by winning your next public game.", status: "Template", href: "/custom-side-quests" },
-          { title: "Template: Piece adventure", meta: "Build a rule around a queen, knight, rook, bishop, king, or pawn condition.", status: "Template", href: "/custom-side-quests" },
-          { title: "Template: Opening sequence", meta: "Require a public game to follow a specific early move sequence.", status: "Template", href: "/custom-side-quests" },
+          { title: "Start from a template", meta: "Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.", status: "Open", href: "/custom-side-quests" },
+          { title: "Side Quest Coat of Arms", meta: "This is the Coat of Arms players unlock when this Side Quest is completed.", status: "Open", href: "/custom-side-quests" },
+          { title: "What must happen?", meta: "Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.", status: "Open", href: "/custom-side-quests" },
         ]}
       />
     </MobileAppWebShell>

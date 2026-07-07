@@ -24,9 +24,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     <MobileAppWebShell activeTab="account" signedIn={false}>
       <div className="sqc-stack">
         <section className="sqc-panel hero">
-          <span className="sqc-eyebrow">SQC account</span>
+          <span className="sqc-eyebrow">Account</span>
           <h1>Sign in, then go make terrible chess decisions.</h1>
-          <p>Your account remembers your player profile, public chess usernames, active Side Quest, coats, proof receipts, and Multiplayer Side Quests.</p>
+          <p>Logging in lets Side Quest Chess remember your profile, public chess usernames, active Side Quest, badges, and proof cards.</p>
         </section>
         <section className="sqc-auth-card" aria-label="Sign in form">
           <SignIn signUpUrl={signUpUrl} fallbackRedirectUrl={returnTo} />
