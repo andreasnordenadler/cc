@@ -2,12 +2,26 @@
 
 This checklist is the first gate for the clean web rebuild sprint. The visible web shell must follow the current mobile app, not the old website.
 
+## Verified Source
+
+- `apps/mobile/App.tsx` rendered shell path: `MobileShell`, `TodayDashboard`, `GlobalHamburgerMenu`, and `FixedScreenCloseButton`.
+- Asset parity spot-check: web `public/mobile-source` coat/glow/multiplayer seal files match the current mobile asset hashes exactly.
+- Next.js implementation note: App Router pages/components remain server components unless interactivity requires a client boundary.
+
 ## Source Inspected
 
 - `apps/mobile/App.tsx`
 - Current home screen: `TodayDashboard`
 - Current app shell/navigation: `MobileShell`, `GlobalHamburgerMenu`, `FixedScreenCloseButton`
-- Older `HomeScreen` and `BottomNav` implementations are present in source but are not rendered by `ActiveScreen` / `MobileShell`; do not use them as visible web source.
+- Older `TABS` metadata and older bottom navigation implementations may be present in source but are not rendered by `ActiveScreen` / `MobileShell`; do not use them as visible web source.
+
+## Current Mobile Model
+
+- Signed-out home has no hamburger, no bottom navigation, and no public wordmark logo treatment. It shows centered `Side Quest Chess`, the coat of arms over the generic glow, browse actions for Solo and Multiplayer, and the primary `Choose sign-in method` action.
+- Signed-in home has a floating circular hamburger at top left, centered account identity, and a circular account/avatar control at top right.
+- Current mobile navigation is the global hamburger menu, rendered as a modal overlay with dim backdrop and a compact brown panel. It contains `Home`, `Solo Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, `My Custom Side Quests`, `Create Custom Side Quest`, `Create Multiplayer Side Quest`, `My Account` / `Sign in / Account`, and `Help & Support`.
+- The current mobile app does not render persistent bottom navigation. Older `TABS` metadata exists in source but is not the current visible navigation model.
+- Non-home app states use a floating circular close button that returns to home.
 
 ## Current Mobile Home: Signed Out
 
@@ -47,16 +61,15 @@ This checklist is the first gate for the clean web rebuild sprint. The visible w
   - My Account / Sign in / Account
   - Help & Support
 - Non-home screens use a fixed circular close button that returns to Home.
-- Persistent bottom navigation is not rendered by `MobileShell`; existing `BottomNav` source is stale for this sprint unless the current app starts rendering it again.
+- Persistent bottom navigation is not rendered by `MobileShell`; existing bottom-nav source is stale for this sprint unless the current app starts rendering it again.
 
-## Web Translation Rules For This Sprint
+## Web Rebuild Checklist For Root Shell
 
-- Do not preserve old website chrome, public wordmark lockups, old logo watermarks, or bottom tab bars.
-- Use old web code only for auth, APIs, proof/data logic, route compatibility, and server-side plumbing.
-- Current app assets that are verified acceptable for visible web shell:
-  - `/mobile-source/sqc-coat-of-arms.png`
-  - `/mobile-source/badges/glow/sqc-coat-generic-glow.png`
-  - `/mobile-source/stamps/sqc-multiplayer-seal.png`
+- Keep old website chrome out of the root shell.
+- Do not add persistent bottom navigation.
+- Do not use old public logo or wordmark treatments for the root header.
+- Keep mobile-source assets only where they are verified copies of current mobile assets.
+- Translate the hamburger to browser constraints as the same floating control plus overlay menu, not as a desktop navbar.
 - A web slice fails the gate if it looks like the old website with app-like parts instead of this current mobile app model translated to browser constraints.
 
 ## Baseline Preview Mismatch Found

@@ -72,7 +72,7 @@ export default function MobileAppWebShell({
       {signedIn ? (
         <>
           <details className="mobile-web-floating-menu">
-            <summary aria-label="Open main menu">
+            <summary aria-label="Open main menu" title="Main menu">
               <span aria-hidden="true" />
             </summary>
             <nav className="mobile-web-menu-panel" aria-label="Main menu">
@@ -329,8 +329,6 @@ function AppRow({
 
 function IconBox({ glyph, small = false }: { glyph: string; small?: boolean }) {
   return (
-    <span className={small ? "mobile-web-icon-box small" : "mobile-web-icon-box"} aria-hidden="true">
-      {glyph}
-    </span>
+    <span className={`${small ? "mobile-web-icon-box small" : "mobile-web-icon-box"} glyph-${glyph}`} aria-hidden="true" />
   );
 }

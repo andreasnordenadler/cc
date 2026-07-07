@@ -93,6 +93,18 @@ body::after {
   z-index: 40;
 }
 
+.mobile-web-floating-menu[open] {
+  z-index: 70;
+}
+
+.mobile-web-floating-menu[open]::before {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: rgba(0, 0, 0, .44);
+  content: "";
+}
+
 .mobile-web-floating-menu summary,
 .mobile-web-account-dot {
   width: 40px;
@@ -106,6 +118,11 @@ body::after {
   box-shadow: 0 10px 24px rgba(0, 0, 0, .18);
   cursor: pointer;
   list-style: none;
+}
+
+.mobile-web-floating-menu summary {
+  position: relative;
+  z-index: 72;
 }
 
 .mobile-web-floating-menu summary::-webkit-details-marker {
@@ -169,10 +186,10 @@ body::after {
 }
 
 .mobile-web-menu-panel {
-  position: absolute;
-  top: 52px;
-  left: 0;
-  z-index: 50;
+  position: fixed;
+  top: calc(max(18px, env(safe-area-inset-top)) + 52px);
+  left: calc(50% - min(230px, 50vw - 14px) + 2px);
+  z-index: 71;
   width: min(268px, calc(100vw - 28px));
   display: grid;
   gap: 2px;
@@ -180,7 +197,8 @@ body::after {
   border: 1px solid rgba(245, 200, 106, .16);
   border-radius: 13px;
   background: rgba(78, 54, 33, .93);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .34);
+  backdrop-filter: blur(18px);
 }
 
 .mobile-web-menu-row {
@@ -620,21 +638,152 @@ body::after {
   height: 36px;
   display: grid;
   place-items: center;
+  position: relative;
   border: 1px solid rgba(245, 200, 106, .18);
   border-radius: 14px;
   background: rgba(245, 200, 106, .08);
   color: #f5c86a;
-  font-size: 9px;
-  font-weight: 1000;
-  line-height: 1;
-  text-transform: uppercase;
 }
 
 .mobile-web-icon-box.small {
   width: 28px;
   height: 28px;
   border-radius: 10px;
-  font-size: 7px;
+}
+
+.mobile-web-icon-box::before,
+.mobile-web-icon-box::after {
+  position: absolute;
+  box-sizing: border-box;
+  content: "";
+}
+
+.mobile-web-icon-box.glyph-home::before {
+  width: 15px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-top: 0;
+  border-radius: 2px 2px 4px 4px;
+  transform: translateY(3px);
+}
+
+.mobile-web-icon-box.glyph-home::after {
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: translateY(-4px) rotate(45deg);
+}
+
+.mobile-web-icon-box.glyph-flag::before {
+  width: 2px;
+  height: 20px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateX(-7px);
+}
+
+.mobile-web-icon-box.glyph-flag::after {
+  width: 15px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-left-width: 3px;
+  border-radius: 3px;
+  transform: translate(2px, -5px);
+}
+
+.mobile-web-icon-box.glyph-groups::before {
+  width: 9px;
+  height: 9px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  box-shadow: -9px 5px 0 -2px currentColor, 9px 5px 0 -2px currentColor;
+  transform: translateY(-5px);
+}
+
+.mobile-web-icon-box.glyph-groups::after {
+  width: 24px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-top-width: 0;
+  border-radius: 0 0 999px 999px;
+  transform: translateY(8px);
+}
+
+.mobile-web-icon-box.glyph-shield::before {
+  width: 18px;
+  height: 21px;
+  border: 2px solid currentColor;
+  border-radius: 10px 10px 12px 12px;
+  clip-path: polygon(50% 0, 100% 13%, 90% 74%, 50% 100%, 10% 74%, 0 13%);
+}
+
+.mobile-web-icon-box.glyph-shield::after {
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.mobile-web-icon-box.glyph-edit::before {
+  width: 18px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(-36deg);
+}
+
+.mobile-web-icon-box.glyph-edit::after {
+  width: 13px;
+  height: 13px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translate(-2px, 4px);
+}
+
+.mobile-web-icon-box.glyph-add::before,
+.mobile-web-icon-box.glyph-add::after {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.mobile-web-icon-box.glyph-add::after {
+  transform: rotate(90deg);
+}
+
+.mobile-web-icon-box.glyph-person::before {
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  transform: translateY(-6px);
+}
+
+.mobile-web-icon-box.glyph-person::after {
+  width: 20px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-radius: 999px 999px 5px 5px;
+  transform: translateY(8px);
+}
+
+.mobile-web-icon-box.glyph-help::before {
+  width: 19px;
+  height: 19px;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+}
+
+.mobile-web-icon-box.glyph-help::after {
+  width: 2px;
+  height: 10px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 12px 0 0 currentColor;
+  transform: translateY(-3px);
 }
 
 @media (min-width: 760px) {
