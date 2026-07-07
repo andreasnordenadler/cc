@@ -338,6 +338,15 @@ p { color: var(--muted); line-height: 1.5; }
 .support-launch-hero h1 { max-width: 900px; margin-inline: auto; }
 .support-launch-hero .hero-copy { margin-inline: auto; }
 .support-simple-card { display: grid; gap: 16px; }
+.app-parity-support { max-width: 560px; gap: 12px; padding-bottom: 96px; }
+.app-parity-support .mission-card { border-radius: 24px; border-color: rgba(255,247,232,.12); background: rgba(255,247,232,.064); box-shadow: none; }
+.app-support-hero-card { justify-items: stretch; text-align: left; }
+.app-support-hero-card h1, .app-support-hero-card .hero-copy { max-width: none; margin-inline: 0; }
+.support-action-list, .support-topic-list { display: grid; gap: 10px; width: 100%; }
+.support-topic-row { display: grid; gap: 5px; padding: 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(0,0,0,.16); }
+.support-topic-row h3 { margin: 0; color: var(--ink); font-size: 1rem; line-height: 1.1; letter-spacing: 0; }
+.support-topic-row p { margin: 0; color: var(--muted); font-size: .94rem; line-height: 1.45; }
+.support-policy-links { display: flex; flex-wrap: wrap; gap: 10px; }
 .support-report-card { overflow: hidden; }
 .support-report-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .support-report-step { display: grid; gap: 6px; padding: 14px; border: 1px solid rgba(245,200,106,.16); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.12)); }

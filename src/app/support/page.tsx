@@ -108,26 +108,53 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
     <main className="site-shell">
       <SiteNav isSignedIn={Boolean(userId)} active="support" />
 
-      <div className="content-wrap">
-        <section className="hero-card support-launch-hero">
+      <div className="content-wrap app-parity-support">
+        <section className="mission-card support-launch-hero app-support-hero-card">
           <span className="eyebrow">Help &amp; Support</span>
           <h1>Help &amp; Support.</h1>
           <p className="hero-copy">
             Side Quest Chess checks public chess games, saves your quest progress, and turns completed nonsense into proof receipts. Here is the simple version of what to do when something looks wrong — and what data SQC does, and does not, need.
           </p>
-          <div className="button-row hero-actions">
-            <Link href="/solo" className="button primary">Browse quests</Link>
-            <Link href="/connect" className="button secondary">Connect chess username</Link>
-            <Link href="/rules" className="button secondary">Read proof rules</Link>
-            <Link href="/privacy" className="button secondary">Privacy Policy</Link>
-            <Link href="/terms" className="button secondary">Terms of Use</Link>
+          <div className="support-action-list" aria-label="Help and support quick actions">
+            <Link href="/solo" className="account-flow-row">
+              <span>
+                <small>Solo Side Quests</small>
+                <strong>Browse quests</strong>
+                <em>Pick one Side Quest before the next proof check.</em>
+              </span>
+              <b>Open</b>
+            </Link>
+            <Link href="/connect" className="account-flow-row">
+              <span>
+                <small>Chess username</small>
+                <strong>Connect chess username</strong>
+                <em>Add public Lichess or Chess.com identity for proof.</em>
+              </span>
+              <b>Setup</b>
+            </Link>
+            <Link href="/rules" className="account-flow-row">
+              <span>
+                <small>Proof rules</small>
+                <strong>Read proof rules</strong>
+                <em>See how public games are checked.</em>
+              </span>
+              <b>Guide</b>
+            </Link>
           </div>
         </section>
 
-        <section className="grid" aria-label="Support topics">
+        <section className="mission-card support-simple-card app-support-topic-card" aria-label="Support topics">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">App help topics</span>
+              <h2>Same topics as the mobile app help drawer.</h2>
+            </div>
+          </div>
+          <div className="support-topic-list">
           {supportTopics.map((item) => (
             <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
           ))}
+          </div>
         </section>
 
         <section className="mission-card support-simple-card support-report-card">
@@ -160,10 +187,14 @@ export default async function SupportPage({ searchParams }: { searchParams?: Pro
             </div>
             <span className="badge gold">privacy first</span>
           </div>
-          <div className="grid">
+          <div className="support-topic-list">
             {privacyNotes.map((item) => (
               <Fact key={item.label} label={item.label} value={item.value} copy={item.copy} />
             ))}
+          </div>
+          <div className="support-policy-links" aria-label="Support policy links">
+            <Link href="/privacy" className="button secondary">Privacy Policy</Link>
+            <Link href="/terms" className="button secondary">Terms of Use</Link>
           </div>
         </section>
       </div>
@@ -209,7 +240,7 @@ function buildSupportContext(searchParams: { topic?: string; quest?: string; hos
 
 function Fact({ label, value, copy }: { label: string; value: string; copy: string }) {
   return (
-    <article className="stat-card mission-card">
+    <article className="support-topic-row">
       <span className="eyebrow">{label}</span>
       <h3>{value}</h3>
       <p>{copy}</p>
