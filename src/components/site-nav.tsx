@@ -67,6 +67,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, image: "/badges/v6/proof-loop-test-badge.png" },
     { id: "account", label: "Account", href: "/account", active: accountActive, icon: "account" },
   ];
+  const primaryNavIds = new Set(["home", "solo", "multiplayer", "trophy", "account"]);
+  const primaryNavItems = menuItems.filter((item) => primaryNavIds.has(item.id));
   return (
     <>
       <header className="site-nav softer-site-nav">
@@ -121,7 +123,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
           </div>
 
           <nav className="nav-links" aria-label="Primary app destinations">
-            {menuItems.slice(0, 5).map((item) => (
+            {primaryNavItems.map((item) => (
               <Link
                 aria-current={item.active ? "page" : undefined}
                 className={item.active ? "active" : undefined}
