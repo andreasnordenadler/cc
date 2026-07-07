@@ -217,9 +217,12 @@ export function MobileSoloSideQuestsScreen({
         <span className="sqc-eyebrow">Solo Side Quests</span>
         <h1>Official Side Quests</h1>
         <p>Pick one Solo Side Quest at a time. After you choose it, play a new public Lichess or Chess.com game so Side Quest Chess has a fresh game to check.</p>
-        <div className="sqc-tabs" role="tablist" aria-label="Solo Side Quest catalog">
-          <Link href="/side-quests" className="active" role="tab" aria-selected="true">Official</Link>
-          <Link href="/community-side-quests" role="tab" aria-selected="false">Community</Link>
+        <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+          <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
+          <Link href="/community-side-quests" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
+            <span aria-hidden="true" />
+          </Link>
+          <Link href="/community-side-quests" className="sqc-brand-tab community" role="tab" aria-selected="false">Community Side Quests</Link>
         </div>
       </section>
 
@@ -365,9 +368,12 @@ export function MobileCreateMultiplayerScreen() {
           <span className="active">Browse</span>
           <span>Selected (0)</span>
         </div>
-        <div className="sqc-tabs" role="tablist" aria-label="Choose Side Quest source">
-          <Link href="/create-multiplayer-side-quest" className="active" role="tab" aria-selected="true">Official (13)</Link>
-          <Link href="/create-multiplayer-side-quest" role="tab" aria-selected="false">Community (0)</Link>
+        <div className="sqc-brand-tabs" role="tablist" aria-label="Choose Side Quest source">
+          <Link href="/create-multiplayer-side-quest" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official (13)</Link>
+          <Link href="/create-multiplayer-side-quest" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
+            <span aria-hidden="true" />
+          </Link>
+          <Link href="/create-multiplayer-side-quest" className="sqc-brand-tab community" role="tab" aria-selected="false">Community (0)</Link>
         </div>
         <div className="sqc-catalog">
           <AppRow title="Any Game Counts" meta="Play any finished game — win, lose, or draw — and complete the quest." status="Add" href="/challenges/finish-any-game" image="/mobile-source/badges/v6/proof-loop-test-badge.png" glow="/mobile-source/badges/glow/finish-any-game-glow.png" />
