@@ -1,6 +1,20 @@
 
 # CC Roadmap
 
+## Active queue update - 2026-07-07 SQC mobile-app web rebuild sprint restart
+
+- [ ] Rebuild the SQC website from current mobile-app source of truth, not from old website pages.
+  - added_at: 2026-07-07 15:17 Europe/Stockholm
+  - source: Andreas asked whether the website sprint is running as discussed after the previous clean rebuild was paused for still showing old-looking bottom nav/logo pieces.
+  - sprint_brief: `docs/SQC_MOBILE_APP_WEB_REBUILD_SPRINT_2026-07-07.md`
+  - current_worktree: `/Users/sam/.openclaw/workspace/cc-sqc-mobile-web-clean`
+  - current_branch: `sqc-mobile-app-web-rebuild-clean`
+  - current_preview: `https://cc-knpvy8h8y-andreas-nordenadlers-projects.vercel.app`
+  - correction: first verify the current mobile app screen/state before rebuilding a web slice. Treat old website chrome, old public assets, stale-looking source references, old logo treatment, and persistent bottom nav as suspect unless the current mobile app proves them current.
+  - first_required_action: produce a mobile source-of-truth capture/checklist for current app home/navigation, then remove/replace stale visible baseline elements from the clean preview.
+  - proof_required: committed slice, `pnpm build`, preview deploy only, live HTTP 200, screenshot or DOM proof, and an explicit note on what mobile source-of-truth was used.
+  - production: untouched unless Andreas explicitly asks for production deployment.
+
 
 ## Active queue update — 2026-06-15 SQC coat-of-arms glow treatment
 
