@@ -14,8 +14,11 @@ type BuilderQuest = {
 
 const defaultInviteCopy = "A Multiplayer Side Quest where everyone tries the same Side Quests with fresh public games.";
 const maxSelectedQuests = 4;
+const questPickerPageSize = 8;
 const storagePrefix = "sqc-groupquest-draft:";
 const successCriteria = "First to complete all quests wins. If nobody finishes, best verified progress at the deadline wins.";
+
+type QuestPickerSource = "official" | "community";
 
 const providerModes = [
   { id: "both", label: "Lichess or Chess.com", copy: "Players can submit public proof from either supported provider." },
@@ -169,6 +172,10 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
   const defaultQuestIds = preselectedQuestId ? [preselectedQuestId] : quests.slice(0, 3).map((quest) => quest.id);
   const [selectedQuestIds, setSelectedQuestIds] = useState<string[]>(defaultQuestIds.slice(0, maxSelectedQuests));
   const [questPickerOpen, setQuestPickerOpen] = useState(false);
+  const [questPickerSource, setQuestPickerSource] = useState<QuestPickerSource>("official");
+  const [questSearch, setQuestSearch] = useState("");
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+  const [questListLimit, setQuestListLimit] = useState(questPickerPageSize);
   const [questSelectionError, setQuestSelectionError] = useState("");
   const [inviteMode, setInviteMode] = useState(inviteModes[0].id);
   const [inviteKey, setInviteKey] = useState(() => makeInviteKey("No Castle Night"));
@@ -192,6 +199,17 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
   );
   const selectedInviteMode = inviteModes.find((mode) => mode.id === inviteMode) ?? inviteModes[0];
   const selectedProviderMode = providerModes.find((mode) => mode.id === providerMode) ?? providerModes[0];
+  const normalizedQuestSearch = questSearch.trim().toLowerCase();
+  const officialQuestCount = quests.filter((quest) => (quest.source ?? "official") === "official").length;
+  const communityQuestCount = quests.filter((quest) => quest.source === "custom" || quest.source === "community" || quest.source === "snapshot").length;
+  const visiblePickerQuests = quests
+    .filter((quest) => questPickerSource === "official"
+      ? (quest.source ?? "official") === "official"
+      : quest.source === "custom" || quest.source === "community" || quest.source === "snapshot")
+    .filter((quest) => !showSelectedOnly || selectedQuestIds.includes(quest.id))
+    .filter((quest) => !normalizedQuestSearch || `${quest.title} ${quest.objective} ${quest.difficulty} ${getQuestSourceLabel(quest.source)}`.toLowerCase().includes(normalizedQuestSearch));
+  const visiblePickerQuestPage = visiblePickerQuests.slice(0, questListLimit);
+  const hiddenPickerQuestCount = Math.max(visiblePickerQuests.length - visiblePickerQuestPage.length, 0);
   const publicId = publicIdFromName(name);
   const previewRules = [
     { label: "Games allowed", value: selectedProviderMode.label },
@@ -233,6 +251,10 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
       document.removeEventListener("click", warnBeforeInternalNavigation, true);
     };
   }, []);
+
+  useEffect(() => {
+    setQuestListLimit(questPickerPageSize);
+  }, [questPickerSource, questSearch, showSelectedOnly]);
 
   function applyQuickDuration(days: number) {
     setEndAt(endAtFromStart(startAt, days));
@@ -369,8 +391,50 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
             </div>
             {questPickerOpen ? (
               <div className="groupquests-picker-panel-wrap">
+                <div className="groupquests-create-search-shell">
+                  <input
+                    aria-label="Search Side Quests"
+                    onChange={(event) => setQuestSearch(event.target.value)}
+                    placeholder="Search Side Quests"
+                    type="search"
+                    value={questSearch}
+                  />
+                  {questSearch ? (
+                    <button type="button" onClick={() => setQuestSearch("")}>
+                      Clear
+                    </button>
+                  ) : null}
+                </div>
+                <div className="groupquests-create-filter-row" aria-label="Create picker filters">
+                  <button className={!showSelectedOnly ? "active" : undefined} type="button" onClick={() => setShowSelectedOnly(false)}>
+                    Browse
+                  </button>
+                  <button className={showSelectedOnly ? "active" : undefined} type="button" onClick={() => setShowSelectedOnly(true)}>
+                    Selected ({selectedQuestIds.length})
+                  </button>
+                </div>
+                <div className="groupquests-create-source-tabs" role="tablist" aria-label="Side Quest source">
+                  <button
+                    aria-selected={questPickerSource === "official"}
+                    className={questPickerSource === "official" ? "active official" : "official"}
+                    onClick={() => setQuestPickerSource("official")}
+                    role="tab"
+                    type="button"
+                  >
+                    Official ({officialQuestCount})
+                  </button>
+                  <button
+                    aria-selected={questPickerSource === "community"}
+                    className={questPickerSource === "community" ? "active community" : "community"}
+                    onClick={() => setQuestPickerSource("community")}
+                    role="tab"
+                    type="button"
+                  >
+                    Community ({communityQuestCount})
+                  </button>
+                </div>
                 <div className="groupquests-picker-panel">
-                  {quests.map((quest) => {
+                  {visiblePickerQuestPage.map((quest) => {
                     const checked = selectedQuestIds.includes(quest.id);
                     const maxed = !checked && selectedQuestIds.length >= maxSelectedQuests;
                     const sourceLabel = getQuestSourceLabel(quest.source);
@@ -391,6 +455,17 @@ export default function GroupQuestDraftBuilder({ quests, initialQuestId }: { que
                     );
                   })}
                 </div>
+                {!visiblePickerQuests.length ? (
+                  <div className="groupquests-picker-empty" role="status">
+                    <strong>No matching Side Quests</strong>
+                    <span>Adjust search, switch source, or turn off Selected to browse the catalog.</span>
+                  </div>
+                ) : null}
+                {hiddenPickerQuestCount ? (
+                  <button className="button secondary" type="button" onClick={() => setQuestListLimit((current) => current + questPickerPageSize)}>
+                    Show more ({hiddenPickerQuestCount})
+                  </button>
+                ) : null}
                 {questSelectionError ? <p className="groupquest-join-error" role="alert">{questSelectionError}</p> : null}
                 <div className="groupquests-picker-footer">
                   <button className="button primary" type="button" onClick={() => setQuestPickerOpen(false)}>
