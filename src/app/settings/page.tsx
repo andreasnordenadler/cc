@@ -42,6 +42,7 @@ const mobileMenuShortcuts = [
   { label: "Home", title: "Return to the app entry", href: "/" },
   { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
   { label: "Multiplayer Side Quests", title: "Browse shared quests", href: "/multiplayer" },
+  { label: "Official Leaderboards", title: "Open the app companion leaderboard screen", href: "/official-leaderboards" },
   { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },
   { label: "My Custom Side Quests", title: "Open saved custom quests", href: "/custom" },
   { label: "Create Custom Side Quest", title: "Start the rule builder", href: "/create-custom-side-quest" },
@@ -52,7 +53,7 @@ const mobileMenuShortcuts = [
 
 const webCompanionShortcuts = [
   { label: "Community Side Quests", title: "Browse player-made rules", href: "/community" },
-  { label: "Official Leaderboards", title: "Track weekly races", href: "/leaderboards" },
+  { label: "Leaderboards alias", title: "Legacy route to the same screen", href: "/leaderboards" },
 ];
 
 export default async function SettingsPage() {
