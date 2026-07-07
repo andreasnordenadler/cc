@@ -3,7 +3,7 @@ import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
 import AuthActionButtons from "@/components/auth-action-buttons";
 
-type ActiveNavItem = "home" | "solo" | "custom" | "community" | "multiplayer" | "trophy" | "random" | "path" | "challenges" | "groupquests" | "leaderboards" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "settings" | "result" | "beta" | "support";
+type ActiveNavItem = "home" | "solo" | "custom" | "create-custom" | "community" | "multiplayer" | "create-multiplayer" | "trophy" | "random" | "path" | "challenges" | "groupquests" | "leaderboards" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "settings" | "result" | "beta" | "support";
 
 type SiteNavProps = {
   isSignedIn: boolean;
@@ -17,15 +17,19 @@ type MobileDockItem =
 export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   const soloActive = active === "solo" || active === "challenges" || active === "random" || active === "path";
   const customActive = active === "custom";
+  const createCustomActive = active === "create-custom";
   const communityActive = active === "community";
-  const sideQuestTabActive = soloActive || customActive || communityActive;
-  const multiplayerActive = active === "multiplayer" || active === "groupquests";
+  const sideQuestTabActive = soloActive || customActive || createCustomActive || communityActive;
+  const createMultiplayerActive = active === "create-multiplayer";
+  const multiplayerActive = active === "multiplayer" || active === "groupquests" || createMultiplayerActive;
   const leaderboardsActive = active === "leaderboards" || active === "scoreboard";
   const trophyActive = active === "trophy" || active === "badges";
   const accountActive = active === "account" || active === "profile" || active === "connect" || active === "settings";
   const currentScreen =
     active === "home" ? "Home" :
+    createCustomActive ? "Create Custom Side Quest" :
     sideQuestTabActive ? "Side Quests" :
+    createMultiplayerActive ? "Create Multiplayer Side Quest" :
     multiplayerActive ? "Multiplayer Side Quests" :
     leaderboardsActive ? "Official Leaderboards" :
     trophyActive ? "Trophy Cabinet" :
@@ -39,8 +43,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     { id: "leaderboards", label: "Official Leaderboards", href: "/official-leaderboards", active: leaderboardsActive, glyph: "LB" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },
     { id: "custom", label: "My Custom Side Quests", href: "/my-custom-side-quests", active: customActive, glyph: "CS" },
-    { id: "create-custom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", active: false, glyph: "+C" },
-    { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/groupquests/create", active: false, glyph: "+M" },
+    { id: "create-custom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", active: createCustomActive, glyph: "+C" },
+    { id: "create-multiplayer", label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest", active: createMultiplayerActive, glyph: "+M" },
     { id: "account", label: isSignedIn ? "My Account" : "Sign in / Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },
     { id: "support", label: "Help & Support", href: "/support", active: active === "support", glyph: "HP" },
     { id: "community", label: "Community Side Quests", href: "/community", active: communityActive, glyph: "CM" },

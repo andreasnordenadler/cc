@@ -62,7 +62,7 @@ export default async function CreateGroupQuestPage({ searchParams }: { searchPar
 
   return (
     <main className="site-shell groupquests-page">
-      <SiteNav isSignedIn={Boolean(userId)} active="groupquests" />
+      <SiteNav isSignedIn={Boolean(userId)} active="create-multiplayer" />
 
       <div className="content-wrap">
         <section className="mission-card groupquests-create-minihero" aria-label="Create Multiplayer Side Quest intro">

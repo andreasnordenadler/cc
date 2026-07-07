@@ -28,7 +28,7 @@ export default async function CreateMultiplayerSideQuestAlias({
 
   return (
     <main className="site-shell groupquests-page">
-      <SiteNav isSignedIn={false} active="groupquests" />
+      <SiteNav isSignedIn={false} active="create-multiplayer" />
 
       <div className="content-wrap challenges-page-wrap app-side-quest-hub app-create-custom-route">
         <section className="challenges-clean-hero app-side-quest-hub-hero" aria-labelledby="create-multiplayer-title">

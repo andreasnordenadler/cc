@@ -16,7 +16,7 @@ export default async function CreateCustomSideQuestPage() {
 
   return (
     <main className="site-shell challenges-page-shell">
-      <SiteNav isSignedIn={false} active="custom" />
+      <SiteNav isSignedIn={false} active="create-custom" />
 
       <div className="content-wrap challenges-page-wrap app-side-quest-hub app-create-custom-route">
         <section className="challenges-clean-hero app-side-quest-hub-hero" aria-labelledby="create-custom-title">
