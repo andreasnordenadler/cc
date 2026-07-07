@@ -1812,7 +1812,10 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
 
   function openMultiplayerCreateFromMenu() {
     setMenuOpen(false);
-    requestAnimationFrame(() => onOpenMultiplayerCreate());
+    // Android can drop a second Modal presentation while the menu Modal is
+    // still dismissing. Delay the create route until the menu has actually
+    // cleared so the builder opens on the first tap.
+    setTimeout(() => onOpenMultiplayerCreate(), Platform.OS === "android" ? 500 : 0);
   }
 
   const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
