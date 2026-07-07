@@ -38,7 +38,9 @@ body::after {
 body::before {
   inset: 0 auto 0 0;
   width: min(92vw, 1120px);
-  background: url("/sqc-logo-v11.png") 34px 50% / min(88vw, 1080px) auto no-repeat;
+  background:
+    radial-gradient(circle at 28% 42%, rgba(245,200,106,.18), transparent 30%),
+    radial-gradient(circle at 52% 60%, rgba(255,247,232,.08), transparent 34%);
   opacity: .035;
 }
 body::after {
