@@ -278,7 +278,8 @@ body::after {
 .sqc-panel,
 .sqc-current-card,
 .sqc-home-section,
-.sqc-blocker {
+.sqc-blocker,
+.sqc-auth-card {
   border: 1px solid var(--line);
   border-radius: 22px;
   background: rgba(255, 247, 232, .06);
@@ -397,6 +398,13 @@ body::after {
   display: grid;
   gap: 12px;
   padding: 16px;
+}
+
+.sqc-auth-card {
+  overflow: hidden;
+  display: grid;
+  justify-items: center;
+  padding: 14px;
 }
 
 .sqc-panel.hero {
