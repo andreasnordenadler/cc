@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-type MultiplayerMode = "overview" | "community" | "create" | "official";
+type MultiplayerMode = "overview" | "community" | "create" | "join" | "official" | "proof";
 
 type MultiplayerModeSwitcherProps = {
   active: MultiplayerMode;
@@ -32,9 +32,17 @@ const multiplayerModes: Array<{
   },
   {
     id: "overview",
-    label: "My active / join",
+    label: "My active",
     title: "My Multiplayer Side Quests",
-    copy: "Resume joined Multiplayer Side Quests or enter a private host code.",
+    copy: "Resume joined or hosted Multiplayer Side Quests.",
+    href: "/multiplayer#my-multiplayer-side-quests",
+    group: "actions",
+  },
+  {
+    id: "proof",
+    label: "Proof states",
+    title: "Proof & results",
+    copy: "Inspect finished tables, podiums, and multiplayer-valid proof.",
     href: "/multiplayer#my-multiplayer-side-quests",
     group: "actions",
   },
@@ -44,6 +52,14 @@ const multiplayerModes: Array<{
     title: "Create Multiplayer",
     copy: "Pick Side Quests, proof window, access, and rules.",
     href: "/groupquests/create",
+    group: "actions",
+  },
+  {
+    id: "join",
+    label: "Join by code",
+    title: "Private invite",
+    copy: "Enter a host code for a private Multiplayer Side Quest.",
+    href: "/multiplayer#private-invite",
     group: "actions",
   },
 ];

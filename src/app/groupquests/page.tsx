@@ -43,9 +43,9 @@ const loggedOutActions = [
 
 const tableGuideCards = [
   {
-    title: "Public Multiplayer Side Quest",
-    copy: "Open discovery, visible rules, and a leaderboard anyone can inspect before joining.",
-    action: "Browse public Multiplayer Side Quests",
+    title: "Community Multiplayer Side Quest",
+    copy: "Open discovery, visible rules, joined/hosted filters, and a leaderboard anyone can inspect before joining.",
+    action: "Browse Community Multiplayer Side Quests",
     href: "/groupquests/public",
   },
   {
@@ -59,6 +59,12 @@ const tableGuideCards = [
     copy: "Create a launch-ready Multiplayer Side Quest with official or Custom Solo Side Quest rules and proof settings.",
     action: "Build a Multiplayer Side Quest",
     href: "/groupquests/create",
+  },
+  {
+    title: "Proof states",
+    copy: "Return to active or closed Multiplayer Side Quests to inspect proof, tables, results, and podium state.",
+    action: "Open my Multiplayer Side Quests",
+    href: "/multiplayer#my-multiplayer-side-quests",
   },
 ];
 
@@ -341,9 +347,9 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
             <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
-                  <span className="eyebrow">Community · create · join</span>
+                  <span className="eyebrow">Community · create · join · proof</span>
                   <h2>Switch modes like the mobile Multiplayer screen.</h2>
-                  <p>Official Multiplayer Side Quests stay first. Community discovery, host creation, and private-code joining remain one tap away.</p>
+                  <p>Official Multiplayer Side Quests stay first. Community discovery, host creation, private-code joining, and proof results remain one tap away.</p>
                 </div>
               </div>
               <div className="groupquests-table-guide-grid">
@@ -550,9 +556,9 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
             <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
-                  <span className="eyebrow">Community · create · join</span>
+                  <span className="eyebrow">Community · create · join · proof</span>
                   <h2>Switch modes like the mobile Multiplayer screen.</h2>
-                  <p>Official Multiplayer Side Quests stay first. Community discovery, host creation, and private-code joining remain one tap away.</p>
+                  <p>Official Multiplayer Side Quests stay first. Community discovery, host creation, private-code joining, and proof results remain one tap away.</p>
                 </div>
               </div>
               <div className="groupquests-table-guide-grid">
