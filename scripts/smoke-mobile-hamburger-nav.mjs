@@ -254,6 +254,8 @@ launchFresh();
 dump = chooseMenuItem("Create Multiplayer Side Quest", "home-to-create-multiplayer-side-quest");
 try {
   assertIncludes(dump.xml, "Create Multiplayer Side Quest", "Create Multiplayer Side Quest modal");
+  assertIncludes(dump.xml, "Start a shared Multiplayer Side Quest", "shared Multiplayer Side Quest create screen");
+  assertIncludes(dump.xml, "Quest name", "Multiplayer create form name field");
   assertNotIncludes(dump.xml, "Host Multiplayer", "legacy Host Multiplayer label");
 } finally {
   dump.cleanup();

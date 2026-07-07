@@ -1812,7 +1812,7 @@ function GlobalHamburgerMenu({ activeTab, account, onSelectTab, onOpenMultiplaye
 
   function openMultiplayerCreateFromMenu() {
     setMenuOpen(false);
-    onOpenMultiplayerCreate();
+    requestAnimationFrame(() => onOpenMultiplayerCreate());
   }
 
   const menuItems: Array<{ id: string; label: string; icon: keyof typeof MaterialCommunityIcons.glyphMap; action: () => void; selected?: boolean }> = [
@@ -7233,19 +7233,16 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     if (!pendingCreateOpenToken) return;
     if (lastHandledPendingCreateTokenRef.current === pendingCreateOpenToken) return;
     lastHandledPendingCreateTokenRef.current = pendingCreateOpenToken;
-    const timer = setTimeout(() => {
-      if (pendingCreateQuestId && createQuestChoices.some((choice) => choice.id === pendingCreateQuestId)) {
-        setCreateQuestIds((current) => [pendingCreateQuestId, ...current.filter((id) => id !== pendingCreateQuestId)].slice(0, 4));
-        const selectedQuest = createQuestChoices.find((choice) => choice.id === pendingCreateQuestId);
-        if (selectedQuest) {
-          setCreateQuestSourceTab(selectedQuest.source);
-          setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
-        }
+    if (pendingCreateQuestId && createQuestChoices.some((choice) => choice.id === pendingCreateQuestId)) {
+      setCreateQuestIds((current) => [pendingCreateQuestId, ...current.filter((id) => id !== pendingCreateQuestId)].slice(0, 4));
+      const selectedQuest = createQuestChoices.find((choice) => choice.id === pendingCreateQuestId);
+      if (selectedQuest) {
+        setCreateQuestSourceTab(selectedQuest.source);
+        setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
       }
-      setCreateOpen(true);
-      onConsumePendingCreateOpen?.();
-    }, 220);
-    return () => clearTimeout(timer);
+    }
+    setCreateOpen(true);
+    onConsumePendingCreateOpen?.();
   }, [createQuestChoices, onConsumePendingCreateOpen, pendingCreateOpenToken, pendingCreateQuestId]);
 
   const overviewSteps = [
