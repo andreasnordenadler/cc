@@ -105,7 +105,7 @@ export default async function MyCustomSideQuestsPage({ searchParams }: { searchP
           <div className="hero-actions button-row">
             <a className="button primary" href="#custom-side-quest-builder">Create Custom Solo Side Quest</a>
             <Link className="button primary" href="/community">Browse Community Solo Side Quests</Link>
-            <Link className="button secondary" href="/groupquests/create">Use one in Multiplayer</Link>
+            <Link className="button secondary" href="/create-multiplayer-side-quest">Use one in Multiplayer</Link>
           </div>
         </section>
 

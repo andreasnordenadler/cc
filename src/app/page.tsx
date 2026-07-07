@@ -545,7 +545,7 @@ export default async function Home() {
               <strong>Rule builder</strong>
               <small>Open the rule builder and save a private draft or public challenge.</small>
             </Link>
-            <Link href="/groupquests/create" className="home-mobile-map-item">
+            <Link href="/create-multiplayer-side-quest" className="home-mobile-map-item">
               <span>Create Multiplayer Side Quest</span>
               <strong>Host a shared quest</strong>
               <small>Pick the Side Quest lineup, invite mode, window, and player rules.</small>

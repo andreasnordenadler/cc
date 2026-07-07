@@ -51,7 +51,7 @@ const multiplayerModes: Array<{
     label: "Create Multiplayer Side Quest",
     title: "Create Multiplayer",
     copy: "Pick Side Quests, proof window, access, and rules.",
-    href: "/groupquests/create",
+    href: "/create-multiplayer-side-quest",
     group: "actions",
   },
   {

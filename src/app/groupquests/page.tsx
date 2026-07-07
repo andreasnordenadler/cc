@@ -10,7 +10,7 @@ const overviewSteps = [
   {
     title: "Create",
     copy: "Pick one or more Side Quests, set the proof window, choose invite rules, and lock the Multiplayer Side Quest constraints.",
-    href: "/groupquests/create",
+    href: "/create-multiplayer-side-quest",
   },
   {
     title: "Invite",
@@ -31,7 +31,7 @@ const loggedOutActions = [
     title: "Host a Multiplayer Side Quest",
     copy: "Pick the Side Quest stack, proof window, and invite style, then bring friends into a shared challenge.",
     action: "Create Multiplayer Side Quest",
-    href: "/groupquests/create",
+    href: "/create-multiplayer-side-quest",
   },
   {
     title: "Join a public Multiplayer Side Quest",
@@ -58,7 +58,7 @@ const tableGuideCards = [
     title: "Host your own",
     copy: "Create a launch-ready Multiplayer Side Quest with official or Custom Solo Side Quest rules and proof settings.",
     action: "Build a Multiplayer Side Quest",
-    href: "/groupquests/create",
+    href: "/create-multiplayer-side-quest",
   },
   {
     title: "Proof states",
@@ -296,7 +296,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
       label: "Create",
       value: "Host",
       copy: "Build a quest",
-      href: "/groupquests/create",
+      href: "/create-multiplayer-side-quest",
     },
     {
       label: "Join",

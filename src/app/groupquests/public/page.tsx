@@ -57,7 +57,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
           </p>
           <div className="hero-actions button-row">
             <Link className="button secondary" href="/multiplayer">Back to Multiplayer Side Quests</Link>
-            <Link className="button primary" href="/groupquests/create">Create Multiplayer Side Quest</Link>
+            <Link className="button primary" href="/create-multiplayer-side-quest">Create Multiplayer Side Quest</Link>
           </div>
         </section>
 
@@ -118,7 +118,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
           ) : (
             <div className="groupquest-empty-state" role="status">
               <p>No public Multiplayer Side Quests are available right now.</p>
-              <Link className="button primary" href="/groupquests/create">Create the first one</Link>
+              <Link className="button primary" href="/create-multiplayer-side-quest">Create the first one</Link>
             </div>
           )}
         </section>
