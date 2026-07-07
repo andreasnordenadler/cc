@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Challenge } from "@/lib/challenges";
@@ -24,6 +25,15 @@ const menuItems = [
   { id: "account", label: "My Account", href: "/account", icon: "person" },
   { id: "support", label: "Help & Support", href: "/support", icon: "help" },
 ];
+
+const mobileAsset = {
+  coat: "/mobile-source/sqc-coat-of-arms.png",
+  coatGlow: "/mobile-source/badges/glow/sqc-coat-generic-glow.png",
+  multiplayerSeal: "/mobile-source/stamps/sqc-multiplayer-seal.png",
+  customCrest: "/mobile-source/badges/custom-side-quest-crest.png",
+  completedSeal: "/mobile-source/stamps/quest-complete-red-wax-sqc-v15.png",
+  fallbackBadge: "/mobile-source/badges/v6/proof-loop-test-badge.png",
+};
 
 export default function MobileAppWebShell({
   activeTab,
@@ -104,9 +114,7 @@ function GuestHome() {
   return (
     <div className="sqc-stack">
       <section className="sqc-guest-hero" aria-label="Side Quest Chess introduction">
-        <div className="sqc-quest-mark" aria-hidden="true">
-          <span>♞</span>
-        </div>
+        <MobileAssetMark className="sqc-quest-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={176} glowSize={220} />
         <h2>Sign in to continue.</h2>
         <p>
           Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first;
@@ -147,7 +155,7 @@ function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
           <span aria-hidden="true" />
         </button>
         <div className="sqc-current-body">
-          <div className="sqc-current-mark" aria-hidden="true">♘</div>
+          <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} />
           <div>
             <p className="sqc-pill">Active Solo Side Quest</p>
             <h2>Choose a Solo Side Quest</h2>
@@ -164,7 +172,7 @@ function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
 
       <section className="sqc-home-section">
         <div className="sqc-section-hero">
-          <div className="sqc-section-mark group" aria-hidden="true">♟</div>
+          <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
           <p className="sqc-pill">Active Multiplayer Side Quests</p>
           <h2>No active Multiplayer Side Quests</h2>
         </div>
@@ -176,11 +184,11 @@ function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
 
       <section className="sqc-home-section">
         <div className="sqc-section-hero">
-          <div className="sqc-section-mark trophy" aria-hidden="true">♜</div>
+          <MobileAssetMark className="sqc-section-mark trophy" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={112} glowSize={156} />
           <p className="sqc-pill">Trophy Cabinet</p>
         </div>
         <div className="sqc-row-list">
-          <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" />
+          <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" image={mobileAsset.coat} />
         </div>
         <Link href="/trophy-cabinet" className="sqc-secondary-action full">Open Trophy Cabinet</Link>
       </section>
@@ -234,6 +242,8 @@ export function MobileSoloSideQuestsScreen({
               meta={challenge.objective}
               status={challenge.id === activeChallengeId ? "Active" : completedSet.has(challenge.id) ? "Completed" : challenge.difficulty}
               href={`/challenges/${challenge.id}`}
+              image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
+              glow={getChallengeGlowPath(challenge.id)}
             />
           ))}
         </div>
@@ -303,6 +313,9 @@ export function MobileCreateMultiplayerScreen() {
 
       <section className="sqc-panel list">
         <div className="sqc-form-list">
+          <div className="sqc-create-hero-graphic" aria-hidden="true">
+            <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
+          </div>
           {fields.map((field) => (
             <label key={field.label} className="sqc-form-row">
               <span>{field.label}</span>
@@ -328,10 +341,48 @@ function FlowStep({ title, body }: { title: string; body: string }) {
   );
 }
 
-function AppRow({ title, meta, status, href }: { title: string; meta: string; status: string; href: string }) {
+function MobileAssetMark({
+  className,
+  image,
+  glow,
+  size,
+  glowSize,
+}: {
+  className: string;
+  image: string;
+  glow?: string;
+  size: number;
+  glowSize?: number;
+}) {
+  return (
+    <span className={className} aria-hidden="true">
+      {glow ? <Image className="sqc-mark-glow" alt="" src={glow} width={glowSize ?? size} height={glowSize ?? size} priority /> : null}
+      <Image className="sqc-mark-image" alt="" src={image} width={size} height={size} priority />
+    </span>
+  );
+}
+
+function AppRow({
+  title,
+  meta,
+  status,
+  href,
+  image,
+  glow,
+}: {
+  title: string;
+  meta: string;
+  status: string;
+  href: string;
+  image?: string;
+  glow?: string | null;
+}) {
   return (
     <Link href={href} className="sqc-app-row">
-      <span className="sqc-row-icon" aria-hidden="true">♞</span>
+      <span className="sqc-row-icon" aria-hidden="true">
+        {glow ? <Image className="sqc-row-glow" alt="" src={glow} width={50} height={50} /> : null}
+        <Image className="sqc-row-image" alt="" src={image ?? getRowImage(title, href)} width={42} height={42} />
+      </span>
       <span className="sqc-row-copy">
         <strong>{title}</strong>
         <small>{meta}</small>
@@ -339,6 +390,37 @@ function AppRow({ title, meta, status, href }: { title: string; meta: string; st
       <span className="sqc-row-status">{status}</span>
     </Link>
   );
+}
+
+function getRowImage(title: string, href: string) {
+  if (href.includes("multiplayer") || title.toLowerCase().includes("multiplayer")) return mobileAsset.multiplayerSeal;
+  if (href.includes("custom") || title.toLowerCase().includes("custom")) return mobileAsset.customCrest;
+  if (href.includes("trophy") || title.toLowerCase().includes("coat")) return mobileAsset.coat;
+  if (title.toLowerCase().includes("completed")) return mobileAsset.completedSeal;
+  return mobileAsset.fallbackBadge;
+}
+
+function toMobileAssetPath(path?: string | null) {
+  if (!path) return null;
+  if (path.startsWith("/mobile-source/")) return path;
+  if (path.startsWith("/badges/")) return `/mobile-source${path}`;
+  if (path.startsWith("/stamps/")) return `/mobile-source${path}`;
+  return path;
+}
+
+function getChallengeGlowPath(challengeId: string) {
+  const known = new Set([
+    "bishop-field-trip",
+    "early-king-walk",
+    "finish-any-game",
+    "knightmare-mode",
+    "knights-before-coffee",
+    "no-castle-club",
+    "pawn-only-picnic",
+    "queen-never-heard-of-her",
+    "the-blunder-gambit",
+  ]);
+  return known.has(challengeId) ? `/mobile-source/badges/glow/${challengeId}-glow.png` : null;
 }
 
 function isActiveMenuItem(id: string, activeTab: AppTab) {
