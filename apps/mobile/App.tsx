@@ -7236,6 +7236,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
     if (!pendingCreateOpenToken) return;
     if (lastHandledPendingCreateTokenRef.current === pendingCreateOpenToken) return;
     lastHandledPendingCreateTokenRef.current = pendingCreateOpenToken;
+    setMultiplayerCatalogTab("community");
     if (pendingCreateQuestId && createQuestChoices.some((choice) => choice.id === pendingCreateQuestId)) {
       setCreateQuestIds((current) => [pendingCreateQuestId, ...current.filter((id) => id !== pendingCreateQuestId)].slice(0, 4));
       const selectedQuest = createQuestChoices.find((choice) => choice.id === pendingCreateQuestId);
@@ -7244,8 +7245,11 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         setCreateName((current) => current.trim() ? current : `Multiplayer: ${selectedQuest.title}`.slice(0, 80));
       }
     }
-    setCreateOpen(true);
-    onConsumePendingCreateOpen?.();
+    const openTimer = setTimeout(() => {
+      setCreateOpen(true);
+      onConsumePendingCreateOpen?.();
+    }, Platform.OS === "android" ? 50 : 0);
+    return () => clearTimeout(openTimer);
   }, [createQuestChoices, onConsumePendingCreateOpen, pendingCreateOpenToken, pendingCreateQuestId]);
 
   const overviewSteps = [
@@ -7810,7 +7814,7 @@ function MultiplayerSideQuestsScreen({ bootstrap, account, authBridge, onSelectT
         <Text style={styles.eyebrow}>Create</Text>
         <Text style={styles.sideQuestModeTitle}>Create a Community Multiplayer Side Quest.</Text>
         <Text style={styles.sideQuestModeCopy}>Pick up to four Side Quests, set the time window, then share the table with players.</Text>
-        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => setCreateOpen(true)}>
+        <Pressable accessibilityRole="button" style={styles.centeredPrimaryButton} accessibilityLabel="Create Multiplayer Side Quest" disabled={!authBridge.isSignedIn} onPress={() => { setMultiplayerCatalogTab("community"); setCreateOpen(true); }}>
           <Text style={styles.primaryButtonText}>Create Multiplayer Side Quest</Text>
         </Pressable>
       </View>}
