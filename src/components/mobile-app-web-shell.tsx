@@ -7,21 +7,10 @@ type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "
 type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
+  displayName?: string | null;
+  lichessUsername?: string | null;
+  chessComUsername?: string | null;
 };
-
-const tabItems: Array<{
-  id: AppTab;
-  label: string;
-  href: string;
-  image?: string;
-  glyph?: string;
-}> = [
-  { id: "home", label: "Home", href: "/", image: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
-  { id: "sideQuests", label: "Side Quests", href: "/side-quests", image: "/sqc-logo-v11.png" },
-  { id: "multiplayerSideQuests", label: "Multiplayer Side Quests", href: "/multiplayer", glyph: "groups" },
-  { id: "coatOfArms", label: "Trophy Cabinet", href: "/trophy-cabinet", image: "/badges/v6/proof-loop-test-badge.png" },
-  { id: "account", label: "Account", href: "/account", glyph: "person" },
-];
 
 const menuItems = [
   { id: "home", label: "Home", href: "/", glyph: "home" },
@@ -72,73 +61,103 @@ const multiplayerRows = [
   },
 ];
 
-export default function MobileAppWebShell({ activeTab, signedIn }: MobileAppWebShellProps) {
-  const activeTabLabel = tabItems.find((item) => item.id === activeTab)?.label ?? "Home";
+const coatImage = "/mobile-source/sqc-coat-of-arms.png";
+const coatGlowImage = "/mobile-source/badges/glow/sqc-coat-generic-glow.png";
+const multiplayerSealImage = "/mobile-source/stamps/sqc-multiplayer-seal.png";
+
+export default function MobileAppWebShell({
+  activeTab,
+  signedIn,
+  displayName,
+  lichessUsername,
+  chessComUsername,
+}: MobileAppWebShellProps) {
+  const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
+  const chessIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" · ");
 
   return (
     <main className="mobile-web-app-shell">
-      <header className="mobile-web-topbar" aria-label="App header">
-        <details className="mobile-web-menu">
-          <summary aria-label="Open main menu">
-            <span aria-hidden="true" />
-          </summary>
-          <nav className="mobile-web-menu-panel" aria-label="Main menu">
-            {menuItems.map((item) => (
-              <Link href={item.href} key={item.id} className="mobile-web-menu-row">
-                <IconBox glyph={item.glyph} />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-          </nav>
-        </details>
+      {signedIn ? (
+        <>
+          <details className="mobile-web-floating-menu">
+            <summary aria-label="Open main menu">
+              <span aria-hidden="true" />
+            </summary>
+            <nav className="mobile-web-menu-panel" aria-label="Main menu">
+              {menuItems.map((item) => (
+                <Link
+                  aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}
+                  href={item.href}
+                  key={item.id}
+                  className={isActiveMenuItem(item.id, activeTab) ? "mobile-web-menu-row active" : "mobile-web-menu-row"}
+                >
+                  <IconBox glyph={item.glyph} />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          </details>
 
-        <Link href="/" className="mobile-web-title" aria-label="Side Quest Chess home">
-          <Image alt="" src="/brand/sqc-alt-logo-topbar-20260507-v2.png" width={72} height={42} priority />
-          <span>
-            <strong>{activeTabLabel}</strong>
-            <small>{signedIn ? "Signed in" : "Signed out"}</small>
-          </span>
-        </Link>
-
-        <Link href="/account" className="mobile-web-account-dot" aria-label={signedIn ? "Open account" : "Sign in"}>
-          {signedIn ? "S" : "IN"}
-        </Link>
-      </header>
+          <header className="mobile-web-signed-in-header" aria-label="App header">
+            <div className="mobile-web-identity">
+              <strong>{displayName || "Side Quest Chess"}</strong>
+              <small>{chessIdentity || "Connect Lichess or Chess.com"}</small>
+            </div>
+            <Link href="/account" className="mobile-web-account-dot" aria-label="Open account settings">
+              {profileInitial}
+            </Link>
+          </header>
+        </>
+      ) : (
+        <header className="mobile-web-guest-header" aria-label="App header">
+          <h1>Side Quest Chess</h1>
+        </header>
+      )}
 
       <section className="mobile-web-screen" aria-label="Home">
-        <div className="mobile-web-hero">
-          <div className="mobile-web-logo-stage">
-            <Image alt="" src="/sqc-logo-v11.png" width={132} height={132} priority />
+        {!signedIn ? (
+          <div className="mobile-web-guest-coat" aria-hidden="true">
+            <Image className="mobile-web-coat-glow" alt="" src={coatGlowImage} width={220} height={220} priority />
+            <Image className="mobile-web-coat" alt="" src={coatImage} width={176} height={176} priority />
           </div>
-          <p>Chess, but with stupidly hard side quests — solo or multiplayer.</p>
-          <div className="mobile-web-action-row">
-            <Link href="/side-quests" className="mobile-web-primary-action">Browse Solo Side Quests</Link>
-            <Link href="/multiplayer" className="mobile-web-secondary-action">Browse Multiplayer Side Quests</Link>
-          </div>
-        </div>
+        ) : null}
 
-        <section className="mobile-web-panel mobile-web-readiness" aria-label="Account readiness">
-          <div>
-            <span className="mobile-web-eyebrow">Proof readiness</span>
-            <h1>Connect a public chess username before checking proof.</h1>
-            <p>Side Quest Chess can verify fresh public Lichess and Chess.com games after you sign in.</p>
+        {!signedIn ? (
+          <div className="mobile-web-guest-panel">
+            <h2>Sign in to continue.</h2>
+            <p>Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.</p>
+            <div className="mobile-web-action-row">
+              <Link href="/side-quests" className="mobile-web-secondary-action">Browse Solo Side Quests</Link>
+              <Link href="/multiplayer" className="mobile-web-secondary-action">Browse Multiplayer Side Quests</Link>
+            </div>
+            <Link href="/account" className="mobile-web-primary-action mobile-web-centered-action">Choose sign-in method</Link>
           </div>
-          <Link href="/account" className="mobile-web-primary-action">Sign in / Account</Link>
-        </section>
+        ) : null}
 
-        <MobileSection title="Solo Side Quest" actionLabel="Explore More Solo Side Quests" href="/side-quests">
+        {signedIn && !chessIdentity ? (
+          <Link href="/account" className="mobile-web-blocker-panel">
+            <strong>Connect a chess username</strong>
+            <span>SQC needs Lichess or Chess.com before it can check real games.</span>
+          </Link>
+        ) : null}
+
+        <MobileSection title={signedIn ? "No active Solo Side Quest" : "Choose a Solo Side Quest"} actionLabel="Explore Solo Side Quests" href="/side-quests" image={coatImage} glow={coatGlowImage}>
           {soloRows.map((row) => (
             <AppRow key={row.title} {...row} />
           ))}
         </MobileSection>
 
-        <MobileSection title="Multiplayer Side Quests" actionLabel="Explore More Multiplayer Side Quests" href="/multiplayer">
+        <MobileSection title="No active Multiplayer Side Quests" actionLabel="Explore More Multiplayer Side Quests" href="/multiplayer" image={multiplayerSealImage} glow={coatGlowImage}>
           {multiplayerRows.map((row) => (
             <AppRow key={row.title} {...row} />
           ))}
         </MobileSection>
 
         <section className="mobile-web-panel" aria-label="Trophy Cabinet">
+          <div className="mobile-web-section-hero" aria-hidden="true">
+            <Image className="mobile-web-section-glow" alt="" src={coatGlowImage} width={128} height={128} />
+            <Image className="mobile-web-section-art" alt="" src={coatImage} width={94} height={94} />
+          </div>
           <div className="mobile-web-section-head">
             <div>
               <span className="mobile-web-eyebrow">Trophy Cabinet</span>
@@ -155,22 +174,6 @@ export default function MobileAppWebShell({ activeTab, signedIn }: MobileAppWebS
           />
         </section>
       </section>
-
-      <nav className="mobile-web-tab-dock" aria-label="Mobile app tabs">
-        {tabItems.map((item) => (
-          <Link
-            aria-current={activeTab === item.id ? "page" : undefined}
-            className={activeTab === item.id ? "mobile-web-tab active" : "mobile-web-tab"}
-            href={item.href}
-            key={item.id}
-          >
-            <span className="mobile-web-tab-icon" aria-hidden="true">
-              {item.image ? <Image alt="" src={item.image} width={30} height={30} /> : <IconBox glyph={item.glyph ?? ""} small />}
-            </span>
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
     </main>
   );
 }
@@ -179,18 +182,26 @@ function MobileSection({
   title,
   actionLabel,
   href,
+  image,
+  glow,
   children,
 }: {
   title: string;
   actionLabel: string;
   href: string;
+  image: string;
+  glow: string;
   children: ReactNode;
 }) {
   return (
     <section className="mobile-web-panel" aria-label={title}>
+      <div className="mobile-web-section-hero" aria-hidden="true">
+        <Image className="mobile-web-section-glow" alt="" src={glow} width={128} height={128} />
+        <Image className="mobile-web-section-art" alt="" src={image} width={94} height={94} />
+      </div>
       <div className="mobile-web-section-head">
         <div>
-          <span className="mobile-web-eyebrow">Today</span>
+          <span className="mobile-web-eyebrow">{title.includes("Multiplayer") ? "Active Multiplayer Side Quests" : "Active Solo Side Quest"}</span>
           <h2>{title}</h2>
         </div>
         <Link href={href} className="mobile-web-text-action">{actionLabel}</Link>
@@ -198,6 +209,15 @@ function MobileSection({
       <div className="mobile-web-row-list">{children}</div>
     </section>
   );
+}
+
+function isActiveMenuItem(id: string, activeTab: AppTab) {
+  if (id === "home") return activeTab === "home";
+  if (id === "sideQuests" || id === "custom" || id === "createCustom") return activeTab === "sideQuests";
+  if (id === "multiplayer" || id === "createMultiplayer") return activeTab === "multiplayerSideQuests";
+  if (id === "coats") return activeTab === "coatOfArms";
+  if (id === "account") return activeTab === "account";
+  return false;
 }
 
 function AppRow({
