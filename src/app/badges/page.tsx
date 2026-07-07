@@ -15,6 +15,11 @@ import {
 } from "@/lib/groupquests";
 import { getChallengeAttempts, getChallengeProgress, type UserMetadataRecord } from "@/lib/user-metadata";
 
+export const metadata = {
+  title: "Trophy Cabinet · Side Quest Chess",
+  description: "Side Quest Chess Trophy Cabinet with locked and unlocked Coat of Arms rewards.",
+};
+
 export default async function CoatOfArmsPage() {
   const { userId } = await auth();
   const user = userId ? await currentUser() : null;
@@ -277,6 +282,18 @@ export default async function CoatOfArmsPage() {
                 <b>{challenge.difficulty}</b>
               </Link>
             ))}
+          </div>
+        </section>
+
+        <section className="mission-card app-trophy-row-panel" aria-label="Trophy Cabinet mobile parity note">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Parity note</span>
+              <h2>Mobile Trophy Cabinet route coverage</h2>
+              <p>
+                Source: apps/mobile/App.tsx renders CoatOfArmsScreen from the Trophy Cabinet tab with a signed-in Coat of Arms shelf, the live coat roster, and the coat meaning list. The web aliases /trophy-cabinet, /coat-of-arms, and /badges all land on this same app-style cabinet screen.
+              </p>
+            </div>
           </div>
         </section>
 
