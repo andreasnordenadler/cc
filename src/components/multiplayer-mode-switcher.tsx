@@ -54,6 +54,22 @@ export default function MultiplayerModeSwitcher({ active }: MultiplayerModeSwitc
 
   return (
     <nav className="side-quest-mode-switcher multiplayer-mode-switcher" aria-label="Multiplayer Side Quest modes">
+      <div className="multiplayer-brand-switch" aria-label="Official and Community Multiplayer Side Quest tabs">
+        {catalogModes.map((mode) => (
+          <Link
+            aria-current={active === mode.id ? "page" : undefined}
+            className={[
+              "multiplayer-brand-tab",
+              mode.id === "official" ? "official" : "community",
+              active === mode.id ? "active" : "",
+            ].filter(Boolean).join(" ")}
+            href={mode.href}
+            key={`brand-${mode.id}`}
+          >
+            <span>{mode.label}</span>
+          </Link>
+        ))}
+      </div>
       <div className="side-quest-catalog-tabs" aria-label="Multiplayer catalog">
         {catalogModes.map((mode) => (
           <Link

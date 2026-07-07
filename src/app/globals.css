@@ -2580,9 +2580,99 @@ p { color: var(--muted); line-height: 1.5; }
   border-color: rgba(96,240,175,.18);
   background: linear-gradient(135deg, rgba(96,240,175,.075), rgba(0,0,0,.18));
 }
+.multiplayer-brand-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px;
+  border: 1px solid rgba(255,247,232,.12);
+  border-radius: 24px;
+  background: rgba(0,0,0,.22);
+}
+.multiplayer-brand-tab {
+  display: flex;
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  color: rgba(255,247,232,.72);
+  font-size: .82rem;
+  font-weight: 950;
+  line-height: 1.15;
+  text-align: center;
+}
+.multiplayer-brand-tab.official.active {
+  border-color: rgba(245,200,106,.5);
+  background: linear-gradient(135deg, rgba(245,200,106,.22), rgba(96,240,175,.1));
+  color: var(--ink);
+}
+.multiplayer-brand-tab.community.active {
+  border-color: rgba(96,240,175,.48);
+  background: linear-gradient(135deg, rgba(96,240,175,.18), rgba(118,169,255,.1));
+  color: var(--ink);
+}
 .multiplayer-mode-switcher .side-quest-mode-switch.active {
   border-color: rgba(96,240,175,.46);
   background: linear-gradient(135deg, rgba(96,240,175,.14), rgba(245,200,106,.075));
+}
+.multiplayer-app-state-strip {
+  display: grid;
+  grid-template-columns: minmax(220px, .9fr) minmax(0, 1.4fr);
+  gap: 14px;
+  align-items: stretch;
+  border-color: rgba(96,240,175,.18);
+  background: radial-gradient(circle at 8% 0%, rgba(96,240,175,.16), transparent 35%), rgba(255,255,255,.055);
+}
+.multiplayer-app-state-strip h2 {
+  margin: 4px 0 8px;
+  color: var(--ink);
+  font-size: 1.2rem;
+  line-height: 1.15;
+}
+.multiplayer-app-state-strip p {
+  margin: 0;
+  color: var(--muted);
+  font-size: .92rem;
+  line-height: 1.45;
+}
+.multiplayer-app-state-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.multiplayer-app-state-item {
+  display: grid;
+  gap: 3px;
+  min-height: 86px;
+  align-content: center;
+  padding: 10px;
+  border: 1px solid rgba(255,247,232,.12);
+  border-radius: 16px;
+  background: rgba(0,0,0,.18);
+}
+.multiplayer-app-state-item span,
+.multiplayer-app-state-item small {
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.multiplayer-app-state-item strong {
+  color: var(--ink);
+  font-size: 1.08rem;
+  line-height: 1.05;
+}
+.multiplayer-app-state-item small {
+  color: rgba(255,247,232,.58);
+  letter-spacing: 0;
+  text-transform: none;
+}
+@media (max-width: 760px) {
+  .multiplayer-app-state-strip { grid-template-columns: 1fr; }
+  .multiplayer-app-state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .official-side-quest-deck { display: grid; gap: 18px; }
 .solo-deck-app-heading {

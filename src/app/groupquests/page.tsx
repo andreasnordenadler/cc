@@ -261,6 +261,44 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
           tone: "green",
         };
       });
+  const multiplayerParityStates = [
+    {
+      label: "Official",
+      value: `${officialRooms.length}`,
+      copy: "Default catalog tab",
+      href: "/multiplayer",
+    },
+    {
+      label: "Community",
+      value: `${publicRooms.length}`,
+      copy: "Public discovery",
+      href: "/groupquests/public",
+    },
+    {
+      label: "My active",
+      value: userId ? `${activeRooms.length}` : "Sign in",
+      copy: "Joined or hosted",
+      href: userId ? "#my-multiplayer-side-quests" : "/sign-in",
+    },
+    {
+      label: "Proof states",
+      value: userId ? `${finishedRooms.length}` : "Saved",
+      copy: "Closed results",
+      href: userId ? "#my-multiplayer-side-quests" : "/sign-in",
+    },
+    {
+      label: "Create",
+      value: "Host",
+      copy: "Build a quest",
+      href: "/groupquests/create",
+    },
+    {
+      label: "Join",
+      value: "Code",
+      copy: "Private invite",
+      href: "#private-invite",
+    },
+  ];
 
   return (
     <main className="site-shell groupquests-page">
@@ -278,6 +316,25 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
         ) : null}
 
         <MultiplayerModeSwitcher active="official" />
+
+        <section className="mission-card multiplayer-app-state-strip" aria-label="Mobile Multiplayer Side Quest state summary">
+          <div>
+            <span className="eyebrow">Mobile parity</span>
+            <h2>Official, Community, create, join, and proof states stay on this screen.</h2>
+            <p>
+              The mobile app opens Multiplayer on Official first, lets players switch to Community, then keeps active, finished, create, and invite-code actions in the same destination.
+            </p>
+          </div>
+          <div className="multiplayer-app-state-grid">
+            {multiplayerParityStates.map((state) => (
+              <Link className="multiplayer-app-state-item" href={state.href} key={state.label}>
+                <span>{state.label}</span>
+                <strong>{state.value}</strong>
+                <small>{state.copy}</small>
+              </Link>
+            ))}
+          </div>
+        </section>
 
         {userId ? (
           <>
