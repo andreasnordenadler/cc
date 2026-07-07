@@ -31,14 +31,13 @@ export default async function MultiplayerPage() {
     >
       <MobileSimpleScreen
         eyebrow="Multiplayer Side Quests"
-        title="Same nonsense, now with witnesses."
-        body="Join public Multiplayer Side Quests, inspect the rules before committing, or sign in when you want to create one and invite friends."
-        primaryAction={{ label: "Join Multiplayer Side Quests", href: "/multiplayer-side-quests" }}
-        secondaryAction={{ label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" }}
+        title="Official Multiplayer Side Quests"
+        body="No official Multiplayer Side Quests are open right now."
+        primaryAction={{ label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" }}
         rows={[
           {
-            title: "No active Multiplayer Side Quests",
-            meta: "Join or host shared challenges with friends.",
+            title: "Community Multiplayer Side Quests",
+            meta: user ? "These are Multiplayer Side Quests created, joined, hosted, or finished by the Side Quest Chess community." : "Browse public Multiplayer Side Quests from the Side Quest Chess community. Sign in when you want to join one.",
             status: "Explore",
             href: "/multiplayer-side-quests",
           },

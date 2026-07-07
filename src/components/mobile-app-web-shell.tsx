@@ -77,7 +77,7 @@ export default function MobileAppWebShell({
               <span>
                 {lichessUsername ? <small>lichess · {lichessUsername}</small> : null}
                 {chessComUsername ? <small>chess.com · {chessComUsername}</small> : null}
-                {!hasChessAccount ? <small>Chess account not connected</small> : null}
+                {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
               </span>
             </div>
             <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
@@ -216,7 +216,7 @@ export function MobileSoloSideQuestsScreen({
       <section className="sqc-panel hero">
         <span className="sqc-eyebrow">Solo Side Quests</span>
         <h1>Official Side Quests</h1>
-        <p>Choose one Solo Side Quest, play a fresh public game, then come back for proof.</p>
+        <p>Pick one Solo Side Quest at a time. After you choose it, play a new public Lichess or Chess.com game so Side Quest Chess has a fresh game to check.</p>
         <div className="sqc-tabs" role="tablist" aria-label="Solo Side Quest catalog">
           <Link href="/side-quests" className="active" role="tab" aria-selected="true">Official</Link>
           <Link href="/community-side-quests" role="tab" aria-selected="false">Community</Link>
@@ -311,15 +311,15 @@ export function MobileCreateMultiplayerScreen() {
           </label>
           <span className="sqc-form-label">Access</span>
           <div className="sqc-option-grid">
-            <OptionCard title="Public" helper="Visible in the public Multiplayer catalog." selected />
-            <OptionCard title="Unlisted link" helper="Anyone with the invite link can open it." />
-            <OptionCard title="Private key" helper="Players need the invite code." />
+            <OptionCard title="Public" helper="Visible in Browse" selected />
+            <OptionCard title="Unlisted link" helper="Only players with the link can join" />
+            <OptionCard title="Invite code" helper="Only players with the invite code or link can join" />
           </div>
           <span className="sqc-form-label">Games allowed</span>
           <div className="sqc-option-grid">
-            <OptionCard title="Lichess or Chess.com" helper="Players can use Lichess or Chess.com." selected />
-            <OptionCard title="Lichess" helper="Only public Lichess games." />
-            <OptionCard title="Chess.com" helper="Only public Chess.com games." />
+            <OptionCard title="Lichess or Chess.com" helper="Players can use Lichess or Chess.com" selected />
+            <OptionCard title="Lichess" helper="Only public Lichess games" />
+            <OptionCard title="Chess.com" helper="Only public Chess.com games" />
           </div>
           <label className="sqc-form-row">
             <span>Start</span>
@@ -332,9 +332,10 @@ export function MobileCreateMultiplayerScreen() {
           </label>
           <span className="sqc-form-label">Quick duration</span>
           <div className="sqc-filter-row">
-            <span>1 day</span>
-            <span className="active">7 days</span>
-            <span>14 days</span>
+            <span>24h</span>
+            <span>3 days</span>
+            <span className="active">1 week</span>
+            <span>2 weeks</span>
           </div>
           <Link href="/create-multiplayer-side-quest" className="sqc-quiet-button">Advanced: time, rated, color</Link>
         </div>
