@@ -40,7 +40,7 @@ const settingsSections = [
 
 const mobileMenuShortcuts = [
   { label: "Home", title: "Return to the app entry", href: "/" },
-  { label: "Solo Side Quests", title: "Pick a Solo Side Quest", href: "/solo" },
+  { label: "Side Quests", title: "Pick a Solo Side Quest", href: "/side-quests" },
   { label: "Multiplayer Side Quests", title: "Browse shared quests", href: "/multiplayer" },
   { label: "Official Leaderboards", title: "Open the app companion leaderboard screen", href: "/official-leaderboards" },
   { label: "Trophy Cabinet", title: "Review coats and receipts", href: "/trophy-cabinet" },

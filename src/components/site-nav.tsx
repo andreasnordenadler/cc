@@ -34,7 +34,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
     "Side Quest Chess";
   const menuItems = [
     { id: "home", label: "Home", href: "/", active: active === "home", glyph: "HM" },
-    { id: "solo", label: "Solo Side Quests", href: "/solo", active: soloActive, glyph: "SQ" },
+    { id: "solo", label: "Side Quests", href: "/side-quests", active: soloActive, glyph: "SQ" },
     { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
     { id: "leaderboards", label: "Official Leaderboards", href: "/official-leaderboards", active: leaderboardsActive, glyph: "LB" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, glyph: "TC" },
@@ -48,7 +48,7 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
   ];
   const dockItems: MobileDockItem[] = [
     { id: "home", label: "Home", href: "/", active: active === "home", image: "/brand/sqc-alt-logo-topbar-20260507-v2.png" },
-    { id: "solo", label: "Side Quests", href: "/solo", active: sideQuestTabActive, image: "/sqc-logo-v11.png" },
+    { id: "solo", label: "Side Quests", href: "/side-quests", active: sideQuestTabActive, image: "/sqc-logo-v11.png" },
     { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", active: multiplayerActive, glyph: "MP" },
     { id: "trophy", label: "Trophy Cabinet", href: "/trophy-cabinet", active: trophyActive, image: "/badges/v6/proof-loop-test-badge.png" },
     { id: "account", label: "Account", href: "/account", active: accountActive, glyph: isSignedIn ? "OK" : "IN" },

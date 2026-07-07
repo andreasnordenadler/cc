@@ -337,7 +337,7 @@ export default async function Home() {
               aria-label="Choose Solo Side Quest or Multiplayer Side Quest mode"
             >
               <Link
-                href="/solo"
+                href="/side-quests"
                 className="button primary home-choice-button"
               >
                 Go on a <span>Solo Side Quest</span>
@@ -410,7 +410,7 @@ export default async function Home() {
                 completedChallengeIds={progress.completedChallengeIds}
               />
               <p>
-                Or go <Link href="/solo">find your own path</Link>.
+                Or go <Link href="/side-quests">find your own path</Link>.
               </p>
             </div>
           </aside>
@@ -431,7 +431,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="mobile-home-quickstart-grid">
-            <Link href="/solo" className="mobile-home-quickstart-action primary">
+            <Link href="/side-quests" className="mobile-home-quickstart-action primary">
               <span>Solo</span>
               <strong>Go on a Solo Side Quest</strong>
               <small>Pick one rule, play a fresh public game, then check proof.</small>
@@ -450,7 +450,7 @@ export default async function Home() {
                 completedChallengeIds={progress.completedChallengeIds}
               />
             </div>
-            <Link href="/solo" className="mobile-home-quickstart-action">
+            <Link href="/side-quests" className="mobile-home-quickstart-action">
               <span>Browse</span>
               <strong>Find your own path</strong>
               <small>Open the full Solo deck, including official and community routes.</small>
@@ -520,10 +520,10 @@ export default async function Home() {
               <strong>Today&apos;s run</strong>
               <small>Active quest, proof status, and next actions.</small>
             </Link>
-            <Link href="/solo" className="home-mobile-map-item">
-              <span>Solo Side Quests</span>
-              <strong>Official deck</strong>
-              <small>Pick one quest, play a fresh public game, then check proof.</small>
+            <Link href="/side-quests" className="home-mobile-map-item">
+              <span>Side Quests</span>
+              <strong>Official, community, and custom</strong>
+              <small>Open the mobile tab hub, pick one quest, play a fresh public game, then check proof.</small>
             </Link>
             <Link href="/multiplayer" className="home-mobile-map-item">
               <span>Multiplayer Side Quests</span>
