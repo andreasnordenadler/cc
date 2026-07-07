@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
-import AuthActionButtons from "@/components/auth-action-buttons";
 
 type ActiveNavItem = "home" | "solo" | "custom" | "community" | "multiplayer" | "trophy" | "random" | "path" | "challenges" | "groupquests" | "leaderboards" | "badges" | "scoreboard" | "rules" | "verifiers" | "share-kit" | "connect" | "account" | "profile" | "settings" | "result" | "beta" | "support";
 
@@ -10,6 +9,21 @@ type SiteNavProps = {
 };
 
 export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
+  if (!isSignedIn) {
+    return (
+      <header className="site-nav softer-site-nav app-source-nav app-source-nav-guest">
+        <Link href="/" className="app-source-guest-title" aria-label="Side Quest Chess home">
+          Side Quest Chess
+        </Link>
+        {active !== "home" ? (
+          <Link href="/" className="app-source-close-screen" aria-label="Close screen">
+            x
+          </Link>
+        ) : null}
+      </header>
+    );
+  }
+
   const soloActive = active === "solo" || active === "challenges" || active === "random" || active === "path";
   const customActive = active === "custom";
   const communityActive = active === "community";
@@ -60,14 +74,8 @@ export default function SiteNav({ isSignedIn, active }: SiteNavProps) {
         </nav>
 
         <div className="nav-actions">
-          {isSignedIn ? (
-            <>
-              <Link href="/account" className={accountActive ? "nav-pill active" : "nav-pill"}>My Account</Link>
-              <UserButton />
-            </>
-          ) : (
-            <AuthActionButtons />
-          )}
+          <Link href="/account" className={accountActive ? "nav-pill active" : "nav-pill"}>My Account</Link>
+          <UserButton />
         </div>
       </div>
     </header>
