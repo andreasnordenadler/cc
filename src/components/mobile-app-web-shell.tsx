@@ -14,16 +14,6 @@ type MobileAppWebShellProps = {
   children?: ReactNode;
 };
 
-const soloRows = [
-  {
-    title: "Choose a Solo Side Quest",
-    meta: "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.",
-    status: "Explore",
-    href: "/side-quests",
-    image: "/mobile-source/sqc-coat-of-arms.png",
-  },
-];
-
 const multiplayerRows = [
   {
     title: "No active Multiplayer Side Quests",
@@ -54,7 +44,6 @@ export default function MobileAppWebShell({
   children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
-  const chessIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" · ");
   const menuItems = [
     { id: "home", label: "Home", href: "/", glyph: "home" },
     { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", glyph: "flag" },
@@ -93,7 +82,22 @@ export default function MobileAppWebShell({
           <header className="mobile-web-signed-in-header" aria-label="App header">
             <div className="mobile-web-identity">
               <strong>{displayName || "Side Quest Chess"}</strong>
-              <small>{chessIdentity || "Connect Lichess or Chess.com"}</small>
+              {lichessUsername || chessComUsername ? (
+                <span className="mobile-web-identity-accounts">
+                  {lichessUsername ? (
+                    <span className="mobile-web-identity-account">
+                      <span className="mobile-web-identity-platform lichess">lichess</span>
+                      <small>{lichessUsername}</small>
+                    </span>
+                  ) : null}
+                  {chessComUsername ? (
+                    <span className="mobile-web-identity-account">
+                      <span className="mobile-web-identity-platform chesscom">chess.com</span>
+                      <small>{chessComUsername}</small>
+                    </span>
+                  ) : null}
+                </span>
+              ) : null}
             </div>
             <Link href="/account" className="mobile-web-account-dot" aria-label="Open account settings">
               {profileInitial}
@@ -134,7 +138,7 @@ export default function MobileAppWebShell({
           </div>
         ) : null}
 
-        {!children && signedIn && !chessIdentity ? (
+        {!children && signedIn && !lichessUsername && !chessComUsername ? (
           <Link href="/account" className="mobile-web-blocker-panel">
             <strong>Connect a chess username</strong>
             <span>SQC needs Lichess or Chess.com before it can check real games.</span>
@@ -143,42 +147,65 @@ export default function MobileAppWebShell({
 
         {!children && signedIn ? (
           <>
-            <MobileSection title="No active Solo Side Quest" actionLabel="Explore More Solo Side Quests" href="/side-quests" image={coatImage} glow={coatGlowImage}>
-              {soloRows.map((row) => (
-                <AppRow key={row.title} {...row} />
-              ))}
-            </MobileSection>
+            <section className="mobile-web-active-solo-section" aria-label="Active Solo Side Quest">
+              <span className="mobile-web-active-solo-refresh" aria-hidden="true">
+                ↻
+              </span>
+              <div className="mobile-web-empty-quest-panel">
+                <div className="mobile-web-empty-quest-hero-row">
+                  <span className="mobile-web-empty-quest-coat-wrap" aria-hidden="true">
+                    <Image className="mobile-web-empty-quest-coat-glow" alt="" src={coatGlowImage} width={104} height={108} />
+                    <Image className="mobile-web-empty-quest-coat" alt="" src={coatImage} width={82} height={82} />
+                  </span>
+                  <span className="mobile-web-current-quest-text">
+                    <strong>Choose a Solo Side Quest</strong>
+                    <small>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</small>
+                  </span>
+                </div>
+                <Link href="/side-quests" className="mobile-web-primary-action mobile-web-fit-action">Explore Solo Side Quests</Link>
+              </div>
+            </section>
 
             <div className="mobile-web-refresh-hint" aria-hidden="true">
               <span>↓</span>
               <small>Pull down to refresh</small>
             </div>
 
-            <MobileSection title="No active Multiplayer Side Quests" actionLabel="Explore More Multiplayer Side Quests" href="/multiplayer" image={multiplayerSealImage} glow={coatGlowImage}>
-              {multiplayerRows.map((row) => (
-                <AppRow key={row.title} {...row} />
-              ))}
-            </MobileSection>
+            <section className="mobile-web-active-multiplayer-section" aria-label="Active Multiplayer Side Quests">
+              <Link href="/multiplayer" className="mobile-web-active-multiplayer-summary">
+                <span className="mobile-web-multiplayer-hero-marker" aria-hidden="true">
+                  <Image className="mobile-web-multiplayer-hero-glow" alt="" src={coatGlowImage} width={142} height={152} />
+                  <Image className="mobile-web-multiplayer-hero-seal" alt="" src={multiplayerSealImage} width={100} height={100} />
+                </span>
+                <span className="mobile-web-pill">Active Multiplayer Side Quests</span>
+                <strong>No active Multiplayer Side Quests</strong>
+              </Link>
+              <div className="mobile-web-row-list framed">
+                {multiplayerRows.slice(0, 1).map((row) => (
+                  <AppRow key={row.title} {...row} />
+                ))}
+              </div>
+              <Link href="/multiplayer" className="mobile-web-secondary-action mobile-web-full-action">Explore More Multiplayer Side Quests</Link>
+            </section>
 
-            <section className="mobile-web-panel" aria-label="Trophy Cabinet">
-              <div className="mobile-web-section-hero" aria-hidden="true">
-                <Image className="mobile-web-section-glow" alt="" src={coatGlowImage} width={128} height={128} />
-                <Image className="mobile-web-section-art" alt="" src={coatImage} width={94} height={94} />
+            <section className="mobile-web-trophy-cabinet-section" aria-label="Trophy Cabinet">
+              <Link href="/trophy-cabinet" className="mobile-web-active-multiplayer-summary">
+                <span className="mobile-web-trophy-hero-marker" aria-hidden="true">
+                  <Image className="mobile-web-trophy-hero-glow" alt="" src={coatGlowImage} width={156} height={166} />
+                  <Image className="mobile-web-trophy-hero-coat" alt="" src={coatImage} width={112} height={126} />
+                </span>
+                <span className="mobile-web-pill">Trophy Cabinet</span>
+              </Link>
+              <div className="mobile-web-row-list framed">
+                <AppRow
+                  title="No Coat of Arms yet"
+                  meta="Complete a Side Quest to unlock your first trophy."
+                  status="Explore"
+                  href="/side-quests"
+                  image={coatImage}
+                />
               </div>
-              <div className="mobile-web-section-head">
-                <div>
-                  <span className="mobile-web-eyebrow">Trophy Cabinet</span>
-                  <h2>No Coat of Arms yet</h2>
-                </div>
-                <Link href="/trophy-cabinet" className="mobile-web-text-action">Open</Link>
-              </div>
-              <AppRow
-                title="Complete a Side Quest"
-                meta="Unlocked coats stay in your account and appear in the Trophy Cabinet."
-                status="Explore"
-                href="/side-quests"
-                image="/badges/v6/proof-loop-test-badge.png"
-              />
+              <Link href="/trophy-cabinet" className="mobile-web-secondary-action mobile-web-full-action">Open Trophy Cabinet</Link>
             </section>
           </>
         ) : null}
@@ -245,39 +272,6 @@ export function MobileSoloSideQuestsScreen({
         </div>
       </section>
     </>
-  );
-}
-
-function MobileSection({
-  title,
-  actionLabel,
-  href,
-  image,
-  glow,
-  children,
-}: {
-  title: string;
-  actionLabel: string;
-  href: string;
-  image: string;
-  glow: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="mobile-web-panel" aria-label={title}>
-      <div className="mobile-web-section-hero" aria-hidden="true">
-        <Image className="mobile-web-section-glow" alt="" src={glow} width={128} height={128} />
-        <Image className="mobile-web-section-art" alt="" src={image} width={94} height={94} />
-      </div>
-      <div className="mobile-web-section-head">
-        <div>
-          <span className="mobile-web-eyebrow">{title.includes("Multiplayer") ? "Active Multiplayer Side Quests" : "Active Solo Side Quest"}</span>
-          <h2>{title}</h2>
-        </div>
-        <Link href={href} className="mobile-web-text-action">{actionLabel}</Link>
-      </div>
-      <div className="mobile-web-row-list">{children}</div>
-    </section>
   );
 }
 

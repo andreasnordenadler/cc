@@ -15,6 +15,13 @@ This checklist is the first gate for the clean web rebuild sprint. The visible w
 - Current app shell/navigation: `MobileShell`, `GlobalHamburgerMenu`, `FixedScreenCloseButton`
 - Older `TABS` metadata and older bottom navigation implementations may be present in source but are not rendered by `ActiveScreen` / `MobileShell`; do not use them as visible web source.
 
+## Current Run Verification
+
+- Rechecked source before the signed-in root-shell tightening slice: `apps/mobile/App.tsx` lines 1713-1784 render `MobileShell` with no `BottomNav` call; lines 1802-1848 render the authenticated hamburger menu; lines 2152-2448 render signed-out and signed-in home states.
+- Rechecked identity/header details: `apps/mobile/App.tsx` lines 2181-2198 render the signed-in centered identity and right account circle; lines 3504-3524 render platform chips for `lichess` / `chess.com`; lines 10250-10280 define the 40px header controls, identity sizing, and brown hamburger menu panel.
+- Rechecked home panel details: `apps/mobile/App.tsx` lines 2200-2261 render the missing-chess-account blocker, empty Solo panel, refresh affordance, and pull-to-refresh hint; lines 2303-2445 render Active Multiplayer and Trophy Cabinet panels.
+- Asset hash proof remains current: `apps/mobile/assets/sqc-coat-of-arms.png`, `apps/mobile/assets/badges/glow/sqc-coat-generic-glow.png`, and `apps/mobile/assets/stamps/sqc-multiplayer-seal.png` match their `public/mobile-source/...` copies by SHA-256.
+
 ## Current Mobile Model
 
 - Signed-out home has no hamburger, no bottom navigation, and no public wordmark logo treatment. It shows centered `Side Quest Chess`, the coat of arms over the generic glow, browse actions for Solo and Multiplayer, and the primary `Choose sign-in method` action.

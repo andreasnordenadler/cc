@@ -59,12 +59,11 @@ body::after {
   min-width: 0;
   display: grid;
   justify-items: center;
-  gap: 2px;
+  gap: 4px;
   text-align: center;
 }
 
-.mobile-web-identity strong,
-.mobile-web-identity small {
+.mobile-web-identity strong {
   display: block;
   max-width: 100%;
   overflow: hidden;
@@ -74,16 +73,66 @@ body::after {
 
 .mobile-web-identity strong {
   color: #fff7e8;
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 950;
   line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.mobile-web-identity-accounts {
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  column-gap: 7px;
+  row-gap: 3px;
+}
+
+.mobile-web-identity-account {
+  min-width: 0;
+  max-width: 48%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.mobile-web-identity-platform {
+  display: inline-flex;
+  align-items: center;
+  min-height: 13px;
+  padding: 1px 5px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 8px;
+  font-weight: 950;
+  line-height: 11px;
+  letter-spacing: .025em;
   text-transform: uppercase;
 }
 
-.mobile-web-identity small {
-  color: #c7bda9;
-  font-size: 11px;
+.mobile-web-identity-platform.lichess {
+  border-color: rgba(96, 240, 175, .18);
+  background: rgba(96, 240, 175, .1);
+  color: #60f0af;
+}
+
+.mobile-web-identity-platform.chesscom {
+  border-color: rgba(118, 169, 255, .18);
+  background: rgba(118, 169, 255, .1);
+  color: #76a9ff;
+}
+
+.mobile-web-identity-account small {
+  min-width: 0;
+  overflow: hidden;
+  color: #fff7e8;
+  font-size: 12px;
   font-weight: 900;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mobile-web-floating-menu {
@@ -226,7 +275,10 @@ body::after {
   gap: 12px;
 }
 
-.mobile-web-panel {
+.mobile-web-panel,
+.mobile-web-active-solo-section,
+.mobile-web-active-multiplayer-section,
+.mobile-web-trophy-cabinet-section {
   border: 1px solid rgba(245, 200, 106, .16);
   border-radius: 24px;
   background:
@@ -252,15 +304,16 @@ body::after {
 }
 
 .mobile-web-coat-glow {
-  width: 220px;
-  height: 220px;
-  opacity: .74;
+  width: 166px;
+  height: 176px;
+  opacity: .92;
   filter: drop-shadow(0 22px 36px rgba(245, 200, 106, .18));
+  transform: translateY(5px);
 }
 
 .mobile-web-coat {
-  width: 176px;
-  height: 176px;
+  width: 132px;
+  height: 148px;
   filter: drop-shadow(0 18px 28px rgba(0, 0, 0, .42));
 }
 
@@ -325,6 +378,15 @@ body::after {
   width: 100%;
 }
 
+.mobile-web-fit-action {
+  width: max-content;
+  max-width: 100%;
+}
+
+.mobile-web-full-action {
+  width: 100%;
+}
+
 .mobile-web-blocker-panel {
   display: grid;
   gap: 4px;
@@ -356,13 +418,40 @@ body::after {
   white-space: nowrap;
 }
 
-.mobile-web-panel {
+.mobile-web-panel,
+.mobile-web-active-solo-section,
+.mobile-web-active-multiplayer-section,
+.mobile-web-trophy-cabinet-section {
   position: relative;
   display: grid;
   gap: 12px;
-  margin-top: 70px;
   padding: 13px;
   padding-top: 24px;
+}
+
+.mobile-web-panel {
+  margin-top: 70px;
+}
+
+.mobile-web-active-solo-section {
+  gap: 8px;
+  margin-top: 132px;
+  border-color: rgba(245, 200, 106, .22);
+  background: rgba(255, 247, 232, .078);
+}
+
+.mobile-web-active-multiplayer-section {
+  gap: 8px;
+  margin-top: 70px;
+  border-color: rgba(255, 247, 232, .14);
+  background: rgba(255, 247, 232, .064);
+}
+
+.mobile-web-trophy-cabinet-section {
+  gap: 8px;
+  margin-top: 100px;
+  border-color: rgba(245, 200, 106, .18);
+  background: rgba(255, 247, 232, .064);
 }
 
 .mobile-web-refresh-hint {
@@ -382,6 +471,175 @@ body::after {
   font-weight: 1000;
   line-height: 1;
   text-transform: uppercase;
+}
+
+.mobile-web-active-solo-refresh {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 8;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(245, 200, 106, .24);
+  border-radius: 999px;
+  background: rgba(245, 200, 106, .1);
+  color: #f5c86a;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.mobile-web-empty-quest-panel {
+  display: grid;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid rgba(245, 200, 106, .22);
+  border-radius: 24px;
+  background: rgba(255, 247, 232, .078);
+}
+
+.mobile-web-empty-quest-hero-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-web-empty-quest-coat-wrap {
+  position: relative;
+  flex: 0 0 86px;
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.mobile-web-empty-quest-coat-glow,
+.mobile-web-empty-quest-coat {
+  grid-area: 1 / 1;
+  object-fit: contain;
+}
+
+.mobile-web-empty-quest-coat-glow {
+  width: 104px;
+  height: 108px;
+  opacity: .9;
+  transform: translateY(3px);
+}
+
+.mobile-web-empty-quest-coat {
+  width: 82px;
+  height: 82px;
+}
+
+.mobile-web-current-quest-text {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.mobile-web-current-quest-text strong {
+  color: #fff7e8;
+  font-size: 19px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 22px;
+}
+
+.mobile-web-current-quest-text small {
+  color: #c7bda9;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.mobile-web-active-multiplayer-summary {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.mobile-web-active-multiplayer-summary > strong {
+  max-width: 286px;
+  color: #fff7e8;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 23px;
+}
+
+.mobile-web-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid rgba(245, 200, 106, .24);
+  border-radius: 999px;
+  background: rgba(245, 200, 106, .1);
+  color: #f5c86a;
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 12px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.mobile-web-multiplayer-hero-marker,
+.mobile-web-trophy-hero-marker {
+  position: absolute;
+  align-self: center;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 7;
+}
+
+.mobile-web-multiplayer-hero-marker {
+  top: -116px;
+  width: 112px;
+  height: 112px;
+}
+
+.mobile-web-trophy-hero-marker {
+  top: -118px;
+  width: 126px;
+  height: 126px;
+}
+
+.mobile-web-multiplayer-hero-glow,
+.mobile-web-multiplayer-hero-seal,
+.mobile-web-trophy-hero-glow,
+.mobile-web-trophy-hero-coat {
+  grid-area: 1 / 1;
+  object-fit: contain;
+}
+
+.mobile-web-multiplayer-hero-glow {
+  width: 142px;
+  height: 152px;
+  opacity: .9;
+  transform: translateY(4px);
+}
+
+.mobile-web-multiplayer-hero-seal {
+  width: 100px;
+  height: 100px;
+}
+
+.mobile-web-trophy-hero-glow {
+  width: 156px;
+  height: 166px;
+  opacity: .92;
+  transform: translateY(5px);
+}
+
+.mobile-web-trophy-hero-coat {
+  width: 112px;
+  height: 126px;
 }
 
 .mobile-web-section-hero {
@@ -463,6 +721,14 @@ body::after {
 .mobile-web-row-list {
   display: grid;
   gap: 8px;
+}
+
+.mobile-web-row-list.framed {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 18px;
+  background: rgba(13, 11, 14, .78);
 }
 
 .mobile-web-sidequest-emblem {
