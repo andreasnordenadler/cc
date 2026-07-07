@@ -3,7 +3,10 @@ import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
-export { metadata } from "../custom/page";
+export const metadata = {
+  title: "My Custom Side Quests — Side Quest Chess",
+  description: "My Custom Side Quests in the Side Quest Chess mobile app shell.",
+};
 
 export default async function CustomSideQuestsPage() {
   noStore();

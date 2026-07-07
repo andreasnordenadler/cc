@@ -1,3 +1,5 @@
-export const dynamic = "force-dynamic";
-export { metadata } from "../challenges/community/page";
-export { default } from "../challenges/community/page";
+import { redirect } from "next/navigation";
+
+export default function CommunityPage() {
+  redirect("/community-side-quests");
+}
