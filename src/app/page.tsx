@@ -289,6 +289,17 @@ export default async function Home() {
   const badgePreviewChallenges = CHALLENGES.filter(
     (challenge) => challenge.badgeIdentity.image,
   ).slice(0, 6);
+  const todaySoloStatus = activeSoloQuest
+    ? activeSoloQuest.completed
+      ? "Completed"
+      : "In progress"
+    : "No active Side Quest";
+  const todayMultiplayerStatus = activeMultiplayerSideQuests.length
+    ? `${activeMultiplayerSideQuests.length} active`
+    : "No active Multiplayer";
+  const todayTrophyStatus = homeTrophyCabinetItems.length
+    ? `${homeTrophyCabinetItems.length} latest`
+    : "No Coat of Arms yet";
   const heroismChoices = heroismOptions
     .map((option) => {
       const challenge = CHALLENGES.find(
@@ -592,6 +603,50 @@ export default async function Home() {
         {isSignedIn ? (
           <>
             <section
+              className="mission-card home-today-status-card"
+              aria-label="Today dashboard"
+            >
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">Today</span>
+                  <h2>Your SQC run.</h2>
+                  <p>
+                    Check the Solo quest you are trying now, the Multiplayer
+                    Side Quests you can return to, and the latest rewards in
+                    your Trophy Cabinet.
+                  </p>
+                </div>
+              </div>
+              <div className="home-today-status-grid" aria-label="Today status">
+                <Link href={activeSoloQuest ? activeSoloQuest.href : "/solo"}>
+                  <span>Active Solo Side Quest</span>
+                  <strong>
+                    {activeSoloQuest ? activeSoloQuest.title : "Choose a Solo Side Quest"}
+                  </strong>
+                  <small>{todaySoloStatus}</small>
+                </Link>
+                <Link href="/multiplayer">
+                  <span>Active Multiplayer Side Quests</span>
+                  <strong>
+                    {activeMultiplayerSideQuests.length
+                      ? "Open your Multiplayer list"
+                      : "Join or host shared quests"}
+                  </strong>
+                  <small>{todayMultiplayerStatus}</small>
+                </Link>
+                <Link href="/trophy-cabinet">
+                  <span>Trophy Cabinet</span>
+                  <strong>
+                    {homeTrophyCabinetItems.length
+                      ? "Open latest receipts"
+                      : "Unlock your first coat"}
+                  </strong>
+                  <small>{todayTrophyStatus}</small>
+                </Link>
+              </div>
+            </section>
+
+            <section
               className="card mission-card home-status-card compact-run-card active-quest-home-card"
               aria-label={
                 activeSoloQuest
@@ -703,93 +758,6 @@ export default async function Home() {
                       ? "Open custom controls"
                       : "Open quest details"
                     : "Browse Solo Side Quests"}
-                </Link>
-              </div>
-            </section>
-
-            <section
-              className="mission-card groupquests-user-overview home-trophy-cabinet-card"
-              aria-label="Trophy Cabinet summary"
-            >
-              <div className="section-head groupquests-command-head">
-                <div>
-                  <span className="eyebrow">Trophy Cabinet</span>
-                  <h2>Your latest unlocked coats and podium scrolls.</h2>
-                  <p>
-                    Your latest Trophy Cabinet progress lives here too, so you
-                    can jump back into the same receipts from the home screen.
-                  </p>
-                </div>
-                <Image
-                  alt=""
-                  className="groupquests-command-seal"
-                  height={112}
-                  src="/badges/proof-loop-test-badge.png"
-                  width={112}
-                />
-              </div>
-
-              <div
-                className="groupquests-compact-room-list"
-                aria-label="Latest Trophy Cabinet items"
-              >
-                {homeTrophyCabinetItems.length ? (
-                  homeTrophyCabinetItems.map((item) => (
-                    <Link
-                      className="groupquests-compact-room gold"
-                      href={item.href}
-                      key={`${item.kind}-${item.title}`}
-                    >
-                      <strong>{item.kind}</strong>
-                      <div className="home-trophy-cabinet-row-copy">
-                        {item.officialChallenge ? (
-                          <span
-                            className="home-trophy-cabinet-thumb"
-                            aria-hidden="true"
-                          >
-                            <ChallengeBadge
-                              challenge={item.officialChallenge}
-                              presentation="art"
-                              earned
-                            />
-                          </span>
-                        ) : (
-                          <span
-                            className="home-trophy-cabinet-thumb"
-                            aria-hidden="true"
-                          >
-                            <Image
-                              src={item.image}
-                              alt=""
-                              width={48}
-                              height={48}
-                            />
-                          </span>
-                        )}
-                        <span>
-                          <h4>{item.title}</h4>
-                          <p>{item.meta}</p>
-                        </span>
-                      </div>
-                      <span>Open</span>
-                      <em>Receipt</em>
-                    </Link>
-                  ))
-                ) : (
-                  <p>
-                    No Trophy Cabinet items yet. Complete a Solo Side Quest or
-                    finish top-three in Multiplayer to unlock your first
-                    receipt.
-                  </p>
-                )}
-              </div>
-
-              <div className="home-multiplayer-quests-footer">
-                <Link href="/trophy-cabinet" className="button secondary">
-                  Open Trophy Cabinet
-                </Link>
-                <Link href="/badges" className="button secondary">
-                  Browse Coat of Arms
                 </Link>
               </div>
             </section>
@@ -987,6 +955,93 @@ export default async function Home() {
               <div className="home-multiplayer-quests-footer">
                 <Link href="/multiplayer" className="button secondary">
                   All Multiplayer Side Quests
+                </Link>
+              </div>
+            </section>
+
+            <section
+              className="mission-card groupquests-user-overview home-trophy-cabinet-card"
+              aria-label="Trophy Cabinet summary"
+            >
+              <div className="section-head groupquests-command-head">
+                <div>
+                  <span className="eyebrow">Trophy Cabinet</span>
+                  <h2>Your latest unlocked coats and podium scrolls.</h2>
+                  <p>
+                    Your latest Trophy Cabinet progress lives here too, so you
+                    can jump back into the same receipts from the home screen.
+                  </p>
+                </div>
+                <Image
+                  alt=""
+                  className="groupquests-command-seal"
+                  height={112}
+                  src="/badges/proof-loop-test-badge.png"
+                  width={112}
+                />
+              </div>
+
+              <div
+                className="groupquests-compact-room-list"
+                aria-label="Latest Trophy Cabinet items"
+              >
+                {homeTrophyCabinetItems.length ? (
+                  homeTrophyCabinetItems.map((item) => (
+                    <Link
+                      className="groupquests-compact-room gold"
+                      href={item.href}
+                      key={`${item.kind}-${item.title}`}
+                    >
+                      <strong>{item.kind}</strong>
+                      <div className="home-trophy-cabinet-row-copy">
+                        {item.officialChallenge ? (
+                          <span
+                            className="home-trophy-cabinet-thumb"
+                            aria-hidden="true"
+                          >
+                            <ChallengeBadge
+                              challenge={item.officialChallenge}
+                              presentation="art"
+                              earned
+                            />
+                          </span>
+                        ) : (
+                          <span
+                            className="home-trophy-cabinet-thumb"
+                            aria-hidden="true"
+                          >
+                            <Image
+                              src={item.image}
+                              alt=""
+                              width={48}
+                              height={48}
+                            />
+                          </span>
+                        )}
+                        <span>
+                          <h4>{item.title}</h4>
+                          <p>{item.meta}</p>
+                        </span>
+                      </div>
+                      <span>Open</span>
+                      <em>Receipt</em>
+                    </Link>
+                  ))
+                ) : (
+                  <p>
+                    No Trophy Cabinet items yet. Complete a Solo Side Quest or
+                    finish top-three in Multiplayer to unlock your first
+                    receipt.
+                  </p>
+                )}
+              </div>
+
+              <div className="home-multiplayer-quests-footer">
+                <Link href="/trophy-cabinet" className="button secondary">
+                  Open Trophy Cabinet
+                </Link>
+                <Link href="/badges" className="button secondary">
+                  Browse Coat of Arms
                 </Link>
               </div>
             </section>

@@ -62,3 +62,19 @@ Proof captured for this slice:
 
 - Screenshots: `artifacts/sqc-mobile-dock-parity-2026-07-05/home-mobile-web.png` and `artifacts/sqc-mobile-dock-parity-2026-07-05/home-desktop.png`.
 - Verification: `pnpm lint -- src/components/site-nav.tsx src/app/globals.css` passed with the existing CSS ignore warning; `pnpm exec tsc --noEmit --pretty false` passed; `pnpm --dir apps/mobile exec tsc --noEmit --pretty false` passed; `pnpm build` passed with the existing Next workspace-root warning.
+
+## 2026-07-07 Home Today Order Parity Slice
+
+Mobile Today source in `apps/mobile/App.tsx` renders signed-in home as `Active Solo Side Quest`, `Active Multiplayer Side Quests`, then `Trophy Cabinet`.
+
+| Mobile Today block | Website home status after slice |
+| --- | --- |
+| `Active Solo Side Quest` | Added to a signed-in `Today` status strip and kept as the first detailed signed-in run card. |
+| `Active Multiplayer Side Quests` | Added to the same `Today` strip and moved before the detailed Trophy Cabinet card. |
+| `Trophy Cabinet` | Added to the `Today` strip and placed after Multiplayer, matching mobile order. |
+
+Proof captured for this slice:
+
+- Code: `src/app/page.tsx` and `src/app/globals.css`.
+- Verification: `pnpm build` passed with the existing Next workspace-root warning.
+- Screenshot note: continue using build/static checks if the local Clerk refresh loop blocks no-auth screenshots.
