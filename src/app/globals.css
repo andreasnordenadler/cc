@@ -315,6 +315,14 @@ p { color: var(--muted); line-height: 1.5; }
 .official-scoreboard-guide-steps div { display: grid; gap: 6px; padding: 14px; border: 1px solid rgba(245,200,106,.16); border-radius: 18px; background: linear-gradient(135deg, rgba(245,200,106,.08), rgba(0,0,0,.12)); }
 .official-scoreboard-guide-steps strong { color: var(--gold); font-size: .84rem; font-weight: 950; letter-spacing: .04em; text-transform: uppercase; }
 .official-scoreboard-guide-steps span { color: var(--muted); font-size: .94rem; line-height: 1.45; }
+.official-week-slots-card { display: grid; gap: 16px; }
+.official-week-slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.official-week-slot { display: grid; gap: 8px; align-content: start; min-height: 142px; padding: 15px; border: 1px solid rgba(255,255,255,.1); border-radius: 18px; background: rgba(255,255,255,.045); }
+.official-week-slot.filled { border-color: rgba(245,200,106,.2); background: linear-gradient(140deg, rgba(245,200,106,.1), rgba(16,96,82,.08)); }
+.official-week-slot > span { width: fit-content; padding: 5px 8px; border: 1px solid rgba(245,200,106,.22); border-radius: 999px; color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.official-week-slot a, .official-week-slot strong { color: var(--ink); font-size: 1rem; font-weight: 950; line-height: 1.2; text-decoration: none; }
+.official-week-slot a:hover, .official-week-slot a:focus-visible { color: var(--gold); }
+.official-week-slot small { color: var(--muted); font-size: .82rem; font-weight: 800; line-height: 1.4; }
 .official-scoreboard-row { min-height: auto; grid-template-columns: minmax(88px, auto) minmax(0, 1fr) minmax(160px, auto); align-items: start; }
 .official-scoreboard-status, .official-scoreboard-main, .official-scoreboard-next-step { display: grid; gap: 6px; min-width: 0; }
 .official-scoreboard-status small { color: var(--muted); font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
@@ -331,7 +339,7 @@ p { color: var(--muted); line-height: 1.5; }
 .official-scoreboard-podium b { color: var(--gold); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
 .official-scoreboard-podium span { min-width: 0; color: var(--ink); font-size: .82rem; font-weight: 950; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .official-scoreboard-podium small { text-align: right; }
-@media (max-width: 760px) { .official-scoreboard-guide-steps { grid-template-columns: 1fr; } .official-scoreboard-row { grid-template-columns: 1fr; align-items: start; } .official-scoreboard-next-step { justify-items: start; text-align: left; } .official-scoreboard-podium li { grid-template-columns: 1fr; gap: 3px; } .official-scoreboard-podium small { text-align: left; } }
+@media (max-width: 760px) { .official-scoreboard-guide-steps, .official-week-slots { grid-template-columns: 1fr; } .official-scoreboard-row { grid-template-columns: 1fr; align-items: start; } .official-scoreboard-next-step { justify-items: start; text-align: left; } .official-scoreboard-podium li { grid-template-columns: 1fr; gap: 3px; } .official-scoreboard-podium small { text-align: left; } }
 .auth-reassurance-grid { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .auth-reassurance-grid span { padding: 8px 10px; border-radius: 999px; border: 1px solid rgba(96,240,175,.26); background: rgba(96,240,175,.1); color: var(--green); font-size: .82rem; font-weight: 900; }
 .support-launch-hero { display: grid; justify-items: center; text-align: center; }

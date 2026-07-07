@@ -22,6 +22,7 @@ export default async function ScoreboardPage() {
   const finishedOfficial = officialQuests.filter((quest) => getQuestStatus(quest.startAt, quest.endAt) === "Finished");
   const latestFinished = finishedOfficial.slice(0, 3);
   const weeklyArchive = buildOfficialWeeks(finishedOfficial.slice(3));
+  const officialWeekSlots = buildOfficialWeekSlots(currentOfficial);
 
   return (
     <main className="site-shell">
@@ -65,6 +66,35 @@ export default async function ScoreboardPage() {
               <strong>3. Review the receipt</strong>
               <span>Final podiums link back to the quest so proof trails and reward context stay inspectable.</span>
             </div>
+          </div>
+        </section>
+
+        <section className="mission-card official-week-slots-card" aria-label="Official weekly Multiplayer Side Quest slots">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Weekly official set</span>
+              <h2>Easy, medium, and hard official Multiplayer Side Quests.</h2>
+              <p>The mobile app frames this screen around three official Multiplayer Side Quests each week. The web route now exposes those slots directly before the full leaderboard lists.</p>
+            </div>
+            <span className="badge gold">{officialWeekSlots.filter((slot) => slot.quest).length}/3 live</span>
+          </div>
+          <div className="official-week-slots">
+            {officialWeekSlots.map((slot) => (
+              <article className={slot.quest ? "official-week-slot filled" : "official-week-slot"} key={slot.label}>
+                <span>{slot.label}</span>
+                {slot.quest ? (
+                  <>
+                    <Link href={`/groupquests/${slot.quest.id}`}>{slot.quest.name}</Link>
+                    <small>{getQuestStatus(slot.quest.startAt, slot.quest.endAt)} · {slot.quest.providerLabel} · {slot.quest.participants.length} player{slot.quest.participants.length === 1 ? "" : "s"}</small>
+                  </>
+                ) : (
+                  <>
+                    <strong>Waiting for next official quest</strong>
+                    <small>This slot appears automatically when the next official weekly set is available.</small>
+                  </>
+                )}
+              </article>
+            ))}
           </div>
         </section>
 
@@ -183,6 +213,14 @@ function OfficialQuestRow({ compact = false, final = false, quest, viewerUserId 
       </div>
     </article>
   );
+}
+
+function buildOfficialWeekSlots(quests: ServerGroupQuest[]) {
+  const labels = ["Easy", "Medium", "Hard"];
+  return labels.map((label, index) => ({
+    label,
+    quest: quests[index] ?? null,
+  }));
 }
 
 function getPodiumRows(quest: ServerGroupQuest) {
