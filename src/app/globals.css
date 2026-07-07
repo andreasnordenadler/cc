@@ -97,6 +97,16 @@ button, input { font: inherit; }
 .mobile-app-menu-item.active .mobile-app-menu-glyph { border-color: rgba(245,200,106,.36); background: rgba(245,200,106,.16); color: var(--ink); }
 .mobile-app-menu-item:hover, .mobile-app-menu-item:focus-visible { border-color: rgba(245,200,106,.36); color: var(--ink); outline: none; }
 .mobile-tab-dock { display: none; }
+.app-source-nav { width: min(460px, calc(100% - 28px)); margin-bottom: 12px; border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
+.app-source-nav .site-nav-inner { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 0; }
+.app-source-nav-menu { width: auto; overflow: visible; }
+.app-source-nav .mobile-app-menu { display: block; }
+.app-source-nav .mobile-app-menu summary { width: 40px; min-height: 40px; justify-content: center; padding: 0; border-color: rgba(255,247,232,.16); border-radius: 999px; background: rgba(6,5,7,.58); color: var(--ink); box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+.app-source-nav .mobile-app-menu summary strong { display: none; }
+.app-source-nav .mobile-app-menu-panel { left: 0; right: auto; width: min(268px, calc(100vw - 28px)); padding: 4px; border-color: rgba(245,200,106,.16); border-radius: 13px; background: rgba(78,54,33,.93); box-shadow: 0 10px 28px rgba(0,0,0,.2); }
+.app-source-nav .mobile-app-menu-item { min-height: 34px; grid-template-columns: 34px minmax(0, 1fr); gap: 7px; padding: 5px 9px; border: 0; border-radius: 9px; background: transparent; color: var(--ink); font-size: 11.5px; }
+.app-source-nav .mobile-app-menu-item.active { background: rgba(245,200,106,.14); color: var(--ink); }
+.app-source-nav .mobile-app-menu-glyph { border: 0; background: transparent; color: var(--gold); }
 .site-footer { width: min(1120px, 92vw); margin: 34px auto 22px; padding: 18px 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,.1); color: var(--muted); }
 .site-footer span { font-size: .82rem; font-weight: 800; letter-spacing: .02em; }
 .site-footer nav { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -1989,7 +1999,7 @@ p { color: var(--muted); line-height: 1.5; }
 /* Mobile launch polish: scoped to phone widths so the desktop launch-candidate UI stays intact. */
 @media (max-width: 620px) {
   html { scroll-padding-top: 96px; }
-  .site-shell { padding: 10px; padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  .site-shell { padding: 10px; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
   .site-nav { top: 8px; margin-bottom: 14px; border-radius: 22px; }
   .site-nav-inner { flex-direction: column; align-items: stretch; gap: 8px; padding: 8px; }
   .nav-links { display: flex; flex-wrap: nowrap; overflow-x: auto; width: 100%; gap: 5px; scrollbar-width: none; }
@@ -2014,7 +2024,10 @@ p { color: var(--muted); line-height: 1.5; }
   .softer-site-nav .mobile-app-menu summary { width: 42px; min-height: 42px; justify-content: center; padding: 0; border-radius: 21px; background: rgba(6,5,7,.68); box-shadow: 0 10px 28px rgba(0,0,0,.34); backdrop-filter: blur(14px); }
   .softer-site-nav .mobile-app-menu summary strong { display: none; }
   .softer-site-nav .mobile-app-menu-panel { left: 0; right: auto; width: min(320px, calc(100vw - 24px)); }
-  .mobile-tab-dock { position: fixed; left: 10px; right: 10px; bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 41; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 7px; border: 1px solid rgba(255,255,255,.11); border-radius: 24px; background: rgba(8,7,9,.88); box-shadow: 0 18px 54px rgba(0,0,0,.46); backdrop-filter: blur(18px); }
+  .mobile-tab-dock { display: none; }
+  .softer-site-nav.app-source-nav .nav-links { display: flex; }
+  .softer-site-nav.app-source-nav .nav-actions { display: flex; width: auto; }
+  .softer-site-nav.app-source-nav .nav-actions > :not(.mobile-app-menu) { display: revert !important; }
   .mobile-tab-item { min-width: 0; min-height: 58px; display: grid; align-content: center; justify-items: center; gap: 4px; padding: 5px 3px; border: 1px solid transparent; border-radius: 18px; color: rgba(255,247,232,.62); text-align: center; font-size: 9px; font-weight: 950; line-height: 1.05; }
   .mobile-tab-item.active { border-color: rgba(245,200,106,.28); background: rgba(245,200,106,.13); color: var(--gold); }
   .mobile-tab-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 999px; color: var(--gold); font-size: 10px; font-weight: 1000; letter-spacing: 0; line-height: 1; }
