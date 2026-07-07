@@ -242,6 +242,80 @@ export function MobileSoloSideQuestsScreen({
   );
 }
 
+export function MobileSimpleScreen({
+  eyebrow,
+  title,
+  body,
+  primaryAction,
+  secondaryAction,
+  rows,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  primaryAction?: { label: string; href: string };
+  secondaryAction?: { label: string; href: string };
+  rows?: Array<{ title: string; meta: string; status: string; href: string }>;
+}) {
+  return (
+    <div className="sqc-stack">
+      <section className="sqc-panel hero">
+        <span className="sqc-eyebrow">{eyebrow}</span>
+        <h1>{title}</h1>
+        <p>{body}</p>
+        {primaryAction || secondaryAction ? (
+          <div className="sqc-action-pair one-or-two">
+            {secondaryAction ? <Link href={secondaryAction.href} className="sqc-secondary-action">{secondaryAction.label}</Link> : null}
+            {primaryAction ? <Link href={primaryAction.href} className="sqc-primary-action">{primaryAction.label}</Link> : null}
+          </div>
+        ) : null}
+      </section>
+
+      {rows?.length ? (
+        <section className="sqc-panel list">
+          <div className="sqc-catalog">
+            {rows.map((row) => (
+              <AppRow key={`${row.title}-${row.href}`} {...row} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
+export function MobileCreateMultiplayerScreen() {
+  const fields = [
+    { label: "Quest name", value: "Friday night no-castle table" },
+    { label: "Invite mode", value: "Invite link or code" },
+    { label: "Games allowed", value: "Lichess or Chess.com" },
+    { label: "Time window", value: "Starts now · ends in 7 days" },
+    { label: "Included Side Quests", value: "Choose up to 4 Solo Side Quests" },
+  ];
+
+  return (
+    <div className="sqc-stack">
+      <section className="sqc-panel hero">
+        <span className="sqc-eyebrow">Create Multiplayer Side Quest</span>
+        <h1>Start a shared Multiplayer Side Quest</h1>
+        <p>Choose the quests, time window, provider rules, and invite settings before players join.</p>
+      </section>
+
+      <section className="sqc-panel list">
+        <div className="sqc-form-list">
+          {fields.map((field) => (
+            <label key={field.label} className="sqc-form-row">
+              <span>{field.label}</span>
+              <input readOnly value={field.value} aria-label={field.label} />
+            </label>
+          ))}
+        </div>
+        <Link href="/multiplayer" className="sqc-primary-action">Create Multiplayer Side Quest</Link>
+      </section>
+    </div>
+  );
+}
+
 function FlowStep({ title, body }: { title: string; body: string }) {
   return (
     <div className="sqc-flow-step">

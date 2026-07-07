@@ -352,6 +352,10 @@ body::after {
   gap: 8px;
 }
 
+.sqc-action-pair.one-or-two:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+
 .sqc-primary-action,
 .sqc-secondary-action {
   min-height: 43px;
@@ -666,6 +670,36 @@ body::after {
   color: var(--paper);
   font-size: 18px;
   line-height: 1.1;
+}
+
+.sqc-form-list {
+  display: grid;
+  gap: 9px;
+}
+
+.sqc-form-row {
+  display: grid;
+  gap: 6px;
+}
+
+.sqc-form-row span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.sqc-form-row input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(255, 247, 232, .13);
+  border-radius: 14px;
+  background: rgba(6, 5, 7, .35);
+  color: var(--paper);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  padding: 0 12px;
 }
 
 @media (min-width: 780px) {
