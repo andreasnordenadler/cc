@@ -34,13 +34,13 @@ export default async function MultiplayerPage() {
         title="Same nonsense, now with witnesses."
         body="Join official tables, discover community tables, or create a shared Side Quest for friends."
         primaryAction={{ label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest" }}
-        secondaryAction={{ label: "Browse Official Tables", href: "/groupquests/public" }}
+        secondaryAction={{ label: "Browse Official Tables", href: "/multiplayer-side-quests" }}
         rows={[
           {
             title: "No active Multiplayer Side Quests",
             meta: "Join or host shared challenges with friends.",
             status: "Explore",
-            href: "/groupquests/public",
+            href: "/multiplayer-side-quests",
           },
           {
             title: "Create a Multiplayer Side Quest",
