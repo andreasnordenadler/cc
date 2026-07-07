@@ -78,6 +78,7 @@ Shared launch gates:
 - Capture fresh store screenshots from the current candidate, not older web-parity screenshots.
 - Create store listing copy and review notes.
 - Run authenticated smoke against production backend immediately before submission.
+- Submission pack draft exists at `docs/SQC_MOBILE_STORE_SUBMISSION_PACK_2026-07-07.md`.
 
 ## Recommended Next Order
 
