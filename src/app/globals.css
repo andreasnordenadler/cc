@@ -1138,9 +1138,21 @@ p { color: var(--muted); line-height: 1.5; }
 .groupquests-participant.blue { border-color: rgba(118,169,255,.28); background: rgba(118,169,255,.08); }
 .groupquests-feed-list p { padding: 12px; border-left: 3px solid rgba(245,200,106,.72); border-radius: 0 16px 16px 0; background: rgba(0,0,0,.18); color: var(--ink); font-weight: 850; }
 .groupquests-rules-card { scroll-margin-top: 110px; background: radial-gradient(circle at 10% 0%, rgba(255,95,159,.2), transparent 32%), rgba(255,255,255,.075); }
+.groupquests-learn-panel { display: grid; gap: 0; border: 1px solid rgba(255,255,255,.11); border-radius: 24px; background: rgba(255,255,255,.06); overflow: hidden; }
+.groupquests-learn-panel > summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 14px; align-items: center; padding: 17px 18px; cursor: pointer; list-style: none; }
+.groupquests-learn-panel > summary::-webkit-details-marker { display: none; }
+.groupquests-learn-panel > summary strong { color: var(--ink); font-size: clamp(1.05rem, 2vw, 1.35rem); font-weight: 1000; line-height: 1.08; }
+.groupquests-learn-panel > summary small { color: var(--muted); font-size: .82rem; font-weight: 850; }
+.groupquests-learn-panel > summary::after { content: "Open"; justify-self: end; border: 1px solid rgba(245,200,106,.26); border-radius: 999px; padding: 7px 10px; background: rgba(245,200,106,.12); color: var(--gold); font-size: .72rem; font-weight: 950; letter-spacing: .08em; text-transform: uppercase; }
+.groupquests-learn-panel[open] > summary { border-bottom: 1px solid rgba(255,255,255,.1); }
+.groupquests-learn-panel[open] > summary::after { content: "Hide"; }
+.groupquests-learn-content { display: grid; gap: 14px; padding: 14px; }
 
 @media (max-width: 760px) {
   .groupquests-status-strip, .groupquests-dashboard-grid { grid-template-columns: 1fr; }
+  .groupquests-learn-panel > summary { grid-template-columns: minmax(0, 1fr) auto; }
+  .groupquests-learn-panel > summary .eyebrow { grid-column: 1 / -1; }
+  .groupquests-learn-panel > summary small { grid-column: 1 / -1; }
   .groupquests-participant { grid-template-columns: auto minmax(0, 1fr); }
   .groupquests-participant > div:last-child { grid-column: 2; }
   .groupquests-participant em { text-align: left; }

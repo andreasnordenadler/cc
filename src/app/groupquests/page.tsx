@@ -108,6 +108,68 @@ function buildOfficialWeeks(quests: ServerGroupQuest[]) {
   return Array.from(weekMap.values()).sort((a, b) => b.id.localeCompare(a.id));
 }
 
+function MultiplayerLearnPanel() {
+  return (
+    <details className="groupquests-learn-panel">
+      <summary>
+        <span className="eyebrow">Learn</span>
+        <strong>What Multiplayer Side Quests are</strong>
+        <small>Open the educational overview.</small>
+      </summary>
+      <div className="groupquests-learn-content">
+        <section className="groupquests-story-card" aria-label="What Multiplayer Side Quests are">
+          <div>
+            <h2>A tiny chess tournament for bad ideas.</h2>
+            <p>
+              One player creates the Multiplayer Side Quest, everyone agrees on rules, then SQC checks fresh public games for each player.
+            </p>
+          </div>
+          <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
+            <Image alt="Noble players during a Multiplayer Side Quest" className="groupquests-knight-competition-art" height={1024} priority={false} src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png" width={1024} />
+          </div>
+        </section>
+
+        <section className="groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
+          <div className="section-head">
+            <div>
+              <h2>Create. Invite. Play. Prove.</h2>
+            </div>
+          </div>
+          <div className="groupquests-how-grid">
+            {overviewSteps.map((step, index) => {
+              const content = (
+                <>
+                  <strong>{index + 1}</strong>
+                  <span>{step.title}</span>
+                  <p>{step.copy}</p>
+                </>
+              );
+
+              return step.href ? (
+                <Link className="groupquests-how-step clickable" href={step.href} key={step.title}>
+                  {content}
+                </Link>
+              ) : (
+                <article className="groupquests-how-step" key={step.title}>
+                  {content}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Multiplayer Side Quest completion rules">
+          <span className="eyebrow">Proof rule</span>
+          <h2>Personal proof and multiplayer proof are different ledgers.</h2>
+          <p>
+            Finishing a Side Quest alone still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified table progress, and multiplayer celebration.
+          </p>
+        </section>
+      </div>
+    </details>
+  );
+}
+
 export default async function GroupQuestsPage({ searchParams }: { searchParams?: Promise<{ inviteKey?: string }> }) {
   const { userId } = await auth();
   const resolvedSearchParams = await searchParams;
@@ -219,39 +281,6 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
 
         {userId ? (
           <>
-            <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
-              <div className="section-head">
-                <div>
-                  <span className="eyebrow">Multiplayer Side Quest flow</span>
-                  <h2>Create. Invite. Play. Prove.</h2>
-                </div>
-              </div>
-              <div className="groupquests-how-grid">
-                {overviewSteps.map((step, index) => {
-                  const content = (
-                    <>
-                      <strong>{index + 1}</strong>
-                      <span>{step.title}</span>
-                      <p>{step.copy}</p>
-                    </>
-                  );
-
-                  return step.href ? (
-                    <Link className="groupquests-how-step clickable" href={step.href} key={step.title}>
-                      {content}
-                    </Link>
-                  ) : (
-                    <article className="groupquests-how-step" key={step.title}>
-                      {content}
-                    </article>
-                  );
-                })}
-              </div>
-              <div className="groupquests-create-cta-row">
-                <Link className="button primary" href="/groupquests/create">Create New Multiplayer Side Quest</Link>
-              </div>
-            </section>
-
             <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
@@ -280,14 +309,6 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                 </div>
               </div>
               <GroupQuestInviteKeyJoin initialInviteKey={inviteKey} isSignedIn={Boolean(userId)} />
-            </section>
-
-            <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Multiplayer Side Quest completion rules">
-              <span className="eyebrow">Proof rule</span>
-              <h2>Personal proof and multiplayer proof are different ledgers.</h2>
-              <p>
-                Finishing a Solo Side Quest still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified challenge progress, and multiplayer celebration.
-              </p>
             </section>
 
             <section className="mission-card groupquests-user-overview" id="my-multiplayer-side-quests" aria-label="Your Multiplayer Side Quests overview">
@@ -464,24 +485,11 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
                 </section>
               </div>
             </section>
+
+            <MultiplayerLearnPanel />
           </>
         ) : (
           <>
-            <section className="mission-card groupquests-story-card" aria-label="What Multiplayer Side Quests are">
-              <div>
-                <h2>A shared run with proof everyone can trust.</h2>
-                <p>
-                  Multiplayer Side Quests turn normal chess nights into a shared challenge: one player hosts, everyone reviews the Side Quest stack and game rules, then SQC checks real Lichess or Chess.com games for valid proof.
-                </p>
-                <p>
-                  Each Multiplayer Side Quest has its own deadline, leaderboard, proof feed, and winner moment. Your personal coat of arms still matters, but Multiplayer standings only count proof earned inside that shared event.
-                </p>
-              </div>
-              <div className="groupquests-process-graphic" aria-label="Multiplayer Side Quest process graphic">
-                <Image alt="Noble players during a Multiplayer Side Quest" className="groupquests-knight-competition-art" height={1024} priority={false} src="/illustrations/multiplayer-side-quests-noble-chaos-coat-style.png" width={1024} />
-              </div>
-            </section>
-
             <section className="mission-card groupquests-table-guide-card" aria-label="Choose a Multiplayer Side Quest">
               <div className="section-head compact">
                 <div>
@@ -592,46 +600,7 @@ export default async function GroupQuestsPage({ searchParams }: { searchParams?:
           </>
         )}
 
-        {!userId ? (
-          <>
-            <section className="mission-card groupquests-how-card" id="group-side-quest-flow" aria-label="How Multiplayer Side Quests work">
-              <div className="section-head">
-                <div>
-                  <h2>Create. Invite. Play. Prove.</h2>
-                </div>
-              </div>
-              <div className="groupquests-how-grid">
-                {overviewSteps.map((step, index) => {
-                  const content = (
-                    <>
-                      <strong>{index + 1}</strong>
-                      <span>{step.title}</span>
-                      <p>{step.copy}</p>
-                    </>
-                  );
-
-                  return step.href ? (
-                    <Link className="groupquests-how-step clickable" href={step.href} key={step.title}>
-                      {content}
-                    </Link>
-                  ) : (
-                    <article className="groupquests-how-step" key={step.title}>
-                      {content}
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section className="mission-card groupquests-rules-card" id="group-side-quest-proof-rule" aria-label="Multiplayer Side Quest completion rules">
-              <span className="eyebrow">Proof rule</span>
-              <h2>Personal proof and multiplayer proof are different ledgers.</h2>
-              <p>
-                Finishing a Solo Side Quest still counts for your account. Finishing it inside a Multiplayer Side Quest requires fresh Multiplayer Side Quest-valid proof: joined participant, eligible window, matching game rules, verified challenge progress, and multiplayer celebration.
-              </p>
-            </section>
-          </>
-        ) : null}
+        {!userId ? <MultiplayerLearnPanel /> : null}
       </div>
     </main>
   );
