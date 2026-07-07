@@ -112,9 +112,12 @@ export default function MobileAppWebShell({
 
 function GuestHome() {
   return (
-    <div className="sqc-stack">
-      <section className="sqc-guest-hero" aria-label="Side Quest Chess introduction">
-        <MobileAssetMark className="sqc-quest-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={176} glowSize={220} />
+    <div className="sqc-fresh-shell">
+      <div className="sqc-fresh-guest-coat-wrap" aria-hidden="true">
+        <Image className="sqc-fresh-guest-coat-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-fresh-guest-coat" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+      <section className="sqc-fresh-panel-centered" aria-label="Side Quest Chess introduction">
         <h2>Sign in to continue.</h2>
         <p>
           Chess, but with stupidly hard side quests — solo or multiplayer. Browse the live boards first;
@@ -125,16 +128,6 @@ function GuestHome() {
           <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>
         </div>
         <Link href="/account" className="sqc-primary-action">Choose sign-in method</Link>
-      </section>
-
-      <section className="sqc-panel">
-        <span className="sqc-eyebrow">What happens after sign-in</span>
-        <h2>A tiny ritual, not another chess dashboard.</h2>
-        <div className="sqc-flow">
-          <FlowStep title="Choose solo or multiplayer" body="Start one Side Quest for yourself, or join a shared table when the bad idea deserves witnesses." />
-          <FlowStep title="Play where you already play" body="Use a normal public Lichess or Chess.com game. SQC never asks for chess-site passwords." />
-          <FlowStep title="Get the receipt" body="SQC checks your latest public game and updates proof, progress, and leaderboard results." />
-        </div>
       </section>
     </div>
   );
@@ -295,48 +288,110 @@ export function MobileSimpleScreen({
 }
 
 export function MobileCreateMultiplayerScreen() {
-  const fields = [
-    { label: "Quest name", value: "Friday night no-castle table" },
-    { label: "Invite mode", value: "Invite link or code" },
-    { label: "Games allowed", value: "Lichess or Chess.com" },
-    { label: "Time window", value: "Starts now · ends in 7 days" },
-    { label: "Included Side Quests", value: "Choose up to 4 Solo Side Quests" },
-  ];
-
   return (
     <div className="sqc-stack">
-      <section className="sqc-panel hero">
-        <span className="sqc-eyebrow">Create Multiplayer Side Quest</span>
-        <h1>Start a shared Multiplayer Side Quest</h1>
-        <p>Choose the quests, time window, provider rules, and invite settings before players join.</p>
+      <section className="sqc-multiplayer-detail-hero">
+        <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
+        <span className="sqc-multiplayer-kicker">Create Multiplayer Side Quest</span>
+        <h1>Start a shared Multiplayer Side Quest.</h1>
+        <p>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</p>
       </section>
 
-      <section className="sqc-panel list">
+      <section className="sqc-native-card">
         <div className="sqc-form-list">
-          <div className="sqc-create-hero-graphic" aria-hidden="true">
-            <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
+          <label className="sqc-form-row">
+            <span>Quest name</span>
+            <input readOnly value="" placeholder="Name this Multiplayer Side Quest" aria-label="Quest name" />
+            <small>Required. Make it clear enough that players know what they are joining.</small>
+          </label>
+          <label className="sqc-form-row">
+            <span>Intro text</span>
+            <textarea readOnly placeholder="Explain what players are joining..." aria-label="Intro text" />
+            <small>Shown to players before they join.</small>
+          </label>
+          <span className="sqc-form-label">Access</span>
+          <div className="sqc-option-grid">
+            <OptionCard title="Public" helper="Visible in the public Multiplayer catalog." selected />
+            <OptionCard title="Unlisted link" helper="Anyone with the invite link can open it." />
+            <OptionCard title="Private key" helper="Players need the invite code." />
           </div>
-          {fields.map((field) => (
-            <label key={field.label} className="sqc-form-row">
-              <span>{field.label}</span>
-              <input readOnly value={field.value} aria-label={field.label} />
-            </label>
-          ))}
+          <span className="sqc-form-label">Games allowed</span>
+          <div className="sqc-option-grid">
+            <OptionCard title="Lichess or Chess.com" helper="Players can use Lichess or Chess.com." selected />
+            <OptionCard title="Lichess" helper="Only public Lichess games." />
+            <OptionCard title="Chess.com" helper="Only public Chess.com games." />
+          </div>
+          <label className="sqc-form-row">
+            <span>Start</span>
+            <input readOnly value="A few minutes from now" aria-label="Start" />
+            <small>Defaults to a few minutes from now so players can join before games count.</small>
+          </label>
+          <label className="sqc-form-row">
+            <span>End</span>
+            <input readOnly value="7 days after start" aria-label="End" />
+          </label>
+          <span className="sqc-form-label">Quick duration</span>
+          <div className="sqc-filter-row">
+            <span>1 day</span>
+            <span className="active">7 days</span>
+            <span>14 days</span>
+          </div>
+          <Link href="/create-multiplayer-side-quest" className="sqc-quiet-button">Advanced: time, rated, color</Link>
         </div>
-        <Link href="/multiplayer" className="sqc-primary-action">Create Multiplayer Side Quest</Link>
+      </section>
+
+      <section className="sqc-native-card">
+        <span className="sqc-card-eyebrow">Included Side Quests</span>
+        <div className="sqc-create-selection-head">
+          <div>
+            <h2>Your Multiplayer draft</h2>
+            <p>0/4 Side Quests selected</p>
+          </div>
+        </div>
+        <div className="sqc-selection-empty">
+          <strong>No Side Quests selected yet.</strong>
+          <span>Search or browse below, then tap rows to add them here.</span>
+        </div>
+      </section>
+
+      <section className="sqc-native-card">
+        <span className="sqc-card-eyebrow">Add from catalog</span>
+        <h2>Browse like Community Side Quests.</h2>
+        <label className="sqc-search-shell">
+          <input readOnly placeholder="Search Side Quests" aria-label="Search Side Quests" />
+        </label>
+        <div className="sqc-filter-row">
+          <span className="active">Browse</span>
+          <span>Selected (0)</span>
+        </div>
+        <div className="sqc-tabs" role="tablist" aria-label="Choose Side Quest source">
+          <Link href="/create-multiplayer-side-quest" className="active" role="tab" aria-selected="true">Official (13)</Link>
+          <Link href="/create-multiplayer-side-quest" role="tab" aria-selected="false">Community (0)</Link>
+        </div>
+        <div className="sqc-catalog">
+          <AppRow title="Any Game Counts" meta="Play any finished game — win, lose, or draw — and complete the quest." status="Add" href="/challenges/finish-any-game" image="/mobile-source/badges/v6/proof-loop-test-badge.png" glow="/mobile-source/badges/glow/finish-any-game-glow.png" />
+          <AppRow title="Knights Before Coffee" meta="For your first four moves, only move knights — then win the game." status="Add" href="/challenges/knights-before-coffee" image="/mobile-source/badges/v6/knights-before-coffee-badge.png" glow="/mobile-source/badges/glow/knights-before-coffee-glow.png" />
+          <AppRow title="No Castle Club" meta="Win a 10+ move game without castling." status="Add" href="/challenges/no-castle-club" image="/mobile-source/badges/v4/no-castle-club-badge.png" glow="/mobile-source/badges/glow/no-castle-club-glow.png" />
+        </div>
+      </section>
+
+      <section className="sqc-create-footer-bar">
+        <div>
+          <strong>Choose at least one Side Quest</strong>
+          <span>Name the Multiplayer Side Quest before creating.</span>
+        </div>
+        <Link href="/multiplayer" className="sqc-create-footer-button">Create</Link>
       </section>
     </div>
   );
 }
 
-function FlowStep({ title, body }: { title: string; body: string }) {
+function OptionCard({ title, helper, selected = false }: { title: string; helper: string; selected?: boolean }) {
   return (
-    <div className="sqc-flow-step">
+    <div className={selected ? "sqc-option-card selected" : "sqc-option-card"}>
       <span aria-hidden="true" />
-      <div>
-        <strong>{title}</strong>
-        <p>{body}</p>
-      </div>
+      <strong>{title}</strong>
+      <small>{helper}</small>
     </div>
   );
 }
