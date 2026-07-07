@@ -12,35 +12,20 @@ type MobileAppWebShellProps = {
   chessComUsername?: string | null;
 };
 
-const menuItems = [
-  { id: "home", label: "Home", href: "/", glyph: "home" },
-  { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", glyph: "flag" },
-  { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", glyph: "groups" },
-  { id: "coats", label: "Trophy Cabinet", href: "/trophy-cabinet", glyph: "shield" },
-  { id: "custom", label: "My Custom Side Quests", href: "/my-custom-side-quests", glyph: "edit" },
-  { id: "createCustom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", glyph: "add" },
-  { id: "createMultiplayer", label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest", glyph: "add" },
-  { id: "account", label: "Sign in / Account", href: "/account", glyph: "person" },
-  { id: "support", label: "Help & Support", href: "/support", glyph: "help" },
-  { id: "community", label: "Community Side Quests", href: "/community", glyph: "flag" },
-  { id: "leaderboards", label: "Official Leaderboards", href: "/official-leaderboards", glyph: "bars" },
-  { id: "settings", label: "Settings", href: "/settings", glyph: "gear" },
-];
-
 const soloRows = [
   {
     title: "No active Solo Side Quest",
     meta: "Pick one Solo Side Quest, play a fresh public game, then check proof.",
     status: "Explore",
     href: "/side-quests",
-    image: "/sqc-logo-v11.png",
+    image: "/mobile-source/sqc-coat-of-arms.png",
   },
   {
     title: "Connect a chess username",
     meta: "SQC reads public Lichess or Chess.com games. No chess-site password needed.",
     status: "Account",
     href: "/account",
-    image: "/brand/sqc-alt-logo-topbar-20260507-v2.png",
+    image: "/mobile-source/sqc-coat-of-arms.png",
   },
 ];
 
@@ -74,6 +59,17 @@ export default function MobileAppWebShell({
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
   const chessIdentity = [lichessUsername, chessComUsername].filter(Boolean).join(" · ");
+  const menuItems = [
+    { id: "home", label: "Home", href: "/", glyph: "home" },
+    { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", glyph: "flag" },
+    { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", glyph: "groups" },
+    { id: "coats", label: "Trophy Cabinet", href: "/trophy-cabinet", glyph: "shield" },
+    { id: "custom", label: "My Custom Side Quests", href: "/custom-side-quests", glyph: "edit" },
+    { id: "createCustom", label: "Create Custom Side Quest", href: "/create-custom-side-quest", glyph: "add" },
+    { id: "createMultiplayer", label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest", glyph: "add" },
+    { id: "account", label: signedIn ? "My Account" : "Sign in / Account", href: "/account", glyph: "person" },
+    { id: "support", label: "Help & Support", href: "/support", glyph: "help" },
+  ];
 
   return (
     <main className="mobile-web-app-shell">

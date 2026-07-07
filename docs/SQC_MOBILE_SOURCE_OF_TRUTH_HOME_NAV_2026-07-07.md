@@ -3,6 +3,7 @@
 ## Source Inspected
 
 - `apps/mobile/App.tsx` current branch `sqc-mobile-app-web-rebuild-clean`.
+- Visual capture: `artifacts/web-rebuild/root-mobile-source-slice-2026-07-07.png`.
 - Relevant implementation:
   - `MobileShell` renders the app backdrop, scroll view, optional close button, and `GlobalHamburgerMenu` only for authenticated accounts.
   - `GlobalHamburgerMenu` defines the current main menu entries and selected states.
@@ -29,6 +30,7 @@
 - Main menu:
   - Present only for authenticated accounts in the current home shell.
   - Items are `Home`, `Solo Side Quests`, `Multiplayer Side Quests`, `Trophy Cabinet`, `My Custom Side Quests`, `Create Custom Side Quest`, `Create Multiplayer Side Quest`, `My Account` or `Sign in / Account`, and `Help & Support`.
+  - `Community Side Quests`, `Official Leaderboards`, and `Settings` are reachable product routes, but they are not in the current mobile hamburger menu source for this home/navigation slice.
 
 - Bottom navigation:
   - The `TABS` array still exists in source, but the current `MobileShell` render does not output a persistent bottom tab bar.
@@ -36,8 +38,15 @@
 
 - Brand/logo treatment:
   - The visible signed-out home uses the text title `Side Quest Chess` and the mobile `sqc-coat-of-arms.png` with `sqc-coat-generic-glow.png`.
-  - Old web topbar logo files and the old public logo treatment were not treated as visible source of truth for this slice.
+  - The current mobile shell still contains a very faint background watermark from `/sqc-logo-v11.png`, but old web topbar logo files and old public logo treatments are not visible source of truth for root home rows or navigation.
 
 ## First Web Slice Decision
 
 The first clean web slice replaced the root shell baseline only. It removed the stale topbar logo/persistent bottom dock from the clean preview root and translated the mobile signed-out/signed-in home header, menu availability, Coat of Arms hero, active Solo, active Multiplayer, and Trophy Cabinet summary structure to browser constraints.
+
+## 2026-07-07 Follow-Up Root Baseline Tightening
+
+- Removed stale root-menu entries that are not present in the current mobile hamburger menu for this source state: `Community Side Quests`, `Official Leaderboards`, and `Settings`.
+- Changed the signed-in account menu label to `My Account`, matching the authenticated mobile menu label.
+- Pointed `My Custom Side Quests` at the existing route-compatible `/custom-side-quests` web route.
+- Replaced old public/topbar logo row art in the root Solo/account rows with the verified mobile Coat of Arms source asset.
