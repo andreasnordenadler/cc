@@ -62,11 +62,13 @@ export default async function CoatOfArmsPage() {
           <div className="section-head">
             <div>
               <span className="eyebrow">Trophy Cabinet</span>
-              <h1>{userId ? "Your unified reward shelf" : "No Coat of Arms yet"}</h1>
+              <h1>Every bad idea deserves a coat of arms.</h1>
               <p>
                 {userId
-                  ? "Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
-                  : "Complete a Side Quest to unlock your first trophy."}
+                  ? earnedLiveBadgeCount
+                    ? "Earned coats stay bright. Locked coats remain visible so the next bad idea is easy to spot."
+                    : "Finish one quest and the coat of arms lands here with too much ceremony and not enough dignity."
+                  : "Sign in to sync your cabinet, then finish one quest and the coat of arms lands here."}
               </p>
             </div>
             <Link href={userId ? "/account" : "/sign-in"} className="button primary">
@@ -80,6 +82,60 @@ export default async function CoatOfArmsPage() {
             <Fact label="Proof receipts" value={userId ? `${proofReceiptCount}` : "Saved after sign-in"} />
           </div>
           <p className="microcopy trophy-cabinet-summary-copy">{unlockedSummary}</p>
+          <div className="trophy-live-roster" aria-label="Current live Side Quest Chess coats of arms">
+            {liveBadgeChallenges.map((challenge) => {
+              const earned = completedSet.has(challenge.id);
+              return (
+                <Link
+                  href={`/challenges/${challenge.id}`}
+                  className={`trophy-live-roster-item${earned ? " earned" : ""}`}
+                  key={challenge.id}
+                  aria-label={`Open ${challenge.title} quest`}
+                >
+                  <span className="trophy-live-badge-frame">
+                    <ChallengeBadge challenge={challenge} presentation="art" earned={earned} />
+                    {!earned ? <span className="trophy-live-locked-label">Locked</span> : null}
+                  </span>
+                  <strong>{challenge.title}</strong>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="trophy-meaning-list" aria-label="Live quest coat of arms meanings">
+          {liveBadgeChallenges.map((challenge) => {
+            const earned = completedSet.has(challenge.id);
+            return (
+              <Link
+                href={`/challenges/${challenge.id}`}
+                className={`trophy-meaning-card${earned ? " earned" : ""}`}
+                key={challenge.id}
+                aria-label={`Open ${challenge.title} quest`}
+              >
+                <span className="trophy-meaning-art">
+                  <ChallengeBadge challenge={challenge} presentation="art" earned={earned} />
+                </span>
+                <span className="trophy-meaning-copy">
+                  <strong>{challenge.badgeIdentity.name}</strong>
+                  <span className="trophy-meaning-rows">
+                    <span>
+                      <b>Shield</b>
+                      <em>{challenge.badgeIdentity.heraldry.shield}</em>
+                    </span>
+                    <span>
+                      <b>Meaning</b>
+                      <em>{challenge.badgeIdentity.heraldry.meaning}</em>
+                    </span>
+                    <span>
+                      <b>Side Quest</b>
+                      <em>{challenge.title}</em>
+                    </span>
+                  </span>
+                </span>
+              </Link>
+            );
+          })}
         </section>
 
         {userId && unlockedCount === 0 ? (
