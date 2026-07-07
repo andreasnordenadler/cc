@@ -16,6 +16,25 @@ export const metadata = {
 type PublicGroupQuestStatusFilter = "open" | "all" | "finished" | "joined" | "hosted";
 type PublicGroupQuestSort = "closing" | "newest" | "players" | "liked";
 
+const multiplayerCommunityStatusFilters: PublicGroupQuestStatusFilter[] = ["open", "all", "joined", "hosted", "finished"];
+const signedOutMultiplayerCommunityStatusFilters: PublicGroupQuestStatusFilter[] = ["open", "all"];
+const multiplayerCommunitySortCycle: PublicGroupQuestSort[] = ["closing", "liked", "newest", "players"];
+
+const statusFilterLabels: Record<PublicGroupQuestStatusFilter, string> = {
+  open: "Open",
+  all: "All",
+  joined: "Joined",
+  hosted: "Hosted",
+  finished: "Finished",
+};
+
+const sortLabels: Record<PublicGroupQuestSort, string> = {
+  closing: "Sort: Closing",
+  liked: "Sort: Liked",
+  newest: "Sort: New",
+  players: "Sort: Players",
+};
+
 export default async function PublicGroupQuestsPage({ searchParams }: { searchParams?: Promise<{ host?: string; q?: string; status?: string; sort?: string }> }) {
   const { userId } = await auth();
   const resolvedSearchParams = searchParams ? await searchParams : {};
@@ -43,6 +62,7 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
   const officialQuests = showOfficialLane ? filteredPublicQuests.filter((quest) => quest.official).map((quest) => toPublicQuestCard(quest, userId, likeSummaries.get("multiplayer", quest.id))) : [];
   const communityQuests = filteredPublicQuests.filter((quest) => !quest.official).map((quest) => toPublicQuestCard(quest, userId, likeSummaries.get("multiplayer", quest.id)));
   const totalQuests = officialQuests.length + communityQuests.length;
+  const availableStatusFilters = userId ? multiplayerCommunityStatusFilters : signedOutMultiplayerCommunityStatusFilters;
 
   return (
     <main className="site-shell groupquests-page">
@@ -76,23 +96,20 @@ export default async function PublicGroupQuestsPage({ searchParams }: { searchPa
             <div className="community-discovery-intro">
               <span className="eyebrow">Find a quest</span>
               <h3>Choose a Multiplayer run with the rules in view.</h3>
-              <p>Search by title, host, or provider, then inspect the proof window before joining. Private invite codes and account details stay hidden.</p>
+              <p>Search by title, host, or provider, then inspect the proof window before joining. Mobile filter states stay aligned here: signed-out players see Open and All; signed-in players also get Joined, Hosted, and Finished.</p>
             </div>
             <div className="button-row public-multiplayer-filter-row">
               <input className="text-input" type="search" name="q" defaultValue={searchQuery} placeholder="Search title, host, provider" aria-label="Search public Multiplayer Side Quests" />
               {selectedHost ? <input type="hidden" name="host" value={selectedHost} /> : null}
               <select className="text-input" name="status" defaultValue={selectedStatus} aria-label="Filter by Multiplayer status">
-                <option value="open">Open / starting</option>
-                <option value="all">All public</option>
-                {userId ? <option value="joined">Joined by me</option> : null}
-                {userId ? <option value="hosted">Hosted by me</option> : null}
-                <option value="finished">Finished</option>
+                {availableStatusFilters.map((filter) => (
+                  <option value={filter} key={filter}>{statusFilterLabels[filter]}</option>
+                ))}
               </select>
               <select className="text-input" name="sort" defaultValue={selectedSort} aria-label="Sort public Multiplayer Side Quests">
-                <option value="closing">Sort: closing soon</option>
-                <option value="newest">Sort: newest</option>
-                <option value="players">Sort: most players</option>
-                <option value="liked">Sort: most liked</option>
+                {multiplayerCommunitySortCycle.map((sort) => (
+                  <option value={sort} key={sort}>{sortLabels[sort]}</option>
+                ))}
               </select>
               <button className="button primary" type="submit">Apply filters</button>
               {(selectedHost || searchQuery || selectedStatus !== "open" || selectedSort !== "closing") ? <Link className="button secondary" href="/groupquests/public">Show all public</Link> : null}
@@ -205,8 +222,8 @@ function getHostKey(hostName: string) {
 }
 
 function getSelectedStatusFilter(value: string | undefined, signedIn: boolean): PublicGroupQuestStatusFilter {
-  if (value === "finished") return "finished";
   if (value === "all") return "all";
+  if (signedIn && value === "finished") return "finished";
   if (signedIn && value === "joined") return "joined";
   if (signedIn && value === "hosted") return "hosted";
   return "open";
