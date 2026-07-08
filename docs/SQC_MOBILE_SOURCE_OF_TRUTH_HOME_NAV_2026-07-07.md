@@ -33,6 +33,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
   - `Browse Solo Side Quests`
   - `Browse Multiplayer Side Quests`
   - `Choose sign-in method`
+- Web implementation note for 2026-07-08: the signed-out root `Choose sign-in method` CTA now links directly to `/sign-in`, matching the mobile `handleSignIn` action instead of detouring through the account companion route.
 
 ### Signed In
 

@@ -127,7 +127,7 @@ function GuestHome() {
           <Link href="/side-quests" className="sqc-secondary-action">Browse Solo Side Quests</Link>
           <Link href="/multiplayer" className="sqc-secondary-action">Browse Multiplayer Side Quests</Link>
         </div>
-        <Link href="/account" className="sqc-primary-action">Choose sign-in method</Link>
+        <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>
       </section>
     </div>
   );
