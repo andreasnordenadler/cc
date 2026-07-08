@@ -11,6 +11,9 @@ type MobileAppWebShellProps = {
   displayName?: string | null;
   lichessUsername?: string | null;
   chessComUsername?: string | null;
+  activeSoloTitle?: string | null;
+  completedSoloCount?: number;
+  proofReceiptCount?: number;
   children?: ReactNode;
 };
 
@@ -41,6 +44,9 @@ export default function MobileAppWebShell({
   displayName,
   lichessUsername,
   chessComUsername,
+  activeSoloTitle,
+  completedSoloCount = 0,
+  proofReceiptCount = 0,
   children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
@@ -100,7 +106,12 @@ export default function MobileAppWebShell({
       <section className="sqc-screen" aria-label={activeTab === "home" ? "Home" : "Current screen"}>
         {children ?? (
           signedIn ? (
-            <SignedInHome hasChessAccount={hasChessAccount} />
+            <SignedInHome
+              hasChessAccount={hasChessAccount}
+              activeSoloTitle={activeSoloTitle}
+              completedSoloCount={completedSoloCount}
+              proofReceiptCount={proofReceiptCount}
+            />
           ) : (
             <GuestHome />
           )
@@ -133,7 +144,19 @@ function GuestHome() {
   );
 }
 
-function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
+function SignedInHome({
+  hasChessAccount,
+  activeSoloTitle,
+  completedSoloCount,
+  proofReceiptCount,
+}: {
+  hasChessAccount: boolean;
+  activeSoloTitle?: string | null;
+  completedSoloCount: number;
+  proofReceiptCount: number;
+}) {
+  const hasActiveSolo = Boolean(activeSoloTitle);
+
   return (
     <div className="sqc-stack">
       {!hasChessAccount ? (
@@ -151,11 +174,11 @@ function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
           <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} />
           <div>
             <p className="sqc-pill">Active Solo Side Quest</p>
-            <h2>Choose a Solo Side Quest</h2>
-            <p>Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof.</p>
+            <h2>{activeSoloTitle ?? "Choose a Solo Side Quest"}</h2>
+            <p>{hasActiveSolo ? "Play a new public game on Lichess or Chess.com, then come back for automatic proof." : "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof."}</p>
           </div>
         </div>
-        <Link href="/side-quests" className="sqc-primary-action fit">Explore Solo Side Quests</Link>
+        <Link href="/side-quests" className="sqc-primary-action fit">{hasActiveSolo ? "Explore More Solo Side Quests" : "Explore Solo Side Quests"}</Link>
       </section>
 
       <div className="sqc-refresh-hint" aria-hidden="true">
@@ -181,7 +204,13 @@ function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
           <p className="sqc-pill">Trophy Cabinet</p>
         </div>
         <div className="sqc-row-list">
-          <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" image={mobileAsset.coat} />
+          <AppRow
+            title={completedSoloCount ? `${completedSoloCount} Coat of Arms unlocked` : "No Coat of Arms yet"}
+            meta={completedSoloCount ? `${proofReceiptCount} proof receipt${proofReceiptCount === 1 ? "" : "s"} recorded.` : "Complete a Side Quest to unlock your first trophy."}
+            status={completedSoloCount ? "Open" : "Explore"}
+            href={completedSoloCount ? "/trophy-cabinet" : "/side-quests"}
+            image={mobileAsset.coat}
+          />
         </div>
         <Link href="/trophy-cabinet" className="sqc-secondary-action full">Open Trophy Cabinet</Link>
       </section>
