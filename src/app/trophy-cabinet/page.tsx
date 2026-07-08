@@ -1,12 +1,20 @@
-import MobileAppWebShell, { MobileSimpleScreen } from "@/components/mobile-app-web-shell";
-import { currentUser } from "@clerk/nextjs/server";
+import MobileAppWebShell, { MobileTrophyCabinetScreen } from "@/components/mobile-app-web-shell";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
+import { CHALLENGES } from "@/lib/challenges";
+import { getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getChallengeAttempts, getChallengeProgress } from "@/lib/user-metadata";
 
 export default async function TrophyCabinetPage() {
   noStore();
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const progress = getChallengeProgress(metadata);
+  const proofReceiptCount = getChallengeAttempts(metadata).length;
+  const trophyRows = user
+    ? await getMobileWebTrophyRows(await clerkClient(), user.id, progress.completedChallengeIds, 12)
+    : [];
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -24,19 +32,11 @@ export default async function TrophyCabinetPage() {
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
     >
-      <MobileSimpleScreen
-        eyebrow="Trophy Cabinet"
-        title="No Coat of Arms yet"
-        body="Complete a Side Quest to unlock your first trophy."
-        primaryAction={{ label: "Explore Solo Side Quests", href: "/side-quests" }}
-        rows={[
-          {
-            title: "No Coat of Arms yet",
-            meta: "Complete a Side Quest to unlock your first trophy.",
-            status: "Explore",
-            href: "/side-quests",
-          },
-        ]}
+      <MobileTrophyCabinetScreen
+        trophyRows={trophyRows}
+        completedSoloCount={progress.totalCompletedChallenges}
+        proofReceiptCount={proofReceiptCount}
+        officialSoloCount={CHALLENGES.length}
       />
     </MobileAppWebShell>
   );

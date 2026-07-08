@@ -51,6 +51,7 @@ type TrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
+  source?: "multiplayer" | "solo";
 };
 
 const menuItems = [
@@ -362,23 +363,24 @@ export function MobileSoloSideQuestsScreen({
   });
 
   return (
-    <div className="sqc-stack">
-      <section className="sqc-panel hero">
-        <span className="sqc-eyebrow">Solo Side Quests</span>
-        <h1>Official Side Quests</h1>
-        <p>Pick one Solo Side Quest at a time. After you choose it, play a new public Lichess or Chess.com game so Side Quest Chess has a fresh game to check.</p>
-        <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
-          <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
-          <Link href="/community-side-quests" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
-            <span aria-hidden="true" />
-          </Link>
-          <Link href="/community-side-quests" className="sqc-brand-tab community" role="tab" aria-selected="false">Community Side Quests</Link>
-        </div>
-      </section>
+    <div className="sqc-stack sqc-catalog-screen">
+      <div className="sqc-screen-emblem solo" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+
+      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
+        <Link href="/community-side-quests" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
+          <span aria-hidden="true" />
+        </Link>
+        <Link href="/community-side-quests" className="sqc-brand-tab community" role="tab" aria-selected="false">Community Side Quests</Link>
+      </div>
 
       <section className="sqc-panel list">
-        <div className="sqc-list-head">
-          <h2>{sortedChallenges.length} official Side Quests</h2>
+        <div className="sqc-list-head inline">
+          <h2>Official Side Quests</h2>
+          <span>{sortedChallenges.length} official</span>
         </div>
         <div className="sqc-catalog">
           {sortedChallenges.map((challenge) => (
@@ -411,13 +413,18 @@ export function MobileSimpleScreen({
   body: string;
   primaryAction?: { label: string; href: string };
   secondaryAction?: { label: string; href: string };
-  rows?: Array<{ title: string; meta: string; status: string; href: string }>;
+  rows?: Array<{ title: string; meta: string; status: string; href: string; image?: string | null; glow?: string | null; statusImage?: string | null }>;
 }) {
   return (
-    <div className="sqc-stack">
-      <section className="sqc-panel hero">
-        <span className="sqc-eyebrow">{eyebrow}</span>
-        <h1>{title}</h1>
+    <div className="sqc-stack sqc-simple-screen">
+      <div className="sqc-screen-emblem" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+
+      <section className="sqc-native-card sqc-simple-hero">
+        <span className="sqc-card-eyebrow">{eyebrow}</span>
+        <h2>{title}</h2>
         <p>{body}</p>
         {primaryAction || secondaryAction ? (
           <div className="sqc-action-pair one-or-two">
@@ -428,14 +435,79 @@ export function MobileSimpleScreen({
       </section>
 
       {rows?.length ? (
-        <section className="sqc-panel list">
+        <section className="sqc-native-card">
           <div className="sqc-catalog">
             {rows.map((row) => (
-              <AppRow key={`${row.title}-${row.href}`} {...row} />
+              <AppRow key={`${row.title}-${row.href}`} {...row} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
             ))}
           </div>
         </section>
       ) : null}
+    </div>
+  );
+}
+
+export function MobileTrophyCabinetScreen({
+  trophyRows,
+  completedSoloCount,
+  proofReceiptCount,
+  officialSoloCount,
+}: {
+  trophyRows: TrophyRow[];
+  completedSoloCount: number;
+  proofReceiptCount: number;
+  officialSoloCount: number;
+}) {
+  const multiplayerRows = trophyRows.filter((row) => row.source === "multiplayer");
+  const soloRows = trophyRows.filter((row) => row.source !== "multiplayer");
+  const unlockedCount = trophyRows.length;
+
+  return (
+    <div className="sqc-stack sqc-trophy-screen">
+      <div className="sqc-screen-emblem trophy" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+
+      <section className="sqc-native-card" aria-label="Trophy Cabinet summary">
+        <span className="sqc-card-eyebrow">Trophy Cabinet</span>
+        <h2>{unlockedCount ? `${unlockedCount} unlocked rewards.` : "No unlocked trophies yet."}</h2>
+        <p>
+          {unlockedCount
+            ? `${completedSoloCount} Solo Side Quest coat${completedSoloCount === 1 ? "" : "s"} · ${proofReceiptCount} proof receipt${proofReceiptCount === 1 ? "" : "s"}.`
+            : "Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf."}
+        </p>
+      </section>
+
+      <section className="sqc-native-card" aria-label="Official Multiplayer Side Quest trophies">
+        <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
+        <h2>{multiplayerRows.length} podium seal{multiplayerRows.length === 1 ? "" : "s"}.</h2>
+        <div className="sqc-catalog">
+          {multiplayerRows.length ? multiplayerRows.map((row) => (
+            <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+          )) : (
+            <AppRow title="No podium seals yet" meta="Place on the podium in an official Multiplayer Side Quest to earn one here." status="Explore" href="/multiplayer" image={mobileAsset.multiplayerSeal} />
+          )}
+        </div>
+      </section>
+
+      <section className="sqc-native-card" aria-label="Unlocked Solo Side Quest rewards">
+        <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
+        <h2>{soloRows.length ? "Coats of Arms unlocked." : "No Solo coats yet."}</h2>
+        <div className="sqc-catalog">
+          {soloRows.length ? soloRows.map((row) => (
+            <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+          )) : (
+            <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" image={mobileAsset.coat} />
+          )}
+        </div>
+      </section>
+
+      <section className="sqc-native-card" aria-label="Official Solo Side Quest collection">
+        <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
+        <h2>{completedSoloCount} of {officialSoloCount} official coats unlocked.</h2>
+        <p>Locked official coats are previews. Completed Side Quests stay bright in this cabinet.</p>
+      </section>
     </div>
   );
 }
