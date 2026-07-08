@@ -271,10 +271,8 @@ body::after {
 .sqc-row-icon {
   display: grid;
   place-items: center;
-  border: 1px solid rgba(245, 200, 106, .22);
-  background:
-    linear-gradient(145deg, rgba(245, 200, 106, .22), rgba(255, 247, 232, .055)),
-    rgba(6, 5, 7, .46);
+  border: 0;
+  background: transparent;
   color: var(--gold);
 }
 
@@ -489,7 +487,7 @@ body::after {
   position: relative;
   width: 88px;
   height: 88px;
-  border-radius: 30px;
+  border-radius: 0;
 }
 
 .sqc-current-card h2,
@@ -537,17 +535,15 @@ body::after {
   position: relative;
   width: 104px;
   height: 104px;
-  border-radius: 36px;
+  border-radius: 0;
 }
 
 .sqc-section-mark.group {
   color: var(--blue);
-  border-color: rgba(118, 169, 255, .25);
 }
 
 .sqc-section-mark.trophy {
   color: var(--green);
-  border-color: rgba(96, 240, 175, .22);
 }
 
 .sqc-row-list,
@@ -573,8 +569,8 @@ body::after {
 .sqc-row-icon {
   position: relative;
   width: 38px;
-  height: 38px;
-  border-radius: 14px;
+  height: 42px;
+  border-radius: 0;
   overflow: visible;
 }
 

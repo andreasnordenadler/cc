@@ -10,6 +10,8 @@ Autonomous sprint refresh: 2026-07-08 03:53 Europe/Stockholm
 
 Clean rebuild sprint refresh: 2026-07-08 04:25 Europe/Stockholm
 
+Clean rebuild sprint refresh: 2026-07-08 04:53 Europe/Stockholm
+
 Purpose: capture the current mobile app home/navigation model before any clean web rebuild slices. The mobile app is the visible UI/product template; old web chrome, public logo treatment, and old website navigation remain suspect unless this file proves otherwise from current mobile source.
 
 ## Source Inspected
@@ -25,6 +27,8 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - 2026-07-08 cron recheck: `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the dormant function definition. Active render still mounts `GlobalHamburgerMenu` only under `isAuthenticatedAccount(displayAccount)`, so a persistent bottom dock is explicitly excluded from current web UI.
 - 2026-07-08 03:53 autonomous recheck: active shell still renders `SafeAreaView` / `ScrollView` / `ActiveScreen` at lines 1713-1771, non-home close at lines 1775-1780, and signed-in-only `GlobalHamburgerMenu` at lines 1782-1784. `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only `6395:function BottomNav(...)`; do not rebuild a persistent web bottom dock from that dormant function.
 - 2026-07-08 04:25 clean sprint recheck: active shell still renders `SafeAreaView` / `ScrollView` / `ActiveScreen`, signed-in-only `GlobalHamburgerMenu`, and non-home `FixedScreenCloseButton`. `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` still returns only the dormant `BottomNav` function definition, so current web slices must keep excluding any persistent bottom navigation.
+- 2026-07-08 04:53 clean sprint recheck: active shell remains `SafeAreaView` / `ScrollView` / `ActiveScreen` at `apps/mobile/App.tsx` 1713-1785, signed-in-only menu remains `GlobalHamburgerMenu` at 1802-1850, and signed-out/signed-in home remains 2152-2451. `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only `6395:function BottomNav(...)`; persistent web bottom navigation is still excluded.
+- 2026-07-08 04:53 coat/marker recheck: home empty Solo, Multiplayer, and Trophy Cabinet markers use image frames with soft glow layers and no solid icon plate in the active mobile path (`emptyQuestCoatWrap` 2242-2245, `multiplayerHeroMarker` 2302-2304, `trophyHeroMarker` 2395-2397, `rowCoatFrame` 3859-3875 and styles 10384-10390). Web root markers should therefore be glow-only image frames, not rounded square logo/icon backplates.
 
 ## 2026-07-08 Cron Checklist
 
@@ -36,6 +40,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - Current preview mismatch: `https://cc-knpvy8h8y-andreas-nordenadlers-projects.vercel.app` returned HTTP 200 but still served stale `mobile-web-app-shell`, `mobile-web-topbar`, old `sqc-logo-v11` / `sqc-alt-logo-topbar` visible logo treatment, and `mobile-web-tab-dock`. That preview is not an acceptable product template for new slices.
 - 2026-07-08 03:53 preview mismatch persists: HTTP 200, but HTML still contains `site-nav`, `mobile-app-menu`, `mobile-web-tab-dock`, `sqc-logo-v11`, and `sqc-alt-logo-topbar` markers. Replace that deployed baseline with a fresh preview from this clean branch before judging the rebuilt web shell.
 - 2026-07-08 04:25 action for this run: replace the stale preview proof with a fresh preview deploy from this clean branch, where the signed-out root should show the mobile-app-centered guest shell and not old web chrome, old visible logo treatment, or a persistent bottom dock.
+- 2026-07-08 04:53 current preview mismatch still confirmed: HTTP 200, but the provided preview HTML still contains `site-nav`, `mobile-app-menu`, `mobile-web-tab-dock`, `sqc-logo-v11`, and `sqc-alt-logo-topbar`. This sprint should deploy a new preview from the clean branch after the current source-truth marker cleanup.
 
 ## Current Mobile Home Model
 
@@ -114,6 +119,7 @@ Menu behavior:
 - Signed-in web root should preserve the current menu item order above.
 - Web should not add persistent bottom navigation unless a fresh mobile app capture proves the active mobile render path mounts one.
 - Public logo art should not be used as a primary header/brand mark. The only current active logo-like usage is a very faint mobile background watermark; visible product identity is text/coat/header controls.
+- Root/home coat, seal, and row markers should use the current mobile glow-only image-frame treatment. Avoid solid rounded square icon plates around coat art unless a fresh mobile capture proves one for that state.
 - Old web route composition, old nav bars, and old logo treatment should remain excluded from visible UI decisions.
 
 ## Current Clean Preview Mismatch Notes
