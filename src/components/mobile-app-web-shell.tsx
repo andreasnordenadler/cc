@@ -20,6 +20,7 @@ type MobileAppWebShellProps = {
   trophyRows?: TrophyRow[];
   completedSoloCount?: number;
   proofReceiptCount?: number;
+  modalPresentation?: boolean;
   children?: ReactNode;
 };
 
@@ -133,6 +134,7 @@ export default function MobileAppWebShell({
   trophyRows = [],
   completedSoloCount = 0,
   proofReceiptCount = 0,
+  modalPresentation = false,
   children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
@@ -149,7 +151,7 @@ export default function MobileAppWebShell({
     <main className="sqc-mobile-web" data-source="active-mobile-today-dashboard" style={shellStyle}>
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
-      {signedIn ? (
+      {modalPresentation ? null : signedIn ? (
         <>
           <details className="sqc-menu">
             <summary aria-label="Open main menu">
@@ -190,7 +192,7 @@ export default function MobileAppWebShell({
         </header>
       )}
 
-      {activeTab !== "home" ? (
+      {activeTab !== "home" || modalPresentation ? (
         <Link href="/" className="sqc-close-screen" aria-label="Close screen">
           <span aria-hidden="true" />
         </Link>
@@ -495,6 +497,85 @@ export function MobileSimpleScreen({
           </div>
         </section>
       ) : null}
+    </div>
+  );
+}
+
+export function MobileSupportScreen() {
+  const helpRows = [
+    {
+      title: "How Side Quests work",
+      body: "Pick one Solo Side Quest at a time. After you choose it, play a new public Lichess or Chess.com game so Side Quest Chess has a fresh game to check.",
+    },
+    {
+      title: "Why proof may not work yet",
+      body: "Proof checks your newest public games after you choose a Side Quest. If it does not pass, make sure the game is finished, public, played on your connected username, and matches the rule.",
+    },
+    {
+      title: "Connecting a chess username",
+      body: "Add your public Lichess or Chess.com username so Side Quest Chess knows which games belong to you. It only reads public game records and never needs your chess-site password.",
+    },
+    {
+      title: "Multiplayer Side Quests",
+      body: "Multiplayer Side Quests are shared challenges with their own rules, time window, players, and leaderboard. Join an official challenge, join a community challenge, or create one for friends.",
+    },
+    {
+      title: "Coat of Arms",
+      body: "Completing a Side Quest unlocks its Coat of Arms. Your unlocked coats stay in your account and appear in the Trophy Cabinet.",
+    },
+  ];
+
+  return (
+    <div className="sqc-stack sqc-support-screen">
+      <div className="sqc-screen-emblem support" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+
+      <section className="sqc-support-hero" aria-label="Help and Support">
+        <span className="sqc-card-eyebrow">Help & Support</span>
+        <h2>How can we help?</h2>
+        <p>New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer.</p>
+      </section>
+
+      <section className="sqc-support-quick" aria-label="Quick answers">
+        <h3>Quick answers</h3>
+        <p>Side Quest Chess checks public Lichess or Chess.com games after you choose a Side Quest or join a Multiplayer Side Quest. If proof looks wrong, wait until the game is fully finished and refresh proof.</p>
+      </section>
+
+      <details className="sqc-support-diagnostics">
+        <summary>
+          <span>
+            <b>App diagnostics</b>
+            <small>Only needed if support asks for your build details.</small>
+          </span>
+        </summary>
+        <p>Web support page. Include your browser, account email, and what you tried when reporting an issue.</p>
+      </details>
+
+      <section className="sqc-support-row-list" aria-label="Help topics">
+        {helpRows.map((row) => (
+          <article className="sqc-support-row" key={row.title}>
+            <h3>{row.title}</h3>
+            <p>{row.body}</p>
+          </article>
+        ))}
+      </section>
+
+      <section className="sqc-support-card" aria-label="Legal and privacy">
+        <span className="sqc-card-eyebrow">Legal & privacy</span>
+        <p>Read the Privacy Policy, support notes, or the Terms of Use. Side Quest Chess only asks for public chess usernames and never chess-site passwords.</p>
+        <div className="sqc-support-link-row">
+          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/support">Support & privacy</Link>
+          <Link href="/terms">Terms of Use</Link>
+        </div>
+      </section>
+
+      <section className="sqc-support-card" aria-label="Report a problem">
+        <span className="sqc-card-eyebrow">Report a problem</span>
+        <p>Something not working? Send a short note with what you tried and what happened. We can reply if we need more details.</p>
+      </section>
     </div>
   );
 }

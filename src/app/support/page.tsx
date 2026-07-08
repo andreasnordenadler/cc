@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import MobileAppWebShell, { MobileSimpleScreen } from "@/components/mobile-app-web-shell";
+import MobileAppWebShell, { MobileSupportScreen } from "@/components/mobile-app-web-shell";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -29,19 +29,15 @@ export default async function SupportPage() {
       displayName={displayName}
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
+      modalPresentation
+      theme={{
+        backgroundTop: "#352021",
+        backgroundMid: "#171011",
+        glow: "rgba(255, 122, 102, .16)",
+        accent: "rgba(255, 122, 102, .1)",
+      }}
     >
-      <MobileSimpleScreen
-        eyebrow="Help & Support"
-        title="How can we help?"
-        body="New to Side Quest Chess? Start here for Side Quests, proof, chess usernames, and Multiplayer."
-        primaryAction={{ label: "Open", href: "/account" }}
-        secondaryAction={{ label: "Browse Side Quests", href: "/side-quests" }}
-        rows={[
-          { title: "How Side Quest Chess works", meta: "Start here for Side Quests, proof, chess usernames, and Multiplayer.", status: "Open", href: "/support" },
-          { title: "Report a problem", meta: "Tell us what you tried, what happened, and where you got stuck.", status: "Open", href: "/support" },
-          { title: "Connecting a chess username", meta: "Add a public Lichess or Chess.com username first. SQC never needs your chess-site password.", status: "Open", href: "/account" },
-        ]}
-      />
+      <MobileSupportScreen />
     </MobileAppWebShell>
   );
 }
