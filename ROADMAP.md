@@ -1,9 +1,32 @@
 
 # CC Roadmap
 
+## Active queue update - 2026-07-08 SQC logged-in app/web parity sprint
+
+- [ ] Run a 16-hour high-cadence logged-in app-vs-mobile-browser parity sprint for SQC.
+  - added_at: 2026-07-08 23:40 Europe/Stockholm
+  - source: Andreas asked for a 16-hour high-cadence sprint after confirming the next useful SQC move is manual visual parity QA.
+  - sprint_brief: `docs/SQC_LOGGED_IN_APP_WEB_PARITY_SPRINT_2026-07-08.md`
+  - current_worktree: `/Users/sam/.openclaw/workspace/cc`
+  - current_branch: `main`
+  - production_target: `https://sidequestchess.com`
+  - baseline_commit: `6a7b046`
+  - source_of_truth: current Android app with Sam account; mobile web must match logged-in app screens.
+  - cadence: work every 20 minutes, command-verified report every 1 hour, final after 16 hours.
+  - screens: Home, hamburger, active Solo/detail, Solo catalog/community/custom, Multiplayer, Trophy Cabinet, Account/settings/support.
+  - proof_required: same-account app/web screenshots or DOM evidence for each fixed slice, `pnpm lint`, `pnpm build`, guarded production deploy when shipping, live route smoke, and explicit before/after visual differences.
+  - guardrail: do not use `/Users/sam/.openclaw/workspace/cc-sqc-mobile-web-clean`; that stale preview lane caused misleading reports and is disabled.
+
+## Superseded queue note - 2026-07-08 stale SQC clean-preview lane
+
+- [x] Supersede the 2026-07-07 clean preview rebuild lane for active production work.
+  - resolved_at: 2026-07-08 23:40 Europe/Stockholm
+  - reason: SQC production parity work is now on `/Users/sam/.openclaw/workspace/cc` main and live on `sidequestchess.com`; the old clean preview worktree produced misleading "not verified" reports after production had shipped.
+  - disabled_crons: `sqc-clean-mobile-web-rebuild-20m-work`, `sqc-clean-mobile-web-rebuild-reports`, `sqc-mobile-app-web-rebuild-sprint-final`.
+
 ## Active queue update - 2026-07-07 SQC mobile-app web rebuild sprint restart
 
-- [ ] Rebuild the SQC website from current mobile-app source of truth, not from old website pages.
+- [x] Rebuild the SQC website from current mobile-app source of truth, not from old website pages.
   - added_at: 2026-07-07 15:17 Europe/Stockholm
   - source: Andreas asked whether the website sprint is running as discussed after the previous clean rebuild was paused for still showing old-looking bottom nav/logo pieces.
   - sprint_brief: `docs/SQC_MOBILE_APP_WEB_REBUILD_SPRINT_2026-07-07.md`
