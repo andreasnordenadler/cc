@@ -185,6 +185,11 @@ function SignedInHome({ hasChessAccount }: { hasChessAccount: boolean }) {
         </div>
         <Link href="/trophy-cabinet" className="sqc-secondary-action full">Open Trophy Cabinet</Link>
       </section>
+
+      <div className="sqc-refresh-hint" aria-hidden="true">
+        <span />
+        <small>Pull down to refresh</small>
+      </div>
     </div>
   );
 }

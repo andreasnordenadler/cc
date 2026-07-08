@@ -6,6 +6,8 @@ Run refresh: 2026-07-08
 
 Cron verification refresh: 2026-07-08 00:53 Europe/Stockholm
 
+Autonomous sprint refresh: 2026-07-08 03:53 Europe/Stockholm
+
 Purpose: capture the current mobile app home/navigation model before any clean web rebuild slices. The mobile app is the visible UI/product template; old web chrome, public logo treatment, and old website navigation remain suspect unless this file proves otherwise from current mobile source.
 
 ## Source Inspected
@@ -19,6 +21,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - Stale/dead-code caution: `BottomNav` still exists at lines 6395-6427, but `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the function definition, so it is not mounted in the active render path.
 - 2026-07-08 recheck: `rg -n "BottomNav\\(" apps/mobile/App.tsx` still returns only the function definition, and the active `MobileShell` render path still mounts `GlobalHamburgerMenu` only for authenticated accounts.
 - 2026-07-08 cron recheck: `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the dormant function definition. Active render still mounts `GlobalHamburgerMenu` only under `isAuthenticatedAccount(displayAccount)`, so a persistent bottom dock is explicitly excluded from current web UI.
+- 2026-07-08 03:53 autonomous recheck: active shell still renders `SafeAreaView` / `ScrollView` / `ActiveScreen` at lines 1713-1771, non-home close at lines 1775-1780, and signed-in-only `GlobalHamburgerMenu` at lines 1782-1784. `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only `6395:function BottomNav(...)`; do not rebuild a persistent web bottom dock from that dormant function.
 
 ## 2026-07-08 Cron Checklist
 
@@ -28,6 +31,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - Menu source of truth: Home, Solo Side Quests, Multiplayer Side Quests, Trophy Cabinet, My Custom Side Quests, Create Custom Side Quest, Create Multiplayer Side Quest, My Account, Help & Support.
 - Non-home source of truth: fixed circular close button to return home; no persistent tab dock.
 - Current preview mismatch: `https://cc-knpvy8h8y-andreas-nordenadlers-projects.vercel.app` returned HTTP 200 but still served stale `mobile-web-app-shell`, `mobile-web-topbar`, old `sqc-logo-v11` / `sqc-alt-logo-topbar` visible logo treatment, and `mobile-web-tab-dock`. That preview is not an acceptable product template for new slices.
+- 2026-07-08 03:53 preview mismatch persists: HTTP 200, but HTML still contains `site-nav`, `mobile-app-menu`, `mobile-web-tab-dock`, `sqc-logo-v11`, and `sqc-alt-logo-topbar` markers. Replace that deployed baseline with a fresh preview from this clean branch before judging the rebuilt web shell.
 
 ## Current Mobile Home Model
 
@@ -38,6 +42,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - No account/profile circle is rendered for signed-out users.
 - The first visible brand art is the current generic coat-of-arms with soft glow.
 - Source lines: `apps/mobile/App.tsx` 2152-2178.
+- 2026-07-08 03:53 line check: signed-out source is still `apps/mobile/App.tsx` 2152-2178.
 - Primary home panel copy:
   - `Sign in to continue.`
   - `Chess, but with stupidly hard side quests - solo or multiplayer. Browse the live boards first; sign in when you want SQC to save progress, verify proof, or join a table.`
@@ -61,6 +66,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
   - Trophy Cabinet
   - Pull down to refresh hint
 - Source lines: `apps/mobile/App.tsx` 2181-2460.
+- 2026-07-08 03:53 line check: signed-in source is still `apps/mobile/App.tsx` 2181-2451 for the root home stack through the second pull-refresh hint.
 
 ### Signed-In Menu
 
@@ -84,6 +90,7 @@ Menu behavior:
 - Selected item gets active styling.
 - Menu closes after a selection.
 - Source lines: `apps/mobile/App.tsx` 1802-1848.
+- 2026-07-08 03:53 line check: menu order/source is still `apps/mobile/App.tsx` 1802-1828.
 
 ### Non-Home Screen Navigation
 
@@ -92,6 +99,7 @@ Menu behavior:
 - Current active render path does not mount a persistent bottom navigation bar.
 - The old-looking bottom navigation code remains in the file, but because it is not mounted, it must not be used as web source of truth.
 - Source lines: `apps/mobile/App.tsx` 1775-1783, 1791-1799, and 6395-6427.
+- 2026-07-08 03:53 line check: active non-home close source is `apps/mobile/App.tsx` 1775-1780 and 1791-1799; dormant `BottomNav` remains at 6395 onward.
 
 ## Web Rebuild Checklist For Root/Home Slices
 
