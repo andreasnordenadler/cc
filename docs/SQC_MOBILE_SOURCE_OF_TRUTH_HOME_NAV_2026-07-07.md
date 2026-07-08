@@ -4,6 +4,8 @@ Date: 2026-07-07
 
 Run refresh: 2026-07-08
 
+Cron verification refresh: 2026-07-08 00:53 Europe/Stockholm
+
 Purpose: capture the current mobile app home/navigation model before any clean web rebuild slices. The mobile app is the visible UI/product template; old web chrome, public logo treatment, and old website navigation remain suspect unless this file proves otherwise from current mobile source.
 
 ## Source Inspected
@@ -16,6 +18,16 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - Close control for non-home screens: `FixedScreenCloseButton` at lines 1791-1799.
 - Stale/dead-code caution: `BottomNav` still exists at lines 6395-6427, but `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the function definition, so it is not mounted in the active render path.
 - 2026-07-08 recheck: `rg -n "BottomNav\\(" apps/mobile/App.tsx` still returns only the function definition, and the active `MobileShell` render path still mounts `GlobalHamburgerMenu` only for authenticated accounts.
+- 2026-07-08 cron recheck: `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the dormant function definition. Active render still mounts `GlobalHamburgerMenu` only under `isAuthenticatedAccount(displayAccount)`, so a persistent bottom dock is explicitly excluded from current web UI.
+
+## 2026-07-08 Cron Checklist
+
+- Home/header source of truth: `apps/mobile/App.tsx` active `MobileShell` render path, not old web preview HTML and not dormant `TABS` / `BottomNav` definitions.
+- Signed-out source of truth: centered `Side Quest Chess` header, current coat-of-arms plus glow, `Sign in to continue.`, browse Solo/Multiplayer actions, and `Choose sign-in method`; no hamburger, account dot, old logo header, or bottom nav.
+- Signed-in source of truth: global circular hamburger on the left, centered identity/chess usernames, account/avatar circle on the right, no visible wordmark/logo in the header, home sections ordered Active Solo, refresh hint, Active Multiplayer, Trophy Cabinet, refresh hint.
+- Menu source of truth: Home, Solo Side Quests, Multiplayer Side Quests, Trophy Cabinet, My Custom Side Quests, Create Custom Side Quest, Create Multiplayer Side Quest, My Account, Help & Support.
+- Non-home source of truth: fixed circular close button to return home; no persistent tab dock.
+- Current preview mismatch: `https://cc-knpvy8h8y-andreas-nordenadlers-projects.vercel.app` returned HTTP 200 but still served stale `mobile-web-app-shell`, `mobile-web-topbar`, old `sqc-logo-v11` / `sqc-alt-logo-topbar` visible logo treatment, and `mobile-web-tab-dock`. That preview is not an acceptable product template for new slices.
 
 ## Current Mobile Home Model
 
