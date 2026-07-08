@@ -285,7 +285,7 @@ body::after {
 .sqc-screen {
   display: grid;
   align-content: start;
-  margin-top: 12px;
+  margin-top: 6px;
 }
 
 .sqc-stack {
@@ -484,7 +484,7 @@ body::after {
   position: relative;
   display: grid;
   gap: 13px;
-  padding: 15px 16px 16px;
+  padding: 28px 16px 16px;
 }
 
 .sqc-refresh {
@@ -548,10 +548,11 @@ body::after {
 
 .sqc-active-solo-emblem {
   position: relative;
+  z-index: 2;
   width: 160px;
   height: 160px;
   justify-self: center;
-  margin: 12px 0 8px;
+  margin: 4px 0 -44px;
 }
 
 .sqc-current-card h2,
@@ -662,13 +663,15 @@ body::after {
 .sqc-home-section {
   display: grid;
   gap: 12px;
-  padding: 15px;
+  margin-top: 42px;
+  padding: 0 15px 15px;
 }
 
 .sqc-section-hero {
   display: grid;
   justify-items: center;
   gap: 7px;
+  margin-top: -58px;
   text-align: center;
 }
 
