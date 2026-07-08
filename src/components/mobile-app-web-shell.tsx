@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
+import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -320,8 +321,8 @@ function ActiveSoloDetail({ activeSolo }: { activeSolo: ActiveSoloHome }) {
       <MiniChessBoard fen={boardFen} highlightUci={boardUci} orientation={attempt?.playerColor ?? "white"} />
       <div className="sqc-active-detail-copy">
         <p><strong>Goal:</strong> {activeSolo.objective}</p>
-        <p><strong>Picked:</strong> {formatRelativeDateTime(activeSolo.pickedAt, "not recorded")}</p>
-        <p><strong>Latest check:</strong> {formatRelativeDateTime(attempt?.checkedAt ?? activeSolo.verifiedAt, "not yet")}</p>
+        <p><strong>Picked:</strong> <MobileWebRelativeTime value={activeSolo.pickedAt} fallback="not recorded" /></p>
+        <p><strong>Latest check:</strong> <MobileWebRelativeTime value={attempt?.checkedAt ?? activeSolo.verifiedAt} fallback="not yet" /></p>
         <p><strong>Status:</strong> <span className={passed ? "sqc-good" : "sqc-danger"}>{passed ? "Completed" : "Not Completed"}</span></p>
         <p className="sqc-active-summary">{attempt?.summary ?? activeSolo.instruction}</p>
       </div>
@@ -902,22 +903,6 @@ function difficultyRank(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return 3;
   if (difficulty === "Brutal") return 4;
   return 5;
-}
-
-function formatRelativeDateTime(value: string | null | undefined, fallback: string) {
-  if (!value) return fallback;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return fallback;
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  const dateKey = date.toDateString();
-  const prefix = dateKey === today.toDateString()
-    ? "Today"
-    : dateKey === yesterday.toDateString()
-      ? "Yesterday"
-      : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  return `${prefix} · ${date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
 }
 
 function parseFenBoard(fen: string | null | undefined, orientation: "white" | "black") {
