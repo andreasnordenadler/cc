@@ -80,7 +80,6 @@ const conditionContractChecks = [
   [challengesText, 'conditions: string[]', 'official Challenge conditions field'],
   [challengesText, 'conditions: challenge.conditions?.length ? challenge.conditions : challenge.rules', 'official conditions default to verifier rule lines'],
   [officialDetailText, 'challenge.conditions.map', 'official web detail condition rendering'],
-  [dareDetailText, 'challenge.conditions.map', 'official dare detail condition rendering'],
   [mobileBootstrapText, 'conditions: challenge.conditions', 'mobile bootstrap conditions payload'],
   [mobileTypesText, 'conditions?: string[]', 'mobile client conditions type'],
   [mobileAppText, 'getOfficialChallengeConditions(challenge)', 'mobile official condition rendering'],
@@ -90,6 +89,10 @@ for (const [text, needle, label] of conditionContractChecks) {
   if (!text.includes(needle)) {
     fail(`official Side Quest condition contract missing: ${label}`);
   }
+}
+
+if (!dareDetailText.includes('challenge.conditions.map') && !dareDetailText.includes('redirect(`/challenges/${id}`)')) {
+  fail('official Side Quest condition contract missing: official dare detail condition rendering or canonical redirect');
 }
 
 const bannedVerifierPhrases = [

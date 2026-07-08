@@ -95,10 +95,10 @@ export default async function ChallengeDetailPage({
           <h2>What must happen?</h2>
           <p>{challenge.instruction ?? challenge.proofCallout ?? challenge.objective}</p>
           <div className="sqc-option-grid">
-            {challenge.rules.map((rule) => (
-              <div className="sqc-option-card" key={rule}>
+            {challenge.conditions.map((condition) => (
+              <div className="sqc-option-card" key={condition}>
                 <span aria-hidden="true" />
-                <strong>{rule}</strong>
+                <strong>{condition}</strong>
               </div>
             ))}
           </div>
