@@ -525,12 +525,7 @@ body::after {
   width: 160px;
   height: 160px;
   justify-self: center;
-  margin: 12px 0 -18px;
-  z-index: 2;
-}
-
-.sqc-active-solo-emblem + .sqc-current-card {
-  padding-top: 42px;
+  margin: 12px 0 8px;
 }
 
 .sqc-current-card h2,
