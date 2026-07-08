@@ -53,7 +53,7 @@ export async function getMobileWebTrophyRows(
     .map((challenge) => ({
       id: `solo-${challenge.id}`,
       title: challenge.title,
-      meta: `Unlocked ${challenge.badgeIdentity.name}`,
+      meta: `Official Solo Side Quest · ${challenge.badgeIdentity.name}`,
       href: `/challenges/${challenge.id}`,
       image: toMobileAssetPath(challenge.badgeIdentity.image) ?? "/mobile-source/sqc-coat-of-arms.png",
       glow: getChallengeGlowPath(challenge.id),

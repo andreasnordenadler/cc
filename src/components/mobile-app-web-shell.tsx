@@ -21,6 +21,7 @@ type MobileAppWebShellProps = {
   completedSoloCount?: number;
   proofReceiptCount?: number;
   modalPresentation?: boolean;
+  immersivePresentation?: boolean;
   children?: ReactNode;
 };
 
@@ -135,6 +136,7 @@ export default function MobileAppWebShell({
   completedSoloCount = 0,
   proofReceiptCount = 0,
   modalPresentation = false,
+  immersivePresentation = false,
   children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
@@ -148,7 +150,7 @@ export default function MobileAppWebShell({
   } as CSSProperties;
 
   return (
-    <main className="sqc-mobile-web" data-source="active-mobile-today-dashboard" style={shellStyle}>
+    <main className={immersivePresentation ? "sqc-mobile-web immersive" : "sqc-mobile-web"} data-source="active-mobile-today-dashboard" style={shellStyle}>
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
       {modalPresentation ? null : signedIn ? (
@@ -172,24 +174,28 @@ export default function MobileAppWebShell({
             </nav>
           </details>
 
-          <header className="sqc-app-header">
-            <div className="sqc-identity">
-              <strong>{displayName || "Side Quest Chess"}</strong>
-              <span>
-                {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
-                {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
-                {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
-              </span>
-            </div>
-            <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
-              {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
-            </Link>
-          </header>
+          {immersivePresentation ? null : (
+            <header className="sqc-app-header">
+              <div className="sqc-identity">
+                <strong>{displayName || "Side Quest Chess"}</strong>
+                <span>
+                  {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
+                  {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
+                  {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
+                </span>
+              </div>
+              <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
+                {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
+              </Link>
+            </header>
+          )}
         </>
       ) : (
-        <header className="sqc-app-header guest">
-          <h1>Side Quest Chess</h1>
-        </header>
+        immersivePresentation ? null : (
+          <header className="sqc-app-header guest">
+            <h1>Side Quest Chess</h1>
+          </header>
+        )
       )}
 
       {activeTab !== "home" || modalPresentation ? (
@@ -583,7 +589,7 @@ export function MobileSupportScreen() {
 export function MobileTrophyCabinetScreen({
   trophyRows,
   completedSoloCount,
-  proofReceiptCount,
+  proofReceiptCount: _proofReceiptCount,
   officialSoloCount,
 }: {
   trophyRows: TrophyRow[];
@@ -594,6 +600,8 @@ export function MobileTrophyCabinetScreen({
   const multiplayerRows = trophyRows.filter((row) => row.source === "multiplayer");
   const soloRows = trophyRows.filter((row) => row.source !== "multiplayer");
   const unlockedCount = trophyRows.length;
+  const customRewardCount = Math.max(0, unlockedCount - completedSoloCount - multiplayerRows.length);
+  void _proofReceiptCount;
 
   return (
     <div className="sqc-stack sqc-trophy-screen">
@@ -604,10 +612,10 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Trophy Cabinet summary">
         <span className="sqc-card-eyebrow">Trophy Cabinet</span>
-        <h2>{unlockedCount ? `${unlockedCount} unlocked rewards.` : "No unlocked trophies yet."}</h2>
+        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${completedSoloCount} Official Solo Side Quest${completedSoloCount === 1 ? "" : "s"} · ${multiplayerRows.length} Official Multiplayer Side Quest${multiplayerRows.length === 1 ? "" : "s"} · ${customRewardCount} community/custom reward${customRewardCount === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
         <p>
           {unlockedCount
-            ? `${completedSoloCount} Solo Side Quest coat${completedSoloCount === 1 ? "" : "s"} · ${proofReceiptCount} proof receipt${proofReceiptCount === 1 ? "" : "s"}.`
+            ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
             : "Complete any Official Solo Side Quest, Custom Solo Side Quest, or Multiplayer Side Quest and it will appear on this shelf."}
         </p>
       </section>
@@ -615,21 +623,23 @@ export function MobileTrophyCabinetScreen({
       <section className="sqc-native-card" aria-label="Official Multiplayer Side Quest trophies">
         <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
         <h2>{multiplayerRows.length} podium seal{multiplayerRows.length === 1 ? "" : "s"}.</h2>
-        <div className="sqc-catalog">
-          {multiplayerRows.length ? multiplayerRows.map((row) => (
+        {multiplayerRows.length ? (
+          <div className="sqc-catalog">
+            {multiplayerRows.map((row) => (
             <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
-          )) : (
-            <AppRow title="No podium seals yet" meta="Place on the podium in an official Multiplayer Side Quest to earn one here." status="Explore" href="/multiplayer" image={mobileAsset.multiplayerSeal} />
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <p>Place on the podium in an official Multiplayer Side Quest to earn one here.</p>
+        )}
       </section>
 
       <section className="sqc-native-card" aria-label="Unlocked Solo Side Quest rewards">
         <span className="sqc-card-eyebrow">Unlocked Solo Side Quest rewards</span>
-        <h2>{soloRows.length ? "Coats of Arms unlocked." : "No Solo coats yet."}</h2>
+        <h2>{soloRows.length ? "Official and Custom Solo Side Quest Coats of Arms" : "No Solo coats yet."}</h2>
         <div className="sqc-catalog">
           {soloRows.length ? soloRows.map((row) => (
-            <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+            <AppRow key={row.id} title={row.title} meta={row.meta} status="Unlocked" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
           )) : (
             <AppRow title="No Coat of Arms yet" meta="Complete a Side Quest to unlock your first trophy." status="Explore" href="/side-quests" image={mobileAsset.coat} />
           )}

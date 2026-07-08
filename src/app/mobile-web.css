@@ -31,6 +31,10 @@ body::after {
     linear-gradient(180deg, var(--sqc-bg-top) 0%, var(--sqc-bg-mid) 29%, #101315 62%, #050505 100%);
 }
 
+.sqc-mobile-web.immersive {
+  padding-top: max(18px, env(safe-area-inset-top));
+}
+
 .sqc-mobile-backdrop {
   position: fixed;
   inset: 0;
@@ -289,6 +293,10 @@ body::after {
   display: grid;
   align-content: start;
   margin-top: 6px;
+}
+
+.sqc-mobile-web.immersive .sqc-screen {
+  margin-top: 28px;
 }
 
 .sqc-stack {
@@ -1097,6 +1105,22 @@ body::after {
   height: 124px;
 }
 
+.sqc-screen-emblem.trophy {
+  min-height: 206px;
+}
+
+.sqc-screen-emblem.trophy .sqc-screen-emblem-glow {
+  width: 204px;
+  height: 220px;
+  opacity: .92;
+  transform: translateY(6px);
+}
+
+.sqc-screen-emblem.trophy .sqc-screen-emblem-image {
+  width: 164px;
+  height: 184px;
+}
+
 .sqc-panel.list {
   gap: 8px;
   padding: 0;
@@ -1426,6 +1450,31 @@ body::after {
 .sqc-native-card.green {
   border-color: rgba(96, 240, 175, .28);
   background: rgba(96, 240, 175, .085);
+}
+
+.sqc-trophy-screen {
+  gap: 8px;
+}
+
+.sqc-trophy-screen .sqc-native-card {
+  gap: 8px;
+  padding: 11px;
+  border-color: rgba(255, 247, 232, .14);
+  border-radius: 19px;
+  background: rgba(255, 247, 232, .085);
+}
+
+.sqc-trophy-screen .sqc-card-eyebrow {
+  color: var(--green);
+  text-align: center;
+}
+
+.sqc-trophy-screen .sqc-native-card h2 {
+  color: var(--paper);
+  font-size: 18px;
+  font-weight: 950;
+  line-height: 22px;
+  text-align: center;
 }
 
 .sqc-multiplayer-detail-hero {

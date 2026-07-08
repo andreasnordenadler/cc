@@ -31,6 +31,13 @@ export default async function TrophyCabinetPage() {
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
+      immersivePresentation
+      theme={{
+        backgroundTop: "#766f5b",
+        backgroundMid: "#312c24",
+        glow: "rgba(245, 200, 106, .24)",
+        accent: "rgba(245, 200, 106, .18)",
+      }}
     >
       <MobileTrophyCabinetScreen
         trophyRows={trophyRows}
