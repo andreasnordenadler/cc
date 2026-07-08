@@ -8,6 +8,8 @@ Cron verification refresh: 2026-07-08 00:53 Europe/Stockholm
 
 Autonomous sprint refresh: 2026-07-08 03:53 Europe/Stockholm
 
+Clean rebuild sprint refresh: 2026-07-08 04:25 Europe/Stockholm
+
 Purpose: capture the current mobile app home/navigation model before any clean web rebuild slices. The mobile app is the visible UI/product template; old web chrome, public logo treatment, and old website navigation remain suspect unless this file proves otherwise from current mobile source.
 
 ## Source Inspected
@@ -22,6 +24,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - 2026-07-08 recheck: `rg -n "BottomNav\\(" apps/mobile/App.tsx` still returns only the function definition, and the active `MobileShell` render path still mounts `GlobalHamburgerMenu` only for authenticated accounts.
 - 2026-07-08 cron recheck: `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only the dormant function definition. Active render still mounts `GlobalHamburgerMenu` only under `isAuthenticatedAccount(displayAccount)`, so a persistent bottom dock is explicitly excluded from current web UI.
 - 2026-07-08 03:53 autonomous recheck: active shell still renders `SafeAreaView` / `ScrollView` / `ActiveScreen` at lines 1713-1771, non-home close at lines 1775-1780, and signed-in-only `GlobalHamburgerMenu` at lines 1782-1784. `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` returned only `6395:function BottomNav(...)`; do not rebuild a persistent web bottom dock from that dormant function.
+- 2026-07-08 04:25 clean sprint recheck: active shell still renders `SafeAreaView` / `ScrollView` / `ActiveScreen`, signed-in-only `GlobalHamburgerMenu`, and non-home `FixedScreenCloseButton`. `grep -n "<BottomNav\\|BottomNav(" apps/mobile/App.tsx` still returns only the dormant `BottomNav` function definition, so current web slices must keep excluding any persistent bottom navigation.
 
 ## 2026-07-08 Cron Checklist
 
@@ -32,6 +35,7 @@ Purpose: capture the current mobile app home/navigation model before any clean w
 - Non-home source of truth: fixed circular close button to return home; no persistent tab dock.
 - Current preview mismatch: `https://cc-knpvy8h8y-andreas-nordenadlers-projects.vercel.app` returned HTTP 200 but still served stale `mobile-web-app-shell`, `mobile-web-topbar`, old `sqc-logo-v11` / `sqc-alt-logo-topbar` visible logo treatment, and `mobile-web-tab-dock`. That preview is not an acceptable product template for new slices.
 - 2026-07-08 03:53 preview mismatch persists: HTTP 200, but HTML still contains `site-nav`, `mobile-app-menu`, `mobile-web-tab-dock`, `sqc-logo-v11`, and `sqc-alt-logo-topbar` markers. Replace that deployed baseline with a fresh preview from this clean branch before judging the rebuilt web shell.
+- 2026-07-08 04:25 action for this run: replace the stale preview proof with a fresh preview deploy from this clean branch, where the signed-out root should show the mobile-app-centered guest shell and not old web chrome, old visible logo treatment, or a persistent bottom dock.
 
 ## Current Mobile Home Model
 
