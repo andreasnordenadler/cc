@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { Challenge } from "@/lib/challenges";
+import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -14,6 +15,7 @@ type MobileAppWebShellProps = {
   chessComUsername?: string | null;
   activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
+  theme?: MobileWebShellTheme | null;
   trophyRows?: TrophyRow[];
   completedSoloCount?: number;
   proofReceiptCount?: number;
@@ -29,6 +31,7 @@ type ActiveSoloHome = {
   pickedAt?: string | null;
   verifiedAt?: string | null;
   completed?: boolean;
+  theme?: MobileWebShellTheme | null;
   latestAttempt?: {
     status?: string | null;
     checkedAt?: string | null;
@@ -84,6 +87,7 @@ export default function MobileAppWebShell({
   chessComUsername,
   activeSolo,
   activeSoloTitle,
+  theme,
   trophyRows = [],
   completedSoloCount = 0,
   proofReceiptCount = 0,
@@ -91,9 +95,16 @@ export default function MobileAppWebShell({
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
   const hasChessAccount = Boolean(lichessUsername || chessComUsername);
+  const activeTheme = activeSolo?.theme ?? theme;
+  const shellStyle = {
+    "--sqc-bg-top": activeTheme?.backgroundTop ?? "#1e7773",
+    "--sqc-bg-mid": activeTheme?.backgroundMid ?? "#123a3f",
+    "--sqc-bg-glow": activeTheme?.glow ?? "rgba(96, 240, 175, .28)",
+    "--sqc-bg-accent": activeTheme?.accent ?? "rgba(45, 212, 191, .2)",
+  } as CSSProperties;
 
   return (
-    <main className="sqc-mobile-web" data-source="active-mobile-today-dashboard">
+    <main className="sqc-mobile-web" data-source="active-mobile-today-dashboard" style={shellStyle}>
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
       {signedIn ? (
@@ -121,8 +132,8 @@ export default function MobileAppWebShell({
             <div className="sqc-identity">
               <strong>{displayName || "Side Quest Chess"}</strong>
               <span>
-                {lichessUsername ? <small>lichess · {lichessUsername}</small> : null}
-                {chessComUsername ? <small>chess.com · {chessComUsername}</small> : null}
+                {lichessUsername ? <small><b>LICHESS</b> {lichessUsername}</small> : null}
+                {chessComUsername ? <small><b>CHESS.COM</b> {chessComUsername}</small> : null}
                 {!hasChessAccount ? <small>Add a public chess username before checking Side Quest proof.</small> : null}
               </span>
             </div>
@@ -239,7 +250,7 @@ function SignedInHome({
             )}
           </div>
         </div>
-        <Link href="/side-quests" className="sqc-primary-action fit">{hasActiveSolo ? "Explore More Solo Side Quests" : "Explore Solo Side Quests"}</Link>
+        <Link href="/side-quests" className="sqc-secondary-action full">{hasActiveSolo ? "Explore More Solo Side Quests" : "Explore Solo Side Quests"}</Link>
       </section>
 
       <div className="sqc-refresh-hint" aria-hidden="true">
@@ -253,7 +264,7 @@ function SignedInHome({
           <p className="sqc-pill">Active Multiplayer Side Quests</p>
           <h2>No active Multiplayer Side Quests</h2>
         </div>
-        <div className="sqc-row-list">
+        <div className="sqc-row-list trophy-preview">
           <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" href="/multiplayer" />
         </div>
         <Link href="/multiplayer" className="sqc-secondary-action full">Explore More Multiplayer Side Quests</Link>

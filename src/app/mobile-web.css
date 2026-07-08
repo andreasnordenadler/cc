@@ -26,9 +26,9 @@ body::after {
   align-content: start;
   padding: max(18px, env(safe-area-inset-top)) 14px max(30px, calc(env(safe-area-inset-bottom) + 24px));
   background:
-    radial-gradient(circle at 50% 12%, rgba(96, 240, 175, .28), transparent 34%),
-    linear-gradient(145deg, rgba(45, 212, 191, .2) 0%, rgba(118, 169, 255, .12) 30%, rgba(6, 5, 7, 0) 58%),
-    linear-gradient(180deg, #1e7773 0%, #123a3f 29%, #101315 62%, #050505 100%);
+    radial-gradient(circle at 50% 12%, var(--sqc-bg-glow), transparent 34%),
+    linear-gradient(145deg, var(--sqc-bg-accent) 0%, rgba(118, 169, 255, .12) 30%, rgba(6, 5, 7, 0) 58%),
+    linear-gradient(180deg, var(--sqc-bg-top) 0%, var(--sqc-bg-mid) 29%, #101315 62%, #050505 100%);
 }
 
 .sqc-mobile-backdrop {
@@ -40,6 +40,19 @@ body::after {
     linear-gradient(180deg, rgba(255, 247, 232, .05), rgba(255, 247, 232, 0) 26%),
     repeating-linear-gradient(90deg, rgba(255, 247, 232, .025) 0 1px, transparent 1px 92px);
   mask-image: linear-gradient(180deg, #000, rgba(0,0,0,.4) 48%, transparent);
+}
+
+.sqc-mobile-backdrop::before {
+  position: absolute;
+  top: 34vh;
+  left: 50%;
+  width: min(760px, 168vw);
+  aspect-ratio: 1;
+  background: url("/mobile-source/sqc-coat-of-arms.png") center / contain no-repeat;
+  content: "";
+  opacity: .105;
+  transform: translateX(-50%);
+  filter: saturate(.85) contrast(1.05);
 }
 
 .sqc-app-header,
@@ -98,12 +111,24 @@ body::after {
   min-height: 18px;
   display: inline-flex;
   align-items: center;
-  padding: 2px 6px;
+  gap: 5px;
+  padding: 2px 7px;
   border-radius: 999px;
   background: rgba(255, 247, 232, .08);
   color: var(--paper);
   font-size: 11px;
   font-weight: 850;
+}
+
+.sqc-identity small b {
+  color: var(--green);
+  font-size: 9px;
+  font-weight: 1000;
+  letter-spacing: .02em;
+}
+
+.sqc-identity small:nth-child(2) b {
+  color: var(--blue);
 }
 
 .sqc-menu {
@@ -666,6 +691,24 @@ body::after {
 .sqc-catalog {
   display: grid;
   gap: 8px;
+}
+
+.sqc-row-list.trophy-preview {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 247, 232, .11);
+  border-radius: 15px;
+  background: rgba(6, 5, 7, .46);
+}
+
+.sqc-row-list.trophy-preview .sqc-app-row {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.sqc-row-list.trophy-preview .sqc-app-row + .sqc-app-row {
+  border-top: 1px solid rgba(255, 247, 232, .1);
 }
 
 .sqc-app-row {

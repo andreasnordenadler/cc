@@ -2,6 +2,7 @@ import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
+import { getMobileWebTheme } from "@/lib/mobile-web-theme";
 import { getChallengeGlowPath, getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
 import {
   buildAttemptSummary,
@@ -53,6 +54,7 @@ export default async function Home() {
         instruction: activeChallengeRecord.instruction,
         badgeImage: activeChallengeRecord.badgeIdentity.image ?? null,
         glowImage: getChallengeGlowPath(activeChallengeRecord.id),
+        theme: getMobileWebTheme(activeChallengeRecord.badgeIdentity.colors),
         pickedAt: activeChallenge?.startedAt ?? null,
         verifiedAt: activeChallenge?.verifiedAt ?? null,
         completed: progress.completedChallengeIds.includes(activeChallengeRecord.id),
