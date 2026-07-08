@@ -9,12 +9,48 @@ type MobileAppWebShellProps = {
   activeTab: AppTab;
   signedIn: boolean;
   displayName?: string | null;
+  profileImageUrl?: string | null;
   lichessUsername?: string | null;
   chessComUsername?: string | null;
+  activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
+  trophyRows?: TrophyRow[];
   completedSoloCount?: number;
   proofReceiptCount?: number;
   children?: ReactNode;
+};
+
+type ActiveSoloHome = {
+  title: string;
+  objective: string;
+  instruction: string;
+  badgeImage?: string | null;
+  glowImage?: string | null;
+  pickedAt?: string | null;
+  verifiedAt?: string | null;
+  completed?: boolean;
+  latestAttempt?: {
+    status?: string | null;
+    checkedAt?: string | null;
+    finalPositionFen?: string | null;
+    lastMoveUci?: string | null;
+    lastMoveSan?: string | null;
+    playerColor?: "white" | "black" | null;
+    failureFen?: string | null;
+    failureUci?: string | null;
+    summary?: string | null;
+    headline?: string | null;
+  } | null;
+};
+
+type TrophyRow = {
+  id: string;
+  title: string;
+  meta: string;
+  href: string;
+  image?: string | null;
+  glow?: string | null;
+  statusImage?: string | null;
 };
 
 const menuItems = [
@@ -42,9 +78,12 @@ export default function MobileAppWebShell({
   activeTab,
   signedIn,
   displayName,
+  profileImageUrl,
   lichessUsername,
   chessComUsername,
+  activeSolo,
   activeSoloTitle,
+  trophyRows = [],
   completedSoloCount = 0,
   proofReceiptCount = 0,
   children,
@@ -87,7 +126,7 @@ export default function MobileAppWebShell({
               </span>
             </div>
             <Link href="/account" className="sqc-account-dot" aria-label="Open account settings">
-              {profileInitial}
+              {profileImageUrl ? <img alt="" src={profileImageUrl} referrerPolicy="no-referrer" /> : profileInitial}
             </Link>
           </header>
         </>
@@ -108,7 +147,9 @@ export default function MobileAppWebShell({
           signedIn ? (
             <SignedInHome
               hasChessAccount={hasChessAccount}
+              activeSolo={activeSolo}
               activeSoloTitle={activeSoloTitle}
+              trophyRows={trophyRows}
               completedSoloCount={completedSoloCount}
               proofReceiptCount={proofReceiptCount}
             />
@@ -146,16 +187,21 @@ function GuestHome() {
 
 function SignedInHome({
   hasChessAccount,
+  activeSolo,
   activeSoloTitle,
+  trophyRows,
   completedSoloCount,
   proofReceiptCount,
 }: {
   hasChessAccount: boolean;
+  activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
+  trophyRows: TrophyRow[];
   completedSoloCount: number;
   proofReceiptCount: number;
 }) {
-  const hasActiveSolo = Boolean(activeSoloTitle);
+  const activeTitle = activeSolo?.title ?? activeSoloTitle ?? null;
+  const hasActiveSolo = Boolean(activeTitle);
 
   return (
     <div className="sqc-stack">
@@ -170,12 +216,25 @@ function SignedInHome({
         <button className="sqc-refresh" type="button" aria-label="Refresh active Solo Side Quest">
           <span aria-hidden="true" />
         </button>
+        {activeSolo?.badgeImage ? (
+          <MobileAssetMark
+            className="sqc-current-hero-mark"
+            image={toMobileAssetPath(activeSolo.badgeImage) ?? mobileAsset.fallbackBadge}
+            glow={activeSolo.glowImage ?? mobileAsset.coatGlow}
+            size={138}
+            glowSize={170}
+          />
+        ) : null}
         <div className="sqc-current-body">
-          <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} />
+          {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
             <p className="sqc-pill">Active Solo Side Quest</p>
-            <h2>{activeSoloTitle ?? "Choose a Solo Side Quest"}</h2>
-            <p>{hasActiveSolo ? "Play a new public game on Lichess or Chess.com, then come back for automatic proof." : "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof."}</p>
+            <h2>{activeTitle ?? "Choose a Solo Side Quest"}</h2>
+            {activeSolo ? (
+              <ActiveSoloDetail activeSolo={activeSolo} />
+            ) : (
+              <p>{hasActiveSolo ? "Play a new public game on Lichess or Chess.com, then come back for automatic proof." : "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof."}</p>
+            )}
           </div>
         </div>
         <Link href="/side-quests" className="sqc-primary-action fit">{hasActiveSolo ? "Explore More Solo Side Quests" : "Explore Solo Side Quests"}</Link>
@@ -204,13 +263,26 @@ function SignedInHome({
           <p className="sqc-pill">Trophy Cabinet</p>
         </div>
         <div className="sqc-row-list">
-          <AppRow
-            title={completedSoloCount ? `${completedSoloCount} Coat of Arms unlocked` : "No Coat of Arms yet"}
-            meta={completedSoloCount ? `${proofReceiptCount} proof receipt${proofReceiptCount === 1 ? "" : "s"} recorded.` : "Complete a Side Quest to unlock your first trophy."}
-            status={completedSoloCount ? "Open" : "Explore"}
-            href={completedSoloCount ? "/trophy-cabinet" : "/side-quests"}
-            image={mobileAsset.coat}
-          />
+          {trophyRows.length ? trophyRows.map((row) => (
+            <AppRow
+              key={row.id}
+              title={row.title}
+              meta={row.meta}
+              status="Open"
+              href={row.href}
+              image={row.image ?? undefined}
+              glow={row.glow}
+              statusImage={row.statusImage}
+            />
+          )) : (
+            <AppRow
+              title={completedSoloCount ? `${completedSoloCount} Coat of Arms unlocked` : "No Coat of Arms yet"}
+              meta={completedSoloCount ? `${proofReceiptCount} proof receipt${proofReceiptCount === 1 ? "" : "s"} recorded.` : "Complete a Side Quest to unlock your first trophy."}
+              status={completedSoloCount ? "Open" : "Explore"}
+              href={completedSoloCount ? "/trophy-cabinet" : "/side-quests"}
+              image={mobileAsset.coat}
+            />
+          )}
         </div>
         <Link href="/trophy-cabinet" className="sqc-secondary-action full">Open Trophy Cabinet</Link>
       </section>
@@ -219,6 +291,49 @@ function SignedInHome({
         <span />
         <small>Pull down to refresh</small>
       </div>
+    </div>
+  );
+}
+
+function ActiveSoloDetail({ activeSolo }: { activeSolo: ActiveSoloHome }) {
+  const attempt = activeSolo.latestAttempt;
+  const passed = activeSolo.completed || attempt?.status === "passed" || Boolean(attempt?.headline?.toLowerCase().includes("passed"));
+  const failed = Boolean(attempt && !passed && attempt.status && attempt.status !== "pending");
+  const boardFen = failed ? attempt?.failureFen ?? attempt?.finalPositionFen : attempt?.finalPositionFen;
+  const boardUci = failed ? attempt?.failureUci ?? attempt?.lastMoveUci : attempt?.lastMoveUci;
+
+  return (
+    <div className="sqc-active-detail">
+      <MiniChessBoard fen={boardFen} highlightUci={boardUci} orientation={attempt?.playerColor ?? "white"} />
+      <div className="sqc-active-detail-copy">
+        <p><strong>Goal:</strong> {activeSolo.objective}</p>
+        <p><strong>Picked:</strong> {formatRelativeDateTime(activeSolo.pickedAt, "not recorded")}</p>
+        <p><strong>Latest check:</strong> {formatRelativeDateTime(attempt?.checkedAt ?? activeSolo.verifiedAt, "not yet")}</p>
+        <p><strong>Status:</strong> <span className={passed ? "sqc-good" : "sqc-danger"}>{passed ? "Completed" : "Not Completed"}</span></p>
+        <p className="sqc-active-summary">{attempt?.summary ?? activeSolo.instruction}</p>
+      </div>
+    </div>
+  );
+}
+
+function MiniChessBoard({ fen, highlightUci, orientation }: { fen?: string | null; highlightUci?: string | null; orientation?: "white" | "black" | null }) {
+  const squares = parseFenBoard(fen, orientation ?? "white");
+  const highlight = highlightUci ? [highlightUci.slice(0, 2), highlightUci.slice(2, 4)] : [];
+
+  return (
+    <div className="sqc-mini-board" aria-label="Latest chess position">
+      {squares.map((square, index) => (
+        <span
+          key={square.square}
+          className={[
+            "sqc-mini-square",
+            (Math.floor(index / 8) + index) % 2 === 0 ? "light" : "dark",
+            highlight.includes(square.square) ? "highlight" : "",
+          ].filter(Boolean).join(" ")}
+        >
+          {square.piece ? chessPiece(square.piece) : ""}
+        </span>
+      ))}
     </div>
   );
 }
@@ -628,6 +743,7 @@ function AppRow({
   href,
   image,
   glow,
+  statusImage,
 }: {
   title: string;
   meta: string;
@@ -635,6 +751,7 @@ function AppRow({
   href: string;
   image?: string;
   glow?: string | null;
+  statusImage?: string | null;
 }) {
   return (
     <Link href={href} className="sqc-app-row">
@@ -646,7 +763,11 @@ function AppRow({
         <strong>{title}</strong>
         <small>{meta}</small>
       </span>
-      <span className="sqc-row-status">{status}</span>
+      {statusImage ? (
+        <Image className="sqc-row-status-image" alt="" src={statusImage} width={38} height={38} />
+      ) : (
+        <span className="sqc-row-status">{status}</span>
+      )}
     </Link>
   );
 }
@@ -697,4 +818,57 @@ function difficultyRank(difficulty: Challenge["difficulty"]) {
   if (difficulty === "Hard") return 3;
   if (difficulty === "Brutal") return 4;
   return 5;
+}
+
+function formatRelativeDateTime(value: string | null | undefined, fallback: string) {
+  if (!value) return fallback;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return fallback;
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const dateKey = date.toDateString();
+  const prefix = dateKey === today.toDateString()
+    ? "Today"
+    : dateKey === yesterday.toDateString()
+      ? "Yesterday"
+      : date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return `${prefix} · ${date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false })}`;
+}
+
+function parseFenBoard(fen: string | null | undefined, orientation: "white" | "black") {
+  const boardFen = fen?.split(" ")[0] || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+  const ranks = boardFen.split("/");
+  const files = orientation === "black" ? ["h", "g", "f", "e", "d", "c", "b", "a"] : ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const rankNumbers = orientation === "black" ? [1, 2, 3, 4, 5, 6, 7, 8] : [8, 7, 6, 5, 4, 3, 2, 1];
+
+  return rankNumbers.flatMap((rankNumber, rankIndex) => {
+    const sourceRank = ranks[8 - rankNumber] ?? "8";
+    const expanded = [...sourceRank].flatMap((entry) => /\d/.test(entry) ? Array(Number(entry)).fill("") : [entry]);
+    const oriented = orientation === "black" ? expanded.reverse() : expanded;
+
+    return files.map((file, fileIndex) => ({
+      square: `${file}${rankNumber}`,
+      piece: oriented[fileIndex] ?? "",
+      rankIndex,
+    }));
+  });
+}
+
+function chessPiece(piece: string) {
+  const pieces: Record<string, string> = {
+    K: "♔",
+    Q: "♕",
+    R: "♖",
+    B: "♗",
+    N: "♘",
+    P: "♙",
+    k: "♚",
+    q: "♛",
+    r: "♜",
+    b: "♝",
+    n: "♞",
+    p: "♟",
+  };
+  return pieces[piece] ?? "";
 }
