@@ -520,12 +520,17 @@ body::after {
   border-radius: 0;
 }
 
-.sqc-current-hero-mark {
+.sqc-active-solo-emblem {
   position: relative;
-  width: 156px;
-  height: 156px;
+  width: 160px;
+  height: 160px;
   justify-self: center;
-  margin: 4px 0 -2px;
+  margin: 12px 0 -18px;
+  z-index: 2;
+}
+
+.sqc-active-solo-emblem + .sqc-current-card {
+  padding-top: 42px;
 }
 
 .sqc-current-card h2,

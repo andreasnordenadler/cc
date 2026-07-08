@@ -212,19 +212,20 @@ function SignedInHome({
         </Link>
       ) : null}
 
+      {activeSolo?.badgeImage ? (
+        <MobileAssetMark
+          className="sqc-active-solo-emblem"
+          image={toMobileAssetPath(activeSolo.badgeImage) ?? mobileAsset.fallbackBadge}
+          glow={activeSolo.glowImage ?? mobileAsset.coatGlow}
+          size={138}
+          glowSize={170}
+        />
+      ) : null}
+
       <section className="sqc-current-card">
         <button className="sqc-refresh" type="button" aria-label="Refresh active Solo Side Quest">
           <span aria-hidden="true" />
         </button>
-        {activeSolo?.badgeImage ? (
-          <MobileAssetMark
-            className="sqc-current-hero-mark"
-            image={toMobileAssetPath(activeSolo.badgeImage) ?? mobileAsset.fallbackBadge}
-            glow={activeSolo.glowImage ?? mobileAsset.coatGlow}
-            size={138}
-            glowSize={170}
-          />
-        ) : null}
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
