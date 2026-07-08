@@ -225,17 +225,16 @@ function SignedInHome({
         </Link>
       ) : null}
 
-      {activeSolo?.badgeImage ? (
-        <MobileAssetMark
-          className="sqc-active-solo-emblem"
-          image={toMobileAssetPath(activeSolo.badgeImage) ?? mobileAsset.fallbackBadge}
-          glow={activeSolo.glowImage ?? mobileAsset.coatGlow}
-          size={138}
-          glowSize={170}
-        />
-      ) : null}
-
       <section className="sqc-current-card">
+        {activeSolo?.badgeImage ? (
+          <MobileAssetMark
+            className="sqc-active-solo-emblem"
+            image={toMobileAssetPath(activeSolo.badgeImage) ?? mobileAsset.fallbackBadge}
+            glow={activeSolo.glowImage ?? mobileAsset.coatGlow}
+            size={139}
+            glowSize={170}
+          />
+        ) : null}
         <button className="sqc-refresh" type="button" aria-label="Refresh active Solo Side Quest">
           <span aria-hidden="true" />
         </button>
@@ -324,7 +323,7 @@ function ActiveSoloDetail({ activeSolo }: { activeSolo: ActiveSoloHome }) {
         <p><strong>Picked:</strong> <MobileWebRelativeTime value={activeSolo.pickedAt} fallback="not recorded" /></p>
         <p><strong>Latest check:</strong> <MobileWebRelativeTime value={attempt?.checkedAt ?? activeSolo.verifiedAt} fallback="not yet" /></p>
         <p><strong>Status:</strong> <span className={passed ? "sqc-good" : "sqc-danger"}>{passed ? "Completed" : "Not Completed"}</span></p>
-        <p className="sqc-active-summary">{attempt?.summary ?? activeSolo.instruction}</p>
+        {attempt ? null : <p className="sqc-active-summary">Starting position shown until your next public game is available. Play on Lichess or Chess.com, then come back and refresh proof.</p>}
       </div>
     </div>
   );
