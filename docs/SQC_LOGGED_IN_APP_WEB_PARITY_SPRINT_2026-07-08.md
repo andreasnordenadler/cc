@@ -64,3 +64,14 @@ Use the Sam account for both app and mobile browser checks.
 - Do not send autonomous "not verified" reports from old worktrees.
 - Reports must state only verified commit, route, smoke, screenshot, and deploy facts.
 - If a work turn cannot inspect or edit the repo, report the tool blocker once and stop that lane rather than repeating noisy reports.
+
+## 2026-07-09 Solo Catalog Slice
+
+- Target: Solo Side Quest catalog segmented tabs and row-list framing.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` Solo catalog source renders the crest, tall `Official Side Quests` / swap / `Community Side Quests` tabs, then an unframed section header and dark row list; same-sprint Sam app screenshot exists at `artifacts/web-app-parity-2026-07-08/app-solo.png`.
+- Visible difference before edit: web CSS used shorter tabs, a smaller swap button, larger Solo crest sizing, and an extra framed `.sqc-panel` wrapper around the list section.
+- Web change: `src/app/mobile-web.css` now matches the app-like 62px tabs, 44px swap button, 112x124 Solo crest with 142x154 glow, and removes the extra `.sqc-panel.list` frame.
+- Proof: local mobile-web screenshot `artifacts/sqc-parity-solo-catalog-2026-07-09/web-solo-catalog-local.png`; focused DOM smoke returned `officialTabHeight: 62`, `switchHeight: 44`, `panelBorder: 0px`, and the expected first Solo row.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
+- Deployment: not deployed in this slice. Fresh emulator capture was blocked, so this is not claimed as a fully verified same-account app/browser ship.
+- Blocker and next retry: `/opt/homebrew/share/android-commandlinetools/emulator/emulator -avd sqc_pixel_35 -no-snapshot-save` exited before adb registration with `/tmp/sqc_pixel_35.log` containing only `WARNING child_port_handshake.cc:197 no client check-in`; retrying `sqc_verify_35` with `-no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save` also exited before `adb devices` showed a device and wrote no useful log output. Next retry should start the emulator from an interactive desktop/session or repair emulator launch logging, then capture current app `/side-quests` and Android Chrome logged-in `/side-quests` for Sam before production deploy.

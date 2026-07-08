@@ -965,20 +965,20 @@ body::after {
 
 .sqc-brand-tabs {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
   align-items: center;
-  gap: 7px;
+  gap: 12px;
 }
 
 .sqc-brand-tab {
-  min-height: 42px;
+  min-height: 62px;
   display: grid;
   place-items: center;
-  padding: 8px 10px;
+  padding: 12px 10px;
   border: 1px solid rgba(255, 247, 232, .12);
-  border-radius: 16px;
+  border-radius: 22px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 950;
   line-height: 1.1;
   text-align: center;
@@ -999,13 +999,14 @@ body::after {
 }
 
 .sqc-brand-switch {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   border: 1px solid rgba(255, 247, 232, .14);
   border-radius: 999px;
-  background: rgba(0, 0, 0, .24);
+  background: rgba(15, 17, 17, .92);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .2);
 }
 
 .sqc-brand-switch span,
@@ -1064,10 +1065,24 @@ body::after {
 }
 
 .sqc-screen-emblem-glow {
-  width: 156px;
-  height: 166px;
+  width: 142px;
+  height: 154px;
   opacity: .9;
-  transform: translateY(4px);
+  transform: translateY(5px);
+}
+
+.sqc-screen-emblem.solo .sqc-screen-emblem-image {
+  width: 112px;
+  height: 124px;
+}
+
+.sqc-panel.list {
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .sqc-screen-emblem-image.multiplayer {
