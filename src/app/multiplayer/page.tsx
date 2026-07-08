@@ -1,2 +1,35 @@
-export { metadata } from "../groupquests/page";
-export { default } from "../groupquests/page";
+import MobileAppWebShell, { MobileMultiplayerSideQuestsScreen } from "@/components/mobile-app-web-shell";
+import { currentUser } from "@clerk/nextjs/server";
+import { unstable_noStore as noStore } from "next/cache";
+import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+
+export const metadata = {
+  title: "Multiplayer Side Quests — Side Quest Chess",
+  description: "Join or create shared Side Quest Chess challenges.",
+};
+
+export default async function MultiplayerPage() {
+  noStore();
+  const user = await currentUser();
+  const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const displayName = user
+    ? getPreferredRunnerName(metadata, {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        emailAddress: user.primaryEmailAddress?.emailAddress,
+      }) || "Side Quest Chess"
+    : null;
+
+  return (
+    <MobileAppWebShell
+      activeTab="multiplayerSideQuests"
+      signedIn={Boolean(user)}
+      displayName={displayName}
+      lichessUsername={getLichessUsername(metadata)}
+      chessComUsername={getChessComUsername(metadata)}
+    >
+      <MobileMultiplayerSideQuestsScreen selectedTab="official" signedIn={Boolean(user)} />
+    </MobileAppWebShell>
+  );
+}

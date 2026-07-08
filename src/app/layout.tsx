@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import AnalyticsTracker from "@/components/analytics/analytics-tracker";
 import "./globals.css";
+import "./mobile-web.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +29,7 @@ export const viewport: Viewport = {
 
 const clerkAppearance = {
   options: {
-    logoImageUrl: "/sqc-logo-v11.png",
+    logoImageUrl: "/mobile-source/sqc-coat-of-arms.png",
     logoLinkUrl: "/",
     logoPlacement: "inside" as const,
     socialButtonsPlacement: "top" as const,
@@ -107,14 +107,6 @@ export default function RootLayout({
             <AnalyticsTracker />
           </Suspense>
           {children}
-          <footer className="site-footer" aria-label="Site footer">
-            <span>copyright anno 2026 sidequestchess.com</span>
-            <nav aria-label="Footer links">
-              <Link href="/support">Support</Link>
-              <Link href="/privacy">Privacy Policy</Link>
-              <Link href="/terms">Terms &amp; Conditions</Link>
-            </nav>
-          </footer>
         </body>
       </html>
     </ClerkProvider>
