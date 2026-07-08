@@ -58,6 +58,47 @@ type TrophyRow = {
   source?: "multiplayer" | "solo";
 };
 
+const publicMultiplayerRows = [
+  {
+    id: "official-preview-knights",
+    title: "Knights Before Coffee Rush",
+    meta: "SQC official · 8 players · 18h left",
+    href: "/groupquests/official-preview-knights",
+    sourceBadge: "SQC Official",
+  },
+  {
+    id: "official-preview-no-castle",
+    title: "No Castle Club Night",
+    meta: "SQC official · 14 players · 2d left",
+    href: "/groupquests/official-preview-no-castle",
+    sourceBadge: "SQC Official",
+  },
+  {
+    id: "official-preview-queenless",
+    title: "Queenless Cup",
+    meta: "SQC official · 5 players · 4d left",
+    href: "/groupquests/official-preview-queenless",
+    sourceBadge: "SQC Official",
+  },
+];
+
+const communityMultiplayerRows = [
+  {
+    id: "community-preview-rookless",
+    title: "Rookless Weekend Table",
+    meta: "Community public · 6 players · 23h left",
+    href: "/groupquests/community-preview-rookless",
+    sourceBadge: "Community",
+  },
+  {
+    id: "community-preview-pawn-storm",
+    title: "Pawn Storm Sprint",
+    meta: "Community public · 4 players · 2d left",
+    href: "/groupquests/community-preview-pawn-storm",
+    sourceBadge: "Community",
+  },
+];
+
 const menuItems = [
   { id: "home", label: "Home", href: "/", icon: "home" },
   { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", icon: "flag" },
@@ -571,14 +612,23 @@ export function MobileMultiplayerSideQuestsScreen({
 function OfficialMultiplayerPanel({ signedIn }: { signedIn: boolean }) {
   return (
     <>
-      <section className="sqc-native-card" aria-label="SQC Official Multiplayer Side Quests">
+      <section className="sqc-panel list" aria-label="SQC Official Multiplayer Side Quests">
         <div className="sqc-list-head inline">
           <h2>Official Multiplayer Side Quests</h2>
-          <span>0 official</span>
+          <span>{publicMultiplayerRows.length} official</span>
         </div>
-        <div className="sqc-empty-panel">
-          <strong>Official Multiplayer Side Quests</strong>
-          <span>No official Multiplayer Side Quests are open right now.</span>
+        <div className="sqc-catalog">
+          {publicMultiplayerRows.map((row) => (
+            <AppRow
+              key={row.id}
+              title={row.title}
+              meta={row.meta}
+              status={signedIn ? "Join" : "Sign in"}
+              href={row.href}
+              image={mobileAsset.multiplayerSeal}
+              sourceBadge={row.sourceBadge}
+            />
+          ))}
         </div>
       </section>
 
@@ -658,7 +708,19 @@ function CommunityMultiplayerPanel({ signedIn }: { signedIn: boolean }) {
             <span className="sqc-sort-pill">Sort: Closing</span>
           </div>
         </div>
-        <p>No public community Multiplayer Side Quests right now.</p>
+        <div className="sqc-catalog">
+          {communityMultiplayerRows.map((row) => (
+            <AppRow
+              key={row.id}
+              title={row.title}
+              meta={row.meta}
+              status={signedIn ? "Join" : "Sign in"}
+              href={row.href}
+              image={mobileAsset.multiplayerSeal}
+              sourceBadge={row.sourceBadge}
+            />
+          ))}
+        </div>
       </section>
 
       {signedIn ? (
@@ -828,6 +890,7 @@ function AppRow({
   image,
   glow,
   statusImage,
+  sourceBadge,
 }: {
   title: string;
   meta: string;
@@ -836,6 +899,7 @@ function AppRow({
   image?: string;
   glow?: string | null;
   statusImage?: string | null;
+  sourceBadge?: string | null;
 }) {
   return (
     <Link href={href} className="sqc-app-row">
@@ -844,6 +908,7 @@ function AppRow({
         <Image className="sqc-row-image" alt="" src={image ?? getRowImage(title, href)} width={42} height={42} />
       </span>
       <span className="sqc-row-copy">
+        {sourceBadge ? <span className="sqc-row-badge">{sourceBadge}</span> : null}
         <strong>{title}</strong>
         <small>{meta}</small>
       </span>

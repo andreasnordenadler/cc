@@ -879,6 +879,27 @@ body::after {
   gap: 2px;
 }
 
+.sqc-row-badge {
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 2px 8px 3px;
+  border: 1px solid rgba(245, 200, 106, .36);
+  border-radius: 999px;
+  background: rgba(245, 200, 106, .1);
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sqc-app-row:has(.sqc-row-badge) {
+  min-height: 76px;
+}
+
 .sqc-row-copy strong,
 .sqc-row-copy small {
   overflow: hidden;
