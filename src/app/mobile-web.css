@@ -570,7 +570,7 @@ body::after {
   z-index: 2;
 }
 
-.sqc-refresh-form {
+.sqc-current-card > .sqc-refresh-form {
   position: absolute;
   top: 8px;
   right: 8px;
