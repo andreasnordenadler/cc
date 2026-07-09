@@ -168,6 +168,17 @@ Use the Sam account for both app and mobile browser checks.
 - Commit/deploy: commit `b15c5db` (`Match SQC account editor to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-bpip1ab2o-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/account?proof=b15c5db` returned 200; logged-in Sam browser DOM showed `Profile details`, `Edit profile and chess usernames`, `Display name`, `Brag line`, `Lichess username`, `Chess.com username`, and `Save usernames` between Trophy Cabinet and Help & Support; live screenshot saved at `artifacts/sqc-parity-account-profile-editor-2026-07-09/web-account-live.png`; Vercel production 500 scan over 30 minutes returned no logs.
 
+## 2026-07-09 Account Header Controls Slice
+
+- Target: logged-in Account screen top controls.
+- App evidence inspected before edit: same-sprint Android app Account reference `artifacts/sqc-app-web-parity-2026-07-08/emulator/app-account.png`, which shows the Account surface with only the hamburger and close controls above the account card, not the centered signed-in identity header.
+- Web evidence before edit: logged-in Sam mobile-browser screenshot `artifacts/sqc-current-account-mobile.png` showed `/account` still rendering the centered `SAM` identity/chess-account row and avatar above the Account card.
+- Visible difference before edit: mobile web Account had an extra signed-in identity header row that the app Account surface does not show, making the top of the screen feel like the Home shell instead of the app's account modal/screen.
+- Web change: `MobileAppWebShell` now supports a scoped `controlsOnlyHeader` mode that keeps the hamburger and close controls but suppresses the signed-in identity header; `/account` opts into it and preserves the app-like top spacing with `.sqc-mobile-web.controls-only .sqc-screen`.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed; guarded `pnpm deploy:prod` ran `pnpm quest:release-gate` and passed.
+- Commit/deploy: commit `49ee845` (`Match SQC account header controls to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-8a4g7h4of-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
+- Live proof: `https://sidequestchess.com/account?proof=49ee845` returned 200; logged-in Sam DOM smoke returned `hasAppHeader=false`, `hasMenu=true`, `hasClose=true`, `mainClass="sqc-mobile-web controls-only"`, and account hero top `70`; live screenshot and DOM smoke saved at `artifacts/sqc-parity-account-controls-header-2026-07-09/web-account-live.png` and `artifacts/sqc-parity-account-controls-header-2026-07-09/live-dom-smoke.json`; Vercel production 500/error/exception scan over 30 minutes returned no rows.
+
 ## 2026-07-09 Settings Editor Slice
 
 - Target: logged-in Settings / profile details.
