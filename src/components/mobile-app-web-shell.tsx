@@ -378,7 +378,7 @@ function ActiveSoloDetail({ activeSolo }: { activeSolo: ActiveSoloHome }) {
   );
 }
 
-function MiniChessBoard({ fen, highlightUci, orientation }: { fen?: string | null; highlightUci?: string | null; orientation?: "white" | "black" | null }) {
+export function MiniChessBoard({ fen, highlightUci, orientation }: { fen?: string | null; highlightUci?: string | null; orientation?: "white" | "black" | null }) {
   const squares = parseFenBoard(fen, orientation ?? "white");
   const highlight = highlightUci ? [highlightUci.slice(0, 2), highlightUci.slice(2, 4)] : [];
 

@@ -88,3 +88,11 @@ Use the Sam account for both app and mobile browser checks.
 - Commit/deploy: commit `624d48a` (`Match SQC custom builder to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-ikza7bbn0-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/create-custom-side-quest` returned 200; live DOM smoke returned `isImmersive=true`, `bgTop=#352021`, `hasGenericHeader=false`, `optionCount=5`, and `footerPosition=static`; Sam Android Chrome screenshot `artifacts/sqc-parity-create-custom-2026-07-09/android-chrome-create-custom-live.png` shows the logged-in page with app-like hamburger/close controls and the maroon builder; Vercel 500 scan over 30 minutes returned `total: 0`.
 - Note: fresh Android app login was not available in the emulator snapshot, which launched signed out. The app side used current `apps/mobile/App.tsx` builder source for the screen geometry; the web side used the logged-in Sam Android Chrome state before and after deploy.
+
+## 2026-07-09 Active Solo Detail Slice
+
+- Target: Sam's logged-in active Solo detail, `Knights Before Coffee`.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` active Solo card opens `CurrentSideQuestDetailModal`; the modal renders coat glow hero, active/completed pill, `Do this next`, native condition rows, proof board/status summary, and refresh/check affordances.
+- Web evidence before edit: `artifacts/sqc-parity-active-solo-detail-2026-07-09/web-active-detail-before.png`; production `/challenges/knights-before-coffee` showed a generic `Solo Side Quests` title card, generic proof panel, option-card conditions, and no active proof board/status summary for Sam's active quest.
+- Web change: `/challenges/[id]` now detects when the logged-in user is viewing their current active Solo challenge and switches only that state to an app-like active detail layout; non-active Solo detail pages keep the existing generic layout.
+- Proof before deploy: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
