@@ -20,6 +20,19 @@ export type MobileWebMultiplayerPreview = {
   likeSummary: CommunityLikeSummary;
 };
 
+export type MobileWebMultiplayerResult = {
+  id: string;
+  title: string;
+  href: string;
+  summary: string;
+  podiumRows: Array<{
+    placement: "Gold" | "Silver" | "Bronze";
+    name: string;
+    meta: string;
+    pending: boolean;
+  }>;
+};
+
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
 export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userId?: string | null) {
@@ -28,6 +41,7 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
     getCommunityLikeSummaries(client, userId ?? null),
   ]);
   const activeQuests = publicQuests.filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) !== "Finished");
+  const finishedQuests = publicQuests.filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) === "Finished");
 
   const officialRows = activeQuests
     .filter((quest) => isOfficialGroupQuest(quest))
@@ -37,7 +51,12 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
     .filter((quest) => !isOfficialGroupQuest(quest))
     .map((quest) => buildPreviewRow(quest, userId, "Community", likeSummaries.get("multiplayer", quest.id)));
 
-  return { officialRows, communityRows };
+  const previousOfficialRows = finishedQuests
+    .filter((quest) => isOfficialGroupQuest(quest))
+    .slice(0, 3)
+    .map(buildOfficialResultRow);
+
+  return { officialRows, communityRows, previousOfficialRows };
 }
 
 function buildPreviewRow(
@@ -133,4 +152,35 @@ function buildRuleRows(quest: Pick<ServerGroupQuest, "providerLabel" | "rules">)
   if (quest.rules.result) rows.push(["Result", quest.rules.result]);
   if (quest.rules.customRuleSummary) rows.push(["Custom rule", quest.rules.customRuleSummary]);
   return rows;
+}
+
+const officialPodiumPlacements = ["Gold", "Silver", "Bronze"] as const;
+
+function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerResult {
+  const leaderboardRows = rankGroupQuestParticipants(quest).map((participant, index) => {
+    const completedCount = participant.completedQuestIds?.length ?? 0;
+    return {
+      rank: `#${index + 1}`,
+      name: participant.leaderboardName,
+      provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
+      progress: `${completedCount}/${Math.max(quest.questIds.length, 1)}`,
+    };
+  });
+  const winner = leaderboardRows[0]?.name;
+
+  return {
+    id: quest.id,
+    title: quest.name,
+    href: `/groupquests/${quest.id}`,
+    summary: ["Final", formatPlayersLabel(quest.participants.length), winner ? `Winner: ${winner}` : "Podium pending"].join(" · "),
+    podiumRows: officialPodiumPlacements.map((placement, index) => {
+      const row = leaderboardRows[index];
+      return {
+        placement,
+        name: row?.name ?? `${placement} pending`,
+        meta: row ? `${row.rank} · ${row.progress} · ${row.provider}` : "Waiting for verified finishers",
+        pending: !row,
+      };
+    }),
+  };
 }

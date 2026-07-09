@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
-import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
+import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 
@@ -123,6 +123,9 @@ const mobileAsset = {
   customCrest: "/mobile-source/badges/custom-side-quest-crest.png",
   completedSeal: "/mobile-source/stamps/quest-complete-red-wax-sqc-v15.png",
   fallbackBadge: "/mobile-source/badges/v6/proof-loop-test-badge.png",
+  goldSeal: "/mobile-source/stamps/sqc-gold-seal.png",
+  silverSeal: "/mobile-source/stamps/sqc-silver-seal.png",
+  bronzeSeal: "/mobile-source/stamps/sqc-bronze-seal.png",
 };
 
 export default function MobileAppWebShell({
@@ -1011,11 +1014,13 @@ export function MobileMultiplayerSideQuestsScreen({
   signedIn,
   officialRows,
   communityRows,
+  previousOfficialRows,
 }: {
   selectedTab: "official" | "community";
   signedIn: boolean;
   officialRows: MobileWebMultiplayerPreview[];
   communityRows: MobileWebMultiplayerPreview[];
+  previousOfficialRows?: MobileWebMultiplayerResult[];
 }) {
   return (
     <div className="sqc-stack">
@@ -1051,13 +1056,21 @@ export function MobileMultiplayerSideQuestsScreen({
       </div>
 
       {selectedTab === "official"
-        ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} />
+        ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} />
         : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} />}
     </div>
   );
 }
 
-function OfficialMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[] }) {
+function OfficialMultiplayerPanel({
+  signedIn,
+  rows,
+  previousOfficialRows,
+}: {
+  signedIn: boolean;
+  rows: MobileWebMultiplayerPreview[];
+  previousOfficialRows: MobileWebMultiplayerResult[];
+}) {
   return (
     <>
       <section className="sqc-panel list" aria-label="SQC Official Multiplayer Side Quests">
@@ -1094,7 +1107,15 @@ function OfficialMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows:
             <span className="sqc-card-eyebrow">Latest finished official set</span>
             <h2>Gold, silver, bronze.</h2>
             <p>The latest completed official weekly set appears here after the leaderboard closes.</p>
-            <p>Results will appear here after the first official weekly set finishes.</p>
+            {previousOfficialRows.length ? (
+              <div className="sqc-official-results-stack">
+                {previousOfficialRows.map((result) => (
+                  <OfficialResultCard key={result.id} result={result} />
+                ))}
+              </div>
+            ) : (
+              <p>Results will appear here after the first official weekly set finishes.</p>
+            )}
           </section>
 
           <section className="sqc-native-card green" aria-label="Browse earlier official Multiplayer Side Quest results">
@@ -1107,6 +1128,40 @@ function OfficialMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows:
       ) : null}
     </>
   );
+}
+
+function OfficialResultCard({ result }: { result: MobileWebMultiplayerResult }) {
+  return (
+    <Link href={result.href} className="sqc-official-result-card" aria-label={`Open official result ${result.title}`}>
+      <span className="sqc-official-result-head">
+        <span className="sqc-official-result-seal" aria-hidden="true">
+          <Image className="sqc-official-result-seal-glow" alt="" src={mobileAsset.coatGlow} width={58} height={62} />
+          <Image className="sqc-official-result-seal-image" alt="" src={mobileAsset.multiplayerSeal} width={42} height={42} />
+        </span>
+        <span className="sqc-official-result-copy">
+          <strong>{result.title}</strong>
+          <small>{result.summary}</small>
+        </span>
+      </span>
+      <span className="sqc-official-podium-list">
+        {result.podiumRows.map((row) => (
+          <span className="sqc-official-podium-row" key={row.placement}>
+            <Image className="sqc-official-podium-seal" alt="" src={getOfficialPodiumSeal(row.placement)} width={28} height={28} />
+            <span className="sqc-official-podium-copy">
+              <strong>{row.name}</strong>
+              <small>{row.meta}</small>
+            </span>
+          </span>
+        ))}
+      </span>
+    </Link>
+  );
+}
+
+function getOfficialPodiumSeal(placement: "Gold" | "Silver" | "Bronze") {
+  if (placement === "Gold") return mobileAsset.goldSeal;
+  if (placement === "Silver") return mobileAsset.silverSeal;
+  return mobileAsset.bronzeSeal;
 }
 
 function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[] }) {
