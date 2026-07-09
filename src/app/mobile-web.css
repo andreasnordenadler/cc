@@ -796,6 +796,10 @@ body::after {
   box-shadow: none;
 }
 
+.sqc-refresh-hint + .sqc-home-section {
+  margin-top: 112px;
+}
+
 .sqc-home-section + .sqc-home-section {
   margin-top: 100px;
   border-color: rgba(245, 200, 106, .18);
