@@ -567,7 +567,7 @@ body::after {
   pointer-events: none;
 }
 
-.sqc-current-card > :not(.sqc-current-open-link) {
+.sqc-current-card > :not(.sqc-current-open-link, .sqc-active-solo-emblem) {
   position: relative;
   z-index: 2;
 }
