@@ -158,8 +158,8 @@ export default async function ChallengeDetailPage({
           <h2>{isActiveChallenge ? "Conditions" : "What must happen?"}</h2>
           {isActiveChallenge ? <p>{conditionLines.length === 1 ? "Complete this condition in one eligible public game." : "Complete every condition in one eligible public game."}</p> : <p>{challenge.instruction ?? challenge.proofCallout ?? challenge.objective}</p>}
           <div className={isActiveChallenge ? "sqc-condition-list" : "sqc-option-grid"}>
-            {conditionLines.map((condition, index) => (
-              isActiveChallenge ? (
+            {isActiveChallenge ? (
+              conditionLines.map((condition, index) => (
                 <div className="sqc-condition-compact-row" key={condition}>
                   <span aria-hidden="true">{index + 1}</span>
                   <div>
@@ -167,13 +167,15 @@ export default async function ChallengeDetailPage({
                     <p>{condition}</p>
                   </div>
                 </div>
-              ) : (
+              ))
+            ) : (
+              challenge.conditions.map((condition) => (
                 <div className="sqc-option-card" key={condition}>
                   <span aria-hidden="true" />
                   <strong>{condition}</strong>
                 </div>
-              )
-            ))}
+              ))
+            )}
           </div>
         </section>
       </div>
