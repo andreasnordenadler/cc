@@ -24,3 +24,16 @@ Checks before deploy:
 - Focused source smoke passed for both hash links, both input IDs, and removal of the old `/settings` chip target.
 - `pnpm lint` passed with 4 existing warnings.
 - `pnpm build` passed.
+
+Commit/deploy:
+- Commit: `670eea4` (`Match SQC account readiness chips to app`), pushed to `main`.
+- Guarded deploy: `pnpm deploy:prod`.
+- Production deployment: `https://cc-2yq824128-andreas-nordenadlers-projects.vercel.app`.
+- Alias: `https://sidequestchess.com`.
+
+Live proof:
+- `https://sidequestchess.com/account?proof=670eea4` loaded in the signed-in Sam browser.
+- Browser snapshot showed the readiness chips now link to `#lichess-username` and `#chesscom-username`.
+- Click smoke on the Lichess chip stayed on `/account`, changed the URL to `#lichess-username`, and left the Lichess username input visible.
+- Live proof files: `live-dom-smoke.json` and `web-account-live-after-click.png`.
+- Bounded Vercel log stream grep returned no `500`, `error`, or `exception` rows.

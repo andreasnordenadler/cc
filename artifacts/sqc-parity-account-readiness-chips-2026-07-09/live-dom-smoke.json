@@ -1,0 +1,16 @@
+{
+  "signedInSam": true,
+  "chipHrefs": [
+    "#lichess-username",
+    "#chesscom-username"
+  ],
+  "oldSettingsChipGone": true,
+  "lichessInputExists": true,
+  "chesscomInputExists": true,
+  "urlBeforeClick": "https://sidequestchess.com/account?proof=670eea4",
+  "urlAfterClick": "https://sidequestchess.com/account?proof=670eea4#lichess-username",
+  "hash": "#lichess-username",
+  "samePath": true,
+  "inputTop": 601,
+  "inputVisible": true
+}
