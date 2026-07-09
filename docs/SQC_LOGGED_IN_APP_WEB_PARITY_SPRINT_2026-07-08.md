@@ -157,6 +157,17 @@ Use the Sam account for both app and mobile browser checks.
 - Live proof: `https://sidequestchess.com/custom-side-quests` returned 200; logged-in Sam browser snapshot showed `My Custom Side Quests`, the Official/Community tabs, `+ Create`, `Build your own Side Quest`, `Search my custom Side Quests`, the All/Published/Drafts/Public/Archived chips, and the app-style empty message; live screenshot saved at `artifacts/sqc-parity-custom-library-2026-07-09/web-custom-live.png`; live DOM smoke returned `signedIn=true`, `title="My Custom Side Quests"`, `brandTabs=2`, `createText="Build your own Side Quest"`, `searchText="Search my custom Side Quests"`, `chips="All|Published|Drafts|Public|Archived"`, `simpleHero=false`, `emptyText="Your custom Side Quests are empty."`, and `bgTop="#1e7773"`; Vercel 500 scan over 30 minutes returned `total: 0`.
 - Blockers: local Playwright smoke against `next start` was blocked by a local Clerk session refresh loop and returned a local-only `Internal Server Error`; fresh emulator capture was unstable because `sqc_pixel_35` reached `adb device` once but disappeared before `adb shell monkey -p com.sidequestchess.app` could launch the app. Next retry should start the emulator from an interactive desktop/session, launch `com.sidequestchess.app`, navigate hamburger -> `My Custom Side Quests`, and capture current Sam-account app and Android Chrome web screenshots.
 
+## 2026-07-09 Account Profile Editor Slice
+
+- Target: logged-in Account page profile editor.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `AccountTrackerDashboard` renders `ChessUsernameEditor` directly on the Account screen after the trophy list and before Help & Support.
+- Web evidence before edit: logged-in Sam browser snapshot showed `/account` ending with Trophy Cabinet followed directly by Help & Support, with no in-page profile editor.
+- Visible difference before edit: mobile web `/account` had the account hero, quest rows, progress, chess strength, trophy cabinet, and Help & Support, but it did not include the app's in-page `Edit profile and chess usernames` editor.
+- Web change: `/account` now renders the app-style Profile details editor card with display name, brag line, Lichess username, Chess.com username, and Save usernames controls, using the existing profile save server action.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed; guarded `pnpm deploy:prod` ran `pnpm quest:release-gate` and passed.
+- Commit/deploy: commit `b15c5db` (`Match SQC account editor to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-bpip1ab2o-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
+- Live proof: `https://sidequestchess.com/account?proof=b15c5db` returned 200; logged-in Sam browser DOM showed `Profile details`, `Edit profile and chess usernames`, `Display name`, `Brag line`, `Lichess username`, `Chess.com username`, and `Save usernames` between Trophy Cabinet and Help & Support; live screenshot saved at `artifacts/sqc-parity-account-profile-editor-2026-07-09/web-account-live.png`; Vercel production 500 scan over 30 minutes returned no logs.
+
 ## 2026-07-09 Settings Editor Slice
 
 - Target: logged-in Settings / profile details.
