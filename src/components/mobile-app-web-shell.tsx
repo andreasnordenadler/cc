@@ -82,13 +82,33 @@ type CustomSideQuestLibraryRow = {
   status: string;
 };
 
-const publicMultiplayerRows = [
+export type PublicMultiplayerPreview = {
+  id: string;
+  title: string;
+  meta: string;
+  href: string;
+  sourceBadge: "SQC Official" | "Community";
+  hostName?: string;
+  inviteCopy: string;
+  quests: string[];
+  rules: Array<[string, string]>;
+};
+
+export const publicMultiplayerRows: PublicMultiplayerPreview[] = [
   {
     id: "official-preview-knights",
     title: "Knights Before Coffee Rush",
     meta: "SQC official · 8 players · 18h left",
     href: "/groupquests/official-preview-knights",
     sourceBadge: "SQC Official",
+    inviteCopy: "Complete the featured official Side Quests before the weekly window closes.",
+    quests: ["Knights Before Coffee", "No Castle Club", "Finish Any Game"],
+    rules: [
+      ["Games allowed", "Lichess or Chess.com"],
+      ["Variant", "Standard chess only"],
+      ["Proof", "Fresh public games inside this window"],
+      ["Winner", "First to complete all included Side Quests wins."],
+    ],
   },
   {
     id: "official-preview-no-castle",
@@ -96,6 +116,14 @@ const publicMultiplayerRows = [
     meta: "SQC official · 14 players · 2d left",
     href: "/groupquests/official-preview-no-castle",
     sourceBadge: "SQC Official",
+    inviteCopy: "A shared official table built around anti-castling chaos.",
+    quests: ["No Castle Club", "Back Rank Goblin", "Pawn Only Picnic"],
+    rules: [
+      ["Games allowed", "Lichess or Chess.com"],
+      ["Variant", "Standard chess only"],
+      ["Proof", "Games must start after you join this Multiplayer Side Quest."],
+      ["Winner", "Best completion progress at the deadline wins."],
+    ],
   },
   {
     id: "official-preview-queenless",
@@ -103,16 +131,33 @@ const publicMultiplayerRows = [
     meta: "SQC official · 5 players · 4d left",
     href: "/groupquests/official-preview-queenless",
     sourceBadge: "SQC Official",
+    inviteCopy: "A weekly official table for players who enjoy making life harder.",
+    quests: ["Queen? Never Heard of Her", "The Blunder Gambit", "Early King Walk"],
+    rules: [
+      ["Games allowed", "Lichess or Chess.com"],
+      ["Variant", "Standard chess only"],
+      ["Proof", "Fresh public games inside this window"],
+      ["Winner", "First finisher wins; ties use verified progress."],
+    ],
   },
 ];
 
-const communityMultiplayerRows = [
+export const communityMultiplayerRows: PublicMultiplayerPreview[] = [
   {
     id: "community-preview-rookless",
     title: "Rookless Weekend Table",
     meta: "Community public · 6 players · 23h left",
     href: "/groupquests/community-preview-rookless",
     sourceBadge: "Community",
+    hostName: "Community host",
+    inviteCopy: "A public player-hosted table for anyone who wants a weird weekend target.",
+    quests: ["Rookless Weekend", "Pawn Only Picnic"],
+    rules: [
+      ["Games allowed", "Lichess or Chess.com"],
+      ["Access", "Public community table"],
+      ["Proof", "Fresh public games inside this Multiplayer window"],
+      ["Winner", "Complete the most included Side Quests before the deadline."],
+    ],
   },
   {
     id: "community-preview-pawn-storm",
@@ -120,6 +165,15 @@ const communityMultiplayerRows = [
     meta: "Community public · 4 players · 2d left",
     href: "/groupquests/community-preview-pawn-storm",
     sourceBadge: "Community",
+    hostName: "Community host",
+    inviteCopy: "A fast public table focused on attacking pawn chaos.",
+    quests: ["Pawn Storm Sprint", "Finish Any Game"],
+    rules: [
+      ["Games allowed", "Lichess or Chess.com"],
+      ["Access", "Public community table"],
+      ["Proof", "Games must start after you join this Multiplayer Side Quest."],
+      ["Winner", "Best completion progress at the deadline wins."],
+    ],
   },
 ];
 
@@ -1209,6 +1263,91 @@ export function MobileCreateMultiplayerScreen() {
           <span>Name the Multiplayer Side Quest before creating.</span>
         </div>
         <Link href="/multiplayer" className="sqc-create-footer-button">Create</Link>
+      </section>
+    </div>
+  );
+}
+
+export function MobileMultiplayerDetailScreen({ quest, signedIn }: { quest: PublicMultiplayerPreview; signedIn: boolean }) {
+  const metaParts = quest.meta.split(" · ");
+  const players = metaParts[1] ?? "Players pending";
+  const timeLeft = metaParts[2] ?? "Window open";
+  const official = quest.sourceBadge === "SQC Official";
+
+  return (
+    <div className="sqc-stack sqc-multiplayer-public-detail-screen">
+      <section className="sqc-multiplayer-detail-hero">
+        <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={116} glowSize={146} />
+        <span className="sqc-multiplayer-kicker">{official ? "SQC Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>
+        <h1>{quest.title}</h1>
+        <p>{quest.inviteCopy}</p>
+        <span className="sqc-detail-latest-check">OPEN</span>
+      </section>
+
+      <section className="sqc-multiplayer-score-grid" aria-label="Multiplayer Side Quest summary">
+        <div>
+          <span>Players</span>
+          <strong>{players}</strong>
+        </div>
+        <div>
+          <span>Time left</span>
+          <strong>{timeLeft}</strong>
+        </div>
+        <div>
+          <span>Your place</span>
+          <strong>{signedIn ? "Join to place" : "Sign in"}</strong>
+        </div>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">{signedIn ? "Join first" : "Sign in first"}</span>
+        <h2>Join this Multiplayer Side Quest before playing your proof game.</h2>
+        <p>You can inspect the quests and rules below before joining.</p>
+        <Link href={signedIn ? "/multiplayer" : "/sign-in?redirect_url=/multiplayer"} className="sqc-primary-action">
+          {signedIn ? "Join Side Quest" : "Sign in to join"}
+        </Link>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Share</span>
+        <h2>Send this Multiplayer Side Quest to another player.</h2>
+        <Link href={quest.sourceBadge === "Community" ? "/multiplayer-side-quests" : "/multiplayer"} className="sqc-quiet-button">Back to catalog</Link>
+      </section>
+
+      {quest.hostName ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card">
+          <span className="sqc-card-eyebrow">Created by</span>
+          <h2>Hosted by {quest.hostName}</h2>
+          <p>See more public Side Quests from this host when they share them.</p>
+        </section>
+      ) : null}
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Quests in this Multiplayer Side Quest</span>
+        <h2>{quest.quests.length} Side Quests to complete.</h2>
+        <div className="sqc-condition-list">
+          {quest.quests.map((title, index) => (
+            <div key={title} className="sqc-condition-compact-row">
+              <span>{index + 1}</span>
+              <div>
+                <strong>{title}</strong>
+                <p>Complete this within the Multiplayer Side Quest window.</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Rules and time</span>
+        <div className="sqc-multiplayer-rule-list">
+          {quest.rules.map(([label, value]) => (
+            <div key={label} className="sqc-multiplayer-rule-row">
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
