@@ -3077,6 +3077,21 @@ body::after {
   border: 0;
 }
 
+.sqc-logout-button {
+  min-height: 45px;
+  display: grid;
+  place-items: center;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 122, 102, .36);
+  border-radius: 18px;
+  background: rgba(255, 122, 102, .1);
+  color: #ff7a66;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .sqc-account-hero,
 .sqc-chess-strength-card {
   border: 1px solid var(--line);
