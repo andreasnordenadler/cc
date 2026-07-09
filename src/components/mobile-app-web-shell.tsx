@@ -660,14 +660,17 @@ export function MobileTrophyCabinetScreen({
   completedSoloCount,
   proofReceiptCount: _proofReceiptCount,
   officialSoloCount,
+  officialChallenges,
 }: {
   trophyRows: TrophyRow[];
   completedSoloCount: number;
   proofReceiptCount: number;
   officialSoloCount: number;
+  officialChallenges: Challenge[];
 }) {
   const multiplayerRows = trophyRows.filter((row) => row.source === "multiplayer");
   const soloRows = trophyRows.filter((row) => row.source !== "multiplayer");
+  const earnedIds = new Set(soloRows.map((row) => row.id.replace(/^solo-/, "")));
   const unlockedCount = trophyRows.length;
   const customRewardCount = Math.max(0, unlockedCount - completedSoloCount - multiplayerRows.length);
   void _proofReceiptCount;
@@ -718,8 +721,29 @@ export function MobileTrophyCabinetScreen({
       <section className="sqc-native-card" aria-label="Official Solo Side Quest collection">
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
         <h2>{completedSoloCount} of {officialSoloCount} official coats unlocked.</h2>
-        <p>Locked official coats are previews. Completed Side Quests stay bright in this cabinet.</p>
+        <p>Locked official coats are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</p>
       </section>
+
+      <div className="sqc-coat-grid" aria-label="Official Solo Side Quest coat grid">
+        {officialChallenges.map((challenge) => {
+          const earned = earnedIds.has(challenge.id);
+          return (
+            <Link key={challenge.id} href={`/challenges/${challenge.id}`} className="sqc-coat-tile">
+              <span className="sqc-coat-tile-art" aria-hidden="true">
+                <Image
+                  className={earned ? "sqc-coat-tile-image" : "sqc-coat-tile-image locked"}
+                  alt=""
+                  src={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
+                  width={74}
+                  height={74}
+                />
+              </span>
+              <strong>{challenge.title}</strong>
+              <small>{earned ? "Unlocked" : "Locked preview"}</small>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

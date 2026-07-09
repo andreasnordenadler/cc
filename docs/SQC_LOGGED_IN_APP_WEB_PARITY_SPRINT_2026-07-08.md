@@ -109,3 +109,12 @@ Use the Sam account for both app and mobile browser checks.
 - Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
 - Commit/deploy: commit `c56a83d` (`Match SQC community solo catalog to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-3kjcm37r5-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/community-side-quests` returned 200; live DOM smoke returned `title=Community Solo Discover`, `count=48/48`, `rowCount=12`, `firstRow=Win the game`, `activeTabColor=rgb(96, 240, 175)`, `bgTop=#8a6f3d`, `hasIdentityHeader=false`, and `hasOldEmptyTitle=false`; live screenshot saved at `artifacts/sqc-parity-community-solo-2026-07-09/web-community-solo-live.png`; Vercel 500 scan over 30 minutes returned `total: 0`.
+
+## 2026-07-09 Trophy Cabinet Official Coat Grid Slice
+
+- Target: Trophy Cabinet official collection area.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `CoatBoardDashboard` renders the summary cards, `Official Solo Side Quest collection`, then `compactStyles.coatGrid` with 3-column official coat tiles, 62x72 coat art, locked opacity, title, and `Locked preview` / `Unlocked` status.
+- Web evidence before edit: production mobile-browser smoke saved `artifacts/sqc-parity-trophy-cabinet-2026-07-09/web-trophy-before.png` and returned `hasCoatGrid=false`, `rowCount=1`; the page stopped after the official collection copy and did not show the app's locked/earned coat grid.
+- Web change: `/trophy-cabinet` now passes `CHALLENGES` into `MobileTrophyCabinetScreen`, renders the app-like official coat grid below the collection card, uses mobile badge asset paths, and mirrors the app's 3-column tile sizing and locked-preview treatment.
+- Local proof: `artifacts/sqc-parity-trophy-cabinet-2026-07-09/web-trophy-local-final.png`; focused DOM smoke returned `gridCount=13`, `lockedCount=13`, `gridColumns="114px 114px 114px"`, `tileMinHeight="126px"`, and `imageSize="62px x 72px"`.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.

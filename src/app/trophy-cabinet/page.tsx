@@ -44,6 +44,7 @@ export default async function TrophyCabinetPage() {
         completedSoloCount={progress.totalCompletedChallenges}
         proofReceiptCount={proofReceiptCount}
         officialSoloCount={CHALLENGES.length}
+        officialChallenges={CHALLENGES}
       />
     </MobileAppWebShell>
   );
