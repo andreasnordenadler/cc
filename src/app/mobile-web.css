@@ -2039,6 +2039,61 @@ body::after {
   line-height: 17px;
 }
 
+.sqc-community-detail-screen {
+  gap: 8px;
+}
+
+.sqc-community-detail-hero {
+  gap: 5px;
+  padding: 0 0 1px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.sqc-section-mark.community {
+  width: 138px;
+  min-height: 122px;
+}
+
+.sqc-section-mark.community .sqc-mark-glow {
+  width: 144px;
+  height: 152px;
+  opacity: .78;
+  transform: translateY(3px);
+}
+
+.sqc-section-mark.community .sqc-mark-image {
+  width: 118px;
+  height: 118px;
+  object-fit: contain;
+}
+
+.sqc-community-detail-hero h1 {
+  max-width: 324px;
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 28px;
+}
+
+.sqc-community-detail-hero p {
+  max-width: 324px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 17px;
+}
+
+.sqc-community-detail-hero small,
+.sqc-detail-panel-strong small {
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .08em;
+  line-height: 13px;
+  text-transform: uppercase;
+}
+
 .sqc-detail-latest-check {
   color: var(--green);
   font-size: 10px;

@@ -74,6 +74,25 @@ type CommunitySideQuestRow = {
   status?: string | null;
 };
 
+type CommunitySideQuestDetail = {
+  id: string;
+  title: string;
+  summary: string;
+  creatorName: string;
+  creatorBrowsePath: string;
+  ruleLabel: string;
+  ruleDetails: string[];
+  badgeImageUrl?: string | null;
+  stats: {
+    soloAttempts: number;
+    soloSelections: number;
+    soloCompletions: number;
+    multiplayerLineups: number;
+    multiplayerAttempts: number;
+    multiplayerFulfillments: number;
+  };
+};
+
 type CustomSideQuestLibraryRow = {
   id: string;
   title: string;
@@ -817,6 +836,87 @@ export function MobileCommunitySideQuestsScreen({
   );
 }
 
+export function MobileCommunitySideQuestDetailScreen({
+  quest,
+  signedIn,
+  ownedByYou = false,
+}: {
+  quest: CommunitySideQuestDetail;
+  signedIn: boolean;
+  ownedByYou?: boolean;
+}) {
+  const badge = toMobileAssetPath(quest.badgeImageUrl) ?? mobileAsset.customCrest;
+  const totalSolo = quest.stats.soloAttempts + quest.stats.soloSelections + quest.stats.soloCompletions;
+
+  return (
+    <div className="sqc-stack sqc-community-detail-screen">
+      <section className="sqc-multiplayer-detail-hero sqc-community-detail-hero">
+        <MobileAssetMark className="sqc-section-mark community" image={badge} glow={mobileAsset.coatGlow} size={118} glowSize={144} />
+        <span className="sqc-detail-latest-check">{ownedByYou ? "Your Community Solo Side Quest" : "Community Solo Side Quest"}</span>
+        <h1>{quest.title}</h1>
+        <p>{quest.summary}</p>
+        <small>Ready · Public</small>
+      </section>
+
+      <section className="sqc-native-card sqc-detail-panel-strong">
+        <span className="sqc-card-eyebrow">Challenge</span>
+        <h2>What to do</h2>
+        <p>{quest.summary}</p>
+        <small>Play a new public game after picking this Side Quest.</small>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Rule details</span>
+        <h2>{quest.ruleLabel}</h2>
+        <div className="sqc-condition-list">
+          {quest.ruleDetails.map((line, index) => (
+            <div key={`${quest.id}-rule-${index}`} className="sqc-condition-compact-row">
+              <span>{index + 1}</span>
+              <div>
+                <strong>{getConditionLabel(index)}</strong>
+                <p>{line}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="sqc-multiplayer-score-grid" aria-label="Community Solo Side Quest summary">
+        <div>
+          <span>Solo use</span>
+          <strong>{totalSolo || 0}</strong>
+        </div>
+        <div>
+          <span>Completed</span>
+          <strong>{quest.stats.soloCompletions || 0}</strong>
+        </div>
+        <div>
+          <span>Multiplayer</span>
+          <strong>{quest.stats.multiplayerLineups || 0}</strong>
+        </div>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">Creator</span>
+        <h2>Made by {quest.creatorName}</h2>
+        <p>Browse more public Side Quests from this creator when available.</p>
+        <Link href={quest.creatorBrowsePath} className="sqc-quiet-button">More by {quest.creatorName}</Link>
+      </section>
+
+      <section className="sqc-native-card sqc-multiplayer-native-card">
+        <span className="sqc-card-eyebrow">{signedIn ? "Pick first" : "Sign in first"}</span>
+        <h2>{signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
+        <p>{signedIn ? "Use the mobile app to pick, check, and prove Community Solo Side Quests." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
+        <Link href={signedIn ? "/community-side-quests" : `/sign-in?redirect_url=/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-primary-action">
+          {signedIn ? "Back to list" : "Sign in"}
+        </Link>
+      </section>
+
+      <Link href="/support" className="sqc-quiet-button">Report this Side Quest</Link>
+    </div>
+  );
+}
+
 export function MobileCustomSideQuestsScreen({
   rows,
 }: {
@@ -1362,6 +1462,10 @@ function getRowImage(title: string, href: string) {
   if (href.includes("trophy") || title.toLowerCase().includes("coat")) return mobileAsset.coat;
   if (title.toLowerCase().includes("completed")) return mobileAsset.completedSeal;
   return mobileAsset.fallbackBadge;
+}
+
+function getConditionLabel(index: number) {
+  return `Condition ${index + 1}`;
 }
 
 function toMobileAssetPath(path?: string | null) {
