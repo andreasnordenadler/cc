@@ -134,6 +134,17 @@ Use the Sam account for both app and mobile browser checks.
 - Commit/deploy: commit `dd5d3c7` (`Match SQC create multiplayer builder to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-q8oqvbq41-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/create-multiplayer-side-quest` returned 200; logged-in Sam browser DOM snapshot showed no account header/menu, close link `/multiplayer`, and the builder content; live mobile screenshot saved at `artifacts/sqc-parity-create-multiplayer-2026-07-09/web-create-multiplayer-live-mobile.png`; live DOM smoke returned `isImmersive=true`, `hasHeader=false`, `hasMenu=false`, `closeHref=/multiplayer`, `bgTop=#352021`, `heroBorder=0px`, `selectedBorder=rgba(245, 200, 106, 0.48)`, `selectedBg=rgba(245, 200, 106, 0.13)`, `markPosition=relative`, and `cardRadius=19px`; Vercel 500 scan over 30 minutes returned `total: 0`.
 
+## 2026-07-09 Help & Support Conversation Slice
+
+- Target: logged-in Help & Support / report-a-problem flow.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `HelpSupportModal` renders the maroon full-screen support surface with conversation history, `Message` textarea, `Send support message`, and `Copy support details` controls.
+- Web evidence before edit: logged-in Sam browser screenshot `artifacts/sqc-parity-support-conversation-2026-07-09/web-support-before.png`; production `/support` ended at static `Report a problem` copy with no conversation, message field, send button, or support-details copy affordance.
+- Web change: `/support` now passes Clerk support-thread metadata into an app-like client support composer, renders the conversation panel, message textarea, send/copy buttons, signed-out validation, and posts signed-in messages through the existing `/api/support` route with web diagnostics appended.
+- Local proof: `artifacts/sqc-parity-support-conversation-2026-07-09/web-support-local.png`; DOM smoke returned `hasConversation=true`, `hasTextarea=true`, buttons `Send support message` / `Copy support details`, `bgTop=#352021`, and signed-out validation text `Sign in first so the support note can attach to your account.`
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
+- Commit/deploy: commit `16a109a` (`Match SQC support report flow to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-3cqunqcq7-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
+- Live proof: `https://sidequestchess.com/support` returned 200; logged-in Sam browser snapshot showed the existing support conversation item, `Message` textbox, `Send support message`, and `Copy support details`; live screenshot saved at `artifacts/sqc-parity-support-conversation-2026-07-09/web-support-live.png`; signed-out live DOM smoke also returned `hasConversation=true`, `hasTextarea=true`, both buttons, and `bgTop=#352021`; Vercel production 500 scan over 30 minutes returned no rows.
+
 ## 2026-07-09 My Custom Side Quests Library Slice
 
 - Target: logged-in `My Custom Side Quests`.
