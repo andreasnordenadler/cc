@@ -1,4 +1,5 @@
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
+import { saveRunnerProfile } from "@/app/actions";
 import type { MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,6 +18,7 @@ import {
   getLatestChallengeAttempt,
   getLichessUsername,
   getPreferredRunnerName,
+  getRunnerBio,
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
@@ -203,6 +205,13 @@ function SignedInAccountScreen({
         )}
       </AccountSection>
 
+      <ProfileEditorCard
+        displayName={displayName}
+        runnerBio={getRunnerBio(metadata)}
+        lichessUsername={lichessUsername}
+        chessComUsername={chessComUsername}
+      />
+
       <AccountSection title="Help & Support" action={{ label: "Open", href: "/support" }}>
         <AccountRow
           title="How Side Quest Chess works"
@@ -233,6 +242,45 @@ function SignedOutAccountScreen() {
         <Link href="/sign-in" className="sqc-primary-action">Choose sign-in method</Link>
       </section>
     </div>
+  );
+}
+
+function ProfileEditorCard({
+  displayName,
+  runnerBio,
+  lichessUsername,
+  chessComUsername,
+}: {
+  displayName: string;
+  runnerBio: string;
+  lichessUsername: string;
+  chessComUsername: string;
+}) {
+  return (
+    <form action={saveRunnerProfile} className="sqc-username-editor-card">
+      <p className="sqc-account-kicker">Profile details</p>
+      <h1>Edit profile and chess usernames</h1>
+      <p>Save your public Side Quest Chess display name, brag line, and chess usernames from the app. Website and mobile stay in sync.</p>
+      <div className="sqc-input-stack">
+        <label className="sqc-form-row">
+          <span>Display name</span>
+          <input name="runnerDisplayName" defaultValue={displayName} maxLength={60} placeholder="e.g. Andreas" />
+        </label>
+        <label className="sqc-form-row">
+          <span>Brag line</span>
+          <textarea name="runnerBio" defaultValue={runnerBio} maxLength={180} rows={4} placeholder="Trying to win while doing deeply unreasonable things." />
+        </label>
+        <label className="sqc-form-row">
+          <span>Lichess username</span>
+          <input name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
+        </label>
+        <label className="sqc-form-row">
+          <span>Chess.com username</span>
+          <input name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
+        </label>
+      </div>
+      <button className="sqc-primary-action" type="submit">Save usernames</button>
+    </form>
   );
 }
 
