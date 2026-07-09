@@ -129,8 +129,8 @@ function SignedInAccountScreen({
             : "Add a public chess username before checking Side Quest proof."}
         </p>
         <div className="sqc-readiness-row">
-          <ReadinessChip label="Lichess" value={lichessUsername} />
-          <ReadinessChip label="Chess.com" value={chessComUsername} />
+          <ReadinessChip label="Lichess" value={lichessUsername} href="#lichess-username" />
+          <ReadinessChip label="Chess.com" value={chessComUsername} href="#chesscom-username" />
         </div>
       </section>
 
@@ -276,11 +276,11 @@ function ProfileEditorCard({
         </label>
         <label className="sqc-form-row">
           <span>Lichess username</span>
-          <input name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
+          <input id="lichess-username" name="lichessUsername" defaultValue={lichessUsername} autoCapitalize="none" autoCorrect="off" />
         </label>
         <label className="sqc-form-row">
           <span>Chess.com username</span>
-          <input name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
+          <input id="chesscom-username" name="chessComUsername" defaultValue={chessComUsername} autoCapitalize="none" autoCorrect="off" placeholder="optional" />
         </label>
       </div>
       <button className="sqc-primary-action" type="submit">Save usernames</button>
@@ -300,9 +300,9 @@ function AccountSection({ title, action, children }: { title: string; action?: {
   );
 }
 
-function ReadinessChip({ label, value }: { label: string; value: string }) {
+function ReadinessChip({ label, value, href }: { label: string; value: string; href: string }) {
   return (
-    <Link href="/settings" className="sqc-readiness-chip">
+    <Link href={href} className="sqc-readiness-chip">
       <span>{label}</span>
       <strong>{value || "Add"}</strong>
     </Link>
