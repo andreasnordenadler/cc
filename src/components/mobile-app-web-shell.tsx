@@ -703,7 +703,7 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Official Multiplayer Side Quest trophies">
         <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
-        <h2>{multiplayerRows.length} podium seal{multiplayerRows.length === 1 ? "" : "s"}.</h2>
+        <h2>{multiplayerRows.length} Official Multiplayer Side Quest podium{multiplayerRows.length === 1 ? "" : "s"}.</h2>
         {multiplayerRows.length ? (
           <div className="sqc-catalog">
             {multiplayerRows.map((row) => (
@@ -729,7 +729,7 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Official Solo Side Quest collection">
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
-        <h2>{completedSoloCount} of {officialSoloCount} official coats unlocked.</h2>
+        <h2>{completedSoloCount} of {officialSoloCount} official Side Quest coats unlocked.</h2>
         <p>Locked official coats are previews. Custom Solo Side Quest and community Multiplayer rewards appear above when earned.</p>
       </section>
 
