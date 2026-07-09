@@ -126,7 +126,7 @@ Use the Sam account for both app and mobile browser checks.
 
 - Target: logged-in Trophy Cabinet app copy.
 - App evidence inspected before edit: current `apps/mobile/App.tsx` `CoatBoardDashboard` renders `0 Official Multiplayer Side Quest podiums.` and `1 of 13 official Side Quest coats unlocked.` for Sam's current Trophy Cabinet state.
-- Web evidence before edit: logged-in Sam browser screenshot `artifacts/sqc-parity-trophy-copy-2026-07-09/web-trophy-before.png`; production web shortened the app copy to `0 podium seals.` and `1 of 13 official coats unlocked.`
+- Web evidence before edit: logged-in Sam browser inspection of production `/trophy-cabinet`; production web shortened the app copy to `0 podium seals.` and `1 of 13 official coats unlocked.`
 - Web change: `src/components/mobile-app-web-shell.tsx` now uses the app's full Trophy Cabinet terminology for the Official Multiplayer trophies and Official Solo collection headings.
 - Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed; guarded `pnpm deploy:prod` ran `pnpm quest:release-gate` and passed.
 - Commit/deploy: commit `a8832a1` (`Match SQC trophy copy to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-ntb49ei1e-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
