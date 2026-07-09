@@ -24,6 +24,7 @@ type MobileAppWebShellProps = {
   proofReceiptCount?: number;
   modalPresentation?: boolean;
   immersivePresentation?: boolean;
+  controlsOnlyHeader?: boolean;
   closeHref?: string;
   children?: ReactNode;
 };
@@ -119,6 +120,7 @@ export default function MobileAppWebShell({
   proofReceiptCount = 0,
   modalPresentation = false,
   immersivePresentation = false,
+  controlsOnlyHeader = false,
   closeHref = "/",
   children,
 }: MobileAppWebShellProps) {
@@ -133,7 +135,15 @@ export default function MobileAppWebShell({
   } as CSSProperties;
 
   return (
-    <main className={immersivePresentation ? "sqc-mobile-web immersive" : "sqc-mobile-web"} data-source="active-mobile-today-dashboard" style={shellStyle}>
+    <main
+      className={[
+        "sqc-mobile-web",
+        immersivePresentation ? "immersive" : "",
+        controlsOnlyHeader ? "controls-only" : "",
+      ].filter(Boolean).join(" ")}
+      data-source="active-mobile-today-dashboard"
+      style={shellStyle}
+    >
       <div className="sqc-mobile-backdrop" aria-hidden="true" />
 
       {modalPresentation ? null : signedIn ? (
@@ -157,7 +167,7 @@ export default function MobileAppWebShell({
             </nav>
           </details>
 
-          {immersivePresentation ? null : (
+          {immersivePresentation || controlsOnlyHeader ? null : (
             <header className="sqc-app-header">
               <div className="sqc-identity">
                 <strong>{displayName || "Side Quest Chess"}</strong>

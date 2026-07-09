@@ -56,6 +56,7 @@ export default async function AccountPage() {
       profileImageUrl={user?.imageUrl ?? null}
       lichessUsername={lichessUsername}
       chessComUsername={chessComUsername}
+      controlsOnlyHeader
     >
       {user ? (
         <SignedInAccountScreen

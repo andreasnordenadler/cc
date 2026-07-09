@@ -340,6 +340,10 @@ body::after {
   margin-top: 28px;
 }
 
+.sqc-mobile-web.controls-only .sqc-screen {
+  margin-top: 52px;
+}
+
 .sqc-stack {
   display: grid;
   gap: 0;
