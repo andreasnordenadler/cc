@@ -2712,6 +2712,53 @@ body::after {
   text-decoration: none;
 }
 
+.sqc-community-detail-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.sqc-detail-primary-button,
+.sqc-detail-secondary-button,
+.sqc-detail-quiet-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.sqc-detail-primary-button {
+  min-height: 44px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #111;
+  font-size: 14px;
+  box-shadow: 0 12px 26px rgba(245, 200, 106, .16);
+}
+
+.sqc-detail-primary-button.disabled {
+  opacity: .74;
+}
+
+.sqc-detail-secondary-button {
+  min-height: 40px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 247, 232, .13);
+  border-radius: 999px;
+  background: rgba(255, 247, 232, .09);
+  color: var(--paper);
+  font-size: 13px;
+}
+
+.sqc-detail-quiet-button {
+  min-height: 28px;
+  padding: 4px 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .sqc-create-selection-head {
   display: flex;
   align-items: center;

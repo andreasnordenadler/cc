@@ -900,19 +900,27 @@ export function MobileCommunitySideQuestDetailScreen({
         <span className="sqc-card-eyebrow">Creator</span>
         <h2>Made by {quest.creatorName}</h2>
         <p>Browse more public Side Quests from this creator when available.</p>
-        <Link href={quest.creatorBrowsePath} className="sqc-quiet-button">More by {quest.creatorName}</Link>
       </section>
 
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">{signedIn ? "Pick first" : "Sign in first"}</span>
         <h2>{signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
         <p>{signedIn ? "Use the mobile app to pick, check, and prove Community Solo Side Quests." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
-        <Link href={signedIn ? "/community-side-quests" : `/sign-in?redirect_url=/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-primary-action">
-          {signedIn ? "Back to list" : "Sign in"}
-        </Link>
       </section>
 
-      <Link href="/support" className="sqc-quiet-button">Report this Side Quest</Link>
+      <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
+        {signedIn ? (
+          <span className="sqc-detail-primary-button disabled" aria-disabled="true">Pick this Side Quest</span>
+        ) : (
+          <Link href={`/sign-in?redirect_url=/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-detail-primary-button">
+            Sign in
+          </Link>
+        )}
+        <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
+        <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
+        <Link href={`/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Share public link</Link>
+        <Link href="/support" className="sqc-detail-secondary-button">Report this Side Quest</Link>
+      </div>
     </div>
   );
 }
