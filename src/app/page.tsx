@@ -49,6 +49,7 @@ export default async function Home() {
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
       activeSolo={activeChallengeRecord ? {
+        href: `/challenges/${activeChallengeRecord.id}`,
         title: activeChallengeRecord.title,
         objective: activeChallengeRecord.objective,
         instruction: activeChallengeRecord.instruction,

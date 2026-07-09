@@ -549,16 +549,47 @@ body::after {
   box-shadow: none;
 }
 
-.sqc-refresh {
+.sqc-current-card.clickable {
+  cursor: pointer;
+}
+
+.sqc-current-open-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.sqc-current-card.clickable .sqc-active-solo-emblem,
+.sqc-current-card.clickable .sqc-current-body {
+  pointer-events: none;
+}
+
+.sqc-current-card > :not(.sqc-current-open-link) {
+  position: relative;
+  z-index: 2;
+}
+
+.sqc-refresh-form {
   position: absolute;
   top: 8px;
   right: 8px;
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+}
+
+.sqc-refresh {
+  position: absolute;
+  inset: 0;
   width: 34px;
   height: 34px;
   border-color: rgba(245, 200, 106, .24);
   background: rgba(245, 200, 106, .1);
   color: var(--gold);
   box-shadow: none;
+  cursor: pointer;
 }
 
 .sqc-refresh span,

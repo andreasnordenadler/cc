@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
+import { checkActiveChallenge } from "@/app/actions";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
@@ -31,6 +32,7 @@ type MobileAppWebShellProps = {
 };
 
 type ActiveSoloHome = {
+  href?: string | null;
   title: string;
   objective: string;
   instruction: string;
@@ -290,7 +292,10 @@ function SignedInHome({
         </Link>
       ) : null}
 
-      <section className="sqc-current-card">
+      <section className={`sqc-current-card${activeSolo?.href ? " clickable" : ""}`}>
+        {activeSolo?.href ? (
+          <Link href={activeSolo.href} className="sqc-current-open-link" aria-label={`Open active Solo Side Quest ${activeSolo.title}`} />
+        ) : null}
         {activeSolo?.badgeImage ? (
           <MobileAssetMark
             className="sqc-active-solo-emblem"
@@ -300,9 +305,11 @@ function SignedInHome({
             glowSize={170}
           />
         ) : null}
-        <button className="sqc-refresh" type="button" aria-label="Refresh active Solo Side Quest">
-          <span aria-hidden="true" />
-        </button>
+        <form action={checkActiveChallenge} className="sqc-refresh-form">
+          <button className="sqc-refresh" type="submit" aria-label="Refresh active Solo Side Quest">
+            <span aria-hidden="true" />
+          </button>
+        </form>
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
