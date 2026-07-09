@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
+import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
@@ -588,7 +589,13 @@ export function MobileCreateCustomScreen() {
   );
 }
 
-export function MobileSupportScreen() {
+export function MobileSupportScreen({
+  signedIn = false,
+  supportMessages = [],
+}: {
+  signedIn?: boolean;
+  supportMessages?: MobileWebSupportMessage[];
+}) {
   const helpRows = [
     {
       title: "How Side Quests work",
@@ -659,10 +666,7 @@ export function MobileSupportScreen() {
         </div>
       </section>
 
-      <section className="sqc-support-card" aria-label="Report a problem">
-        <span className="sqc-card-eyebrow">Report a problem</span>
-        <p>Something not working? Send a short note with what you tried and what happened. We can reply if we need more details.</p>
-      </section>
+      <MobileSupportComposer signedIn={signedIn} initialMessages={supportMessages} />
     </div>
   );
 }

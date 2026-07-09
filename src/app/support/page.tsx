@@ -3,6 +3,7 @@ import MobileAppWebShell, { MobileSupportScreen } from "@/components/mobile-app-
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getSupportMessages } from "@/lib/analytics";
 
 export const metadata: Metadata = {
   title: "Help & Support — Side Quest Chess",
@@ -13,6 +14,7 @@ export default async function SupportPage() {
   noStore();
   const user = await currentUser();
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const supportMessages = user?.privateMetadata ? getSupportMessages(user.privateMetadata) : [];
   const displayName = user
     ? getPreferredRunnerName(metadataRecord, {
         firstName: user.firstName,
@@ -37,7 +39,15 @@ export default async function SupportPage() {
         accent: "rgba(255, 122, 102, .1)",
       }}
     >
-      <MobileSupportScreen />
+      <MobileSupportScreen
+        signedIn={Boolean(user)}
+        supportMessages={supportMessages.map((message) => ({
+          id: message.id,
+          at: message.at,
+          message: message.message,
+          source: message.source ?? null,
+        }))}
+      />
     </MobileAppWebShell>
   );
 }
