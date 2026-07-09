@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-shell";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
 import {
   buildAttemptSummary,
@@ -90,6 +91,10 @@ export default async function ChallengeDetailPage({
     : challenge.rules.length
       ? challenge.rules
       : [challenge.instruction, challenge.proofCallout].filter(Boolean);
+  const completed = progress.completedChallengeIds.includes(challenge.id);
+  const likeSummary = user
+    ? (await getCommunityLikeSummaries(await clerkClient(), user.id)).get("solo", challenge.id)
+    : { count: 0, likedByViewer: false };
 
   return (
     <MobileAppWebShell
@@ -99,7 +104,7 @@ export default async function ChallengeDetailPage({
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
     >
-      <div className={isActiveChallenge ? "sqc-stack sqc-active-solo-detail-screen" : "sqc-stack"}>
+      <div className={isActiveChallenge ? "sqc-stack sqc-active-solo-detail-screen" : "sqc-stack sqc-official-solo-detail-screen"}>
         {isActiveChallenge ? (
           <section className="sqc-active-detail-hero">
             <span className="sqc-detail-coat-frame" aria-hidden="true">
@@ -111,30 +116,45 @@ export default async function ChallengeDetailPage({
             <p>{challenge.objective}</p>
           </section>
         ) : (
-          <section className="sqc-multiplayer-detail-hero">
-            <span className="sqc-section-mark trophy" aria-hidden="true">
-              <Image className="sqc-mark-image" alt="" src={badgePath} width={112} height={112} priority />
-            </span>
-            <span className="sqc-multiplayer-kicker">Solo Side Quests</span>
-            <h1>{challenge.title}</h1>
-            <p>{challenge.objective}</p>
+          <section className="sqc-native-card sqc-official-quest-card" aria-label={`${challenge.title} details`}>
+            <div className="sqc-official-quest-header">
+              <div className="sqc-official-quest-copy">
+                <div className="sqc-official-title-row">
+                  <h1>{challenge.title}</h1>
+                  <span className={likeSummary.likedByViewer ? "sqc-row-like liked" : "sqc-row-like"} aria-label={`${likeSummary.likedByViewer ? "Liked" : "Like"} ${challenge.title}. ${likeSummary.count} like${likeSummary.count === 1 ? "" : "s"}.`}>
+                    <span aria-hidden="true" />
+                    <strong>{likeSummary.count}</strong>
+                  </span>
+                </div>
+                <div className="sqc-quest-meta-row">
+                  <span className="sqc-coat-pill"><span aria-hidden="true">★</span> Coat</span>
+                  <span className={`sqc-difficulty-pill ${challenge.difficulty.toLowerCase()}`}>{challenge.difficulty}</span>
+                </div>
+                <p>{challenge.objective}</p>
+              </div>
+              <span className="sqc-official-coat-frame" aria-hidden="true">
+                {glowPath ? <Image className="sqc-official-coat-glow" alt="" src={glowPath} width={132} height={144} priority /> : null}
+                <Image className="sqc-official-coat-image" alt="" src={badgePath} width={92} height={102} priority />
+              </span>
+            </div>
           </section>
         )}
 
-        <section className={isActiveChallenge ? "sqc-native-card sqc-detail-panel-strong" : "sqc-native-card"}>
-          <span className="sqc-card-eyebrow">{isActiveChallenge ? "Current Side Quest" : "Proof"}</span>
-          <h2>{isActiveChallenge ? (activePassed ? "Completed - proof accepted" : "Do this next") : "No qualifying game yet"}</h2>
-          {isActiveChallenge ? null : <p>Next step: play a new public game on your connected chess account, then tap Check my latest game again.</p>}
-          <div className={isActiveChallenge ? "sqc-proof-step-list" : "sqc-option-grid"}>
-            <ProofStep number="1" text="Play a new public game on your connected chess account." />
-            <ProofStep number="2" text="Complete your Side Quest during that game." />
-            <ProofStep number="3" text="Come back here and tap Check my latest game." />
-          </div>
-          <div className="sqc-action-pair one-or-two sqc-active-detail-actions">
-            <Link href="/account" className="sqc-secondary-action">Start this Side Quest</Link>
-            <Link href="/account" className="sqc-primary-action">Check my latest game</Link>
-          </div>
-        </section>
+        {isActiveChallenge ? (
+          <section className="sqc-native-card sqc-detail-panel-strong">
+            <span className="sqc-card-eyebrow">Current Side Quest</span>
+            <h2>{activePassed ? "Completed - proof accepted" : "Do this next"}</h2>
+            <div className="sqc-proof-step-list">
+              <ProofStep number="1" text="Play a new public game on your connected chess account." />
+              <ProofStep number="2" text="Complete your Side Quest during that game." />
+              <ProofStep number="3" text="Come back here and tap Check my latest game." />
+            </div>
+            <div className="sqc-action-pair one-or-two sqc-active-detail-actions">
+              <Link href="/account" className="sqc-secondary-action">Start this Side Quest</Link>
+              <Link href="/account" className="sqc-primary-action">Check my latest game</Link>
+            </div>
+          </section>
+        ) : null}
 
         {isActiveChallenge ? (
           <section className="sqc-active-proof-summary">
@@ -151,15 +171,54 @@ export default async function ChallengeDetailPage({
               {activeAttempt ? null : <p className="sqc-active-summary">Starting position shown until your next public game is available. Play on Lichess or Chess.com, then come back and refresh proof.</p>}
             </div>
           </section>
-        ) : null}
+        ) : (
+          <>
+            <section className="sqc-quest-flavor-card">
+              <p>{challenge.flavor}</p>
+            </section>
 
-        <section className="sqc-native-card">
-          <span className="sqc-card-eyebrow">How to complete it</span>
-          <h2>{isActiveChallenge ? "Conditions" : "What must happen?"}</h2>
-          {isActiveChallenge ? <p>{conditionLines.length === 1 ? "Complete this condition in one eligible public game." : "Complete every condition in one eligible public game."}</p> : <p>{challenge.instruction ?? challenge.proofCallout ?? challenge.objective}</p>}
-          <div className={isActiveChallenge ? "sqc-condition-list" : "sqc-option-grid"}>
-            {isActiveChallenge ? (
-              conditionLines.map((condition, index) => (
+            <section className="sqc-native-card sqc-quest-instruction-card">
+              <span className="sqc-card-eyebrow">Conditions</span>
+              <h2>Complete every condition in one eligible public game.</h2>
+              <div className="sqc-condition-list">
+                {challenge.conditions.map((condition, index) => (
+                  <div className="sqc-condition-compact-row" key={condition}>
+                    <span aria-hidden="true">{index + 1}</span>
+                    <div>
+                      <strong>Condition {index + 1}</strong>
+                      <p>{condition}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="sqc-opening-hint">{challenge.openingHint}</p>
+            </section>
+
+            <Link href={`/challenges/${challenge.id}`} className="sqc-secondary-action full sqc-share-action">Share public link</Link>
+
+            {completed ? null : (
+              <section className="sqc-native-card sqc-proof-action-card">
+                <span className="sqc-card-eyebrow">{user ? "Pick this Side Quest" : "Sign in to start this Side Quest"}</span>
+                <h2>{user ? `${challenge.title} is ready for the royal docket.` : "Sign in to save quest progress."}</h2>
+                <p>{user ? "Choose this rule so SQC knows what to judge after your next public game." : "Browse the rules here. Sign in when you want SQC to save this as your active Solo Side Quest and track proof."}</p>
+                <div className="sqc-action-pair one-or-two">
+                  <Link href="/side-quests" className="sqc-secondary-action">Back to list</Link>
+                  <Link href={user ? "/account" : `/sign-in?redirect_url=/challenges/${encodeURIComponent(challenge.id)}`} className="sqc-primary-action">
+                    {user ? "Start this Side Quest" : "Sign in"}
+                  </Link>
+                </div>
+              </section>
+            )}
+          </>
+        )}
+
+        {isActiveChallenge ? (
+          <section className="sqc-native-card">
+            <span className="sqc-card-eyebrow">How to complete it</span>
+            <h2>Conditions</h2>
+            <p>{conditionLines.length === 1 ? "Complete this condition in one eligible public game." : "Complete every condition in one eligible public game."}</p>
+            <div className="sqc-condition-list">
+              {conditionLines.map((condition, index) => (
                 <div className="sqc-condition-compact-row" key={condition}>
                   <span aria-hidden="true">{index + 1}</span>
                   <div>
@@ -167,17 +226,10 @@ export default async function ChallengeDetailPage({
                     <p>{condition}</p>
                   </div>
                 </div>
-              ))
-            ) : (
-              challenge.conditions.map((condition) => (
-                <div className="sqc-option-card" key={condition}>
-                  <span aria-hidden="true" />
-                  <strong>{condition}</strong>
-                </div>
-              ))
-            )}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
     </MobileAppWebShell>
   );

@@ -1003,7 +1003,8 @@ body::after {
   -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M2 21h4V9H2v12Zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 1 6.59 7.59C6.22 7.95 6 8.45 6 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2Zm-4.99 9H8V9.03L12.34 4.7 11 10h9v2l-2.99 7Z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-.sqc-row-like b {
+.sqc-row-like b,
+.sqc-row-like strong {
   font: inherit;
 }
 
@@ -2402,6 +2403,189 @@ body::after {
   font-weight: 700;
   line-height: 17px;
   text-align: center;
+}
+
+.sqc-official-solo-detail-screen {
+  gap: 10px;
+}
+
+.sqc-official-quest-card {
+  gap: 0;
+  padding: 18px;
+  border-radius: 30px;
+  background: rgba(255, 247, 232, .065);
+}
+
+.sqc-official-quest-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  gap: 14px;
+  align-items: center;
+}
+
+.sqc-official-quest-copy {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.sqc-official-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sqc-official-title-row h1 {
+  min-width: 0;
+  margin: 0;
+  color: var(--paper);
+  font-size: 25px;
+  font-weight: 950;
+  line-height: 29px;
+}
+
+.sqc-official-title-row .sqc-row-like {
+  padding-top: 7px;
+}
+
+.sqc-quest-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+}
+
+.sqc-coat-pill,
+.sqc-difficulty-pill {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 5px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 950;
+  line-height: 16px;
+}
+
+.sqc-coat-pill {
+  border: 1px solid rgba(96, 240, 175, .28);
+  background: rgba(96, 240, 175, .1);
+  color: var(--green);
+}
+
+.sqc-coat-pill > span {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #151006;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 20px;
+}
+
+.sqc-difficulty-pill {
+  padding-inline: 10px;
+  border: 1px solid rgba(255, 247, 232, .13);
+  background: rgba(255, 247, 232, .075);
+  color: var(--paper);
+}
+
+.sqc-difficulty-pill.easy {
+  border-color: rgba(96, 240, 175, .28);
+  background: rgba(96, 240, 175, .1);
+  color: var(--green);
+}
+
+.sqc-difficulty-pill.medium {
+  border-color: rgba(245, 200, 106, .32);
+  background: rgba(245, 200, 106, .1);
+  color: var(--gold);
+}
+
+.sqc-difficulty-pill.hard,
+.sqc-difficulty-pill.brutal,
+.sqc-difficulty-pill.absurd {
+  border-color: rgba(255, 122, 102, .28);
+  background: rgba(255, 122, 102, .1);
+  color: var(--danger);
+}
+
+.sqc-official-coat-frame {
+  width: 92px;
+  height: 108px;
+  display: grid;
+  place-items: center;
+}
+
+.sqc-official-coat-glow,
+.sqc-official-coat-image {
+  grid-area: 1 / 1;
+  object-fit: contain;
+}
+
+.sqc-official-coat-glow {
+  width: 132px;
+  height: 144px;
+  opacity: .8;
+  filter: blur(.1px);
+}
+
+.sqc-official-coat-image {
+  width: 92px;
+  height: 102px;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .42));
+}
+
+.sqc-quest-flavor-card {
+  padding: 14px;
+  border: 1px solid rgba(255, 247, 232, .08);
+  border-radius: 20px;
+  background: rgba(0, 0, 0, .2);
+}
+
+.sqc-quest-flavor-card p {
+  margin: 0;
+  color: rgba(255, 247, 232, .76);
+  font-size: 13.5px;
+  font-weight: 760;
+  line-height: 1.45;
+}
+
+.sqc-quest-instruction-card {
+  gap: 8px;
+  padding: 14px;
+  border-color: rgba(245, 200, 106, .22);
+  border-radius: 20px;
+  background: rgba(245, 200, 106, .1);
+}
+
+.sqc-quest-instruction-card h2 {
+  font-size: 15px;
+  line-height: 19px;
+}
+
+.sqc-opening-hint {
+  color: rgba(245, 200, 106, .78) !important;
+  font-size: 12.5px !important;
+  font-weight: 860 !important;
+}
+
+.sqc-share-action,
+.sqc-proof-action-card .sqc-secondary-action,
+.sqc-proof-action-card .sqc-primary-action {
+  border-radius: 999px;
+}
+
+.sqc-proof-action-card {
+  gap: 10px;
+  padding: 15px;
+  border-color: rgba(245, 200, 106, .26);
+  border-radius: 22px;
+  background: rgba(245, 200, 106, .085);
 }
 
 .sqc-detail-panel-strong {
