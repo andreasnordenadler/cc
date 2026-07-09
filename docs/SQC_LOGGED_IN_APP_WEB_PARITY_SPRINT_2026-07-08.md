@@ -270,3 +270,14 @@ Use the Sam account for both app and mobile browser checks.
 - Commit/deploy: commit `3c3cb37` (`Match SQC multiplayer row like state to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-jkalhq6f6-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/multiplayer?proof=3c3cb37` returned 200; logged-in Sam browser screenshot saved at `artifacts/sqc-parity-multiplayer-like-pills-2026-07-09/web-multiplayer-live-sam.png`; signed-in Sam snapshot showed `rowCount=3`, `Like Official 14-Day Starter Shield. 0 likes.`, `SQC official · Not joined · 0 players · 10d left`, and `Not joined` on each official row; Vercel production error and 500 scans over 30 minutes returned no logs.
 - Blocker note: local route screenshot smoke against `next start` was blocked by the existing Clerk localhost refresh-loop issue and returned `Internal Server Error`; the route proof therefore used build verification plus live signed-in production proof after guarded deploy.
+
+## 2026-07-09 Account Logout Action Slice
+
+- Target: logged-in Account bottom action.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `AccountTrackerDashboard` renders a red-tinted `Log out` button after Help & Support, with `compactStyles.logoutButton` using 18px radius, red border/background, and 13px bold copy.
+- Web evidence before edit: logged-in Sam browser snapshot of `https://sidequestchess.com/account?proof=account-logout-before` showed the Account screen ending after Help & Support with no `Log out` action.
+- Visible difference before edit: mobile web Account lacked the app's bottom logout control, so the signed-in Account action stack was missing one app-visible control.
+- Web change: `/account` now renders a Clerk-backed app-style `Log out` button after Help & Support, preserving the app's red-tinted geometry and redirecting to `/` after sign-out.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed; guarded `pnpm deploy:prod` ran `pnpm quest:release-gate` and passed.
+- Commit/deploy: commit `8ec9e3c` (`Match SQC account logout action to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-akuwiqhof-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
+- Live proof: `https://sidequestchess.com/account?proof=8ec9e3c` returned 200; logged-in Sam DOM smoke returned `signedInSam=true`, `hasLogout=true`, `logoutText="Log out"`, `logoutAfterSupport=true`, `logoutHeight=45`, `logoutRadius="18px"`, `logoutBackground="rgba(255, 122, 102, 0.1)"`, and `logoutColor="rgb(255, 122, 102)"`; live screenshot and smoke saved at `artifacts/sqc-parity-account-logout-2026-07-09/web-account-logout-live.png` and `artifacts/sqc-parity-account-logout-2026-07-09/live-dom-smoke.json`; a production log grep over a bounded live stream returned no `500`, `error`, or `exception` rows.
