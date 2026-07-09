@@ -65,6 +65,17 @@ Use the Sam account for both app and mobile browser checks.
 - Reports must state only verified commit, route, smoke, screenshot, and deploy facts.
 - If a work turn cannot inspect or edit the repo, report the tool blocker once and stop that lane rather than repeating noisy reports.
 
+## 2026-07-09 Andreas Feedback Reset
+
+Andreas rejected the current output as not close enough to the Android app. Treat this as a sprint reset, not a messaging issue.
+
+- The Android app is the behavioral and visual source of truth, not the existing web shell and not route smoke.
+- HTTP 200, `.sqc-mobile-web`, and "old chrome absent" are deployment checks only. They do not prove the web looks or works like the app.
+- A slice counts only when it starts from current app evidence and current mobile-web evidence for the same account/state, then records the visible differences before editing.
+- If emulator/login/browser tooling blocks current app evidence, stop that slice and fix the capture path or choose a slice with current app evidence already available. Do not ship broad "app-like" approximations as parity.
+- The priority is exact app behavior and screen geometry: same navigation model, same modal/screen transitions, same controls, same data state, same vertical rhythm, and same empty/error/signed-out handling.
+- Reports must call themselves route-health/progress reports unless they contain paired app/web proof for the specific screen.
+
 ## 2026-07-09 Solo Catalog Slice
 
 - Target: Solo Side Quest catalog segmented tabs and row-list framing.
