@@ -75,3 +75,13 @@ Use the Sam account for both app and mobile browser checks.
 - Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
 - Deployment: not deployed in this slice. Fresh emulator capture was blocked, so this is not claimed as a fully verified same-account app/browser ship.
 - Blocker and next retry: `/opt/homebrew/share/android-commandlinetools/emulator/emulator -avd sqc_pixel_35 -no-snapshot-save` exited before adb registration with `/tmp/sqc_pixel_35.log` containing only `WARNING child_port_handshake.cc:197 no client check-in`; retrying `sqc_verify_35` with `-no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save` also exited before `adb devices` showed a device and wrote no useful log output. Next retry should start the emulator from an interactive desktop/session or repair emulator launch logging, then capture current app `/side-quests` and Android Chrome logged-in `/side-quests` for Sam before production deploy.
+
+## 2026-07-09 Create Custom Side Quest Builder Slice
+
+- Target: logged-in `Create Custom Side Quest`.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `customCreateOpen` full-screen builder renders the maroon `Custom Side Quest` modal with hamburger/close controls, custom crest hero, template options, Side Quest name field, Coat of Arms preview, and completion-condition controls.
+- Web evidence before edit: Sam Android Chrome screenshot `artifacts/sqc-parity-create-custom-2026-07-09/android-chrome-create-custom-before.png`.
+- Visible difference before edit: mobile web still used the teal generic simple-screen route with a large `Side Quest Chess` header/coat, three row links, and no app-like builder fields.
+- Web change: `/create-custom-side-quest` now uses an immersive maroon app-style builder presentation with no generic identity header, custom crest hero, template cards, Side Quest name input, Coat of Arms preview, condition-mode choices, and a non-overlapping save footer.
+- Local proof: `artifacts/sqc-parity-create-custom-2026-07-09/web-create-custom-local-viewport-fixed.png`; focused DOM smoke returned `isImmersive=true`, `bgTop=#352021`, `hasGenericHeader=false`, `optionCount=5`, and static non-overlapping footer geometry.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.

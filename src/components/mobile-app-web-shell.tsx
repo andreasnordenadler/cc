@@ -507,6 +507,65 @@ export function MobileSimpleScreen({
   );
 }
 
+export function MobileCreateCustomScreen() {
+  return (
+    <div className="sqc-stack sqc-create-custom-screen">
+      <section className="sqc-multiplayer-detail-hero sqc-custom-builder-hero">
+        <MobileAssetMark className="sqc-section-mark custom" image={mobileAsset.customCrest} glow={mobileAsset.coatGlow} size={112} glowSize={152} />
+        <span className="sqc-multiplayer-kicker">Custom Side Quest</span>
+        <h1>Build your Side Quest.</h1>
+        <p>Choose what should happen in a real game. SQC will check it after you play.</p>
+      </section>
+
+      <section className="sqc-native-card sqc-custom-builder-card" aria-label="Custom Side Quest builder">
+        <span className="sqc-card-eyebrow">Start from a template</span>
+        <div className="sqc-option-grid">
+          <OptionCard title="Knight-only opening" helper="Win after moving only knights for the first four moves." selected />
+          <OptionCard title="No-castle game" helper="Win a game without castling." />
+          <OptionCard title="Queen trade challenge" helper="Trade queens, then win the game." />
+        </div>
+
+        <label className="sqc-form-row">
+          <span>Side Quest name</span>
+          <input readOnly value="" placeholder="Name this custom Side Quest" aria-label="Side Quest name" />
+        </label>
+        <p>Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.</p>
+
+        <div className="sqc-custom-coat-preview">
+          <MobileAssetMark className="sqc-section-mark custom preview" image={mobileAsset.customCrest} glow={mobileAsset.coatGlow} size={66} glowSize={94} />
+          <div>
+            <span className="sqc-form-label">Side Quest Coat of Arms</span>
+            <p>This is the Coat of Arms players unlock when this Side Quest is completed.</p>
+          </div>
+        </div>
+
+        <span className="sqc-card-eyebrow">How to complete it</span>
+        <h2>What must happen?</h2>
+        <p>Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.</p>
+
+        <span className="sqc-form-label">If you add several conditions, how should they count?</span>
+        <div className="sqc-option-grid">
+          <OptionCard title="Complete every condition" helper="All selected conditions must happen. You can change this later." selected />
+          <OptionCard title="Complete any one condition" helper="One selected condition is enough. You can change this later." />
+        </div>
+
+        <div className="sqc-selection-empty">
+          <strong>Your conditions</strong>
+          <span>No conditions yet. Add the first thing players must do.</span>
+        </div>
+      </section>
+
+      <section className="sqc-create-footer-bar">
+        <div>
+          <strong>Name and add one condition</strong>
+          <span>Custom Side Quests start private until you publish them.</span>
+        </div>
+        <Link href="/custom-side-quests" className="sqc-create-footer-button">Save</Link>
+      </section>
+    </div>
+  );
+}
+
 export function MobileSupportScreen() {
   const helpRows = [
     {

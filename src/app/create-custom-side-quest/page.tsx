@@ -1,4 +1,4 @@
-import MobileAppWebShell, { MobileSimpleScreen } from "@/components/mobile-app-web-shell";
+import MobileAppWebShell, { MobileCreateCustomScreen } from "@/components/mobile-app-web-shell";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -23,18 +23,15 @@ export default async function CreateCustomSideQuestPage() {
       displayName={displayName}
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
+      immersivePresentation
+      theme={{
+        backgroundTop: "#352021",
+        backgroundMid: "#171011",
+        glow: "rgba(245, 200, 106, .22)",
+        accent: "rgba(96, 240, 175, .08)",
+      }}
     >
-      <MobileSimpleScreen
-        eyebrow="Custom Side Quest"
-        title="Build your Side Quest."
-        body="Choose what should happen in a real game. SQC will check it after you play."
-        primaryAction={{ label: "Build a Side Quest", href: "/custom-side-quests" }}
-        rows={[
-          { title: "Start from a template", meta: "Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.", status: "Open", href: "/custom-side-quests" },
-          { title: "Side Quest Coat of Arms", meta: "This is the Coat of Arms players unlock when this Side Quest is completed.", status: "Open", href: "/custom-side-quests" },
-          { title: "What must happen?", meta: "Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.", status: "Open", href: "/custom-side-quests" },
-        ]}
-      />
+      <MobileCreateCustomScreen />
     </MobileAppWebShell>
   );
 }
