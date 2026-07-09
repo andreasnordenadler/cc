@@ -1,4 +1,5 @@
 import { CHALLENGES } from "@/lib/challenges";
+import { getCommunityLikeSummaries, type CommunityLikeSummary } from "@/lib/community-likes";
 import { listPublicGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import type { clerkClient } from "@clerk/nextjs/server";
 
@@ -12,25 +13,29 @@ export type MobileWebMultiplayerPreview = {
   inviteCopy: string;
   quests: string[];
   rules: Array<[string, string]>;
-  status: "Join" | "Joined" | "Hosted";
+  status: "Not joined" | "Joined" | "Hosted";
   playersLabel: string;
   timeLeftLabel: string;
   positionLabel?: string | null;
+  likeSummary: CommunityLikeSummary;
 };
 
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
 export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userId?: string | null) {
-  const publicQuests = await listPublicGroupQuests(client);
+  const [publicQuests, likeSummaries] = await Promise.all([
+    listPublicGroupQuests(client),
+    getCommunityLikeSummaries(client, userId ?? null),
+  ]);
   const activeQuests = publicQuests.filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) !== "Finished");
 
   const officialRows = activeQuests
     .filter((quest) => isOfficialGroupQuest(quest))
-    .map((quest) => buildPreviewRow(quest, userId, "SQC Official"));
+    .map((quest) => buildPreviewRow(quest, userId, "SQC Official", likeSummaries.get("multiplayer", quest.id)));
 
   const communityRows = activeQuests
     .filter((quest) => !isOfficialGroupQuest(quest))
-    .map((quest) => buildPreviewRow(quest, userId, "Community"));
+    .map((quest) => buildPreviewRow(quest, userId, "Community", likeSummaries.get("multiplayer", quest.id)));
 
   return { officialRows, communityRows };
 }
@@ -39,6 +44,7 @@ function buildPreviewRow(
   quest: ServerGroupQuest,
   userId: string | null | undefined,
   sourceBadge: "SQC Official" | "Community",
+  likeSummary: CommunityLikeSummary,
 ): MobileWebMultiplayerPreview {
   const joined = Boolean(userId) && quest.participants.some((participant) => participant.userId === userId);
   const isOwner = Boolean(userId) && quest.hostUserId === userId;
@@ -46,7 +52,10 @@ function buildPreviewRow(
   const playersLabel = formatPlayersLabel(quest.participants.length);
   const timeLeftLabel = status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt);
   const positionLabel = userId ? getParticipantPositionLabel(quest, userId) : null;
+  const joinStateLabel = userId ? (isOwner ? "You host" : joined ? "You joined" : "Not joined") : null;
   const meta = [
+    sourceBadge === "SQC Official" ? "SQC official" : "Community public",
+    joinStateLabel,
     playersLabel,
     timeLeftLabel,
     positionLabel,
@@ -62,10 +71,11 @@ function buildPreviewRow(
     inviteCopy: quest.inviteCopy,
     quests: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
     rules: buildRuleRows(quest),
-    status: isOwner ? "Hosted" : joined ? "Joined" : "Join",
+    status: isOwner ? "Hosted" : joined ? "Joined" : "Not joined",
     playersLabel,
     timeLeftLabel,
     positionLabel,
+    likeSummary,
   };
 }
 

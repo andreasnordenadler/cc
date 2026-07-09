@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
+import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
@@ -1075,6 +1076,7 @@ function OfficialMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows:
                 href={row.href}
                 image={mobileAsset.multiplayerSeal}
                 sourceBadge={row.sourceBadge}
+                likeSummary={row.likeSummary}
               />
             ))}
           </div>
@@ -1173,6 +1175,7 @@ function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows
                 href={row.href}
                 image={mobileAsset.multiplayerSeal}
                 sourceBadge={row.sourceBadge}
+                likeSummary={row.likeSummary}
               />
             ))}
           </div>
@@ -1434,6 +1437,7 @@ function AppRow({
   glow,
   statusImage,
   sourceBadge,
+  likeSummary,
 }: {
   title: string;
   meta: string;
@@ -1443,6 +1447,7 @@ function AppRow({
   glow?: string | null;
   statusImage?: string | null;
   sourceBadge?: string | null;
+  likeSummary?: CommunityLikeSummary | null;
 }) {
   return (
     <Link href={href} className="sqc-app-row">
@@ -1452,7 +1457,10 @@ function AppRow({
       </span>
       <span className="sqc-row-copy">
         {sourceBadge ? <span className="sqc-row-badge">{sourceBadge}</span> : null}
-        <strong>{title}</strong>
+        <strong className="sqc-row-title-line">
+          <span>{title}</span>
+          {likeSummary ? <MobileRowLikeSummary summary={likeSummary} label={title} /> : null}
+        </strong>
         <small>{meta}</small>
       </span>
       {statusImage ? (
@@ -1461,6 +1469,22 @@ function AppRow({
         <span className="sqc-row-status">{status}</span>
       )}
     </Link>
+  );
+}
+
+function MobileRowLikeSummary({ summary, label }: { summary: CommunityLikeSummary; label: string }) {
+  const liked = summary.likedByViewer;
+  const count = summary.count;
+
+  return (
+    <span
+      className={liked ? "sqc-row-like liked" : "sqc-row-like"}
+      aria-label={`${liked ? "Liked" : "Like"} ${label}. ${count} like${count === 1 ? "" : "s"}.`}
+      title={`${count} like${count === 1 ? "" : "s"}`}
+    >
+      <span aria-hidden="true" />
+      <b>{count}</b>
+    </span>
   );
 }
 
