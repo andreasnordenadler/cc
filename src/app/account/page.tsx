@@ -1,12 +1,14 @@
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
+import type { MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getChessRatingSnapshots } from "@/lib/chess-ratings";
 import { getCustomSideQuests } from "@/lib/custom-side-quests";
+import { getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
 import {
   getActiveChallenge,
   getChallengeAttempts,
@@ -21,7 +23,7 @@ import {
 const mobileAsset = {
   coat: "/mobile-source/sqc-coat-of-arms.png",
   multiplayerSeal: "/mobile-source/stamps/sqc-multiplayer-seal.png",
-  customCrest: "/mobile-source/badges/custom-side-quest-crest.png",
+  customCrest: "/badges/custom/community/community-coat-01.png",
   fallbackBadge: "/mobile-source/badges/v6/proof-loop-test-badge.png",
 };
 
@@ -39,6 +41,10 @@ export default async function AccountPage() {
     : null;
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
+  const progress = getChallengeProgress(metadata);
+  const trophyRows = user
+    ? await getMobileWebTrophyRows(await clerkClient(), user.id, progress.completedChallengeIds, 5)
+    : [];
 
   return (
     <MobileAppWebShell
@@ -58,6 +64,7 @@ export default async function AccountPage() {
           metadata={metadata}
           lichessUsername={lichessUsername}
           chessComUsername={chessComUsername}
+          trophyRows={trophyRows}
         />
       ) : (
         <SignedOutAccountScreen />
@@ -74,6 +81,7 @@ function SignedInAccountScreen({
   metadata,
   lichessUsername,
   chessComUsername,
+  trophyRows,
 }: {
   displayName: string;
   email: string | null;
@@ -82,6 +90,7 @@ function SignedInAccountScreen({
   metadata: UserMetadataRecord;
   lichessUsername: string;
   chessComUsername: string;
+  trophyRows: MobileWebTrophyRow[];
 }) {
   const activeChallenge = getActiveChallenge(metadata);
   const activeChallengeRecord = activeChallenge?.id ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null : null;
@@ -169,6 +178,47 @@ function SignedInAccountScreen({
           </div>
         </div>
       </AccountSection>
+
+      <AccountSection title="Trophy Cabinet" action={{ label: "Open Trophy Cabinet", href: "/trophy-cabinet" }}>
+        {trophyRows.length ? (
+          trophyRows.map((row) => (
+            <AccountRow
+              key={row.id}
+              title={row.title}
+              meta={row.meta}
+              status={row.source === "multiplayer" ? "Podium" : "Unlocked"}
+              href={row.href}
+              image={row.image ?? mobileAsset.coat}
+              statusImage={row.statusImage}
+            />
+          ))
+        ) : (
+          <AccountRow
+            title="No trophies yet"
+            meta="Complete a Side Quest to unlock your first Coat of Arms."
+            status="Explore"
+            href="/side-quests"
+            image={mobileAsset.coat}
+          />
+        )}
+      </AccountSection>
+
+      <AccountSection title="Help & Support" action={{ label: "Open", href: "/support" }}>
+        <AccountRow
+          title="How Side Quest Chess works"
+          meta="Start here for Side Quests, proof, chess usernames, and Multiplayer."
+          status=""
+          href="/support"
+          image={mobileAsset.coat}
+        />
+        <AccountRow
+          title="Report a problem"
+          meta="Tell us what you tried, what happened, and where you got stuck."
+          status=""
+          href="/support"
+          image={mobileAsset.coat}
+        />
+      </AccountSection>
     </div>
   );
 }
@@ -207,7 +257,9 @@ function ReadinessChip({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AccountRow({ title, meta, status, href, image }: { title: string; meta: string; status: string; href: string; image: string }) {
+function AccountRow({ title, meta, status, href, image, statusImage }: { title: string; meta: string; status?: string; href: string; image: string; statusImage?: string | null }) {
+  const visibleStatus = status && !["Open", "-", "Proof"].includes(status) ? status : null;
+
   return (
     <Link href={href} className="sqc-account-row">
       <span className="sqc-account-row-image">
@@ -217,7 +269,7 @@ function AccountRow({ title, meta, status, href, image }: { title: string; meta:
         <strong>{title}</strong>
         <small>{meta}</small>
       </span>
-      <span className="sqc-account-row-status">{status}</span>
+      {statusImage ? <Image className="sqc-account-row-status-image" alt="" src={statusImage} width={35} height={35} /> : visibleStatus ? <span className="sqc-account-row-status">{visibleStatus}</span> : null}
     </Link>
   );
 }
