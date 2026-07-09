@@ -338,3 +338,12 @@ Andreas rejected the current output as not close enough to the Android app. Trea
 - Commit/deploy: commit `caedb53` (`Match SQC top navigation controls to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-o595tali6-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/account?proof=caedb53` returned 200; signed-in Sam DOM smoke returned hamburger top `56`, close top `56`, panel top `108`, panel width `232`, `rowCount=9`, first row `Home`, last row `Help & Support`, and 30px rows; screenshot and smoke saved at `artifacts/sqc-parity-hamburger-position-2026-07-09/web-menu-live.png` and `artifacts/sqc-parity-hamburger-position-2026-07-09/live-dom-smoke.json`; bounded Vercel production log stream returned no `500`, `error`, or `exception` rows.
 - Note: after deploy, unrelated tracked edits appeared in `src/app/page.tsx`, `src/components/mobile-app-web-shell.tsx`, and a different section of `src/app/mobile-web.css`; they were not part of this slice and were left untouched.
+
+## 2026-07-09 Home Current App Capture Blocker
+
+- Target: logged-in Home / start screen at `/` for the Sam account.
+- Outcome: stopped before editing because current Android app Home evidence could not be captured.
+- Evidence attempt: `adb devices -l` initially had no devices. A bounded `sqc_pixel_35` launch with `-no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -no-snapshot-save` briefly registered `emulator-5554`, returned `sys.boot_completed=1`, and reported `Physical size: 1080x2400`; artifacts are in `artifacts/sqc-parity-home-current-2026-07-09/emulator-current-attempt.log` and `emulator-current-attempt.pid`.
+- Blocker: before `adb shell monkey -p com.sidequestchess.app -c android.intent.category.LAUNCHER 1` could launch the app, ADB lost the emulator and every app screenshot/XML command returned `adb: no devices/emulators found`; `android-app-home-current.png` is a zero-byte failed capture and must not be used as proof.
+- Scope preserved: no Home source edits, no lint/build, no deploy, and no parity claim were made because paired current app/web evidence was unavailable.
+- Next retry: start `sqc_pixel_35` from an interactive desktop/emulator session or repair the emulator crash/dropout path, verify `adb devices -l` remains stable through `adb shell monkey -p com.sidequestchess.app`, then capture logged-in Sam Android app Home screenshot/XML and logged-in Sam mobile-web `/` screenshot/DOM before listing visible differences and editing.
