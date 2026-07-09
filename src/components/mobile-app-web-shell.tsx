@@ -22,6 +22,7 @@ type MobileAppWebShellProps = {
   proofReceiptCount?: number;
   modalPresentation?: boolean;
   immersivePresentation?: boolean;
+  closeHref?: string;
   children?: ReactNode;
 };
 
@@ -147,6 +148,7 @@ export default function MobileAppWebShell({
   proofReceiptCount = 0,
   modalPresentation = false,
   immersivePresentation = false,
+  closeHref = "/",
   children,
 }: MobileAppWebShellProps) {
   const profileInitial = (displayName?.trim().slice(0, 1) || "S").toUpperCase();
@@ -209,7 +211,7 @@ export default function MobileAppWebShell({
       )}
 
       {activeTab !== "home" || modalPresentation ? (
-        <Link href="/" className="sqc-close-screen" aria-label="Close screen">
+        <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
           <span aria-hidden="true" />
         </Link>
       ) : null}
@@ -1017,8 +1019,8 @@ function CommunityMultiplayerPanel({ signedIn }: { signedIn: boolean }) {
 
 export function MobileCreateMultiplayerScreen() {
   return (
-    <div className="sqc-stack">
-      <section className="sqc-multiplayer-detail-hero">
+    <div className="sqc-stack sqc-create-multiplayer-screen">
+      <section className="sqc-multiplayer-detail-hero sqc-create-multiplayer-hero">
         <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
         <span className="sqc-multiplayer-kicker">Create Multiplayer Side Quest</span>
         <h1>Start a shared Multiplayer Side Quest.</h1>

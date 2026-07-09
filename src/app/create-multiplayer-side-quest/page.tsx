@@ -23,6 +23,15 @@ export default async function CreateMultiplayerSideQuestPage() {
       displayName={displayName}
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
+      modalPresentation
+      immersivePresentation
+      closeHref="/multiplayer"
+      theme={{
+        backgroundTop: "#352021",
+        backgroundMid: "#171011",
+        glow: "rgba(245, 200, 106, .18)",
+        accent: "rgba(96, 240, 175, .045)",
+      }}
     >
       <MobileCreateMultiplayerScreen />
     </MobileAppWebShell>
