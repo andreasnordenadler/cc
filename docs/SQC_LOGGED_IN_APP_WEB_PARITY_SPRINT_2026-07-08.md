@@ -240,7 +240,7 @@ Use the Sam account for both app and mobile browser checks.
 
 - Target: logged-in Community Solo Side Quest detail action stack.
 - App evidence inspected before edit: current `apps/mobile/App.tsx` `CustomSideQuestDetailModal` renders the action sequence `Pick this Side Quest`, `Back to list`, `More by {creator}`, `Share public link`, and `Report this Side Quest` below the pick/sign-in card.
-- Web evidence before edit: logged-in Sam browser screenshot `artifacts/sqc-parity-community-detail-actions-2026-07-09/web-community-detail-before.png`; production web had `Back to list` in the gold primary slot, kept `More by Andreas` inside the creator card, and did not show the app's Share action.
+- Web evidence before edit: logged-in Sam browser inspection of the live route; production web had `Back to list` in the gold primary slot, kept `More by Andreas` inside the creator card, and did not show the app's Share action.
 - Web change: `MobileCommunitySideQuestDetailScreen` now renders an app-like action stack after the pick/sign-in card, removes the inline More button from the creator card, and uses app-like 999px pill geometry for the detail primary/secondary actions.
 - Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed; guarded `pnpm deploy:prod` ran `pnpm quest:release-gate` and passed.
 - Commit/deploy: commit `1254fdd` (`Match SQC community detail actions to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-7zkteenov-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
