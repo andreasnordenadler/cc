@@ -122,6 +122,17 @@ Use the Sam account for both app and mobile browser checks.
 - Live proof: `https://sidequestchess.com/trophy-cabinet` returned 200; live DOM smoke returned `gridCount=13`, `lockedCount=13`, `gridColumns="114px 114px 114px"`, `tileMinHeight="126px"`, `imageSize="62px x 72px"`, and `hasCollectionCopy=true`; live screenshot saved at `artifacts/sqc-parity-trophy-cabinet-2026-07-09/web-trophy-live.png`.
 - Verification note: the Playwright browser smoke did not have Sam's logged-in Clerk session, so live screenshot proof is the empty/signed-out cabinet state. The fixed grid geometry is account-independent; logged-in unlocked labels derive from the same `trophyRows` / completed challenge IDs used by the existing Trophy Cabinet rows.
 
+## 2026-07-09 Trophy Cabinet Copy Slice
+
+- Target: logged-in Trophy Cabinet app copy.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `CoatBoardDashboard` renders `0 Official Multiplayer Side Quest podiums.` and `1 of 13 official Side Quest coats unlocked.` for Sam's current Trophy Cabinet state.
+- Web evidence before edit: logged-in Sam browser screenshot `artifacts/sqc-parity-trophy-copy-2026-07-09/web-trophy-before.png`; production web shortened the app copy to `0 podium seals.` and `1 of 13 official coats unlocked.`
+- Web change: `src/components/mobile-app-web-shell.tsx` now uses the app's full Trophy Cabinet terminology for the Official Multiplayer trophies and Official Solo collection headings.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed; guarded `pnpm deploy:prod` ran `pnpm quest:release-gate` and passed.
+- Commit/deploy: commit `a8832a1` (`Match SQC trophy copy to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-ntb49ei1e-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
+- Live proof: `https://sidequestchess.com/trophy-cabinet?proof=a8832a1` returned 200 in the signed-in Sam browser; live DOM smoke returned `signedInSam=true`, `multiplayerHeading="0 Official Multiplayer Side Quest podiums."`, `collectionHeading="1 of 13 official Side Quest coats unlocked."`, `oldPodiumCopyGone=true`, `oldCollectionCopyGone=true`, and `gridCount=13`; proof saved at `artifacts/sqc-parity-trophy-copy-2026-07-09/live-dom-smoke.json` and `artifacts/sqc-parity-trophy-copy-2026-07-09/web-trophy-live-sam.png`; Vercel production scan over 30 minutes returned no `500`, `error`, or `exception` matches.
+- Verification note: fresh emulator capture was not retried in this slice because same-sprint emulator/app evidence and current app source already covered the exact target headings; the signed-in Sam web side was verified live after deploy.
+
 ## 2026-07-09 Create Multiplayer Builder Slice
 
 - Target: logged-in `Create Multiplayer Side Quest`.
