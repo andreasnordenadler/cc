@@ -147,7 +147,7 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: 61;
-  background: rgba(0, 0, 0, .44);
+  background: rgba(14, 10, 7, .018);
   content: "";
 }
 
