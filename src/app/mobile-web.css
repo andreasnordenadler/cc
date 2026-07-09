@@ -19,12 +19,13 @@ body::after {
   --green: #60f0af;
   --blue: #76a9ff;
   --bg: #060507;
+  --sqc-control-top: max(56px, calc(env(safe-area-inset-top) + 10px));
   min-height: 100vh;
   position: relative;
   isolation: isolate;
   display: grid;
   align-content: start;
-  padding: max(18px, env(safe-area-inset-top)) 16px max(56px, calc(env(safe-area-inset-bottom) + 48px));
+  padding: var(--sqc-control-top) 16px max(56px, calc(env(safe-area-inset-bottom) + 48px));
   background:
     radial-gradient(circle at 50% 12%, var(--sqc-bg-glow), transparent 34%),
     linear-gradient(145deg, var(--sqc-bg-accent) 0%, rgba(118, 169, 255, .12) 30%, rgba(6, 5, 7, 0) 58%),
@@ -138,7 +139,7 @@ body::after {
 
 .sqc-menu {
   position: absolute;
-  top: max(18px, env(safe-area-inset-top));
+  top: var(--sqc-control-top);
   left: calc(50% - min(230px, 50vw - 14px) + 2px);
   z-index: 60;
 }
@@ -210,7 +211,7 @@ body::after {
 .sqc-menu-panel {
   box-sizing: border-box;
   position: fixed;
-  top: calc(max(18px, env(safe-area-inset-top)) + 52px);
+  top: calc(var(--sqc-control-top) + 52px);
   left: calc(50% - min(230px, 50vw - 14px) + 2px);
   z-index: 62;
   width: min(232px, calc(100vw - 28px));
@@ -306,7 +307,7 @@ body::after {
 
 .sqc-close-screen {
   position: absolute;
-  top: max(18px, env(safe-area-inset-top));
+  top: var(--sqc-control-top);
   right: calc(50% - min(230px, 50vw - 14px) + 2px);
   z-index: 44;
   text-decoration: none;
