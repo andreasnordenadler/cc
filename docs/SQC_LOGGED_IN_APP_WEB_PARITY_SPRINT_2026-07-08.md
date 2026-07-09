@@ -98,3 +98,13 @@ Use the Sam account for both app and mobile browser checks.
 - Checks: `pnpm quest:release-gate`, `pnpm lint` passed with 4 existing warnings, and `pnpm build` passed.
 - Commit/deploy: commits `97d6f35` (`Match SQC active solo detail to app`) and `622f423` (`Preserve SQC condition release gate`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-ipqgivzyf-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
 - Live proof: `https://sidequestchess.com/challenges/knights-before-coffee` returned 200; logged-in Sam browser snapshot showed `Active Solo Side Quest`, `Do this next`, the mini board/status summary, and compact `Conditions` rows; live screenshot saved at `artifacts/sqc-parity-active-solo-detail-2026-07-09/web-active-detail-live.png`; recent Vercel log grep for `error|500|exception` returned no matches.
+
+## 2026-07-09 Community Solo Catalog Slice
+
+- Target: logged-in Community Solo / Community Side Quests catalog.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` Community Side Quests branch renders the crest, Official/Community brand tabs, `Pocket tracker for borrowed bad ideas.` intro panel, Discover/My Library segmented control, search/filter controls, and dark community rows; same-sprint app screenshot exists at `artifacts/mobile-smoke/sqc-mobile-v237-community-solo.png`.
+- Visible difference before edit: web `/community-side-quests` still used a generic `MobileSimpleScreen` empty state with the old identity header/teal shell and no public Community Solo rows, while the app showed the full Community Solo Discover catalog.
+- Web change: `/community-side-quests` now fetches public Community Side Quests and renders an immersive app-like Community Solo Discover screen with gold/brown theming, no identity header, app brand tabs, the app intro copy, Discover/My Library segmented control, search/filter visuals, and dark rows with Community badges and Ready status.
+- Local proof: `artifacts/sqc-parity-community-solo-2026-07-09/web-community-solo-local-final.png`; DOM smoke returned `title=Community Solo Discover`, `count=48/48`, `rowCount=12`, `firstRow=Sunlit Rook Errand mr1aozmr`, `activeTabColor=rgb(96, 240, 175)`, `bgTop=#8a6f3d`, `hasIdentityHeader=false`, and `hasOldEmptyTitle=false`.
+- Checks: `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
+- Commit/deploy: pending.

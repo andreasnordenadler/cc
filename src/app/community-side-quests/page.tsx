@@ -1,6 +1,7 @@
-import MobileAppWebShell, { MobileSimpleScreen } from "@/components/mobile-app-web-shell";
-import { currentUser } from "@clerk/nextjs/server";
+import MobileAppWebShell, { MobileCommunitySideQuestsScreen } from "@/components/mobile-app-web-shell";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +13,10 @@ export const metadata = {
 
 export default async function CommunitySideQuestsPage() {
   noStore();
-  const user = await currentUser();
+  const [user, communityQuests] = await Promise.all([
+    currentUser(),
+    listPublicCommunitySideQuests(await clerkClient(), { limit: 80 }),
+  ]);
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const displayName = user
     ? getPreferredRunnerName(metadataRecord, {
@@ -30,22 +34,34 @@ export default async function CommunitySideQuestsPage() {
       displayName={displayName}
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
+      immersivePresentation
+      theme={{
+        backgroundTop: "#8a6f3d",
+        backgroundMid: "#312817",
+        glow: "rgba(245, 200, 106, .28)",
+        accent: "rgba(245, 200, 106, .18)",
+      }}
     >
-      <MobileSimpleScreen
-        eyebrow="Community Side Quests"
-        title="No public Community Side Quests yet."
-        body={user ? "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows." : "Public player-made Side Quests will appear here as the catalog grows."}
-        primaryAction={{ label: "Add/Create a New Side Quest", href: "/custom-side-quests" }}
-        secondaryAction={{ label: "Official Side Quests", href: "/side-quests" }}
-        rows={[
-          {
-            title: "No matches yet.",
-            meta: "Try a broader search or switch the filter back to All.",
-            status: "Open",
-            href: "/side-quests",
-          },
-        ]}
+      <MobileCommunitySideQuestsScreen
+        signedIn={Boolean(user)}
+        rows={communityQuests.map((quest) => ({
+          id: quest.id,
+          title: quest.title,
+          meta: `${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${quest.summary} · ${formatCommunityStats(quest.stats)}`,
+          href: quest.detailPath,
+          image: quest.badgeImageUrl,
+          sourceBadge: quest.creatorUserId === user?.id ? "Yours" : "Community",
+          status: "Ready",
+        }))}
       />
     </MobileAppWebShell>
   );
+}
+
+function formatCommunityStats(stats: {
+  soloAttempts: number;
+  soloCompletions: number;
+  multiplayerLineups: number;
+}) {
+  return `Solo: ${stats.soloAttempts} tries, ${stats.soloCompletions} completed · Multiplayer: used ${stats.multiplayerLineups} times`;
 }

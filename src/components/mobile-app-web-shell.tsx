@@ -60,6 +60,16 @@ type TrophyRow = {
   source?: "multiplayer" | "solo";
 };
 
+type CommunitySideQuestRow = {
+  id: string;
+  title: string;
+  meta: string;
+  href: string;
+  image?: string | null;
+  sourceBadge?: string | null;
+  status?: string | null;
+};
+
 const publicMultiplayerRows = [
   {
     id: "official-preview-knights",
@@ -709,6 +719,89 @@ export function MobileTrophyCabinetScreen({
         <span className="sqc-card-eyebrow">Official Solo Side Quest collection</span>
         <h2>{completedSoloCount} of {officialSoloCount} official coats unlocked.</h2>
         <p>Locked official coats are previews. Completed Side Quests stay bright in this cabinet.</p>
+      </section>
+    </div>
+  );
+}
+
+export function MobileCommunitySideQuestsScreen({
+  rows,
+  signedIn,
+}: {
+  rows: CommunitySideQuestRow[];
+  signedIn: boolean;
+}) {
+  const visibleRows = rows.slice(0, 12);
+
+  return (
+    <div className="sqc-stack sqc-community-solo-screen">
+      <div className="sqc-screen-emblem" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+
+      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
+          Official Side Quests
+        </Link>
+        <Link href="/side-quests" className="sqc-brand-switch" aria-label="Switch to Official Side Quests">
+          <span />
+        </Link>
+        <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
+          Community Side Quests
+        </Link>
+      </div>
+
+      <section className="sqc-community-intro" aria-label="Community Side Quests">
+        <h1>Pocket tracker for borrowed bad ideas.</h1>
+        <p>Use mobile to pick, check, prove, and collect. Use the website when you want the full tavern-wall browse, public detail pages, and report links.</p>
+      </section>
+
+      <div className="sqc-community-subtabs" role="tablist" aria-label="Community Solo views">
+        <span className="active" role="tab" aria-selected="true">Discover</span>
+        <Link href="/custom-side-quests" role="tab" aria-selected="false">My Library</Link>
+      </div>
+
+      <section className="sqc-community-catalog-section" aria-label="Community Solo Discover">
+        <div className="sqc-community-section-header">
+          <h2>Community Solo Discover</h2>
+          <span>{rows.length ? `${rows.length}/${rows.length}` : "0 public"}</span>
+        </div>
+
+        <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
+          <div className="sqc-community-search" aria-hidden="true">
+            <span />
+            <strong>Search by name or rule</strong>
+          </div>
+          <div className="sqc-community-filter-row">
+            <span className="active">All</span>
+            <span>Popular</span>
+            <span>New</span>
+            <span>Completed</span>
+            <span className="sort">Sort: Top</span>
+          </div>
+        </div>
+
+        {visibleRows.length ? (
+          <div className="sqc-catalog">
+            {visibleRows.map((row) => (
+              <AppRow
+                key={row.id}
+                title={row.title}
+                meta={row.meta}
+                status={row.status ?? "Ready"}
+                href={row.href}
+                image={row.image ?? undefined}
+                sourceBadge={row.sourceBadge ?? "Community"}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="sqc-empty-panel standalone">
+            <strong>No public Community Side Quests yet.</strong>
+            <span>{signedIn ? "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows." : "Public player-made Side Quests will appear here as the catalog grows."}</span>
+          </div>
+        )}
       </section>
     </div>
   );
