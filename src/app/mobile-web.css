@@ -2632,6 +2632,49 @@ body::after {
   gap: 14px;
 }
 
+.sqc-settings-stack {
+  display: grid;
+  gap: 10px;
+}
+
+.sqc-username-editor-card {
+  display: grid;
+  gap: 6px;
+  padding: 9px;
+  border: 1px solid rgba(96, 240, 175, .24);
+  border-radius: 24px;
+  background: rgba(96, 240, 175, .075);
+}
+
+.sqc-username-editor-card h1 {
+  margin: 0;
+  color: var(--paper);
+  font-size: 20px;
+  font-weight: 900;
+  line-height: 23px;
+}
+
+.sqc-username-editor-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 720;
+  line-height: 20px;
+}
+
+.sqc-input-stack {
+  display: grid;
+  gap: 7px;
+}
+
+.sqc-username-editor-card .sqc-primary-action {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 2px;
+  justify-content: center;
+  border: 0;
+}
+
 .sqc-account-hero,
 .sqc-chess-strength-card {
   border: 1px solid var(--line);
