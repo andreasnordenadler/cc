@@ -71,6 +71,16 @@ type CommunitySideQuestRow = {
   status?: string | null;
 };
 
+type CustomSideQuestLibraryRow = {
+  id: string;
+  title: string;
+  meta: string;
+  href: string;
+  image?: string | null;
+  sourceBadge: string;
+  status: string;
+};
+
 const publicMultiplayerRows = [
   {
     id: "official-preview-knights",
@@ -826,6 +836,86 @@ export function MobileCommunitySideQuestsScreen({
           <div className="sqc-empty-panel standalone">
             <strong>No public Community Side Quests yet.</strong>
             <span>{signedIn ? "Create the first public Side Quest from My Custom Side Quests. Public quests will appear here as the catalog grows." : "Public player-made Side Quests will appear here as the catalog grows."}</span>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+export function MobileCustomSideQuestsScreen({
+  rows,
+}: {
+  rows: CustomSideQuestLibraryRow[];
+}) {
+  return (
+    <div className="sqc-stack sqc-custom-library-screen">
+      <div className="sqc-screen-emblem" aria-hidden="true">
+        <Image className="sqc-screen-emblem-glow" alt="" src={mobileAsset.coatGlow} width={166} height={176} priority />
+        <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
+      </div>
+
+      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+        <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
+          Official Side Quests
+        </Link>
+        <Link href="/side-quests" className="sqc-brand-switch" aria-label="Switch to Official Side Quests">
+          <span aria-hidden="true" />
+        </Link>
+        <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
+          Community Side Quests
+        </Link>
+      </div>
+
+      <section className="sqc-community-catalog-section" aria-label="My Custom Side Quests">
+        <div className="sqc-community-section-header">
+          <h2>My Custom Side Quests</h2>
+          <Link href="/create-custom-side-quest">+ Create</Link>
+        </div>
+
+        {!rows.length ? (
+          <Link href="/create-custom-side-quest" className="sqc-custom-create-card">
+            <MobileAssetMark className="sqc-custom-create-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={74} glowSize={96} />
+            <span>
+              <strong>Build your own Side Quest</strong>
+              <small>Create rules, keep drafts private, publish when ready, and use them solo or in Multiplayer Side Quests you host.</small>
+            </span>
+            <b>Build a Side Quest</b>
+          </Link>
+        ) : null}
+
+        <div className="sqc-community-browse-panel" aria-label="My Custom Side Quest filters">
+          <div className="sqc-community-search" aria-hidden="true">
+            <span />
+            <strong>Search my custom Side Quests</strong>
+          </div>
+          <div className="sqc-community-filter-row">
+            <span className="active">All</span>
+            <span>Published</span>
+            <span>Drafts</span>
+            <span>Public</span>
+            <span>Archived</span>
+          </div>
+        </div>
+
+        {rows.length ? (
+          <div className="sqc-catalog">
+            {rows.map((row) => (
+              <AppRow
+                key={row.id}
+                title={row.title}
+                meta={row.meta}
+                status={row.status}
+                href={row.href}
+                image={row.image ?? undefined}
+                sourceBadge={row.sourceBadge}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="sqc-empty-panel standalone">
+            <strong>Your custom Side Quests are empty.</strong>
+            <span>Create a draft first, then publish it when the rule feels ready.</span>
           </div>
         )}
       </section>

@@ -1,7 +1,8 @@
-import MobileAppWebShell, { MobileSimpleScreen } from "@/components/mobile-app-web-shell";
+import MobileAppWebShell, { MobileCustomSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
-import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { getActiveChallenge, getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const metadata = {
   title: "My Custom Side Quests — Side Quest Chess",
@@ -12,6 +13,8 @@ export default async function CustomSideQuestsPage() {
   noStore();
   const user = await currentUser();
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadataRecord = user?.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
+  const customSideQuests = user ? getCustomLibraryRows(privateMetadataRecord, metadataRecord) : [];
   const displayName = user
     ? getPreferredRunnerName(metadataRecord, {
         firstName: user.firstName,
@@ -29,16 +32,51 @@ export default async function CustomSideQuestsPage() {
       lichessUsername={getLichessUsername(metadataRecord)}
       chessComUsername={getChessComUsername(metadataRecord)}
     >
-      <MobileSimpleScreen
-        eyebrow="My Custom Side Quests"
-        title="Build your own Side Quest"
-        body="Create rules, keep drafts private, publish when ready, and use them solo or in Multiplayer Side Quests you host."
-        primaryAction={{ label: "Build a Side Quest", href: "/create-custom-side-quest" }}
-        secondaryAction={{ label: "Add/Create a New Side Quest", href: "/create-custom-side-quest" }}
-        rows={[
-          { title: "Your custom Side Quests are empty.", meta: "Create a draft first, then publish it when the rule feels ready.", status: "Create", href: "/create-custom-side-quest" },
-        ]}
-      />
+      <MobileCustomSideQuestsScreen rows={customSideQuests} />
     </MobileAppWebShell>
   );
+}
+
+function getCustomLibraryRows(privateMetadata: UserMetadataRecord, publicMetadata: UserMetadataRecord) {
+  const sourceMetadata = getCustomSideQuests(privateMetadata).length ? privateMetadata : publicMetadata;
+  const activeId = getActiveChallenge(sourceMetadata)?.id ?? null;
+  const completedIds = new Set(getChallengeProgress(sourceMetadata).completedChallengeIds);
+
+  return getCustomSideQuests(sourceMetadata)
+    .map((quest) => ({
+      id: quest.id,
+      title: quest.title,
+      meta: getCustomLibraryMeta(quest),
+      status: getCustomLibraryStatus(quest, activeId, completedIds.has(quest.id)),
+      sourceBadge: quest.lifecycle === "draft" ? "Draft" : quest.visibility === "public" ? "Community" : "Private",
+      href: "/create-custom-side-quest",
+      image: quest.badgeImageUrl ?? "/badges/custom/community/community-coat-01.png",
+    }));
+}
+
+function getCustomLibraryMeta(quest: CustomSideQuest) {
+  return [
+    quest.lifecycle === "draft" ? "Draft" : quest.lifecycle === "archived" ? "Archived" : "Saved",
+    quest.visibility === "public" ? "Public" : "Private to you",
+    cleanCustomRuleSummaryText(quest.summary),
+  ].filter(Boolean).join(" · ");
+}
+
+function getCustomLibraryStatus(quest: CustomSideQuest, activeId: string | null, completed: boolean) {
+  if (quest.lifecycle === "draft") return "Draft";
+  if (quest.lifecycle === "archived") return "Archived";
+  if (quest.id === activeId) return "Active";
+  return completed ? "Completed" : "Ready";
+}
+
+function cleanCustomRuleSummaryText(value: string) {
+  return value
+    .replace(/game\s+result\s+must\s+be\s+win\.?/gi, "Win a game.")
+    .replace(/game\s+result\s+must\s+be\s+draw\.?/gi, "Draw a game.")
+    .replace(/game\s+result\s+must\s+be\s+lose\.?/gi, "Finish with a loss.")
+    .replace(/\b(your|opponent's) any 1 (king|queen)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\b(your|opponent's) any 1 ((?:queenside|kingside) (?:rook|bishop|knight)|[a-h]-pawn)\b/gi, (_match, owner: string, piece: string) => `${owner} ${piece}`)
+    .replace(/\.\./g, ".")
+    .replace(/\s+/g, " ")
+    .trim();
 }
