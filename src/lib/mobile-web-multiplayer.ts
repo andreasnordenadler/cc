@@ -33,6 +33,14 @@ export type MobileWebMultiplayerResult = {
   }>;
 };
 
+export type MobileWebOfficialWeek = {
+  id: string;
+  title: string;
+  meta: string;
+  href: string;
+  questCount: number;
+};
+
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
 export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userId?: string | null) {
@@ -56,7 +64,13 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
     .slice(0, 3)
     .map(buildOfficialResultRow);
 
-  return { officialRows, communityRows, previousOfficialRows };
+  const officialWeeks = buildOfficialWeeks(
+    finishedQuests.filter((quest) => isOfficialGroupQuest(quest)),
+  );
+  const latestOfficialWeekId = officialWeeks[0]?.id ?? null;
+  const earlierOfficialWeeks = officialWeeks.filter((week) => week.id !== latestOfficialWeekId);
+
+  return { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks };
 }
 
 function buildPreviewRow(
@@ -183,4 +197,35 @@ function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerRe
       };
     }),
   };
+}
+
+function buildOfficialWeeks(quests: ServerGroupQuest[]): MobileWebOfficialWeek[] {
+  const weekMap = new Map<string, { id: string; label: string; rangeLabel: string; quests: ServerGroupQuest[] }>();
+
+  quests.forEach((quest) => {
+    const date = new Date(quest.endAt || quest.startAt || Date.now());
+    const weekStart = new Date(date);
+    const day = weekStart.getUTCDay() || 7;
+    weekStart.setUTCDate(weekStart.getUTCDate() - day + 1);
+    weekStart.setUTCHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+
+    const id = weekStart.toISOString().slice(0, 10);
+    const label = `Week of ${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    const rangeLabel = `${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}-${weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
+    const existing = weekMap.get(id) ?? { id, label, rangeLabel, quests: [] };
+    existing.quests.push(quest);
+    weekMap.set(id, existing);
+  });
+
+  return Array.from(weekMap.values())
+    .sort((a, b) => b.id.localeCompare(a.id))
+    .map((week) => ({
+      id: week.id,
+      title: week.label,
+      meta: `${week.rangeLabel} · ${week.quests.length} official result${week.quests.length === 1 ? "" : "s"}`,
+      href: `/groupquests/${week.quests[0]?.id ?? ""}`,
+      questCount: week.quests.length,
+    }));
 }

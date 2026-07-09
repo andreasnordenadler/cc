@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
-import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult } from "@/lib/mobile-web-multiplayer";
+import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 
@@ -1015,12 +1015,14 @@ export function MobileMultiplayerSideQuestsScreen({
   officialRows,
   communityRows,
   previousOfficialRows,
+  earlierOfficialWeeks,
 }: {
   selectedTab: "official" | "community";
   signedIn: boolean;
   officialRows: MobileWebMultiplayerPreview[];
   communityRows: MobileWebMultiplayerPreview[];
   previousOfficialRows?: MobileWebMultiplayerResult[];
+  earlierOfficialWeeks?: MobileWebOfficialWeek[];
 }) {
   return (
     <div className="sqc-stack">
@@ -1056,7 +1058,7 @@ export function MobileMultiplayerSideQuestsScreen({
       </div>
 
       {selectedTab === "official"
-        ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} />
+        ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} earlierOfficialWeeks={earlierOfficialWeeks ?? []} />
         : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} />}
     </div>
   );
@@ -1066,10 +1068,12 @@ function OfficialMultiplayerPanel({
   signedIn,
   rows,
   previousOfficialRows,
+  earlierOfficialWeeks,
 }: {
   signedIn: boolean;
   rows: MobileWebMultiplayerPreview[];
   previousOfficialRows: MobileWebMultiplayerResult[];
+  earlierOfficialWeeks: MobileWebOfficialWeek[];
 }) {
   return (
     <>
@@ -1122,7 +1126,23 @@ function OfficialMultiplayerPanel({
             <span className="sqc-card-eyebrow">Earlier official weeks</span>
             <h2>Browse weekly results.</h2>
             <p>Finished official Multiplayer Side Quest sets are grouped by week so we can keep running this weekly.</p>
-            <p>Earlier weekly result sets will appear here after the next official cycle closes.</p>
+            {earlierOfficialWeeks.length ? (
+              <div className="sqc-catalog">
+                {earlierOfficialWeeks.map((week) => (
+                  <AppRow
+                    key={week.id}
+                    title={week.title}
+                    meta={week.meta}
+                    status="Results"
+                    href={week.href}
+                    image={mobileAsset.multiplayerSeal}
+                    sourceBadge="Archive"
+                  />
+                ))}
+              </div>
+            ) : (
+              <p>Earlier weekly result sets will appear here after the next official cycle closes.</p>
+            )}
           </section>
         </>
       ) : null}
