@@ -1,5 +1,6 @@
 import MobileAppWebShell, { MobileMultiplayerSideQuestsScreen } from "@/components/mobile-app-web-shell";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
+import { getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -10,8 +11,9 @@ export const metadata = {
 
 export default async function MultiplayerPage() {
   noStore();
-  const user = await currentUser();
+  const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const { officialRows, communityRows } = await getMobileWebMultiplayerPreviews(client, user?.id);
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -29,7 +31,12 @@ export default async function MultiplayerPage() {
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
     >
-      <MobileMultiplayerSideQuestsScreen selectedTab="official" signedIn={Boolean(user)} />
+      <MobileMultiplayerSideQuestsScreen
+        selectedTab="official"
+        signedIn={Boolean(user)}
+        officialRows={officialRows}
+        communityRows={communityRows}
+      />
     </MobileAppWebShell>
   );
 }

@@ -1,16 +1,11 @@
 import { redirect } from "next/navigation";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import MobileAppWebShell, {
   MobileMultiplayerDetailScreen,
-  communityMultiplayerRows,
-  publicMultiplayerRows,
 } from "@/components/mobile-app-web-shell";
+import { getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
-
-export function generateStaticParams() {
-  return [...publicMultiplayerRows, ...communityMultiplayerRows].map((quest) => ({ id: quest.id }));
-}
 
 export default async function GroupQuestDetailPage({
   params,
@@ -19,13 +14,14 @@ export default async function GroupQuestDetailPage({
 }) {
   noStore();
   const { id } = await params;
-  const quest = [...publicMultiplayerRows, ...communityMultiplayerRows].find((row) => row.id === id);
+  const [user, client] = await Promise.all([currentUser(), clerkClient()]);
+  const { officialRows, communityRows } = await getMobileWebMultiplayerPreviews(client, user?.id);
+  const quest = [...officialRows, ...communityRows].find((row) => row.id === id);
 
   if (!quest) {
     redirect("/multiplayer");
   }
 
-  const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const displayName = user
     ? getPreferredRunnerName(metadata, {
