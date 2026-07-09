@@ -271,6 +271,17 @@ Use the Sam account for both app and mobile browser checks.
 - Live proof: `https://sidequestchess.com/multiplayer?proof=3c3cb37` returned 200; logged-in Sam browser screenshot saved at `artifacts/sqc-parity-multiplayer-like-pills-2026-07-09/web-multiplayer-live-sam.png`; signed-in Sam snapshot showed `rowCount=3`, `Like Official 14-Day Starter Shield. 0 likes.`, `SQC official · Not joined · 0 players · 10d left`, and `Not joined` on each official row; Vercel production error and 500 scans over 30 minutes returned no logs.
 - Blocker note: local route screenshot smoke against `next start` was blocked by the existing Clerk localhost refresh-loop issue and returned `Internal Server Error`; the route proof therefore used build verification plus live signed-in production proof after guarded deploy.
 
+## 2026-07-09 Official Solo Detail Card Slice
+
+- Target: logged-in official Solo Side Quest detail, verified on `Back Rank Goblin`.
+- App evidence inspected before edit: current `apps/mobile/App.tsx` `SelectedQuestDetailCard`, which renders an app-native quest card with inline like title, Coat/difficulty pills, coat glow art, flavor card, compact condition rows, `Share public link`, and a focused pick/start action card.
+- Web evidence before edit: logged-in Sam browser screenshot `artifacts/sqc-parity-official-solo-detail-2026-07-09/web-official-detail-before.png`; production `/challenges/back-rank-goblin` still showed a generic `Solo Side Quests` title card, `Proof / No qualifying game yet`, option-style proof rows, and no coat/flavor/share sequence from the app.
+- Web change: non-active `/challenges/[id]` official Solo details now use the app-like official detail card stack while preserving the existing active Solo detail branch and the release gate's canonical `challenge.conditions.map` condition rendering.
+- Local proof: `http://localhost:3147/challenges/back-rank-goblin?proof=official-detail-local` returned 200; Playwright screenshot saved at `artifacts/sqc-parity-official-solo-detail-2026-07-09/web-official-detail-local.png`; focused smoke returned title `Back Rank Goblin`, `hasCoat=true`, `coatPill="★ Coat"`, `difficulty="Easy"`, `conditionCount=4`, `hasFlavor=true`, `hasProofAction=true`, `shareText="Share public link"`, and `cardRadius="30px"`.
+- Checks: `pnpm quest:release-gate` passed; `pnpm lint` passed with 4 existing warnings; `pnpm build` passed.
+- Commit/deploy: commit `f262d4c` (`Match SQC official solo detail to app`) pushed to `main`; guarded `pnpm deploy:prod` deployed `https://cc-5s9thfh9d-andreas-nordenadlers-projects.vercel.app` and aliased it to `https://sidequestchess.com`.
+- Live proof: `https://sidequestchess.com/challenges/back-rank-goblin?proof=f262d4c` and the deployment URL returned 200; logged-in Sam browser screenshot saved at `artifacts/sqc-parity-official-solo-detail-2026-07-09/web-official-detail-live-sam.png`; live mobile Playwright screenshot and DOM smoke saved at `artifacts/sqc-parity-official-solo-detail-2026-07-09/web-official-detail-live-mobile.png` and `artifacts/sqc-parity-official-solo-detail-2026-07-09/live-dom-smoke.json`; DOM smoke returned `hasAppLikeHeader=true`, `hasOldProofCard=false`, `hasCoatImage=true`, `conditionCount=4`, `shareText="Share public link"`, `cardRadius="30px"`, and `conditionBg="rgba(245, 200, 106, 0.1)"`; Vercel production error-level and 500 scans over 30 minutes returned no logs.
+
 ## 2026-07-09 Account Logout Action Slice
 
 - Target: logged-in Account bottom action.
