@@ -848,7 +848,9 @@ body::after {
   justify-items: center;
   gap: 10px;
   margin-top: 0;
+  color: inherit;
   text-align: center;
+  text-decoration: none;
 }
 
 .sqc-section-mark {

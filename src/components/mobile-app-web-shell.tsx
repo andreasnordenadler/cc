@@ -331,11 +331,11 @@ function SignedInHome({
       </div>
 
       <section className="sqc-home-section">
-        <div className="sqc-section-hero">
+        <Link href="/multiplayer" className="sqc-section-hero" aria-label="Open active Multiplayer Side Quest details">
           <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
           <p className="sqc-pill">Active Multiplayer Side Quests</p>
           <h2>No active Multiplayer Side Quests</h2>
-        </div>
+        </Link>
         <div className="sqc-row-list trophy-preview">
           <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" href="/multiplayer" />
         </div>
