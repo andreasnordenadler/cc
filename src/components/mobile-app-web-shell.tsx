@@ -116,6 +116,7 @@ const menuItems = [
   { id: "createMultiplayer", label: "Create Multiplayer Side Quest", href: "/create-multiplayer-side-quest", icon: "plus" },
   { id: "account", label: "My Account", href: "/account", icon: "person" },
   { id: "support", label: "Help & Support", href: "/support", icon: "help" },
+  { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
 ];
 
 const mobileAsset = {
