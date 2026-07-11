@@ -24,6 +24,20 @@ export async function getMobileRequestUserId(request: Request): Promise<string |
   }
 }
 
+export async function getMobileBearerRequestUserId(request: Request): Promise<string | null> {
+  const token = getBearerToken(request);
+  if (!token) return null;
+
+  try {
+    const verifiedToken = await verifyToken(token, {
+      secretKey: process.env.CLERK_SECRET_KEY,
+    });
+    return typeof verifiedToken.sub === "string" ? verifiedToken.sub : null;
+  } catch {
+    return null;
+  }
+}
+
 function getBearerToken(request: Request) {
   const authorization = request.headers.get("authorization") || request.headers.get("Authorization");
   const match = authorization?.match(/^Bearer\s+(.+)$/i);

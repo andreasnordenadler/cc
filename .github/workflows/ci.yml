@@ -46,5 +46,8 @@ jobs:
       - name: Typecheck mobile app
         run: pnpm --dir apps/mobile typecheck
 
+      - name: Validate Expo SDK compatibility
+        run: pnpm mobile:doctor
+
       - name: Build web app
         run: pnpm build
