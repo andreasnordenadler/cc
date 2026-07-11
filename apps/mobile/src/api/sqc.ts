@@ -1,5 +1,6 @@
 import type {
   MobileAccountResponse,
+  MobileAccountDeletionResponse,
   MobileBootstrap,
   MobileGroupQuestActionResponse,
   MobileCommunityLikeResponse,
@@ -70,6 +71,27 @@ export async function fetchMobileAccountState(sessionToken?: string | null): Pro
   }
 
   return readMobileJson<MobileAccountResponse>(response, "account");
+}
+
+export async function deleteMobileAccount({
+  sessionToken,
+  confirmation,
+}: {
+  sessionToken?: string | null;
+  confirmation: string;
+}): Promise<MobileAccountDeletionResponse> {
+  const response = await fetchWithTimeout(buildMobileUrl("/api/mobile/account"), {
+    method: "DELETE",
+    headers: buildMobileAuthHeaders(sessionToken),
+    body: JSON.stringify({ confirmation }),
+  }, 20000);
+  const result = await readMobileJson<MobileAccountDeletionResponse>(response, "account deletion");
+
+  if (!response.ok) {
+    throw new Error(result.message || `SQC account deletion failed: ${response.status}`);
+  }
+
+  return result;
 }
 
 export async function updateMobileChessUsernames({

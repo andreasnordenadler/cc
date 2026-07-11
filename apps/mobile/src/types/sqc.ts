@@ -283,6 +283,12 @@ export type MobileAccountSignedOut = {
 
 export type MobileAccountResponse = MobileAccountState | MobileAccountSignedOut;
 
+export type MobileAccountDeletionResponse = {
+  ok: boolean;
+  code: "account_deleted" | "confirmation_required" | "unauthenticated" | "cleanup_temporarily_unavailable" | "deletion_temporarily_unavailable" | "invalid_request";
+  message: string;
+};
+
 export type MobileProfileUpdateResponse = {
   apiVersion: number;
   authenticated: boolean;
