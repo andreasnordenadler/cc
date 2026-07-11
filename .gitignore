@@ -87,3 +87,6 @@ tmp-seals.jpg
 /public/stamps/quest-complete-real-red-wax-sqc-v*.png
 /public/stamps/quest-complete-red-wax-sqc-logo-v*.png
 /scripts/seed-sqc-realistic-community-data.cjs
+
+# Local Clerk keyless-development credentials
+/.clerk/

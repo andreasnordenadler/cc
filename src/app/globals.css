@@ -3021,3 +3021,33 @@ p { color: var(--muted); line-height: 1.5; }
   .community-card-coat { width: min(190px, 70vw); justify-self: center; }
   .community-card-actions { grid-template-columns: 1fr; }
 }
+
+/* Dedicated public privacy policy */
+.privacy-page {
+  min-height: 100vh;
+  padding: clamp(24px, 5vw, 72px) 18px;
+  color: #fff7e8;
+  background: radial-gradient(circle at 15% 0%, rgba(45, 184, 170, .2), transparent 35rem), radial-gradient(circle at 90% 18%, rgba(204, 151, 62, .15), transparent 28rem), linear-gradient(155deg, #173f43 0%, #171011 55%, #0e0b0c 100%);
+}
+.privacy-policy { width: min(820px, 100%); margin: 0 auto; font-size: 1rem; line-height: 1.75; }
+.privacy-hero, .privacy-policy section, .privacy-notice { padding: clamp(22px, 4vw, 38px); margin-bottom: 18px; border: 1px solid rgba(255, 247, 232, .13); border-radius: 24px; background: rgba(18, 14, 15, .72); box-shadow: 0 24px 70px rgba(0, 0, 0, .22); }
+.privacy-hero h1 { margin: 8px 0 14px; font-size: clamp(2.5rem, 8vw, 5rem); line-height: .98; letter-spacing: -.055em; }
+.privacy-kicker, .privacy-effective { color: #e0b864; font-size: .78rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.privacy-back, .privacy-policy a { color: #f1cd78; }
+.privacy-back { display: inline-block; margin-bottom: 28px; font-weight: 750; text-decoration: none; }
+.privacy-lede { max-width: 68ch; color: rgba(255, 247, 232, .82); font-size: 1.1rem; }
+.privacy-contents { display: flex; flex-wrap: wrap; gap: 9px; margin: 18px 0; }
+.privacy-contents a { padding: 7px 13px; border: 1px solid rgba(255, 247, 232, .16); border-radius: 999px; background: rgba(255, 255, 255, .05); color: #fff7e8; font-size: .84rem; font-weight: 700; text-decoration: none; }
+.privacy-policy h2 { margin: 0 0 14px; font-size: clamp(1.45rem, 4vw, 2rem); line-height: 1.15; }
+.privacy-policy h3 { margin: 24px 0 7px; color: #f1cd78; font-size: 1.02rem; }
+.privacy-policy p { margin: 0 0 14px; color: rgba(255, 247, 232, .78); }
+.privacy-policy li { margin: 8px 0; color: rgba(255, 247, 232, .8); }
+.privacy-policy strong { color: #fff7e8; }
+.privacy-contact { border-color: rgba(224, 184, 100, .36) !important; }
+.privacy-contact-link { display: inline-block; padding: 11px 16px; border-radius: 12px; background: #e0b864; color: #171011 !important; font-weight: 850; text-decoration: none; }
+.privacy-notice { border-color: rgba(255, 122, 102, .38); background: rgba(80, 34, 32, .42); }
+.privacy-notice p { margin: 5px 0 0; }
+@media (max-width: 520px) {
+  .privacy-page { padding-inline: 12px; }
+  .privacy-hero, .privacy-policy section, .privacy-notice { padding: 21px 18px; border-radius: 18px; }
+}

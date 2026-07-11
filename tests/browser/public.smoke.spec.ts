@@ -30,6 +30,19 @@ test("multiplayer catalog is publicly browseable", async ({ page }) => {
   await expect(page.getByText(/official/, { exact: true }).first()).toBeVisible();
 });
 
+test("privacy policy is public, dedicated, and links to privacy support", async ({ page }) => {
+  await expectHealthyNavigation(page, "/privacy");
+
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Information SQC handles" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Chess game verification" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Contact privacy support" })).toHaveAttribute(
+    "href",
+    "mailto:andreas.nordenadler@gmail.com?subject=Side%20Quest%20Chess%20privacy%20request",
+  );
+});
+
 test("auth entry renders without requiring credentials", async ({ page }) => {
   await expectHealthyNavigation(page, "/sign-in");
 
