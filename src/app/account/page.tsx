@@ -1,5 +1,6 @@
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import AccountLogoutButton from "@/components/account-logout-button";
+import DeleteAccountControl from "@/components/delete-account-control";
 import { saveRunnerProfile } from "@/app/actions";
 import type { MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
@@ -231,6 +232,7 @@ function SignedInAccountScreen({
         />
       </AccountSection>
 
+      <DeleteAccountControl />
       <AccountLogoutButton />
     </div>
   );

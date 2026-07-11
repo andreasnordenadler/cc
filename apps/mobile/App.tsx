@@ -37,7 +37,7 @@ import {
   type TextStyle,
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { buildMobileUrl, getApiBaseUrl, deleteMobileAccount, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
@@ -5919,6 +5919,9 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
   const [helpOpen, setHelpOpen] = useState(false);
   const [usernameEditorY, setUsernameEditorY] = useState(0);
   const [usernameFocusRequest, setUsernameFocusRequest] = useState<{ provider: ChessAccountProvider; token: number } | null>(null);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
   if (!signedIn) {
     return (
       <View style={compactStyles.stack}>
@@ -5963,6 +5966,24 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
     onSelectTab("home");
   }
 
+  async function handleDeleteAccount() {
+    if (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) return;
+    setDeletingAccount(true);
+    try {
+      const sessionToken = await authBridge.getSessionToken();
+      await deleteMobileAccount({ sessionToken, confirmation: deleteConfirmation });
+      await authBridge.signOut?.();
+      setDeleteConfirmation("");
+      setShowDeleteAccount(false);
+      Alert.alert("Account deleted", "Your Side Quest Chess account and saved data were permanently deleted.");
+      onSelectTab("home");
+    } catch (caught) {
+      Alert.alert("Account not deleted", caught instanceof Error ? caught.message : "Please try again.");
+    } finally {
+      setDeletingAccount(false);
+    }
+  }
+
   return (
     <View style={compactStyles.stack}>
       <View style={compactStyles.heroPanel}>
@@ -5999,6 +6020,40 @@ function AccountTrackerDashboard({ bootstrap, account, authBridge, onSelectTab, 
       <ChessUsernameEditor account={accountState} authBridge={authBridge} onSaved={onAccountUpdated} focusRequest={usernameFocusRequest} onLayout={(event) => setUsernameEditorY(event.nativeEvent.layout.y)} />
       <AccountHelpSupportSection onOpenHelp={() => setHelpOpen(true)} />
       <HelpSupportModal visible={helpOpen} onClose={() => setHelpOpen(false)} signedIn={accountState} authBridge={authBridge} />
+      <View style={compactStyles.heroPanel}>
+        <Text style={compactStyles.kicker}>Danger zone</Text>
+        <Text style={compactStyles.heroCopy}>Permanently delete your SQC account, profile, progress, proofs, and Clerk sign-in. This cannot be undone.</Text>
+        {showDeleteAccount ? (
+          <View style={styles.inputStack}>
+            <Text style={styles.inputLabel}>Type DELETE MY ACCOUNT to confirm</Text>
+            <TextInput
+              value={deleteConfirmation}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              placeholder="DELETE MY ACCOUNT"
+              placeholderTextColor="rgba(255,247,232,.42)"
+              style={styles.textInput}
+              onChangeText={setDeleteConfirmation}
+            />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Permanently delete account"
+              disabled={deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount}
+              style={[compactStyles.logoutButton, (deleteConfirmation !== "DELETE MY ACCOUNT" || deletingAccount) && { opacity: 0.45 }]}
+              onPress={() => void handleDeleteAccount()}
+            >
+              <Text style={compactStyles.logoutButtonText}>{deletingAccount ? "Deleting…" : "Permanently delete account"}</Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={() => { setShowDeleteAccount(false); setDeleteConfirmation(""); }}>
+              <Text style={compactStyles.accountInfoText}>Cancel</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Pressable accessibilityRole="button" accessibilityLabel="Delete account" style={compactStyles.logoutButton} onPress={() => setShowDeleteAccount(true)}>
+            <Text style={compactStyles.logoutButtonText}>Delete account</Text>
+          </Pressable>
+        )}
+      </View>
       <Pressable accessibilityRole="button" accessibilityLabel="Log out" style={compactStyles.logoutButton} onPress={() => void handleLogOut()}>
         <Text style={compactStyles.logoutButtonText}>Log out</Text>
       </Pressable>

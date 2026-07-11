@@ -1,6 +1,8 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { getMobileRequestUserId } from "@/lib/mobile-auth";
+import { getMobileBearerRequestUserId, getMobileRequestUserId } from "@/lib/mobile-auth";
+import { handleAccountDeletionRequest } from "@/lib/account-deletion-route";
+import { purgeReplicatedAccountData } from "@/lib/account-deletion-cleanup";
 import { getChessRatingSnapshots, refreshChessRatingSnapshots, shouldRefreshChessRatingSnapshots } from "@/lib/chess-ratings";
 import { CHALLENGES } from "@/lib/challenges";
 import { getSupportMessages } from "@/lib/analytics";
@@ -396,6 +398,15 @@ export async function GET(request: Request) {
       message: message.message,
       source: message.source ?? "mobile",
     })),
+  });
+}
+
+export async function DELETE(request: Request) {
+  const client = await clerkClient();
+  return handleAccountDeletionRequest(request, {
+    getAuthenticatedUserId: getMobileBearerRequestUserId,
+    purgeReplicatedUserData: (userId) => purgeReplicatedAccountData(client, userId),
+    deleteUser: (userId) => client.users.deleteUser(userId),
   });
 }
 
