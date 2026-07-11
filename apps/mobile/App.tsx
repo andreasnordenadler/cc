@@ -38,6 +38,7 @@ import {
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { buildMobileUrl, getApiBaseUrl, deleteMobileCustomSideQuest, fetchMobileAccountState, fetchMobileBootstrap, runMobileCommunityLikeAction, runMobileGroupQuestAction, runMobileQuestAction, saveMobileCustomSideQuest, submitMobileSupportMessage, updateMobileChessUsernames } from "./src/api/sqc";
+import { loadMobileAccount } from "./src/account/loadMobileAccount";
 import { clerkPublishableKey, clerkTokenCache, isClerkMobileAuthConfigured } from "./src/auth/clerk";
 import { OFFLINE_MOBILE_BOOTSTRAP } from "./src/data/offlineBootstrap";
 import type { MobileAccountResponse, MobileAccountState, MobileBootstrap, MobileChallenge, MobileCustomSideQuest, MobileGroupQuestParticipantRow, MobileGroupQuestSummary, MobileSupportMessage } from "./src/types/sqc";
@@ -1563,24 +1564,15 @@ function MobileShell({ authBridge }: { authBridge: MobileAuthBridge }) {
     }
   }, []);
 
-  const loadAccount = useCallback(async () => {
-    if (!authBridge.isLoaded) {
-      const fallback = shell.account ?? MOBILE_ACCOUNT_FALLBACK;
-      setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK }));
-      return fallback;
-    }
-
-    try {
-      const sessionToken = authBridge.isSignedIn ? await authBridge.getSessionToken() : null;
-      const nextAccount = await fetchMobileAccountState(sessionToken);
-      setShell((current) => ({ ...current, account: nextAccount }));
-      return nextAccount;
-    } catch {
-      const fallback = shell.account ?? MOBILE_ACCOUNT_FALLBACK;
-      setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK }));
-      return fallback;
-    }
-  }, [authBridge, shell.account]);
+  const loadAccount = useCallback(() => loadMobileAccount({
+    isLoaded: authBridge.isLoaded,
+    isSignedIn: authBridge.isSignedIn,
+    getSessionToken: authBridge.getSessionToken,
+    fetchAccount: fetchMobileAccountState,
+    applyAccount: (account) => setShell((current) => ({ ...current, account })),
+    applyFallback: () => setShell((current) => ({ ...current, account: current.account ?? MOBILE_ACCOUNT_FALLBACK })),
+    fallbackAccount: MOBILE_ACCOUNT_FALLBACK,
+  }), [authBridge.getSessionToken, authBridge.isLoaded, authBridge.isSignedIn]);
 
   const refreshBoardAndAccount = useCallback(async () => {
     await Promise.all([loadBootstrap({ refresh: true }), loadAccount()]);
