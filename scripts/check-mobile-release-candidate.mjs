@@ -5,6 +5,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { normalizeCertificateSha256, parseSignerCertificateSha256 } from "./mobile-release-lib.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
@@ -80,6 +81,8 @@ const shaAsset = shaAssets[0];
 const versionMatch = release.body.match(/Version:\s*([^\n]+)/i);
 const versionCodeMatch = release.body.match(/Version code:\s*(\d+)/i);
 const shaMatch = release.body.match(/SHA256:\s*([a-f0-9]{64})/i);
+const sourceCommitMatch = release.body.match(/Source commit:\s*([a-f0-9]{40})/i);
+const signerShaMatch = release.body.match(/Signer certificate SHA256:\s*([a-f0-9:]{64,95})/i);
 
 assert(!release.isDraft, `${release.tagName} is still a draft release.`);
 assert(apkAssets.length === 1, `${release.tagName} must have exactly one APK asset, found ${apkAssets.length}.`);
@@ -89,8 +92,14 @@ assert(shaAsset, `${release.tagName} has no APK SHA256 sidecar asset.`);
 assert(versionMatch, `${release.tagName} release notes are missing Version.`);
 assert(versionCodeMatch, `${release.tagName} release notes are missing Version code.`);
 assert(shaMatch, `${release.tagName} release notes are missing SHA256.`);
+assert(sourceCommitMatch, `${release.tagName} release notes are missing Source commit.`);
+assert(signerShaMatch, `${release.tagName} release notes are missing signer certificate SHA256.`);
 assert(apkAsset.name.includes(`v${versionCode}`), `APK asset name ${apkAsset.name} does not include v${versionCode}.`);
 assert(versionCodeMatch[1] === String(versionCode), `${release.tagName} release notes version code ${versionCodeMatch[1]} does not match tag ${versionCode}.`);
+const tagCommit = capture("git", ["rev-list", "-n", "1", release.tagName]);
+assert(tagCommit === sourceCommitMatch[1], `${release.tagName} points to ${tagCommit}, not release-note source ${sourceCommitMatch[1]}.`);
+const taggedAppConfig = JSON.parse(capture("git", ["show", `${release.tagName}:apps/mobile/app.json`]));
+assert(taggedAppConfig.expo?.android?.versionCode === versionCode, `${release.tagName} source app.json does not identify versionCode ${versionCode}.`);
 assert(
   !apkAsset.digest || apkAsset.digest === `sha256:${shaMatch[1]}`,
   `${release.tagName} APK asset digest ${apkAsset.digest} does not match release-note SHA256 ${shaMatch[1]}.`,
@@ -150,8 +159,9 @@ try {
 
   const apksigner = findAndroidBuildTool("apksigner");
   const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", apkPath]);
-  assert(!signerOutput.includes("CN=Android Debug"), `${release.tagName} APK is signed with the Android Debug certificate.`);
-  assert(!signerOutput.includes("OU=Android"), `${release.tagName} APK signer still looks like the default Android debug identity.`);
+  const signerSha256 = parseSignerCertificateSha256(signerOutput);
+  const expectedSignerSha256 = normalizeCertificateSha256(signerShaMatch[1]);
+  assert(signerSha256 === expectedSignerSha256, `${release.tagName} APK signer SHA-256 ${signerSha256} does not match release notes ${expectedSignerSha256}.`);
 } finally {
   rmSync(tmpDir, { recursive: true, force: true });
 }
