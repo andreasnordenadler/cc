@@ -5,6 +5,12 @@ on:
     paths:
       - "apps/mobile/**"
       - "scripts/mobile-release.mjs"
+      - "scripts/mobile-release-lib.mjs"
+      - "scripts/check-mobile-release-candidate.mjs"
+      - "scripts/install-mobile-release-candidate.mjs"
+      - "tests/mobile-release-provenance.test.ts"
+      - "src/app/api/mobile/**"
+      - "src/lib/mobile-auth.ts"
       - "package.json"
       - "pnpm-lock.yaml"
       - ".github/workflows/mobile-release-gate.yml"
@@ -25,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
-      contents: write
+      contents: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_github_release == 'true' && 'write' || 'read' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -69,6 +75,7 @@ jobs:
           SQC_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.SQC_ANDROID_KEYSTORE_PASSWORD }}
           SQC_ANDROID_KEY_ALIAS: ${{ secrets.SQC_ANDROID_KEY_ALIAS }}
           SQC_ANDROID_KEY_PASSWORD: ${{ secrets.SQC_ANDROID_KEY_PASSWORD }}
+          SQC_ANDROID_SIGNING_CERT_SHA256: ${{ secrets.SQC_ANDROID_SIGNING_CERT_SHA256 }}
         run: |
           if [ -z "${{ secrets.SQC_ANDROID_KEYSTORE_BASE64 }}" ]; then
             echo "Missing SQC_ANDROID_KEYSTORE_BASE64 secret" >&2
@@ -76,7 +83,7 @@ jobs:
           fi
           printf '%s' "${{ secrets.SQC_ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$SQC_ANDROID_KEYSTORE_PATH"
           if [ "${{ inputs.publish_github_release }}" = "true" ]; then
-            pnpm mobile:release:github --no-bump
+            pnpm mobile:release:github
           else
-            pnpm mobile:release --no-bump
+            pnpm mobile:release
           fi
