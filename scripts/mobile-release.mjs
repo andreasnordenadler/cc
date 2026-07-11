@@ -4,6 +4,12 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, copyFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  assertCleanReleaseSource,
+  assertReleaseTagIdentity,
+  normalizeCertificateSha256,
+  parseSignerCertificateSha256,
+} from "./mobile-release-lib.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const repoRoot = path.resolve(path.dirname(__filename), "..");
@@ -22,7 +28,7 @@ const getArg = (name) => {
 
 const shouldPublishGithub = args.has("--github-release");
 const shouldSkipBuild = args.has("--skip-build");
-const shouldNoBump = args.has("--no-bump");
+const shouldPrepare = args.has("--prepare");
 const explicitVersionName = getArg("--version-name");
 const explicitVersionCode = getArg("--version-code");
 const releaseDate = getArg("--date") ?? new Date().toISOString().slice(0, 10);
@@ -104,14 +110,14 @@ const previousAllowBackup = appConfig.expo.android.allowBackup;
 appConfig.expo.android.allowBackup = false;
 const currentVersionName = appConfig.expo.version;
 const currentVersionCode = appConfig.expo.android.versionCode;
-const versionName = explicitVersionName ?? (shouldNoBump ? currentVersionName : nextPatchVersion(currentVersionName));
-const versionCode = Number.parseInt(explicitVersionCode ?? (shouldNoBump ? currentVersionCode : currentVersionCode + 1), 10);
+const versionName = explicitVersionName ?? (shouldPrepare ? nextPatchVersion(currentVersionName) : currentVersionName);
+const versionCode = Number.parseInt(explicitVersionCode ?? (shouldPrepare ? currentVersionCode + 1 : currentVersionCode), 10);
 
 if (!Number.isInteger(versionCode) || versionCode <= 0) {
   throw new Error(`Invalid Android versionCode: ${explicitVersionCode}`);
 }
 
-if (!shouldNoBump || explicitVersionName || explicitVersionCode) {
+if (shouldPrepare || explicitVersionName || explicitVersionCode) {
   appConfig.expo.version = versionName;
   appConfig.expo.android.versionCode = versionCode;
   writeFileSync(appJsonPath, `${JSON.stringify(appConfig, null, 2)}\n`);
@@ -121,6 +127,16 @@ if (!shouldNoBump || explicitVersionName || explicitVersionCode) {
   console.log('Updated apps/mobile/app.json: android.allowBackup=false');
 } else {
   console.log(`Using existing apps/mobile/app.json: version=${versionName}, versionCode=${versionCode}`);
+}
+
+if (shouldPrepare) {
+  console.log("\n✅ Release version prepared. Review and commit apps/mobile/app.json before running mobile:release.");
+  process.exit(0);
+}
+
+const sourceCommit = capture("git", ["rev-parse", "HEAD"]);
+if (!shouldSkipBuild) {
+  assertCleanReleaseSource(capture("git", ["status", "--porcelain", "--untracked-files=all"]), sourceCommit);
 }
 
 disableAndroidBackup();
@@ -162,8 +178,10 @@ if (!manifestPrint.includes('android:allowBackup="false"')) throw new Error('APK
 
 const apksigner = findAndroidBuildTool("apksigner");
 const signerOutput = capture(apksigner, ["verify", "--verbose", "--print-certs", artifactPath]);
-if (signerOutput.includes("CN=Android Debug") || signerOutput.includes("OU=Android")) {
-  throw new Error("Release APK is still signed with Android Debug certificate");
+const expectedSignerSha256 = normalizeCertificateSha256(process.env.SQC_ANDROID_SIGNING_CERT_SHA256 ?? "");
+const signerSha256 = parseSignerCertificateSha256(signerOutput);
+if (signerSha256 !== expectedSignerSha256) {
+  throw new Error(`Release APK signer SHA-256 mismatch: expected ${expectedSignerSha256}, got ${signerSha256}`);
 }
 console.log(`\n✅ APK verified: ${artifactPath}`);
 console.log(`   versionName=${manifestVersionName}`);
@@ -171,22 +189,32 @@ console.log(`   versionCode=${manifestVersionCode}`);
 console.log(`   debuggable=${debuggable}`);
 console.log("   allowBackup=false");
 console.log(`   sha256=${sha256}`);
+console.log(`   sourceCommit=${sourceCommit}`);
+console.log(`   signerCertificateSha256=${signerSha256}`);
 
 if (shouldPublishGithub) {
   const tag = `mobile-v${versionCode}`;
+  assertReleaseTagIdentity(tag, versionCode);
+  try {
+    capture("git", ["rev-parse", "--verify", `refs/tags/${tag}`]);
+    throw new Error(`Refusing to rewrite existing immutable tag ${tag}. Prepare a new version instead.`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("Refusing to rewrite")) throw error;
+  }
   const title = `SQC Mobile Android v${versionCode}`;
   const notes = [
     `Side Quest Chess Android beta candidate v${versionCode}.`,
     ``,
     `Version: ${versionName}`,
     `Version code: ${versionCode}`,
+    `Source commit: ${sourceCommit}`,
+    `Signer certificate SHA256: ${signerSha256}`,
     `SHA256: ${sha256}`,
   ].join("\n");
-  run("gh", ["release", "create", tag, artifactPath, shaPath, "--title", title, "--notes", notes, "--latest"]);
+  run("gh", ["release", "create", tag, artifactPath, shaPath, "--target", sourceCommit, "--title", title, "--notes", notes, "--latest"]);
   console.log(`✅ GitHub release published: ${tag}`);
 }
 
 console.log("\nNext:");
-console.log("1. Commit app.json/script changes (do not commit APK artifacts).");
-console.log("2. If published: use the GitHub release asset URL for tester distribution.");
-console.log("3. Run a signed-device smoke test before broader rollout.");
+console.log("1. If published: use the GitHub release asset URL for tester distribution.");
+console.log("2. Run the candidate checker and signed-device smoke test before broader rollout.");
