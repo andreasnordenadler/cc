@@ -3,6 +3,8 @@
 
 ## Reconciled handoff — 2026-07-11
 
+> Public web, Android, and iOS launch gates are maintained in [`docs/SQC_PUBLIC_LAUNCH_READINESS_ROADMAP_2026-07-11.md`](docs/SQC_PUBLIC_LAUNCH_READINESS_ROADMAP_2026-07-11.md). This file remains the historical product ledger; do not duplicate store/production readiness work here.
+
 This handoff was reconciled against `src/`, `apps/mobile/`, the proof documents under `docs/`, GitHub releases through `mobile-v337`, and Git history through `ad370853`. A checked box below means the current tree and history prove the requested outcome; time-boxed queues are not checked merely because their deadline passed.
 
 ### Prioritized remaining work
