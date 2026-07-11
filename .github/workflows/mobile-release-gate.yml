@@ -54,6 +54,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Validate Expo SDK compatibility
+        run: pnpm mobile:doctor
+
       - name: Generate Android project from Expo config
         if: github.event_name == 'pull_request'
         env:
