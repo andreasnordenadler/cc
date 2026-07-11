@@ -364,7 +364,9 @@ export function rankGroupQuestParticipants<T extends Pick<GroupQuestParticipant,
 
     const scoreDiff = (b.score ?? 0) - (a.score ?? 0);
     if (scoreDiff !== 0) return scoreDiff;
-    const completedDiff = (b.completedQuestIds?.length ?? 0) - (a.completedQuestIds?.length ?? 0);
+    const questIds = new Set(groupQuest.questIds);
+    const completedDiff = (b.completedQuestIds?.filter((questId) => questIds.has(questId)).length ?? 0)
+      - (a.completedQuestIds?.filter((questId) => questIds.has(questId)).length ?? 0);
     if (completedDiff !== 0) return completedDiff;
     return Date.parse(a.joinedAt) - Date.parse(b.joinedAt);
   });

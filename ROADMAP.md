@@ -1,9 +1,44 @@
 
 # CC Roadmap
 
+## Reconciled handoff — 2026-07-11
+
+This handoff was reconciled against `src/`, `apps/mobile/`, the proof documents under `docs/`, GitHub releases through `mobile-v337`, and Git history through `ad370853`. A checked box below means the current tree and history prove the requested outcome; time-boxed queues are not checked merely because their deadline passed.
+
+### Prioritized remaining work
+
+1. **P0 — Enforce Multiplayer game rules in proof.** Persistence is live, so the old blocker is gone, but refresh verification still does not compare a table's selected time control, rated state, or color with provider metadata. Add shared Lichess/Chess.com normalization, reject mismatches with actionable evidence, and cover web/mobile refresh routes.
+2. **P0 — Finish structured verifier diagnostics.** Several official verifiers already return final-position FEN and last-move SAN/UCI, but the result contract is inconsistent and does not reliably identify the first failing ply/condition. Define one diagnostic payload, adopt it across verifiers, and render it consistently on web/mobile proof boards.
+3. **P1 — Complete paired logged-in app/web QA.** The July 9 parity sprint shipped many verified slices, but current Android capture was unstable and several slices relied on source or older app evidence. Re-establish a stable signed-in emulator/device capture path, then close the remaining Home and account-state comparisons with paired screenshots.
+4. **P1 — Define creator post-finish operations.** Deadline locking, final ranking, podium rewards, result links, and participant final states exist; explicit host handling for ties/edge cases and verifier-event review remains undefined.
+5. **P2 — External/product-decision blockers.** Facebook sign-in UI exists but needs Clerk/Facebook production configuration and end-to-end smoke. Multilingual architecture remains intentionally blocked until Andreas reactivates it.
+
+### Unchecked-item reconciliation
+
+| Original queue item | Classification | Evidence / disposition |
+| --- | --- | --- |
+| 2026-07-08 16-hour logged-in app/web parity sprint | **stale/superseded** | The fixed window ended July 9. `docs/SQC_LOGGED_IN_APP_WEB_PARITY_SPRINT_2026-07-08.md` records many shipped slices but also an unresolved current-app capture blocker; continue only as the bounded paired-QA task above. |
+| Website terminology parity | **stale/superseded** | July 5–9 copy/parity commits replaced broad terminology sweeps with screen-specific app-source parity. Do not run an unbounded `SQC`/`run` replacement; fix only demonstrated player-visible drift. |
+| 24-hour website UX parity review | **done-but-unchecked → checked below** | The item contains the completed June 10–13 slice ledger; commits and proof docs cover builder, discovery, proof, account, support, trophy, and Multiplayer surfaces. |
+| 24-hour website feature parity sprint | **done-but-unchecked → checked below** | Persisted Custom/Multiplayer flows, proof controls, receipts, lifecycle, discovery, support, and account parity are present; the item itself contains deployed proof for each slice. |
+| Multilingual foundation | **genuinely blocked** | The item explicitly requires Andreas to reactivate it; no i18n foundation is present. |
+| Facebook login | **genuinely blocked** | `apps/mobile/App.tsx` implements `oauth_facebook` and Facebook buttons, but Clerk/Facebook production connection and web/mobile end-to-end verification require external configuration. |
+| Official weekly Multiplayer Events | **stale/superseded** | Current implementation uses three official **14-day** rotating events (`src/lib/groupquests.ts`, `OFFICIAL_GROUP_QUEST_DURATION_DAYS = 14`) plus archived result weeks; the old weekly concept no longer matches product behavior. |
+| Keep `/groupquests/public` first-class | **done-but-unchecked → checked below** | Real Clerk-backed public listings, filters, likes, details, joins, and app/web parity replaced the mock page. |
+| Locked time-control proof enforcement | **active** | Table rules persist, but no group-quest refresh path compares them with provider clock/time-control metadata. The former persistence blocker is resolved. |
+| Numeric Multiplayer IDs | **stale/superseded** | Persistence is live, but canonical IDs intentionally use stable slug + random suffix (`makeGroupQuestId`) and official cycle IDs. A numeric migration would break existing links without a current product requirement. |
+| Persisted Multiplayer create + ownership | **done-but-unchecked → checked below** | Commit `40020f0e` added create/join routes and Clerk private-metadata persistence; current APIs enforce `hostUserId` ownership. Storage is Clerk metadata, not a separate database. |
+| Gold/silver/bronze finish prizes | **done-but-unchecked → checked below** | Final ranked result rows and Trophy Cabinet Multiplayer podium rewards map the top three to Gold/Silver/Bronze. |
+| Participant finished/winner state | **done-but-unchecked → checked below** | Commit `a847ad2b` added completion-time ranking, result modes, final participant UI, and finished-state API guards. |
+| Ended-by-time state | **done-but-unchecked → checked below** | `isGroupQuestFinished`, deadline-points ranking, and join/leave/refresh/edit guards shipped in `a847ad2b`. |
+| Creator post-finish controls | **active** | Final links and locked results exist, but tie/edge-case resolution and verifier-event review remain undefined. |
+| Structured verifier failure diagnostics | **active** | Some verifiers expose FEN and last-move SAN/UCI, but first-break condition/ply diagnostics are not a consistent cross-verifier contract. |
+| Pawn-Only Picnic release prep | **done-but-unchecked → checked below** | `ef99a1da` plus follow-up parser/timestamp fixes added verifier and fixtures; it is in the live challenge catalog and mirrored Lichess/Chess.com fixture suites. |
+
 ## Active queue update - 2026-07-08 SQC logged-in app/web parity sprint
 
 - [ ] Run a 16-hour high-cadence logged-in app-vs-mobile-browser parity sprint for SQC.
+  - reconciled_2026-07-11: stale/superseded as a time-boxed queue. Many slices shipped, but the sprint brief records an unresolved current Android capture blocker; remaining paired QA is prioritized in the handoff above.
   - added_at: 2026-07-08 23:40 Europe/Stockholm
   - source: Andreas asked for a 16-hour high-cadence sprint after confirming the next useful SQC move is manual visual parity QA.
   - sprint_brief: `docs/SQC_LOGGED_IN_APP_WEB_PARITY_SPRINT_2026-07-08.md`
@@ -141,6 +176,7 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 ## Active queue update — 2026-07-04 SQC website mobile-language parity
 
 - [ ] Align website terminology and player-facing language with the mobile app.
+  - reconciled_2026-07-11: stale/superseded by screen-specific app-source parity work. Avoid a broad token replacement; use paired app/web evidence for any remaining visible wording drift.
   - added_at: 2026-07-04 15:58 Europe/Stockholm
   - source: Andreas flagged during the SQC website/app parity sprint that website terminology must match the mobile app; specifically old/internal wording such as `runs`, `SQC`, and `sqc` should not leak where the app uses different player-facing language.
   - scope: audit and clean visible website copy across home, sign-in/sign-up, account/profile/connect, Solo, Custom Solo, Community Solo, Multiplayer, Trophy Cabinet, Leaderboards, proof receipts, support, and legal/support helper text where appropriate; keep technical identifiers, asset names, route slugs, storage keys, analytics enums, and non-visible API/internal strings unchanged unless they surface to players.
@@ -242,7 +278,8 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-10 UX parity review
 
-- [ ] 24h SQC website UX parity review: make newly added website functions feel app-quality from a user perspective.
+- [x] 24h SQC website UX parity review: make newly added website functions feel app-quality from a user perspective.
+  - reconciled_2026-07-11: proven complete by the June 10–13 slice ledger and linked proof docs below.
   - added_at: 2026-06-10 20:18 Europe/Stockholm
   - deadline: 2026-06-11 20:18 Europe/Stockholm
   - source: Andreas flagged the web Custom Solo builder screenshot as visually poor and objected to internal/product-hostile wording such as “website creator”.
@@ -301,7 +338,8 @@ Status: SQC-website-parity-sprint / mobile-app-parity-target
 
 ## Active queue update — 2026-06-09
 
-- [ ] 24h SQC website parity sprint: close missing website functionality compared to mobile app while preserving current website look and feel.
+- [x] 24h SQC website parity sprint: close missing website functionality compared to mobile app while preserving current website look and feel.
+  - reconciled_2026-07-11: proven complete by persisted Custom/Multiplayer flows, proof controls, receipts, lifecycle, discovery, support, and account slices recorded below.
   - added_at: 2026-06-09 17:35 Europe/Stockholm
   - deadline: 2026-06-10 17:35 Europe/Stockholm
   - source: Andreas explicitly removed the website feature freeze for a 24h autonomous silent sprint.
@@ -1362,6 +1400,7 @@ Rules from this point:
   - proof: mobile create flow now includes a no-AI/no-code custom rule-block recipe panel for a generic piece-state block (piece/owner/condition/timing/move-number), persists `customRuleSummary` + structured `customRuleConfig` with Multiplayer Side Quest rules, and shows the custom rule in mobile rule rows. Verification: mobile typecheck, targeted lint, Next build, and Android release build passed. APK v117 generated.
 
 - [ ] Add multilingual foundation for SQC.
+  - reconciled_2026-07-11: genuinely blocked on explicit product reactivation; no implementation was inferred.
   - added_at: 2026-05-30 15:43 Europe/Stockholm
   - source: Andreas said SQC should become multilingual later, but not right now.
   - scope: future work only; add shared web/mobile i18n architecture, language detection/override, persisted account preference, and translation-file structure before translating large copy surfaces.
@@ -1369,6 +1408,7 @@ Rules from this point:
   - constraint: do not start implementation until Andreas explicitly reactivates this task.
 
 - [ ] Add Facebook login to Clerk for SQC.
+  - reconciled_2026-07-11: genuinely blocked on production Clerk/Facebook configuration and end-to-end verification. Native `oauth_facebook` UI is present but does not prove provider configuration.
   - added_at: 2026-05-14 15:05 Europe/Stockholm
   - source: Andreas created a Facebook Developer account and requested Facebook as a Clerk auth provider.
   - scope: Clerk/Facebook auth configuration plus SQC web/mobile sign-in verification; do not add unrelated website features.
@@ -1487,6 +1527,7 @@ Rules from this point:
   - proof: homepage hero now only shows the Solo and Multiplayer mode buttons; the top-nav auth button remains available. Verification: `pnpm lint`, `pnpm build`, production deploy, and live homepage browser snapshot.
 
 - [ ] Plan official weekly SQC Multiplayer Events.
+  - reconciled_2026-07-11: stale/superseded by the shipped rotating 14-day official event model and result archive; do not reintroduce a weekly cadence without a new product decision.
   - added_at: 2026-05-13 10:16 Europe/Stockholm
   - source: Andreas proposed official weekly SQC Multiplayer events: new week = new event, open for anyone to join at any time, and useful as a homepage feature.
   - status: idea accepted for planning only; implementation remains subject to website feature-freeze approval.
@@ -1698,7 +1739,8 @@ Rules from this point:
   - follow_up: add real host public-listing setting and real public join/entry flow later.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-45srzps05-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests` includes `Join Public Side Quest` linking to `/groupquests/public`, and `/groupquests/public` returns 200 with `Join a public bad idea.`, mock rows including `No Castle Night`, `Knights Before Coffee Ladder`, and `Inspect and join`.
 
-- [ ] Keep `/groupquests/public` in the Multiplayer Side Quest product track.
+- [x] Keep `/groupquests/public` in the Multiplayer Side Quest product track.
+  - reconciled_2026-07-11: proven by real public listing, filter, like, detail, join, and parity implementations that replaced the mock page.
   - added_at: 2026-05-11 19:20 Europe/Stockholm
   - source: Andreas said “let’s make sure we don’t forget about this page” after the mock public Multiplayer Side Quest listing page shipped.
   - acceptance: future Multiplayer Side Quest work treats `/groupquests/public` as a first-class page, not a throwaway mock; next iterations should connect it to real public listing settings, join states, filters/status, and public quest rows.
@@ -1791,6 +1833,7 @@ Rules from this point:
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-gzzc4hbyz-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed questionable/custom time controls removed, representative exact presets kept, and provider metadata copy present; Vercel error logs had no recent logs.
 
 - [ ] Wire locked time-control enforcement into real Multiplayer Side Quest proof.
+  - reconciled_2026-07-11: active and no longer blocked by persistence. Current proof refresh does not enforce selected table time-control/rated/color rules.
   - added_at: 2026-05-11 21:14 Europe/Stockholm
   - source: Follow-up from Andreas asking whether selected time controls can actually be verified during proof.
   - acceptance: when Multiplayer Side Quests are persisted, proof verification compares the selected time-control rule against Lichess `clock.initial`/`clock.increment` or Chess.com `time_control` metadata and fails with a clear reason if the game does not match.
@@ -1833,6 +1876,7 @@ Rules from this point:
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-fqf4vfr0v-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL; source checks confirmed Locked Rules preview removal, complete numeric share URL, public ID helper, and no old slug helper; Vercel error logs had no recent logs.
 
 - [ ] Generate real persisted numeric IDs for Multiplayer Side Quest URLs.
+  - reconciled_2026-07-11: stale/superseded. Persisted records use stable slug-plus-random-suffix IDs and official cycle IDs; numeric-only IDs are no longer the implemented URL contract.
   - added_at: 2026-05-11 21:34 Europe/Stockholm
   - source: Follow-up from Andreas preference that each Multiplayer Side Quest should have a unique number that is shareable and is also the URL.
   - acceptance: persisted Multiplayer Side Quest records get stable unique numeric public IDs; invite/detail/share routes resolve by numeric ID; IDs do not change when the title changes.
@@ -1860,7 +1904,8 @@ Rules from this point:
   - follow_up: replace mock client redirect/public ID with persisted server-side create action and real ownership checks.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-fvhpzrndi-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; anonymous smoke confirmed `/groupquests/create` still redirects to sign-in with return URL and `/groupquests/12345` returns 200 with numeric ID, share URL, public participant view, sign-in-to-manage prompt, and quest stack; source checks confirmed `Save Multiplayer Side Quest` button and redirect to `/groupquests/${publicId}`; Vercel error logs had no recent logs.
 
-- [ ] Replace mock Multiplayer Quest save with persisted create action and ownership checks.
+- [x] Replace mock Multiplayer Quest save with persisted create action and ownership checks.
+  - reconciled_2026-07-11: commit `40020f0e` and current group-quest APIs persist records in Clerk private metadata and enforce host ownership. The accepted storage mechanism is metadata rather than a separate database table.
   - added_at: 2026-05-11 21:54 Europe/Stockholm
   - source: Follow-up from save-flow mock: real save must persist the Multiplayer Side Quest and only show creator controls to the actual owner.
   - acceptance: Save creates a database record with selected quests, schedule, visibility, rules, owner user ID, and stable numeric public ID; `/groupquests/{id}` resolves persisted data; host controls render only for the creator/owner.
@@ -1936,7 +1981,8 @@ Rules from this point:
   - Proof: `/groupquests/{id}` invite/detail now references `public/stamps/SQCBLACK SEAL.png`, a real RGBA PNG asset, and no longer uses the earlier JPEG/blend workaround for this surface.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-ghbolivp1-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed `/groupquests/80303` and `/groupquests/80303?accepted=1` return 200, reference `SQCBLACK%20SEAL.png`, no longer reference the old JPEG seal, keep start/end dates, and the seal asset returns `200 image/png`; Vercel production 500 log scan for the last 10m returned no entries.
 
-- [ ] Use gold/silver/bronze seals as top-three Multiplayer Side Quest finish prizes.
+- [x] Use gold/silver/bronze seals as top-three Multiplayer Side Quest finish prizes.
+  - reconciled_2026-07-11: final result rows and Trophy Cabinet Multiplayer rewards map the first three ranked participants to Gold, Silver, and Bronze.
   - added_at: 2026-05-12 11:44 Europe/Stockholm
   - source: Andreas said the other three local seal assets should be used as prizes for the top three when a Multiplayer Side Quest finishes.
   - acceptance: ended Multiplayer Side Quest views/final results should award and display `side_quest_chess_seal_gold_transparent.png` for 1st place, `side_quest_chess_seal_silver_transparent.png` for 2nd place, and `side_quest_chess_seal_bronze_transparent.png` for 3rd place; wording should call them prizes/rewards for final placement, not active-progress badges.
@@ -2175,17 +2221,20 @@ Rules from this point:
   - Proof: added `groupquest-leave-zone` / `groupquest-leave-button` CSS so the leave action renders as a rounded gold Side Quest Chess-style button with hover/focus treatment.
   - Verification: `pnpm lint` passed with 3 known warnings; `pnpm build` passed; production deploy `https://cc-l2ry5eqsc-andreas-nordenadlers-projects.vercel.app` aliased to `https://sidequestchess.com`; smoke confirmed accepted route contains `Leave this Side Quest`, `groupquest-leave-button`, and `groupquest-leave-zone`; CSS inspection confirmed gold gradient button styling; Vercel production 500 log scan for the last 10m returned no entries.
 
-- [ ] Add Multiplayer finished/winner state for participants.
+- [x] Add Multiplayer finished/winner state for participants.
+  - reconciled_2026-07-11: commit `a847ad2b` added completion-time ranking, final result mode, participant result UI, and finished-state guards.
   - added_at: 2026-05-12 20:53 Europe/Stockholm
   - source: Andreas said the accepted Multiplayer page is approved and asked what comes next; likely the page state after a user finishes all quests and wins, including second/third placements.
   - Scope: add finished participant/result variants for winner, 2nd, 3rd, and non-podium placements; use gold/silver/bronze SQC seals as final placement prizes; make the participant page feel like a reward/proof moment instead of active checklist.
 
-- [ ] Add Multiplayer ended-by-time state.
+- [x] Add Multiplayer ended-by-time state.
+  - reconciled_2026-07-11: commit `a847ad2b` added deadline detection, deadline-points final ranking, and guards that prevent join/leave/refresh/edit after finish.
   - added_at: 2026-05-12 20:53 Europe/Stockholm
   - source: Andreas asked for a finished state when the Multiplayer Side Quest time has ended.
   - Scope: when deadline passes, lock checks, show final leaderboard, explain whether winner was first-to-complete-all or highest-points-at-deadline, show placement rewards, and prevent joining/leaving/refreshing active checks.
 
 - [ ] Define Multiplayer admin/creator post-finish controls.
+  - reconciled_2026-07-11: active. Final links and locked results exist; explicit tie/edge-case resolution and verifier-event review remain to be designed.
   - added_at: 2026-05-12 20:53 Europe/Stockholm
   - source: follow-up needed after participant finish/ended states so creators can see final status and share results separately from participant view.
   - Scope: creator-facing final controls for sharing results, copying invite/final link, resolving ties/edge cases if needed, and reviewing verifier events.
@@ -2587,6 +2636,7 @@ Screenshot review workflow - 2026-05-14:
   - Verification: `pnpm --filter @sidequestchess/mobile typecheck`; `pnpm lint`; `pnpm build`; Android `expo export --platform android --output-dir dist-android-quest-actions`; local production anonymous `POST /api/mobile/quest` returned expected 401 JSON.
 
 - [ ] SQC verifier diagnostics: report why/when a Side Quest condition broke.
+  - reconciled_2026-07-11: active, partially implemented. Several verifiers expose final FEN and last-move SAN/UCI, but first failing condition/ply data is not yet a consistent cross-verifier payload.
   - added_at: 2026-05-31 15:54 Europe/Stockholm
   - source: Andreas asked whether failed checks can report what move broke a condition, shifting focus from binary pass/fail to WHY and WHEN users fail.
   - Acceptance: latest-game verifier payloads can include structured failure diagnostics such as failing condition id/label, move/ply number, SAN/UCI when available, FEN/position-at-break when reconstructable, provider game URL/deep link when available, and user-facing explanation; mobile/web check UI can show the first actionable break point and ideally render a small board for that position without changing completed-proof semantics.
@@ -2824,7 +2874,8 @@ Andreas clarified that the previously listed items are still wanted and should b
   - Proof: visible Coming Soon queue now has weekly Thursday dates in the stamp: Pawn-Only Picnic 2026-05-14, Back Rank Goblin 2026-05-21, Late Castle Lifestyle 2026-05-28, Rook Lift Internship 2026-06-04. Proof doc: `docs/SQC_DATED_COMING_SOON_RELEASE_QUEUE_2026-05-07.md`.
   - Verification: `pnpm lint`; `pnpm build`.
 
-- [ ] Prepare Pawn-Only Picnic for scheduled release on 2026-05-14.
+- [x] Prepare Pawn-Only Picnic for scheduled release on 2026-05-14.
+  - reconciled_2026-07-11: verifier and fixture coverage shipped in `ef99a1da` with parser/timestamp follow-ups; the quest is present in the current live challenge catalog and both provider fixture suites.
   - added_at: 2026-05-07 15:18 Europe/Stockholm
   - source: First dated Coming Soon release in the weekly SQC release queue.
   - Acceptance: verifier implemented for supported providers; latest-game flow tested; reset/repeat behavior tested; proof receipt/image tested; production smoke passed before making it live.

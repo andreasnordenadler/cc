@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test tests/**/*.test.ts",
     "quest:release-gate": "node scripts/check-release-ready-quests.mjs && node scripts/check-custom-side-quest-launch-ready.mjs",
     "deploy:prod:guard": "pnpm quest:release-gate && node scripts/deploy-production-guard.mjs",
     "deploy:prod": "pnpm deploy:prod:guard && vercel --prod --yes",
@@ -39,6 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
     "playwright": "1.60.0",
+    "tsx": "^4.23.0",
     "typescript": "^5"
   },
   "pnpm": {
