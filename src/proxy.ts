@@ -21,7 +21,7 @@ export function proxy(request: NextRequest, event: NextFetchEvent) {
 }
 
 export const config = {
-  matcher: ["/api/mobile/(.*)", "/api/analytics", "/api/support", "/api/groupquests/(.*)", "/api/groupquests", "/((?!_next|.*\\..*|_vercel|api|trpc).*)"],
+  matcher: ["/api/account", "/api/mobile/(.*)", "/api/analytics", "/api/support", "/api/groupquests/(.*)", "/api/groupquests", "/((?!_next|.*\\..*|_vercel|api|trpc).*)"],
 };
 
 function normalizeBackslashPathname(pathname: string) {
