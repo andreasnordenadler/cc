@@ -13,29 +13,24 @@ Distribution status for this gate:
 - Store/TestFlight/Play rollout decision: **separate Andreas approval after this checklist passes**.
 - If a newer `mobile-v*` release exists, update this section before testing so the recorded device evidence matches the actual candidate.
 
-Current candidate to smoke:
+Current candidate status:
 
-- GitHub Release tag: `mobile-v336`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v336>
-- APK filename: `sqc-mobile-android-v336-2026-07-03.apk`
+- Latest GitHub Release tag: `mobile-v337`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v337>
+- APK filename: `sqc-mobile-android-v337-2026-07-07.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.336`
-- Android version code: `336`
-- APK SHA256: `d4367b8aa64fb67726a26d2b8129eee4e04ee351a42c64a3e42a0052bc80a4f0`
-- Manifest/signer proof: `pnpm mobile:release:candidate-check` verifies the APK package ID, version identity, `debuggable=false`, `allowBackup=false`, and a release certificate that is not the Android debug identity.
-- Emulator/source proof: release checks through `mobile-v336` confirm the latest mobile build includes tappable top Account `Add` chips that scroll to the username editor and focus the matching Lichess or Chess.com field, removes the `and72nor` placeholder example from the Lichess username input, and preserves the existing signed-in Account, Solo, Custom, Multiplayer, Support, Trophy Cabinet, and auth surfaces. Signed-in phone smoke remains required for the actual device gate.
+- Version name: `0.1.337`
+- Android version code: `337`
+- APK SHA256: `6c13438f71a7a37e60d202fef04cc79f1723fc32ef2caf3a3dbc426eebbffc0c`
+- Status: **quarantined — do not install or smoke.** The immutable `mobile-v337` tag points to source whose `app.json` still identifies version code 336, so it cannot prove the APK came from the tagged source. Do not rewrite the historical tag; prepare and publish a new version from a clean committed bump.
+- Provenance proof: `pnpm mobile:release:candidate-check` must verify tag commit, tagged app config, release notes, APK identity/hash, and the exact configured release-certificate SHA256 before this checklist can proceed.
 
 ## Candidate identity
 
-- GitHub Release tag: `mobile-v336`
-- APK filename: `sqc-mobile-android-v336-2026-07-03.apk`
-- Package ID: `com.sidequestchess.app`
-- Version name: `0.1.336`
-- Android version code: `336`
-- APK SHA256: `d4367b8aa64fb67726a26d2b8129eee4e04ee351a42c64a3e42a0052bc80a4f0`
-- Manifest/signer proof: `pnpm mobile:release:candidate-check` passed on 2026-07-03 15:18 CEST; GitHub Release APK package/version identity matches app config, `debuggable=false`, `allowBackup=false`, and signer is not the Android debug identity.
+No launch candidate is currently approved. Replace this section with the newly published `mobile-v*` identity only after `pnpm mobile:release:candidate-check` passes. Preserve the quarantined v337 record above for auditability.
+
 - Tester/device/OS: Pending physical Android device; physical-phone QA is manual on Andreas's side.
-- Test time: 2026-07-03 15:18 CEST candidate identity check only.
+- Test time: Pending a provenance-valid replacement candidate.
 
 ## Install and launch
 
