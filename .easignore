@@ -3,6 +3,8 @@
 # so remote EAS builds use the committed Expo package/version configuration.
 
 /node_modules
+/.git
+/.git/
 /.pnp
 .pnp.*
 .yarn/*
@@ -55,7 +57,7 @@ public/downloads/*.apk
 public/downloads/*.apk.sha256
 /memory/
 /state/
-app.json
+/app.json
 tmp-seals.jpg
 /docs/SQC_DAILY_THREE_LANE_REPORT_*.md
 /docs/CHESSCOM_POST_PARITY_*_2026-04-*.md
