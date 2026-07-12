@@ -8,7 +8,18 @@ export type CustomQuestCreateDependencies = {
   now?: () => Date;
   makeId?: () => string;
   chooseBadge: () => string;
+  logPersistenceError: (message: string, details: { reason: CustomQuestPersistenceErrorReason }) => void;
 };
+
+export type CustomQuestPersistenceErrorReason = "metadata_capacity" | "persistence_error";
+
+export function classifyCustomQuestPersistenceError(caught: unknown): { message: string; reason: CustomQuestPersistenceErrorReason } {
+  const text = caught instanceof Error ? caught.message : String(caught ?? "");
+  if (/metadata exceeds|metadata.*too large|exceeds the maximum allowed size|form_param_exceeds_allowed_size|too large|maximum allowed|unprocessable entity/i.test(text)) {
+    return { message: "Your Side Quest library is full. SQC cleaned up older saved data; please try again.", reason: "metadata_capacity" };
+  }
+  return { message: "Could not save this custom Side Quest right now.", reason: "persistence_error" };
+}
 
 export async function handleCustomQuestCreateRequest(request: Request, dependencies: CustomQuestCreateDependencies): Promise<Response> {
   const userId = await dependencies.getAuthenticatedUserId(request).catch(() => null);
@@ -34,8 +45,10 @@ export async function handleCustomQuestCreateRequest(request: Request, dependenc
     const next = [quest, ...existing.filter(item => item.id !== id).map(compact)].slice(0, 8);
     const saved = await dependencies.saveCustomQuests(userId, next, privateMetadata);
     return Response.json({ apiVersion: 1, authenticated: true, ok: true, action: "save", customQuest: quest, customSideQuests: saved, message: "Custom Side Quest saved." });
-  } catch {
-    return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: "Could not save this custom Side Quest right now." }, { status: 503 });
+  } catch (caught) {
+    const classified = classifyCustomQuestPersistenceError(caught);
+    dependencies.logPersistenceError("mobile custom Side Quest save failed", { reason: classified.reason });
+    return Response.json({ apiVersion: 1, authenticated: true, ok: false, message: classified.message }, { status: 400 });
   }
 }
 function compact(quest: CustomSideQuest): CustomSideQuest { const parsed = parseCustomRuleConfig(quest.config); return { id: quest.id, title: cleanText(quest.title, 80) || "Custom Side Quest", summary: cleanText(quest.summary, 220) || (quest.lifecycle === "draft" ? "Draft Side Quest" : "Custom Side Quest"), config: parsed ? JSON.stringify(parsed) : quest.config.slice(0, 1200), visibility: quest.visibility === "public" ? "public" : "private", lifecycle: quest.lifecycle === "draft" || quest.lifecycle === "archived" ? quest.lifecycle : "published", createdAt: typeof quest.createdAt === "string" ? quest.createdAt : new Date().toISOString(), updatedAt: typeof quest.updatedAt === "string" ? quest.updatedAt : new Date().toISOString(), badgeImageUrl: typeof quest.badgeImageUrl === "string" ? quest.badgeImageUrl.slice(0, 160) : null }; }

@@ -168,6 +168,7 @@ function customDependencies(overrides: Partial<CustomQuestCreateDependencies> = 
     now: () => new Date("2026-07-12T14:00:00.000Z"),
     makeId: () => "custom-fixed",
     chooseBadge: () => "/badges/fixed.png",
+    logPersistenceError: () => undefined,
     ...overrides,
   };
 }
@@ -176,23 +177,42 @@ const validConfig = JSON.stringify({ version: 1, combinator: "all", blocks: [{ i
 
 test("custom quest create parses JSON, validates rules, and persists exact normalized quest", async () => {
   const writes: unknown[] = [];
-  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { title: "  Win   nicely ", summary: " A   useful quest ", config: validConfig, visibility: "public", userId: "attacker" }), customDependencies({ saveCustomQuests: async (id, quests) => { writes.push({ id, quests }); return quests; } }));
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { title: "  Win   nicely ", summary: " A   useful quest ", config: validConfig, visibility: "public", userId: "attacker" }), customDependencies({ saveCustomQuests: async (id, quests, privateMetadata) => { writes.push({ id, quests, privateMetadata }); return quests; } }));
   assert.equal(response.status, 200);
   const payload = await body(response);
   assert.equal(payload.ok, true);
-  assert.deepEqual(writes, [{ id: "creator-1", quests: [{ id: "custom-fixed", title: "Win nicely", summary: "A useful quest", config: '{"version":1,"logic":"all","blocks":[{"id":"b1","type":"gameResult","result":"win"}]}', visibility: "public", lifecycle: "published", createdAt: "2026-07-12T14:00:00.000Z", updatedAt: "2026-07-12T14:00:00.000Z", badgeImageUrl: "/badges/fixed.png" }] }]);
+  assert.deepEqual(writes, [{ id: "creator-1", quests: [{ id: "custom-fixed", title: "Win nicely", summary: "A useful quest", config: '{"version":1,"logic":"all","blocks":[{"id":"b1","type":"gameResult","result":"win"}]}', visibility: "public", lifecycle: "published", createdAt: "2026-07-12T14:00:00.000Z", updatedAt: "2026-07-12T14:00:00.000Z", badgeImageUrl: "/badges/fixed.png" }], privateMetadata: { preserved: true } }]);
 });
 
-test("custom quest create makes no write on auth/validation failure and sanitizes persistence failure", async () => {
+test("custom quest create makes no write on auth/validation failure", async () => {
   let writes = 0;
   const unauthenticated = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: validConfig }), customDependencies({ getAuthenticatedUserId: async () => null, saveCustomQuests: async () => { writes += 1; return []; } }));
   assert.equal(unauthenticated.status, 401);
   const invalid = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: "{}" }), customDependencies({ saveCustomQuests: async () => { writes += 1; return []; } }));
   assert.equal(invalid.status, 400);
   assert.equal(writes, 0);
-  const failed = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: validConfig }), customDependencies({ saveCustomQuests: async () => { throw new Error("Clerk internals"); } }));
-  assert.equal(failed.status, 503);
+});
+
+test("custom quest create preserves the generic persistence error contract and sanitized log", async () => {
+  const logs: unknown[] = [];
+  const failed = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: validConfig }), customDependencies({
+    saveCustomQuests: async () => { throw new Error("Clerk secret sk_live_private_metadata"); },
+    logPersistenceError: (...args) => { logs.push(args); },
+  }));
+  assert.equal(failed.status, 400);
   assert.deepEqual(await body(failed), { apiVersion: 1, authenticated: true, ok: false, message: "Could not save this custom Side Quest right now." });
+  assert.deepEqual(logs, [["mobile custom Side Quest save failed", { reason: "persistence_error" }]]);
+});
+
+test("custom quest create preserves the metadata-capacity error contract and sanitized log", async () => {
+  const logs: unknown[] = [];
+  const failed = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: validConfig }), customDependencies({
+    saveCustomQuests: async () => { throw new Error("form_param_exceeds_allowed_size: secret private metadata"); },
+    logPersistenceError: (...args) => { logs.push(args); },
+  }));
+  assert.equal(failed.status, 400);
+  assert.deepEqual(await body(failed), { apiVersion: 1, authenticated: true, ok: false, message: "Your Side Quest library is full. SQC cleaned up older saved data; please try again." });
+  assert.deepEqual(logs, [["mobile custom Side Quest save failed", { reason: "metadata_capacity" }]]);
 });
 
 test("production home view-model helper derives hosted and joined rows without mutating source records", () => {

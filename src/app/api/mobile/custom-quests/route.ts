@@ -1,7 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
-import { handleCustomQuestCreateRequest } from "@/lib/custom-quest-create-route";
+import { classifyCustomQuestPersistenceError, handleCustomQuestCreateRequest } from "@/lib/custom-quest-create-route";
 import { chooseCustomSideQuestBadge, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import type { UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     },
     saveCustomQuests: (userId, quests, privateMetadata) => saveCustomQuestStoreWithFallback(client, userId, quests, privateMetadata),
     chooseBadge: chooseCustomSideQuestBadge,
+    logPersistenceError: console.error,
   });
 }
 
@@ -46,16 +47,6 @@ function getCustomSideQuestStore(privateMetadata: UserMetadataRecord, publicMeta
 }
 
 
-function getMetadataSaveLogReason(caught: unknown) {
-  const details = caught && typeof caught === "object" ? caught as { message?: unknown; status?: unknown; clerkError?: unknown; errors?: unknown } : null;
-  return JSON.stringify({
-    message: details?.message ?? String(caught ?? ""),
-    status: details?.status,
-    clerkError: details?.clerkError,
-    errors: details?.errors,
-  }).slice(0, 1000);
-}
-
 async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeof clerkClient>>, userId: string, quests: CustomSideQuest[], privateMetadata: UserMetadataRecord) {
   const attempts = [quests.slice(0, 8), quests.slice(0, 5), quests.slice(0, 3), quests.slice(0, 1)];
   let lastError: unknown = null;
@@ -66,7 +57,7 @@ async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeo
       return attempt;
     } catch (caught) {
       lastError = caught;
-      console.error("mobile custom Side Quest compact save retry", { count: attempt.length, bytes: JSON.stringify({ customSideQuests: attempt }).length, reason: getMetadataSaveLogReason(caught) });
+      console.error("mobile custom Side Quest compact save retry", { count: attempt.length, bytes: JSON.stringify({ customSideQuests: attempt }).length, reason: classifyCustomQuestPersistenceError(caught).reason });
     }
   }
 
@@ -78,7 +69,7 @@ async function saveCustomQuestStoreWithFallback(client: Awaited<ReturnType<typeo
       return attempt;
     } catch (caught) {
       lastError = caught;
-      console.error("mobile custom Side Quest cleaned save retry", { count: attempt.length, reason: getMetadataSaveLogReason(caught) });
+      console.error("mobile custom Side Quest cleaned save retry", { count: attempt.length, reason: classifyCustomQuestPersistenceError(caught).reason });
     }
   }
 
