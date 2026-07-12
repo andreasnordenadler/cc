@@ -7,6 +7,7 @@ import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
+import { buildSoloProofHomeStatus, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
@@ -20,6 +21,7 @@ type MobileAppWebShellProps = {
   chessComUsername?: string | null;
   activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
+  activeMultiplayerRows?: ActiveMultiplayerHomeRow[];
   theme?: MobileWebShellTheme | null;
   trophyRows?: TrophyRow[];
   completedSoloCount?: number;
@@ -140,6 +142,7 @@ export default function MobileAppWebShell({
   chessComUsername,
   activeSolo,
   activeSoloTitle,
+  activeMultiplayerRows = [],
   theme,
   trophyRows = [],
   completedSoloCount = 0,
@@ -230,6 +233,7 @@ export default function MobileAppWebShell({
               hasChessAccount={hasChessAccount}
               activeSolo={activeSolo}
               activeSoloTitle={activeSoloTitle}
+              activeMultiplayerRows={activeMultiplayerRows}
               trophyRows={trophyRows}
               completedSoloCount={completedSoloCount}
               proofReceiptCount={proofReceiptCount}
@@ -270,6 +274,7 @@ function SignedInHome({
   hasChessAccount,
   activeSolo,
   activeSoloTitle,
+  activeMultiplayerRows,
   trophyRows,
   completedSoloCount,
   proofReceiptCount,
@@ -277,6 +282,7 @@ function SignedInHome({
   hasChessAccount: boolean;
   activeSolo?: ActiveSoloHome | null;
   activeSoloTitle?: string | null;
+  activeMultiplayerRows: ActiveMultiplayerHomeRow[];
   trophyRows: TrophyRow[];
   completedSoloCount: number;
   proofReceiptCount: number;
@@ -332,14 +338,18 @@ function SignedInHome({
       </div>
 
       <section className="sqc-home-section">
-        <Link href="/multiplayer" className="sqc-section-hero" aria-label="Open active Multiplayer Side Quest details">
+        <Link href={activeMultiplayerRows[0]?.href ?? "/multiplayer"} className="sqc-section-hero" aria-label="Open active Multiplayer Side Quest details">
           <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
           <p className="sqc-pill">Active Multiplayer Side Quests</p>
-          <h2>No active Multiplayer Side Quests</h2>
+          <h2>{activeMultiplayerRows.length ? `${activeMultiplayerRows.length} active Multiplayer Side Quest${activeMultiplayerRows.length === 1 ? "" : "s"}` : "No active Multiplayer Side Quests"}</h2>
         </Link>
-        <div className="sqc-row-list trophy-preview">
-          <AppRow title="No active Multiplayer Side Quests" meta="Join or host shared challenges with friends." status="Explore" href="/multiplayer" />
-        </div>
+        {activeMultiplayerRows.length ? (
+          <div className="sqc-row-list trophy-preview">
+            {activeMultiplayerRows.map((row) => (
+              <AppRow key={row.id} title={row.title} meta={row.meta} status={row.status} sourceBadge={row.sourceBadge} href={row.href} />
+            ))}
+          </div>
+        ) : null}
         <Link href="/multiplayer" className="sqc-secondary-action full">Explore More Multiplayer Side Quests</Link>
       </section>
 
@@ -383,8 +393,8 @@ function SignedInHome({
 
 function ActiveSoloDetail({ activeSolo }: { activeSolo: ActiveSoloHome }) {
   const attempt = activeSolo.latestAttempt;
-  const passed = activeSolo.completed || attempt?.status === "passed" || Boolean(attempt?.headline?.toLowerCase().includes("passed"));
-  const failed = Boolean(attempt && !passed && attempt.status && attempt.status !== "pending");
+  const proofStatus = buildSoloProofHomeStatus(Boolean(activeSolo.completed), attempt);
+  const failed = proofStatus.kind === "failed";
   const boardFen = failed ? attempt?.failureFen ?? attempt?.finalPositionFen : attempt?.finalPositionFen;
   const boardUci = failed ? attempt?.failureUci ?? attempt?.lastMoveUci : attempt?.lastMoveUci;
 
@@ -395,8 +405,8 @@ function ActiveSoloDetail({ activeSolo }: { activeSolo: ActiveSoloHome }) {
         <p><strong>Goal:</strong> {activeSolo.objective}</p>
         <p><strong>Picked:</strong> <MobileWebRelativeTime value={activeSolo.pickedAt} fallback="not recorded" /></p>
         <p><strong>Latest check:</strong> <MobileWebRelativeTime value={attempt?.checkedAt ?? activeSolo.verifiedAt} fallback="not yet" /></p>
-        <p><strong>Status:</strong> <span className={passed ? "sqc-good" : "sqc-danger"}>{passed ? "Completed" : "Not Completed"}</span></p>
-        {attempt ? null : <p className="sqc-active-summary">Starting position shown until your next public game is available. Play on Lichess or Chess.com, then come back and refresh proof.</p>}
+        <p><strong>Status:</strong> <span className={proofStatus.tone === "good" ? "sqc-good" : proofStatus.tone === "danger" ? "sqc-danger" : ""}>{proofStatus.label}</span></p>
+        <p className="sqc-active-summary">{proofStatus.detail}</p>
       </div>
     </div>
   );
