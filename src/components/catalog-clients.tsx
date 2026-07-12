@@ -2,11 +2,17 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "@/lib/catalog-models";
+import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
 export type SoloCatalogClientRow = {
   id: string; title: string; meta: string; href: string; image?: string | null; sourceBadge?: string | null; status?: string | null;
+};
+
+export type CustomCatalogClientRow = SoloCatalogClientRow & {
+  lifecycle: "draft" | "published" | "archived";
+  visibility: "private" | "public";
+  updatedAt: string;
 };
 
 function CatalogRow({ row, status }: { row: SoloCatalogClientRow; status: string }) {
@@ -52,6 +58,26 @@ export function CommunitySoloCatalog({ rows, signedIn }: { rows: SoloCatalogClie
       {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 12)}>Load more</button> : null}
     </>
   );
+}
+
+export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) {
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "published" | "draft" | "public" | "archived">("all");
+  const [sort, setSort] = useState<"newest" | "name">("newest");
+  const [limit, setLimit] = useState(12);
+  const filtered = useMemo(() => filterCustomCatalog(rows, { query, filter, sort }), [rows, query, filter, sort]);
+  const page = paginateCatalog(filtered, limit);
+  const filters = ["all", "published", "draft", "public", "archived"] as const;
+  return <>
+    <div className="sqc-community-browse-panel" aria-label="My Custom Side Quest filters">
+      <label className="sqc-search-shell"><span className="sr-only">Search my custom Side Quests</span><input aria-label="Search my custom Side Quests" placeholder="Search by name or rule" value={query} onChange={event => { setQuery(event.target.value); setLimit(12); }} /></label>
+      <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter my custom Side Quests">{filters.map(value => <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(12); }}>{value === "draft" ? "Drafts" : value[0].toUpperCase() + value.slice(1)}</button>)}</div>
+      <label className="sqc-sort-pill">Sort <select aria-label="Sort my custom Side Quests" value={sort} onChange={event => setSort(event.target.value as typeof sort)}><option value="newest">Recently updated</option><option value="name">Name</option></select></label></div>
+    </div>
+    <span aria-live="polite">{page.total} result{page.total === 1 ? "" : "s"}</span>
+    {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
+    {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 12)}>Load more</button> : null}
+  </>;
 }
 
 export function CommunityMultiplayerCatalog({ rows, signedIn }: { rows: MobileWebMultiplayerPreview[]; signedIn: boolean }) {

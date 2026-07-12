@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
-import { checkActiveChallenge } from "@/app/actions";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
@@ -15,7 +14,9 @@ import GroupQuestInviteKeyJoin from "./group-quest-invite-key-join";
 import { getMultiplayerJoinState } from "@/lib/mobile-web-parity-actions";
 import MobileCustomCreateForm from "./mobile-custom-create-form";
 import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobile-multiplayer-create-form";
-import { CommunityMultiplayerCatalog, CommunitySoloCatalog } from "./catalog-clients";
+import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
+import CommunitySoloSocialActions from "./community-solo-social-actions";
+import ActiveSoloActions from "./active-solo-actions";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -41,6 +42,7 @@ type MobileAppWebShellProps = {
 };
 
 type ActiveSoloHome = {
+  id: string;
   href?: string | null;
   title: string;
   objective: string;
@@ -113,6 +115,9 @@ type CustomSideQuestLibraryRow = {
   image?: string | null;
   sourceBadge: string;
   status: string;
+  lifecycle: "draft" | "published" | "archived";
+  visibility: "private" | "public";
+  updatedAt: string;
 };
 
 const menuItems = [
@@ -319,18 +324,16 @@ function SignedInHome({
             glowSize={170}
           />
         ) : null}
-        <form action={checkActiveChallenge} className="sqc-refresh-form">
-          <button className="sqc-refresh" type="submit" aria-label="Refresh active Solo Side Quest">
-            <span aria-hidden="true" />
-          </button>
-        </form>
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
             <p className="sqc-pill">Active Solo Side Quest</p>
             <h2>{activeTitle ?? "Choose a Solo Side Quest"}</h2>
             {activeSolo ? (
-              <ActiveSoloDetail activeSolo={activeSolo} />
+              <>
+                <ActiveSoloDetail activeSolo={activeSolo} />
+                <ActiveSoloActions challengeId={activeSolo.id} />
+              </>
             ) : (
               <p>{hasActiveSolo ? "Play a new public game on Lichess or Chess.com, then come back for automatic proof." : "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof."}</p>
             )}
@@ -788,11 +791,13 @@ export function MobileCommunitySideQuestDetailScreen({
   signedIn,
   ownedByYou = false,
   activeQuestId,
+  likeSummary = { count: 0, likedByViewer: false },
 }: {
   quest: CommunitySideQuestDetail;
   signedIn: boolean;
   ownedByYou?: boolean;
   activeQuestId?: string | null;
+  likeSummary?: CommunityLikeSummary;
 }) {
   const badge = toMobileAssetPath(quest.badgeImageUrl) ?? mobileAsset.customCrest;
   const totalSolo = quest.stats.soloAttempts + quest.stats.soloSelections + quest.stats.soloCompletions;
@@ -859,10 +864,10 @@ export function MobileCommunitySideQuestDetailScreen({
 
       <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
         <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} />
+        <CommunitySoloSocialActions questId={quest.id} title={quest.title} signedIn={signedIn} initialCount={likeSummary.count} initiallyLiked={likeSummary.likedByViewer} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
         <Link href={`/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Share public link</Link>
-        <Link href="/support" className="sqc-detail-secondary-button">Report this Side Quest</Link>
       </div>
     </div>
   );
@@ -907,40 +912,7 @@ export function MobileCustomSideQuestsScreen({
           </Link>
         ) : null}
 
-        <div className="sqc-community-browse-panel" aria-label="My Custom Side Quest filters">
-          <div className="sqc-community-search" aria-hidden="true">
-            <span />
-            <strong>Search my custom Side Quests</strong>
-          </div>
-          <div className="sqc-community-filter-row">
-            <span className="active">All</span>
-            <span>Published</span>
-            <span>Drafts</span>
-            <span>Public</span>
-            <span>Archived</span>
-          </div>
-        </div>
-
-        {rows.length ? (
-          <div className="sqc-catalog">
-            {rows.map((row) => (
-              <AppRow
-                key={row.id}
-                title={row.title}
-                meta={row.meta}
-                status={row.status}
-                href={row.href}
-                image={row.image ?? undefined}
-                sourceBadge={row.sourceBadge}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="sqc-empty-panel standalone">
-            <strong>Your custom Side Quests are empty.</strong>
-            <span>Create a draft first, then publish it when the rule feels ready.</span>
-          </div>
-        )}
+        <CustomSoloCatalog rows={rows} />
       </section>
     </div>
   );

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
+import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
 import { buildUserMultiplayerRows } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
@@ -40,6 +40,19 @@ test("catalog pagination exposes every row at the load-more boundary", () => {
   const rows = Array.from({ length: 13 }, (_, id) => ({ id }));
   assert.deepEqual(paginateCatalog(rows, 12), { rows: rows.slice(0, 12), hasMore: true, total: 13 });
   assert.deepEqual(paginateCatalog(rows, 24), { rows, hasMore: false, total: 13 });
+});
+
+test("custom catalog searches, filters lifecycle and visibility, and sorts deterministically", () => {
+  const rows = [
+    { id: "draft", title: "Quiet Bishop", meta: "private positional rule", href: "/edit/draft", lifecycle: "draft" as const, visibility: "private" as const, updatedAt: "2026-07-10T00:00:00.000Z" },
+    { id: "public", title: "Knight Fork", meta: "public fork rule", href: "/detail/public", lifecycle: "published" as const, visibility: "public" as const, updatedAt: "2026-07-12T00:00:00.000Z" },
+    { id: "archived", title: "Old Rook", meta: "private archive", href: "/edit/archived", lifecycle: "archived" as const, visibility: "private" as const, updatedAt: "2026-07-11T00:00:00.000Z" },
+  ];
+  assert.deepEqual(filterCustomCatalog(rows, { query: "fork", filter: "all", sort: "newest" }).map(row => row.id), ["public"]);
+  assert.deepEqual(filterCustomCatalog(rows, { query: "", filter: "draft", sort: "name" }).map(row => row.id), ["draft"]);
+  assert.deepEqual(filterCustomCatalog(rows, { query: "", filter: "public", sort: "newest" }).map(row => row.id), ["public"]);
+  assert.deepEqual(filterCustomCatalog(rows, { query: "", filter: "archived", sort: "newest" }).map(row => row.id), ["archived"]);
+  assert.deepEqual(filterCustomCatalog(rows, { query: "", filter: "all", sort: "newest" }).map(row => row.id), ["public", "archived", "draft"]);
 });
 
 test("multiplayer catalog searches quests and filters joined, hosted, finished, and open rows", () => {

@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import MobileAppWebShell, { MobileCommunitySideQuestDetailScreen } from "@/components/mobile-app-web-shell";
 import { findPublicCommunitySideQuestById } from "@/lib/community-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ export default async function CommunitySideQuestDetailPage({
   if (!quest) {
     notFound();
   }
+  const likeSummary = (await getCommunityLikeSummaries(client, user?.id ?? null)).get("solo", quest.id);
 
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const displayName = user
@@ -53,6 +55,7 @@ export default async function CommunitySideQuestDetailPage({
         signedIn={Boolean(user)}
         ownedByYou={quest.creatorUserId === user?.id}
         activeQuestId={metadataRecord.activeChallenge && typeof metadataRecord.activeChallenge === "object" ? String((metadataRecord.activeChallenge as { id?: string }).id ?? "") : null}
+        likeSummary={likeSummary}
       />
     </MobileAppWebShell>
   );
