@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import test, { afterEach } from "node:test";
+import test from "node:test";
 import * as webRoute from "../src/app/api/groupquests/[id]/refresh/route";
 import * as mobileRoute from "../src/app/api/mobile/groupquests/[id]/route";
 
@@ -40,11 +40,6 @@ const mismatch = {
   lastMoveUci: "e7e8q",
   lastMoveSan: "e8=Q",
 };
-
-afterEach(() => {
-  webRoute.setWebRefreshRouteTestDependencies(null);
-  mobileRoute.setMobileRefreshRouteTestDependencies(null);
-});
 
 function request() {
   return new Request("https://sqc.test/api/groupquests/gq/refresh", {
@@ -88,12 +83,9 @@ for (const variant of ["web", "mobile"] as const) {
           : mismatch;
       },
     };
-    if (variant === "web") webRoute.setWebRefreshRouteTestDependencies(dependencies as never);
-    else mobileRoute.setMobileRefreshRouteTestDependencies(dependencies as never);
-
-    const response = variant === "web"
-      ? await webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })
-      : await mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) });
+    const response = await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
     const body = await response.json();
 
     assert.equal(response.status, 200);
@@ -130,12 +122,9 @@ for (const variant of ["web", "mobile"] as const) {
         gameTime: challengeId === "old" ? "2026-07-02T00:00:00.000Z" : "2026-07-03T00:00:00.000Z",
       }),
     };
-    if (variant === "web") webRoute.setWebRefreshRouteTestDependencies(dependencies as never);
-    else mobileRoute.setMobileRefreshRouteTestDependencies(dependencies as never);
-
-    const response = variant === "web"
-      ? await webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })
-      : await mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) });
+    const response = await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
     const body = await response.json();
 
     assert.equal(response.status, 200);
@@ -152,13 +141,66 @@ for (const variant of ["web", "mobile"] as const) {
   });
 }
 
-test("dependency override registries reject production use", () => {
+for (const variant of ["web", "mobile"] as const) {
+  test(`${variant} exported POST keeps overlapping test dependencies request-scoped`, async () => {
+    let releaseFirst!: () => void;
+    const firstBlocked = new Promise<void>((resolve) => { releaseFirst = resolve; });
+    let firstStarted!: () => void;
+    const firstAtCheck = new Promise<void>((resolve) => { firstStarted = resolve; });
+
+    const run = (label: string, block: boolean) => {
+      const dependencies = {
+        authenticate: async () => "current",
+        getClient: async () => fakeClient([]),
+        findQuest: async () => ({ userId: "host", groupQuest: structuredClone(baseQuest) }),
+        check: async ({ challengeId }: { challengeId: string }) => {
+          if (block && challengeId === "old") {
+            firstStarted();
+            await firstBlocked;
+          }
+          return { ...mismatch, gameId: `${label}-${challengeId}`, summary: `${label}-${challengeId}` };
+        },
+      };
+      return variant === "web"
+        ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+        : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }));
+    };
+
+    const first = run("first", true);
+    await firstAtCheck;
+    const secondBody = await (await run("second", false)).json();
+    releaseFirst();
+    const firstBody = await (await first).json();
+
+    assert.deepEqual(firstBody.checks.map((entry: { gameId: string }) => entry.gameId), ["first-old", "first-new"]);
+    assert.deepEqual(secondBody.checks.map((entry: { gameId: string }) => entry.gameId), ["second-old", "second-new"]);
+  });
+}
+
+test("test dependency contexts reject production use and exported POST ignores stale context", async () => {
   const previous = process.env.NODE_ENV;
   setNodeEnv("production");
   try {
-    assert.throws(() => webRoute.setWebRefreshRouteTestDependencies(null), /test-only/);
-    assert.throws(() => mobileRoute.setMobileRefreshRouteTestDependencies(null), /test-only/);
+    assert.throws(() => webRoute.withWebRefreshRouteTestDependencies({} as never, () => undefined), /test-only/);
+    assert.throws(() => mobileRoute.withMobileRefreshRouteTestDependencies({} as never, () => undefined), /test-only/);
   } finally {
     setNodeEnv(previous);
+  }
+
+  for (const variant of ["web", "mobile"] as const) {
+    let injectedAuthCalls = 0;
+    const dependencies = { authenticate: async () => { injectedAuthCalls += 1; return null; } } as never;
+    await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies, async () => {
+          setNodeEnv("production");
+          try { await webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }); } catch { /* Production dependencies may need runtime configuration. */ }
+          finally { setNodeEnv("test"); }
+        })
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies, async () => {
+          setNodeEnv("production");
+          try { await mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }); } catch { /* Production dependencies may need runtime configuration. */ }
+          finally { setNodeEnv("test"); }
+        }));
+    assert.equal(injectedAuthCalls, 0, `${variant} production POST must not consult stale test context`);
   }
 });

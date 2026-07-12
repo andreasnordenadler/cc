@@ -1,4 +1,5 @@
 import { clerkClient } from "@clerk/nextjs/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
@@ -41,11 +42,11 @@ type MobileRefreshRouteDependencies = {
   check: typeof checkLatestGroupQuestChallenge;
 };
 
-let testRefreshDependencies: MobileRefreshRouteDependencies | null = null;
+const testRefreshDependencies = new AsyncLocalStorage<MobileRefreshRouteDependencies>();
 
-export function setMobileRefreshRouteTestDependencies(dependencies: MobileRefreshRouteDependencies | null) {
+export function withMobileRefreshRouteTestDependencies<Result>(dependencies: MobileRefreshRouteDependencies, callback: () => Result): Result {
   if (process.env.NODE_ENV !== "test") throw new Error("Refresh route dependency overrides are test-only.");
-  testRefreshDependencies = dependencies;
+  return testRefreshDependencies.run(dependencies, callback);
 }
 
 function createMobileRefreshRouteDependencies(): MobileRefreshRouteDependencies {
@@ -53,7 +54,9 @@ function createMobileRefreshRouteDependencies(): MobileRefreshRouteDependencies 
 }
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const refreshDependencies = testRefreshDependencies ?? createMobileRefreshRouteDependencies();
+  const refreshDependencies = process.env.NODE_ENV === "test"
+    ? testRefreshDependencies.getStore() ?? createMobileRefreshRouteDependencies()
+    : createMobileRefreshRouteDependencies();
   const userId = await refreshDependencies.authenticate(request);
   const { id } = await params;
 

@@ -1,4 +1,5 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
@@ -26,11 +27,11 @@ type WebRefreshRouteDependencies = {
   check: typeof checkLatestGroupQuestChallenge;
 };
 
-let testDependencies: WebRefreshRouteDependencies | null = null;
+const testDependencies = new AsyncLocalStorage<WebRefreshRouteDependencies>();
 
-export function setWebRefreshRouteTestDependencies(dependencies: WebRefreshRouteDependencies | null) {
+export function withWebRefreshRouteTestDependencies<Result>(dependencies: WebRefreshRouteDependencies, callback: () => Result): Result {
   if (process.env.NODE_ENV !== "test") throw new Error("Refresh route dependency overrides are test-only.");
-  testDependencies = dependencies;
+  return testDependencies.run(dependencies, callback);
 }
 
 function createWebRefreshRouteDependencies(): WebRefreshRouteDependencies {
@@ -44,7 +45,9 @@ function createWebRefreshRouteDependencies(): WebRefreshRouteDependencies {
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const dependencies = testDependencies ?? createWebRefreshRouteDependencies();
+  const dependencies = process.env.NODE_ENV === "test"
+    ? testDependencies.getStore() ?? createWebRefreshRouteDependencies()
+    : createWebRefreshRouteDependencies();
   let client: Awaited<ReturnType<typeof clerkClient>>;
   let found: Awaited<ReturnType<typeof findGroupQuestById>>;
   const handler = createGroupQuestRefreshRouteHandler({
