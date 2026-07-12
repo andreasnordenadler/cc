@@ -1,6 +1,6 @@
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries, type CommunityLikeSummary } from "@/lib/community-likes";
-import { findGroupQuestById, listPublicGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
+import { findGroupQuestById, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import type { clerkClient } from "@clerk/nextjs/server";
 
 export type MobileWebMultiplayerPreview = {
@@ -18,6 +18,9 @@ export type MobileWebMultiplayerPreview = {
   timeLeftLabel: string;
   positionLabel?: string | null;
   likeSummary: CommunityLikeSummary;
+  lifecycle: "open" | "finished";
+  createdAt: string;
+  endAt: string;
 };
 
 export type MobileWebMultiplayerResult = {
@@ -44,8 +47,9 @@ export type MobileWebOfficialWeek = {
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
 export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userId?: string | null) {
-  const [publicQuests, likeSummaries] = await Promise.all([
+  const [publicQuests, relatedQuests, likeSummaries] = await Promise.all([
     listPublicGroupQuests(client),
+    userId ? listUserRelatedGroupQuests(client, userId) : Promise.resolve([]),
     getCommunityLikeSummaries(client, userId ?? null),
   ]);
   const activeQuests = publicQuests.filter((quest) => deriveGroupQuestStatus(quest.startAt, quest.endAt) !== "Finished");
@@ -55,9 +59,15 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
     .filter((quest) => isOfficialGroupQuest(quest))
     .map((quest) => buildPreviewRow(quest, userId, "SQC Official", likeSummaries.get("multiplayer", quest.id)));
 
-  const communityRows = activeQuests
-    .filter((quest) => !isOfficialGroupQuest(quest))
-    .map((quest) => buildPreviewRow(quest, userId, "Community", likeSummaries.get("multiplayer", quest.id)));
+  const publicCommunityQuests = activeQuests.filter((quest) => !isOfficialGroupQuest(quest));
+  const communityQuestMap = new Map(publicCommunityQuests.map((quest) => [quest.id, quest]));
+  relatedQuests.forEach((quest) => communityQuestMap.set(quest.id, quest));
+  const communityRows = [...communityQuestMap.values()].map((quest) => buildPreviewRow(
+    quest,
+    userId,
+    isOfficialGroupQuest(quest) ? "SQC Official" : "Community",
+    likeSummaries.get("multiplayer", quest.id),
+  ));
 
   const previousOfficialRows = finishedQuests
     .filter((quest) => isOfficialGroupQuest(quest))
@@ -124,7 +134,25 @@ function buildPreviewRow(
     timeLeftLabel,
     positionLabel,
     likeSummary,
+    lifecycle: status === "Finished" ? "finished" : "open",
+    createdAt: quest.createdAt,
+    endAt: quest.endAt,
   };
+}
+
+export function buildUserMultiplayerRows(
+  quests: ServerGroupQuest[],
+  userId: string | null | undefined,
+  likeSummaries: Map<string, CommunityLikeSummary>,
+  now = Date.now(),
+) {
+  if (!userId) return [];
+  return quests
+    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
+    .map((quest) => {
+      const row = buildPreviewRow(quest, userId, isOfficialGroupQuest(quest) ? "SQC Official" : "Community", likeSummaries.get(quest.id) ?? { count: 0, likedByViewer: false });
+      return { ...row, lifecycle: Number.isFinite(Date.parse(quest.endAt)) && Date.parse(quest.endAt) < now ? "finished" as const : "open" as const };
+    });
 }
 
 function isOfficialGroupQuest(quest: Pick<ServerGroupQuest, "id" | "official">) {
