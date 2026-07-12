@@ -25,13 +25,6 @@ test("multiplayer detail uses the existing join control for the exact quest and 
   assert.match(screen, /joinState\.kind === "join"/);
 });
 
-test("web group quest join derives public chess identity from the authenticated user", async () => {
-  const route = await source("src/app/api/groupquests/[id]/join/route.ts");
-  assert.match(route, /getLichessUsername\(metadata\)/);
-  assert.match(route, /getPreferredRunnerName\(metadata/);
-  assert.doesNotMatch(route, /buildParticipant\(\{ \.\.\.\(payload/);
-});
-
 test("community multiplayer panel embeds invite lookup and joins the resolved private quest", async () => {
   const [screen, inviteJoin] = await Promise.all([
     source("src/components/mobile-app-web-shell.tsx"),

@@ -1,7 +1,7 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import { normalizeInviteLookupError } from "@/lib/mobile-web-parity-actions";
+import { groupQuestIdFromLookupHref, normalizeInviteLookupError, safeGroupQuestHref } from "@/lib/mobile-web-parity-actions";
 
 export default function GroupQuestInviteKeyJoin({ isSignedIn, initialInviteKey = "" }: { isSignedIn: boolean; initialInviteKey?: string }) {
   const [inviteKey, setInviteKey] = useState(initialInviteKey);
@@ -33,8 +33,7 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn, initialInviteKey =
         throw new Error(normalizeInviteLookupError(result?.error));
       }
 
-      const matchedPath = new URL(result.href, window.location.origin).pathname.match(/^\/groupquests\/([^/]+)$/);
-      const groupQuestId = matchedPath?.[1] ? decodeURIComponent(matchedPath[1]) : "";
+      const groupQuestId = groupQuestIdFromLookupHref(result.href, window.location.origin);
       if (!groupQuestId) throw new Error(normalizeInviteLookupError("invite_not_found"));
 
       const joinResponse = await fetch(`/api/groupquests/${encodeURIComponent(groupQuestId)}/join`, {
@@ -49,7 +48,9 @@ export default function GroupQuestInviteKeyJoin({ isSignedIn, initialInviteKey =
           : normalizeInviteLookupError(joined?.error);
         throw new Error(message);
       }
-      window.location.href = joined.href;
+      const destination = safeGroupQuestHref(joined.href, window.location.origin);
+      if (!destination) throw new Error(normalizeInviteLookupError("invite_not_found"));
+      window.location.href = destination;
     } catch (error) {
       setError(error instanceof Error ? error.message : "That invite code did not match an open Multiplayer Side Quest.");
       setBusy(false);

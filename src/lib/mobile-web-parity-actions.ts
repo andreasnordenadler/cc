@@ -33,6 +33,19 @@ export function getMultiplayerJoinState({ questId, signedIn, status }: Multiplay
   return { kind: "join" as const, label: "Join Side Quest" };
 }
 
+export function groupQuestIdFromLookupHref(href: string, currentOrigin: string): string | null {
+  const destination = new URL(href, currentOrigin);
+  if (destination.origin !== currentOrigin) return null;
+  const matchedPath = destination.pathname.match(/^\/groupquests\/([^/]+)$/);
+  return matchedPath?.[1] ? decodeURIComponent(matchedPath[1]) : null;
+}
+
+export function safeGroupQuestHref(href: string, currentOrigin: string): string | null {
+  const destination = new URL(href, currentOrigin);
+  if (destination.origin !== currentOrigin || !/^\/groupquests\/[^/]+$/.test(destination.pathname)) return null;
+  return `${destination.pathname}${destination.search}${destination.hash}`;
+}
+
 export function normalizeInviteLookupError(error?: string) {
   if (error === "missing_invite_key") return "Paste the invite code from the host first.";
   if (error === "groupquest_finished") return "That Multiplayer Side Quest has finished.";
