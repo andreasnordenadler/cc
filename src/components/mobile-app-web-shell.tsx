@@ -13,6 +13,8 @@ import CommunitySoloPickControl from "./community-solo-pick-control";
 import GroupQuestAcceptModal from "./group-quest-accept-modal";
 import GroupQuestInviteKeyJoin from "./group-quest-invite-key-join";
 import { getMultiplayerJoinState } from "@/lib/mobile-web-parity-actions";
+import MobileCustomCreateForm from "./mobile-custom-create-form";
+import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobile-multiplayer-create-form";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -545,7 +547,7 @@ export function MobileSimpleScreen({
   );
 }
 
-export function MobileCreateCustomScreen() {
+export function MobileCreateCustomScreen({ signedIn = false }: { signedIn?: boolean }) {
   return (
     <div className="sqc-stack sqc-create-custom-screen">
       <section className="sqc-multiplayer-detail-hero sqc-custom-builder-hero">
@@ -554,52 +556,7 @@ export function MobileCreateCustomScreen() {
         <h1>Build your Side Quest.</h1>
         <p>Choose what should happen in a real game. SQC will check it after you play.</p>
       </section>
-
-      <section className="sqc-native-card sqc-custom-builder-card" aria-label="Custom Side Quest builder">
-        <span className="sqc-card-eyebrow">Start from a template</span>
-        <div className="sqc-option-grid">
-          <OptionCard title="Knight-only opening" helper="Win after moving only knights for the first four moves." selected />
-          <OptionCard title="No-castle game" helper="Win a game without castling." />
-          <OptionCard title="Queen trade challenge" helper="Trade queens, then win the game." />
-        </div>
-
-        <label className="sqc-form-row">
-          <span>Side Quest name</span>
-          <input readOnly value="" placeholder="Name this custom Side Quest" aria-label="Side Quest name" />
-        </label>
-        <p>Saved Side Quests appear in My Custom Side Quests and can be used as Solo Side Quests or Multiplayer Side Quests.</p>
-
-        <div className="sqc-custom-coat-preview">
-          <MobileAssetMark className="sqc-section-mark custom preview" image={mobileAsset.customCrest} glow={mobileAsset.coatGlow} size={66} glowSize={94} />
-          <div>
-            <span className="sqc-form-label">Side Quest Coat of Arms</span>
-            <p>This is the Coat of Arms players unlock when this Side Quest is completed.</p>
-          </div>
-        </div>
-
-        <span className="sqc-card-eyebrow">How to complete it</span>
-        <h2>What must happen?</h2>
-        <p>Add one or more conditions. SQC checks them against your next public game. Public means the game is visible on your connected chess account.</p>
-
-        <span className="sqc-form-label">If you add several conditions, how should they count?</span>
-        <div className="sqc-option-grid">
-          <OptionCard title="Complete every condition" helper="All selected conditions must happen. You can change this later." selected />
-          <OptionCard title="Complete any one condition" helper="One selected condition is enough. You can change this later." />
-        </div>
-
-        <div className="sqc-selection-empty">
-          <strong>Your conditions</strong>
-          <span>No conditions yet. Add the first thing players must do.</span>
-        </div>
-      </section>
-
-      <section className="sqc-create-footer-bar">
-        <div>
-          <strong>Name and add one condition</strong>
-          <span>Custom Side Quests start private until you publish them.</span>
-        </div>
-        <Link href="/custom-side-quests" className="sqc-create-footer-button">Save</Link>
-      </section>
+      <MobileCustomCreateForm signedIn={signedIn} />
     </div>
   );
 }
@@ -1301,7 +1258,7 @@ function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows
   );
 }
 
-export function MobileCreateMultiplayerScreen() {
+export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [] }: { signedIn?: boolean; quests?: MultiplayerCreateQuest[] }) {
   return (
     <div className="sqc-stack sqc-create-multiplayer-screen">
       <section className="sqc-multiplayer-detail-hero sqc-create-multiplayer-hero">
@@ -1311,6 +1268,9 @@ export function MobileCreateMultiplayerScreen() {
         <p>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</p>
       </section>
 
+      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} />
+
+      <div hidden aria-hidden="true">
       <section className="sqc-native-card">
         <div className="sqc-form-list">
           <label className="sqc-form-row">
@@ -1398,8 +1358,9 @@ export function MobileCreateMultiplayerScreen() {
           <strong>Choose at least one Side Quest</strong>
           <span>Name the Multiplayer Side Quest before creating.</span>
         </div>
-        <Link href="/multiplayer" className="sqc-create-footer-button">Create</Link>
+        <span className="sqc-create-footer-button">Create</span>
       </section>
+      </div>
     </div>
   );
 }
