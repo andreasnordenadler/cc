@@ -15,22 +15,28 @@ Distribution status for this gate:
 
 Current candidate status:
 
-- Latest GitHub Release tag: `mobile-v337`
-- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v337>
-- APK filename: `sqc-mobile-android-v337-2026-07-07.apk`
+- GitHub Release tag: `mobile-v338`
+- Release URL: <https://github.com/andreasnordenadler/cc/releases/tag/mobile-v338>
+- APK filename: `sqc-mobile-android-v338-2026-07-12.apk`
 - Package ID: `com.sidequestchess.app`
-- Version name: `0.1.337`
-- Android version code: `337`
-- APK SHA256: `6c13438f71a7a37e60d202fef04cc79f1723fc32ef2caf3a3dbc426eebbffc0c`
-- Status: **quarantined — do not install or smoke.** The immutable `mobile-v337` tag points to source whose `app.json` still identifies version code 336, so it cannot prove the APK came from the tagged source. Do not rewrite the historical tag; prepare and publish a new version from a clean committed bump.
-- Provenance proof: `pnpm mobile:release:candidate-check` must verify tag commit, tagged app config, release notes, APK identity/hash, and the exact configured release-certificate SHA256 before this checklist can proceed.
+- Version name: `0.1.338`
+- Android version code: `338`
+- APK SHA256: `adfbecbc922bc75828539f5f21b70346ad8853a9de96a01109211ef42238e228`
+- Source commit: `39e293a4bb952acb1a4f61c113623810d751ef4f`
+- Signer certificate SHA256: `891fdc5a80601eaa2b6db1f3fcb26ab756650179b40b3a3f5f58dd921d753cf2`
+- Status: **provenance-valid internal beta candidate; physical-device smoke pending.**
+- Provenance proof: `pnpm mobile:release:candidate-check` verifies tag commit, tagged app config, release notes, APK identity/hash, and signer identity.
+
+Historical quarantine record:
+
+- `mobile-v337` remains quarantined because its immutable tag points to source identifying version code 336 while its APK identifies 337. Do not rewrite or reuse that historical tag.
 
 ## Candidate identity
 
-No launch candidate is currently approved. Replace this section with the newly published `mobile-v*` identity only after `pnpm mobile:release:candidate-check` passes. Preserve the quarantined v337 record above for auditability.
+The v338 GitHub Release is the current approved internal test candidate. It is not a Play Store release.
 
 - Tester/device/OS: Pending physical Android device; physical-phone QA is manual on Andreas's side.
-- Test time: Pending a provenance-valid replacement candidate.
+- Test time: Pending physical-device installation and smoke.
 
 ## Install and launch
 
