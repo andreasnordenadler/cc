@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "tsx --test tests/**/*.test.ts",
+    "test:web:authenticated": "tsx --test tests/authenticated-web-flows.test.ts",
     "quest:release-gate": "node scripts/check-release-ready-quests.mjs && node scripts/check-custom-side-quest-launch-ready.mjs",
     "deploy:prod:guard": "pnpm quest:release-gate && node scripts/deploy-production-guard.mjs",
     "deploy:prod": "pnpm deploy:prod:guard && vercel --prod --yes",

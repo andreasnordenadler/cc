@@ -4,6 +4,8 @@ import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getMobileWebTheme } from "@/lib/mobile-web-theme";
 import { getChallengeGlowPath, getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
+import { buildActiveMultiplayerHomeRows } from "@/lib/mobile-web-home";
+import { listUserRelatedGroupQuests } from "@/lib/groupquests";
 import {
   buildAttemptSummary,
   getActiveChallenge,
@@ -36,9 +38,14 @@ export default async function Home() {
         emailAddress: user.primaryEmailAddress?.emailAddress,
       }) || "Side Quest Chess"
     : null;
-  const trophyRows = user
-    ? await getMobileWebTrophyRows(await clerkClient(), user.id, progress.completedChallengeIds, 5)
-    : [];
+  const client = user ? await clerkClient() : null;
+  const [trophyRows, relatedGroupQuests] = user && client
+    ? await Promise.all([
+        getMobileWebTrophyRows(client, user.id, progress.completedChallengeIds, 5),
+        listUserRelatedGroupQuests(client, user.id),
+      ])
+    : [[], []];
+  const activeMultiplayerRows = user ? buildActiveMultiplayerHomeRows(relatedGroupQuests, user.id) : [];
 
   return (
     <MobileAppWebShell
@@ -49,6 +56,7 @@ export default async function Home() {
       lichessUsername={getLichessUsername(metadata)}
       chessComUsername={getChessComUsername(metadata)}
       activeSolo={activeChallengeRecord ? {
+        id: activeChallengeRecord.id,
         href: `/challenges/${activeChallengeRecord.id}`,
         title: activeChallengeRecord.title,
         objective: activeChallengeRecord.objective,
@@ -72,6 +80,7 @@ export default async function Home() {
           headline: activeChallengeSummary.headline,
         } : null,
       } : null}
+      activeMultiplayerRows={activeMultiplayerRows}
       trophyRows={trophyRows}
       completedSoloCount={progress.totalCompletedChallenges}
       proofReceiptCount={proofReceiptCount}

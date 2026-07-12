@@ -2,6 +2,7 @@ import MobileAppWebShell, { MobileCreateMultiplayerScreen } from "@/components/m
 import { currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { CHALLENGES } from "@/lib/challenges";
 
 export default async function CreateMultiplayerSideQuestPage() {
   noStore();
@@ -33,7 +34,10 @@ export default async function CreateMultiplayerSideQuestPage() {
         accent: "rgba(96, 240, 175, .045)",
       }}
     >
-      <MobileCreateMultiplayerScreen />
+      <MobileCreateMultiplayerScreen
+        signedIn={Boolean(user)}
+        quests={CHALLENGES.map((quest) => ({ id: quest.id, title: quest.title, summary: quest.objective }))}
+      />
     </MobileAppWebShell>
   );
 }

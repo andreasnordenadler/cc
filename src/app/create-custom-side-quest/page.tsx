@@ -31,7 +31,7 @@ export default async function CreateCustomSideQuestPage() {
         accent: "rgba(96, 240, 175, .08)",
       }}
     >
-      <MobileCreateCustomScreen />
+      <MobileCreateCustomScreen signedIn={Boolean(user)} />
     </MobileAppWebShell>
   );
 }

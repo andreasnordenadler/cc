@@ -1,7 +1,8 @@
 import MobileAppWebShell, { MobileSoloSideQuestsScreen } from "@/components/mobile-app-web-shell";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
+import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import {
   getActiveChallenge,
   getChallengeProgress,
@@ -26,6 +27,10 @@ export default async function SideQuestsPage() {
   const activeChallenge = getActiveChallenge(metadata);
   const progress = getChallengeProgress(metadata);
   const activeChallengeId = activeChallenge?.id && !progress.completedChallengeIds.includes(activeChallenge.id) ? activeChallenge.id : null;
+  const likeSummaryMap = await getCommunityLikeSummaries(await clerkClient(), user?.id ?? null);
+  const likeSummaries = Object.fromEntries(
+    CHALLENGES.map((challenge) => [challenge.id, likeSummaryMap.get("solo", challenge.id)]),
+  );
 
   return (
     <MobileAppWebShell
@@ -39,6 +44,7 @@ export default async function SideQuestsPage() {
         challenges={CHALLENGES}
         activeChallengeId={activeChallengeId}
         completedChallengeIds={progress.completedChallengeIds}
+        likeSummaries={likeSummaries}
       />
     </MobileAppWebShell>
   );
