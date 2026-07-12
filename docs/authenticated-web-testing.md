@@ -1,9 +1,19 @@
 # Authenticated web-flow testing
 
-`pnpm test:web:authenticated` is the merge-gating, credential-free authenticated flow suite. It uses a fresh in-memory fixture for every test and exercises the shared outcome contracts for authenticated Home, Account, Community Solo actions, Multiplayer invite/join, creator flows, proof outcomes, reset confirmation, and logout. The fixture has no Clerk client, network transport, environment credentials, or persistence callback, so it cannot read or mutate production accounts or data.
+`pnpm test:web:authenticated` runs `tests/authenticated-web-flows.test.ts` directly. It is a useful local/diagnostic filter; the CI job does not run it separately because the same file remains part of the merge-gating `pnpm test` suite.
 
-The full `pnpm test` command also includes route-handler integration tests with injected authentication and in-memory persistence. Public Playwright smoke tests remain separate (`pnpm test:browser:public`) and do not require authentication.
+The suite calls production dependency-injected handlers with real `Request` bodies and disposable in-memory adapters. Production route exports continue to supply Clerk authentication, Clerk metadata persistence, and Next.js revalidation. Covered production seams are:
 
-## Credential-gated residual gap
+- `handleCommunityLikeRequest`, used by `POST /api/community-likes`: JSON parsing, auth-derived user ID, target validation, exact like metadata, response contract, revalidation paths, no write on failure, and sanitized persistence failure.
+- `handleGroupQuestCreateRequest`, used by `POST /api/groupquests`: JSON parsing, auth-derived host identity, official quest selection, schedule normalization, exact host participant/group-quest metadata, no write for malformed input, and sanitized persistence failure.
+- `handleGroupQuestJoinRequest`, used by `POST /api/groupquests/[id]/join`: exact route-ID lookup, private invite validation, spoofed identity rejection, participant identity derived from authenticated metadata, exact joined record, no write on rejection, and sanitized persistence failure.
+- `handleCustomQuestCreateRequest`, used by `POST /api/mobile/custom-quests`: JSON parsing, authenticated creator identity, production rule validation/normalization, exact custom-quest persistence input, no write on auth/validation failure, and sanitized persistence failure.
+- `buildActiveMultiplayerHomeRows`, used by the production Home page: hosted/joined view-model rows and links.
 
-There is no Clerk testing token, dedicated Clerk test instance, or disposable test-user credential configured in this repository or CI. Therefore CI does **not** automate the provider-owned browser boundary: Clerk sign-in/sign-out UI, session-cookie issuance/refresh, or a real browser navigation from Clerk back into an authenticated SQC page. Covering that final boundary requires a non-production Clerk instance plus Clerk's official testing-token setup and a disposable test user supplied through protected CI secrets. It must never target the production Clerk instance or production user metadata.
+The tests never instantiate Clerk or production persistence clients. Their adapters exist only in the test process.
+
+## Explicit residual gaps
+
+There is no Clerk testing token, dedicated non-production Clerk instance, or disposable test-user credential configured in this repository or CI. Therefore CI does **not** automate Clerk's provider-owned browser boundary: sign-in/sign-out UI (including the production `SignOutButton`), session-cookie issuance/refresh, or redirect-back navigation into an authenticated page. Account rendering is also not claimed by this suite. Active Solo pick/check/reset server actions remain covered by their existing unit/integration tests rather than this focused authenticated-handler file; extracting the large action module was not broadened into this PR.
+
+Closing the browser gap requires a dedicated non-production Clerk instance, Clerk's supported testing-token setup, and a disposable test user supplied through protected CI secrets. It must never target production Clerk or production user metadata.

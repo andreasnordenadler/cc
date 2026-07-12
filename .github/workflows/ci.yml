@@ -37,9 +37,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Test authenticated web flows (credential-free)
-        run: pnpm test:web:authenticated
-
       - name: Test full suite
         run: pnpm test
 
