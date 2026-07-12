@@ -133,6 +133,15 @@ const menuItems = [
   { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
 ];
 
+const guestMenuItems = [
+  { id: "home", label: "Home", href: "/", icon: "home" },
+  { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", icon: "flag" },
+  { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", icon: "group" },
+  { id: "support", label: "Help & Support", href: "/support", icon: "help" },
+  { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
+  { id: "signIn", label: "Sign in", href: "/sign-in", icon: "person" },
+];
+
 const mobileAsset = {
   coat: "/mobile-source/sqc-coat-of-arms.png",
   coatGlow: "/mobile-source/badges/glow/sqc-coat-generic-glow.png",
@@ -226,9 +235,27 @@ export default function MobileAppWebShell({
         </>
       ) : (
         immersivePresentation ? null : (
-          <header className="sqc-app-header guest">
-            <h1>Side Quest Chess</h1>
-          </header>
+          <>
+            <details className="sqc-menu">
+              <summary aria-label="Open main menu"><span /></summary>
+              <nav aria-label="Guest menu" className="sqc-menu-panel">
+                {guestMenuItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className={isActiveMenuItem(item.id, activeTab) ? "sqc-menu-row active" : "sqc-menu-row"}
+                    aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}
+                  >
+                    <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </Link>
+                ))}
+              </nav>
+            </details>
+            <header className="sqc-app-header guest">
+              <h1>Side Quest Chess</h1>
+            </header>
+          </>
         )
       )}
 
@@ -448,10 +475,12 @@ export function MobileSoloSideQuestsScreen({
   challenges,
   activeChallengeId,
   completedChallengeIds,
+  likeSummaries,
 }: {
   challenges: Challenge[];
   activeChallengeId?: string | null;
   completedChallengeIds?: string[];
+  likeSummaries?: Record<string, CommunityLikeSummary>;
 }) {
   const completedSet = new Set(completedChallengeIds ?? []);
   const sortedChallenges = [...challenges].sort((a, b) => {
@@ -496,6 +525,7 @@ export function MobileSoloSideQuestsScreen({
               href={`/challenges/${challenge.id}`}
               image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
               glow={getChallengeGlowPath(challenge.id)}
+              likeSummary={likeSummaries?.[challenge.id]}
             />
           ))}
         </div>
@@ -642,7 +672,16 @@ export function MobileSupportScreen({
         </div>
       </section>
 
-      <MobileSupportComposer signedIn={signedIn} initialMessages={supportMessages} />
+      {signedIn ? (
+        <MobileSupportComposer signedIn initialMessages={supportMessages} />
+      ) : (
+        <section className="sqc-support-card sqc-support-report" aria-label="Report a problem">
+          <span className="sqc-card-eyebrow">Report a problem</span>
+          <h3>Support messages require a signed-in SQC account.</h3>
+          <p>Anonymous messages are not accepted by the support API. Sign in so your note and any reply stay attached to your account.</p>
+          <Link href="/sign-in?redirect_url=/support" className="sqc-primary-action">Sign in to message support</Link>
+        </section>
+      )}
     </div>
   );
 }

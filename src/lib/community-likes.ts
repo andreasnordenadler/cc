@@ -68,6 +68,18 @@ export async function getCommunityLikeSummaries(
   noStore();
   const counts = new Map<string, number>();
   let viewerLikes = new Set<string>();
+
+  // Public catalogs stay browseable in local/public smoke environments that
+  // intentionally omit Clerk server credentials. Deployed environments with
+  // a secret key still load the real aggregate and viewer state below.
+  if (!process.env.CLERK_SECRET_KEY) {
+    return {
+      get(): CommunityLikeSummary {
+        return { count: 0, likedByViewer: false };
+      },
+    };
+  }
+
   let offset = 0;
 
   while (true) {

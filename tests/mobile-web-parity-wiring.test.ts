@@ -35,3 +35,13 @@ test("community multiplayer panel embeds invite lookup and joins the resolved pr
   assert.match(inviteJoin, /fetch\(`\/api\/groupquests\/\$\{encodeURIComponent\(groupQuestId\)\}\/join`/);
   assert.match(inviteJoin, /normalizeInviteLookupError/);
 });
+
+test("official Solo catalog loads and renders real like summaries", async () => {
+  const [screen, page] = await Promise.all([
+    source("src/components/mobile-app-web-shell.tsx"),
+    source("src/app/side-quests/page.tsx"),
+  ]);
+  assert.match(page, /getCommunityLikeSummaries/);
+  assert.match(page, /likeSummaries=\{likeSummaries\}/);
+  assert.match(screen, /likeSummary=\{likeSummaries\?\.\[challenge\.id\]\}/);
+});
