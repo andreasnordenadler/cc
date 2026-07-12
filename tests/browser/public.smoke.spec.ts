@@ -15,16 +15,17 @@ test("signed-out homepage exposes the two public browsing paths and auth entry",
   await expect(page.getByRole("link", { name: "Choose sign-in method" })).toHaveAttribute("href", "/sign-in");
 });
 
-test("signed-out shell exposes a limited accessible guest menu", async ({ page }) => {
+test("signed-out shell exposes a visible guest menu without a top hamburger", async ({ page }) => {
   await expectHealthyNavigation(page, "/");
 
-  await page.getByLabel("Open main menu").click();
+  await expect(page.getByLabel("Open main menu")).toHaveCount(0);
   const menu = page.getByRole("navigation", { name: "Guest menu" });
+  await expect(menu).toBeVisible();
   await expect(menu.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
-  await expect(menu.getByRole("link", { name: "Solo Side Quests" })).toHaveAttribute("href", "/side-quests");
-  await expect(menu.getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
+  await expect(menu.getByRole("link", { name: "Solo" })).toHaveAttribute("href", "/side-quests");
+  await expect(menu.getByRole("link", { name: "Multiplayer" })).toHaveAttribute("href", "/multiplayer");
   await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
-  await expect(menu.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  await expect(menu.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
   await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
   await expect(menu.getByRole("link", { name: "Trophy Cabinet" })).toHaveCount(0);
 });
@@ -99,7 +100,7 @@ test("public challenge share route keeps rules and sign-in boundary available", 
 
   await expect(page.getByRole("heading", { name: "Any Game Counts", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Share public link" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute(
+  await expect(page.getByLabel("Current screen").getByRole("link", { name: "Sign in", exact: true })).toHaveAttribute(
     "href",
     "/sign-in?redirect_url=/challenges/finish-any-game",
   );

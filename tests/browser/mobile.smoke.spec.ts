@@ -3,6 +3,15 @@ import { expect, test, type Page } from "@playwright/test";
 const noHorizontalOverflow = async (page: Page) =>
   page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1);
 
+async function expectGuestMenu(page: Page) {
+  const menu = page.getByRole("navigation", { name: "Guest menu" });
+  await expect(menu).toBeVisible();
+  for (const name of ["Home", "Solo", "Multiplayer", "Help & Support", "Privacy", "Sign in"]) {
+    await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
+  }
+  await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
+}
+
 test("mobile homepage matches the signed-out app hierarchy", async ({ page }) => {
   const response = await page.goto("/", { waitUntil: "domcontentloaded" });
   expect(response?.status()).toBeLessThan(400);
@@ -10,7 +19,7 @@ test("mobile homepage matches the signed-out app hierarchy", async ({ page }) =>
   await expect(page.getByRole("heading", { name: "Sign in to continue." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Browse Solo Side Quests" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Browse Multiplayer Side Quests" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
+  await expectGuestMenu(page);
   await expect(page.locator(".sqc-mobile-web")).toHaveClass(/signed-out/);
 
   const [soloBox, multiplayerBox] = await Promise.all([
@@ -30,12 +39,23 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   await expect(page.getByRole("heading", { name: "Official Side Quests", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /Any Game Counts/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "Close screen" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
+  await expectGuestMenu(page);
   await expect(page.getByRole("link", { name: "Switch to Community Side Quests" })).toHaveAttribute("data-icon", "swap-horizontal");
 
   const easy = page.getByText("Easy", { exact: true }).first();
   await expect(easy).toHaveCSS("background-color", "rgb(96, 240, 175)");
   await expect(easy).toHaveCSS("color", "rgb(10, 18, 14)");
+  const [rowBox, officialTabBox, communityTabBox, swapBox] = await Promise.all([
+    page.getByRole("link", { name: /Any Game Counts/ }).boundingBox(),
+    page.getByRole("tab", { name: "Official Side Quests" }).boundingBox(),
+    page.getByRole("tab", { name: "Community Side Quests" }).boundingBox(),
+    page.getByRole("link", { name: "Switch to Community Side Quests" }).boundingBox(),
+  ]);
+  expect(rowBox!.height).toBeLessThanOrEqual(70);
+  expect(officialTabBox!.height).toBeLessThanOrEqual(56);
+  expect(communityTabBox!.height).toBeLessThanOrEqual(56);
+  expect(swapBox!.width).toBeLessThanOrEqual(40);
+  await expect(page.locator(".sqc-app-row .sqc-row-copy strong").first()).toHaveCSS("font-size", "14px");
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
@@ -44,7 +64,7 @@ test("multiplayer catalog opens Official by default and Community stays app-styl
   await expect(page.getByRole("tab", { name: "Official Side Quests" })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { name: "Official Multiplayer Side Quests" })).toBeVisible();
   await expect(page.getByText("3 official", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
+  await expectGuestMenu(page);
 
   await page.getByRole("tab", { name: "Community Side Quests" }).click();
   await expect(page).toHaveURL(/tab=community/);

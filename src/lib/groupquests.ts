@@ -1,3 +1,5 @@
+import { OFFICIAL_MULTIPLAYER_CATALOG } from "./official-multiplayer-catalog";
+
 export type GroupQuestInviteMode = "public" | "unlisted-link" | "private-key";
 export type GroupQuestProviderMode = "both" | "lichess" | "chesscom";
 export type GroupQuestJoinProvider = "lichess" | "chesscom";
@@ -77,26 +79,12 @@ type OfficialGroupQuestTemplate = {
   questIds: string[];
 };
 
-const officialGroupQuestTemplates: OfficialGroupQuestTemplate[] = [
-  {
-    slug: "starter-shield",
-    name: "Official 14-Day Starter Shield",
-    inviteCopy: "A two-week official Multiplayer Side Quest for proving the clean fundamentals: finish a game, win with both knights, and give a bishop a real journey.",
-    questIds: ["finish-any-game", "knights-before-coffee", "bishop-field-trip"],
-  },
-  {
-    slug: "royal-route",
-    name: "Official 14-Day Royal Route",
-    inviteCopy: "A two-week official Multiplayer Side Quest for bold king movement, no-castle confidence, and winning with one bishop doing the heavy lifting.",
-    questIds: ["early-king-walk", "no-castle-club", "one-bishop-to-rule-them-all"],
-  },
-  {
-    slug: "chaos-ladder",
-    name: "Official 14-Day Chaos Ladder",
-    inviteCopy: "A two-week official Multiplayer Side Quest for sharp recovery, queenless bravery, and knight-only chaos.",
-    questIds: ["the-blunder-gambit", "queen-never-heard-of-her", "knightmare-mode"],
-  },
-];
+const officialGroupQuestTemplates: OfficialGroupQuestTemplate[] = OFFICIAL_MULTIPLAYER_CATALOG.map((entry) => ({
+  slug: entry.slug,
+  name: entry.title,
+  inviteCopy: entry.description,
+  questIds: [...entry.questIds],
+}));
 
 export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
   if (!metadata || typeof metadata !== "object") return [];

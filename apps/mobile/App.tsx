@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ClerkProvider, useAuth, useClerk, useSSO, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { OFFICIAL_MULTIPLAYER_CATALOG } from "../../src/lib/official-multiplayer-catalog";
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
@@ -1074,7 +1075,7 @@ const SIGNED_OUT_OFFICIAL_MULTIPLAYER_QUESTS: MobileGroupQuestSummary[] = [
   {
     id: "official-preview-knights",
     official: true,
-    title: "Knights Before Coffee Rush",
+    title: OFFICIAL_MULTIPLAYER_CATALOG[0].title,
     status: "Join",
     copy: "8 players · 18h left",
     href: "/groupquests/official-preview-knights",
@@ -1096,7 +1097,7 @@ const SIGNED_OUT_OFFICIAL_MULTIPLAYER_QUESTS: MobileGroupQuestSummary[] = [
   {
     id: "official-preview-no-castle",
     official: true,
-    title: "No Castle Club Night",
+    title: OFFICIAL_MULTIPLAYER_CATALOG[1].title,
     status: "Join",
     copy: "14 players · 2d left",
     href: "/groupquests/official-preview-no-castle",
@@ -1118,7 +1119,7 @@ const SIGNED_OUT_OFFICIAL_MULTIPLAYER_QUESTS: MobileGroupQuestSummary[] = [
   {
     id: "official-preview-queenless",
     official: true,
-    title: "Queenless Cup",
+    title: OFFICIAL_MULTIPLAYER_CATALOG[2].title,
     status: "Join",
     copy: "5 players · 4d left",
     href: "/groupquests/official-preview-queenless",

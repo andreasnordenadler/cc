@@ -254,7 +254,31 @@ export default function MobileAppWebShell({
           )
         )}
       </section>
+      {!signedIn && !modalPresentation && !immersivePresentation ? (
+        <GuestNavigation activeTab={activeTab} sticky={activeTab !== "home"} />
+      ) : null}
     </main>
+  );
+}
+
+function GuestNavigation({ activeTab, sticky }: { activeTab: AppTab; sticky: boolean }) {
+  const items = [
+    { label: "Home", href: "/", active: activeTab === "home" },
+    { label: "Solo", href: "/side-quests", active: activeTab === "sideQuests" },
+    { label: "Multiplayer", href: "/multiplayer", active: activeTab === "multiplayerSideQuests" },
+    { label: "Help & Support", href: "/support", active: false },
+    { label: "Privacy", href: "/privacy", active: false },
+    { label: "Sign in", href: "/sign-in", active: false },
+  ];
+
+  return (
+    <nav aria-label="Guest menu" className={`sqc-guest-nav${sticky ? " sticky" : ""}`}>
+      {items.map((item) => (
+        <Link key={item.href} href={item.href} aria-current={item.active ? "page" : undefined}>
+          {item.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -961,14 +985,14 @@ export function MobileMultiplayerSideQuestsScreen({
           Official Side Quests
         </Link>
         <span className="sqc-brand-switch" data-icon="swap-horizontal" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
-        <a
+        <Link
           href="/multiplayer-side-quests?tab=community"
           className={selectedTab === "community" ? "sqc-brand-tab community active" : "sqc-brand-tab community"}
           role="tab"
           aria-selected={selectedTab === "community"}
         >
           Community Side Quests
-        </a>
+        </Link>
       </div>
 
       {selectedTab === "official"
