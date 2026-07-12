@@ -1171,7 +1171,7 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [] }:
         <p>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</p>
       </section>
 
-      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} />
+      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} stableNow={new Date().toISOString()} />
 
       <div hidden aria-hidden="true">
       <section className="sqc-native-card">

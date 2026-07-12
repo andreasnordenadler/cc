@@ -47,6 +47,16 @@ type MultiplayerCreateInput = {
   rules: Record<string, string>;
 };
 
+export function getMultiplayerLocalDateTimeDefaults(nowIso: string, timezoneOffsetMinutes = new Date(nowIso).getTimezoneOffset()) {
+  const now = new Date(nowIso);
+  if (!Number.isFinite(now.getTime())) throw new Error("A valid stable timestamp is required.");
+  now.setSeconds(0, 0);
+  const localDateTime = (date: Date) => new Date(date.getTime() - timezoneOffsetMinutes * 60_000).toISOString().slice(0, 16);
+  const end = new Date(now);
+  end.setDate(end.getDate() + 7);
+  return { startAt: localDateTime(now), endAt: localDateTime(end) };
+}
+
 export function buildMultiplayerCreatePayload(input: MultiplayerCreateInput) {
   const name = input.name.replace(/\s+/g, " ").trim();
   if (!name) throw new Error("Name the Multiplayer Side Quest before creating.");

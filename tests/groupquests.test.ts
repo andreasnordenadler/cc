@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, rankGroupQuestParticipants } from "../src/lib/groupquests";
+import { buildGroupQuest, findGroupQuestByInviteKey, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, listUserRelatedGroupQuests, rankGroupQuestParticipants } from "../src/lib/groupquests";
 
 type Participant = {
   id: string;
@@ -120,4 +120,32 @@ test("does not mutate the stored participant order while ranking", () => {
   const ranked = rankGroupQuestParticipants({ questIds: ["rookless-rampage"], participants });
   assert.deepEqual(ranked.map(({ id }) => id), ["higher", "lower"]);
   assert.deepEqual(participants.map(({ id }) => id), ["lower", "higher"]);
+});
+
+test("lists joined quests hosted on Clerk page two once in deterministic newest-first order", async () => {
+  const joined = buildGroupQuest({ hostUserId: "old-host", hostName: "Old Host", name: "Page two", startAt: "2026-07-01", endAt: "2026-07-20" });
+  joined.id = "joined-page-two";
+  joined.createdAt = "2026-07-10T00:00:00.000Z";
+  joined.participants = [participant("current-user")];
+  const older = { ...joined, id: "older", createdAt: "2026-07-01T00:00:00.000Z" };
+  const duplicate = { ...joined };
+  const calls: number[] = [];
+  const client = { users: { getUserList: async ({ offset = 0 }: { limit: number; offset?: number }) => {
+    calls.push(offset);
+    if (offset === 0) return { data: Array.from({ length: 100 }, (_, index) => ({ id: `new-${index}`, privateMetadata: {} })) };
+    if (offset === 100) return { data: [{ id: "old-host", privateMetadata: { sqcGroupQuests: [older, joined, duplicate] } }] };
+    return { data: [] };
+  } } };
+
+  const quests = await listUserRelatedGroupQuests(client, "current-user");
+  assert.deepEqual(calls, [0, 100]);
+  assert.deepEqual(quests.map(({ id }) => id), ["joined-page-two", "older"]);
+});
+
+test("invite lookup rejects malformed or overlong keys before querying Clerk", async () => {
+  let calls = 0;
+  const client = { users: { getUserList: async () => { calls += 1; return { data: [] }; } } };
+  assert.equal(await findGroupQuestByInviteKey(client, "bad key!"), null);
+  assert.equal(await findGroupQuestByInviteKey(client, "a".repeat(41)), null);
+  assert.equal(calls, 0);
 });

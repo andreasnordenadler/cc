@@ -1,20 +1,29 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { buildMultiplayerCreatePayload, getCreateErrorMessage, getMultiplayerCreateDestination } from "@/lib/mobile-create-forms";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { buildMultiplayerCreatePayload, getCreateErrorMessage, getMultiplayerCreateDestination, getMultiplayerLocalDateTimeDefaults } from "@/lib/mobile-create-forms";
 
 export type MultiplayerCreateQuest = { id: string; title: string; summary: string };
 
 function localDateTime(date: Date) { const shifted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
-function defaults(days: number) { const date = new Date(); date.setDate(date.getDate() + days); date.setSeconds(0, 0); return localDateTime(date); }
 
-export default function MobileMultiplayerCreateForm({ signedIn, quests }: { signedIn: boolean; quests: MultiplayerCreateQuest[] }) {
+export default function MobileMultiplayerCreateForm({ signedIn, quests, stableNow }: { signedIn: boolean; quests: MultiplayerCreateQuest[]; stableNow: string }) {
   const [name, setName] = useState(""); const [inviteCopy, setInviteCopy] = useState("");
   const [inviteMode, setInviteMode] = useState("public"); const [inviteKey, setInviteKey] = useState("");
-  const [providerMode, setProviderMode] = useState("both"); const [startAt, setStartAt] = useState(() => defaults(0)); const [endAt, setEndAt] = useState(() => defaults(7));
+  const [providerMode, setProviderMode] = useState("both"); const [startAt, setStartAt] = useState(""); const [endAt, setEndAt] = useState("");
   const [selected, setSelected] = useState<string[]>([]); const [search, setSearch] = useState("");
   const [timeControl, setTimeControl] = useState("Any time control"); const [rated, setRated] = useState("Any rated state"); const [color, setColor] = useState("Any color");
   const [saving, setSaving] = useState(false); const [error, setError] = useState("");
+  useEffect(() => {
+    let mounted = true;
+    queueMicrotask(() => {
+      if (!mounted) return;
+      const initial = getMultiplayerLocalDateTimeDefaults(stableNow);
+      setStartAt(initial.startAt);
+      setEndAt(initial.endAt);
+    });
+    return () => { mounted = false; };
+  }, [stableNow]);
   const visible = useMemo(() => quests.filter((quest) => `${quest.title} ${quest.summary}`.toLowerCase().includes(search.trim().toLowerCase())), [quests, search]);
   function toggle(id: string) { setSelected((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < 4 ? [...current, id] : current); }
   function duration(days: number) { const start = new Date(startAt); start.setDate(start.getDate() + days); setEndAt(localDateTime(start)); }
@@ -32,7 +41,7 @@ export default function MobileMultiplayerCreateForm({ signedIn, quests }: { sign
       <label className="sqc-form-row"><span>Access</span><select onChange={(e) => setInviteMode(e.target.value)} value={inviteMode}><option value="public">Public</option><option value="unlisted-link">Unlisted link</option><option value="private-key">Invite code</option></select></label>
       {inviteMode === "private-key" ? <label className="sqc-form-row"><span>Invite code</span><input maxLength={40} onChange={(e) => setInviteKey(e.target.value)} value={inviteKey} /></label> : null}
       <label className="sqc-form-row"><span>Games allowed</span><select onChange={(e) => setProviderMode(e.target.value)} value={providerMode}><option value="both">Lichess or Chess.com</option><option value="lichess">Lichess</option><option value="chesscom">Chess.com</option></select></label>
-      <label className="sqc-form-row"><span>Start</span><input type="datetime-local" onChange={(e) => setStartAt(e.target.value)} value={startAt} /></label><label className="sqc-form-row"><span>End</span><input type="datetime-local" onChange={(e) => setEndAt(e.target.value)} value={endAt} /></label>
+      <label className="sqc-form-row"><span>Start</span><input required type="datetime-local" onChange={(e) => setStartAt(e.target.value)} value={startAt} /></label><label className="sqc-form-row"><span>End</span><input required type="datetime-local" onChange={(e) => setEndAt(e.target.value)} value={endAt} /></label>
       <div className="sqc-filter-row">{[[1,"24h"],[3,"3 days"],[7,"1 week"],[14,"2 weeks"]].map(([days,label]) => <button key={label} onClick={() => duration(Number(days))} type="button">{label}</button>)}</div>
       <details><summary>Advanced: time, rated, color</summary><label className="sqc-form-row"><span>Time control</span><select onChange={(e) => setTimeControl(e.target.value)} value={timeControl}><option>Any time control</option><option>Rapid 10+0</option><option>Blitz 5+0</option></select></label><label className="sqc-form-row"><span>Rated</span><select onChange={(e) => setRated(e.target.value)} value={rated}><option>Any rated state</option><option>Rated only</option><option>Casual only</option></select></label><label className="sqc-form-row"><span>Color</span><select onChange={(e) => setColor(e.target.value)} value={color}><option>Any color</option><option>White only</option><option>Black only</option></select></label></details>
     </div></section>

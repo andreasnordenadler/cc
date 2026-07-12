@@ -7,6 +7,7 @@ import {
   getCreateErrorMessage,
   getCustomCreateDestination,
   getMultiplayerCreateDestination,
+  getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
 
 const root = new URL("../", import.meta.url);
@@ -70,6 +71,14 @@ test("multiplayer creator rejects malformed fields", () => {
   assert.throws(() => buildMultiplayerCreatePayload({ ...base, questIds: [] }), /at least one/i);
   assert.throws(() => buildMultiplayerCreatePayload({ ...base, endAt: "2026-07-01T12:00:00.000Z" }), /after/i);
   assert.throws(() => buildMultiplayerCreatePayload({ ...base, inviteMode: "private-key", inviteKey: "" }), /invite code/i);
+});
+
+test("multiplayer datetime defaults derive from one stable server timestamp", () => {
+  const defaults = getMultiplayerLocalDateTimeDefaults("2026-07-12T23:58:42.000Z");
+  assert.equal(defaults.startAt.length, 16);
+  assert.equal(defaults.endAt.length, 16);
+  assert.equal(new Date(defaults.endAt).getTime() - new Date(defaults.startAt).getTime(), 7 * 24 * 60 * 60 * 1000);
+  assert.equal(defaults.startAt.endsWith(":58"), true);
 });
 
 test("multiplayer success accepts only exact created-detail navigation", () => {

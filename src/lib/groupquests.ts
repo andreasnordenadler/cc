@@ -217,6 +217,7 @@ export async function findGroupQuestByInviteKey(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
   inviteKey: string,
 ): Promise<GroupQuestHostRecord | null> {
+  if (!isValidInviteKey(inviteKey)) return null;
   const normalizedKey = cleanInviteKey(inviteKey);
   if (!normalizedKey) return null;
 
@@ -247,20 +248,30 @@ export async function findGroupQuestByInviteKey(
 
 
 export async function listUserRelatedGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
   userId: string,
 ) {
-  const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
-  const related = users.data
-    .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
-    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId));
+  const related: ServerGroupQuest[] = [];
+  const seenPages = new Set<string>();
+  let offset = 0;
+  while (true) {
+    const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
+    const pageKey = users.data.map((user) => user.id).join("\u0000");
+    if (seenPages.has(pageKey)) break;
+    seenPages.add(pageKey);
+    related.push(...users.data
+      .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
+      .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId)));
+    if (users.data.length < 100) break;
+    offset += users.data.length;
+  }
 
   const seen = new Set<string>();
   return related.filter((quest) => {
     if (seen.has(quest.id)) return false;
     seen.add(quest.id);
     return true;
-  }).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  }).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || a.id.localeCompare(b.id));
 }
 
 export async function listPublicGroupQuests(
@@ -600,6 +611,10 @@ function makeInviteKey(name: string) {
 
 function cleanInviteKey(value: unknown) {
   return cleanText(value, 40)?.toLowerCase().replace(/[^a-z0-9-]/g, "") || undefined;
+}
+
+function isValidInviteKey(value: unknown) {
+  return typeof value === "string" && value.length <= 40 && /^[a-z0-9-]+$/i.test(value);
 }
 
 function normalizeProviderMode(value: unknown): GroupQuestProviderMode {
