@@ -19,21 +19,45 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+type WebRefreshRouteDependencies = {
+  authenticate: () => Promise<string | null>;
+  getClient: () => ReturnType<typeof clerkClient>;
+  findQuest: typeof findGroupQuestById;
+  check: typeof checkLatestGroupQuestChallenge;
+};
+
+let testDependencies: WebRefreshRouteDependencies | null = null;
+
+export function setWebRefreshRouteTestDependencies(dependencies: WebRefreshRouteDependencies | null) {
+  if (process.env.NODE_ENV !== "test") throw new Error("Refresh route dependency overrides are test-only.");
+  testDependencies = dependencies;
+}
+
+function createWebRefreshRouteDependencies(): WebRefreshRouteDependencies {
+  return {
+    authenticate: async () => (await auth()).userId,
+    getClient: clerkClient,
+    findQuest: findGroupQuestById,
+    check: checkLatestGroupQuestChallenge,
+  };
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const dependencies = testDependencies ?? createWebRefreshRouteDependencies();
   let client: Awaited<ReturnType<typeof clerkClient>>;
   let found: Awaited<ReturnType<typeof findGroupQuestById>>;
   const handler = createGroupQuestRefreshRouteHandler({
     mode: "web",
-    authenticate: async () => (await auth()).userId,
+    authenticate: dependencies.authenticate,
     findQuest: async (questId) => {
-      client = await clerkClient();
-      found = await findGroupQuestById(client, questId);
+      client = await dependencies.getClient();
+      found = await dependencies.findQuest(client, questId);
       return found?.groupQuest ?? null;
     },
     isFinished: (quest) => isGroupQuestFinished({ endAt: quest.endAt ?? "" }),
     reward: (questId) => getChallengeById(questId)?.reward ?? found?.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId)?.reward ?? 0,
-    check: async ({ questId, quest, participant }) => checkLatestGroupQuestChallenge({
+    check: async ({ questId, quest, participant }) => dependencies.check({
         challengeId: questId,
         provider: participant.provider,
         username: participant.username,

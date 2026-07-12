@@ -207,6 +207,30 @@ test("Chess.com accepts explicit live clock formats and rejects malformed or cor
   }
 });
 
+test("realistic Chess.com daily and Lichess correspondence fixtures support any/class rules but reject exact clocks", () => {
+  const chessComDaily = normalizeLatestChessComGameMetadata({
+    url: "https://www.chess.com/game/daily/123456789", uuid: "daily-123456789",
+    end_time: Date.parse("2026-07-02T10:00:00.000Z") / 1000, rules: "chess", time_class: "daily", time_control: "1/259200", rated: true,
+    white: { username: "Alice", result: "win" }, black: { username: "Bob", result: "resigned" },
+  }, "alice");
+  const lichessCorrespondence = normalizeLatestLichessGameMetadata({
+    id: "corr1234", speed: "correspondence", rated: true, variant: "standard", daysPerTurn: 3,
+    lastMoveAt: Date.parse("2026-07-02T10:00:00.000Z"), status: "mate", winner: "white",
+    players: { white: { user: { name: "Alice" } }, black: { user: { name: "Bob" } } },
+  }, "alice");
+
+  for (const [provider, game] of [["chesscom", chessComDaily], ["lichess", lichessCorrespondence]] as const) {
+    assert.equal(game?.timeControl, "daily");
+    assert.equal(evaluateMultiplayerProofRules({ expectedProvider: provider, rules: { timeControl: "Any time control" }, game }).ok, true);
+    assert.equal(evaluateMultiplayerProofRules({ expectedProvider: provider, rules: { timeControl: "Daily" }, game }).ok, true);
+    assert.deepEqual(
+      evaluateMultiplayerProofRules({ expectedProvider: provider, rules: { timeControl: "Daily 4320+0" }, game }).reasons,
+      ["metadata_missing"],
+      "correspondence APIs do not expose a live initial+increment clock, so exact-clock proof must fail closed",
+    );
+  }
+});
+
 test("provider fixtures fail closed for variant and malformed timestamp and preserve draw/loss results", () => {
   const fixture = (overrides: Record<string, unknown>) => normalizeLatestChessComGameMetadata({
     url: "https://www.chess.com/game/live/45", end_time: Date.parse("2026-07-02T10:00:00.000Z") / 1000,

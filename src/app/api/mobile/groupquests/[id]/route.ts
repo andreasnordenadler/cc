@@ -34,8 +34,27 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
+type MobileRefreshRouteDependencies = {
+  authenticate: typeof getMobileRequestUserId;
+  getClient: () => ReturnType<typeof clerkClient>;
+  findQuest: typeof findGroupQuestById;
+  check: typeof checkLatestGroupQuestChallenge;
+};
+
+let testRefreshDependencies: MobileRefreshRouteDependencies | null = null;
+
+export function setMobileRefreshRouteTestDependencies(dependencies: MobileRefreshRouteDependencies | null) {
+  if (process.env.NODE_ENV !== "test") throw new Error("Refresh route dependency overrides are test-only.");
+  testRefreshDependencies = dependencies;
+}
+
+function createMobileRefreshRouteDependencies(): MobileRefreshRouteDependencies {
+  return { authenticate: getMobileRequestUserId, getClient: clerkClient, findQuest: findGroupQuestById, check: checkLatestGroupQuestChallenge };
+}
+
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const userId = await getMobileRequestUserId(request);
+  const refreshDependencies = testRefreshDependencies ?? createMobileRefreshRouteDependencies();
+  const userId = await refreshDependencies.authenticate(request);
   const { id } = await params;
 
   if (!userId) {
@@ -64,7 +83,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     normalizedPayload = { ...(payload ?? {}), ...proofConfiguration };
   }
 
-  const client = await clerkClient();
+  const client = await refreshDependencies.getClient();
   const user = await client.users.getUser(userId);
   const metadata = (user.publicMetadata as UserMetadataRecord) ?? {};
 
@@ -135,7 +154,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const found = id === "invite"
     ? await findGroupQuestByInviteKey(client, String(payload?.inviteKey ?? ""))
-    : await findGroupQuestById(client, id);
+    : await refreshDependencies.findQuest(client, id);
 
   if (!found) {
     return NextResponse.json(
@@ -301,7 +320,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     findQuest: async () => found.groupQuest,
     isFinished: (quest) => isGroupQuestFinished({ endAt: quest.endAt ?? "" }),
     reward: (questId) => getGroupQuestReward(found.groupQuest, questId),
-    check: async ({ questId, quest, participant }) => checkLatestGroupQuestChallenge({
+    check: async ({ questId, quest, participant }) => refreshDependencies.check({
         challengeId: questId,
         provider: participant.provider,
         username: participant.username,

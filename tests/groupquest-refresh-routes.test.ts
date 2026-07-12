@@ -1,91 +1,164 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import test from "node:test";
-import { createGroupQuestRefreshRouteHandler } from "../src/lib/groupquest-refresh-route-handler";
+import test, { afterEach } from "node:test";
+import * as webRoute from "../src/app/api/groupquests/[id]/refresh/route";
+import * as mobileRoute from "../src/app/api/mobile/groupquests/[id]/route";
 
-test("web and mobile production refresh routes invoke the tested handler", async () => {
-  const routes = await Promise.all([
-    readFile(new URL("../src/app/api/groupquests/[id]/refresh/route.ts", import.meta.url), "utf8"),
-    readFile(new URL("../src/app/api/mobile/groupquests/[id]/route.ts", import.meta.url), "utf8"),
-  ]);
-  for (const source of routes) {
-    assert.match(source, /createGroupQuestRefreshRouteHandler\s*\(/);
-    assert.match(source, /const lastCheck = checks\[checks\.length - 1\]\?\.result/);
-    assert.match(source, /checks\.filter\(\(check\) => newlyPassedQuestIds\.includes\(check\.questId\)\)/);
-  }
-});
+function setNodeEnv(value: string | undefined) {
+  Object.defineProperty(process.env, "NODE_ENV", { value, writable: true, configurable: true, enumerable: true });
+}
+setNodeEnv("test");
 
-const quest = {
-  id: "gq", questIds: ["old", "new"], startAt: "2026-07-01T00:00:00.000Z", endAt: "2026-07-20T00:00:00.000Z", rules: {},
+const baseQuest = {
+  id: "gq",
+  hostUserId: "host",
+  hostName: "Host",
+  name: "Test quest",
+  inviteMode: "public" as const,
+  providerMode: "both" as const,
+  providerLabel: "Lichess or Chess.com",
+  questIds: ["old", "new", "new"],
+  customQuestSnapshots: [
+    { id: "old", title: "Old", summary: "Old", config: "{}", reward: 100 },
+    { id: "new", title: "New", summary: "New", config: "{}", reward: 50 },
+  ],
+  startAt: "2026-07-01T00:00:00.000Z",
+  endAt: "2026-07-20T00:00:00.000Z",
+  rules: {},
   participants: [
-    { userId: "victim", provider: "lichess" as const, username: "Victim", completedQuestIds: [], questFinishedAt: {} as Record<string, string>, score: 0 },
-    { userId: "current", provider: "chesscom" as const, username: "Current", completedQuestIds: ["old"], questFinishedAt: { old: "2026-07-02T00:00:00.000Z" }, score: 100 },
+    { userId: "victim", provider: "lichess" as const, username: "Victim", leaderboardName: "Victim", joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: [], questFinishedAt: {}, score: 0 },
+    { userId: "current", provider: "chesscom" as const, username: "CurrentChess", leaderboardName: "Current", joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: ["old"], questFinishedAt: { old: "2026-07-02T00:00:00.000Z" }, score: 100 },
   ],
 };
-const diagnostics = { status: "failed" as const, gameId: "game-new", summary: "did not match", mismatchReasons: ["time_control_mismatch" as const], gameUrl: "https://example/game", finalPositionFen: "8/8/8/8/8/8/8/8 w - - 0 1", lastMoveUci: "e7e8", lastMoveSan: "e8=Q" };
 
-for (const mode of ["web", "mobile"] as const) {
-  test(`${mode} refresh handler uses auth identity, ignores participant selection, retains legacy state, and skips duplicate writes`, async () => {
-    const checked: string[] = [];
-    const writes: unknown[] = [];
-    const handler = createGroupQuestRefreshRouteHandler({
-      mode,
-      authenticate: async () => "current",
-      findQuest: async () => quest,
-      isFinished: () => false,
-      reward: () => 50,
-      check: async ({ questId, participant }) => {
-        checked.push(participant.username);
-        return questId === "old" ? { status: "passed", gameId: "old-game", summary: "already passed", gameTime: "2026-07-02T00:00:00.000Z" } : diagnostics;
-      },
-      persist: async (input) => { writes.push(input); },
-    });
-    const response = await handler(new Request("https://sqc.test/refresh", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action: "refresh", participantUserId: "victim" }) }), "gq");
-    assert.equal(response.status, 200);
-    assert.deepEqual(checked, ["Current", "Current"]);
-    assert.equal(writes.length, 0);
-    const body = await response.json();
-    assert.deepEqual(body.completedQuestIds, ["old"]);
-    assert.equal(body.score, 100);
-    assert.deepEqual(body.checks[1], { questId: "new", status: "failed", summary: "did not match", gameId: "game-new", gameUrl: "https://example/game", mismatchCode: "time_control_mismatch", mismatchReasons: ["time_control_mismatch"], finalPositionFen: diagnostics.finalPositionFen, lastMoveUci: "e7e8", lastMoveSan: "e8=Q" });
-    if (mode === "mobile") assert.deepEqual({ apiVersion: body.apiVersion, authenticated: body.authenticated, action: body.action, groupQuestId: body.groupQuestId }, { apiVersion: 1, authenticated: true, action: "refresh", groupQuestId: "gq" });
-    else assert.equal(body.ok, true);
+const mismatch = {
+  status: "failed" as const,
+  gameId: "game-new",
+  summary: "Latest game used the wrong clock",
+  mismatchReasons: ["time_control_mismatch" as const],
+  gameUrl: "https://example.test/game-new",
+  finalPositionFen: "8/8/8/8/8/8/8/8 w - - 0 1",
+  lastMoveUci: "e7e8q",
+  lastMoveSan: "e8=Q",
+};
+
+afterEach(() => {
+  webRoute.setWebRefreshRouteTestDependencies(null);
+  mobileRoute.setMobileRefreshRouteTestDependencies(null);
+});
+
+function request() {
+  return new Request("https://sqc.test/api/groupquests/gq/refresh", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ action: "refresh", participantUserId: "victim" }),
   });
 }
 
-test("refresh persistence receives every check while identifying only newly passed quest IDs", async () => {
-  let saved: unknown;
-  const handler = createGroupQuestRefreshRouteHandler({
-    mode: "web", authenticate: async () => "current", findQuest: async () => quest, isFinished: () => false, reward: () => 50,
-    check: async ({ questId }) => ({ status: "passed", gameId: `${questId}-game`, summary: "passed", gameTime: `2026-07-0${questId === "old" ? 2 : 3}T00:00:00.000Z` }),
-    persist: async (input) => { saved = input; },
-  });
-  await handler(new Request("https://sqc.test/refresh", { method: "POST" }), "gq");
-  assert.deepEqual(saved, {
-    userId: "current", newlyPassedQuestIds: ["new"],
-    progress: { completedQuestIds: ["old", "new"], questFinishedAt: { old: "2026-07-02T00:00:00.000Z", new: "2026-07-03T00:00:00.000Z" }, score: 150 },
-    checks: [
-      { questId: "old", result: { status: "passed", gameId: "old-game", summary: "passed", gameTime: "2026-07-02T00:00:00.000Z" } },
-      { questId: "new", result: { status: "passed", gameId: "new-game", summary: "passed", gameTime: "2026-07-03T00:00:00.000Z" } },
-    ],
-  });
-});
-
-test("production adapter can persist a final failure summary but attempts completion only for an earlier new pass", async () => {
-  let lastProofSummary: string | undefined;
-  let attemptedQuestIds: string[] = [];
-  const handler = createGroupQuestRefreshRouteHandler({
-    mode: "web", authenticate: async () => "current", findQuest: async () => ({ ...quest, questIds: ["old", "new", "final"] }), isFinished: () => false, reward: () => 50,
-    check: async ({ questId }) => questId === "final"
-      ? { status: "failed", gameId: "final-game", summary: "final check failed", mismatchReasons: ["result_mismatch"] }
-      : { status: "passed", gameId: `${questId}-game`, summary: "passed", gameTime: "2026-07-03T00:00:00.000Z" },
-    persist: async ({ checks, newlyPassedQuestIds }) => {
-      lastProofSummary = checks.at(-1)?.result.summary;
-      attemptedQuestIds = checks.filter((check) => newlyPassedQuestIds.includes(check.questId)).map((check) => check.questId);
+function fakeClient(writes: Array<{ userId: string; metadata: Record<string, unknown> }>) {
+  return {
+    users: {
+      getUser: async (userId: string) => ({
+        id: userId,
+        firstName: "Current",
+        username: "current",
+        publicMetadata: {
+          challengeProgress: { completedChallengeIds: ["old"] },
+          challengeAttempts: [],
+        },
+        privateMetadata: {},
+      }),
+      updateUserMetadata: async (userId: string, metadata: Record<string, unknown>) => { writes.push({ userId, metadata }); },
     },
-  });
-  await handler(new Request("https://sqc.test/refresh", { method: "POST" }), "gq");
+  };
+}
 
-  assert.equal(lastProofSummary, "final check failed");
-  assert.deepEqual(attemptedQuestIds, ["new"]);
+for (const variant of ["web", "mobile"] as const) {
+  test(`${variant} exported POST ignores attacker participant selection and performs no writes for mismatches/already-completed proofs`, async () => {
+    const checked: Array<{ questId: string; provider: string; username: string }> = [];
+    const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
+    const client = fakeClient(writes);
+    const dependencies = {
+      authenticate: async () => "current",
+      getClient: async () => client,
+      findQuest: async () => ({ userId: "host", groupQuest: structuredClone(baseQuest) }),
+      check: async ({ challengeId, provider, username }: { challengeId: string; provider: string; username: string }) => {
+        checked.push({ questId: challengeId, provider, username });
+        return challengeId === "old"
+          ? { status: "passed" as const, gameId: "old-game", summary: "Already complete", gameTime: "2026-07-02T00:00:00.000Z" }
+          : mismatch;
+      },
+    };
+    if (variant === "web") webRoute.setWebRefreshRouteTestDependencies(dependencies as never);
+    else mobileRoute.setMobileRefreshRouteTestDependencies(dependencies as never);
+
+    const response = variant === "web"
+      ? await webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })
+      : await mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) });
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(checked, [
+      { questId: "old", provider: "chesscom", username: "CurrentChess" },
+      { questId: "new", provider: "chesscom", username: "CurrentChess" },
+    ]);
+    assert.equal(writes.length, 0, "neither group metadata nor completion attempts may be written");
+    assert.deepEqual(body.completedQuestIds, ["old"]);
+    assert.equal(body.score, 100);
+    assert.deepEqual(body.checks[1], {
+      questId: "new", status: "failed", summary: mismatch.summary, gameId: mismatch.gameId,
+      gameUrl: mismatch.gameUrl, mismatchCode: "time_control_mismatch", mismatchReasons: ["time_control_mismatch"],
+      finalPositionFen: mismatch.finalPositionFen, lastMoveUci: mismatch.lastMoveUci, lastMoveSan: mismatch.lastMoveSan,
+    });
+    if (variant === "web") assert.equal(body.ok, true);
+    else assert.deepEqual(
+      { apiVersion: body.apiVersion, authenticated: body.authenticated, ok: body.ok, action: body.action, groupQuestId: body.groupQuestId },
+      { apiVersion: 1, authenticated: true, ok: true, action: "refresh", groupQuestId: "gq" },
+    );
+  });
+
+  test(`${variant} exported POST persists and creates attempts only for the unique newly passed quest`, async () => {
+    const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
+    const client = fakeClient(writes);
+    const dependencies = {
+      authenticate: async () => "current",
+      getClient: async () => client,
+      findQuest: async () => ({ userId: "host", groupQuest: structuredClone(baseQuest) }),
+      check: async ({ challengeId }: { challengeId: string }) => ({
+        status: "passed" as const,
+        gameId: `${challengeId}-game`,
+        summary: `${challengeId} passed`,
+        gameTime: challengeId === "old" ? "2026-07-02T00:00:00.000Z" : "2026-07-03T00:00:00.000Z",
+      }),
+    };
+    if (variant === "web") webRoute.setWebRefreshRouteTestDependencies(dependencies as never);
+    else mobileRoute.setMobileRefreshRouteTestDependencies(dependencies as never);
+
+    const response = variant === "web"
+      ? await webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })
+      : await mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) });
+    const body = await response.json();
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(body.completedQuestIds, ["old", "new"]);
+    assert.equal(body.score, 150);
+    const publicWrites = writes.filter((entry) => "publicMetadata" in entry.metadata);
+    assert.equal(publicWrites.length, 1, "one completion metadata write is expected");
+    const publicMetadata = publicWrites[0].metadata.publicMetadata as { challengeProgress: { completedChallengeIds: string[] }; challengeAttempts: Array<{ challengeId: string; gameId: string }> };
+    assert.deepEqual(publicMetadata.challengeProgress.completedChallengeIds, ["old", "new"]);
+    assert.equal(publicMetadata.challengeAttempts.length, 1);
+    assert.equal(publicMetadata.challengeAttempts[0].challengeId, "new");
+    assert.equal(publicMetadata.challengeAttempts[0].gameId, "new-game");
+    assert.equal(writes.filter((entry) => "privateMetadata" in entry.metadata).length, 1, "one group progress write is expected");
+  });
+}
+
+test("dependency override registries reject production use", () => {
+  const previous = process.env.NODE_ENV;
+  setNodeEnv("production");
+  try {
+    assert.throws(() => webRoute.setWebRefreshRouteTestDependencies(null), /test-only/);
+    assert.throws(() => mobileRoute.setMobileRefreshRouteTestDependencies(null), /test-only/);
+  } finally {
+    setNodeEnv(previous);
+  }
 });

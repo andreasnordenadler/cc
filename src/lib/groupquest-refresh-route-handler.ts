@@ -45,7 +45,8 @@ export function createGroupQuestRefreshRouteHandler(dependencies: {
       ? { apiVersion: 1, authenticated: true, ok: false, message: "This Multiplayer Side Quest has ended." }
       : { ok: false, error: "finished" }, 400);
 
-    const checks = await Promise.all(quest.questIds.map(async (questId) => ({
+    const uniqueQuestIds = Array.from(new Set(quest.questIds));
+    const checks = await Promise.all(uniqueQuestIds.map(async (questId) => ({
       questId,
       result: await dependencies.check({ questId, quest, participant }),
     })));
@@ -65,7 +66,7 @@ export function createGroupQuestRefreshRouteHandler(dependencies: {
       completedQuestIds: progress.completedQuestIds,
       score: progress.score,
       checks: buildGroupQuestRefreshChecks(checks),
-      ...(dependencies.mode === "mobile" ? { message: `${progress.completedQuestIds.length} of ${quest.questIds.length} Multiplayer Side Quest checks verified.` } : {}),
+      ...(dependencies.mode === "mobile" ? { message: `${progress.completedQuestIds.length} of ${uniqueQuestIds.length} Multiplayer Side Quest checks verified.` } : {}),
     };
     return json(body, 200);
   };

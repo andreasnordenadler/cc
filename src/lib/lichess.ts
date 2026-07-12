@@ -17,6 +17,7 @@ export type LichessGame = {
   createdAt?: number;
   rated?: boolean;
   speed?: string;
+  daysPerTurn?: number;
   variant?: string;
   clock?: { initial?: number; increment?: number };
   players?: {
@@ -80,9 +81,11 @@ export function normalizeLatestLichessGameMetadata(game: LichessGame, username: 
   const { whiteName, blackName } = getPlayerNames(game);
   const normalizedUsername = username.trim().toLowerCase();
   const playerColor = whiteName === normalizedUsername ? "white" : blackName === normalizedUsername ? "black" : null;
-  const timeControl = ["bullet", "blitz", "rapid", "classical"].includes(game.speed ?? "")
-    ? game.speed as MultiplayerGameMetadata["timeControl"]
-    : "unknown";
+  const timeControl = game.speed === "correspondence"
+    ? "daily"
+    : ["bullet", "blitz", "rapid", "classical"].includes(game.speed ?? "")
+      ? game.speed as MultiplayerGameMetadata["timeControl"]
+      : "unknown";
   if (!gameId || !playerColor) return null;
   return {
     provider: "lichess",
