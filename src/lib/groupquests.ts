@@ -303,7 +303,11 @@ function isValidClerkTotalCount(value: unknown): value is number {
 export async function listPublicGroupQuests(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
 ) {
-  const storedPublicQuests = (await listStoredGroupQuests(client)).filter((quest) => quest.inviteMode === "public");
+  // Clerk keyless mode cannot scan user metadata. Keep the public catalog useful
+  // for local development and visual QA by rendering the built-in official rows.
+  const storedPublicQuests = process.env.CLERK_SECRET_KEY
+    ? (await listStoredGroupQuests(client)).filter((quest) => quest.inviteMode === "public")
+    : [];
   const builtInOfficialQuests = getBuiltInOfficialGroupQuests().map((quest) => mergeOfficialParticipantCopies(
     quest,
     storedPublicQuests.filter((storedQuest) => storedQuest.id === quest.id && storedQuest.official),
