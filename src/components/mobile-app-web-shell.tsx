@@ -9,6 +9,10 @@ import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWeb
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { buildSoloProofHomeStatus, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
+import CommunitySoloPickControl from "./community-solo-pick-control";
+import GroupQuestAcceptModal from "./group-quest-accept-modal";
+import GroupQuestInviteKeyJoin from "./group-quest-invite-key-join";
+import { getMultiplayerJoinState } from "@/lib/mobile-web-parity-actions";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -862,10 +866,12 @@ export function MobileCommunitySideQuestDetailScreen({
   quest,
   signedIn,
   ownedByYou = false,
+  activeQuestId,
 }: {
   quest: CommunitySideQuestDetail;
   signedIn: boolean;
   ownedByYou?: boolean;
+  activeQuestId?: string | null;
 }) {
   const badge = toMobileAssetPath(quest.badgeImageUrl) ?? mobileAsset.customCrest;
   const totalSolo = quest.stats.soloAttempts + quest.stats.soloSelections + quest.stats.soloCompletions;
@@ -925,19 +931,13 @@ export function MobileCommunitySideQuestDetailScreen({
       </section>
 
       <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">{signedIn ? "Pick first" : "Sign in first"}</span>
-        <h2>{signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
-        <p>{signedIn ? "Use the mobile app to pick, check, and prove Community Solo Side Quests." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
+        <span className="sqc-card-eyebrow">{activeQuestId === quest.id ? "Active now" : signedIn ? "Pick first" : "Sign in first"}</span>
+        <h2>{activeQuestId === quest.id ? "This is your active Solo Side Quest." : signedIn ? "Pick this Side Quest before playing your proof game." : "Sign in to pick this Community Solo Side Quest."}</h2>
+        <p>{activeQuestId === quest.id ? "Play a fresh public game, then return to check your proof." : "Your account keeps active Side Quests, usernames, proof checks, and trophies in sync."}</p>
       </section>
 
       <div className="sqc-community-detail-actions" aria-label="Community Solo Side Quest actions">
-        {signedIn ? (
-          <span className="sqc-detail-primary-button disabled" aria-disabled="true">Pick this Side Quest</span>
-        ) : (
-          <Link href={`/sign-in?redirect_url=/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-detail-primary-button">
-            Sign in
-          </Link>
-        )}
+        <CommunitySoloPickControl questId={quest.id} signedIn={signedIn} activeQuestId={activeQuestId} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
         <Link href={`/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Share public link</Link>
@@ -1293,11 +1293,7 @@ function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows
             <span className="sqc-card-eyebrow">Invite Code</span>
             <h2>Join private Multiplayer Side Quest.</h2>
             <p>Paste an invite code from the host to join a private Multiplayer Side Quest.</p>
-            <label className="sqc-form-row">
-              <span>Invite code</span>
-              <input readOnly placeholder="e.g. nocastle-ab12cd" aria-label="Invite code" />
-            </label>
-            <span className="sqc-secondary-action full">Join with code</span>
+            <GroupQuestInviteKeyJoin isSignedIn={signedIn} />
           </section>
         </>
       ) : null}
@@ -1408,8 +1404,21 @@ export function MobileCreateMultiplayerScreen() {
   );
 }
 
-export function MobileMultiplayerDetailScreen({ quest, signedIn }: { quest: MobileWebMultiplayerPreview; signedIn: boolean }) {
+export function MobileMultiplayerDetailScreen({
+  quest,
+  signedIn,
+  defaultProvider = "lichess",
+  defaultUsername = "",
+  defaultLeaderboardName = "",
+}: {
+  quest: MobileWebMultiplayerPreview;
+  signedIn: boolean;
+  defaultProvider?: "lichess" | "chesscom";
+  defaultUsername?: string;
+  defaultLeaderboardName?: string;
+}) {
   const official = quest.sourceBadge === "SQC Official";
+  const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
 
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
@@ -1437,12 +1446,24 @@ export function MobileMultiplayerDetailScreen({ quest, signedIn }: { quest: Mobi
       </section>
 
       <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">{signedIn ? "Join first" : "Sign in first"}</span>
-        <h2>Join this Multiplayer Side Quest before playing your proof game.</h2>
+        <span className="sqc-card-eyebrow">{joinState.kind === "joined" || joinState.kind === "hosted" ? "Ready to play" : signedIn ? "Join first" : "Sign in first"}</span>
+        <h2>{joinState.kind === "joined" ? "You joined this Multiplayer Side Quest." : joinState.kind === "hosted" ? "You host this Multiplayer Side Quest." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
         <p>You can inspect the quests and rules below before joining.</p>
-        <Link href={signedIn ? "/multiplayer" : "/sign-in?redirect_url=/multiplayer"} className="sqc-primary-action">
-          {signedIn ? "Join Side Quest" : "Sign in to join"}
-        </Link>
+        {joinState.kind === "join" ? (
+          <GroupQuestAcceptModal
+            id={quest.id}
+            questName={quest.title}
+            isSignedIn={signedIn}
+            defaultProvider={defaultProvider}
+            defaultUsername={defaultUsername}
+            defaultLeaderboardName={defaultLeaderboardName}
+            canAutoJoin={Boolean(defaultUsername && defaultLeaderboardName)}
+            buttonClassName="sqc-primary-action"
+            buttonLabel={joinState.label}
+          />
+        ) : (
+          <Link href={joinState.href} className="sqc-primary-action">{joinState.label}</Link>
+        )}
       </section>
 
       <section className="sqc-native-card sqc-multiplayer-native-card">

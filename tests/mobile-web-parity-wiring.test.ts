@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import test from "node:test";
+
+const root = new URL("../", import.meta.url);
+
+async function source(path: string) {
+  return readFile(new URL(path, root), "utf8");
+}
+
+test("mobile community detail uses a real pick control and receives active quest identity", async () => {
+  const [screen, page] = await Promise.all([
+    source("src/components/mobile-app-web-shell.tsx"),
+    source("src/app/challenges/community/[id]/page.tsx"),
+  ]);
+  assert.match(screen, /CommunitySoloPickControl/);
+  assert.match(page, /activeQuestId=/);
+  assert.doesNotMatch(screen, /Use the mobile app to pick/);
+});
+
+test("multiplayer detail uses the existing join control for the exact quest and joined rows do not mutate", async () => {
+  const screen = await source("src/components/mobile-app-web-shell.tsx");
+  assert.match(screen, /GroupQuestAcceptModal/);
+  assert.match(screen, /id=\{quest\.id\}/);
+  assert.match(screen, /joinState\.kind === "join"/);
+});
+
+test("web group quest join derives public chess identity from the authenticated user", async () => {
+  const route = await source("src/app/api/groupquests/[id]/join/route.ts");
+  assert.match(route, /getLichessUsername\(metadata\)/);
+  assert.match(route, /getPreferredRunnerName\(metadata/);
+  assert.doesNotMatch(route, /buildParticipant\(\{ \.\.\.\(payload/);
+});
+
+test("community multiplayer panel embeds invite lookup and joins the resolved private quest", async () => {
+  const [screen, inviteJoin] = await Promise.all([
+    source("src/components/mobile-app-web-shell.tsx"),
+    source("src/components/group-quest-invite-key-join.tsx"),
+  ]);
+  assert.match(screen, /<GroupQuestInviteKeyJoin isSignedIn=\{signedIn\}/);
+  assert.doesNotMatch(screen, /<input readOnly placeholder="e\.g\. nocastle-ab12cd"/);
+  assert.match(inviteJoin, /fetch\(`\/api\/groupquests\/\$\{encodeURIComponent\(groupQuestId\)\}\/join`/);
+  assert.match(inviteJoin, /normalizeInviteLookupError/);
+});

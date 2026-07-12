@@ -52,6 +52,7 @@ export default async function CommunitySideQuestDetailPage({
         quest={quest}
         signedIn={Boolean(user)}
         ownedByYou={quest.creatorUserId === user?.id}
+        activeQuestId={metadataRecord.activeChallenge && typeof metadataRecord.activeChallenge === "object" ? String((metadataRecord.activeChallenge as { id?: string }).id ?? "") : null}
       />
     </MobileAppWebShell>
   );

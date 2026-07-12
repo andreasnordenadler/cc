@@ -4,7 +4,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import MobileAppWebShell, {
   MobileMultiplayerDetailScreen,
 } from "@/components/mobile-app-web-shell";
-import { getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
+import { getMobileWebMultiplayerDetail, getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export default async function GroupQuestDetailPage({
@@ -16,7 +16,8 @@ export default async function GroupQuestDetailPage({
   const { id } = await params;
   const [user, client] = await Promise.all([currentUser(), clerkClient()]);
   const { officialRows, communityRows } = await getMobileWebMultiplayerPreviews(client, user?.id);
-  const quest = [...officialRows, ...communityRows].find((row) => row.id === id);
+  const quest = [...officialRows, ...communityRows].find((row) => row.id === id)
+    ?? await getMobileWebMultiplayerDetail(client, id, user?.id);
 
   if (!quest) {
     redirect("/multiplayer");
@@ -49,7 +50,13 @@ export default async function GroupQuestDetailPage({
         accent: "rgba(245, 200, 106, .14)",
       }}
     >
-      <MobileMultiplayerDetailScreen quest={quest} signedIn={Boolean(user)} />
+      <MobileMultiplayerDetailScreen
+        quest={quest}
+        signedIn={Boolean(user)}
+        defaultProvider={getLichessUsername(metadata) ? "lichess" : "chesscom"}
+        defaultUsername={getLichessUsername(metadata) ?? getChessComUsername(metadata) ?? ""}
+        defaultLeaderboardName={displayName ?? ""}
+      />
     </MobileAppWebShell>
   );
 }

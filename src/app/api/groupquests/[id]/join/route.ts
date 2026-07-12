@@ -10,6 +10,12 @@ import {
   upsertParticipantGroupQuest,
 } from "@/lib/groupquests";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
+import {
+  getChessComUsername,
+  getLichessUsername,
+  getPreferredRunnerName,
+  type UserMetadataRecord,
+} from "@/lib/user-metadata";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -24,11 +30,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ ok: false, error: "invalid_payload" }, { status: 400 });
   }
 
-  const participant = buildParticipant({ ...(payload as Record<string, unknown>), userId });
-  if (!participant) {
-    return NextResponse.json({ ok: false, error: "missing_participant" }, { status: 400 });
-  }
-
   const client = await clerkClient();
   const found = await findGroupQuestById(client, id);
   if (!found) {
@@ -41,6 +42,29 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   if (found.groupQuest.inviteMode === "private-key" && !sameInviteKey((payload as Record<string, unknown>).inviteKey, found.groupQuest.inviteKey)) {
     return NextResponse.json({ ok: false, error: "invite_key_required" }, { status: 403 });
+  }
+
+  const sessionUser = await client.users.getUser(userId);
+  const metadata = sessionUser.publicMetadata ? sessionUser.publicMetadata as UserMetadataRecord : {};
+  const lichessUsername = getLichessUsername(metadata);
+  const chessComUsername = getChessComUsername(metadata);
+  const provider = found.groupQuest.providerMode === "chesscom"
+    ? "chesscom"
+    : found.groupQuest.providerMode === "lichess"
+      ? "lichess"
+      : lichessUsername
+        ? "lichess"
+        : "chesscom";
+  const username = provider === "lichess" ? lichessUsername : chessComUsername;
+  const leaderboardName = getPreferredRunnerName(metadata, {
+    firstName: sessionUser.firstName,
+    lastName: sessionUser.lastName,
+    username: sessionUser.username,
+    emailAddress: sessionUser.primaryEmailAddress?.emailAddress,
+  });
+  const participant = buildParticipant({ userId, provider, username, leaderboardName });
+  if (!participant) {
+    return NextResponse.json({ ok: false, error: "missing_participant" }, { status: 400 });
   }
 
   const joined = joinGroupQuest(found.groupQuest, participant);

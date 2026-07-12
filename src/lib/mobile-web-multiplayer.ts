@@ -1,6 +1,6 @@
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries, type CommunityLikeSummary } from "@/lib/community-likes";
-import { listPublicGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
+import { findGroupQuestById, listPublicGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import type { clerkClient } from "@clerk/nextjs/server";
 
 export type MobileWebMultiplayerPreview = {
@@ -71,6 +71,21 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
   const earlierOfficialWeeks = officialWeeks.filter((week) => week.id !== latestOfficialWeekId);
 
   return { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks };
+}
+
+export async function getMobileWebMultiplayerDetail(client: ClerkClient, id: string, userId?: string | null) {
+  const found = await findGroupQuestById(client, id);
+  if (!found) return null;
+  const joined = Boolean(userId) && found.groupQuest.participants.some((participant) => participant.userId === userId);
+  const hosted = found.groupQuest.hostUserId === userId;
+  if (found.groupQuest.inviteMode !== "public" && !joined && !hosted) return null;
+  const likeSummaries = await getCommunityLikeSummaries(client, userId ?? null);
+  return buildPreviewRow(
+    found.groupQuest,
+    userId,
+    isOfficialGroupQuest(found.groupQuest) ? "SQC Official" : "Community",
+    likeSummaries.get("multiplayer", id),
+  );
 }
 
 function buildPreviewRow(
