@@ -5,6 +5,8 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
+import { applyGroupQuestProofResults } from "@/lib/groupquest-proof-progress";
+import { buildGroupQuestRefreshChecks } from "@/lib/groupquest-refresh-contract";
 import {
   buildGroupQuest,
   buildParticipant,
@@ -299,32 +301,26 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       }),
     })),
   );
-  const completedQuestIds = checks.filter((entry) => entry.result.status === "passed").map((entry) => entry.questId);
-  const questFinishedAt = Object.fromEntries(
-    checks
-      .filter((entry) => entry.result.status === "passed")
-      .map((entry) => [entry.questId, entry.result.gameTime ?? new Date().toISOString()]),
-  );
-  const score = completedQuestIds.reduce((sum, questId) => sum + getGroupQuestReward(found.groupQuest, questId), 0);
-  const lastCheck = checks[checks.length - 1]?.result;
-  const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
-    completedQuestIds,
-    questFinishedAt,
-    score,
-    lastProofSummary: lastCheck?.summary,
-    lastProofAt: new Date().toISOString(),
+  let saveError: string | null = null;
+  const progress = await applyGroupQuestProofResults({
+    participant,
+    checks: checks.map((entry) => ({ ...entry, reward: getGroupQuestReward(found.groupQuest, entry.questId) })),
+    mutate: async (nextProgress) => {
+      const lastCheck = checks[checks.length - 1]?.result;
+      const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
+        ...nextProgress,
+        lastProofSummary: lastCheck?.summary,
+        lastProofAt: new Date().toISOString(),
+      });
+      saveError = await saveGroupQuestSafely(client, found.userId, refreshedQuest, userId);
+      if (!saveError) await mergeMobileMultiplayerCompletions(client, userId, metadata, participant, checks);
+    },
   });
-
-  const saveError = await saveGroupQuestSafely(client, found.userId, refreshedQuest, userId);
-  if (saveError) {
-    return NextResponse.json(
-      { apiVersion: 1, authenticated: true, ok: false, message: saveError },
-      { status: 500 },
-    );
-  }
-  if (completedQuestIds.length) {
-    await mergeMobileMultiplayerCompletions(client, userId, metadata, participant, checks);
-  }
+  if (saveError) return NextResponse.json(
+    { apiVersion: 1, authenticated: true, ok: false, message: saveError },
+    { status: 500 },
+  );
+  const { completedQuestIds, score } = progress;
 
   return NextResponse.json({
     apiVersion: 1,
@@ -334,12 +330,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     groupQuestId: found.groupQuest.id,
     completedQuestIds,
     score,
-    checks: checks.map((entry) => ({
-      questId: entry.questId,
-      status: entry.result.status,
-      summary: entry.result.summary,
-      gameId: entry.result.gameId,
-    })),
+    checks: buildGroupQuestRefreshChecks(checks),
     message: `${completedQuestIds.length} of ${found.groupQuest.questIds.length} Multiplayer Side Quest checks verified.`,
   });
 }

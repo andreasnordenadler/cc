@@ -6,6 +6,7 @@ import type { PawnOnlyPicnicGame, PawnOnlyPicnicVerdict } from "./pawn-only-picn
 import { evaluatePawnOnlyPicnic } from "./pawn-only-picnic";
 import type { PawnStormGame, PawnStormMoveEvent } from "./pawn-storm-maniac";
 import type { RooklessGame, RooklessLossEvent } from "./rookless-rampage";
+import type { MultiplayerGameMetadata } from "./multiplayer-proof-rules";
 
 export type ChessComVerificationVerdict = {
   status: "passed" | "failed" | "pending";
@@ -17,6 +18,7 @@ export type ChessComVerificationVerdict = {
   lastMoveSan?: string;
   playerColor?: "white" | "black";
   outcome?: "win" | "draw" | "lose" | "unknown";
+  metadata?: MultiplayerGameMetadata;
 };
 
 type QueenChallengeSide = "white" | "black";
@@ -222,6 +224,7 @@ export type ChessComGame = {
   pgn?: string;
   rules?: string;
   time_class?: string;
+  time_control?: string;
   rated?: boolean;
   white?: ChessComPlayer;
   black?: ChessComPlayer;
@@ -355,6 +358,27 @@ function getChessComStartedGameAt(game: ChessComGame): string | undefined {
 
   const timestamp = Date.parse(`${date.replace(/\./g, "-")}T${time}Z`);
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : undefined;
+}
+
+export function normalizeLatestChessComGameMetadata(game: ChessComGame, username: string): MultiplayerGameMetadata | null {
+  const playerColor = getPlayerSideForUsername(game, username);
+  const gameUrl = game.url ? normalizeChessComGameUrl(game.url) : "";
+  if (!playerColor || !gameUrl) return null;
+  const clock = game.time_control?.match(/^(\d+)(?:\+(\d+))?$/);
+  const winner = getWinningSide(game);
+  return {
+    provider: "chesscom",
+    gameId: gameUrl,
+    gameUrl,
+    timeControl: normalizeChessComTimeClass(game.time_class) ?? "unknown",
+    initialSeconds: clock ? Number(clock[1]) : undefined,
+    incrementSeconds: clock?.[2] ? Number(clock[2]) : undefined,
+    rated: typeof game.rated === "boolean" ? game.rated : null,
+    playerColor,
+    playedAt: getChessComCompletedGameAt(game),
+    variant: game.rules === "chess" ? "standard" : game.rules ?? null,
+    result: winner === "draw" ? "draw" : winner === "unknown" ? "unknown" : winner === playerColor ? "win" : "lose",
+  };
 }
 
 async function findGameByUrl(chessComUsername: string, rawGameUrl: string): Promise<ChessComGame | null | undefined> {
@@ -2812,6 +2836,7 @@ export async function checkLatestChessComFinishedGame(username: string): Promise
           completedGameAt: getChessComCompletedGameAt(match),
           playerColor,
           outcome: playerColor && getWinningSide(match) === playerColor ? "win" : getWinningSide(match) === "draw" ? "draw" : getWinningSide(match) === "unknown" ? "unknown" : "lose",
+          metadata: normalizeLatestChessComGameMetadata(match, username) ?? undefined,
           ...buildChessComProofPositionFromPgn(match.pgn),
           evidence: ["A finished Chess.com archive game matched the saved username.", "Win, loss, draw, color, and time control all count."],
         };

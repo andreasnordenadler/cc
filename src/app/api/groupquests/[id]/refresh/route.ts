@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
+import { applyGroupQuestProofResults } from "@/lib/groupquest-proof-progress";
+import { buildGroupQuestRefreshChecks } from "@/lib/groupquest-refresh-contract";
 import {
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
@@ -59,54 +61,43 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     })),
   );
 
-  const completedQuestIds = checks.filter((entry) => entry.result.status === "passed").map((entry) => entry.questId);
-  const questFinishedAt = Object.fromEntries(
-    checks
-      .filter((entry) => entry.result.status === "passed")
-      .map((entry) => [entry.questId, entry.result.gameTime ?? new Date().toISOString()]),
-  );
-  const score = completedQuestIds.reduce((sum, questId) => sum + (getChallengeById(questId)?.reward ?? customSnapshotsById.get(questId)?.reward ?? 0), 0);
-  const lastCheck = checks[checks.length - 1]?.result;
-
-  const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
-    completedQuestIds,
-    questFinishedAt,
-    score,
-    lastProofSummary: lastCheck?.summary,
-    lastProofAt: new Date().toISOString(),
-  });
-
-  const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
-  const storageUserId = storeOnParticipant ? userId : found.userId;
-  const storageUser = await client.users.getUser(storageUserId);
-  await client.users.updateUserMetadata(storageUserId, {
-    privateMetadata: {
-      ...(storageUser.privateMetadata ?? {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-      sqcGroupQuests: storeOnParticipant
-        ? upsertParticipantGroupQuest(storageUser.privateMetadata, refreshedQuest, userId)
-        : upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
+  const progress = await applyGroupQuestProofResults({
+    participant,
+    checks: checks.map((entry) => ({
+      ...entry,
+      reward: getChallengeById(entry.questId)?.reward ?? customSnapshotsById.get(entry.questId)?.reward ?? 0,
+    })),
+    mutate: async (nextProgress) => {
+      const lastCheck = checks[checks.length - 1]?.result;
+      const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
+        ...nextProgress,
+        lastProofSummary: lastCheck?.summary,
+        lastProofAt: new Date().toISOString(),
+      });
+      const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
+      const storageUserId = storeOnParticipant ? userId : found.userId;
+      const storageUser = await client.users.getUser(storageUserId);
+      await client.users.updateUserMetadata(storageUserId, {
+        privateMetadata: {
+          ...(storageUser.privateMetadata ?? {}),
+          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+          sqcGroupQuests: storeOnParticipant
+            ? upsertParticipantGroupQuest(storageUser.privateMetadata, refreshedQuest, userId)
+            : upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
+        },
+      });
+      const participantUser = await client.users.getUser(userId);
+      await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks);
     },
   });
-
-  if (completedQuestIds.length) {
-    const participantUser = await client.users.getUser(userId);
-    await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks);
-  }
+  const completedQuestIds = progress.completedQuestIds;
+  const score = progress.score;
 
   return NextResponse.json({
     ok: true,
     completedQuestIds,
     score,
-    checks: checks.map((entry) => ({
-      questId: entry.questId,
-      status: entry.result.status,
-      summary: entry.result.summary,
-      gameId: entry.result.gameId,
-      finalPositionFen: entry.result.finalPositionFen,
-      lastMoveUci: entry.result.lastMoveUci,
-      lastMoveSan: entry.result.lastMoveSan,
-    })),
+    checks: buildGroupQuestRefreshChecks(checks),
   });
 }
 

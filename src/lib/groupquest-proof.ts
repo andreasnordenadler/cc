@@ -1,6 +1,7 @@
 import { getChallengeById } from "@/lib/challenges";
-import { checkLatestChallengeForProvider, type LatestChallengeOutcome } from "@/lib/challenge-latest-verifiers";
+import { checkLatestChallengeForProvider, getLatestFinishedGameVerdict, type LatestChallengeOutcome, type LatestChallengeVerdict } from "@/lib/challenge-latest-verifiers";
 import { checkLatestCustomSideQuestForProvider, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { evaluateMultiplayerProofRules, type MultiplayerGameMetadata, type MultiplayerProofMismatchReason } from "@/lib/multiplayer-proof-rules";
 
 export type GroupQuestCheckResult = {
   status: "passed" | "failed" | "pending";
@@ -11,6 +12,8 @@ export type GroupQuestCheckResult = {
   lastMoveUci?: string;
   lastMoveSan?: string;
   outcome?: LatestChallengeOutcome;
+  gameUrl?: string;
+  mismatchReasons?: MultiplayerProofMismatchReason[];
 };
 
 function resolveVerdictTime(verdict: { completedGameAt?: string; startedGameAt?: string }) {
@@ -19,6 +22,7 @@ function resolveVerdictTime(verdict: { completedGameAt?: string; startedGameAt?:
 
 function buildWindowedResult(
   challengeId: string,
+  expectedProvider: "lichess" | "chesscom",
   verdict: {
     status: "passed" | "failed" | "pending";
     gameId: string;
@@ -30,6 +34,7 @@ function buildWindowedResult(
     lastMoveUci?: string;
     lastMoveSan?: string;
     outcome?: LatestChallengeOutcome;
+    metadata?: MultiplayerGameMetadata;
   },
   startAt?: string,
   endAt?: string,
@@ -40,6 +45,24 @@ function buildWindowedResult(
   const startTs = startAt ? Date.parse(startAt) : NaN;
   const endTs = endAt ? Date.parse(endAt) : NaN;
   const gameTs = gameTime ? Date.parse(gameTime) : NaN;
+
+  if (verdict.status === "passed") {
+    const ruleDecision = evaluateMultiplayerProofRules({ expectedProvider, rules, startAt, endAt, game: verdict.metadata });
+    if (!ruleDecision.ok) {
+      return {
+        status: "failed",
+        gameId: verdict.gameId,
+        summary: ruleDecision.summary,
+        gameTime,
+        gameUrl: verdict.metadata?.gameUrl,
+        mismatchReasons: ruleDecision.reasons,
+        finalPositionFen: verdict.finalPositionFen,
+        lastMoveUci: verdict.lastMoveUci,
+        lastMoveSan: verdict.lastMoveSan,
+        outcome: verdict.outcome,
+      };
+    }
+  }
 
   if (verdict.status !== "pending" && Number.isFinite(startTs)) {
     if (!Number.isFinite(gameTs) || gameTs <= startTs) {
@@ -84,6 +107,8 @@ function buildWindowedResult(
     lastMoveUci: verdict.lastMoveUci,
     lastMoveSan: verdict.lastMoveSan,
     outcome: verdict.outcome,
+    gameUrl: verdict.metadata?.gameUrl,
+    mismatchReasons: verdict.status === "passed" ? [] : undefined,
   };
 }
 
@@ -126,11 +151,20 @@ export async function checkLatestGroupQuestChallenge(input: CheckLatestGroupQues
     };
   }
 
+  let verdict: LatestChallengeVerdict = customQuest
+    ? await checkLatestCustomSideQuestForProvider({ quest: buildCustomQuestForVerifier(customQuest), provider, username })
+    : await checkLatestChallengeForProvider({ challengeId, provider, username });
+  if (verdict.status === "passed" && !verdict.metadata) {
+    const latestGame = await getLatestFinishedGameVerdict(provider, username);
+    if (latestGame.status === "passed" && latestGame.gameId === verdict.gameId) {
+      verdict = { ...verdict, metadata: latestGame.metadata };
+    }
+  }
+
   return buildWindowedResult(
     challengeId,
-    customQuest
-      ? await checkLatestCustomSideQuestForProvider({ quest: buildCustomQuestForVerifier(customQuest), provider, username })
-      : await checkLatestChallengeForProvider({ challengeId, provider, username }),
+    provider,
+    verdict,
     startAt,
     endAt,
     rules,

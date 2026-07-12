@@ -29,6 +29,7 @@ import { checkLatestLichessPawnStormManiac } from "@/lib/pawn-storm-maniac";
 import { checkLatestLichessQueenNeverHeardOfHer } from "@/lib/queen-never-heard-of-her";
 import { checkLatestLichessRooklessRampage } from "@/lib/rookless-rampage";
 import { checkLatestLichessBlunderGambit } from "@/lib/the-blunder-gambit";
+import type { MultiplayerGameMetadata } from "@/lib/multiplayer-proof-rules";
 
 export type SupportedLatestChallengeProvider = "lichess" | "chesscom";
 
@@ -58,6 +59,7 @@ export type LatestChallengeVerdict = {
   lastMoveSan?: string;
   playerColor?: "white" | "black";
   outcome?: LatestChallengeOutcome;
+  metadata?: MultiplayerGameMetadata;
   failureDiagnostic?: LatestChallengeFailureDiagnostic;
 };
 
@@ -130,6 +132,10 @@ function getLatestFinishedBoardVerdict(provider: SupportedLatestChallengeProvide
   return lookup;
 }
 
+export function getLatestFinishedGameVerdict(provider: SupportedLatestChallengeProvider, username: string) {
+  return getLatestFinishedBoardVerdict(provider, username);
+}
+
 const missingLatestVerifiers = CHALLENGES.filter((challenge) => {
   const entry = latestChallengeVerifiers[challenge.id];
   return !entry?.lichess || !entry?.chesscom;
@@ -165,7 +171,7 @@ async function enrichVerdictWithLatestBoard(input: {
 
   const latestFinished = await getLatestFinishedBoardVerdict(provider, username);
 
-  if (latestFinished.status !== "passed" || latestFinished.gameId !== verdict.gameId || !latestFinished.finalPositionFen) {
+  if (latestFinished.status !== "passed" || latestFinished.gameId !== verdict.gameId) {
     return verdict;
   }
 
@@ -178,6 +184,7 @@ async function enrichVerdictWithLatestBoard(input: {
     lastMoveSan: verdict.lastMoveSan ?? latestFinishedLastMoveSan,
     playerColor: verdict.playerColor ?? latestFinished.playerColor ?? verdict.failureDiagnostic?.playerColor,
     outcome: verdict.outcome ?? latestFinished.outcome,
+    metadata: verdict.metadata ?? latestFinished.metadata,
   };
 
   if (verdict.status === "failed") {
