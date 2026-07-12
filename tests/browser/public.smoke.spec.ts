@@ -15,6 +15,50 @@ test("signed-out homepage exposes the two public browsing paths and auth entry",
   await expect(page.getByRole("link", { name: "Choose sign-in method" })).toHaveAttribute("href", "/sign-in");
 });
 
+test("signed-out shell exposes a limited accessible guest menu", async ({ page }) => {
+  await expectHealthyNavigation(page, "/");
+
+  await page.getByLabel("Open main menu").click();
+  const menu = page.getByRole("navigation", { name: "Guest menu" });
+  await expect(menu.getByRole("link", { name: "Home" })).toHaveAttribute("href", "/");
+  await expect(menu.getByRole("link", { name: "Solo Side Quests" })).toHaveAttribute("href", "/side-quests");
+  await expect(menu.getByRole("link", { name: "Multiplayer Side Quests" })).toHaveAttribute("href", "/multiplayer");
+  await expect(menu.getByRole("link", { name: "Help & Support" })).toHaveAttribute("href", "/support");
+  await expect(menu.getByRole("link", { name: "Privacy Policy" })).toHaveAttribute("href", "/privacy");
+  await expect(menu.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/sign-in");
+  await expect(menu.getByRole("link", { name: "Trophy Cabinet" })).toHaveCount(0);
+});
+
+test("help redirects canonically to support", async ({ page }) => {
+  await expectHealthyNavigation(page, "/help");
+
+  await expect(page).toHaveURL(/\/support$/);
+  await expect(page.getByRole("heading", { name: "How can we help?" })).toBeVisible();
+});
+
+test("signed-out support clearly requires an account before messaging", async ({ page }) => {
+  await expectHealthyNavigation(page, "/support");
+
+  const report = page.getByRole("region", { name: "Report a problem" });
+  await expect(report.getByText("Support messages require a signed-in SQC account.")).toBeVisible();
+  await expect(report.getByRole("link", { name: "Sign in to message support" })).toHaveAttribute(
+    "href",
+    "/sign-in?redirect_url=/support",
+  );
+  await expect(report.getByRole("button", { name: "Send support message" })).toHaveCount(0);
+});
+
+test("account sign-in hero stays bounded on desktop", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expectHealthyNavigation(page, "/sign-in");
+
+  const heading = page.getByRole("heading", { name: "Sign in, then go make terrible chess decisions." });
+  await expect(heading).toBeVisible();
+  const fontSize = await heading.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(fontSize).toBeLessThanOrEqual(40);
+  await expect(page.getByRole("region", { name: "Sign in form" })).toBeInViewport();
+});
+
 test("solo catalog is publicly browseable", async ({ page }) => {
   await expectHealthyNavigation(page, "/solo");
 

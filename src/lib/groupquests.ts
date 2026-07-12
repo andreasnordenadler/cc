@@ -60,6 +60,13 @@ const OFFICIAL_GROUP_QUEST_ANCHOR = Date.UTC(2026, 5, 21);
 const MAX_HOST_QUESTS = 4;
 const MAX_PARTICIPANT_STORED_QUESTS = 12;
 const MAX_PARTICIPANTS = 80;
+const CLERK_USER_PAGE_SIZE = 100;
+/**
+ * Conservative fallback when Clerk omits totalCount or supplies a malformed
+ * value: at most 100 requests / 10,000 user slots. This prevents an unbounded
+ * upstream scan.
+ */
+export const CLERK_USER_SCAN_MAX_PAGES = 100;
 const defaultInviteCopy = "A shared Multiplayer Side Quest where every player proves the same bad idea with fresh public games.";
 const defaultRules = { result: "Any result", timeControl: "Any time control", rated: "Any rated state", color: "Any color" };
 
@@ -217,6 +224,7 @@ export async function findGroupQuestByInviteKey(
   client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
   inviteKey: string,
 ): Promise<GroupQuestHostRecord | null> {
+  if (!isValidInviteKey(inviteKey)) return null;
   const normalizedKey = cleanInviteKey(inviteKey);
   if (!normalizedKey) return null;
 
@@ -246,21 +254,50 @@ export async function findGroupQuestByInviteKey(
 }
 
 
+type ClerkUserListResponse = {
+  data: Array<{ id: string; privateMetadata: unknown }>;
+  totalCount?: number;
+};
+
 export async function listUserRelatedGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<ClerkUserListResponse> } },
   userId: string,
 ) {
-  const users = await client.users.getUserList({ limit: 100, orderBy: "-created_at" });
-  const related = users.data
-    .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
-    .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId));
+  const related: ServerGroupQuest[] = [];
+  let offset = 0;
+  let pageCount = 0;
+  let snapshottedPageBound: number | undefined;
+
+  // Offset pagination is not a transactional snapshot when accounts are created
+  // concurrently. Snapshotting Clerk's first valid count nevertheless makes this
+  // scan deterministic and bounded; the named hard cap covers missing or
+  // malformed metadata.
+  while (pageCount < (snapshottedPageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
+    const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
+    pageCount += 1;
+    if (snapshottedPageBound === undefined && isValidClerkTotalCount(users.totalCount)) {
+      snapshottedPageBound = Math.min(
+        CLERK_USER_SCAN_MAX_PAGES,
+        Math.max(1, Math.ceil(users.totalCount / CLERK_USER_PAGE_SIZE)),
+      );
+    }
+    related.push(...users.data
+      .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
+      .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId)));
+    if (users.data.length < CLERK_USER_PAGE_SIZE) break;
+    offset += CLERK_USER_PAGE_SIZE;
+  }
 
   const seen = new Set<string>();
   return related.filter((quest) => {
     if (seen.has(quest.id)) return false;
     seen.add(quest.id);
     return true;
-  }).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+  }).sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt) || a.id.localeCompare(b.id));
+}
+
+function isValidClerkTotalCount(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 }
 
 export async function listPublicGroupQuests(
@@ -600,6 +637,10 @@ function makeInviteKey(name: string) {
 
 function cleanInviteKey(value: unknown) {
   return cleanText(value, 40)?.toLowerCase().replace(/[^a-z0-9-]/g, "") || undefined;
+}
+
+function isValidInviteKey(value: unknown) {
+  return typeof value === "string" && value.length <= 40 && /^[a-z0-9-]+$/i.test(value);
 }
 
 function normalizeProviderMode(value: unknown): GroupQuestProviderMode {
