@@ -90,7 +90,7 @@ export function normalizeLatestLichessGameMetadata(game: LichessGame, username: 
     gameUrl: `https://lichess.org/${gameId}`,
     timeControl,
     initialSeconds: typeof game.clock?.initial === "number" ? game.clock.initial : undefined,
-    incrementSeconds: typeof game.clock?.increment === "number" ? game.clock.increment : undefined,
+    incrementSeconds: typeof game.clock?.increment === "number" ? game.clock.increment : typeof game.clock?.initial === "number" ? 0 : undefined,
     rated: typeof game.rated === "boolean" ? game.rated : null,
     playerColor,
     playedAt: getCompletedGameAt(game),

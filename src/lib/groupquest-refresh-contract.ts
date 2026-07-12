@@ -1,7 +1,7 @@
 import type { GroupQuestCheckResult } from "@/lib/groupquest-proof";
 
 export function buildGroupQuestRefreshChecks(
-  checks: Array<{ questId: string; result: GroupQuestCheckResult }>,
+  checks: ReadonlyArray<{ questId: string; result: GroupQuestCheckResult | (Omit<GroupQuestCheckResult, "mismatchReasons"> & { mismatchReasons?: readonly NonNullable<GroupQuestCheckResult["mismatchReasons"]>[number][] }) }>,
 ) {
   return checks.map(({ questId, result }) => ({
     questId,

@@ -347,7 +347,9 @@ function getPlayerSideForUsername(game: ChessComGame, chessComUsername: string):
 }
 
 function getChessComCompletedGameAt(game: ChessComGame): string | undefined {
-  return typeof game.end_time === "number" ? new Date(game.end_time * 1000).toISOString() : undefined;
+  if (typeof game.end_time !== "number") return undefined;
+  const date = new Date(game.end_time * 1000);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : undefined;
 }
 
 function getChessComStartedGameAt(game: ChessComGame): string | undefined {
@@ -372,7 +374,7 @@ export function normalizeLatestChessComGameMetadata(game: ChessComGame, username
     gameUrl,
     timeControl: normalizeChessComTimeClass(game.time_class) ?? "unknown",
     initialSeconds: clock ? Number(clock[1]) : undefined,
-    incrementSeconds: clock?.[2] ? Number(clock[2]) : undefined,
+    incrementSeconds: clock ? Number(clock[2] ?? 0) : undefined,
     rated: typeof game.rated === "boolean" ? game.rated : null,
     playerColor,
     playedAt: getChessComCompletedGameAt(game),

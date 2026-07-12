@@ -54,3 +54,32 @@ test("adds passing proof without erasing prior completion state", async () => {
     score: 150,
   });
 });
+
+test("passes only newly completed quest IDs into metadata mutations", async () => {
+  let newlyPassedQuestIds: string[] | undefined;
+  const result = await applyGroupQuestProofResults({
+    participant,
+    checks: [
+      { questId: "already-done", reward: 100, result: { status: "passed" as const, gameTime: "2026-07-02T09:00:00.000Z" } },
+      { questId: "new-quest", reward: 50, result: { status: "passed" as const, gameTime: "2026-07-02T10:00:00.000Z" } },
+    ],
+    mutate: async (_progress, mutation) => { newlyPassedQuestIds = mutation.newlyPassedQuestIds; },
+  });
+  assert.deepEqual(newlyPassedQuestIds, ["new-quest"]);
+  assert.deepEqual(result.newlyPassedQuestIds, ["new-quest"]);
+});
+
+test("deduplicates duplicate newly passing quest IDs", async () => {
+  const result = await applyGroupQuestProofResults({
+    participant: { completedQuestIds: [], questFinishedAt: {}, score: 0 },
+    checks: [
+      { questId: "duplicate", reward: 50, result: { status: "passed" as const, gameTime: "2026-07-03T00:00:00.000Z" } },
+      { questId: "duplicate", reward: 50, result: { status: "passed" as const, gameTime: "2026-07-04T00:00:00.000Z" } },
+    ],
+    mutate: async () => {},
+  });
+  assert.deepEqual(result.completedQuestIds, ["duplicate"]);
+  assert.equal(result.score, 50);
+  assert.deepEqual(result.questFinishedAt, { duplicate: "2026-07-03T00:00:00.000Z" });
+  assert.deepEqual(result.newlyPassedQuestIds, ["duplicate"]);
+});

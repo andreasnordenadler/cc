@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { buildGroupQuest, buildParticipant, upsertHostGroupQuest } from "@/lib/groupquests";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
+import { validateMultiplayerProofConfiguration } from "@/lib/multiplayer-proof-rules";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import {
@@ -22,6 +23,8 @@ export async function POST(request: Request) {
   if (!payload || typeof payload !== "object") {
     return NextResponse.json({ ok: false, error: "invalid_payload" }, { status: 400 });
   }
+  const proofConfiguration = validateMultiplayerProofConfiguration(payload as Record<string, unknown>);
+  if (!proofConfiguration.ok) return NextResponse.json({ ok: false, error: proofConfiguration.code }, { status: 400 });
 
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
@@ -35,7 +38,7 @@ export async function POST(request: Request) {
     username: user.username,
     emailAddress: user.primaryEmailAddress?.emailAddress,
   }) || "SQC host";
-  const normalizedPayload = normalizeSchedulePayload(payload as Record<string, unknown>);
+  const normalizedPayload = normalizeSchedulePayload({ ...(payload as Record<string, unknown>), ...proofConfiguration });
   const groupQuest = buildGroupQuest({
     ...normalizedPayload,
     questIds: questSelection.questIds,

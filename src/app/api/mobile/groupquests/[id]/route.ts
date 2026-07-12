@@ -5,8 +5,8 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
-import { applyGroupQuestProofResults } from "@/lib/groupquest-proof-progress";
-import { buildGroupQuestRefreshChecks } from "@/lib/groupquest-refresh-contract";
+import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
+import { validateMultiplayerProofConfiguration, validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 import {
   buildGroupQuest,
   buildParticipant,
@@ -54,13 +54,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       { status: 400 },
     );
   }
+  let normalizedPayload = payload;
+  if (action === "create") {
+    const proofConfiguration = validateMultiplayerProofConfiguration(payload ?? {});
+    if (!proofConfiguration.ok) return NextResponse.json(
+      { apiVersion: 1, authenticated: true, ok: false, code: proofConfiguration.code, message: "Choose valid Multiplayer proof rules and dates." },
+      { status: 400 },
+    );
+    normalizedPayload = { ...(payload ?? {}), ...proofConfiguration };
+  }
 
   const client = await clerkClient();
   const user = await client.users.getUser(userId);
   const metadata = (user.publicMetadata as UserMetadataRecord) ?? {};
 
   if (action === "create") {
-    if (!cleanText(payload?.name, 64)) {
+    if (!cleanText(normalizedPayload?.name, 64)) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: "Add a Multiplayer Side Quest name before creating." },
         { status: 400 },
@@ -84,17 +93,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const groupQuest = buildGroupQuest({
       hostUserId: userId,
       hostName,
-      name: payload?.name,
-      inviteCopy: payload?.inviteCopy,
+      name: normalizedPayload?.name,
+      inviteCopy: normalizedPayload?.inviteCopy,
       inviteMode,
       inviteKey: payload?.inviteKey,
       questIds: questSelection.questIds,
       customQuestSnapshots: questSelection.customQuestSnapshots,
-      providerMode: payload?.providerMode,
-      providerLabel: providerLabelFor(payload?.providerMode),
-      startAt: normalizeDateTimeValue(payload?.startAt) ?? new Date().toISOString(),
-      endAt: normalizeDateTimeValue(payload?.endAt) ?? defaultEndAt(payload?.durationDays),
-      rules: payload?.rules,
+      providerMode: normalizedPayload?.providerMode,
+      providerLabel: providerLabelFor(normalizedPayload?.providerMode),
+      startAt: normalizeDateTimeValue(normalizedPayload?.startAt) ?? new Date().toISOString(),
+      endAt: normalizeDateTimeValue(normalizedPayload?.endAt) ?? defaultEndAt(normalizedPayload?.durationDays),
+      rules: normalizedPayload?.rules,
     });
 
     const hostParticipant = buildMobileParticipant({ groupQuest, userId, metadata, fallbackName: hostName });
@@ -148,6 +157,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         { status: 403 },
       );
     }
+    const proofConfiguration = validateMultiplayerProofUpdate(payload ?? {}, found.groupQuest);
+    if (!proofConfiguration.ok) return NextResponse.json(
+      { apiVersion: 1, authenticated: true, ok: false, code: proofConfiguration.code, message: "Choose valid Multiplayer proof rules and dates." },
+      { status: 400 },
+    );
+    normalizedPayload = { ...(payload ?? {}), ...proofConfiguration };
 
     const questSelection = await buildGroupQuestSelection(client, payload?.questIds, user.privateMetadata, found.groupQuest);
     if (questSelection.error) {
@@ -157,7 +172,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
-    const updatedQuest = patchMobileGroupQuest(found.groupQuest, payload ?? {}, questSelection);
+    const updatedQuest = patchMobileGroupQuest(found.groupQuest, normalizedPayload ?? {}, questSelection);
     const saveError = await saveHostQuestSafely(client, found.userId, updatedQuest);
     if (saveError) {
       return NextResponse.json(
@@ -279,33 +294,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   }
 
-  const participant = found.groupQuest.participants.find((entry) => entry.userId === userId);
-  if (!participant) {
-    return NextResponse.json(
-      { apiVersion: 1, authenticated: true, ok: false, message: "Join this Multiplayer Side Quest before refreshing proof." },
-      { status: 403 },
-    );
-  }
-
-  const checks = await Promise.all(
-    found.groupQuest.questIds.map(async (questId) => ({
-      questId,
-      result: await checkLatestGroupQuestChallenge({
+  let saveError: string | null = null;
+  const handler = createGroupQuestRefreshRouteHandler({
+    mode: "mobile",
+    authenticate: async () => userId,
+    findQuest: async () => found.groupQuest,
+    isFinished: (quest) => isGroupQuestFinished({ endAt: quest.endAt ?? "" }),
+    reward: (questId) => getGroupQuestReward(found.groupQuest, questId),
+    check: async ({ questId, quest, participant }) => checkLatestGroupQuestChallenge({
         challengeId: questId,
         provider: participant.provider,
         username: participant.username,
-        startAt: found.groupQuest.startAt,
-        endAt: found.groupQuest.endAt,
-        rules: found.groupQuest.rules,
+        startAt: quest.startAt,
+        endAt: quest.endAt,
+        rules: quest.rules,
         customQuest: found.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId) ?? null,
       }),
-    })),
-  );
-  let saveError: string | null = null;
-  const progress = await applyGroupQuestProofResults({
-    participant,
-    checks: checks.map((entry) => ({ ...entry, reward: getGroupQuestReward(found.groupQuest, entry.questId) })),
-    mutate: async (nextProgress) => {
+    persist: async ({ progress: nextProgress, newlyPassedQuestIds, checks }) => {
+      const participant = found.groupQuest.participants.find((entry) => entry.userId === userId)!;
       const lastCheck = checks[checks.length - 1]?.result;
       const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
         ...nextProgress,
@@ -313,26 +319,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         lastProofAt: new Date().toISOString(),
       });
       saveError = await saveGroupQuestSafely(client, found.userId, refreshedQuest, userId);
-      if (!saveError) await mergeMobileMultiplayerCompletions(client, userId, metadata, participant, checks);
+      if (!saveError) await mergeMobileMultiplayerCompletions(client, userId, metadata, participant, checks.filter((check) => newlyPassedQuestIds.includes(check.questId)));
     },
   });
+  const response = await handler(request, id);
   if (saveError) return NextResponse.json(
     { apiVersion: 1, authenticated: true, ok: false, message: saveError },
     { status: 500 },
   );
-  const { completedQuestIds, score } = progress;
-
-  return NextResponse.json({
-    apiVersion: 1,
-    authenticated: true,
-    ok: true,
-    action,
-    groupQuestId: found.groupQuest.id,
-    completedQuestIds,
-    score,
-    checks: buildGroupQuestRefreshChecks(checks),
-    message: `${completedQuestIds.length} of ${found.groupQuest.questIds.length} Multiplayer Side Quest checks verified.`,
-  });
+  return response;
 }
 
 

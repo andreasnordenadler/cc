@@ -1,10 +1,8 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
-import { applyGroupQuestProofResults } from "@/lib/groupquest-proof-progress";
-import { buildGroupQuestRefreshChecks } from "@/lib/groupquest-refresh-contract";
+import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
 import {
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
@@ -21,53 +19,32 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth();
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  if (!userId) {
-    return NextResponse.json({ ok: false, error: "sign_in_required" }, { status: 401 });
-  }
-
-  const client = await clerkClient();
-  const found = await findGroupQuestById(client, id);
-  if (!found) {
-    return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
-  }
-
-  const participant = found.groupQuest.participants.find((entry) => entry.userId === userId);
-  if (!participant) {
-    return NextResponse.json({ ok: false, error: "not_joined" }, { status: 403 });
-  }
-  if (isGroupQuestFinished(found.groupQuest)) {
-    return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
-  }
-
-  const customSnapshotsById = new Map((found.groupQuest.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));
-
-  const checks = await Promise.all(
-    found.groupQuest.questIds.map(async (questId) => ({
-      questId,
-      challenge: getChallengeById(questId),
-      result: await checkLatestGroupQuestChallenge({
+  let client: Awaited<ReturnType<typeof clerkClient>>;
+  let found: Awaited<ReturnType<typeof findGroupQuestById>>;
+  const handler = createGroupQuestRefreshRouteHandler({
+    mode: "web",
+    authenticate: async () => (await auth()).userId,
+    findQuest: async (questId) => {
+      client = await clerkClient();
+      found = await findGroupQuestById(client, questId);
+      return found?.groupQuest ?? null;
+    },
+    isFinished: (quest) => isGroupQuestFinished({ endAt: quest.endAt ?? "" }),
+    reward: (questId) => getChallengeById(questId)?.reward ?? found?.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId)?.reward ?? 0,
+    check: async ({ questId, quest, participant }) => checkLatestGroupQuestChallenge({
         challengeId: questId,
         provider: participant.provider,
         username: participant.username,
-        startAt: found.groupQuest.startAt,
-        endAt: found.groupQuest.endAt,
-        rules: found.groupQuest.rules,
-        customQuest: customSnapshotsById.get(questId) ?? null,
+        startAt: quest.startAt,
+        endAt: quest.endAt,
+        rules: quest.rules,
+        customQuest: found?.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId) ?? null,
       }),
-    })),
-  );
-
-  const progress = await applyGroupQuestProofResults({
-    participant,
-    checks: checks.map((entry) => ({
-      ...entry,
-      reward: getChallengeById(entry.questId)?.reward ?? customSnapshotsById.get(entry.questId)?.reward ?? 0,
-    })),
-    mutate: async (nextProgress) => {
+    persist: async ({ userId, progress: nextProgress, newlyPassedQuestIds, checks }) => {
+      if (!found) throw new Error("Group quest disappeared during refresh.");
+      const participant = found.groupQuest.participants.find((entry) => entry.userId === userId)!;
       const lastCheck = checks[checks.length - 1]?.result;
       const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
         ...nextProgress,
@@ -87,18 +64,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         },
       });
       const participantUser = await client.users.getUser(userId);
-      await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks);
+      await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks.filter((check) => newlyPassedQuestIds.includes(check.questId)));
     },
   });
-  const completedQuestIds = progress.completedQuestIds;
-  const score = progress.score;
-
-  return NextResponse.json({
-    ok: true,
-    completedQuestIds,
-    score,
-    checks: buildGroupQuestRefreshChecks(checks),
-  });
+  return handler(request, id);
 }
 
 async function mergeWebMultiplayerCompletions(
