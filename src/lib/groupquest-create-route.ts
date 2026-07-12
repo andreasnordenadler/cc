@@ -3,6 +3,7 @@ import { compactAnalyticsStore, getAnalyticsStore } from "./analytics";
 import { getChallengeById } from "./challenges";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "./custom-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "./user-metadata";
+import { validateMultiplayerProofConfiguration } from "./multiplayer-proof-rules";
 
 type CreateUser = { id: string; firstName?: string | null; lastName?: string | null; username?: string | null; primaryEmailAddress?: { emailAddress?: string | null } | null; publicMetadata?: unknown; privateMetadata?: unknown };
 export type GroupQuestCreateDependencies = {
@@ -20,6 +21,8 @@ export async function handleGroupQuestCreateRequest(request: Request, dependenci
   const payload = await request.json().catch(() => null);
   if (!payload || typeof payload !== "object" || Array.isArray(payload)) return Response.json({ ok: false, error: "invalid_payload" }, { status: 400 });
   const input = payload as Record<string, unknown>;
+  const proofConfiguration = validateMultiplayerProofConfiguration(input);
+  if (!proofConfiguration.ok) return Response.json({ ok: false, error: proofConfiguration.code }, { status: 400 });
   try {
     const user = await dependencies.getUser(userId);
     const selection = await buildSelection(input.questIds, user.privateMetadata, dependencies.findPublicCustomQuestById);
@@ -28,7 +31,7 @@ export async function handleGroupQuestCreateRequest(request: Request, dependenci
     const privateMetadata = (user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata : {}) as UserMetadataRecord;
     const hostName = getPreferredRunnerName(publicMetadata, { firstName: user.firstName, lastName: user.lastName, username: user.username, emailAddress: user.primaryEmailAddress?.emailAddress }) || "SQC host";
     const now = (dependencies.now?.() ?? new Date()).toISOString();
-    const normalized = normalizeSchedulePayload(input, now);
+    const normalized = normalizeSchedulePayload({ ...input, ...proofConfiguration }, now);
     const groupQuest = buildGroupQuest({ ...normalized, questIds: selection.questIds, customQuestSnapshots: selection.customQuestSnapshots, hostUserId: userId, hostName });
     groupQuest.id = dependencies.makeId?.() ?? groupQuest.id;
     groupQuest.createdAt = now;

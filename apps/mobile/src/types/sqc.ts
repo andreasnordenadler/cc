@@ -378,5 +378,11 @@ export type MobileGroupQuestActionResponse = {
     status: string;
     summary: string;
     gameId: string | null;
+    gameUrl?: string;
+    mismatchCode?: string;
+    mismatchReasons?: string[];
+    finalPositionFen?: string;
+    lastMoveUci?: string;
+    lastMoveSan?: string;
   }>;
 };

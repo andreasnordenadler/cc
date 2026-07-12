@@ -1,8 +1,9 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { compactAnalyticsStore, getAnalyticsStore } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
+import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
 import {
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
@@ -19,95 +20,81 @@ import {
   type UserMetadataRecord,
 } from "@/lib/user-metadata";
 
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { userId } = await auth();
+type WebRefreshRouteDependencies = {
+  authenticate: () => Promise<string | null>;
+  getClient: () => ReturnType<typeof clerkClient>;
+  findQuest: typeof findGroupQuestById;
+  check: typeof checkLatestGroupQuestChallenge;
+};
+
+const testDependencies = new AsyncLocalStorage<WebRefreshRouteDependencies>();
+
+export function withWebRefreshRouteTestDependencies<Result>(dependencies: WebRefreshRouteDependencies, callback: () => Result): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Refresh route dependency overrides are test-only.");
+  return testDependencies.run(dependencies, callback);
+}
+
+function createWebRefreshRouteDependencies(): WebRefreshRouteDependencies {
+  return {
+    authenticate: async () => (await auth()).userId,
+    getClient: clerkClient,
+    findQuest: findGroupQuestById,
+    check: checkLatestGroupQuestChallenge,
+  };
+}
+
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  if (!userId) {
-    return NextResponse.json({ ok: false, error: "sign_in_required" }, { status: 401 });
-  }
-
-  const client = await clerkClient();
-  const found = await findGroupQuestById(client, id);
-  if (!found) {
-    return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
-  }
-
-  const participant = found.groupQuest.participants.find((entry) => entry.userId === userId);
-  if (!participant) {
-    return NextResponse.json({ ok: false, error: "not_joined" }, { status: 403 });
-  }
-  if (isGroupQuestFinished(found.groupQuest)) {
-    return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
-  }
-
-  const customSnapshotsById = new Map((found.groupQuest.customQuestSnapshots ?? []).map((snapshot) => [snapshot.id, snapshot]));
-
-  const checks = await Promise.all(
-    found.groupQuest.questIds.map(async (questId) => ({
-      questId,
-      challenge: getChallengeById(questId),
-      result: await checkLatestGroupQuestChallenge({
+  const dependencies = process.env.NODE_ENV === "test"
+    ? testDependencies.getStore() ?? createWebRefreshRouteDependencies()
+    : createWebRefreshRouteDependencies();
+  let client: Awaited<ReturnType<typeof clerkClient>>;
+  let found: Awaited<ReturnType<typeof findGroupQuestById>>;
+  const handler = createGroupQuestRefreshRouteHandler({
+    mode: "web",
+    authenticate: dependencies.authenticate,
+    findQuest: async (questId) => {
+      client = await dependencies.getClient();
+      found = await dependencies.findQuest(client, questId);
+      return found?.groupQuest ?? null;
+    },
+    isFinished: (quest) => isGroupQuestFinished({ endAt: quest.endAt ?? "" }),
+    reward: (questId) => getChallengeById(questId)?.reward ?? found?.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId)?.reward ?? 0,
+    check: async ({ questId, quest, participant }) => dependencies.check({
         challengeId: questId,
         provider: participant.provider,
         username: participant.username,
-        startAt: found.groupQuest.startAt,
-        endAt: found.groupQuest.endAt,
-        rules: found.groupQuest.rules,
-        customQuest: customSnapshotsById.get(questId) ?? null,
+        startAt: quest.startAt,
+        endAt: quest.endAt,
+        rules: quest.rules,
+        customQuest: found?.groupQuest.customQuestSnapshots?.find((snapshot) => snapshot.id === questId) ?? null,
       }),
-    })),
-  );
-
-  const completedQuestIds = checks.filter((entry) => entry.result.status === "passed").map((entry) => entry.questId);
-  const questFinishedAt = Object.fromEntries(
-    checks
-      .filter((entry) => entry.result.status === "passed")
-      .map((entry) => [entry.questId, entry.result.gameTime ?? new Date().toISOString()]),
-  );
-  const score = completedQuestIds.reduce((sum, questId) => sum + (getChallengeById(questId)?.reward ?? customSnapshotsById.get(questId)?.reward ?? 0), 0);
-  const lastCheck = checks[checks.length - 1]?.result;
-
-  const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
-    completedQuestIds,
-    questFinishedAt,
-    score,
-    lastProofSummary: lastCheck?.summary,
-    lastProofAt: new Date().toISOString(),
-  });
-
-  const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
-  const storageUserId = storeOnParticipant ? userId : found.userId;
-  const storageUser = await client.users.getUser(storageUserId);
-  await client.users.updateUserMetadata(storageUserId, {
-    privateMetadata: {
-      ...(storageUser.privateMetadata ?? {}),
-      sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-      sqcGroupQuests: storeOnParticipant
-        ? upsertParticipantGroupQuest(storageUser.privateMetadata, refreshedQuest, userId)
-        : upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
+    persist: async ({ userId, progress: nextProgress, newlyPassedQuestIds, checks }) => {
+      if (!found) throw new Error("Group quest disappeared during refresh.");
+      const participant = found.groupQuest.participants.find((entry) => entry.userId === userId)!;
+      const lastCheck = checks[checks.length - 1]?.result;
+      const refreshedQuest = updateParticipantProgress(found.groupQuest, userId, {
+        ...nextProgress,
+        lastProofSummary: lastCheck?.summary,
+        lastProofAt: new Date().toISOString(),
+      });
+      const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
+      const storageUserId = storeOnParticipant ? userId : found.userId;
+      const storageUser = await client.users.getUser(storageUserId);
+      await client.users.updateUserMetadata(storageUserId, {
+        privateMetadata: {
+          ...(storageUser.privateMetadata ?? {}),
+          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+          sqcGroupQuests: storeOnParticipant
+            ? upsertParticipantGroupQuest(storageUser.privateMetadata, refreshedQuest, userId)
+            : upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
+        },
+      });
+      const participantUser = await client.users.getUser(userId);
+      await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks.filter((check) => newlyPassedQuestIds.includes(check.questId)));
     },
   });
-
-  if (completedQuestIds.length) {
-    const participantUser = await client.users.getUser(userId);
-    await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks);
-  }
-
-  return NextResponse.json({
-    ok: true,
-    completedQuestIds,
-    score,
-    checks: checks.map((entry) => ({
-      questId: entry.questId,
-      status: entry.result.status,
-      summary: entry.result.summary,
-      gameId: entry.result.gameId,
-      finalPositionFen: entry.result.finalPositionFen,
-      lastMoveUci: entry.result.lastMoveUci,
-      lastMoveSan: entry.result.lastMoveSan,
-    })),
-  });
+  return handler(request, id);
 }
 
 async function mergeWebMultiplayerCompletions(
