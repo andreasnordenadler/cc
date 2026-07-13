@@ -5,6 +5,7 @@ import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { findGroupQuestById, isGroupQuestFinished, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
+import { validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
@@ -13,21 +14,23 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const { id } = await params;
   const payload = await request.json().catch(() => null);
   if (!payload || typeof payload !== "object") return NextResponse.json({ ok: false, error: "invalid_payload" }, { status: 400 });
-
   const client = await clerkClient();
   const record = await findGroupQuestById(client, id);
   if (!record) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   if (record.groupQuest.hostUserId !== userId) return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
   if (isGroupQuestFinished(record.groupQuest)) return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
+  const proofConfiguration = validateMultiplayerProofUpdate(payload as Record<string, unknown>, record.groupQuest);
+  if (!proofConfiguration.ok) return NextResponse.json({ ok: false, error: proofConfiguration.code }, { status: 400 });
+  const normalizedPayload: Record<string, unknown> = { ...(payload as Record<string, unknown>), ...proofConfiguration };
 
   const host = await client.users.getUser(record.userId);
   const signedInUser = await client.users.getUser(userId);
-  const questSelection = await buildGroupQuestSelection(client, (payload as Record<string, unknown>).questIds, signedInUser.privateMetadata, record.groupQuest);
+  const questSelection = await buildGroupQuestSelection(client, normalizedPayload.questIds, signedInUser.privateMetadata, record.groupQuest);
   if (questSelection.error) {
     return NextResponse.json({ ok: false, error: questSelection.error }, { status: 400 });
   }
   const canSetOfficial = isAdminAnalyticsViewer(signedInUser);
-  const updatedQuest = patchGroupQuest(record.groupQuest, payload as Record<string, unknown>, canSetOfficial, questSelection);
+  const updatedQuest = patchGroupQuest(record.groupQuest, normalizedPayload, canSetOfficial, questSelection);
   await client.users.updateUserMetadata(record.userId, {
     privateMetadata: {
       ...(host.privateMetadata ?? {}),

@@ -74,11 +74,15 @@ export async function handleGroupQuestJoinRequest(
   });
   if (!participant) return Response.json({ ok: false, error: "missing_participant" }, { status: 400 });
 
-  await dependencies.saveJoinedQuest({
-    authenticatedUserId: userId,
-    hostUserId: found.userId,
-    joinedQuest: joinGroupQuest(found.groupQuest, participant),
-  });
+  try {
+    await dependencies.saveJoinedQuest({
+      authenticatedUserId: userId,
+      hostUserId: found.userId,
+      joinedQuest: joinGroupQuest(found.groupQuest, participant),
+    });
+  } catch {
+    return Response.json({ ok: false, error: "groupquest_join_failed" }, { status: 503 });
+  }
   return Response.json({ ok: true, href: `/groupquests/${encodeURIComponent(routeQuestId)}?accepted=1` });
 }
 

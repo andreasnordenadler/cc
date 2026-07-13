@@ -6,14 +6,20 @@ type LichessPlayer = {
 
 import { buildProofPositionFromUciMoves, type ProofPosition } from "@/lib/chess-proof";
 import { normalizeLichessMoveTokens } from "@/lib/lichess-move-normalizer";
+import type { MultiplayerGameMetadata } from "@/lib/multiplayer-proof-rules";
 
-type LichessGame = {
+export type LichessGame = {
   id?: string;
   status?: string;
   winner?: "white" | "black";
   moves?: string;
   lastMoveAt?: number;
   createdAt?: number;
+  rated?: boolean;
+  speed?: string;
+  daysPerTurn?: number;
+  variant?: string;
+  clock?: { initial?: number; increment?: number };
   players?: {
     white?: LichessPlayer;
     black?: LichessPlayer;
@@ -27,6 +33,7 @@ export type LichessVerificationVerdict = {
   completedGameAt?: string;
   playerColor?: "white" | "black";
   outcome?: "win" | "draw" | "lose" | "unknown";
+  metadata?: MultiplayerGameMetadata;
 } & Partial<ProofPosition>;
 
 const OPEN_GAME_STATUSES = new Set(["created", "started"]);
@@ -67,6 +74,32 @@ function getLichessPlayerOutcome(game: LichessGame, playerColor: "white" | "blac
   if (!game.status || OPEN_GAME_STATUSES.has(game.status)) return "unknown";
   if (!game.winner) return "draw";
   return game.winner === playerColor ? "win" : "lose";
+}
+
+export function normalizeLatestLichessGameMetadata(game: LichessGame, username: string): MultiplayerGameMetadata | null {
+  const gameId = game.id?.trim();
+  const { whiteName, blackName } = getPlayerNames(game);
+  const normalizedUsername = username.trim().toLowerCase();
+  const playerColor = whiteName === normalizedUsername ? "white" : blackName === normalizedUsername ? "black" : null;
+  const timeControl = game.speed === "correspondence"
+    ? "daily"
+    : ["bullet", "blitz", "rapid", "classical"].includes(game.speed ?? "")
+      ? game.speed as MultiplayerGameMetadata["timeControl"]
+      : "unknown";
+  if (!gameId || !playerColor) return null;
+  return {
+    provider: "lichess",
+    gameId,
+    gameUrl: `https://lichess.org/${gameId}`,
+    timeControl,
+    initialSeconds: typeof game.clock?.initial === "number" ? game.clock.initial : undefined,
+    incrementSeconds: typeof game.clock?.increment === "number" ? game.clock.increment : typeof game.clock?.initial === "number" ? 0 : undefined,
+    rated: typeof game.rated === "boolean" ? game.rated : null,
+    playerColor,
+    playedAt: getCompletedGameAt(game),
+    variant: game.variant === "standard" ? "standard" : game.variant ?? null,
+    result: getLichessPlayerOutcome(game, playerColor),
+  };
 }
 
 async function verifyFinishAttempt({
@@ -257,6 +290,7 @@ export async function checkLatestLichessFinishedGame(username: string): Promise<
       completedGameAt: getCompletedGameAt(game),
       playerColor: whiteName === normalizedUsername ? "white" : "black",
       outcome: getLichessPlayerOutcome(game, whiteName === normalizedUsername ? "white" : "black"),
+      metadata: normalizeLatestLichessGameMetadata(game, username) ?? undefined,
       evidence: [`Game status was ${game.status}.`, "Win, loss, draw, color, and time control all count."],
       ...proofPosition,
     };
