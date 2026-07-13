@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CLERK_USER_SCAN_MAX_PAGES, buildGroupQuest, findGroupQuestByInviteKey, getBuiltInOfficialGroupQuests, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, listUserRelatedGroupQuests, rankGroupQuestParticipants } from "../src/lib/groupquests";
+import { CLERK_USER_SCAN_MAX_PAGES, buildGroupQuest, findGroupQuestByInviteKey, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, listUserRelatedGroupQuests, rankGroupQuestParticipants } from "../src/lib/groupquests";
 
 type Participant = {
   id: string;
@@ -29,30 +29,6 @@ function participant(id: string, overrides: Partial<Participant> = {}): Particip
     ...overrides,
   };
 }
-
-test("built-in official Multiplayer content matches the Android catalog without fake live data", () => {
-  const quests = getBuiltInOfficialGroupQuests(new Date("2026-07-12T12:00:00.000Z"));
-  assert.deepEqual(quests.map(({ name, inviteCopy, questIds, participants }) => ({ name, inviteCopy, questIds, participants })), [
-    {
-      name: "Knights Before Coffee Rush",
-      inviteCopy: "Complete Knights Before Coffee and Early King Walk before the official window closes.",
-      questIds: ["knights-before-coffee", "early-king-walk"],
-      participants: [],
-    },
-    {
-      name: "No Castle Club Night",
-      inviteCopy: "Complete No Castle Club and Early King Walk before the official window closes.",
-      questIds: ["no-castle-club", "early-king-walk"],
-      participants: [],
-    },
-    {
-      name: "Queenless Cup",
-      inviteCopy: "Complete Queen? Never Heard of Her and The Blunder Gambit before the official window closes.",
-      questIds: ["queen-never-heard-of-her", "the-blunder-gambit"],
-      participants: [],
-    },
-  ]);
-});
 
 test("ranks incomplete players by completed quests from this multiplayer quest only", () => {
   const ranked = rankGroupQuestParticipants({

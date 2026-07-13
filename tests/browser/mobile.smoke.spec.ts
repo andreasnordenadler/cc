@@ -7,7 +7,10 @@ async function expectGuestMenu(page: Page) {
   const menu = page.getByRole("navigation", { name: "Guest menu" });
   await expect(menu).toBeVisible();
   for (const name of ["Home", "Solo", "Multiplayer", "Help & Support", "Privacy", "Sign in"]) {
-    await expect(menu.getByRole("link", { name, exact: true })).toBeVisible();
+    const link = menu.getByRole("link", { name, exact: true });
+    await expect(link).toBeVisible();
+    const box = await link.boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
   }
   await expect(page.getByRole("button", { name: "Open main menu" })).toHaveCount(0);
 }

@@ -6,7 +6,7 @@ import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
-import { buildSoloProofHomeStatus, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
+import { buildSoloProofHomeStatus, formatHomeTrophyMeta, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 import CommunitySoloPickControl from "./community-solo-pick-control";
 import GroupQuestAcceptModal from "./group-quest-accept-modal";
@@ -305,7 +305,7 @@ function GuestHome() {
   );
 }
 
-function SignedInHome({
+export function SignedInHome({
   hasChessAccount,
   activeSolo,
   activeSoloTitle,
@@ -347,16 +347,14 @@ function SignedInHome({
             glowSize={170}
           />
         ) : null}
+        {activeSolo ? <ActiveSoloActions /> : null}
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
             <p className="sqc-pill">Active Solo Side Quest</p>
             <h2>{activeTitle ?? "Choose a Solo Side Quest"}</h2>
             {activeSolo ? (
-              <>
-                <ActiveSoloDetail activeSolo={activeSolo} />
-                <ActiveSoloActions challengeId={activeSolo.id} />
-              </>
+              <ActiveSoloDetail activeSolo={activeSolo} />
             ) : (
               <p>{hasActiveSolo ? "Play a new public game on Lichess or Chess.com, then come back for automatic proof." : "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof."}</p>
             )}
@@ -382,7 +380,17 @@ function SignedInHome({
               <AppRow key={row.id} title={row.title} meta={row.meta} status={row.status} sourceBadge={row.sourceBadge} href={row.href} />
             ))}
           </div>
-        ) : null}
+        ) : (
+          <div className="sqc-row-list trophy-preview">
+            <AppRow
+              title="No active Multiplayer Side Quests"
+              meta="Join or host shared challenges with friends."
+              status="Explore"
+              image={mobileAsset.multiplayerSeal}
+              href="/multiplayer"
+            />
+          </div>
+        )}
         <Link href="/multiplayer" className="sqc-secondary-action full">Explore More Multiplayer Side Quests</Link>
       </section>
 
@@ -396,7 +404,7 @@ function SignedInHome({
             <AppRow
               key={row.id}
               title={row.title}
-              meta={row.meta}
+              meta={formatHomeTrophyMeta(row.meta, row.source)}
               status="Open"
               href={row.href}
               image={row.image ?? undefined}
@@ -460,7 +468,7 @@ export function MiniChessBoard({ fen, highlightUci, orientation }: { fen?: strin
             highlight.includes(square.square) ? "highlight" : "",
           ].filter(Boolean).join(" ")}
         >
-          {square.piece ? chessPiece(square.piece) : ""}
+          {square.piece ? <span className={`sqc-mini-piece ${square.piece === square.piece.toUpperCase() ? "white" : "black"}`}>{chessPiece(square.piece)}</span> : ""}
         </span>
       ))}
     </div>

@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildActiveMultiplayerHomeRows,
   buildSoloProofHomeStatus,
+  formatHomeTrophyMeta,
 } from "../src/lib/mobile-web-home";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
@@ -88,6 +89,11 @@ test("distinguishes an unchecked solo quest from a check with no eligible game",
     tone: "neutral",
     detail: "No public game was found after this Side Quest was picked.",
   });
+});
+
+test("uses native trophy wording for real earned Solo and Multiplayer rows", () => {
+  assert.equal(formatHomeTrophyMeta("Official Solo Side Quest · The First Game Shield", "solo"), "Unlocked The First Game Shield");
+  assert.equal(formatHomeTrophyMeta("Multiplayer placement · 1st place", "multiplayer"), "Multiplayer placement · 1st place");
 });
 
 test("uses the latest failed diagnostic and completed headline on solo proof", () => {
