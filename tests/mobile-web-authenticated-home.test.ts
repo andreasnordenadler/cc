@@ -4,6 +4,8 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { MiniChessBoard, SignedInHome } from "../src/components/mobile-app-web-shell";
+import DeactivateQuestControl from "../src/components/deactivate-quest-control";
+import { CHALLENGES } from "../src/lib/challenges";
 
 const failedSolo = {
   id: "one-bishop-to-rule-them-all",
@@ -64,4 +66,12 @@ test("mini board assigns piece colors from FEN rather than square color", () => 
 
   assert.match(html, /sqc-mini-piece black/);
   assert.match(html, /sqc-mini-piece white/);
+});
+
+test("active quest detail keeps a reachable deactivate control off the compact Home card", () => {
+  const challenge = CHALLENGES.find((candidate) => candidate.id === "one-bishop-to-rule-them-all");
+  assert.ok(challenge);
+
+  const html = renderToStaticMarkup(React.createElement(DeactivateQuestControl, { challenge }));
+  assert.match(html, />Deactivate</);
 });
