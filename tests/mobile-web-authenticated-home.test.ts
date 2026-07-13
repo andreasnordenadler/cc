@@ -37,6 +37,7 @@ test("authenticated Home keeps Active Solo compact with one refresh control and 
   }));
 
   assert.match(html, /aria-label="Refresh active Solo Side Quest"/);
+  assert.match(html, /class="sqc-refresh-icon"[^>]*viewBox="0 0 24 24"/);
   assert.ok(html.indexOf("sqc-refresh-form") < html.indexOf("sqc-current-body"), "refresh form must be a direct card control before the card body");
   assert.equal((html.match(/Explore More Solo Side Quests/g) ?? []).length, 1);
   assert.doesNotMatch(html, /Check latest game|Reset active selection|Choose another Side Quest/);
