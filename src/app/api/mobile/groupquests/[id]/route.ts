@@ -9,6 +9,7 @@ import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
 import { validateMultiplayerProofConfiguration, validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
 import {
+  OFFICIAL_GROUP_QUEST_METADATA_KEY,
   buildGroupQuest,
   buildParticipant,
   findGroupQuestById,
@@ -17,10 +18,10 @@ import {
   isGroupQuestFinished,
   joinGroupQuest,
   removeParticipantFromGroupQuest,
-  removeStoredGroupQuest,
+  removeOfficialGroupQuestParticipation,
   updateParticipantProgress,
   upsertHostGroupQuest,
-  upsertParticipantGroupQuest,
+  upsertOfficialGroupQuestParticipation,
   type ServerGroupQuest,
 } from "@/lib/groupquests";
 import { getMobileRequestUserId } from "@/lib/mobile-auth";
@@ -268,7 +269,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const joined = joinGroupQuest(found.groupQuest, participant);
-    const saveError = await saveGroupQuestSafely(client, found.userId, joined, userId);
+    const saveError = await saveMobileGroupQuest(client, found.userId, joined, userId);
     if (saveError) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: saveError },
@@ -297,7 +298,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const updatedQuest = removeParticipantFromGroupQuest(found.groupQuest, userId);
-    const saveError = await saveGroupQuestSafely(client, found.userId, updatedQuest, userId, { removeParticipant: true });
+    const saveError = await saveMobileGroupQuest(client, found.userId, updatedQuest, userId, { removeParticipant: true });
     if (saveError) {
       return NextResponse.json(
         { apiVersion: 1, authenticated: true, ok: false, message: saveError },
@@ -340,8 +341,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         lastProofSummary: lastCheck?.summary,
         lastProofAt: new Date().toISOString(),
       });
-      saveError = await saveGroupQuestSafely(client, found.userId, refreshedQuest, userId);
-      if (!saveError) await mergeMobileMultiplayerCompletions(client, userId, metadata, participant, checks.filter((check) => newlyPassedQuestIds.includes(check.questId)));
+      saveError = await saveMobileGroupQuest(client, found.userId, refreshedQuest, userId);
+      if (!saveError) {
+        const latestParticipantUser = await client.users.getUser(userId);
+        await mergeMobileMultiplayerCompletions(
+          client,
+          userId,
+          (latestParticipantUser.publicMetadata as UserMetadataRecord) ?? {},
+          participant,
+          checks.filter((check) => newlyPassedQuestIds.includes(check.questId)),
+        );
+      }
     },
   });
   const response = await handler(request, id);
@@ -557,7 +567,7 @@ async function saveHostQuestSafely(
   }
 }
 
-async function saveGroupQuestSafely(
+export async function saveMobileGroupQuest(
   client: Awaited<ReturnType<typeof clerkClient>>,
   hostUserId: string,
   groupQuest: ServerGroupQuest,
@@ -570,19 +580,28 @@ async function saveGroupQuestSafely(
 
   try {
     const participantUser = await client.users.getUser(participantUserId);
+    const publicMetadata = participantUser.publicMetadata && typeof participantUser.publicMetadata === "object"
+      ? participantUser.publicMetadata as Record<string, unknown>
+      : {};
+    const participations = options.removeParticipant
+      ? removeOfficialGroupQuestParticipation(publicMetadata, groupQuest.id)
+      : upsertOfficialGroupQuestParticipation(publicMetadata, groupQuest, participantUserId);
+    if (!options.removeParticipant && !participations.some((record) => record.questId === groupQuest.id)) {
+      throw new Error("official_participation_metadata_capacity");
+    }
     await client.users.updateUserMetadata(participantUserId, {
-      privateMetadata: {
-        ...(participantUser.privateMetadata ?? {}),
-        sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(participantUser.privateMetadata)),
-        sqcGroupQuests: options.removeParticipant
-          ? removeStoredGroupQuest(participantUser.privateMetadata, groupQuest.id)
-          : upsertParticipantGroupQuest(participantUser.privateMetadata, groupQuest, participantUserId),
+      publicMetadata: {
+        ...publicMetadata,
+        [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participations,
       },
     });
     return null;
   } catch (error) {
-    console.error("mobile_official_groupquest_save_failed", error);
-    return "Could not save Official Multiplayer Side Quest progress. Try again once more.";
+    console.error("mobile_official_groupquest_save_failed", {
+      groupQuestId: groupQuest.id,
+      errorName: error instanceof Error ? error.name : "UnknownError",
+    });
+    return "We could not save your Official Multiplayer progress right now. Please try again.";
   }
 }
 

@@ -60,7 +60,11 @@ const OFFICIAL_GROUP_QUEST_ANCHOR = Date.UTC(2026, 5, 21);
 const MAX_HOST_QUESTS = 4;
 const MAX_PARTICIPANT_STORED_QUESTS = 12;
 const MAX_PARTICIPANTS = 80;
+const MAX_OFFICIAL_PARTICIPATION_RECORDS = 6;
+const MAX_OFFICIAL_PARTICIPATION_BYTES = 4096;
+const MAX_SAFE_CLERK_PUBLIC_METADATA_BYTES = 7680;
 const CLERK_USER_PAGE_SIZE = 100;
+export const OFFICIAL_GROUP_QUEST_METADATA_KEY = "sqcOfficialGroupQuestParticipations";
 /**
  * Conservative fallback when Clerk omits totalCount or supplies a malformed
  * value: at most 100 requests / 10,000 user slots. This prevents an unbounded
@@ -105,6 +109,83 @@ export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
   return raw.map(normalizeGroupQuest).filter((quest): quest is ServerGroupQuest => Boolean(quest));
 }
 
+type OfficialGroupQuestParticipationRecord = {
+  questId: string;
+  provider: GroupQuestJoinProvider;
+  username: string;
+  leaderboardName: string;
+  joinedAt: string;
+  score?: number;
+  completedQuestIds?: string[];
+  questFinishedAt?: Record<string, string>;
+  lastProofSummary?: string;
+  lastProofAt?: string;
+};
+
+export function getStoredOfficialGroupQuestParticipations(metadata: unknown, userId = ""): ServerGroupQuest[] {
+  return getRawOfficialParticipationRecords(metadata).flatMap((record) => {
+    const definition = getBuiltInOfficialGroupQuestDefinitionById(record.questId);
+    if (!definition) return [];
+    return [{
+      ...definition,
+      participants: [{
+        userId,
+        provider: record.provider,
+        username: record.username,
+        leaderboardName: record.leaderboardName,
+        joinedAt: record.joinedAt,
+        score: record.score ?? 0,
+        completedQuestIds: record.completedQuestIds ?? [],
+        questFinishedAt: record.questFinishedAt ?? {},
+        lastProofSummary: record.lastProofSummary,
+        lastProofAt: record.lastProofAt,
+      }],
+    }];
+  });
+}
+
+export function upsertOfficialGroupQuestParticipation(metadata: unknown, groupQuest: ServerGroupQuest, participantUserId: string) {
+  const participant = groupQuest.participants.find((entry) => entry.userId === participantUserId);
+  if (!participant || !groupQuest.official) return getRawOfficialParticipationRecords(metadata);
+  const allowedQuestIds = new Set(groupQuest.questIds.slice(0, 8));
+  const completedQuestIds = (participant.completedQuestIds ?? []).filter((id) => allowedQuestIds.has(id));
+  const questFinishedAt = Object.fromEntries(
+    completedQuestIds.flatMap((id) => participant.questFinishedAt?.[id] ? [[id, participant.questFinishedAt[id]]] : []),
+  );
+  const next: OfficialGroupQuestParticipationRecord = {
+    questId: groupQuest.id.slice(0, 80),
+    provider: participant.provider,
+    username: participant.username.trim().slice(0, 60),
+    leaderboardName: participant.leaderboardName.trim().slice(0, 60),
+    joinedAt: participant.joinedAt.slice(0, 40),
+    ...(participant.score ? { score: Math.max(0, Math.min(100_000, participant.score)) } : {}),
+    ...(completedQuestIds.length ? { completedQuestIds } : {}),
+    ...(Object.keys(questFinishedAt).length ? { questFinishedAt } : {}),
+    ...(participant.lastProofSummary ? { lastProofSummary: participant.lastProofSummary.slice(0, 120) } : {}),
+    ...(participant.lastProofAt ? { lastProofAt: participant.lastProofAt.slice(0, 40) } : {}),
+  };
+  const candidates = [next, ...getRawOfficialParticipationRecords(metadata).filter((entry) => entry.questId !== groupQuest.id)]
+    .slice(0, MAX_OFFICIAL_PARTICIPATION_RECORDS);
+  const metadataRecord = metadata && typeof metadata === "object" ? metadata as Record<string, unknown> : {};
+  const metadataWithoutOfficialParticipations = { ...metadataRecord };
+  delete metadataWithoutOfficialParticipations[OFFICIAL_GROUP_QUEST_METADATA_KEY];
+  const bounded: OfficialGroupQuestParticipationRecord[] = [];
+  for (const candidate of candidates) {
+    const nextRecords = [...bounded, candidate];
+    if (serializedByteLength(nextRecords) > MAX_OFFICIAL_PARTICIPATION_BYTES) break;
+    if (serializedByteLength({
+      ...metadataWithoutOfficialParticipations,
+      [OFFICIAL_GROUP_QUEST_METADATA_KEY]: nextRecords,
+    }) > MAX_SAFE_CLERK_PUBLIC_METADATA_BYTES) break;
+    bounded.push(candidate);
+  }
+  return bounded;
+}
+
+export function removeOfficialGroupQuestParticipation(metadata: unknown, groupQuestId: string) {
+  return getRawOfficialParticipationRecords(metadata).filter((entry) => entry.questId !== groupQuestId);
+}
+
 export function isBuiltInOfficialGroupQuestHost(userId: string) {
   return userId === OFFICIAL_GROUP_QUEST_HOST_USER_ID;
 }
@@ -134,6 +215,35 @@ export function getBuiltInOfficialGroupQuests(now = new Date()): ServerGroupQues
 
 export function getBuiltInOfficialGroupQuestById(id: string, now = new Date()) {
   return getBuiltInOfficialGroupQuests(now).find((quest) => quest.id === id) ?? null;
+}
+
+function getBuiltInOfficialGroupQuestDefinitionById(id: string): ServerGroupQuest | null {
+  const template = officialGroupQuestTemplates.find((entry) => id.startsWith(`official-${entry.slug}-`));
+  if (!template) return null;
+  const cycleKey = id.slice(`official-${template.slug}-`.length);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(cycleKey)) return null;
+  const start = new Date(`${cycleKey}T00:00:00.000Z`);
+  if (Number.isNaN(start.getTime())) return null;
+  const end = new Date(start.getTime() + OFFICIAL_GROUP_QUEST_DURATION_DAYS * 24 * 60 * 60 * 1000);
+  return {
+    id,
+    hostUserId: OFFICIAL_GROUP_QUEST_HOST_USER_ID,
+    hostName: OFFICIAL_GROUP_QUEST_HOST_NAME,
+    name: template.name,
+    inviteCopy: template.inviteCopy,
+    inviteMode: "public",
+    inviteKey: `official-${template.slug}`,
+    questIds: template.questIds,
+    providerMode: "both",
+    providerLabel: "Lichess or Chess.com",
+    official: true,
+    officialLabel: "Official SQC · 14 days",
+    startAt: start.toISOString(),
+    endAt: end.toISOString(),
+    rules: defaultRules,
+    createdAt: start.toISOString(),
+    participants: [],
+  };
 }
 
 export function makeGroupQuestId(name: string) {
@@ -189,7 +299,7 @@ export function buildGroupQuest(input: {
 }
 
 export async function findGroupQuestById(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
   id: string,
 ): Promise<GroupQuestHostRecord | null> {
   const builtInOfficialQuest = getBuiltInOfficialGroupQuestById(id);
@@ -211,7 +321,7 @@ export async function findGroupQuestById(
   while (true) {
     const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
     for (const user of users.data) {
-      const quests = getStoredGroupQuests(user.privateMetadata);
+      const quests = getAllStoredGroupQuests(user);
       const groupQuest = quests.find((quest) => quest.id === id);
       if (groupQuest) return { userId: user.id, groupQuest };
     }
@@ -221,7 +331,7 @@ export async function findGroupQuestById(
 }
 
 export async function findGroupQuestByInviteKey(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ id: string; privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
   inviteKey: string,
 ): Promise<GroupQuestHostRecord | null> {
   if (!isValidInviteKey(inviteKey)) return null;
@@ -244,7 +354,7 @@ export async function findGroupQuestByInviteKey(
   while (true) {
     const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
     for (const user of users.data) {
-      const quests = getStoredGroupQuests(user.privateMetadata);
+      const quests = getAllStoredGroupQuests(user);
       const groupQuest = quests.find((quest) => cleanInviteKey(quest.inviteKey) === normalizedKey);
       if (groupQuest) return { userId: user.id, groupQuest };
     }
@@ -254,8 +364,14 @@ export async function findGroupQuestByInviteKey(
 }
 
 
+type ClerkGroupQuestUser = {
+  id: string;
+  privateMetadata: unknown;
+  publicMetadata?: unknown;
+};
+
 type ClerkUserListResponse = {
-  data: Array<{ id: string; privateMetadata: unknown }>;
+  data: ClerkGroupQuestUser[];
   totalCount?: number;
 };
 
@@ -282,7 +398,7 @@ export async function listUserRelatedGroupQuests(
       );
     }
     related.push(...users.data
-      .flatMap((user) => getStoredGroupQuests(user.privateMetadata))
+      .flatMap(getAllStoredGroupQuests)
       .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId)));
     if (users.data.length < CLERK_USER_PAGE_SIZE) break;
     offset += CLERK_USER_PAGE_SIZE;
@@ -301,7 +417,7 @@ function isValidClerkTotalCount(value: unknown): value is number {
 }
 
 export async function listPublicGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
 ) {
   const storedPublicQuests = (await listStoredGroupQuests(client)).filter((quest) => quest.inviteMode === "public");
   const builtInOfficialQuests = getBuiltInOfficialGroupQuests().map((quest) => mergeOfficialParticipantCopies(
@@ -570,6 +686,51 @@ function normalizeParticipant(value: unknown): GroupQuestParticipant | null {
   };
 }
 
+function getRawOfficialParticipationRecords(metadata: unknown) {
+  if (!metadata || typeof metadata !== "object") return [];
+  const raw = (metadata as Record<string, unknown>)[OFFICIAL_GROUP_QUEST_METADATA_KEY];
+  if (!Array.isArray(raw)) return [];
+  return raw.map(normalizeOfficialParticipationRecord)
+    .filter((entry): entry is OfficialGroupQuestParticipationRecord => Boolean(entry))
+    .slice(0, MAX_OFFICIAL_PARTICIPATION_RECORDS);
+}
+
+function normalizeOfficialParticipationRecord(value: unknown): OfficialGroupQuestParticipationRecord | null {
+  if (!value || typeof value !== "object") return null;
+  const record = value as Record<string, unknown>;
+  const questId = cleanText(record.questId, 80);
+  const username = cleanText(record.username, 60);
+  const leaderboardName = cleanText(record.leaderboardName, 60);
+  const joinedAt = cleanText(record.joinedAt, 40);
+  if (!questId || !username || !leaderboardName || !joinedAt) return null;
+  const definition = getBuiltInOfficialGroupQuestDefinitionById(questId);
+  if (!definition) return null;
+  const allowedQuestIds = new Set(definition.questIds);
+  const completedQuestIds = Array.isArray(record.completedQuestIds)
+    ? record.completedQuestIds.filter((id): id is string => typeof id === "string" && allowedQuestIds.has(id))
+    : [];
+  return {
+    questId,
+    provider: record.provider === "chesscom" ? "chesscom" : "lichess",
+    username,
+    leaderboardName,
+    joinedAt,
+    score: typeof record.score === "number" && Number.isFinite(record.score) ? Math.max(0, Math.min(100_000, record.score)) : 0,
+    completedQuestIds,
+    questFinishedAt: record.questFinishedAt && typeof record.questFinishedAt === "object"
+      ? Object.fromEntries(Object.entries(record.questFinishedAt as Record<string, unknown>)
+          .filter(([id, timestamp]) => allowedQuestIds.has(id) && typeof timestamp === "string")
+          .map(([id, timestamp]) => [id, (timestamp as string).slice(0, 40)]))
+      : {},
+    lastProofSummary: cleanText(record.lastProofSummary, 120),
+    lastProofAt: cleanText(record.lastProofAt, 40),
+  };
+}
+
+function serializedByteLength(value: unknown) {
+  return new TextEncoder().encode(JSON.stringify(value)).byteLength;
+}
+
 function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
   if (value === "private-key") return value;
   if (value === "unlisted-link") return value;
@@ -577,16 +738,23 @@ function normalizeInviteMode(value: unknown): GroupQuestInviteMode {
 }
 
 async function listStoredGroupQuests(
-  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: Array<{ privateMetadata: unknown }> }> } },
+  client: { users: { getUserList: (params: { limit: number; offset?: number; orderBy?: "-created_at" }) => Promise<{ data: ClerkGroupQuestUser[] }> } },
 ) {
   const quests: ServerGroupQuest[] = [];
   let offset = 0;
   while (true) {
     const users = await client.users.getUserList({ limit: 100, offset, orderBy: "-created_at" });
-    quests.push(...users.data.flatMap((user) => getStoredGroupQuests(user.privateMetadata)));
+    quests.push(...users.data.flatMap(getAllStoredGroupQuests));
     if (users.data.length < 100) return quests;
     offset += users.data.length;
   }
+}
+
+function getAllStoredGroupQuests(user: ClerkGroupQuestUser) {
+  return [
+    ...getStoredGroupQuests(user.privateMetadata),
+    ...getStoredOfficialGroupQuestParticipations(user.publicMetadata, user.id),
+  ];
 }
 
 function mergeOfficialParticipantCopies(base: ServerGroupQuest, copies: ServerGroupQuest[]) {

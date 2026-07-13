@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import * as webRoute from "../src/app/api/groupquests/[id]/refresh/route";
 import * as mobileRoute from "../src/app/api/mobile/groupquests/[id]/route";
+import { OFFICIAL_GROUP_QUEST_METADATA_KEY, getBuiltInOfficialGroupQuests } from "../src/lib/groupquests";
 
 function setNodeEnv(value: string | undefined) {
   Object.defineProperty(process.env, "NODE_ENV", { value, writable: true, configurable: true, enumerable: true });
@@ -138,6 +139,40 @@ for (const variant of ["web", "mobile"] as const) {
     assert.equal(publicMetadata.challengeAttempts[0].challengeId, "new");
     assert.equal(publicMetadata.challengeAttempts[0].gameId, "new-game");
     assert.equal(writes.filter((entry) => "privateMetadata" in entry.metadata).length, 1, "one group progress write is expected");
+  });
+}
+
+for (const variant of ["web", "mobile"] as const) {
+  test(`${variant} official refresh writes compact group progress to public metadata`, async () => {
+    const writes: Array<{ userId: string; metadata: Record<string, unknown> }> = [];
+    const client = fakeClient(writes);
+    const officialQuest = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+    officialQuest.participants = [{
+      userId: "current", provider: "chesscom", username: "CurrentChess", leaderboardName: "Current",
+      joinedAt: "2026-07-01T00:00:00.000Z", completedQuestIds: [], questFinishedAt: {}, score: 0,
+    }];
+    const dependencies = {
+      authenticate: async () => "current",
+      getClient: async () => client,
+      findQuest: async () => ({ userId: "official-sqc", groupQuest: officialQuest }),
+      check: async ({ challengeId }: { challengeId: string }) => ({
+        status: "passed" as const,
+        gameId: `${challengeId}-game`,
+        summary: `${challengeId} passed`,
+        gameTime: "2026-07-03T00:00:00.000Z",
+      }),
+    };
+    const response = await (variant === "web"
+      ? webRoute.withWebRefreshRouteTestDependencies(dependencies as never, () => webRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) }))
+      : mobileRoute.withMobileRefreshRouteTestDependencies(dependencies as never, () => mobileRoute.POST(request(), { params: Promise.resolve({ id: "gq" }) })));
+
+    assert.equal(response.status, 200);
+    assert.equal(writes.some((entry) => "privateMetadata" in entry.metadata), false);
+    assert.equal(writes.some((entry) => {
+      const metadata = entry.metadata.publicMetadata as Record<string, unknown> | undefined;
+      const records = metadata?.[OFFICIAL_GROUP_QUEST_METADATA_KEY] as Array<{ questId?: string }> | undefined;
+      return records?.[0]?.questId === officialQuest.id;
+    }), true);
   });
 }
 
