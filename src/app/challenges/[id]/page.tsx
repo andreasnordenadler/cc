@@ -5,6 +5,7 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { notFound } from "next/navigation";
 import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-shell";
+import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
@@ -227,6 +228,9 @@ export default async function ChallengeDetailPage({
                   </div>
                 </div>
               ))}
+            </div>
+            <div className="sqc-active-detail-management" aria-label="Active Solo Side Quest management">
+              <DeactivateQuestControl challenge={challenge} />
             </div>
           </section>
         ) : null}

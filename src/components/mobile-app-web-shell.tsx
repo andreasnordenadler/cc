@@ -6,7 +6,7 @@ import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
 import type { MobileWebMultiplayerPreview, MobileWebMultiplayerResult, MobileWebOfficialWeek } from "@/lib/mobile-web-multiplayer";
 import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
-import { buildSoloProofHomeStatus, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
+import { buildSoloProofHomeStatus, formatHomeTrophyMeta, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 import CommunitySoloPickControl from "./community-solo-pick-control";
 import GroupQuestAcceptModal from "./group-quest-accept-modal";
@@ -133,15 +133,6 @@ const menuItems = [
   { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
 ];
 
-const guestMenuItems = [
-  { id: "home", label: "Home", href: "/", icon: "home" },
-  { id: "sideQuests", label: "Solo Side Quests", href: "/side-quests", icon: "flag" },
-  { id: "multiplayer", label: "Multiplayer Side Quests", href: "/multiplayer", icon: "group" },
-  { id: "support", label: "Help & Support", href: "/support", icon: "help" },
-  { id: "privacy", label: "Privacy Policy", href: "/privacy", icon: "shield" },
-  { id: "signIn", label: "Sign in", href: "/sign-in", icon: "person" },
-];
-
 const mobileAsset = {
   coat: "/mobile-source/sqc-coat-of-arms.png",
   coatGlow: "/mobile-source/badges/glow/sqc-coat-generic-glow.png",
@@ -178,10 +169,10 @@ export default function MobileAppWebShell({
   const hasChessAccount = Boolean(lichessUsername || chessComUsername);
   const activeTheme = activeSolo?.theme ?? theme;
   const shellStyle = {
-    "--sqc-bg-top": activeTheme?.backgroundTop ?? "#1e7773",
-    "--sqc-bg-mid": activeTheme?.backgroundMid ?? "#123a3f",
-    "--sqc-bg-glow": activeTheme?.glow ?? "rgba(96, 240, 175, .28)",
-    "--sqc-bg-accent": activeTheme?.accent ?? "rgba(45, 212, 191, .2)",
+    "--sqc-bg-top": activeTheme?.backgroundTop ?? (signedIn ? "#1e7773" : "#8d6b32"),
+    "--sqc-bg-mid": activeTheme?.backgroundMid ?? (signedIn ? "#123a3f" : "#4b321b"),
+    "--sqc-bg-glow": activeTheme?.glow ?? (signedIn ? "rgba(96, 240, 175, .28)" : "rgba(245, 200, 106, .2)"),
+    "--sqc-bg-accent": activeTheme?.accent ?? (signedIn ? "rgba(45, 212, 191, .2)" : "rgba(179, 126, 43, .18)"),
   } as CSSProperties;
 
   return (
@@ -190,6 +181,7 @@ export default function MobileAppWebShell({
         "sqc-mobile-web",
         immersivePresentation ? "immersive" : "",
         controlsOnlyHeader ? "controls-only" : "",
+        signedIn ? "signed-in" : "signed-out",
       ].filter(Boolean).join(" ")}
       data-source="active-mobile-today-dashboard"
       style={shellStyle}
@@ -233,31 +225,11 @@ export default function MobileAppWebShell({
             </header>
           )}
         </>
-      ) : (
-        immersivePresentation ? null : (
-          <>
-            <details className="sqc-menu">
-              <summary aria-label="Open main menu"><span /></summary>
-              <nav aria-label="Guest menu" className="sqc-menu-panel">
-                {guestMenuItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className={isActiveMenuItem(item.id, activeTab) ? "sqc-menu-row active" : "sqc-menu-row"}
-                    aria-current={isActiveMenuItem(item.id, activeTab) ? "page" : undefined}
-                  >
-                    <span className={`sqc-menu-icon ${item.icon}`} aria-hidden="true" />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </nav>
-            </details>
-            <header className="sqc-app-header guest">
-              <h1>Side Quest Chess</h1>
-            </header>
-          </>
-        )
-      )}
+      ) : immersivePresentation ? null : activeTab === "home" ? (
+        <header className="sqc-app-header guest">
+          <h1>Side Quest Chess</h1>
+        </header>
+      ) : null}
 
       {activeTab !== "home" || modalPresentation ? (
         <Link href={closeHref} className="sqc-close-screen" aria-label="Close screen">
@@ -282,7 +254,31 @@ export default function MobileAppWebShell({
           )
         )}
       </section>
+      {!signedIn && !modalPresentation && !immersivePresentation ? (
+        <GuestNavigation activeTab={activeTab} sticky={activeTab !== "home"} />
+      ) : null}
     </main>
+  );
+}
+
+function GuestNavigation({ activeTab, sticky }: { activeTab: AppTab; sticky: boolean }) {
+  const items = [
+    { label: "Home", href: "/", active: activeTab === "home" },
+    { label: "Solo", href: "/side-quests", active: activeTab === "sideQuests" },
+    { label: "Multiplayer", href: "/multiplayer", active: activeTab === "multiplayerSideQuests" },
+    { label: "Help & Support", href: "/support", active: false },
+    { label: "Privacy", href: "/privacy", active: false },
+    { label: "Sign in", href: "/sign-in", active: false },
+  ];
+
+  return (
+    <nav aria-label="Guest menu" className={`sqc-guest-nav${sticky ? " sticky" : ""}`}>
+      {items.map((item) => (
+        <Link key={item.href} href={item.href} aria-current={item.active ? "page" : undefined}>
+          {item.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 
@@ -309,7 +305,7 @@ function GuestHome() {
   );
 }
 
-function SignedInHome({
+export function SignedInHome({
   hasChessAccount,
   activeSolo,
   activeSoloTitle,
@@ -351,16 +347,14 @@ function SignedInHome({
             glowSize={170}
           />
         ) : null}
+        {activeSolo ? <ActiveSoloActions /> : null}
         <div className="sqc-current-body">
           {!activeSolo?.badgeImage ? <MobileAssetMark className="sqc-current-mark" image={mobileAsset.coat} glow={mobileAsset.coatGlow} size={82} glowSize={104} /> : null}
           <div>
             <p className="sqc-pill">Active Solo Side Quest</p>
             <h2>{activeTitle ?? "Choose a Solo Side Quest"}</h2>
             {activeSolo ? (
-              <>
-                <ActiveSoloDetail activeSolo={activeSolo} />
-                <ActiveSoloActions challengeId={activeSolo.id} />
-              </>
+              <ActiveSoloDetail activeSolo={activeSolo} />
             ) : (
               <p>{hasActiveSolo ? "Play a new public game on Lichess or Chess.com, then come back for automatic proof." : "Choose a Side Quest, play on Lichess or Chess.com, then come back for automatic proof."}</p>
             )}
@@ -386,7 +380,17 @@ function SignedInHome({
               <AppRow key={row.id} title={row.title} meta={row.meta} status={row.status} sourceBadge={row.sourceBadge} href={row.href} />
             ))}
           </div>
-        ) : null}
+        ) : (
+          <div className="sqc-row-list trophy-preview">
+            <AppRow
+              title="No active Multiplayer Side Quests"
+              meta="Join or host shared challenges with friends."
+              status="Explore"
+              image={mobileAsset.multiplayerSeal}
+              href="/multiplayer"
+            />
+          </div>
+        )}
         <Link href="/multiplayer" className="sqc-secondary-action full">Explore More Multiplayer Side Quests</Link>
       </section>
 
@@ -400,7 +404,7 @@ function SignedInHome({
             <AppRow
               key={row.id}
               title={row.title}
-              meta={row.meta}
+              meta={formatHomeTrophyMeta(row.meta, row.source)}
               status="Open"
               href={row.href}
               image={row.image ?? undefined}
@@ -464,7 +468,7 @@ export function MiniChessBoard({ fen, highlightUci, orientation }: { fen?: strin
             highlight.includes(square.square) ? "highlight" : "",
           ].filter(Boolean).join(" ")}
         >
-          {square.piece ? chessPiece(square.piece) : ""}
+          {square.piece ? <span className={`sqc-mini-piece ${square.piece === square.piece.toUpperCase() ? "white" : "black"}`}>{chessPiece(square.piece)}</span> : ""}
         </span>
       ))}
     </div>
@@ -504,7 +508,7 @@ export function MobileSoloSideQuestsScreen({
 
       <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
-        <Link href="/community-side-quests" className="sqc-brand-switch" aria-label="Switch to Community Side Quests">
+        <Link href="/community-side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Community Side Quests">
           <span aria-hidden="true" />
         </Link>
         <Link href="/community-side-quests" className="sqc-brand-tab community" role="tab" aria-selected="false">Community Side Quests</Link>
@@ -981,16 +985,16 @@ export function MobileMultiplayerSideQuestsScreen({
 
       <div className="sqc-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
         <Link
-          href="/multiplayer"
+          href="/multiplayer-side-quests"
           className={selectedTab === "official" ? "sqc-brand-tab official active" : "sqc-brand-tab official"}
           role="tab"
           aria-selected={selectedTab === "official"}
         >
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <span className="sqc-brand-switch" data-icon="swap-horizontal" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
         <Link
-          href="/multiplayer-side-quests"
+          href="/multiplayer-side-quests?tab=community"
           className={selectedTab === "community" ? "sqc-brand-tab community active" : "sqc-brand-tab community"}
           role="tab"
           aria-selected={selectedTab === "community"}
@@ -1444,7 +1448,7 @@ function AppRow({
       {statusImage ? (
         <Image className="sqc-row-status-image" alt="" src={statusImage} width={38} height={38} />
       ) : (
-        <span className="sqc-row-status">{status}</span>
+        <span className={`sqc-row-status ${status.toLowerCase().replace(/[^a-z]+/g, "-")}`}>{status}</span>
       )}
     </Link>
   );

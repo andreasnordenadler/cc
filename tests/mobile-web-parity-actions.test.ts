@@ -60,11 +60,9 @@ test("community likes are idempotent and reports require a useful reason", () =>
   assert.deepEqual(validateCommunitySoloReport("quest-1", "Misleading rule"), { ok: true, message: "Community Solo Side Quest quest-1: Misleading rule" });
 });
 
-test("active Solo web controls expose check, confirmed active reset, and choose-another actions", async () => {
+test("active Solo Home control exposes only the compact proof refresh action", async () => {
   const source = await import("node:fs/promises").then(fs => fs.readFile(new URL("../src/components/active-solo-actions.tsx", import.meta.url), "utf8"));
   assert.match(source, /checkActiveChallenge/);
-  assert.match(source, /deactivateActiveChallenge/);
-  assert.match(source, /confirm\(/);
-  assert.match(source, /Choose another Side Quest/);
-  assert.doesNotMatch(source, /userId/);
+  assert.match(source, /Refresh active Solo Side Quest/);
+  assert.doesNotMatch(source, /deactivateActiveChallenge|confirm\(|Choose another Side Quest|userId/);
 });

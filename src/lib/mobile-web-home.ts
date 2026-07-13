@@ -85,6 +85,12 @@ export function buildSoloProofHomeStatus(
   };
 }
 
+export function formatHomeTrophyMeta(meta: string, source?: "multiplayer" | "solo") {
+  if (source !== "solo") return meta;
+  const badgeName = meta.replace(/^Official Solo Side Quest\s*·\s*/i, "").trim();
+  return badgeName ? `Unlocked ${badgeName}` : "Unlocked Solo Side Quest trophy";
+}
+
 function timestamp(primary: string, fallback: string) {
   const primaryTime = Date.parse(primary);
   if (Number.isFinite(primaryTime)) return primaryTime;

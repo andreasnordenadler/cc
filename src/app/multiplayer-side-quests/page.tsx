@@ -6,9 +6,13 @@ import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type U
 
 export { metadata } from "../multiplayer/page";
 
-export default async function MultiplayerSideQuestsPage() {
+export default async function MultiplayerSideQuestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   noStore();
-  const [user, client] = await Promise.all([currentUser(), clerkClient()]);
+  const [{ tab }, user, client] = await Promise.all([searchParams, currentUser(), clerkClient()]);
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks } = await getMobileWebMultiplayerPreviews(client, user?.id);
   const displayName = user
@@ -29,7 +33,7 @@ export default async function MultiplayerSideQuestsPage() {
       chessComUsername={getChessComUsername(metadata)}
     >
       <MobileMultiplayerSideQuestsScreen
-        selectedTab="community"
+        selectedTab={tab === "community" ? "community" : "official"}
         signedIn={Boolean(user)}
         officialRows={officialRows}
         communityRows={communityRows}

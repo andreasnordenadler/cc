@@ -73,7 +73,7 @@ export default async function Home() {
           finalPositionFen: activeChallengeAttempt.finalPositionFen ?? null,
           lastMoveUci: activeChallengeAttempt.lastMoveUci ?? null,
           lastMoveSan: activeChallengeAttempt.lastMoveSan ?? null,
-          playerColor: activeChallengeAttempt.playerColor ?? activeChallengeAttempt.failureDiagnostic?.playerColor ?? null,
+          playerColor: activeChallengeAttempt.failureDiagnostic?.playerColor ?? activeChallengeAttempt.playerColor ?? null,
           failureFen: activeChallengeAttempt.failureDiagnostic?.fenAtBreak ?? null,
           failureUci: activeChallengeAttempt.failureDiagnostic?.uci ?? null,
           summary: activeChallengeAttempt.summary ?? activeChallengeSummary.detail,
