@@ -3,7 +3,17 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function GroupQuestRefreshButton({ id, finished = false }: { id: string; finished?: boolean }) {
+export default function GroupQuestRefreshButton({
+  id,
+  finished = false,
+  className,
+  label = "Check my latest games",
+}: {
+  id: string;
+  finished?: boolean;
+  className?: string;
+  label?: string;
+}) {
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -11,7 +21,7 @@ export default function GroupQuestRefreshButton({ id, finished = false }: { id: 
   return (
     <>
       <button
-        className="button secondary groupquest-refresh-button"
+        className={className ?? "button secondary groupquest-refresh-button"}
         type="button"
         aria-label="Refresh checks"
         disabled={refreshing || finished}
@@ -43,9 +53,9 @@ export default function GroupQuestRefreshButton({ id, finished = false }: { id: 
           }
         }}
       >
-        {finished ? "Final standings frozen" : refreshing ? "Checking…" : "Check my latest games"}
+        {finished ? "Final standings frozen" : refreshing ? "Checking…" : label}
       </button>
-      {status ? <small>{status}</small> : null}
+      {status ? <small role="status" aria-live="polite">{status}</small> : null}
     </>
   );
 }

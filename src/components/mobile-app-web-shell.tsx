@@ -17,6 +17,8 @@ import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobi
 import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
 import ActiveSoloActions from "./active-solo-actions";
+import GroupQuestRefreshButton from "./group-quest-refresh-button";
+import GroupQuestShareControls from "./group-quest-share-controls";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -1281,6 +1283,8 @@ export function MobileMultiplayerDetailScreen({
 }) {
   const official = quest.sourceBadge === "SQC Official";
   const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
+  const participating = joinState.kind === "joined" || (joinState.kind === "hosted" && quest.viewerJoined === true);
+  const hostedNeedsJoin = joinState.kind === "hosted" && !participating;
 
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
@@ -1289,7 +1293,7 @@ export function MobileMultiplayerDetailScreen({
         <span className="sqc-multiplayer-kicker">{official ? "SQC Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>
         <h1>{quest.title}</h1>
         <p>{quest.inviteCopy}</p>
-        <span className="sqc-detail-latest-check">OPEN</span>
+        <span className="sqc-detail-latest-check">{quest.lifecycle.toUpperCase()}</span>
       </section>
 
       <section className="sqc-multiplayer-score-grid" aria-label="Multiplayer Side Quest summary">
@@ -1308,16 +1312,18 @@ export function MobileMultiplayerDetailScreen({
       </section>
 
       <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">{joinState.kind === "joined" || joinState.kind === "hosted" ? "Ready to play" : signedIn ? "Join first" : "Sign in first"}</span>
-        <h2>{joinState.kind === "joined" ? "You joined this Multiplayer Side Quest." : joinState.kind === "hosted" ? "You host this Multiplayer Side Quest." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
-        <p>You can inspect the quests and rules below before joining.</p>
-        {joinState.kind === "join" ? (
+        <span className="sqc-card-eyebrow">{quest.lifecycle === "finished" ? "Receipts locked" : participating ? "Next action" : signedIn ? "Join first" : "Sign in first"}</span>
+        <h2>{quest.lifecycle === "finished" ? "Final standings are frozen." : participating ? "Refresh proof after your next eligible game." : hostedNeedsJoin ? "Join your Multiplayer Side Quest before playing your proof game." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
+        <p>{quest.lifecycle === "finished" ? "The event window has ended, so SQC keeps the leaderboard as the final proof record." : participating ? "SQC checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</p>
+        {quest.lifecycle === "finished" ? null : joinState.kind === "join" || hostedNeedsJoin ? (
           <GroupQuestDirectJoin
             id={quest.id}
             isSignedIn={signedIn}
             buttonClassName="sqc-primary-action"
-            buttonLabel={joinState.label}
+            buttonLabel={hostedNeedsJoin ? "Join Side Quest" : joinState.label}
           />
+        ) : participating ? (
+          <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" />
         ) : (
           <Link href={joinState.href} className="sqc-primary-action">{joinState.label}</Link>
         )}
@@ -1326,10 +1332,10 @@ export function MobileMultiplayerDetailScreen({
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">Share</span>
         <h2>Send this Multiplayer Side Quest to another player.</h2>
-        <Link href={quest.sourceBadge === "Community" ? "/multiplayer-side-quests" : "/multiplayer"} className="sqc-quiet-button">Back to catalog</Link>
+        <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} />
       </section>
 
-      {quest.hostName ? (
+      {!official && quest.hostName ? (
         <section className="sqc-native-card sqc-multiplayer-native-card">
           <span className="sqc-card-eyebrow">Created by</span>
           <h2>Hosted by {quest.hostName}</h2>
