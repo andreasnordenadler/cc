@@ -29,14 +29,13 @@ export async function saveWebJoinedQuest(client: MetadataClient, input: {
     const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
       ? storageUser.publicMetadata as Record<string, unknown>
       : {};
-    const participations = upsertOfficialGroupQuestParticipation(publicMetadata, input.joinedQuest, input.authenticatedUserId);
-    if (!participations.some((record) => record.questId === input.joinedQuest.id)) {
+    const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, input.joinedQuest, input.authenticatedUserId);
+    if (!(input.joinedQuest.id in participationPatch)) {
       throw new Error("official_participation_metadata_capacity");
     }
     await client.users.updateUserMetadata(storageUserId, {
       publicMetadata: {
-        ...publicMetadata,
-        [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participations,
+        [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch,
       },
     });
     return;

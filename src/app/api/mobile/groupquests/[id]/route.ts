@@ -501,7 +501,6 @@ async function mergeMobileMultiplayerCompletions(
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
-      ...metadata,
       challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
       challengeAttempts: compactChallengeAttempts([...existingAttempts, ...newAttempts]),
     },
@@ -583,16 +582,15 @@ export async function saveMobileGroupQuest(
     const publicMetadata = participantUser.publicMetadata && typeof participantUser.publicMetadata === "object"
       ? participantUser.publicMetadata as Record<string, unknown>
       : {};
-    const participations = options.removeParticipant
+    const participationPatch = options.removeParticipant
       ? removeOfficialGroupQuestParticipation(publicMetadata, groupQuest.id)
       : upsertOfficialGroupQuestParticipation(publicMetadata, groupQuest, participantUserId);
-    if (!options.removeParticipant && !participations.some((record) => record.questId === groupQuest.id)) {
+    if (!(groupQuest.id in participationPatch)) {
       throw new Error("official_participation_metadata_capacity");
     }
     await client.users.updateUserMetadata(participantUserId, {
       publicMetadata: {
-        ...publicMetadata,
-        [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participations,
+        [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch,
       },
     });
     return null;

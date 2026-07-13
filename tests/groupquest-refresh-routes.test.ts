@@ -42,6 +42,16 @@ const mismatch = {
   lastMoveSan: "e8=Q",
 };
 
+function deepMerge(target: Record<string, unknown>, patch: Record<string, unknown>): Record<string, unknown> {
+  const merged = { ...target };
+  for (const [key, value] of Object.entries(patch)) {
+    merged[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? deepMerge(merged[key] && typeof merged[key] === "object" && !Array.isArray(merged[key]) ? merged[key] as Record<string, unknown> : {}, value as Record<string, unknown>)
+      : value;
+  }
+  return merged;
+}
+
 function request() {
   return new Request("https://sqc.test/api/groupquests/gq/refresh", {
     method: "POST",
@@ -134,6 +144,7 @@ for (const variant of ["web", "mobile"] as const) {
     const publicWrites = writes.filter((entry) => "publicMetadata" in entry.metadata);
     assert.equal(publicWrites.length, 1, "one completion metadata write is expected");
     const publicMetadata = publicWrites[0].metadata.publicMetadata as { challengeProgress: { completedChallengeIds: string[] }; challengeAttempts: Array<{ challengeId: string; gameId: string }> };
+    assert.deepEqual(Object.keys(publicMetadata).sort(), ["challengeAttempts", "challengeProgress"], "completion writes only changed challenge keys");
     assert.deepEqual(publicMetadata.challengeProgress.completedChallengeIds, ["old", "new"]);
     assert.equal(publicMetadata.challengeAttempts.length, 1);
     assert.equal(publicMetadata.challengeAttempts[0].challengeId, "new");
@@ -170,9 +181,17 @@ for (const variant of ["web", "mobile"] as const) {
     assert.equal(writes.some((entry) => "privateMetadata" in entry.metadata), false);
     assert.equal(writes.some((entry) => {
       const metadata = entry.metadata.publicMetadata as Record<string, unknown> | undefined;
-      const records = metadata?.[OFFICIAL_GROUP_QUEST_METADATA_KEY] as Array<{ questId?: string }> | undefined;
-      return records?.[0]?.questId === officialQuest.id;
+      const records = metadata?.[OFFICIAL_GROUP_QUEST_METADATA_KEY] as Record<string, unknown> | undefined;
+      return Boolean(records?.[officialQuest.id]);
     }), true);
+    const finalPublicMetadata = writes.reduce((state, write) => deepMerge(
+      state,
+      (write.metadata.publicMetadata as Record<string, unknown> | undefined) ?? {},
+    ), { concurrentProfileField: { survives: true } } as Record<string, unknown>);
+    assert.equal((finalPublicMetadata.concurrentProfileField as Record<string, unknown>).survives, true);
+    assert.equal(Boolean((finalPublicMetadata[OFFICIAL_GROUP_QUEST_METADATA_KEY] as Record<string, unknown>)[officialQuest.id]), true);
+    assert.deepEqual((finalPublicMetadata.challengeProgress as { completedChallengeIds: string[] }).completedChallengeIds, ["old", ...officialQuest.questIds]);
+    assert.equal(Array.isArray(finalPublicMetadata.challengeAttempts), true);
   });
 }
 

@@ -86,14 +86,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
           ? storageUser.publicMetadata as Record<string, unknown>
           : {};
-        const participations = upsertOfficialGroupQuestParticipation(publicMetadata, refreshedQuest, userId);
-        if (!participations.some((record) => record.questId === refreshedQuest.id)) {
+        const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, refreshedQuest, userId);
+        if (!(refreshedQuest.id in participationPatch)) {
           throw new Error("official_participation_metadata_capacity");
         }
         await client.users.updateUserMetadata(storageUserId, {
           publicMetadata: {
-            ...publicMetadata,
-            [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participations,
+            [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch,
           },
         });
       } else {
@@ -142,7 +141,6 @@ async function mergeWebMultiplayerCompletions(
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
-      ...metadata,
       challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
       challengeAttempts: compactChallengeAttempts([...existingAttempts, ...newAttempts]),
     },

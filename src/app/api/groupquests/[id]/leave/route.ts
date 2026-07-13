@@ -11,6 +11,20 @@ import {
   upsertHostGroupQuest,
 } from "@/lib/groupquests";
 
+type OfficialLeaveMetadataClient = {
+  users: {
+    updateUserMetadata: (userId: string, metadata: Record<string, unknown>) => Promise<unknown>;
+  };
+};
+
+export async function saveWebOfficialQuestLeave(client: OfficialLeaveMetadataClient, userId: string, groupQuestId: string) {
+  await client.users.updateUserMetadata(userId, {
+    publicMetadata: {
+      [OFFICIAL_GROUP_QUEST_METADATA_KEY]: removeOfficialGroupQuestParticipation({}, groupQuestId),
+    },
+  });
+}
+
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { userId } = await auth();
   const { id } = await params;
@@ -38,15 +52,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const storageUserId = storeOnParticipant ? userId : found.userId;
   const storageUser = await client.users.getUser(storageUserId);
   if (storeOnParticipant) {
-    const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
-      ? storageUser.publicMetadata as Record<string, unknown>
-      : {};
-    await client.users.updateUserMetadata(storageUserId, {
-      publicMetadata: {
-        ...publicMetadata,
-        [OFFICIAL_GROUP_QUEST_METADATA_KEY]: removeOfficialGroupQuestParticipation(publicMetadata, found.groupQuest.id),
-      },
-    });
+    await saveWebOfficialQuestLeave(client, storageUserId, found.groupQuest.id);
   } else {
     await client.users.updateUserMetadata(storageUserId, {
       privateMetadata: {
