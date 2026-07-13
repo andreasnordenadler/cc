@@ -599,42 +599,11 @@ body::after {
   cursor: pointer;
 }
 
-.sqc-refresh span,
-.sqc-refresh span::before {
+.sqc-refresh-icon {
+  width: 21px;
+  height: 21px;
   display: block;
-  content: "";
-}
-
-.sqc-refresh span {
-  width: 17px;
-  height: 17px;
-  border: 0;
-  border-left-color: transparent;
-  border-radius: 0;
-  position: relative;
-}
-
-.sqc-refresh span::before {
-  position: absolute;
-  inset: 1px;
-  width: auto;
-  height: auto;
-  border: 2px solid currentColor;
-  border-left-color: transparent;
-  border-radius: 999px;
-  transform: none;
-}
-
-.sqc-refresh span::after {
-  position: absolute;
-  right: 0;
-  top: 1px;
-  width: 6px;
-  height: 6px;
-  border-top: 2px solid currentColor;
-  border-right: 2px solid currentColor;
-  content: "";
-  transform: rotate(18deg);
+  fill: currentColor;
 }
 
 .sqc-current-body {
