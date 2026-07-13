@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -75,4 +76,15 @@ test("active quest detail keeps a reachable deactivate control off the compact H
 
   const html = renderToStaticMarkup(React.createElement(DeactivateQuestControl, { challenge }));
   assert.match(html, />Deactivate</);
+});
+
+test("mini board fixes all 64 cells to an equal eight-by-eight grid and refresh spins while pending", async () => {
+  const css = await readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");
+  const actionSource = await readFile(new URL("../src/components/active-solo-actions.tsx", import.meta.url), "utf8");
+
+  assert.match(css, /grid-template-columns:\s*repeat\(8, minmax\(0, 1fr\)\)/);
+  assert.match(css, /grid-template-rows:\s*repeat\(8, minmax\(0, 1fr\)\)/);
+  assert.match(css, /\.sqc-refresh\.spinning \.sqc-refresh-icon[\s\S]*animation:\s*sqc-refresh-spin/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(actionSource, /pending \? "sqc-refresh spinning" : "sqc-refresh"/);
 });
