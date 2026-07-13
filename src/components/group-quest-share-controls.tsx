@@ -17,6 +17,7 @@ export default function GroupQuestShareControls({
   isOwner?: boolean;
 }) {
   const [status, setStatus] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   function payload() {
     return buildGroupQuestSharePayload({ id, title, origin: window.location.origin });
@@ -28,10 +29,16 @@ export default function GroupQuestShareControls({
         type="button"
         className="sqc-primary-action"
         aria-label="Share Multiplayer Side Quest invite"
+        disabled={busy}
         onClick={async () => {
           setStatus(null);
-          const result = await shareGroupQuest(payload(), navigator);
-          setStatus(result.message);
+          setBusy(true);
+          try {
+            const result = await shareGroupQuest(payload(), navigator);
+            setStatus(result.message);
+          } finally {
+            setBusy(false);
+          }
         }}
       >
         {isOwner ? "Share invite" : "Share Side Quest"}
@@ -40,10 +47,16 @@ export default function GroupQuestShareControls({
         type="button"
         className="sqc-quiet-button"
         aria-label="Copy Multiplayer Side Quest invite link"
+        disabled={busy}
         onClick={async () => {
           setStatus(null);
-          const result = await copyGroupQuestLink(payload().url, navigator);
-          setStatus(result.message);
+          setBusy(true);
+          try {
+            const result = await copyGroupQuestLink(payload().url, navigator);
+            setStatus(result.message);
+          } finally {
+            setBusy(false);
+          }
         }}
       >
         Copy invite link

@@ -55,7 +55,7 @@ export default function GroupQuestRefreshButton({
       >
         {finished ? "Final standings frozen" : refreshing ? "Checking…" : label}
       </button>
-      {status ? <small>{status}</small> : null}
+      {status ? <small role="status" aria-live="polite">{status}</small> : null}
     </>
   );
 }

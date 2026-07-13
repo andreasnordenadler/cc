@@ -14,6 +14,7 @@ export type MobileWebMultiplayerPreview = {
   quests: string[];
   rules: Array<[string, string]>;
   status: "Not joined" | "Joined" | "Hosted";
+  viewerJoined?: boolean;
   playersLabel: string;
   timeLeftLabel: string;
   positionLabel?: string | null;
@@ -130,6 +131,7 @@ function buildPreviewRow(
     quests: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
     rules: buildRuleRows(quest),
     status: isOwner ? "Hosted" : joined ? "Joined" : "Not joined",
+    viewerJoined: joined,
     playersLabel,
     timeLeftLabel,
     positionLabel,

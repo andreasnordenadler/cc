@@ -72,6 +72,42 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
   assert.doesNotMatch(html, /Check my latest game/);
 });
 
+test("hosted Multiplayer detail only offers proof refresh when the host is also a participant", () => {
+  const hostedWithoutParticipation = renderDetail({
+    ...officialJoinedQuest,
+    sourceBadge: "Community",
+    status: "Hosted",
+    viewerJoined: false,
+    hostName: "Current user",
+  });
+  assert.match(hostedWithoutParticipation, />Join first</);
+  assert.match(hostedWithoutParticipation, />Join your Multiplayer Side Quest before playing your proof game\.</);
+  assert.match(hostedWithoutParticipation, />Join Side Quest</);
+  assert.doesNotMatch(hostedWithoutParticipation, /Check my latest game/);
+
+  const hostedParticipant = renderDetail({
+    ...officialJoinedQuest,
+    sourceBadge: "Community",
+    status: "Hosted",
+    viewerJoined: true,
+    hostName: "Current user",
+  });
+  assert.match(hostedParticipant, />Next action</);
+  assert.match(hostedParticipant, />Check my latest game</);
+  assert.doesNotMatch(hostedParticipant, /Join your Multiplayer Side Quest/);
+});
+
+test("signed-out and finished Multiplayer states keep safe actions", () => {
+  const signedOut = renderDetail({ ...officialJoinedQuest, status: "Not joined", viewerJoined: false }, false);
+  assert.match(signedOut, />Sign in first</);
+  assert.match(signedOut, />Sign in to join</);
+  assert.doesNotMatch(signedOut, /Check my latest game/);
+
+  const finished = renderDetail({ ...officialJoinedQuest, lifecycle: "finished" });
+  assert.match(finished, />Receipts locked</);
+  assert.doesNotMatch(finished, /Check my latest game|Join Side Quest/);
+});
+
 test("finished lifecycle is shown from quest data instead of hardcoding OPEN", () => {
   const html = renderDetail({ ...officialJoinedQuest, lifecycle: "finished", timeLeftLabel: "Final" });
   assert.match(html, />FINISHED</);
@@ -109,6 +145,14 @@ test("share falls back to copying the exact invite URL when native sharing is un
   });
   assert.equal(copied, payload.url);
   assert.deepEqual(result, { kind: "copied", message: "Invite link copied." });
+});
+
+test("native share cancellation and failure return safe human-readable status", async () => {
+  const payload = buildGroupQuestSharePayload({ id: "group-42", title: "Fork", origin: "https://example.com" });
+  const cancelled = await shareGroupQuest(payload, { share: async () => { throw new DOMException("cancelled", "AbortError"); } });
+  const failed = await shareGroupQuest(payload, { share: async () => { throw new Error("private browser detail"); } });
+  assert.deepEqual(cancelled, { kind: "cancelled", message: "Sharing cancelled." });
+  assert.deepEqual(failed, { kind: "error", message: "Could not open sharing. Copy the invite link instead." });
 });
 
 test("public Multiplayer detail seal has a dedicated in-flow CSS override with no negative top clipping", async () => {
