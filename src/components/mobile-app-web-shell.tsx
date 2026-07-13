@@ -9,7 +9,7 @@ import type { MobileWebShellTheme } from "@/lib/mobile-web-theme";
 import { buildSoloProofHomeStatus, formatHomeTrophyMeta, type ActiveMultiplayerHomeRow } from "@/lib/mobile-web-home";
 import { MobileWebRelativeTime } from "./mobile-web-relative-time";
 import CommunitySoloPickControl from "./community-solo-pick-control";
-import GroupQuestAcceptModal from "./group-quest-accept-modal";
+import GroupQuestDirectJoin from "./group-quest-direct-join";
 import GroupQuestInviteKeyJoin from "./group-quest-invite-key-join";
 import { getMultiplayerJoinState } from "@/lib/mobile-web-parity-actions";
 import MobileCustomCreateForm from "./mobile-custom-create-form";
@@ -1275,15 +1275,9 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [] }:
 export function MobileMultiplayerDetailScreen({
   quest,
   signedIn,
-  defaultProvider = "lichess",
-  defaultUsername = "",
-  defaultLeaderboardName = "",
 }: {
   quest: MobileWebMultiplayerPreview;
   signedIn: boolean;
-  defaultProvider?: "lichess" | "chesscom";
-  defaultUsername?: string;
-  defaultLeaderboardName?: string;
 }) {
   const official = quest.sourceBadge === "SQC Official";
   const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
@@ -1318,14 +1312,9 @@ export function MobileMultiplayerDetailScreen({
         <h2>{joinState.kind === "joined" ? "You joined this Multiplayer Side Quest." : joinState.kind === "hosted" ? "You host this Multiplayer Side Quest." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
         <p>You can inspect the quests and rules below before joining.</p>
         {joinState.kind === "join" ? (
-          <GroupQuestAcceptModal
+          <GroupQuestDirectJoin
             id={quest.id}
-            questName={quest.title}
             isSignedIn={signedIn}
-            defaultProvider={defaultProvider}
-            defaultUsername={defaultUsername}
-            defaultLeaderboardName={defaultLeaderboardName}
-            canAutoJoin={Boolean(defaultUsername && defaultLeaderboardName)}
             buttonClassName="sqc-primary-action"
             buttonLabel={joinState.label}
           />

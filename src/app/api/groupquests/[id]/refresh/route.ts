@@ -5,12 +5,13 @@ import { getChallengeById } from "@/lib/challenges";
 import { checkLatestGroupQuestChallenge } from "@/lib/groupquest-proof";
 import { createGroupQuestRefreshRouteHandler } from "@/lib/groupquest-refresh-route-handler";
 import {
+  OFFICIAL_GROUP_QUEST_METADATA_KEY,
   findGroupQuestById,
   isBuiltInOfficialGroupQuestHost,
   isGroupQuestFinished,
   updateParticipantProgress,
   upsertHostGroupQuest,
-  upsertParticipantGroupQuest,
+  upsertOfficialGroupQuestParticipation,
 } from "@/lib/groupquests";
 import {
   buildChallengeProgressRecord,
@@ -81,15 +82,28 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const storeOnParticipant = isBuiltInOfficialGroupQuestHost(found.userId);
       const storageUserId = storeOnParticipant ? userId : found.userId;
       const storageUser = await client.users.getUser(storageUserId);
-      await client.users.updateUserMetadata(storageUserId, {
-        privateMetadata: {
-          ...(storageUser.privateMetadata ?? {}),
-          sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
-          sqcGroupQuests: storeOnParticipant
-            ? upsertParticipantGroupQuest(storageUser.privateMetadata, refreshedQuest, userId)
-            : upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
-        },
-      });
+      if (storeOnParticipant) {
+        const publicMetadata = storageUser.publicMetadata && typeof storageUser.publicMetadata === "object"
+          ? storageUser.publicMetadata as Record<string, unknown>
+          : {};
+        const participationPatch = upsertOfficialGroupQuestParticipation(publicMetadata, refreshedQuest, userId);
+        if (!(refreshedQuest.id in participationPatch)) {
+          throw new Error("official_participation_metadata_capacity");
+        }
+        await client.users.updateUserMetadata(storageUserId, {
+          publicMetadata: {
+            [OFFICIAL_GROUP_QUEST_METADATA_KEY]: participationPatch,
+          },
+        });
+      } else {
+        await client.users.updateUserMetadata(storageUserId, {
+          privateMetadata: {
+            ...(storageUser.privateMetadata ?? {}),
+            sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(storageUser.privateMetadata)),
+            sqcGroupQuests: upsertHostGroupQuest(storageUser.privateMetadata, refreshedQuest),
+          },
+        });
+      }
       const participantUser = await client.users.getUser(userId);
       await mergeWebMultiplayerCompletions(client, userId, participantUser.publicMetadata, participant, checks.filter((check) => newlyPassedQuestIds.includes(check.questId)));
     },
@@ -127,7 +141,6 @@ async function mergeWebMultiplayerCompletions(
 
   await client.users.updateUserMetadata(userId, {
     publicMetadata: {
-      ...metadata,
       challengeProgress: buildChallengeProgressRecord(completedChallengeIds),
       challengeAttempts: compactChallengeAttempts([...existingAttempts, ...newAttempts]),
     },

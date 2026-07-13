@@ -18,11 +18,18 @@ test("mobile community detail uses a real pick control and receives active quest
   assert.doesNotMatch(screen, /Use the mobile app to pick/);
 });
 
-test("multiplayer detail uses the existing join control for the exact quest and joined rows do not mutate", async () => {
-  const screen = await source("src/components/mobile-app-web-shell.tsx");
-  assert.match(screen, /GroupQuestAcceptModal/);
+test("multiplayer detail uses direct session-derived joining without identity/profile fields", async () => {
+  const [screen, directJoin] = await Promise.all([
+    source("src/components/mobile-app-web-shell.tsx"),
+    source("src/components/group-quest-direct-join.tsx"),
+  ]);
+  assert.match(screen, /GroupQuestDirectJoin/);
   assert.match(screen, /id=\{quest\.id\}/);
   assert.match(screen, /joinState\.kind === "join"/);
+  assert.match(directJoin, /JSON\.stringify\(inviteKey \? \{ inviteKey \} : \{\}\)/);
+  assert.match(directJoin, /Joining…/);
+  assert.match(directJoin, /\/sign-in\?redirect_url=/);
+  assert.doesNotMatch(directJoin, /localStorage|Public username|Leaderboard name|Email address|Location \/ country|Chess provider|groupquest_join_failed/);
 });
 
 test("community multiplayer panel embeds invite lookup and joins the resolved private quest", async () => {

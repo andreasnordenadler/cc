@@ -157,7 +157,7 @@ test("exact join handler performs no write for bad invite key and safely handles
   assert.equal(writes, 0);
   const failed = await handleGroupQuestJoinRequest(jsonPost("https://sqc.test/api/groupquests/exact-id/join", { inviteKey: "secret" }), "exact-id", joinDependencies({ saveJoinedQuest: async () => { throw new Error("host metadata leaked"); } }));
   assert.equal(failed.status, 503);
-  assert.deepEqual(await body(failed), { ok: false, error: "groupquest_join_failed" });
+  assert.deepEqual(await body(failed), { ok: false, error: "join_unavailable" });
 });
 
 function customDependencies(overrides: Partial<CustomQuestCreateDependencies> = {}): CustomQuestCreateDependencies {

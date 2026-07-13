@@ -53,9 +53,6 @@ export default async function GroupQuestDetailPage({
       <MobileMultiplayerDetailScreen
         quest={quest}
         signedIn={Boolean(user)}
-        defaultProvider={getLichessUsername(metadata) ? "lichess" : "chesscom"}
-        defaultUsername={getLichessUsername(metadata) ?? getChessComUsername(metadata) ?? ""}
-        defaultLeaderboardName={displayName ?? ""}
       />
     </MobileAppWebShell>
   );

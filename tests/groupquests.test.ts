@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { CLERK_USER_SCAN_MAX_PAGES, buildGroupQuest, findGroupQuestByInviteKey, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, listUserRelatedGroupQuests, rankGroupQuestParticipants } from "../src/lib/groupquests";
+import { CLERK_USER_SCAN_MAX_PAGES, OFFICIAL_GROUP_QUEST_METADATA_KEY, buildGroupQuest, findGroupQuestById, findGroupQuestByInviteKey, getBuiltInOfficialGroupQuests, getGroupQuestParticipantFinishedAt, getGroupQuestResultMode, getStoredOfficialGroupQuestParticipations, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, upsertOfficialGroupQuestParticipation } from "../src/lib/groupquests";
 
 type Participant = {
   id: string;
@@ -226,6 +226,70 @@ test("orders equal-createdAt related quests deterministically by quest ID", asyn
   assert.deepEqual(quests.map(({ id }) => id), ["quest-a", "quest-b"]);
 });
 
+test("official participation uses a minimal bounded keyed public metadata record and reconstructs the built-in definition", () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  official.participants = [participant("current-user", {
+    username: "u".repeat(200),
+    leaderboardName: "n".repeat(200),
+    completedQuestIds: [...official.questIds, ...Array.from({ length: 30 }, (_, index) => `unrelated-${index}`)],
+    questFinishedAt: Object.fromEntries(Array.from({ length: 30 }, (_, index) => [`unrelated-${index}`, "2026-07-06T12:00:00.000Z"])),
+  })];
+  const unrelated = { theme: "dark", nested: { keep: true } };
+  const records = upsertOfficialGroupQuestParticipation(unrelated, official, "current-user");
+  const metadata = { ...unrelated, [OFFICIAL_GROUP_QUEST_METADATA_KEY]: records };
+
+  assert.equal(JSON.stringify(records).length < 4096, true);
+  assert.equal("name" in (records[official.id] as Record<string, unknown>), false);
+  assert.equal("rules" in (records[official.id] as Record<string, unknown>), false);
+  assert.deepEqual({ theme: metadata.theme, nested: metadata.nested }, unrelated);
+
+  const reconstructed = getStoredOfficialGroupQuestParticipations(metadata);
+  assert.equal(reconstructed.length, 1);
+  assert.equal(reconstructed[0].name, official.name);
+  assert.deepEqual(reconstructed[0].questIds, official.questIds);
+  assert.equal(reconstructed[0].participants[0].username.length <= 60, true);
+  assert.deepEqual(reconstructed[0].participants[0].completedQuestIds, official.questIds);
+});
+
+test("official participation respects Clerk public metadata byte capacity with multibyte profile data", () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  official.participants = [participant("current-user", {
+    username: "spelare",
+    leaderboardName: "Åsa ♞",
+  })];
+  const existingMetadata = { profileNote: "å".repeat(2_500) };
+  const records = upsertOfficialGroupQuestParticipation(existingMetadata, official, "current-user");
+  const nextMetadata = { ...existingMetadata, [OFFICIAL_GROUP_QUEST_METADATA_KEY]: records };
+
+  assert.equal(official.id in records, true);
+  assert.equal(Buffer.byteLength(JSON.stringify(nextMetadata), "utf8") <= 7_680, true);
+});
+
+test("public official records merge with legacy private copies in lookup, catalogs, and user-related scans", async () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  const publicCopy = structuredClone(official);
+  publicCopy.participants = [participant("public-user", { score: 100, completedQuestIds: [official.questIds[0]] })];
+  const publicMetadata = {
+    [OFFICIAL_GROUP_QUEST_METADATA_KEY]: upsertOfficialGroupQuestParticipation({}, publicCopy, "public-user"),
+  };
+  const legacyCopy = structuredClone(official);
+  legacyCopy.participants = [participant("legacy-user", { score: 200, completedQuestIds: official.questIds.slice(0, 2) })];
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "public-user", publicMetadata, privateMetadata: {} },
+      { id: "legacy-user", publicMetadata: {}, privateMetadata: { sqcGroupQuests: [legacyCopy] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const found = await findGroupQuestById(client, official.id);
+  assert.deepEqual(found?.groupQuest.participants.map(({ userId }) => userId).sort(), ["legacy-user", "public-user"]);
+  const listed = (await listPublicGroupQuests(client)).find(({ id }) => id === official.id);
+  assert.deepEqual(listed?.participants.map(({ userId }) => userId).sort(), ["legacy-user", "public-user"]);
+  const related = await listUserRelatedGroupQuests(client, "public-user");
+  assert.equal(related.some(({ id }) => id === official.id), true);
+});
+
 test("invite lookup rejects malformed or overlong keys before querying Clerk", async () => {
   let calls = 0;
   const client = { users: { getUserList: async () => { calls += 1; return { data: [] }; } } };
@@ -233,3 +297,65 @@ test("invite lookup rejects malformed or overlong keys before querying Clerk", a
   assert.equal(await findGroupQuestByInviteKey(client, "a".repeat(41)), null);
   assert.equal(calls, 0);
 });
+
+test("public official participation overrides stale legacy private progress exactly", async () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  const legacy = structuredClone(official);
+  legacy.participants = [{ ...participant("current-user", { score: 900, completedQuestIds: official.questIds.slice(0, 2) }), provider: "lichess", username: "legacy-user", leaderboardName: "Legacy", lastProofAt: "2026-07-09T00:00:00.000Z" }];
+  const current = structuredClone(official);
+  current.participants = [{ ...participant("current-user", { score: 100, completedQuestIds: [official.questIds[0]], joinedAt: "2026-07-02T00:00:00.000Z", questFinishedAt: { [official.questIds[0]]: "2026-07-03T00:00:00.000Z" } }), provider: "chesscom", username: "public-user", leaderboardName: "Public", lastProofAt: "2026-07-04T00:00:00.000Z" }];
+  const client = { users: { getUserList: async () => ({ data: [{
+    id: "current-user",
+    privateMetadata: { sqcGroupQuests: [legacy] },
+    publicMetadata: { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: upsertOfficialGroupQuestParticipation({}, current, "current-user") },
+  }], totalCount: 1 }) } };
+
+  const [related] = await listUserRelatedGroupQuests(client, "current-user");
+  assert.deepEqual(related.participants[0], {
+    userId: "current-user", provider: "chesscom", username: "public-user", leaderboardName: "Public",
+    joinedAt: "2026-07-02T00:00:00.000Z", score: 100, completedQuestIds: [official.questIds[0]],
+    questFinishedAt: { [official.questIds[0]]: "2026-07-03T00:00:00.000Z" }, lastProofSummary: undefined,
+    lastProofAt: "2026-07-04T00:00:00.000Z",
+  });
+});
+
+test("rejoining clears a legacy left tombstone under Clerk deep merge", () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  official.participants = [participant("current-user")];
+  const existingEntry = { active: false, left: true, leftAt: "2026-07-05T00:00:00.000Z" };
+  const metadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [official.id]: existingEntry } };
+  const patch = upsertOfficialGroupQuestParticipation(metadata, official, "current-user");
+  const deeplyMergedEntry = { ...existingEntry, ...patch[official.id] };
+  const deeplyMergedMetadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [official.id]: deeplyMergedEntry } };
+
+  assert.equal(deeplyMergedEntry.left, false);
+  assert.equal(getStoredOfficialGroupQuestParticipations(deeplyMergedMetadata, "current-user").length, 1);
+});
+
+test("rejects calendar-rollover official metadata ids", () => {
+  const malformedId = "official-royal-route-2026-02-31";
+  const metadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [malformedId]: {
+    active: true, left: false, provider: "lichess", username: "player", leaderboardName: "Player", joinedAt: "2026-02-01T00:00:00.000Z",
+  } } };
+  assert.deepEqual(getStoredOfficialGroupQuestParticipations(metadata, "current-user"), []);
+});
+
+test("supports the branch legacy array official metadata shape", () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  const arrayMetadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: [{ questId: official.id, provider: "lichess", username: "array-user", leaderboardName: "Array", joinedAt: "2026-07-01T00:00:00.000Z" }] };
+  assert.equal(getStoredOfficialGroupQuestParticipations(arrayMetadata, "user")[0].participants[0].username, "array-user");
+});
+
+for (const lookup of ["id", "invite", "catalog"] as const) {
+  test(`${lookup} scan uses the hard page bound when Clerk never returns a short page or totalCount`, async () => {
+    let calls = 0;
+    const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+      calls += 1;
+      return { data: Array.from({ length: limit }, (_, index) => ({ id: `u-${calls}-${index}`, privateMetadata: {} })) };
+    } } };
+    if (lookup === "id") await findGroupQuestById(client, "missing");
+    else if (lookup === "invite") await findGroupQuestByInviteKey(client, "missing-key");
+    else await listPublicGroupQuests(client);
+    assert.equal(calls, CLERK_USER_SCAN_MAX_PAGES);
+  });
+}
