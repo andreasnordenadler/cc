@@ -2205,13 +2205,19 @@ body::after {
   box-shadow: none;
 }
 
-.sqc-multiplayer-public-detail-screen .sqc-section-mark.group {
-  width: 138px;
-  min-height: 120px;
+.sqc-multiplayer-public-detail-screen .sqc-multiplayer-detail-hero > .sqc-section-mark {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 146px;
+  height: 146px;
+  min-height: 146px;
+  margin: 0 0 2px;
+  transform: none;
 }
 
 .sqc-multiplayer-public-detail-screen .sqc-section-mark.group .sqc-mark-glow {
-  width: 138px;
+  width: 146px;
   height: 146px;
   opacity: .9;
   transform: translateY(4px);
@@ -2347,6 +2353,29 @@ body::after {
   font-size: 18px;
   font-weight: 950;
   line-height: 22px;
+}
+
+.sqc-multiplayer-share-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.sqc-multiplayer-share-actions button {
+  width: 100%;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sqc-multiplayer-share-actions .sqc-quiet-button {
+  background: transparent;
+}
+
+.sqc-multiplayer-share-actions small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+  text-align: center;
 }
 
 .sqc-multiplayer-rule-list {
