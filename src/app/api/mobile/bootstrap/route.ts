@@ -4,6 +4,7 @@ import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
 import { listPublicGroupQuests } from "@/lib/groupquests";
+import { loadMobilePublicMultiplayerCatalog } from "@/lib/mobile-public-multiplayer";
 
 type MobileDiscoveryChoice = {
   id: string;
@@ -69,7 +70,10 @@ export async function GET(request: Request) {
     .filter((challenge) => !challenge.id.includes("coming-soon"))
     .map((challenge) => challenge.id);
   const questHubGroups = buildQuestHubGroups(challengeIds);
-  const publicCommunitySideQuests = await getPublicCommunitySideQuestsForMobile(baseUrl);
+  const [publicCommunitySideQuests, multiplayerCatalog] = await Promise.all([
+    getPublicCommunitySideQuestsForMobile(baseUrl),
+    getPublicMultiplayerCatalogForMobile(baseUrl),
+  ]);
 
   return NextResponse.json({
     apiVersion: 1,
@@ -116,6 +120,17 @@ export async function GET(request: Request) {
       },
     })),
     communitySideQuests: publicCommunitySideQuests,
+    multiplayerCatalog,
+  });
+}
+
+async function getPublicMultiplayerCatalogForMobile(baseUrl: string) {
+  return loadMobilePublicMultiplayerCatalog({
+    baseUrl,
+    listPublicGroupQuests: async () => {
+      const client = await clerkClient();
+      return listPublicGroupQuests(client);
+    },
   });
 }
 

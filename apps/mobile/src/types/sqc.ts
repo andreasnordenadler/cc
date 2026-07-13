@@ -78,6 +78,11 @@ export type MobileBootstrap = {
   };
   challenges: MobileChallenge[];
   communitySideQuests?: MobileCustomSideQuest[];
+  multiplayerCatalog?: {
+    status: "available" | "unavailable";
+    officialGroupQuests: MobileGroupQuestSummary[];
+    communityGroupQuests: MobileGroupQuestSummary[];
+  };
 };
 
 
