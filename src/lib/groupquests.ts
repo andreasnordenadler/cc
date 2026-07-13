@@ -110,6 +110,7 @@ export function getStoredGroupQuests(metadata: unknown): ServerGroupQuest[] {
 
 type OfficialGroupQuestParticipationRecord = {
   active: true;
+  left: false;
   provider: GroupQuestJoinProvider;
   username: string;
   leaderboardName: string;
@@ -162,6 +163,7 @@ export function upsertOfficialGroupQuestParticipation(metadata: unknown, groupQu
   );
   const next: OfficialGroupQuestParticipationRecord = {
     active: true,
+    left: false,
     provider: participant.provider,
     username: participant.username.trim().slice(0, 60),
     leaderboardName: participant.leaderboardName.trim().slice(0, 60),
@@ -222,7 +224,7 @@ function getBuiltInOfficialGroupQuestDefinitionById(id: string): ServerGroupQues
   const cycleKey = id.slice(`official-${template.slug}-`.length);
   if (!/^\d{4}-\d{2}-\d{2}$/.test(cycleKey)) return null;
   const start = new Date(`${cycleKey}T00:00:00.000Z`);
-  if (Number.isNaN(start.getTime())) return null;
+  if (Number.isNaN(start.getTime()) || start.toISOString().slice(0, 10) !== cycleKey) return null;
   const end = new Date(start.getTime() + OFFICIAL_GROUP_QUEST_DURATION_DAYS * 24 * 60 * 60 * 1000);
   return {
     id,
@@ -747,6 +749,7 @@ function normalizeOfficialParticipationRecord(questId: string, value: unknown): 
     : [];
   return {
     active: true,
+    left: false,
     provider: record.provider === "chesscom" ? "chesscom" : "lichess",
     username,
     leaderboardName,

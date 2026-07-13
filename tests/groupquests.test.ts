@@ -319,6 +319,27 @@ test("public official participation overrides stale legacy private progress exac
   });
 });
 
+test("rejoining clears a legacy left tombstone under Clerk deep merge", () => {
+  const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
+  official.participants = [participant("current-user")];
+  const existingEntry = { active: false, left: true, leftAt: "2026-07-05T00:00:00.000Z" };
+  const metadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [official.id]: existingEntry } };
+  const patch = upsertOfficialGroupQuestParticipation(metadata, official, "current-user");
+  const deeplyMergedEntry = { ...existingEntry, ...patch[official.id] };
+  const deeplyMergedMetadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [official.id]: deeplyMergedEntry } };
+
+  assert.equal(deeplyMergedEntry.left, false);
+  assert.equal(getStoredOfficialGroupQuestParticipations(deeplyMergedMetadata, "current-user").length, 1);
+});
+
+test("rejects calendar-rollover official metadata ids", () => {
+  const malformedId = "official-royal-route-2026-02-31";
+  const metadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: { [malformedId]: {
+    active: true, left: false, provider: "lichess", username: "player", leaderboardName: "Player", joinedAt: "2026-02-01T00:00:00.000Z",
+  } } };
+  assert.deepEqual(getStoredOfficialGroupQuestParticipations(metadata, "current-user"), []);
+});
+
 test("supports the branch legacy array official metadata shape", () => {
   const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
   const arrayMetadata = { [OFFICIAL_GROUP_QUEST_METADATA_KEY]: [{ questId: official.id, provider: "lichess", username: "array-user", leaderboardName: "Array", joinedAt: "2026-07-01T00:00:00.000Z" }] };
