@@ -152,4 +152,5 @@ test("mobile create screens use executable forms and never submit identity field
   assert.doesNotMatch(shell, /<input readOnly value="" placeholder="Name this custom Side Quest"/);
   assert.doesNotMatch(shell, /<Link href="\/multiplayer" className="sqc-create-footer-button">Create<\/Link>/);
   assert.match(css, /\.sqc-template-card\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(css, /\.sqc-custom-condition-row \.sqc-detail-quiet-button\s*\{[\s\S]*?background:\s*rgba\(255, 247, 232, \.06\)/);
 });

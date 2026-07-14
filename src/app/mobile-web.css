@@ -3059,6 +3059,12 @@ body::after {
   line-height: 1.35;
 }
 
+.sqc-custom-condition-row .sqc-detail-quiet-button {
+  border: 1px solid rgba(255, 247, 232, .12);
+  border-radius: 999px;
+  background: rgba(255, 247, 232, .06);
+}
+
 .sqc-filter-row {
   display: flex;
   flex-wrap: wrap;
