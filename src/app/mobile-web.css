@@ -947,6 +947,10 @@ body::after {
   text-decoration: none;
 }
 
+.sqc-app-row.text-only {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .sqc-row-icon {
   position: relative;
   width: 32px;
@@ -1169,7 +1173,9 @@ body::after {
   border: 1px solid rgba(255, 247, 232, .14);
   border-radius: 999px;
   background: rgba(15, 17, 17, .92);
+  color: rgba(255, 247, 232, .82);
   box-shadow: 0 8px 18px rgba(0, 0, 0, .2);
+  text-decoration: none;
 }
 
 .sqc-brand-switch span,
@@ -1191,6 +1197,37 @@ body::after {
   position: absolute;
   top: 6px;
   left: 0;
+}
+
+/* Match Android v338's MaterialCommunityIcons swap-horizontal-bold glyph.
+   Without this global override authenticated catalogs inherit the generic
+   two-bar fallback above, which reads as a second hamburger menu. */
+.sqc-brand-switch[data-icon="swap-horizontal"] span {
+  width: 19px;
+  height: 19px;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8%2C10V13H14V18H8V21L2%2C15.5L8%2C10M22%2C8.5L16%2C3V6H10V11H16V14L22%2C8.5Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8%2C10V13H14V18H8V21L2%2C15.5L8%2C10M22%2C8.5L16%2C3V6H10V11H16V14L22%2C8.5Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: none;
+}
+
+.sqc-brand-switch[data-icon="swap-horizontal"] span::before {
+  display: none;
+}
+
+.sqc-mobile-web:not(.signed-out) :is(.sqc-solo-brand-tabs, .sqc-multiplayer-brand-tabs) {
+  position: relative;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.sqc-mobile-web:not(.signed-out) :is(.sqc-solo-brand-tabs, .sqc-multiplayer-brand-tabs) .sqc-brand-switch[data-icon="swap-horizontal"] {
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 4;
+  margin-top: -22px;
+  margin-left: -22px;
 }
 
 .sqc-community-solo-screen {
@@ -2205,13 +2242,19 @@ body::after {
   box-shadow: none;
 }
 
-.sqc-multiplayer-public-detail-screen .sqc-section-mark.group {
-  width: 138px;
-  min-height: 120px;
+.sqc-multiplayer-public-detail-screen .sqc-multiplayer-detail-hero > .sqc-section-mark {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: 146px;
+  height: 146px;
+  min-height: 146px;
+  margin: 0 0 2px;
+  transform: none;
 }
 
 .sqc-multiplayer-public-detail-screen .sqc-section-mark.group .sqc-mark-glow {
-  width: 138px;
+  width: 146px;
   height: 146px;
   opacity: .9;
   transform: translateY(4px);
@@ -2347,6 +2390,29 @@ body::after {
   font-size: 18px;
   font-weight: 950;
   line-height: 22px;
+}
+
+.sqc-multiplayer-share-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.sqc-multiplayer-share-actions button {
+  width: 100%;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.sqc-multiplayer-share-actions .sqc-quiet-button {
+  background: transparent;
+}
+
+.sqc-multiplayer-share-actions small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+  text-align: center;
 }
 
 .sqc-multiplayer-rule-list {
@@ -3725,28 +3791,6 @@ body::after {
 .sqc-mobile-web.signed-out .sqc-brand-tab { min-height: 68px; border-width: 2px; border-radius: 28px; font-size: 14px; }
 .sqc-mobile-web.signed-out .sqc-brand-tab.active { border-color: rgba(245,200,106,.72); color: var(--gold); }
 .sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"] { z-index: 2; width: 48px; height: 48px; margin-inline: -1px; }
-.sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"] span {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  background: none;
-  clip-path: none;
-  transform: none;
-}
-.sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"] span::before {
-  position: static;
-  width: auto;
-  height: auto;
-  background: none;
-  clip-path: none;
-  content: "⇄";
-  color: currentColor;
-  font-size: 24px;
-  font-weight: 900;
-  line-height: 1;
-  transform: none;
-}
 .sqc-mobile-web.signed-out .sqc-panel.list { margin-top: 14px; }
 .sqc-mobile-web.signed-out .sqc-list-head.inline h2 { font-size: 18px; }
 .sqc-mobile-web.signed-out .sqc-list-head.inline span { font-size: 14px; }
@@ -3799,8 +3843,8 @@ body::after {
 .sqc-mobile-web.signed-out .sqc-brand-tabs { grid-template-columns: minmax(0,1fr) 36px minmax(0,1fr); }
 .sqc-mobile-web.signed-out .sqc-brand-tab { min-height: 54px; padding-inline: 5px; border-radius: 22px; font-size: 12px; line-height: 1; white-space: nowrap; }
 .sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"] { width: 36px; height: 36px; }
-.sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"] span::before { font-size: 20px; }
 .sqc-mobile-web.signed-out .sqc-app-row { min-height: 68px; grid-template-columns: 42px minmax(0,1fr) auto; gap: 8px; padding: 8px 10px; }
+.sqc-mobile-web.signed-out .sqc-app-row.text-only { grid-template-columns: minmax(0,1fr) auto; }
 .sqc-mobile-web.signed-out .sqc-row-icon { width: 39px; height: 44px; }
 .sqc-mobile-web.signed-out .sqc-row-glow { width: 47px; height: 51px; }
 .sqc-mobile-web.signed-out .sqc-row-image { width: 37px; height: 41px; }

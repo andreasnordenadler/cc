@@ -2,7 +2,7 @@ import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import AccountLogoutButton from "@/components/account-logout-button";
 import DeleteAccountControl from "@/components/delete-account-control";
 import { saveRunnerProfile } from "@/app/actions";
-import type { MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
+import type { MobileWebAccountStats, MobileWebTrophyRow } from "@/lib/mobile-web-trophies";
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -10,8 +10,8 @@ import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { CHALLENGES } from "@/lib/challenges";
 import { getChessRatingSnapshots } from "@/lib/chess-ratings";
-import { getCustomSideQuests } from "@/lib/custom-side-quests";
-import { getMobileWebTrophyRows } from "@/lib/mobile-web-trophies";
+import { getCustomSideQuests, type CustomSideQuest } from "@/lib/custom-side-quests";
+import { getMobileWebAccountOverview } from "@/lib/mobile-web-trophies";
 import {
   getActiveChallenge,
   getChallengeAttempts,
@@ -35,6 +35,9 @@ export default async function AccountPage() {
   noStore();
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user?.privateMetadata && typeof user.privateMetadata === "object"
+    ? (user.privateMetadata as UserMetadataRecord)
+    : {};
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -46,9 +49,16 @@ export default async function AccountPage() {
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const progress = getChallengeProgress(metadata);
-  const trophyRows = user
-    ? await getMobileWebTrophyRows(await clerkClient(), user.id, progress.completedChallengeIds, 5)
-    : [];
+  const privateCustomSideQuests = getCustomSideQuests(privateMetadata);
+  const customSideQuests = privateCustomSideQuests.length ? privateCustomSideQuests : getCustomSideQuests(metadata);
+  const accountOverview = user
+    ? await getMobileWebAccountOverview(await clerkClient(), user.id, {
+        completedChallengeIds: progress.completedChallengeIds,
+        attempts: getChallengeAttempts(metadata),
+        customSideQuestIds: customSideQuests.map((quest) => quest.id),
+        limit: 5,
+      })
+    : null;
 
   return (
     <MobileAppWebShell
@@ -69,7 +79,9 @@ export default async function AccountPage() {
           metadata={metadata}
           lichessUsername={lichessUsername}
           chessComUsername={chessComUsername}
-          trophyRows={trophyRows}
+          trophyRows={accountOverview?.trophyRows ?? []}
+          accountStats={accountOverview?.stats ?? null}
+          customSideQuests={customSideQuests}
         />
       ) : (
         <SignedOutAccountScreen />
@@ -87,6 +99,8 @@ function SignedInAccountScreen({
   lichessUsername,
   chessComUsername,
   trophyRows,
+  accountStats,
+  customSideQuests,
 }: {
   displayName: string;
   email: string | null;
@@ -96,16 +110,13 @@ function SignedInAccountScreen({
   lichessUsername: string;
   chessComUsername: string;
   trophyRows: MobileWebTrophyRow[];
+  accountStats: MobileWebAccountStats | null;
+  customSideQuests: CustomSideQuest[];
 }) {
   const activeChallenge = getActiveChallenge(metadata);
   const activeChallengeRecord = activeChallenge?.id ? CHALLENGES.find((challenge) => challenge.id === activeChallenge.id) ?? null : null;
   const activeAttempt = getLatestChallengeAttempt(metadata, activeChallenge?.id);
-  const progress = getChallengeProgress(metadata);
-  const attempts = getChallengeAttempts(metadata);
-  const customSideQuests = getCustomSideQuests(metadata).filter((quest) => quest.lifecycle !== "archived");
   const ratings = getChessRatingSnapshots(metadata);
-  const completedCount = progress.totalCompletedChallenges;
-  const proofCount = attempts.length;
 
   return (
     <div className="sqc-account-stack">
@@ -162,13 +173,13 @@ function SignedInAccountScreen({
       <AccountSection title="Progress & Stats" action={{ label: "Details", href: "/trophy-cabinet" }}>
         <div className="sqc-account-stats-panel">
           <div className="sqc-account-metric-grid">
-            <Metric label="Completed" value={completedCount} />
-            <Metric label="Proofs" value={proofCount} />
-            <Metric label="Coats" value={completedCount} />
-            <Metric label="Podiums" value={0} />
+            <Metric label="Completed" value={accountStats?.completedCount ?? 0} />
+            <Metric label="Proofs" value={accountStats?.proofCount ?? 0} />
+            <Metric label="Coats" value={accountStats?.coatCount ?? 0} />
+            <Metric label="Podiums" value={accountStats?.podiumCount ?? 0} />
           </div>
-          <p>Custom Side Quests: {customSideQuests.length} made · 0 tries · 0 wins</p>
-          <p>Multiplayer trophies: 0 podiums</p>
+          <p>Custom Side Quests: {accountStats?.customQuestCount ?? 0} made · {accountStats?.customTries ?? 0} tries · {accountStats?.customWins ?? 0} wins</p>
+          <p>Multiplayer trophies: {accountStats?.podiumCount ?? 0} podium{accountStats?.podiumCount === 1 ? "" : "s"}</p>
         </div>
       </AccountSection>
 
@@ -191,7 +202,7 @@ function SignedInAccountScreen({
               key={row.id}
               title={row.title}
               meta={row.meta}
-              status={row.source === "multiplayer" ? "Podium" : "Unlocked"}
+              status={row.source === "solo" ? "Unlocked" : "Podium"}
               href={row.href}
               image={row.image ?? mobileAsset.coat}
               statusImage={row.statusImage}

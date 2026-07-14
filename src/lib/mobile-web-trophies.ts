@@ -1,5 +1,5 @@
 import { CHALLENGES } from "@/lib/challenges";
-import { listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants } from "@/lib/groupquests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import type { clerkClient } from "@clerk/nextjs/server";
 
 export type MobileWebTrophyRow = {
@@ -10,10 +10,31 @@ export type MobileWebTrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
-  source: "multiplayer" | "solo";
+  source: "officialMultiplayer" | "communityMultiplayer" | "solo";
+};
+
+export type MobileWebAccountStats = {
+  completedCount: number;
+  proofCount: number;
+  coatCount: number;
+  podiumCount: number;
+  customQuestCount: number;
+  customTries: number;
+  customWins: number;
+};
+
+type AccountStatsAttempt = {
+  id?: string;
+  challengeId?: string;
+};
+
+type AccountStatsGroupQuest = {
+  questIds: string[];
+  participants: Array<{ completedQuestIds?: string[] }>;
 };
 
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
+const MOBILE_MULTIPLAYER_TROPHY_LIMIT = 12;
 
 export async function getMobileWebTrophyRows(
   client: ClerkClient,
@@ -21,6 +42,25 @@ export async function getMobileWebTrophyRows(
   completedChallengeIds: string[],
   limit = 12,
 ): Promise<MobileWebTrophyRow[]> {
+  const overview = await getMobileWebAccountOverview(client, userId, {
+    completedChallengeIds,
+    attempts: [],
+    customSideQuestIds: [],
+    limit,
+  });
+  return overview.trophyRows;
+}
+
+export async function getMobileWebAccountOverview(
+  client: ClerkClient,
+  userId: string,
+  input: {
+    completedChallengeIds: string[];
+    attempts: AccountStatsAttempt[];
+    customSideQuestIds: string[];
+    limit?: number;
+  },
+): Promise<{ trophyRows: MobileWebTrophyRow[]; stats: MobileWebAccountStats }> {
   const [relatedGroupQuests, publicGroupQuests] = await Promise.all([
     listUserRelatedGroupQuests(client, userId),
     listPublicGroupQuests(client),
@@ -35,19 +75,21 @@ export async function getMobileWebTrophyRows(
       if (!participant || index > 2 || (participant.score ?? 0) <= 0) return null;
       const placement = index === 0 ? "Gold" : index === 1 ? "Silver" : "Bronze";
 
+      const source = getMultiplayerTrophySource(quest);
       return {
         id: `multiplayer-${quest.id}-${placement.toLowerCase()}`,
         title: quest.name,
-        meta: `Multiplayer placement · ${index === 0 ? "1st" : index === 1 ? "2nd" : "3rd"} place`,
+        meta: `${source === "officialMultiplayer" ? "Official" : "Community"} Multiplayer placement · ${index === 0 ? "1st" : index === 1 ? "2nd" : "3rd"} place`,
         href: `/groupquests/${quest.id}?accepted=1`,
         image: "/mobile-source/sqc-coat-of-arms.png",
         statusImage: `/mobile-source/stamps/sqc-${placement.toLowerCase()}-seal.png`,
-        source: "multiplayer" as const,
+        source,
       };
     })
-    .filter((row): row is NonNullable<typeof row> => Boolean(row));
+    .filter((row): row is NonNullable<typeof row> => Boolean(row))
+    .slice(0, MOBILE_MULTIPLAYER_TROPHY_LIMIT);
 
-  const completedSet = new Set(completedChallengeIds);
+  const completedSet = new Set(input.completedChallengeIds);
   const soloRows = CHALLENGES
     .filter((challenge) => completedSet.has(challenge.id))
     .map((challenge) => ({
@@ -61,7 +103,60 @@ export async function getMobileWebTrophyRows(
       source: "solo" as const,
     }));
 
-  return [...multiplayerRows, ...soloRows].slice(0, limit);
+  return {
+    trophyRows: [...multiplayerRows, ...soloRows].slice(0, input.limit ?? 12),
+    stats: summarizeMobileWebAccountStats({
+      completedChallengeIds: input.completedChallengeIds,
+      attempts: input.attempts,
+      customSideQuestIds: input.customSideQuestIds,
+      multiplayerTrophyCount: multiplayerRows.length,
+      groupQuests: [...dedupedGroupQuests.values()],
+    }),
+  };
+}
+
+export function getMultiplayerTrophySource(quest: Pick<ServerGroupQuest, "id" | "official">) {
+  return quest.official === true || quest.id.startsWith("official-")
+    ? "officialMultiplayer" as const
+    : "communityMultiplayer" as const;
+}
+
+export function summarizeMobileWebAccountStats(input: {
+  completedChallengeIds: string[];
+  attempts: AccountStatsAttempt[];
+  customSideQuestIds: string[];
+  multiplayerTrophyCount: number;
+  groupQuests: AccountStatsGroupQuest[];
+}): MobileWebAccountStats {
+  const multiplayerTrophyCount = Math.min(input.multiplayerTrophyCount, MOBILE_MULTIPLAYER_TROPHY_LIMIT);
+  const customQuestIds = new Set(input.customSideQuestIds);
+  const completedSet = new Set(input.completedChallengeIds);
+  const customSoloAttempts = input.attempts.filter((attempt) => {
+    const questId = attempt.challengeId ?? attempt.id?.split(":")[0];
+    return Boolean(questId && customQuestIds.has(questId));
+  }).length;
+  const customMultiplayerAttempts = input.groupQuests.reduce((total, quest) => {
+    const customQuestCount = quest.questIds.filter((questId) => customQuestIds.has(questId)).length;
+    return total + customQuestCount * quest.participants.length;
+  }, 0);
+  const customSoloWins = input.customSideQuestIds.filter((questId) => completedSet.has(questId)).length;
+  const customMultiplayerWins = input.groupQuests.reduce((total, quest) => {
+    const customQuestIdsInLineup = quest.questIds.filter((questId) => customQuestIds.has(questId));
+    return total + customQuestIdsInLineup.reduce(
+      (questTotal, questId) => questTotal + quest.participants.filter((participant) => participant.completedQuestIds?.includes(questId)).length,
+      0,
+    );
+  }, 0);
+
+  return {
+    completedCount: input.completedChallengeIds.length,
+    proofCount: input.attempts.length,
+    coatCount: input.completedChallengeIds.length + multiplayerTrophyCount,
+    podiumCount: multiplayerTrophyCount,
+    customQuestCount: input.customSideQuestIds.length,
+    customTries: customSoloAttempts + customMultiplayerAttempts,
+    customWins: customSoloWins + customMultiplayerWins,
+  };
 }
 
 function deriveGroupQuestStatus(startAt: string, endAt: string) {

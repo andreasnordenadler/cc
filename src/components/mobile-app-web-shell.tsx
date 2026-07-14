@@ -17,6 +17,8 @@ import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobi
 import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
 import ActiveSoloActions from "./active-solo-actions";
+import GroupQuestRefreshButton from "./group-quest-refresh-button";
+import GroupQuestShareControls from "./group-quest-share-controls";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -75,7 +77,7 @@ type TrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
-  source?: "multiplayer" | "solo";
+  source?: "multiplayer" | "officialMultiplayer" | "communityMultiplayer" | "solo";
 };
 
 type CommunitySideQuestRow = {
@@ -506,7 +508,7 @@ export function MobileSoloSideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
         <Link href="/community-side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Community Side Quests">
           <span aria-hidden="true" />
@@ -703,8 +705,10 @@ export function MobileTrophyCabinetScreen({
   officialSoloCount: number;
   officialChallenges: Challenge[];
 }) {
-  const multiplayerRows = trophyRows.filter((row) => row.source === "multiplayer");
-  const soloRows = trophyRows.filter((row) => row.source !== "multiplayer");
+  const officialMultiplayerRows = trophyRows.filter((row) => row.source === "officialMultiplayer" || row.source === "multiplayer");
+  const communityMultiplayerRows = trophyRows.filter((row) => row.source === "communityMultiplayer");
+  const multiplayerRows = [...officialMultiplayerRows, ...communityMultiplayerRows];
+  const soloRows = trophyRows.filter((row) => row.source === "solo" || !row.source);
   const earnedIds = new Set(soloRows.map((row) => row.id.replace(/^solo-/, "")));
   const unlockedCount = trophyRows.length;
   const customRewardCount = Math.max(0, unlockedCount - completedSoloCount - multiplayerRows.length);
@@ -719,7 +723,7 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Trophy Cabinet summary">
         <span className="sqc-card-eyebrow">Trophy Cabinet</span>
-        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${completedSoloCount} Official Solo Side Quest${completedSoloCount === 1 ? "" : "s"} · ${multiplayerRows.length} Official Multiplayer Side Quest${multiplayerRows.length === 1 ? "" : "s"} · ${customRewardCount} community/custom reward${customRewardCount === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
+        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${completedSoloCount} Official Solo Side Quest${completedSoloCount === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"} · ${customRewardCount} custom reward${customRewardCount === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
         <p>
           {unlockedCount
             ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
@@ -729,15 +733,29 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Official Multiplayer Side Quest trophies">
         <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
-        <h2>{multiplayerRows.length} Official Multiplayer Side Quest podium{multiplayerRows.length === 1 ? "" : "s"}.</h2>
-        {multiplayerRows.length ? (
+        <h2>{officialMultiplayerRows.length} Official Multiplayer Side Quest podium{officialMultiplayerRows.length === 1 ? "" : "s"}.</h2>
+        {officialMultiplayerRows.length ? (
           <div className="sqc-catalog">
-            {multiplayerRows.map((row) => (
+            {officialMultiplayerRows.map((row) => (
             <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
             ))}
           </div>
         ) : (
           <p>Place on the podium in an official Multiplayer Side Quest to earn one here.</p>
+        )}
+      </section>
+
+      <section className="sqc-native-card" aria-label="Community Multiplayer Side Quest trophies">
+        <span className="sqc-card-eyebrow">Community Multiplayer trophies</span>
+        <h2>{communityMultiplayerRows.length} Community Multiplayer Side Quest podium{communityMultiplayerRows.length === 1 ? "" : "s"}.</h2>
+        {communityMultiplayerRows.length ? (
+          <div className="sqc-catalog">
+            {communityMultiplayerRows.map((row) => (
+              <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+            ))}
+          </div>
+        ) : (
+          <p>Place on the podium in a Community Multiplayer Side Quest to earn one here.</p>
         )}
       </section>
 
@@ -797,11 +815,11 @@ export function MobileCommunitySideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
         <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
           Community Side Quests
         </Link>
@@ -928,11 +946,11 @@ export function MobileCustomSideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
         <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
           Community Side Quests
         </Link>
@@ -983,7 +1001,7 @@ export function MobileMultiplayerSideQuestsScreen({
         <Image className="sqc-screen-emblem-image multiplayer" alt="" src={mobileAsset.multiplayerSeal} width={118} height={118} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-multiplayer-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
         <Link
           href="/multiplayer-side-quests"
           className={selectedTab === "official" ? "sqc-brand-tab official active" : "sqc-brand-tab official"}
@@ -992,7 +1010,14 @@ export function MobileMultiplayerSideQuestsScreen({
         >
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" data-icon="swap-horizontal" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <Link
+          href={selectedTab === "official" ? "/multiplayer-side-quests?tab=community" : "/multiplayer-side-quests"}
+          className="sqc-brand-switch"
+          data-icon="swap-horizontal"
+          aria-label={selectedTab === "official" ? "Switch to Community Multiplayer Side Quests" : "Switch to Official Multiplayer Side Quests"}
+        >
+          <span aria-hidden="true" />
+        </Link>
         <Link
           href="/multiplayer-side-quests?tab=community"
           className={selectedTab === "community" ? "sqc-brand-tab community active" : "sqc-brand-tab community"}
@@ -1281,6 +1306,14 @@ export function MobileMultiplayerDetailScreen({
 }) {
   const official = quest.sourceBadge === "SQC Official";
   const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
+  const participating = joinState.kind === "joined" || (joinState.kind === "hosted" && quest.viewerJoined === true);
+  const hostedNeedsJoin = joinState.kind === "hosted" && !participating;
+  const viewerFinalRow = quest.leaderboardRows.find((row) => row.viewer);
+  const finalResultTitle = viewerFinalRow?.placement
+    ? `${viewerFinalRow.placement} finish.`
+    : viewerFinalRow
+      ? `Final place #${viewerFinalRow.rank}.`
+      : "Final leaderboard frozen.";
 
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
@@ -1289,7 +1322,7 @@ export function MobileMultiplayerDetailScreen({
         <span className="sqc-multiplayer-kicker">{official ? "SQC Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>
         <h1>{quest.title}</h1>
         <p>{quest.inviteCopy}</p>
-        <span className="sqc-detail-latest-check">OPEN</span>
+        <span className="sqc-detail-latest-check">{quest.lifecycle.toUpperCase()}</span>
       </section>
 
       <section className="sqc-multiplayer-score-grid" aria-label="Multiplayer Side Quest summary">
@@ -1307,17 +1340,28 @@ export function MobileMultiplayerDetailScreen({
         </div>
       </section>
 
+      {quest.lifecycle === "finished" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Final Multiplayer result">
+          <span className="sqc-card-eyebrow">Final result</span>
+          <h2>{finalResultTitle}</h2>
+          <p>{viewerFinalRow ? `${viewerFinalRow.progress} complete · Proof checks are closed, so this is your final table receipt.` : "Proof checks are closed, so this leaderboard is final."}</p>
+          <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} shareLabel="Share final result" copyLabel="Copy final link" />
+        </section>
+      ) : null}
+
       <section className="sqc-native-card sqc-multiplayer-native-card">
-        <span className="sqc-card-eyebrow">{joinState.kind === "joined" || joinState.kind === "hosted" ? "Ready to play" : signedIn ? "Join first" : "Sign in first"}</span>
-        <h2>{joinState.kind === "joined" ? "You joined this Multiplayer Side Quest." : joinState.kind === "hosted" ? "You host this Multiplayer Side Quest." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
-        <p>You can inspect the quests and rules below before joining.</p>
-        {joinState.kind === "join" ? (
+        <span className="sqc-card-eyebrow">{quest.lifecycle === "finished" ? "Receipts locked" : participating ? "Next action" : signedIn ? "Join first" : "Sign in first"}</span>
+        <h2>{quest.lifecycle === "finished" ? "Final standings are frozen." : participating ? "Refresh proof after your next eligible game." : hostedNeedsJoin ? "Join your Multiplayer Side Quest before playing your proof game." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
+        <p>{quest.lifecycle === "finished" ? "The event window has ended, so SQC keeps the leaderboard as the final proof record." : participating ? "SQC checks only fresh public games inside this Multiplayer window." : "You can inspect the quests and rules below before joining."}</p>
+        {quest.lifecycle === "finished" ? null : joinState.kind === "join" || hostedNeedsJoin ? (
           <GroupQuestDirectJoin
             id={quest.id}
             isSignedIn={signedIn}
             buttonClassName="sqc-primary-action"
-            buttonLabel={joinState.label}
+            buttonLabel={hostedNeedsJoin ? "Join Side Quest" : joinState.label}
           />
+        ) : participating ? (
+          <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" />
         ) : (
           <Link href={joinState.href} className="sqc-primary-action">{joinState.label}</Link>
         )}
@@ -1326,10 +1370,30 @@ export function MobileMultiplayerDetailScreen({
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">Share</span>
         <h2>Send this Multiplayer Side Quest to another player.</h2>
-        <Link href={quest.sourceBadge === "Community" ? "/multiplayer-side-quests" : "/multiplayer"} className="sqc-quiet-button">Back to catalog</Link>
+        <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} />
       </section>
 
-      {quest.hostName ? (
+      {quest.lifecycle === "finished" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Final leaderboard">
+          <span className="sqc-card-eyebrow">Final leaderboard</span>
+          <h2>Frozen player standings.</h2>
+          <div className="sqc-condition-list">
+            {quest.leaderboardRows.length ? quest.leaderboardRows.map((row) => (
+              <div key={`${row.rank}-${row.name}`} className="sqc-condition-compact-row">
+                <span>#{row.rank}</span>
+                <div>
+                  <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
+                  <p>{[row.placement, row.progress, row.provider].filter(Boolean).join(" · ")}</p>
+                </div>
+              </div>
+            )) : (
+              <p>No verified player standings were recorded.</p>
+            )}
+          </div>
+        </section>
+      ) : null}
+
+      {!official && quest.hostName ? (
         <section className="sqc-native-card sqc-multiplayer-native-card">
           <span className="sqc-card-eyebrow">Created by</span>
           <h2>Hosted by {quest.hostName}</h2>

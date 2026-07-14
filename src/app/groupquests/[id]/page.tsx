@@ -15,9 +15,11 @@ export default async function GroupQuestDetailPage({
   noStore();
   const { id } = await params;
   const [user, client] = await Promise.all([currentUser(), clerkClient()]);
-  const { officialRows, communityRows } = await getMobileWebMultiplayerPreviews(client, user?.id);
-  const quest = [...officialRows, ...communityRows].find((row) => row.id === id)
-    ?? await getMobileWebMultiplayerDetail(client, id, user?.id);
+  let quest = await getMobileWebMultiplayerDetail(client, id, user?.id);
+  if (!quest) {
+    const { officialRows, communityRows } = await getMobileWebMultiplayerPreviews(client, user?.id);
+    quest = [...officialRows, ...communityRows].find((row) => row.id === id) ?? null;
+  }
 
   if (!quest) {
     redirect("/multiplayer");

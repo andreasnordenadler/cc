@@ -14,13 +14,24 @@ export type MobileWebMultiplayerPreview = {
   quests: string[];
   rules: Array<[string, string]>;
   status: "Not joined" | "Joined" | "Hosted";
+  viewerJoined?: boolean;
   playersLabel: string;
   timeLeftLabel: string;
   positionLabel?: string | null;
+  leaderboardRows: MobileWebMultiplayerLeaderboardRow[];
   likeSummary: CommunityLikeSummary;
   lifecycle: "open" | "finished";
   createdAt: string;
   endAt: string;
+};
+
+export type MobileWebMultiplayerLeaderboardRow = {
+  rank: number;
+  name: string;
+  provider: string;
+  progress: string;
+  placement: "Gold" | "Silver" | "Bronze" | null;
+  viewer: boolean;
 };
 
 export type MobileWebMultiplayerResult = {
@@ -95,6 +106,7 @@ export async function getMobileWebMultiplayerDetail(client: ClerkClient, id: str
     userId,
     isOfficialGroupQuest(found.groupQuest) ? "SQC Official" : "Community",
     likeSummaries.get("multiplayer", id),
+    true,
   );
 }
 
@@ -103,6 +115,7 @@ function buildPreviewRow(
   userId: string | null | undefined,
   sourceBadge: "SQC Official" | "Community",
   likeSummary: CommunityLikeSummary,
+  includeLeaderboard = false,
 ): MobileWebMultiplayerPreview {
   const joined = Boolean(userId) && quest.participants.some((participant) => participant.userId === userId);
   const isOwner = Boolean(userId) && quest.hostUserId === userId;
@@ -130,9 +143,11 @@ function buildPreviewRow(
     quests: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
     rules: buildRuleRows(quest),
     status: isOwner ? "Hosted" : joined ? "Joined" : "Not joined",
+    viewerJoined: joined,
     playersLabel,
     timeLeftLabel,
     positionLabel,
+    leaderboardRows: includeLeaderboard ? buildMobileWebMultiplayerLeaderboardRows(quest, userId) : [],
     likeSummary,
     lifecycle: status === "Finished" ? "finished" : "open",
     createdAt: quest.createdAt,
@@ -193,6 +208,22 @@ function getParticipantPositionLabel(
   return index >= 0 ? `#${index + 1}` : null;
 }
 
+const podiumPlacements = ["Gold", "Silver", "Bronze"] as const;
+
+export function buildMobileWebMultiplayerLeaderboardRows(
+  quest: Pick<ServerGroupQuest, "questIds" | "participants">,
+  userId: string | null | undefined,
+): MobileWebMultiplayerLeaderboardRow[] {
+  return rankGroupQuestParticipants(quest).map((participant, index) => ({
+    rank: index + 1,
+    name: participant.leaderboardName,
+    provider: `${participant.provider === "chesscom" ? "chess.com" : "lichess"} · ${participant.username}`,
+    progress: `${participant.completedQuestIds?.length ?? 0}/${Math.max(quest.questIds.length, 1)}`,
+    placement: podiumPlacements[index] ?? null,
+    viewer: Boolean(userId) && participant.userId === userId,
+  }));
+}
+
 function getGroupQuestChallengeTitle(quest: Pick<ServerGroupQuest, "customQuestSnapshots">, challengeId: string) {
   return CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
     ?? quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
@@ -211,8 +242,6 @@ function buildRuleRows(quest: Pick<ServerGroupQuest, "providerLabel" | "rules">)
   return rows;
 }
 
-const officialPodiumPlacements = ["Gold", "Silver", "Bronze"] as const;
-
 function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerResult {
   const leaderboardRows = rankGroupQuestParticipants(quest).map((participant, index) => {
     const completedCount = participant.completedQuestIds?.length ?? 0;
@@ -230,7 +259,7 @@ function buildOfficialResultRow(quest: ServerGroupQuest): MobileWebMultiplayerRe
     title: quest.name,
     href: `/groupquests/${quest.id}`,
     summary: ["Final", formatPlayersLabel(quest.participants.length), winner ? `Winner: ${winner}` : "Podium pending"].join(" · "),
-    podiumRows: officialPodiumPlacements.map((placement, index) => {
+    podiumRows: podiumPlacements.map((placement, index) => {
       const row = leaderboardRows[index];
       return {
         placement,

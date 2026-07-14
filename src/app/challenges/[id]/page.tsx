@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-shell";
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
+import OfficialSoloDetailActions from "@/components/official-solo-detail-actions";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
@@ -69,6 +70,10 @@ export default async function ChallengeDetailPage({
       }) || "Side Quest Chess"
     : null;
   const activeChallenge = getActiveChallenge(metadata);
+  const existingActiveChallenge = activeChallenge?.id ? getChallengeById(activeChallenge.id) : null;
+  const activeChallengeTitle = activeChallenge?.id && activeChallenge.id !== challenge.id
+    ? existingActiveChallenge?.title ?? "your current Side Quest"
+    : null;
   const activeAttempt = getLatestChallengeAttempt(metadata, challenge.id);
   const activeAttemptSummary = buildAttemptSummary(activeAttempt);
   const progress = getChallengeProgress(metadata);
@@ -151,8 +156,8 @@ export default async function ChallengeDetailPage({
               <ProofStep number="3" text="Come back here and tap Check my latest game." />
             </div>
             <div className="sqc-action-pair one-or-two sqc-active-detail-actions">
-              <Link href="/account" className="sqc-secondary-action">Start this Side Quest</Link>
-              <Link href="/account" className="sqc-primary-action">Check my latest game</Link>
+              <Link href="/side-quests" className="sqc-secondary-action">Back to Side Quests</Link>
+              <OfficialSoloDetailActions mode="check" challengeId={challenge.id} />
             </div>
           </section>
         ) : null}
@@ -204,9 +209,17 @@ export default async function ChallengeDetailPage({
                 <p>{user ? "Choose this rule so SQC knows what to judge after your next public game." : "Browse the rules here. Sign in when you want SQC to save this as your active Solo Side Quest and track proof."}</p>
                 <div className="sqc-action-pair one-or-two">
                   <Link href="/side-quests" className="sqc-secondary-action">Back to list</Link>
-                  <Link href={user ? "/account" : `/sign-in?redirect_url=/challenges/${encodeURIComponent(challenge.id)}`} className="sqc-primary-action">
-                    {user ? "Start this Side Quest" : "Sign in"}
-                  </Link>
+                  {user ? (
+                    <OfficialSoloDetailActions
+                      mode="start"
+                      challengeId={challenge.id}
+                      activeChallengeTitle={activeChallengeTitle}
+                    />
+                  ) : (
+                    <Link href={`/sign-in?redirect_url=/challenges/${encodeURIComponent(challenge.id)}`} className="sqc-primary-action">
+                      Sign in
+                    </Link>
+                  )}
                 </div>
               </section>
             )}
