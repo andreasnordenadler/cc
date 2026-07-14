@@ -1308,6 +1308,12 @@ export function MobileMultiplayerDetailScreen({
   const joinState = getMultiplayerJoinState({ questId: quest.id, signedIn, status: quest.status });
   const participating = joinState.kind === "joined" || (joinState.kind === "hosted" && quest.viewerJoined === true);
   const hostedNeedsJoin = joinState.kind === "hosted" && !participating;
+  const viewerFinalRow = quest.leaderboardRows.find((row) => row.viewer);
+  const finalResultTitle = viewerFinalRow?.placement
+    ? `${viewerFinalRow.placement} finish.`
+    : viewerFinalRow
+      ? `Final place #${viewerFinalRow.rank}.`
+      : "Final leaderboard frozen.";
 
   return (
     <div className="sqc-stack sqc-multiplayer-public-detail-screen">
@@ -1334,6 +1340,15 @@ export function MobileMultiplayerDetailScreen({
         </div>
       </section>
 
+      {quest.lifecycle === "finished" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Final Multiplayer result">
+          <span className="sqc-card-eyebrow">Final result</span>
+          <h2>{finalResultTitle}</h2>
+          <p>{viewerFinalRow ? `${viewerFinalRow.progress} complete · Proof checks are closed, so this is your final table receipt.` : "Proof checks are closed, so this leaderboard is final."}</p>
+          <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} shareLabel="Share final result" copyLabel="Copy final link" />
+        </section>
+      ) : null}
+
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">{quest.lifecycle === "finished" ? "Receipts locked" : participating ? "Next action" : signedIn ? "Join first" : "Sign in first"}</span>
         <h2>{quest.lifecycle === "finished" ? "Final standings are frozen." : participating ? "Refresh proof after your next eligible game." : hostedNeedsJoin ? "Join your Multiplayer Side Quest before playing your proof game." : "Join this Multiplayer Side Quest before playing your proof game."}</h2>
@@ -1357,6 +1372,26 @@ export function MobileMultiplayerDetailScreen({
         <h2>Send this Multiplayer Side Quest to another player.</h2>
         <GroupQuestShareControls id={quest.id} title={quest.title} isOwner={joinState.kind === "hosted"} />
       </section>
+
+      {quest.lifecycle === "finished" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Final leaderboard">
+          <span className="sqc-card-eyebrow">Final leaderboard</span>
+          <h2>Frozen player standings.</h2>
+          <div className="sqc-condition-list">
+            {quest.leaderboardRows.length ? quest.leaderboardRows.map((row) => (
+              <div key={`${row.rank}-${row.name}`} className="sqc-condition-compact-row">
+                <span>#{row.rank}</span>
+                <div>
+                  <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
+                  <p>{[row.placement, row.progress, row.provider].filter(Boolean).join(" · ")}</p>
+                </div>
+              </div>
+            )) : (
+              <p>No verified player standings were recorded.</p>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {!official && quest.hostName ? (
         <section className="sqc-native-card sqc-multiplayer-native-card">

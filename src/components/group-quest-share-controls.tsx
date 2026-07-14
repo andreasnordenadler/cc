@@ -11,10 +11,14 @@ export default function GroupQuestShareControls({
   id,
   title,
   isOwner = false,
+  shareLabel,
+  copyLabel = "Copy invite link",
 }: {
   id: string;
   title: string;
   isOwner?: boolean;
+  shareLabel?: string;
+  copyLabel?: string;
 }) {
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -28,7 +32,7 @@ export default function GroupQuestShareControls({
       <button
         type="button"
         className="sqc-primary-action"
-        aria-label="Share Multiplayer Side Quest invite"
+        aria-label={shareLabel ? "Share final Multiplayer Side Quest result" : "Share Multiplayer Side Quest invite"}
         disabled={busy}
         onClick={async () => {
           setStatus(null);
@@ -41,12 +45,12 @@ export default function GroupQuestShareControls({
           }
         }}
       >
-        {isOwner ? "Share invite" : "Share Side Quest"}
+        {shareLabel ?? (isOwner ? "Share invite" : "Share Side Quest")}
       </button>
       <button
         type="button"
         className="sqc-quiet-button"
-        aria-label="Copy Multiplayer Side Quest invite link"
+        aria-label={copyLabel === "Copy final link" ? "Copy final Multiplayer Side Quest result link" : "Copy Multiplayer Side Quest invite link"}
         disabled={busy}
         onClick={async () => {
           setStatus(null);
@@ -59,7 +63,7 @@ export default function GroupQuestShareControls({
           }
         }}
       >
-        Copy invite link
+        {copyLabel}
       </button>
       {status ? <small role="status" aria-live="polite">{status}</small> : null}
     </div>

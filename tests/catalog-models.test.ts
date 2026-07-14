@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
-import { buildUserMultiplayerRows } from "../src/lib/mobile-web-multiplayer";
+import { buildMobileWebMultiplayerLeaderboardRows, buildUserMultiplayerRows } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
 const likeSummary = { count: 0, likedByCurrentUser: false };
@@ -80,6 +80,25 @@ test("signed-in related quests are classified as hosted, joined, or finished whi
     ["hosted", "Hosted", "open"], ["joined", "Joined", "open"], ["finished", "Hosted", "finished"],
   ]);
   assert.deepEqual(buildUserMultiplayerRows(related, null, new Map(), Date.now()), []);
+});
+
+test("Multiplayer rows expose Android-ranked final standings without leaking user ids", () => {
+  const finished = quest({
+    id: "finished",
+    endAt: "2026-07-11T00:00:00.000Z",
+    questIds: ["finish-any-game", "knights-before-coffee", "bishop-field-trip"],
+    participants: [
+      { userId: "other", provider: "lichess", username: "ada", leaderboardName: "Ada", joinedAt: "2026-07-10T00:00:00.000Z", completedQuestIds: ["finish-any-game", "knights-before-coffee", "bishop-field-trip"] },
+      { userId: "me", provider: "chesscom", username: "current", leaderboardName: "Current player", joinedAt: "2026-07-10T00:00:00.000Z", completedQuestIds: ["finish-any-game", "knights-before-coffee"] },
+    ],
+  });
+
+  const leaderboardRows = buildMobileWebMultiplayerLeaderboardRows(finished, "me");
+  assert.deepEqual(leaderboardRows, [
+    { rank: 1, name: "Ada", provider: "lichess · ada", progress: "3/3", placement: "Gold", viewer: false },
+    { rank: 2, name: "Current player", provider: "chess.com · current", progress: "2/3", placement: "Silver", viewer: true },
+  ]);
+  assert.doesNotMatch(JSON.stringify(leaderboardRows), /\"userId\"/);
 });
 
 test("filters return an empty list only when no row matches", () => {
