@@ -45,16 +45,21 @@ test("owner mutations only navigate to the exact owned detail", () => {
 });
 
 test("custom library and route wire each saved quest to an owner detail surface", async () => {
-  const [library, route, controls] = await Promise.all([
+  const [library, route, controls, proofControls] = await Promise.all([
     source("src/app/custom-side-quests/page.tsx"),
     source("src/app/custom-side-quests/[id]/page.tsx"),
     source("src/components/custom-side-quest-owner-controls.tsx"),
+    source("src/components/custom-side-quest-proof-controls.tsx"),
   ]);
   assert.match(library, /\/custom-side-quests\/\$\{encodeURIComponent\(quest\.id\)\}/);
   assert.match(route, /getCustomSideQuestById/);
   assert.match(route, /CustomSideQuestOwnerControls/);
+  assert.match(route, /CustomSideQuestProofControls/);
   assert.match(controls, /Archive/);
   assert.match(controls, /Duplicate/);
   assert.match(controls, /Delete/);
   assert.match(controls, /Visibility/);
+  assert.match(proofControls, /run\("start"\)/);
+  assert.match(proofControls, /run\("check"\)/);
+  assert.match(proofControls, /run\("deactivate"\)/);
 });

@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 import MobileAppWebShell from "@/components/mobile-app-web-shell";
 import CustomSideQuestOwnerControls from "@/components/custom-side-quest-owner-controls";
+import CustomSideQuestProofControls from "@/components/custom-side-quest-proof-controls";
 import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuestById, getCustomSideQuests } from "@/lib/custom-side-quests";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -55,6 +56,12 @@ export default async function CustomSideQuestOwnerPage({ params }: { params: Pro
         <ul>{rules.map((rule) => <li key={rule}>{rule}</li>)}</ul>
         <p>These are the verifier rules currently saved for this Side Quest.</p>
       </section>
+
+      <CustomSideQuestProofControls
+        questId={quest.id}
+        active={Boolean(publicMetadata.activeChallenge && typeof publicMetadata.activeChallenge === "object" && (publicMetadata.activeChallenge as { id?: string }).id === quest.id)}
+        playable={quest.lifecycle === "published"}
+      />
 
       <CustomSideQuestOwnerControls quest={{
         id: quest.id,
