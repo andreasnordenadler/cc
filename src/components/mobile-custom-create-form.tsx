@@ -22,7 +22,7 @@ const conditionChoices: Array<{ id: string; label: string; helper: string; block
   { id: "win", label: "Win the game", helper: "The linked player must win.", block: { type: "gameResult", result: "win" } },
   { id: "draw", label: "Draw the game", helper: "The linked player must draw.", block: { type: "gameResult", result: "draw" } },
   { id: "lose", label: "Finish with a loss", helper: "The linked player must lose.", block: { type: "gameResult", result: "lose" } },
-  { id: "queen-gone", label: "Queens are gone", helper: "No queen remains at game end.", block: { type: "pieceState", piece: "queen", owner: "either", selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" }, condition: "gone", timing: { atGameEnd: true } } },
+  { id: "queen-gone", label: "Your queen is gone", helper: "Your queen is captured by game end.", block: { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } } },
   { id: "king-still", label: "Do not move your king", helper: "Your king stays on its starting square.", block: { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } } },
   { id: "knights-first", label: "Knight-only opening", helper: "Play Nf3, ...Nf6, Nc3, ...Nc6 from move 1.", block: { type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" } },
 ];

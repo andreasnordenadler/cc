@@ -14,7 +14,11 @@ type CustomCreateInput = {
 const customBlocks: Record<CustomTemplate, CustomSideQuestRuleBlock[]> = {
   "knights-first": [{ type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" }, { type: "gameResult", result: "win" }],
   "no-castle": [{ type: "gameResult", result: "win" }, { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } }],
-  "queen-trade": [{ type: "pieceState", piece: "queen", owner: "either", selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" }, condition: "gone", timing: { atGameEnd: true } }, { type: "gameResult", result: "win" }],
+  "queen-trade": [
+    { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } },
+    { type: "pieceState", piece: "queen", owner: "opponent", condition: "gone", timing: { atGameEnd: true } },
+    { type: "gameResult", result: "win" },
+  ],
   win: [{ type: "gameResult", result: "win" }],
 };
 

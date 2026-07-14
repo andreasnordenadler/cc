@@ -10,6 +10,7 @@ import {
   buildMultiplayerCreatePayload,
   getCreateErrorMessage,
   getCustomCreateDestination,
+  getCustomTemplateBlocks,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
@@ -67,6 +68,13 @@ test("custom creator supports six independently editable Android-compatible cond
   const payload = buildCustomCreatePayload({ title: "Six rules", summary: "", logic: "all", blocks: [...blocks], visibility: "private", lifecycle: "draft" });
   assert.deepEqual(JSON.parse(payload.config), { version: 2, logic: "all", blocks });
   assert.throws(() => buildCustomCreatePayload({ title: "Seven rules", summary: "", logic: "all", blocks: [...blocks, blocks[0]], visibility: "private", lifecycle: "draft" }), /up to 6/i);
+});
+
+test("queen-trade template round-trips through Android's my/opponent owner parser", () => {
+  const blocks = getCustomTemplateBlocks("queen-trade");
+  const owners = blocks.filter((block) => block.type === "pieceState").map((block) => block.owner);
+  assert.deepEqual(owners, ["my", "opponent"]);
+  assert.equal(blocks.every((block) => block.type !== "pieceState" || block.owner !== "either"), true);
 });
 
 test("custom builder renders the Android-style multi-condition command center", () => {
