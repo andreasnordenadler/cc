@@ -49,7 +49,7 @@ function getCustomLibraryRows(privateMetadata: UserMetadataRecord, publicMetadat
       meta: getCustomLibraryMeta(quest),
       status: getCustomLibraryStatus(quest, activeId, completedIds.has(quest.id)),
       sourceBadge: quest.lifecycle === "draft" ? "Draft" : quest.visibility === "public" ? "Community" : "Private",
-      href: quest.visibility === "public" && quest.lifecycle === "published" ? `/challenges/community/${encodeURIComponent(quest.id)}` : "/create-custom-side-quest",
+      href: `/custom-side-quests/${encodeURIComponent(quest.id)}`,
       image: quest.badgeImageUrl ?? "/badges/custom/community/community-coat-01.png",
       lifecycle: quest.lifecycle ?? "published",
       visibility: quest.visibility ?? "private",
