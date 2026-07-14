@@ -202,7 +202,7 @@ function SignedInAccountScreen({
               key={row.id}
               title={row.title}
               meta={row.meta}
-              status={row.source === "multiplayer" ? "Podium" : "Unlocked"}
+              status={row.source === "solo" ? "Unlocked" : "Podium"}
               href={row.href}
               image={row.image ?? mobileAsset.coat}
               statusImage={row.statusImage}
