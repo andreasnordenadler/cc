@@ -508,7 +508,7 @@ export function MobileSoloSideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official active" role="tab" aria-selected="true">Official Side Quests</Link>
         <Link href="/community-side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Community Side Quests">
           <span aria-hidden="true" />
@@ -799,11 +799,11 @@ export function MobileCommunitySideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
         <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
           Community Side Quests
         </Link>
@@ -930,11 +930,11 @@ export function MobileCustomSideQuestsScreen({
         <Image className="sqc-screen-emblem-image" alt="" src={mobileAsset.coat} width={132} height={148} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog">
         <Link href="/side-quests" className="sqc-brand-tab official" role="tab" aria-selected="false">
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <Link href="/side-quests" className="sqc-brand-switch" data-icon="swap-horizontal" aria-label="Switch to Official Side Quests"><span aria-hidden="true" /></Link>
         <Link href="/community-side-quests" className="sqc-brand-tab community active" role="tab" aria-selected="true">
           Community Side Quests
         </Link>
@@ -994,7 +994,14 @@ export function MobileMultiplayerSideQuestsScreen({
         >
           Official Side Quests
         </Link>
-        <span className="sqc-brand-switch" data-icon="swap-horizontal" role="separator" aria-orientation="vertical"><span aria-hidden="true" /></span>
+        <Link
+          href={selectedTab === "official" ? "/multiplayer-side-quests?tab=community" : "/multiplayer-side-quests"}
+          className="sqc-brand-switch"
+          data-icon="swap-horizontal"
+          aria-label={selectedTab === "official" ? "Switch to Community Multiplayer Side Quests" : "Switch to Official Multiplayer Side Quests"}
+        >
+          <span aria-hidden="true" />
+        </Link>
         <Link
           href="/multiplayer-side-quests?tab=community"
           className={selectedTab === "community" ? "sqc-brand-tab community active" : "sqc-brand-tab community"}
