@@ -365,12 +365,7 @@ export function SignedInHome({
         <Link href="/side-quests" className="sqc-secondary-action full">{hasActiveSolo ? "Explore More Solo Side Quests" : "Explore Solo Side Quests"}</Link>
       </section>
 
-      <div className="sqc-refresh-hint" aria-hidden="true">
-        <span />
-        <small>Pull down to refresh</small>
-      </div>
-
-      <section className="sqc-home-section">
+      <section className="sqc-home-section first">
         <Link href={activeMultiplayerRows[0]?.href ?? "/multiplayer"} className="sqc-section-hero" aria-label="Open active Multiplayer Side Quest details">
           <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={100} glowSize={142} />
           <p className="sqc-pill">Active Multiplayer Side Quests</p>
@@ -426,10 +421,6 @@ export function SignedInHome({
         <Link href="/trophy-cabinet" className="sqc-secondary-action full">Open Trophy Cabinet</Link>
       </section>
 
-      <div className="sqc-refresh-hint" aria-hidden="true">
-        <span />
-        <small>Pull down to refresh</small>
-      </div>
     </div>
   );
 }

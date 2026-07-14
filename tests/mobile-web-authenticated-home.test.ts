@@ -44,6 +44,21 @@ test("authenticated Home keeps Active Solo compact with one refresh control and 
   assert.doesNotMatch(html, /Check latest game|Reset active selection|Choose another Side Quest/);
 });
 
+test("authenticated Home does not claim unsupported pull-to-refresh behavior", () => {
+  const html = renderToStaticMarkup(React.createElement(SignedInHome, {
+    hasChessAccount: true,
+    activeSolo: failedSolo,
+    activeSoloTitle: null,
+    activeMultiplayerRows: [],
+    trophyRows: [],
+    completedSoloCount: 0,
+    proofReceiptCount: 0,
+  }));
+
+  assert.doesNotMatch(html, /Pull down to refresh/i);
+  assert.equal((html.match(/aria-label="Refresh active Solo Side Quest"/g) ?? []).length, 1);
+});
+
 test("authenticated Home renders the native empty Multiplayer preview row", () => {
   const html = renderToStaticMarkup(React.createElement(SignedInHome, {
     hasChessAccount: true,
