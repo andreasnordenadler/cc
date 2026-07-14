@@ -98,7 +98,7 @@ export default function MobileCustomCreateForm({ signedIn }: { signedIn: boolean
   return <form className="sqc-native-card sqc-custom-builder-card" aria-label="Custom Side Quest builder" onSubmit={submit}>
     <span className="sqc-card-eyebrow">Start from a template</span>
     <div className="sqc-option-grid">
-      {templates.map((item) => <button className="sqc-option-card" key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
+      {templates.map((item) => <button className="sqc-option-card sqc-template-card" key={item.id} onClick={() => applyTemplate(item.id)} type="button"><strong>{item.title}</strong><span>{item.helper}</span></button>)}
     </div>
 
     <span className="sqc-card-eyebrow">How conditions count</span>

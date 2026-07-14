@@ -71,6 +71,7 @@ test("custom creator supports six independently editable Android-compatible cond
 
 test("custom builder renders the Android-style multi-condition command center", () => {
   const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
+  assert.match(html, /sqc-template-card/);
   assert.match(html, /How conditions count/);
   assert.match(html, /Complete every condition/);
   assert.match(html, /Complete any one condition/);
@@ -133,10 +134,11 @@ test("server failures expose safe messages and signed-out guidance", () => {
 });
 
 test("mobile create screens use executable forms and never submit identity fields", async () => {
-  const [shell, customForm, multiplayerForm] = await Promise.all([
+  const [shell, customForm, multiplayerForm, css] = await Promise.all([
     source("src/components/mobile-app-web-shell.tsx"),
     source("src/components/mobile-custom-create-form.tsx"),
     source("src/components/mobile-multiplayer-create-form.tsx"),
+    source("src/app/mobile-web.css"),
   ]);
   assert.match(shell, /MobileCustomCreateForm/);
   assert.match(shell, /MobileMultiplayerCreateForm/);
@@ -149,4 +151,5 @@ test("mobile create screens use executable forms and never submit identity field
   assert.doesNotMatch(`${customForm}\n${multiplayerForm}`, /hostUserId|ownerId|userId\s*:/);
   assert.doesNotMatch(shell, /<input readOnly value="" placeholder="Name this custom Side Quest"/);
   assert.doesNotMatch(shell, /<Link href="\/multiplayer" className="sqc-create-footer-button">Create<\/Link>/);
+  assert.match(css, /\.sqc-template-card\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
 });

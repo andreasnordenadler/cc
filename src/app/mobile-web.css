@@ -3041,6 +3041,24 @@ body::after {
   line-height: 1.35;
 }
 
+.sqc-template-card {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  text-align: left;
+}
+
+.sqc-template-card > span {
+  width: auto;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
 .sqc-filter-row {
   display: flex;
   flex-wrap: wrap;
