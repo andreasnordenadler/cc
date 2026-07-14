@@ -184,6 +184,29 @@ test("custom quest create parses JSON, validates rules, and persists exact norma
   assert.deepEqual(writes, [{ id: "creator-1", quests: [{ id: "custom-fixed", title: "Win nicely", summary: "A useful quest", config: '{"version":1,"logic":"all","blocks":[{"id":"b1","type":"gameResult","result":"win"}]}', visibility: "public", lifecycle: "published", createdAt: "2026-07-12T14:00:00.000Z", updatedAt: "2026-07-12T14:00:00.000Z", badgeImageUrl: "/badges/fixed.png" }], privateMetadata: { preserved: true } }]);
 });
 
+test("custom quest update preserves its badge and creation timestamp", async () => {
+  const existing = {
+    id: "custom-fixed",
+    title: "Original",
+    summary: "Original summary",
+    config: validConfig,
+    visibility: "private" as const,
+    lifecycle: "published" as const,
+    createdAt: "2026-06-01T00:00:00.000Z",
+    updatedAt: "2026-06-01T00:00:00.000Z",
+    badgeImageUrl: "/badges/custom/community/community-coat-12.png",
+  };
+  let saved = [] as typeof existing[];
+  const response = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { id: existing.id, title: "Updated", summary: "Updated summary", config: validConfig, visibility: "public" }), customDependencies({
+    getMetadata: async () => ({ publicMetadata: {}, privateMetadata: { customSideQuests: [existing] } }),
+    saveCustomQuests: async (_id, quests) => { saved = quests as typeof existing[]; return quests; },
+    chooseBadge: () => "/badges/custom/community/community-coat-40.png",
+  }));
+  assert.equal(response.status, 200);
+  assert.equal(saved[0]?.badgeImageUrl, existing.badgeImageUrl);
+  assert.equal(saved[0]?.createdAt, existing.createdAt);
+});
+
 test("custom quest create makes no write on auth/validation failure", async () => {
   let writes = 0;
   const unauthenticated = await handleCustomQuestCreateRequest(jsonPost("https://sqc.test/api/mobile/custom-quests", { config: validConfig }), customDependencies({ getAuthenticatedUserId: async () => null, saveCustomQuests: async () => { writes += 1; return []; } }));

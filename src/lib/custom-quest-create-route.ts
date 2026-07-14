@@ -41,7 +41,7 @@ export async function handleCustomQuestCreateRequest(request: Request, dependenc
     const now = (dependencies.now?.() ?? new Date()).toISOString();
     const id = typeof input.id === "string" && input.id.startsWith("custom-") ? input.id : dependencies.makeId?.() ?? `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
     const previous = existing.find(item => item.id === id);
-    const quest = compact({ id, title, summary: summary || (lifecycle === "draft" ? "Draft Side Quest" : "Custom Side Quest"), config, visibility, lifecycle, createdAt: previous?.createdAt ?? now, updatedAt: now, badgeImageUrl: dependencies.chooseBadge() });
+    const quest = compact({ id, title, summary: summary || (lifecycle === "draft" ? "Draft Side Quest" : "Custom Side Quest"), config, visibility, lifecycle, createdAt: previous?.createdAt ?? now, updatedAt: now, badgeImageUrl: previous?.badgeImageUrl ?? dependencies.chooseBadge() });
     const next = [quest, ...existing.filter(item => item.id !== id).map(compact)].slice(0, 8);
     const saved = await dependencies.saveCustomQuests(userId, next, privateMetadata);
     return Response.json({ apiVersion: 1, authenticated: true, ok: true, action: "save", customQuest: quest, customSideQuests: saved, message: "Custom Side Quest saved." });
