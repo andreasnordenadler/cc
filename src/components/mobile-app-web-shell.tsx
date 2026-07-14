@@ -77,7 +77,7 @@ type TrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
-  source?: "multiplayer" | "solo";
+  source?: "multiplayer" | "officialMultiplayer" | "communityMultiplayer" | "solo";
 };
 
 type CommunitySideQuestRow = {
@@ -705,8 +705,10 @@ export function MobileTrophyCabinetScreen({
   officialSoloCount: number;
   officialChallenges: Challenge[];
 }) {
-  const multiplayerRows = trophyRows.filter((row) => row.source === "multiplayer");
-  const soloRows = trophyRows.filter((row) => row.source !== "multiplayer");
+  const officialMultiplayerRows = trophyRows.filter((row) => row.source === "officialMultiplayer" || row.source === "multiplayer");
+  const communityMultiplayerRows = trophyRows.filter((row) => row.source === "communityMultiplayer");
+  const multiplayerRows = [...officialMultiplayerRows, ...communityMultiplayerRows];
+  const soloRows = trophyRows.filter((row) => row.source === "solo" || !row.source);
   const earnedIds = new Set(soloRows.map((row) => row.id.replace(/^solo-/, "")));
   const unlockedCount = trophyRows.length;
   const customRewardCount = Math.max(0, unlockedCount - completedSoloCount - multiplayerRows.length);
@@ -721,7 +723,7 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Trophy Cabinet summary">
         <span className="sqc-card-eyebrow">Trophy Cabinet</span>
-        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${completedSoloCount} Official Solo Side Quest${completedSoloCount === 1 ? "" : "s"} · ${multiplayerRows.length} Official Multiplayer Side Quest${multiplayerRows.length === 1 ? "" : "s"} · ${customRewardCount} community/custom reward${customRewardCount === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
+        <h2>{unlockedCount ? `${unlockedCount} unlocked: ${completedSoloCount} Official Solo Side Quest${completedSoloCount === 1 ? "" : "s"} · ${officialMultiplayerRows.length} Official Multiplayer Side Quest${officialMultiplayerRows.length === 1 ? "" : "s"} · ${communityMultiplayerRows.length} Community Multiplayer Side Quest${communityMultiplayerRows.length === 1 ? "" : "s"} · ${customRewardCount} custom reward${customRewardCount === 1 ? "" : "s"}` : "No unlocked trophies yet."}</h2>
         <p>
           {unlockedCount
             ? "This is your unified Side Quest Chess reward shelf. Official Solo coats and Official Multiplayer podiums are highlighted first; community and custom rewards still belong here."
@@ -731,15 +733,29 @@ export function MobileTrophyCabinetScreen({
 
       <section className="sqc-native-card" aria-label="Official Multiplayer Side Quest trophies">
         <span className="sqc-card-eyebrow">Official Multiplayer trophies</span>
-        <h2>{multiplayerRows.length} Official Multiplayer Side Quest podium{multiplayerRows.length === 1 ? "" : "s"}.</h2>
-        {multiplayerRows.length ? (
+        <h2>{officialMultiplayerRows.length} Official Multiplayer Side Quest podium{officialMultiplayerRows.length === 1 ? "" : "s"}.</h2>
+        {officialMultiplayerRows.length ? (
           <div className="sqc-catalog">
-            {multiplayerRows.map((row) => (
+            {officialMultiplayerRows.map((row) => (
             <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
             ))}
           </div>
         ) : (
           <p>Place on the podium in an official Multiplayer Side Quest to earn one here.</p>
+        )}
+      </section>
+
+      <section className="sqc-native-card" aria-label="Community Multiplayer Side Quest trophies">
+        <span className="sqc-card-eyebrow">Community Multiplayer trophies</span>
+        <h2>{communityMultiplayerRows.length} Community Multiplayer Side Quest podium{communityMultiplayerRows.length === 1 ? "" : "s"}.</h2>
+        {communityMultiplayerRows.length ? (
+          <div className="sqc-catalog">
+            {communityMultiplayerRows.map((row) => (
+              <AppRow key={row.id} title={row.title} meta={row.meta} status="Open" href={row.href} image={row.image ?? undefined} glow={row.glow} statusImage={row.statusImage} />
+            ))}
+          </div>
+        ) : (
+          <p>Place on the podium in a Community Multiplayer Side Quest to earn one here.</p>
         )}
       </section>
 

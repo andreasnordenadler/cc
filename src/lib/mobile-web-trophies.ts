@@ -1,5 +1,5 @@
 import { CHALLENGES } from "@/lib/challenges";
-import { listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants } from "@/lib/groupquests";
+import { listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import type { clerkClient } from "@clerk/nextjs/server";
 
 export type MobileWebTrophyRow = {
@@ -10,7 +10,7 @@ export type MobileWebTrophyRow = {
   image?: string | null;
   glow?: string | null;
   statusImage?: string | null;
-  source: "multiplayer" | "solo";
+  source: "officialMultiplayer" | "communityMultiplayer" | "solo";
 };
 
 export type MobileWebAccountStats = {
@@ -75,14 +75,15 @@ export async function getMobileWebAccountOverview(
       if (!participant || index > 2 || (participant.score ?? 0) <= 0) return null;
       const placement = index === 0 ? "Gold" : index === 1 ? "Silver" : "Bronze";
 
+      const source = getMultiplayerTrophySource(quest);
       return {
         id: `multiplayer-${quest.id}-${placement.toLowerCase()}`,
         title: quest.name,
-        meta: `Multiplayer placement · ${index === 0 ? "1st" : index === 1 ? "2nd" : "3rd"} place`,
+        meta: `${source === "officialMultiplayer" ? "Official" : "Community"} Multiplayer placement · ${index === 0 ? "1st" : index === 1 ? "2nd" : "3rd"} place`,
         href: `/groupquests/${quest.id}?accepted=1`,
         image: "/mobile-source/sqc-coat-of-arms.png",
         statusImage: `/mobile-source/stamps/sqc-${placement.toLowerCase()}-seal.png`,
-        source: "multiplayer" as const,
+        source,
       };
     })
     .filter((row): row is NonNullable<typeof row> => Boolean(row))
@@ -112,6 +113,12 @@ export async function getMobileWebAccountOverview(
       groupQuests: [...dedupedGroupQuests.values()],
     }),
   };
+}
+
+export function getMultiplayerTrophySource(quest: Pick<ServerGroupQuest, "id" | "official">) {
+  return quest.official === true || quest.id.startsWith("official-")
+    ? "officialMultiplayer" as const
+    : "communityMultiplayer" as const;
 }
 
 export function summarizeMobileWebAccountStats(input: {
