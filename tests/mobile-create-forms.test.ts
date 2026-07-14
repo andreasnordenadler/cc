@@ -1,11 +1,16 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import MobileCustomCreateForm from "../src/components/mobile-custom-create-form";
+import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
   buildCustomCreatePayload,
   buildMultiplayerCreatePayload,
   getCreateErrorMessage,
   getCustomCreateDestination,
+  getCustomTemplateBlocks,
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
@@ -17,7 +22,11 @@ test("custom creator builds a launch-ready rule without accepting owner identity
   const payload = buildCustomCreatePayload({
     title: "  No Castle Night  ",
     summary: "  Win without castling. ",
-    template: "no-castle",
+    logic: "any",
+    blocks: [
+      { type: "gameResult", result: "win" },
+      { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true }, negate: false },
+    ],
     visibility: "public",
     lifecycle: "published",
   });
@@ -26,10 +35,10 @@ test("custom creator builds a launch-ready rule without accepting owner identity
   assert.equal(payload.visibility, "public");
   assert.deepEqual(JSON.parse(payload.config), {
     version: 2,
-    logic: "all",
+    logic: "any",
     blocks: [
       { type: "gameResult", result: "win" },
-      { type: "pieceState", piece: "king", owner: "my", condition: "not moved" },
+      { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true }, negate: false },
     ],
   });
   assert.equal("userId" in payload, false);
@@ -37,8 +46,47 @@ test("custom creator builds a launch-ready rule without accepting owner identity
 });
 
 test("custom creator rejects missing title and condition", () => {
-  assert.throws(() => buildCustomCreatePayload({ title: "", summary: "", template: "", visibility: "private", lifecycle: "published" }), /name/i);
-  assert.throws(() => buildCustomCreatePayload({ title: "Named", summary: "", template: "", visibility: "private", lifecycle: "published" }), /condition/i);
+  assert.throws(() => buildCustomCreatePayload({ title: "", summary: "", logic: "all", blocks: [], visibility: "private", lifecycle: "published" }), /name/i);
+  assert.throws(() => buildCustomCreatePayload({ title: "Named", summary: "", logic: "all", blocks: [], visibility: "private", lifecycle: "published" }), /condition/i);
+});
+
+test("custom creator preserves Android's empty signed-in draft behavior", () => {
+  const payload = buildCustomCreatePayload({ title: "Later", summary: "", logic: "all", blocks: [], visibility: "public", lifecycle: "draft" });
+  assert.deepEqual(JSON.parse(payload.config), { version: 2, logic: "all", blocks: [] });
+  assert.equal(payload.visibility, "private");
+});
+
+test("custom creator supports six independently editable Android-compatible conditions", () => {
+  const blocks: CustomSideQuestRuleBlock[] = [
+    { type: "gameResult", result: "win" },
+    { type: "gameResult", result: "draw" },
+    { type: "gameResult", result: "lose" },
+    { type: "pieceState", piece: "queen", owner: "my", condition: "gone", timing: { atGameEnd: true } },
+    { type: "pieceState", piece: "king", owner: "opponent", condition: "not moved", timing: { byMove: 20 } },
+    { type: "openingSequence", raw: "e4 e5", moves: ["e4", "e5"], anchor: "gameStart" },
+  ];
+  const payload = buildCustomCreatePayload({ title: "Six rules", summary: "", logic: "all", blocks: [...blocks], visibility: "private", lifecycle: "draft" });
+  assert.deepEqual(JSON.parse(payload.config), { version: 2, logic: "all", blocks });
+  assert.throws(() => buildCustomCreatePayload({ title: "Seven rules", summary: "", logic: "all", blocks: [...blocks, blocks[0]], visibility: "private", lifecycle: "draft" }), /up to 6/i);
+});
+
+test("queen-trade template round-trips through Android's my/opponent owner parser", () => {
+  const blocks = getCustomTemplateBlocks("queen-trade");
+  const owners = blocks.filter((block) => block.type === "pieceState").map((block) => block.owner);
+  assert.deepEqual(owners, ["my", "opponent"]);
+  assert.equal(blocks.every((block) => block.type !== "pieceState" || block.owner !== "either"), true);
+});
+
+test("custom builder renders the Android-style multi-condition command center", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: true }));
+  assert.match(html, /sqc-template-card/);
+  assert.match(html, /How conditions count/);
+  assert.match(html, /Complete every condition/);
+  assert.match(html, /Complete any one condition/);
+  assert.match(html, /Your conditions · 2\/6/);
+  assert.match(html, /Add Another Condition/);
+  assert.match(html, /Duplicate/);
+  assert.match(html, /Delete/);
 });
 
 test("custom success navigates to the owned custom catalog", () => {
@@ -94,16 +142,23 @@ test("server failures expose safe messages and signed-out guidance", () => {
 });
 
 test("mobile create screens use executable forms and never submit identity fields", async () => {
-  const [shell, customForm, multiplayerForm] = await Promise.all([
+  const [shell, customForm, multiplayerForm, css] = await Promise.all([
     source("src/components/mobile-app-web-shell.tsx"),
     source("src/components/mobile-custom-create-form.tsx"),
     source("src/components/mobile-multiplayer-create-form.tsx"),
+    source("src/app/mobile-web.css"),
   ]);
   assert.match(shell, /MobileCustomCreateForm/);
   assert.match(shell, /MobileMultiplayerCreateForm/);
   assert.match(customForm, /fetch\("\/api\/mobile\/custom-quests"/);
+  assert.match(customForm, /Add Another Condition/);
+  assert.match(customForm, /Complete any one condition/);
+  assert.match(customForm, /Duplicate/);
+  assert.match(customForm, /Delete/);
   assert.match(multiplayerForm, /fetch\("\/api\/groupquests"/);
   assert.doesNotMatch(`${customForm}\n${multiplayerForm}`, /hostUserId|ownerId|userId\s*:/);
   assert.doesNotMatch(shell, /<input readOnly value="" placeholder="Name this custom Side Quest"/);
   assert.doesNotMatch(shell, /<Link href="\/multiplayer" className="sqc-create-footer-button">Create<\/Link>/);
+  assert.match(css, /\.sqc-template-card\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(css, /\.sqc-custom-condition-row \.sqc-detail-quiet-button\s*\{[\s\S]*?background:\s*rgba\(255, 247, 232, \.06\)/);
 });
