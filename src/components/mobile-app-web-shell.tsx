@@ -985,7 +985,7 @@ export function MobileMultiplayerSideQuestsScreen({
         <Image className="sqc-screen-emblem-image multiplayer" alt="" src={mobileAsset.multiplayerSeal} width={118} height={118} priority />
       </div>
 
-      <div className="sqc-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
+      <div className="sqc-brand-tabs sqc-multiplayer-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog">
         <Link
           href="/multiplayer-side-quests"
           className={selectedTab === "official" ? "sqc-brand-tab official active" : "sqc-brand-tab official"}
