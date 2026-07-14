@@ -9,12 +9,13 @@ function cssBlock(css: string, selector: string) {
   return matches.at(-1)![1];
 }
 
-test("authenticated Multiplayer catalog matches Android swap control without changing other tab groups", async () => {
+test("authenticated Solo and Multiplayer catalogs match the Android swap control without changing other tab groups", async () => {
   const css = await readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");
   const shell = await readFile(new URL("../src/components/mobile-app-web-shell.tsx", import.meta.url), "utf8");
 
   assert.match(shell, /className="sqc-brand-tabs sqc-multiplayer-brand-tabs" role="tablist" aria-label="Multiplayer Side Quest catalog"/);
-  assert.doesNotMatch(shell, /className="[^"]*sqc-multiplayer-brand-tabs[^"]*" role="tablist" aria-label="Solo Side Quest catalog"/);
+  assert.match(shell, /className="sqc-brand-tabs sqc-solo-brand-tabs" role="tablist" aria-label="Solo Side Quest catalog"/);
+  assert.doesNotMatch(shell, /className="[^"]*(?:sqc-solo-brand-tabs|sqc-multiplayer-brand-tabs)[^"]*" role="tablist" aria-label="Choose Side Quest source"/);
 
   const tabs = cssBlock(css, ".sqc-brand-tabs");
   assert.match(tabs, /gap:\s*12px/);
@@ -30,10 +31,10 @@ test("authenticated Multiplayer catalog matches Android swap control without cha
   assert.match(icon, /mask:\s*url\(/);
   assert.match(cssBlock(css, '.sqc-brand-switch[data-icon="swap-horizontal"] span::before'), /display:\s*none/);
 
-  const authenticatedTabs = cssBlock(css, ".sqc-mobile-web:not(.signed-out) .sqc-multiplayer-brand-tabs");
+  const authenticatedTabs = cssBlock(css, ".sqc-mobile-web:not(.signed-out) :is(.sqc-solo-brand-tabs, .sqc-multiplayer-brand-tabs)");
   assert.match(authenticatedTabs, /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/);
 
-  const authenticatedSwitch = cssBlock(css, '.sqc-mobile-web:not(.signed-out) .sqc-multiplayer-brand-tabs .sqc-brand-switch[data-icon="swap-horizontal"]');
+  const authenticatedSwitch = cssBlock(css, '.sqc-mobile-web:not(.signed-out) :is(.sqc-solo-brand-tabs, .sqc-multiplayer-brand-tabs) .sqc-brand-switch[data-icon="swap-horizontal"]');
   assert.match(authenticatedSwitch, /box-sizing:\s*border-box/);
   assert.match(authenticatedSwitch, /position:\s*absolute/);
   assert.match(authenticatedSwitch, /left:\s*50%/);

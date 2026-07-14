@@ -17,7 +17,7 @@ export type CustomCatalogClientRow = SoloCatalogClientRow & {
 
 function CatalogRow({ row, status }: { row: SoloCatalogClientRow; status: string }) {
   return (
-    <Link href={row.href} className="sqc-app-row">
+    <Link href={row.href} className="sqc-app-row text-only">
       <span className="sqc-row-copy">
         {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
         <strong className="sqc-row-title-line"><span>{row.title}</span></strong>
