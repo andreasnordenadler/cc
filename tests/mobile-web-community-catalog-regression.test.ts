@@ -18,6 +18,7 @@ const row: MobileWebMultiplayerPreview = {
   status: "Joined",
   playersLabel: "4 players",
   timeLeftLabel: "Final",
+  leaderboardRows: [],
   likeSummary: { count: 0, likedByViewer: false },
   lifecycle: "finished",
   createdAt: "2026-07-01T00:00:00.000Z",

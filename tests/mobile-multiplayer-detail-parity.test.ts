@@ -23,6 +23,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   playersLabel: "1 player",
   timeLeftLabel: "6d left",
   positionLabel: "#1",
+  leaderboardRows: [],
   likeSummary: { count: 0, likedByViewer: false },
   lifecycle: "open",
   createdAt: "2026-07-01T00:00:00.000Z",
@@ -112,6 +113,30 @@ test("finished lifecycle is shown from quest data instead of hardcoding OPEN", (
   const html = renderDetail({ ...officialJoinedQuest, lifecycle: "finished", timeLeftLabel: "Final" });
   assert.match(html, />FINISHED</);
   assert.doesNotMatch(html, />OPEN</);
+});
+
+test("finished Multiplayer detail renders the final result and frozen leaderboard", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    lifecycle: "finished",
+    timeLeftLabel: "Final",
+    positionLabel: "#2",
+    leaderboardRows: [
+      { rank: 1, name: "Ada", provider: "lichess · ada", progress: "3/3", placement: "Gold", viewer: false },
+      { rank: 2, name: "Current player", provider: "chess.com · current", progress: "2/3", placement: "Silver", viewer: true },
+      { rank: 3, name: "Lin", provider: "lichess · lin", progress: "1/3", placement: "Bronze", viewer: false },
+    ],
+  });
+
+  assert.match(html, />Final result</);
+  assert.match(html, />Silver finish\.</);
+  assert.match(html, />Final leaderboard</);
+  assert.match(html, />Ada</);
+  assert.match(html, /3\/3/);
+  assert.match(html, />Current player/);
+  assert.match(html, /2\/3/);
+  assert.match(html, />Share final result</);
+  assert.match(html, />Copy final link</);
 });
 
 test("share payload uses the current origin and exact encoded quest path without identity data", async () => {
