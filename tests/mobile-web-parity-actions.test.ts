@@ -66,3 +66,18 @@ test("active Solo Home control exposes only the compact proof refresh action", a
   assert.match(source, /Refresh active Solo Side Quest/);
   assert.doesNotMatch(source, /deactivateActiveChallenge|confirm\(|Choose another Side Quest|userId/);
 });
+
+test("official Solo detail CTAs execute start and proof-check actions instead of redirecting to Account", async () => {
+  const fs = await import("node:fs/promises");
+  const page = await fs.readFile(new URL("../src/app/challenges/[id]/page.tsx", import.meta.url), "utf8");
+  const controls = await fs.readFile(new URL("../src/components/official-solo-detail-actions.tsx", import.meta.url), "utf8");
+
+  assert.match(page, /OfficialSoloDetailActions/);
+  assert.match(page, /existingActiveChallenge\?\.title \?\? "your current Side Quest"/);
+  assert.doesNotMatch(page, /<Link href="\/account" className="sqc-(?:primary|secondary)-action">(?:Start this Side Quest|Check my latest game)<\/Link>/);
+  assert.match(controls, /action={startChallenge}/);
+  assert.match(controls, /name="challengeId"/);
+  assert.match(controls, /action={checkActiveChallenge}/);
+  assert.match(controls, /pending \? "Checking latest game…" : "Check my latest game"/);
+  assert.match(controls, /Switch active Side Quest\?/);
+});
