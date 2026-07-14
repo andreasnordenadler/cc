@@ -1,30 +1,48 @@
-type CustomTemplate = "knights-first" | "no-castle" | "queen-trade" | "win";
+import type { CustomSideQuestRuleBlock } from "./custom-side-quests";
+
+export type CustomTemplate = "knights-first" | "no-castle" | "queen-trade" | "win";
 
 type CustomCreateInput = {
   title: string;
   summary: string;
-  template: CustomTemplate | "";
+  logic: "all" | "any";
+  blocks: CustomSideQuestRuleBlock[];
   visibility: "private" | "public";
   lifecycle: "draft" | "published";
 };
 
-const customBlocks = {
+const customBlocks: Record<CustomTemplate, CustomSideQuestRuleBlock[]> = {
   "knights-first": [{ type: "openingSequence", raw: "Nf3 Nf6 Nc3 Nc6", moves: ["Nf3", "Nf6", "Nc3", "Nc6"], anchor: "gameStart" }, { type: "gameResult", result: "win" }],
-  "no-castle": [{ type: "gameResult", result: "win" }, { type: "pieceState", piece: "king", owner: "my", condition: "not moved" }],
-  "queen-trade": [{ type: "pieceState", piece: "queen", owner: "either", condition: "gone" }, { type: "gameResult", result: "win" }],
+  "no-castle": [{ type: "gameResult", result: "win" }, { type: "pieceState", piece: "king", owner: "my", condition: "not moved", timing: { atGameEnd: true } }],
+  "queen-trade": [{ type: "pieceState", piece: "queen", owner: "either", selector: { quantifier: "all", count: 2, maxAvailable: 2, identity: "any" }, condition: "gone", timing: { atGameEnd: true } }, { type: "gameResult", result: "win" }],
   win: [{ type: "gameResult", result: "win" }],
-} as const;
+};
+
+export function getCustomTemplateBlocks(template: CustomTemplate) {
+  return customBlocks[template].map((block) => structuredClone(block));
+}
+
+export function describeCustomRuleBlock(block: CustomSideQuestRuleBlock) {
+  if (block.type === "gameResult") return `${block.negate ? "Do not " : ""}${block.result === "lose" ? "finish with a loss" : `${block.result} the game`}.`;
+  if (block.type === "openingSequence") return `${block.negate ? "Do not play" : "Play"} ${block.moves.join(" ")} from move 1.`;
+  if (block.type === "moveSequence") return `${block.negate ? "Do not play" : "Play"} the sequence ${block.sequence}.`;
+  if (block.owner === "either" && block.selector?.quantifier === "all" && block.piece === "queen" && block.condition === "gone") return `${block.negate ? "Both queens must not be gone" : "Both queens are gone"} at game end.`;
+  const owner = block.owner === "my" ? "Your" : block.owner === "opponent" ? "Your opponent's" : "Either player's";
+  const timing = block.timing?.byMove ? ` by move ${block.timing.byMove}` : block.timing?.atMove ? ` at move ${block.timing.atMove}` : " at game end";
+  return `${block.negate ? "It must not be true that " : ""}${owner} ${block.piece} is ${block.condition}${block.targetSquare ? ` ${block.targetSquare}` : ""}${timing}.`;
+}
 
 export function buildCustomCreatePayload(input: CustomCreateInput) {
   const title = input.title.replace(/\s+/g, " ").trim();
   const summary = input.summary.replace(/\s+/g, " ").trim();
   if (!title) throw new Error("Name this custom Side Quest before saving.");
-  if (!input.template) throw new Error("Choose at least one condition before saving.");
+  if (!input.blocks.length && input.lifecycle === "published") throw new Error("Choose at least one condition before saving.");
+  if (input.blocks.length > 6) throw new Error("Custom Side Quests can use up to 6 conditions.");
   return {
     title: title.slice(0, 80),
     summary: summary.slice(0, 500),
-    config: JSON.stringify({ version: 2, logic: "all", blocks: customBlocks[input.template] }),
-    visibility: input.visibility,
+    config: JSON.stringify({ version: 2, logic: input.logic === "any" ? "any" : "all", blocks: input.blocks }),
+    visibility: input.lifecycle === "draft" ? "private" : input.visibility,
     lifecycle: input.lifecycle,
   };
 }
