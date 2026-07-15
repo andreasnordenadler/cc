@@ -17,3 +17,41 @@ test("CI uses a pnpm release whose audit client supports the registry bulk advis
     );
   }
 });
+
+test("pnpm 11 keeps the release-age guard except for the reviewed Expo patch set", () => {
+  const source = readRepoFile("pnpm-workspace.yaml");
+  const reviewedExpoPatchSet = [
+    "@expo/cli@54.0.26",
+    "@expo/config-plugins@54.0.5",
+    "@expo/config@12.0.14",
+    "@expo/env@2.0.12",
+    "@expo/metro-config@54.0.17",
+    "@expo/prebuild-config@54.0.9",
+    "@expo/schema-utils@0.1.9",
+    "babel-preset-expo@54.0.12",
+    "expo@54.0.36",
+  ];
+
+  assert.doesNotMatch(source, /minimumReleaseAge:\s*0/);
+  for (const packageVersion of reviewedExpoPatchSet) {
+    assert.ok(source.includes(`- "${packageVersion}"`), `missing reviewed exception ${packageVersion}`);
+  }
+});
+
+test("pnpm 11 explicitly ignores every dependency build script that CI does not need", () => {
+  const source = readRepoFile("pnpm-workspace.yaml");
+  const intentionallyIgnored = [
+    "@clerk/shared",
+    "browser-tabs-lock",
+    "bufferutil",
+    "core-js",
+    "esbuild",
+    "sharp",
+    "unrs-resolver",
+    "utf-8-validate",
+  ];
+
+  for (const packageName of intentionallyIgnored) {
+    assert.ok(source.includes(`  "${packageName}": false`), `missing denied build-script package ${packageName}`);
+  }
+});
