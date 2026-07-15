@@ -49,7 +49,8 @@ test("official Solo like control disables repeated submissions and sends only th
   assert.match(source, /disabled=\{busy\}/);
   assert.match(source, /if \(busy\) return/);
   assert.match(source, /fetch\("\/api\/community-likes"/);
-  assert.match(source, /targetType: "solo"/);
+  assert.match(source, /targetType = "solo"/);
+  assert.match(source, /targetType,/);
   assert.match(source, /targetId,/);
   assert.doesNotMatch(source, /userId|ownerId|username/);
   assert.match(source, /setLiked\(previous\.liked\)/);

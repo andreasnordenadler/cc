@@ -41,7 +41,7 @@ test("Solo and Multiplayer swap controls are real links with the Android swap ic
 
 test("text-only community quest rows receive the full copy column", () => {
   const multiplayer = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, { selectedTab: "community", signedIn: true, officialRows: [], communityRows: [row] }));
-  assert.match(multiplayer, /class="sqc-app-row text-only"/);
+  assert.match(multiplayer, /class="sqc-app-row sqc-app-row-with-like text-only"/);
   assert.match(multiplayer, /A complete community Multiplayer title/);
   assert.match(multiplayer, /Community public · 4 players · Final/);
 

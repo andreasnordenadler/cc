@@ -1065,6 +1065,12 @@ function OfficialMultiplayerPanel({
                 image={mobileAsset.multiplayerSeal}
                 sourceBadge={row.sourceBadge}
                 likeSummary={row.likeSummary}
+                likeAction={{
+                  signedIn,
+                  targetType: "multiplayer",
+                  targetId: row.id,
+                  returnTo: "/multiplayer-side-quests",
+                }}
               />
             ))}
           </div>
@@ -1320,7 +1326,18 @@ export function MobileMultiplayerDetailScreen({
       <section className="sqc-multiplayer-detail-hero">
         <MobileAssetMark className="sqc-section-mark group" image={mobileAsset.multiplayerSeal} glow={mobileAsset.coatGlow} size={116} glowSize={146} />
         <span className="sqc-multiplayer-kicker">{official ? "SQC Official Multiplayer Side Quest" : "Community Multiplayer Side Quest"}</span>
-        <h1>{quest.title}</h1>
+        <div className="sqc-active-detail-title-row">
+          <h1>{quest.title}</h1>
+          <OfficialSoloLikeControl
+            targetType="multiplayer"
+            targetId={quest.id}
+            count={quest.likeSummary.count}
+            likedByViewer={quest.likeSummary.likedByViewer}
+            signedIn={signedIn}
+            returnTo={`/groupquests/${encodeURIComponent(quest.id)}`}
+            label={quest.title}
+          />
+        </div>
         <p>{quest.inviteCopy}</p>
         <span className="sqc-detail-latest-check">{quest.lifecycle.toUpperCase()}</span>
       </section>
@@ -1526,6 +1543,7 @@ function AppRow({
           <span className="sqc-row-title-line">
             <strong><span>{title}</span></strong>
             <OfficialSoloLikeControl
+              targetType={likeAction.targetType}
               targetId={likeAction.targetId}
               count={likeSummary.count}
               likedByViewer={likeSummary.likedByViewer}
