@@ -71,7 +71,7 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
   assert.match(html, />Join Side Quest</);
   assert.match(html, />Created by</);
   assert.match(html, />Hosted by Ada</);
-  assert.doesNotMatch(html, /Check my latest game/);
+  assert.doesNotMatch(html, /Check my latest game|Leave Side Quest/);
 });
 
 test("signed-in Multiplayer detail exposes the Android like action beside the title", () => {
@@ -135,7 +135,7 @@ test("hosted Multiplayer detail only offers proof refresh when the host is also 
   assert.match(hostedWithoutParticipation, />Join first</);
   assert.match(hostedWithoutParticipation, />Join your Multiplayer Side Quest before playing your proof game\.</);
   assert.match(hostedWithoutParticipation, />Join Side Quest</);
-  assert.doesNotMatch(hostedWithoutParticipation, /Check my latest game/);
+  assert.doesNotMatch(hostedWithoutParticipation, /Check my latest game|Leave Side Quest/);
 
   const hostedParticipant = renderDetail({
     ...officialJoinedQuest,
@@ -154,11 +154,11 @@ test("signed-out and finished Multiplayer states keep safe actions", () => {
   const signedOut = renderDetail({ ...officialJoinedQuest, status: "Not joined", viewerJoined: false }, false);
   assert.match(signedOut, />Sign in first</);
   assert.match(signedOut, />Sign in to join</);
-  assert.doesNotMatch(signedOut, /Check my latest game/);
+  assert.doesNotMatch(signedOut, /Check my latest game|Leave Side Quest/);
 
   const finished = renderDetail({ ...officialJoinedQuest, lifecycle: "finished" });
   assert.match(finished, />Receipts locked</);
-  assert.doesNotMatch(finished, /Check my latest game|Join Side Quest/);
+  assert.doesNotMatch(finished, /Check my latest game|Join Side Quest|Leave Side Quest/);
 });
 
 test("finished lifecycle is shown from quest data instead of hardcoding OPEN", () => {
