@@ -42,6 +42,7 @@ export default async function SideQuestsPage() {
     >
       <MobileSoloSideQuestsScreen
         challenges={CHALLENGES}
+        signedIn={Boolean(user)}
         activeChallengeId={activeChallengeId}
         completedChallengeIds={progress.completedChallengeIds}
         likeSummaries={likeSummaries}

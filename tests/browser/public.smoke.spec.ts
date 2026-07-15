@@ -64,8 +64,8 @@ test("solo catalog is publicly browseable", async ({ page }) => {
   await expectHealthyNavigation(page, "/solo");
 
   await expect(page.getByRole("heading", { name: "Official Side Quests", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Any Game Counts/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Queen\? Never Heard of Her/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Any Game Counts", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Queen? Never Heard of Her", exact: true })).toBeVisible();
 });
 
 test("multiplayer catalog is publicly browseable", async ({ page }) => {
