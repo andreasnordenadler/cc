@@ -62,6 +62,17 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
+test("mobile official Solo detail keeps the like control in a bounded hero", async ({ page }) => {
+  const response = await page.goto("/challenges/finish-any-game", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBeLessThan(400);
+
+  const likeControl = page.getByRole("link", { name: "Sign in to like Any Game Counts. 0 likes." });
+  await expect(likeControl).toBeVisible();
+  const iconBox = await likeControl.locator(".sqc-like-pill-icon").boundingBox();
+  expect(iconBox?.width).toBeGreaterThanOrEqual(15);
+  expect(await noHorizontalOverflow(page)).toBe(true);
+});
+
 test("multiplayer catalog opens Official by default and Community stays app-styled", async ({ page }) => {
   await page.goto("/multiplayer-side-quests", { waitUntil: "domcontentloaded" });
   await expect(page.getByRole("tab", { name: "Official Side Quests" })).toHaveAttribute("aria-selected", "true");
