@@ -3907,7 +3907,7 @@ body::after {
 .sqc-mobile-web.signed-out .sqc-brand-tabs { grid-template-columns: minmax(0,1fr) 36px minmax(0,1fr); }
 .sqc-mobile-web.signed-out .sqc-brand-tab { min-height: 54px; padding-inline: 5px; border-radius: 22px; font-size: 12px; line-height: 1; white-space: nowrap; }
 .sqc-mobile-web.signed-out .sqc-brand-switch[data-icon="swap-horizontal"] { width: 36px; height: 36px; }
-.sqc-mobile-web.signed-out .sqc-app-row { min-height: 68px; grid-template-columns: 42px minmax(0,1fr) auto; gap: 8px; padding: 8px 10px; }
+.sqc-mobile-web.signed-out .sqc-app-row { min-height: 68px; grid-template-columns: 42px minmax(0,1fr) auto; gap: 8px; padding: 7px 10px; }
 .sqc-mobile-web.signed-out .sqc-app-row.text-only { grid-template-columns: minmax(0,1fr) auto; }
 .sqc-mobile-web.signed-out .sqc-row-icon { width: 39px; height: 44px; }
 .sqc-mobile-web.signed-out .sqc-row-glow { width: 47px; height: 51px; }

@@ -40,7 +40,7 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   expect(response?.status()).toBeLessThan(400);
 
   await expect(page.getByRole("heading", { name: "Official Side Quests", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Any Game Counts/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Any Game Counts", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Close screen" })).toBeVisible();
   await expectGuestMenu(page);
   await expect(page.getByRole("link", { name: "Switch to Community Side Quests" })).toHaveAttribute("data-icon", "swap-horizontal");
@@ -49,7 +49,7 @@ test("mobile solo catalog matches the app catalog hierarchy", async ({ page }) =
   await expect(easy).toHaveCSS("background-color", "rgb(96, 240, 175)");
   await expect(easy).toHaveCSS("color", "rgb(10, 18, 14)");
   const [rowBox, officialTabBox, communityTabBox, swapBox] = await Promise.all([
-    page.getByRole("link", { name: /Any Game Counts/ }).boundingBox(),
+    page.getByRole("link", { name: "Open Any Game Counts", exact: true }).boundingBox(),
     page.getByRole("tab", { name: "Official Side Quests" }).boundingBox(),
     page.getByRole("tab", { name: "Community Side Quests" }).boundingBox(),
     page.getByRole("link", { name: "Switch to Community Side Quests" }).boundingBox(),
