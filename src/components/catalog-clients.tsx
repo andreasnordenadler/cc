@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import OfficialSoloLikeControl from "./official-solo-like-control";
 import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
@@ -25,6 +26,31 @@ function CatalogRow({ row, status }: { row: SoloCatalogClientRow; status: string
       </span>
       <span className="sqc-row-status">{status}</span>
     </Link>
+  );
+}
+
+function MultiplayerCatalogRow({ row, status, signedIn }: { row: MobileWebMultiplayerPreview; status: string; signedIn: boolean }) {
+  return (
+    <div className="sqc-app-row sqc-app-row-with-like text-only">
+      <Link href={row.href} className="sqc-app-row-main" aria-label={`Open ${row.title}`} />
+      <span className="sqc-row-copy">
+        <span className="sqc-row-badge">{row.sourceBadge}</span>
+        <span className="sqc-row-title-line">
+          <strong><span>{row.title}</span></strong>
+          <OfficialSoloLikeControl
+            targetType="multiplayer"
+            targetId={row.id}
+            count={row.likeSummary.count}
+            likedByViewer={row.likeSummary.likedByViewer}
+            signedIn={signedIn}
+            returnTo="/multiplayer-side-quests?tab=community"
+            label={row.title}
+          />
+        </span>
+        <small>{row.meta}</small>
+      </span>
+      <span className="sqc-row-status">{status}</span>
+    </div>
   );
 }
 
@@ -91,8 +117,8 @@ export function CommunityMultiplayerCatalog({ rows, signedIn }: { rows: MobileWe
   return (
     <>
       {signedIn ? <>
-        <section className="sqc-native-card green" aria-label="Your Multiplayer Side Quests"><span className="sqc-card-eyebrow">Active · {activeMine.length}</span><h2>Your active Multiplayer Side Quests.</h2>{activeMine.length ? <div className="sqc-catalog">{activeMine.map(row => <CatalogRow key={row.id} row={row} status={row.status} />)}</div> : <div className="sqc-empty-panel"><strong>No active Multiplayer Side Quests yet.</strong><span>Join an open quest, use an invite code, or create your own.</span></div>}</section>
-        <section className="sqc-native-card green" aria-label="Finished Multiplayer Side Quests"><span className="sqc-card-eyebrow">Recently finished · {finishedMine.length}</span><h2>Recently finished Multiplayer Side Quests.</h2>{finishedMine.length ? <div className="sqc-catalog">{finishedMine.map(row => <CatalogRow key={row.id} row={row} status="Finished" />)}</div> : <p>No finished Multiplayer Side Quests yet.</p>}</section>
+        <section className="sqc-native-card green" aria-label="Your Multiplayer Side Quests"><span className="sqc-card-eyebrow">Active · {activeMine.length}</span><h2>Your active Multiplayer Side Quests.</h2>{activeMine.length ? <div className="sqc-catalog">{activeMine.map(row => <MultiplayerCatalogRow key={row.id} row={row} status={row.status} signedIn={signedIn} />)}</div> : <div className="sqc-empty-panel"><strong>No active Multiplayer Side Quests yet.</strong><span>Join an open quest, use an invite code, or create your own.</span></div>}</section>
+        <section className="sqc-native-card green" aria-label="Finished Multiplayer Side Quests"><span className="sqc-card-eyebrow">Recently finished · {finishedMine.length}</span><h2>Recently finished Multiplayer Side Quests.</h2>{finishedMine.length ? <div className="sqc-catalog">{finishedMine.map(row => <MultiplayerCatalogRow key={row.id} row={row} status="Finished" signedIn={signedIn} />)}</div> : <p>No finished Multiplayer Side Quests yet.</p>}</section>
       </> : null}
       <section className="sqc-native-card green" aria-label="Community Multiplayer Side Quests">
         <span className="sqc-card-eyebrow">Community catalog</span><h2>Community Multiplayer Side Quests.</h2>
@@ -101,7 +127,7 @@ export function CommunityMultiplayerCatalog({ rows, signedIn }: { rows: MobileWe
           <div className="sqc-community-controls"><div className="sqc-filter-row" aria-label="Filter multiplayer community">{(["open", "all", ...(signedIn ? ["joined", "hosted", "finished"] : [])] as typeof filter[]).map(value => <button type="button" key={value} className={filter === value ? "active" : ""} onClick={() => setFilter(value)}>{value[0].toUpperCase() + value.slice(1)}</button>)}</div>
           <label className="sqc-sort-pill">Sort <select aria-label="Sort multiplayer community" value={sort} onChange={event => setSort(event.target.value as typeof sort)}><option value="closing">Closing</option><option value="newest">Newest</option><option value="name">Name</option></select></label></div>
         </div>
-        {filtered.length ? <div className="sqc-catalog">{filtered.map(row => <CatalogRow key={row.id} row={row} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} />)}</div> : <div className="sqc-empty-panel"><strong>No Multiplayer Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "No public Community Multiplayer Side Quests yet."}</span></div>}
+        {filtered.length ? <div className="sqc-catalog">{filtered.map(row => <MultiplayerCatalogRow key={row.id} row={row} signedIn={signedIn} status={signedIn ? row.lifecycle === "finished" ? "Finished" : row.status : "View"} />)}</div> : <div className="sqc-empty-panel"><strong>No Multiplayer Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "No public Community Multiplayer Side Quests yet."}</span></div>}
       </section>
     </>
   );

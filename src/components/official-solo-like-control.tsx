@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 type OfficialSoloLikeControlProps = {
+  targetType?: "solo" | "multiplayer";
   targetId: string;
   count: number;
   likedByViewer: boolean;
@@ -13,6 +14,7 @@ type OfficialSoloLikeControlProps = {
 };
 
 export default function OfficialSoloLikeControl({
+  targetType = "solo",
   targetId,
   count: initialCount,
   likedByViewer: initiallyLiked,
@@ -55,7 +57,7 @@ export default function OfficialSoloLikeControl({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          targetType: "solo",
+          targetType,
           targetId,
           intent: nextLiked ? "like" : "unlike",
           returnTo,

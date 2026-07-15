@@ -5,7 +5,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-import { MobileMultiplayerDetailScreen } from "../src/components/mobile-app-web-shell";
+import { MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { buildGroupQuestSharePayload, shareGroupQuest } from "../src/lib/group-quest-share";
 import type { MobileWebMultiplayerPreview } from "../src/lib/mobile-web-multiplayer";
 
@@ -71,6 +71,56 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
   assert.match(html, />Created by</);
   assert.match(html, />Hosted by Ada</);
   assert.doesNotMatch(html, /Check my latest game/);
+});
+
+test("signed-in Multiplayer detail exposes the Android like action beside the title", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    likeSummary: { count: 7, likedByViewer: true },
+  });
+
+  assert.match(html, /<button[^>]*class="sqc-like-pill liked"[^>]*aria-pressed="true"/);
+  assert.match(html, /aria-label="Unlike Official 14-Day Starter Shield\. 7 likes\."/);
+  assert.match(html, /data-icon="thumb-up"/);
+});
+
+test("signed-in official Multiplayer catalog keeps the exact row link beside the Android like action", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerSideQuestsScreen, {
+    selectedTab: "official",
+    signedIn: true,
+    officialRows: [{ ...officialJoinedQuest, likeSummary: { count: 3, likedByViewer: false } }],
+    communityRows: [],
+  }));
+
+  assert.match(html, /<a class="sqc-app-row-main" aria-label="Open Official 14-Day Starter Shield" href="\/groupquests\/official-starter-shield\?accepted=1"><\/a>/);
+  assert.match(html, /<button[^>]*class="sqc-like-pill"[^>]*aria-pressed="false"/);
+  assert.match(html, /aria-label="Like Official 14-Day Starter Shield\. 3 likes\."/);
+});
+
+test("signed-in Community Multiplayer catalog rows expose the same exact like mutation", () => {
+  const communityQuest = {
+    ...officialJoinedQuest,
+    id: "community-table",
+    href: "/groupquests/community-table",
+    title: "Ada's Table",
+    sourceBadge: "Community" as const,
+    likeSummary: { count: 2, likedByViewer: false },
+  };
+  const html = renderToStaticMarkup(React.createElement(MobileMultiplayerSideQuestsScreen, {
+    selectedTab: "community",
+    signedIn: true,
+    officialRows: [],
+    communityRows: [communityQuest],
+  }));
+
+  assert.match(html, /aria-label="Open Ada&#x27;s Table"/);
+  assert.match(html, /<button[^>]*class="sqc-like-pill"[^>]*aria-pressed="false"/);
+  assert.match(html, /aria-label="Like Ada&#x27;s Table\. 2 likes\."/);
+});
+
+test("Community Multiplayer like rows keep the full text track instead of the missing icon track", async () => {
+  const css = await readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");
+  assert.match(css, /\.sqc-app-row\.sqc-app-row-with-like\.text-only\s*\{\s*grid-template-columns:\s*minmax\(0,\s*1fr\) auto;/);
 });
 
 test("hosted Multiplayer detail only offers proof refresh when the host is also a participant", () => {

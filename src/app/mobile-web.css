@@ -905,6 +905,10 @@ body::after {
   grid-template-columns: 32px minmax(0, 1fr) auto;
 }
 
+.sqc-app-row.sqc-app-row-with-like.text-only {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .sqc-app-row-main {
   position: absolute;
   z-index: 1;

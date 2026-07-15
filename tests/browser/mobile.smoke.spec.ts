@@ -86,6 +86,16 @@ test("multiplayer catalog opens Official by default and Community stays app-styl
   await expect(page.getByRole("tab", { name: "Official Side Quests" })).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { name: "Official Multiplayer Side Quests" })).toBeVisible();
   await expect(page.getByText("3 official", { exact: true })).toBeVisible();
+  const officialLike = page.locator(".sqc-like-pill").first();
+  await expect(officialLike).toBeVisible();
+  await expect(officialLike).toHaveAttribute("href", /\/sign-in\?redirect_url=%2Fmultiplayer-side-quests/);
+  const [officialRowBox, officialLikeBox] = await Promise.all([
+    page.locator(".sqc-app-row-with-like").first().boundingBox(),
+    officialLike.boundingBox(),
+  ]);
+  expect(officialRowBox).not.toBeNull();
+  expect(officialLikeBox).not.toBeNull();
+  expect(officialLikeBox!.x + officialLikeBox!.width).toBeLessThanOrEqual(officialRowBox!.x + officialRowBox!.width);
   await expectGuestMenu(page);
 
   await page.getByRole("tab", { name: "Community Side Quests" }).click();
