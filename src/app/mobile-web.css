@@ -3887,7 +3887,6 @@ body::after {
   box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
   backdrop-filter: blur(14px);
 }
-.sqc-guest-nav.sticky { position: sticky; z-index: 50; bottom: max(6px, env(safe-area-inset-bottom)); }
 .sqc-guest-nav a {
   min-width: 0;
   min-height: 44px;

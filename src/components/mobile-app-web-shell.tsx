@@ -258,13 +258,13 @@ export default function MobileAppWebShell({
         )}
       </section>
       {!signedIn && !modalPresentation && !immersivePresentation ? (
-        <GuestNavigation activeTab={activeTab} sticky={activeTab !== "home"} />
+        <GuestNavigation activeTab={activeTab} />
       ) : null}
     </main>
   );
 }
 
-function GuestNavigation({ activeTab, sticky }: { activeTab: AppTab; sticky: boolean }) {
+function GuestNavigation({ activeTab }: { activeTab: AppTab }) {
   const items = [
     { label: "Home", href: "/", active: activeTab === "home" },
     { label: "Solo", href: "/side-quests", active: activeTab === "sideQuests" },
@@ -275,7 +275,7 @@ function GuestNavigation({ activeTab, sticky }: { activeTab: AppTab; sticky: boo
   ];
 
   return (
-    <nav aria-label="Guest menu" className={`sqc-guest-nav${sticky ? " sticky" : ""}`}>
+    <nav aria-label="Guest menu" className="sqc-guest-nav">
       {items.map((item) => (
         <Link key={item.href} href={item.href} aria-current={item.active ? "page" : undefined}>
           {item.label}

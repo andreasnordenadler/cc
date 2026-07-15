@@ -70,6 +70,14 @@ test("mobile official Solo detail keeps the like control in a bounded hero", asy
   await expect(likeControl).toBeVisible();
   const iconBox = await likeControl.locator(".sqc-like-pill-icon").boundingBox();
   expect(iconBox?.width).toBeGreaterThanOrEqual(15);
+
+  const [detailBox, guestMenuBox] = await Promise.all([
+    page.getByRole("region", { name: "Current screen" }).boundingBox(),
+    page.getByRole("navigation", { name: "Guest menu" }).boundingBox(),
+  ]);
+  expect(detailBox).not.toBeNull();
+  expect(guestMenuBox).not.toBeNull();
+  expect(guestMenuBox!.y).toBeGreaterThanOrEqual(detailBox!.y + detailBox!.height);
   expect(await noHorizontalOverflow(page)).toBe(true);
 });
 
