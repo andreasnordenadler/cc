@@ -35,7 +35,7 @@ export default function GroupQuestLeaveAction({ id }: { id: string }) {
     <section className="groupquest-leave-zone" aria-label="Leave this Multiplayer Side Quest">
       <p>Need to leave this Multiplayer Side Quest?</p>
       <button className="groupquest-leave-button" type="button" onClick={leaveSideQuest} disabled={submitting}>
-        {submitting ? "Leaving…" : "Leave quest"}
+        {submitting ? "Leaving…" : "Leave Side Quest"}
       </button>
       {error ? <small>{error}</small> : null}
     </section>

@@ -51,6 +51,7 @@ test("joined official Multiplayer detail renders the Android next action and rea
   assert.match(html, />Refresh proof after your next eligible game\.</);
   assert.match(html, />SQC checks only fresh public games inside this Multiplayer window\.</);
   assert.match(html, />Check my latest game</);
+  assert.match(html, />Leave Side Quest</);
   assert.match(html, />Share Side Quest</);
   assert.match(html, />Copy invite link</);
   assert.doesNotMatch(html, /Back to catalog|Joined Side Quest|before joining|Created by|Hosted by Side Quest Chess/);
