@@ -8,6 +8,7 @@ import MobileAppWebShell, { MiniChessBoard } from "@/components/mobile-app-web-s
 import DeactivateQuestControl from "@/components/deactivate-quest-control";
 import { MobileWebRelativeTime } from "@/components/mobile-web-relative-time";
 import OfficialSoloDetailActions from "@/components/official-solo-detail-actions";
+import OfficialSoloLikeControl from "@/components/official-solo-like-control";
 import { CHALLENGES, getChallengeById } from "@/lib/challenges";
 import { getCommunityLikeSummaries } from "@/lib/community-likes";
 import { getChallengeGlowPath } from "@/lib/mobile-web-trophies";
@@ -98,9 +99,7 @@ export default async function ChallengeDetailPage({
       ? challenge.rules
       : [challenge.instruction, challenge.proofCallout].filter(Boolean);
   const completed = progress.completedChallengeIds.includes(challenge.id);
-  const likeSummary = user
-    ? (await getCommunityLikeSummaries(await clerkClient(), user.id)).get("solo", challenge.id)
-    : { count: 0, likedByViewer: false };
+  const likeSummary = (await getCommunityLikeSummaries(await clerkClient(), user?.id ?? null)).get("solo", challenge.id);
 
   return (
     <MobileAppWebShell
@@ -118,7 +117,17 @@ export default async function ChallengeDetailPage({
               <Image className="sqc-detail-coat-image" alt="" src={badgePath} width={108} height={118} priority />
             </span>
             <span className="sqc-pill">{activePassed ? "Completed Solo Side Quest" : "Active Solo Side Quest"}</span>
-            <h1>{challenge.title}</h1>
+            <div className="sqc-active-detail-title-row">
+              <h1>{challenge.title}</h1>
+              <OfficialSoloLikeControl
+                targetId={challenge.id}
+                count={likeSummary.count}
+                likedByViewer={likeSummary.likedByViewer}
+                signedIn={Boolean(user)}
+                returnTo={`/challenges/${encodeURIComponent(challenge.id)}`}
+                label={challenge.title}
+              />
+            </div>
             <p>{challenge.objective}</p>
           </section>
         ) : (
@@ -127,10 +136,14 @@ export default async function ChallengeDetailPage({
               <div className="sqc-official-quest-copy">
                 <div className="sqc-official-title-row">
                   <h1>{challenge.title}</h1>
-                  <span className={likeSummary.likedByViewer ? "sqc-row-like liked" : "sqc-row-like"} aria-label={`${likeSummary.likedByViewer ? "Liked" : "Like"} ${challenge.title}. ${likeSummary.count} like${likeSummary.count === 1 ? "" : "s"}.`}>
-                    <span aria-hidden="true" />
-                    <strong>{likeSummary.count}</strong>
-                  </span>
+                  <OfficialSoloLikeControl
+                    targetId={challenge.id}
+                    count={likeSummary.count}
+                    likedByViewer={likeSummary.likedByViewer}
+                    signedIn={Boolean(user)}
+                    returnTo={`/challenges/${encodeURIComponent(challenge.id)}`}
+                    label={challenge.title}
+                  />
                 </div>
                 <div className="sqc-quest-meta-row">
                   <span className="sqc-coat-pill"><span aria-hidden="true">★</span> Coat</span>

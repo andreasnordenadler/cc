@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
+import OfficialSoloLikeControl from "./official-solo-like-control";
 import { MobileSupportComposer, type MobileWebSupportMessage } from "./mobile-support-composer";
 import type { CommunityLikeSummary } from "@/lib/community-likes";
 import type { Challenge } from "@/lib/challenges";
@@ -473,11 +474,13 @@ export function MobileSoloSideQuestsScreen({
   activeChallengeId,
   completedChallengeIds,
   likeSummaries,
+  signedIn = false,
 }: {
   challenges: Challenge[];
   activeChallengeId?: string | null;
   completedChallengeIds?: string[];
   likeSummaries?: Record<string, CommunityLikeSummary>;
+  signedIn?: boolean;
 }) {
   const completedSet = new Set(completedChallengeIds ?? []);
   const sortedChallenges = [...challenges].sort((a, b) => {
@@ -523,6 +526,12 @@ export function MobileSoloSideQuestsScreen({
               image={toMobileAssetPath(challenge.badgeIdentity.image) ?? mobileAsset.fallbackBadge}
               glow={getChallengeGlowPath(challenge.id)}
               likeSummary={likeSummaries?.[challenge.id]}
+              likeAction={{
+                signedIn,
+                targetType: "solo",
+                targetId: challenge.id,
+                returnTo: "/side-quests",
+              }}
             />
           ))}
         </div>
@@ -1464,6 +1473,7 @@ function AppRow({
   statusImage,
   sourceBadge,
   likeSummary,
+  likeAction,
 }: {
   title: string;
   meta: string;
@@ -1474,9 +1484,15 @@ function AppRow({
   statusImage?: string | null;
   sourceBadge?: string | null;
   likeSummary?: CommunityLikeSummary | null;
+  likeAction?: {
+    signedIn: boolean;
+    targetType: "solo" | "multiplayer";
+    targetId: string;
+    returnTo: string;
+  };
 }) {
-  return (
-    <Link href={href} className="sqc-app-row">
+  const content = (
+    <>
       <span className="sqc-row-icon" aria-hidden="true">
         {glow ? <Image className="sqc-row-glow" alt="" src={glow} width={50} height={50} /> : null}
         <Image className="sqc-row-image" alt="" src={image ?? getRowImage(title, href)} width={42} height={42} />
@@ -1485,7 +1501,7 @@ function AppRow({
         {sourceBadge ? <span className="sqc-row-badge">{sourceBadge}</span> : null}
         <strong className="sqc-row-title-line">
           <span>{title}</span>
-          {likeSummary ? <MobileRowLikeSummary summary={likeSummary} label={title} /> : null}
+          {likeSummary && !likeAction ? <MobileRowLikeSummary summary={likeSummary} label={title} /> : null}
         </strong>
         <small>{meta}</small>
       </span>
@@ -1494,8 +1510,42 @@ function AppRow({
       ) : (
         <span className={`sqc-row-status ${status.toLowerCase().replace(/[^a-z]+/g, "-")}`}>{status}</span>
       )}
-    </Link>
+    </>
   );
+
+  if (likeSummary && likeAction) {
+    return (
+      <div className="sqc-app-row sqc-app-row-with-like">
+        <Link href={href} className="sqc-app-row-main" aria-label={`Open ${title}`} />
+        <span className="sqc-row-icon" aria-hidden="true">
+          {glow ? <Image className="sqc-row-glow" alt="" src={glow} width={50} height={50} /> : null}
+          <Image className="sqc-row-image" alt="" src={image ?? getRowImage(title, href)} width={42} height={42} />
+        </span>
+        <span className="sqc-row-copy">
+          {sourceBadge ? <span className="sqc-row-badge">{sourceBadge}</span> : null}
+          <span className="sqc-row-title-line">
+            <strong><span>{title}</span></strong>
+            <OfficialSoloLikeControl
+              targetId={likeAction.targetId}
+              count={likeSummary.count}
+              likedByViewer={likeSummary.likedByViewer}
+              signedIn={likeAction.signedIn}
+              returnTo={likeAction.returnTo}
+              label={title}
+            />
+          </span>
+          <small>{meta}</small>
+        </span>
+        {statusImage ? (
+          <Image className="sqc-row-status-image" alt="" src={statusImage} width={38} height={38} />
+        ) : (
+          <span className={`sqc-row-status ${status.toLowerCase().replace(/[^a-z]+/g, "-")}`}>{status}</span>
+        )}
+      </div>
+    );
+  }
+
+  return <Link href={href} className="sqc-app-row">{content}</Link>;
 }
 
 function MobileRowLikeSummary({ summary, label }: { summary: CommunityLikeSummary; label: string }) {
