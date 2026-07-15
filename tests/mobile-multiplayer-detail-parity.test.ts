@@ -146,6 +146,7 @@ test("hosted Multiplayer detail only offers proof refresh when the host is also 
   });
   assert.match(hostedParticipant, />Next action</);
   assert.match(hostedParticipant, />Check my latest game</);
+  assert.match(hostedParticipant, />Leave Side Quest</);
   assert.doesNotMatch(hostedParticipant, /Join your Multiplayer Side Quest/);
 });
 

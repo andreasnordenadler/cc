@@ -1381,7 +1381,7 @@ export function MobileMultiplayerDetailScreen({
         ) : participating ? (
           <>
             <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" />
-            {joinState.kind === "joined" ? <GroupQuestLeaveAction id={quest.id} /> : null}
+            <GroupQuestLeaveAction id={quest.id} />
           </>
         ) : (
           <Link href={joinState.href} className="sqc-primary-action">{joinState.label}</Link>
