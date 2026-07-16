@@ -1438,6 +1438,26 @@ export function MobileMultiplayerDetailScreen({
         </div>
       </section>
 
+      {quest.lifecycle === "open" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Live leaderboard">
+          <span className="sqc-card-eyebrow">Leaderboard</span>
+          <h2>{participating ? "Current Multiplayer Side Quest standings." : "Who is in so far."}</h2>
+          <div className="sqc-condition-list">
+            {quest.leaderboardRows.length ? quest.leaderboardRows.map((row) => (
+              <div key={`${row.rank}-${row.name}`} className="sqc-condition-compact-row">
+                <span>#{row.rank}</span>
+                <div>
+                  <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
+                  <p>{[row.progress, row.provider].filter(Boolean).join(" · ")}</p>
+                </div>
+              </div>
+            )) : (
+              <p>No players have joined yet.</p>
+            )}
+          </div>
+        </section>
+      ) : null}
+
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">Rules and time</span>
         <div className="sqc-multiplayer-rule-list">
