@@ -1,13 +1,25 @@
 import MobileAppWebShell, { MobileCreateMultiplayerScreen } from "@/components/mobile-app-web-shell";
-import { currentUser } from "@clerk/nextjs/server";
+import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 import { CHALLENGES } from "@/lib/challenges";
+import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
+import { getCustomSideQuests } from "@/lib/custom-side-quests";
+import { loadMultiplayerCreateQuestChoices } from "@/lib/multiplayer-create-quest-choices";
 
 export default async function CreateMultiplayerSideQuestPage() {
   noStore();
   const user = await currentUser();
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const privateMetadata = user?.privateMetadata ? (user.privateMetadata as UserMetadataRecord) : {};
+  const ownedMetadata = getCustomSideQuests(privateMetadata).length ? privateMetadata : metadata;
+  const { choices: quests, communityUnavailable } = await loadMultiplayerCreateQuestChoices({
+    official: CHALLENGES,
+    owned: getCustomSideQuests(ownedMetadata),
+    loadCommunity: async () => user
+      ? listPublicCommunitySideQuests(await clerkClient(), { limit: 80 })
+      : [],
+  });
   const displayName = user
     ? getPreferredRunnerName(metadata, {
         firstName: user.firstName,
@@ -36,7 +48,8 @@ export default async function CreateMultiplayerSideQuestPage() {
     >
       <MobileCreateMultiplayerScreen
         signedIn={Boolean(user)}
-        quests={CHALLENGES.map((quest) => ({ id: quest.id, title: quest.title, summary: quest.objective }))}
+        quests={quests}
+        communityUnavailable={communityUnavailable}
       />
     </MobileAppWebShell>
   );
