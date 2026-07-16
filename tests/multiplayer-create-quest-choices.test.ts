@@ -53,6 +53,8 @@ test("multiplayer create form renders each quest source instead of collapsing pr
     createElement(MobileMultiplayerCreateForm, { signedIn: true, quests: choices, stableNow: "2026-07-17T12:00:00.000Z" }),
   );
 
+  assert.match(html, /class="sqc-option-card-copy"/);
+  assert.match(html, /class="sqc-option-source"/);
   assert.match(html, />SQC Official</);
   assert.match(html, />Your private</);
   assert.match(html, />Community · Ada</);

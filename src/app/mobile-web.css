@@ -3127,6 +3127,33 @@ body::after {
   font-weight: 950;
 }
 
+.sqc-option-card-copy {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 10px;
+  text-align: left;
+}
+
+.sqc-option-card-copy > .sqc-option-source,
+.sqc-option-card-copy > .sqc-option-summary {
+  grid-column: 1 / -1;
+}
+
+.sqc-option-card-copy > .sqc-option-source {
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.sqc-option-card-copy > b {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+}
+
 .sqc-option-card small,
 .sqc-selection-empty span,
 .sqc-create-footer-bar span {
