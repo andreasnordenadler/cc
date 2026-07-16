@@ -55,8 +55,9 @@ async function buildSelection(raw: unknown, privateMetadata: unknown, publicMeta
   const owned = new Map(ownedQuests.map(q => [q.id, q]));
   const snapshots = [];
   for (const id of ids) {
-    if (getChallengeById(id)) continue;
-    const quest = owned.get(id) ?? await findPublic(id);
+    const ownedQuest = owned.get(id);
+    if (!ownedQuest && getChallengeById(id)) continue;
+    const quest = ownedQuest ?? await findPublic(id);
     if (!quest) return { error: "Only official, public community-created, or your own saved custom Side Quests can be added to multiplayer." };
     if ((quest.lifecycle ?? "published") !== "published") return { error: `${quest.title} must be published before it can be used in multiplayer.` };
     if (!parseCustomRuleConfig(quest.config)?.blocks.length) return { error: `${quest.title} needs a launch-ready custom rule before it can be used in multiplayer.` };
