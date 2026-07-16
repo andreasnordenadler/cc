@@ -231,6 +231,39 @@ test("finished Multiplayer detail renders the final result and frozen leaderboar
   assert.match(html, />Copy final link</);
 });
 
+test("active Multiplayer detail renders the live leaderboard and marks the viewer", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    positionLabel: "#2",
+    leaderboardRows: [
+      { rank: 1, name: "Ada", provider: "lichess · ada", progress: "2/3", placement: "Gold", viewer: false },
+      { rank: 2, name: "Current player", provider: "chess.com · current", progress: "1/3", placement: "Silver", viewer: true },
+    ],
+  });
+
+  assert.match(html, /aria-label="Live leaderboard"/);
+  assert.match(html, />Current Multiplayer Side Quest standings\.</);
+  assert.match(html, />Ada</);
+  assert.match(html, /2\/3/);
+  assert.match(html, />Current player · You</);
+  assert.match(html, /1\/3/);
+  assert.doesNotMatch(html, /Final leaderboard|Frozen player standings/);
+});
+
+test("active Multiplayer detail reports an authoritative empty leaderboard truthfully", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    status: "Not joined",
+    viewerJoined: false,
+    playersLabel: "0 players",
+    positionLabel: null,
+    leaderboardRows: [],
+  });
+
+  assert.match(html, />No players have joined yet\.</);
+  assert.doesNotMatch(html, /participant data is available/i);
+});
+
 test("share payload uses the current origin and exact encoded quest path without identity data", async () => {
   const payload = buildGroupQuestSharePayload({
     id: "group/42",
