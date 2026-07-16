@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 import { MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import { leaveGroupQuest } from "../src/lib/group-quest-leave";
 import { buildGroupQuestSharePayload, shareGroupQuest } from "../src/lib/group-quest-share";
 import type { MobileWebMultiplayerPreview } from "../src/lib/mobile-web-multiplayer";
 
@@ -51,6 +52,7 @@ test("joined official Multiplayer detail renders the Android next action and rea
   assert.match(html, />Refresh proof after your next eligible game\.</);
   assert.match(html, />SQC checks only fresh public games inside this Multiplayer window\.</);
   assert.match(html, />Check my latest game</);
+  assert.match(html, />Leave Side Quest</);
   assert.match(html, />Share Side Quest</);
   assert.match(html, />Copy invite link</);
   assert.doesNotMatch(html, /Back to catalog|Joined Side Quest|before joining|Created by|Hosted by Side Quest Chess/);
@@ -70,7 +72,7 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
   assert.match(html, />Join Side Quest</);
   assert.match(html, />Created by</);
   assert.match(html, />Hosted by Ada</);
-  assert.doesNotMatch(html, /Check my latest game/);
+  assert.doesNotMatch(html, /Check my latest game|Leave Side Quest/);
 });
 
 test("signed-in Multiplayer detail exposes the Android like action beside the title", () => {
@@ -134,7 +136,7 @@ test("hosted Multiplayer detail only offers proof refresh when the host is also 
   assert.match(hostedWithoutParticipation, />Join first</);
   assert.match(hostedWithoutParticipation, />Join your Multiplayer Side Quest before playing your proof game\.</);
   assert.match(hostedWithoutParticipation, />Join Side Quest</);
-  assert.doesNotMatch(hostedWithoutParticipation, /Check my latest game/);
+  assert.doesNotMatch(hostedWithoutParticipation, /Check my latest game|Leave Side Quest/);
 
   const hostedParticipant = renderDetail({
     ...officialJoinedQuest,
@@ -145,6 +147,7 @@ test("hosted Multiplayer detail only offers proof refresh when the host is also 
   });
   assert.match(hostedParticipant, />Next action</);
   assert.match(hostedParticipant, />Check my latest game</);
+  assert.match(hostedParticipant, />Leave Side Quest</);
   assert.doesNotMatch(hostedParticipant, /Join your Multiplayer Side Quest/);
 });
 
@@ -152,11 +155,50 @@ test("signed-out and finished Multiplayer states keep safe actions", () => {
   const signedOut = renderDetail({ ...officialJoinedQuest, status: "Not joined", viewerJoined: false }, false);
   assert.match(signedOut, />Sign in first</);
   assert.match(signedOut, />Sign in to join</);
-  assert.doesNotMatch(signedOut, /Check my latest game/);
+  assert.doesNotMatch(signedOut, /Check my latest game|Leave Side Quest/);
 
   const finished = renderDetail({ ...officialJoinedQuest, lifecycle: "finished" });
   assert.match(finished, />Receipts locked</);
-  assert.doesNotMatch(finished, /Check my latest game|Join Side Quest/);
+  assert.doesNotMatch(finished, /Check my latest game|Join Side Quest|Leave Side Quest/);
+});
+
+test("Multiplayer leave reports a safe error when the request cannot reach SQC", async () => {
+  const result = await leaveGroupQuest("official-starter-shield", {
+    confirm: () => true,
+    request: async () => { throw new Error("private network detail"); },
+  });
+
+  assert.deepEqual(result, { kind: "error", message: "Could not leave this quest right now." });
+});
+
+test("Multiplayer leave posts only to the exact quest and navigates after success", async () => {
+  const requests: Array<{ url: string; method?: string }> = [];
+  const destinations: string[] = [];
+  const result = await leaveGroupQuest("group/42", {
+    confirm: () => true,
+    request: async (url, init) => {
+      requests.push({ url, method: init.method });
+      return Response.json({ ok: true });
+    },
+    navigate: (destination) => { destinations.push(destination); },
+  });
+
+  assert.deepEqual(requests, [{ url: "/api/groupquests/group%2F42/leave", method: "POST" }]);
+  assert.deepEqual(destinations, ["/groupquests/group%2F42"]);
+  assert.deepEqual(result, { kind: "success" });
+});
+
+test("Multiplayer leave cancellation names the consequence and performs no request", async () => {
+  let prompt = "";
+  let requests = 0;
+  const result = await leaveGroupQuest("group-42", {
+    confirm: (message) => { prompt = message; return false; },
+    request: async () => { requests += 1; return Response.json({ ok: true }); },
+  });
+
+  assert.match(prompt, /participant entry will be removed.*rejoin later/i);
+  assert.equal(requests, 0);
+  assert.deepEqual(result, { kind: "cancelled" });
 });
 
 test("finished lifecycle is shown from quest data instead of hardcoding OPEN", () => {

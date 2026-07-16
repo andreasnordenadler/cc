@@ -20,6 +20,7 @@ import CommunitySoloSocialActions from "./community-solo-social-actions";
 import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
 import GroupQuestShareControls from "./group-quest-share-controls";
+import GroupQuestLeaveAction from "./group-quest-leave-action";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -1378,7 +1379,10 @@ export function MobileMultiplayerDetailScreen({
             buttonLabel={hostedNeedsJoin ? "Join Side Quest" : joinState.label}
           />
         ) : participating ? (
-          <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" />
+          <>
+            <GroupQuestRefreshButton id={quest.id} className="sqc-primary-action" label="Check my latest game" />
+            <GroupQuestLeaveAction id={quest.id} />
+          </>
         ) : (
           <Link href={joinState.href} className="sqc-primary-action">{joinState.label}</Link>
         )}
