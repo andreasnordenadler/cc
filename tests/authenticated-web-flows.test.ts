@@ -114,6 +114,31 @@ test("group quest create handler derives host identity and persists the exact pr
   });
 });
 
+test("group quest create accepts the authenticated owner's legacy public-metadata quest", async () => {
+  const legacyQuest = {
+    id: "custom-legacy",
+    title: "Legacy Queen",
+    summary: "Keep the queen home and win.",
+    config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    visibility: "private" as const,
+    lifecycle: "published" as const,
+    createdAt: "2026-06-01T00:00:00.000Z",
+    updatedAt: "2026-06-01T00:00:00.000Z",
+  };
+  let saved: ServerGroupQuest | undefined;
+  const response = await handleGroupQuestCreateRequest(jsonPost("https://sqc.test/api/groupquests", {
+    name: "Legacy lineup",
+    questIds: [legacyQuest.id],
+  }), createDependencies({
+    getUser: async () => ({ ...user, publicMetadata: { ...user.publicMetadata, customSideQuests: [legacyQuest] } }),
+    savePrivateMetadata: async (_id, metadata) => { saved = (metadata.sqcGroupQuests as ServerGroupQuest[])[0]; },
+  }));
+
+  assert.equal(response.status, 200);
+  assert.equal(saved?.customQuestSnapshots?.[0]?.id, legacyQuest.id);
+  assert.equal(saved?.customQuestSnapshots?.[0]?.title, legacyQuest.title);
+});
+
 test("group quest create rejects malformed JSON and persistence failures without leaking details", async () => {
   let writes = 0;
   const malformed = await handleGroupQuestCreateRequest(jsonPost("https://sqc.test/api/groupquests", "{"), createDependencies({ savePrivateMetadata: async () => { writes += 1; } }));

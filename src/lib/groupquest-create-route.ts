@@ -25,7 +25,7 @@ export async function handleGroupQuestCreateRequest(request: Request, dependenci
   if (!proofConfiguration.ok) return Response.json({ ok: false, error: proofConfiguration.code }, { status: 400 });
   try {
     const user = await dependencies.getUser(userId);
-    const selection = await buildSelection(input.questIds, user.privateMetadata, dependencies.findPublicCustomQuestById);
+    const selection = await buildSelection(input.questIds, user.privateMetadata, user.publicMetadata, dependencies.findPublicCustomQuestById);
     if (selection.error) return Response.json({ ok: false, error: selection.error }, { status: 400 });
     const publicMetadata = (user.publicMetadata && typeof user.publicMetadata === "object" ? user.publicMetadata : {}) as UserMetadataRecord;
     const privateMetadata = (user.privateMetadata && typeof user.privateMetadata === "object" ? user.privateMetadata : {}) as UserMetadataRecord;
@@ -46,11 +46,13 @@ export async function handleGroupQuestCreateRequest(request: Request, dependenci
   }
 }
 
-async function buildSelection(raw: unknown, privateMetadata: unknown, findPublic: (id: string) => Promise<CustomSideQuest | null>) {
+async function buildSelection(raw: unknown, privateMetadata: unknown, publicMetadata: unknown, findPublic: (id: string) => Promise<CustomSideQuest | null>) {
   if (!Array.isArray(raw)) return { questIds: undefined, customQuestSnapshots: [] };
   const ids = Array.from(new Set(raw.filter((id): id is string => typeof id === "string" && id.length > 0))).slice(0, 8);
   if (!ids.length) return { error: "Choose at least one Side Quest for this Multiplayer lineup." };
-  const owned = new Map(getCustomSideQuests(privateMetadata as Record<string, unknown>).map(q => [q.id, q]));
+  const privateQuests = getCustomSideQuests(privateMetadata as Record<string, unknown>);
+  const ownedQuests = privateQuests.length ? privateQuests : getCustomSideQuests(publicMetadata as Record<string, unknown>);
+  const owned = new Map(ownedQuests.map(q => [q.id, q]));
   const snapshots = [];
   for (const id of ids) {
     if (getChallengeById(id)) continue;

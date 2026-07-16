@@ -1197,7 +1197,7 @@ function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows
   );
 }
 
-export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [] }: { signedIn?: boolean; quests?: MultiplayerCreateQuest[] }) {
+export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [], communityUnavailable = false }: { signedIn?: boolean; quests?: MultiplayerCreateQuest[]; communityUnavailable?: boolean }) {
   return (
     <div className="sqc-stack sqc-create-multiplayer-screen">
       <section className="sqc-multiplayer-detail-hero sqc-create-multiplayer-hero">
@@ -1207,7 +1207,7 @@ export function MobileCreateMultiplayerScreen({ signedIn = false, quests = [] }:
         <p>Choose the rules, create the Multiplayer Side Quest, then share the invite with players.</p>
       </section>
 
-      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} stableNow={new Date().toISOString()} />
+      <MobileMultiplayerCreateForm signedIn={signedIn} quests={quests} stableNow={new Date().toISOString()} communityUnavailable={communityUnavailable} />
 
       <div hidden aria-hidden="true">
       <section className="sqc-native-card">
