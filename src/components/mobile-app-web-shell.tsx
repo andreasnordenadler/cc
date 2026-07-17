@@ -22,6 +22,7 @@ import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
 import GroupQuestShareControls from "./group-quest-share-controls";
 import GroupQuestLeaveAction from "./group-quest-leave-action";
+import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-action";
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
@@ -1490,6 +1491,13 @@ export function MobileMultiplayerDetailScreen({
                 <div>
                   <strong>{row.name}{row.viewer ? " · You" : ""}</strong>
                   <p>{[row.progress, row.provider].filter(Boolean).join(" · ")}</p>
+                  {row.participantUserId ? (
+                    <GroupQuestRemoveParticipantAction
+                      id={quest.id}
+                      participantUserId={row.participantUserId}
+                      participantName={row.name}
+                    />
+                  ) : null}
                 </div>
               </div>
             )) : (

@@ -33,6 +33,7 @@ export type MobileWebMultiplayerLeaderboardRow = {
   progress: string;
   placement: "Gold" | "Silver" | "Bronze" | null;
   viewer: boolean;
+  participantUserId?: string;
 };
 
 export type MobileWebMultiplayerResult = {
@@ -156,7 +157,7 @@ function buildPreviewRow(
     playersLabel,
     timeLeftLabel,
     positionLabel,
-    leaderboardRows: includeLeaderboard ? buildMobileWebMultiplayerLeaderboardRows(quest, userId) : [],
+    leaderboardRows: includeLeaderboard ? buildMobileWebMultiplayerLeaderboardRows(quest, userId, isOwner && status !== "Finished") : [],
     likeSummary,
     lifecycle: status === "Finished" ? "finished" : "open",
     createdAt: quest.createdAt,
@@ -222,6 +223,7 @@ const podiumPlacements = ["Gold", "Silver", "Bronze"] as const;
 export function buildMobileWebMultiplayerLeaderboardRows(
   quest: Pick<ServerGroupQuest, "questIds" | "participants">,
   userId: string | null | undefined,
+  canManageParticipants = false,
 ): MobileWebMultiplayerLeaderboardRow[] {
   return rankGroupQuestParticipants(quest).map((participant, index) => ({
     rank: index + 1,
@@ -230,6 +232,7 @@ export function buildMobileWebMultiplayerLeaderboardRows(
     progress: `${participant.completedQuestIds?.length ?? 0}/${Math.max(quest.questIds.length, 1)}`,
     placement: podiumPlacements[index] ?? null,
     viewer: Boolean(userId) && participant.userId === userId,
+    ...(canManageParticipants && participant.userId !== userId ? { participantUserId: participant.userId } : {}),
   }));
 }
 

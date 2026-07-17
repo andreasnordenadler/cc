@@ -8,11 +8,13 @@ import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared
 import { MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
 import { CommunityMultiplayerCatalog } from "../src/components/catalog-clients";
 import { POST as supportPOST, withSupportRouteTestDependencies } from "../src/app/api/support/route";
+import { POST as removeParticipantPOST, withRemoveParticipantRouteTestDependencies } from "../src/app/api/groupquests/[id]/remove-participant/route";
 import { leaveGroupQuest } from "../src/lib/group-quest-leave";
+import { removeGroupQuestParticipant } from "../src/lib/group-quest-remove-participant";
 import { buildGroupQuestSharePayload, shareGroupQuest } from "../src/lib/group-quest-share";
 import { validateCommunityMultiplayerReport } from "../src/lib/mobile-web-parity-actions";
 import { createCommunityMultiplayerReportSubmitter, submitCommunityMultiplayerReport } from "../src/lib/community-multiplayer-report";
-import type { MobileWebMultiplayerPreview } from "../src/lib/mobile-web-multiplayer";
+import { buildMobileWebMultiplayerLeaderboardRows, type MobileWebMultiplayerPreview } from "../src/lib/mobile-web-multiplayer";
 
 const officialJoinedQuest: MobileWebMultiplayerPreview = {
   id: "official-starter-shield",
@@ -51,8 +53,7 @@ function renderDetail(quest: MobileWebMultiplayerPreview, signedIn = true) {
 }
 
 function setNodeEnv(value: string | undefined) {
-  if (value === undefined) delete process.env.NODE_ENV;
-  else Object.defineProperty(process.env, "NODE_ENV", { value, configurable: true, enumerable: true, writable: true });
+  Object.defineProperty(process.env, "NODE_ENV", { value, configurable: true, enumerable: true, writable: true });
 }
 
 test("joined official Multiplayer detail renders the Android next action and real share controls without an official host card", () => {
@@ -193,7 +194,7 @@ test("exported support route rejects anonymous reports and attributes authentica
         };
       },
       updateUserMetadata: async (userId: string, metadata: unknown) => { writes.push({ userId, metadata }); },
-    } }),
+    } }) as never,
   }, () => supportPOST(new Request("https://sidequestchess.com/api/support", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -432,6 +433,139 @@ test("active Multiplayer detail reports an authoritative empty leaderboard truth
 
   assert.match(html, />No players have joined yet\.</);
   assert.doesNotMatch(html, /participant data is available/i);
+});
+
+test("host detail exposes only other participants as removable", () => {
+  const quest = {
+    questIds: ["quest-one"],
+    participants: [
+      { userId: "host", provider: "lichess" as const, username: "host", leaderboardName: "Host", joinedAt: "2026-07-01T00:00:00.000Z" },
+      { userId: "guest", provider: "chesscom" as const, username: "guest", leaderboardName: "Guest", joinedAt: "2026-07-02T00:00:00.000Z" },
+    ],
+  };
+
+  assert.deepEqual(
+    buildMobileWebMultiplayerLeaderboardRows(quest, "host", true).map((row) => [row.name, row.participantUserId]),
+    [["Host", undefined], ["Guest", "guest"]],
+  );
+  assert.ok(buildMobileWebMultiplayerLeaderboardRows(quest, "spectator", false).every((row) => row.participantUserId === undefined));
+});
+
+test("active host detail renders Android remove-player controls only for removable participants", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    status: "Hosted",
+    viewerJoined: true,
+    leaderboardRows: [
+      { rank: 1, name: "Current host", provider: "lichess · host", progress: "1/1", placement: "Gold", viewer: true },
+      { rank: 2, name: "Guest player", provider: "chess.com · guest", progress: "0/1", placement: "Silver", viewer: false, participantUserId: "guest-user" },
+    ],
+  });
+
+  assert.match(html, /aria-label="Remove Guest player"/);
+  assert.match(html, />Remove player</);
+  assert.doesNotMatch(html, /aria-label="Remove Current host"/);
+});
+
+test("host removal targets the exact Multiplayer quest and participant", async () => {
+  const requests: Array<{ url: string; body: unknown }> = [];
+  const destinations: string[] = [];
+  const result = await removeGroupQuestParticipant({
+    id: "group/42",
+    participantUserId: "guest-user",
+    participantName: "Guest",
+  }, {
+    confirm: () => true,
+    request: async (url, init) => {
+      requests.push({ url, body: JSON.parse(String(init.body)) });
+      return Response.json({ ok: true, href: "/groupquests/group%2F42" });
+    },
+    navigate: (href) => destinations.push(href),
+  });
+
+  assert.deepEqual(requests, [{
+    url: "/api/groupquests/group%2F42/remove-participant",
+    body: { participantUserId: "guest-user" },
+  }]);
+  assert.deepEqual(destinations, ["/groupquests/group%2F42"]);
+  assert.deepEqual(result, { kind: "success" });
+});
+
+test("host removal reports when the participant is already gone without navigating", async () => {
+  const destinations: string[] = [];
+  const result = await removeGroupQuestParticipant({
+    id: "group-42",
+    participantUserId: "missing-player",
+    participantName: "Missing",
+  }, {
+    confirm: () => true,
+    request: async () => Response.json({ ok: false, error: "participant_not_found" }, { status: 404 }),
+    navigate: (href) => destinations.push(href),
+  });
+
+  assert.deepEqual(destinations, []);
+  assert.deepEqual(result, { kind: "error", message: "That player is no longer in this Multiplayer Side Quest." });
+});
+
+test("exported host removal route derives the host from the session and persists the exact participant removal", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+
+  const writes: Array<{ userId: string; privateMetadata: Record<string, unknown> }> = [];
+  const quest = {
+    id: "table-1",
+    hostUserId: "session-host",
+    hostName: "Host",
+    name: "Table",
+    inviteMode: "public" as const,
+    inviteKey: "",
+    inviteCopy: "Join",
+    providerMode: "both" as const,
+    providerLabel: "Lichess or Chess.com",
+    questIds: ["quest-one"],
+    startAt: "2026-07-01T00:00:00.000Z",
+    endAt: "2099-07-20T00:00:00.000Z",
+    rules: {},
+    createdAt: "2026-07-01T00:00:00.000Z",
+    participants: [
+      { userId: "session-host", provider: "lichess" as const, username: "host", leaderboardName: "Host", joinedAt: "2026-07-01T00:00:00.000Z" },
+      { userId: "guest-user", provider: "chesscom" as const, username: "guest", leaderboardName: "Guest", joinedAt: "2026-07-02T00:00:00.000Z" },
+    ],
+  };
+
+  const latestQuest = {
+    ...quest,
+    participants: [
+      ...quest.participants,
+      { userId: "late-player", provider: "lichess" as const, username: "late", leaderboardName: "Late", joinedAt: "2026-07-03T00:00:00.000Z", completedQuestIds: ["quest-one"] },
+    ],
+  };
+
+  const response = await withRemoveParticipantRouteTestDependencies({
+    authenticate: async () => "session-host",
+    findQuest: async (id) => {
+      assert.equal(id, "table-1");
+      return { userId: "storage-host", groupQuest: quest };
+    },
+    getHost: async (userId) => {
+      assert.equal(userId, "storage-host");
+      return { privateMetadata: { unrelated: "preserved", sqcGroupQuests: [latestQuest] } };
+    },
+    saveHost: async (userId, privateMetadata) => { writes.push({ userId, privateMetadata }); },
+  }, () => removeParticipantPOST(new Request("https://sidequestchess.com/api/groupquests/table-1/remove-participant", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ participantUserId: "guest-user", userId: "attacker" }),
+  }), { params: Promise.resolve({ id: "table-1" }) }));
+
+  assert.equal(response.status, 200);
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0]?.userId, "storage-host");
+  assert.equal(writes[0]?.privateMetadata.unrelated, "preserved");
+  const savedQuests = writes[0]?.privateMetadata.sqcGroupQuests as Array<{ participants: Array<{ userId: string; completedQuestIds?: string[] }> }>;
+  assert.deepEqual(savedQuests[0]?.participants.map((participant) => participant.userId), ["session-host", "late-player"]);
+  assert.deepEqual(savedQuests[0]?.participants[1]?.completedQuestIds, ["quest-one"]);
 });
 
 test("share payload uses the current origin and exact encoded quest path without identity data", async () => {
