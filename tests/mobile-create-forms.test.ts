@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MobileCreateCustomScreen } from "../src/components/mobile-app-web-shell";
 import MobileCustomCreateForm from "../src/components/mobile-custom-create-form";
 import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
@@ -89,6 +90,16 @@ test("custom builder renders the Android-style multi-condition command center", 
   assert.match(html, /Delete/);
 });
 
+test("signed-out custom creator deep links show an exact-return sign-in gate instead of an unreachable builder", () => {
+  const signedOut = renderToStaticMarkup(React.createElement(MobileCreateCustomScreen, { signedIn: false }));
+  const signedIn = renderToStaticMarkup(React.createElement(MobileCreateCustomScreen, { signedIn: true }));
+
+  assert.match(signedOut, /Sign in to create a Custom Side Quest/);
+  assert.match(signedOut, /href="\/sign-in\?redirect_url=%2Fcreate-custom-side-quest"/);
+  assert.doesNotMatch(signedOut, /Custom Side Quest builder|Save locally/);
+  assert.match(signedIn, /Custom Side Quest builder/);
+  assert.doesNotMatch(signedIn, /Sign in to create a Custom Side Quest/);
+});
 test("custom success navigates to the owned custom catalog", () => {
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "custom-safe" } }), "/custom-side-quests?saved=custom-safe");
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "../escape" } }), null);
