@@ -17,6 +17,7 @@ import MobileCustomCreateForm from "./mobile-custom-create-form";
 import MobileMultiplayerCreateForm, { type MultiplayerCreateQuest } from "./mobile-multiplayer-create-form";
 import { CommunityMultiplayerCatalog, CommunitySoloCatalog, CustomSoloCatalog } from "./catalog-clients";
 import CommunitySoloSocialActions from "./community-solo-social-actions";
+import CommunitySoloShareControls from "./community-solo-share-controls";
 import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
 import GroupQuestShareControls from "./group-quest-share-controls";
@@ -938,7 +939,7 @@ export function MobileCommunitySideQuestDetailScreen({
         <CommunitySoloSocialActions questId={quest.id} title={quest.title} signedIn={signedIn} initialCount={likeSummary.count} initiallyLiked={likeSummary.likedByViewer} />
         <Link href="/community-side-quests" className="sqc-detail-quiet-button">Back to list</Link>
         <Link href={quest.creatorBrowsePath} className="sqc-detail-secondary-button">More by {quest.creatorName}</Link>
-        <Link href={`/challenges/community/${encodeURIComponent(quest.id)}`} className="sqc-detail-secondary-button">Share public link</Link>
+        <CommunitySoloShareControls id={quest.id} title={quest.title} />
       </div>
     </div>
   );
@@ -1638,6 +1639,7 @@ function getConditionLabel(index: number) {
 
 function toMobileAssetPath(path?: string | null) {
   if (!path) return null;
+  if (path.startsWith("/badges/custom/")) return path;
   if (path.startsWith("/mobile-source/")) return path;
   if (path.startsWith("/badges/")) return `/mobile-source${path}`;
   if (path.startsWith("/stamps/")) return `/mobile-source${path}`;
