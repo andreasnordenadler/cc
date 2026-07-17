@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { checkActiveChallenge, startChallenge } from "@/app/actions";
+import { checkActiveChallenge, startChallenge, submitChallengeAttempt } from "@/app/actions";
 
 type StartControlProps = {
   challengeId: string;
@@ -28,6 +28,46 @@ function CheckSubmit() {
       {pending ? "Checking latest game…" : "Check my latest game"}
     </button>
   );
+}
+
+function ExactGameSubmit() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button type="submit" className="sqc-secondary-action" disabled={pending} aria-disabled={pending}>
+      {pending ? "Checking…" : "Submit game/link"}
+    </button>
+  );
+}
+
+export function OfficialSoloExactGameForm({
+  challengeId,
+  action,
+}: {
+  challengeId: string;
+  action: (formData: FormData) => void | Promise<void>;
+}) {
+  return (
+    <form className="sqc-exact-game-form" aria-label="Submit specific game proof" action={action}>
+      <input type="hidden" name="challengeId" value={challengeId} />
+      <label className="sqc-form-row">
+        <span>Specific proof game</span>
+        <input
+          name="gameId"
+          placeholder="Lichess game ID or Chess.com URL"
+          autoCapitalize="none"
+          autoCorrect="off"
+          required
+        />
+      </label>
+      <p>Optional: paste a finished public game to check that exact proof instead of only the latest game.</p>
+      <ExactGameSubmit />
+    </form>
+  );
+}
+
+export function OfficialSoloExactGameControl({ challengeId }: { challengeId: string }) {
+  return <OfficialSoloExactGameForm challengeId={challengeId} action={submitChallengeAttempt} />;
 }
 
 export function OfficialSoloStartControl({ challengeId, activeChallengeTitle }: StartControlProps) {

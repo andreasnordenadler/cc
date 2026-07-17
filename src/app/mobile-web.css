@@ -2793,6 +2793,25 @@ body::after {
   padding-top: 2px;
 }
 
+.sqc-exact-game-form {
+  display: grid;
+  gap: 7px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 247, 232, .1);
+}
+
+.sqc-exact-game-form > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.sqc-exact-game-form .sqc-secondary-action {
+  width: 100%;
+}
+
 .sqc-active-proof-summary {
   width: 100%;
   display: grid;

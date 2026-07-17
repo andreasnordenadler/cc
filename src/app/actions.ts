@@ -110,6 +110,7 @@ import {
   checkLatestChessComBackRankGoblin,
   checkLatestLichessBackRankGoblin,
 } from "@/lib/back-rank-goblin";
+import { assertActiveSoloSubmissionTarget } from "@/lib/official-solo-exact-game";
 import {
   getChallengeProgress,
   getChessComUsername,
@@ -933,6 +934,11 @@ export async function submitChallengeAttempt(formData: FormData) {
     throw new Error("Enter a finished Lichess or Chess.com game link/ID.");
   }
 
+  const existingActiveChallenge =
+    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
+      ? (metadata.activeChallenge as { id?: string; startedAt?: string })
+      : null;
+  assertActiveSoloSubmissionTarget(existingActiveChallenge, challenge.id);
   const lichessUsername = getLichessUsername(metadata);
   const chessComUsername = getChessComUsername(metadata);
   const existingAttempts = Array.isArray(metadata.challengeAttempts)
@@ -945,10 +951,6 @@ export async function submitChallengeAttempt(formData: FormData) {
   const now = new Date().toISOString();
 
   const progress = getChallengeProgress(metadata);
-  const existingActiveChallenge =
-    metadata.activeChallenge && typeof metadata.activeChallenge === "object"
-      ? (metadata.activeChallenge as { startedAt?: string })
-      : null;
   const verification =
     challenge.id === "finish-any-game" && isChessComSubmission
       ? await verifyChessComFinishAnyGameAttempt({ gameUrl: gameId, chessComUsername })
