@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import RatingPill from "@/components/rating-pill";
+import { getGroupQuestEditEndpoint } from "@/lib/groupquest-edit-access";
 import type { GroupQuestInviteMode, GroupQuestProviderMode, ServerGroupQuest } from "@/lib/groupquests";
 
 type EditableQuest = {
@@ -136,7 +137,7 @@ export default function GroupQuestEditForm({ canMarkOfficial = false, groupQuest
   async function save() {
     setSaving(true);
     setError("");
-    const response = await fetch(`/api/groupquests/${groupQuest.id}`, {
+    const response = await fetch(getGroupQuestEditEndpoint(groupQuest.id), {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({

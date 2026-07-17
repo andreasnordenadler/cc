@@ -125,9 +125,10 @@ test("Community Multiplayer like rows keep the full text track instead of the mi
   assert.match(css, /\.sqc-app-row\.sqc-app-row-with-like\.text-only\s*\{\s*grid-template-columns:\s*minmax\(0,\s*1fr\) auto;/);
 });
 
-test("hosted Multiplayer detail only offers proof refresh when the host is also a participant", () => {
+test("hosted Multiplayer detail keeps exact owner settings reachable until standings freeze", () => {
   const hostedWithoutParticipation = renderDetail({
     ...officialJoinedQuest,
+    id: "community/table",
     sourceBadge: "Community",
     status: "Hosted",
     viewerJoined: false,
@@ -136,6 +137,8 @@ test("hosted Multiplayer detail only offers proof refresh when the host is also 
   assert.match(hostedWithoutParticipation, />Join first</);
   assert.match(hostedWithoutParticipation, />Join your Multiplayer Side Quest before playing your proof game\.</);
   assert.match(hostedWithoutParticipation, />Join Side Quest</);
+  assert.match(hostedWithoutParticipation, /href="\/groupquests\/community%2Ftable\/edit"/);
+  assert.match(hostedWithoutParticipation, />Manage Side Quest</);
   assert.doesNotMatch(hostedWithoutParticipation, /Check my latest game|Leave Side Quest/);
 
   const hostedParticipant = renderDetail({
@@ -148,7 +151,11 @@ test("hosted Multiplayer detail only offers proof refresh when the host is also 
   assert.match(hostedParticipant, />Next action</);
   assert.match(hostedParticipant, />Check my latest game</);
   assert.match(hostedParticipant, />Leave Side Quest</);
+  assert.match(hostedParticipant, /href="\/groupquests\/official-starter-shield\/edit"/);
   assert.doesNotMatch(hostedParticipant, /Join your Multiplayer Side Quest/);
+
+  const finishedHost = renderDetail({ ...officialJoinedQuest, status: "Hosted", lifecycle: "finished" });
+  assert.doesNotMatch(finishedHost, /Manage Side Quest|\/edit/);
 });
 
 test("signed-out and finished Multiplayer states keep safe actions", () => {

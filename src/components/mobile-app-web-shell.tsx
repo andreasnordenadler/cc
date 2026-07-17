@@ -1397,6 +1397,15 @@ export function MobileMultiplayerDetailScreen({
         )}
       </section>
 
+      {joinState.kind === "hosted" && quest.lifecycle === "open" ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card" aria-label="Host controls">
+          <span className="sqc-card-eyebrow">Host controls</span>
+          <h2>Manage this Multiplayer Side Quest.</h2>
+          <p>Update the invite, schedule, rules, and Side Quest lineup from the exact owner screen.</p>
+          <Link href={`/groupquests/${encodeURIComponent(quest.id)}/edit`} className="sqc-detail-secondary-button">Manage Side Quest</Link>
+        </section>
+      ) : null}
+
       <section className="sqc-native-card sqc-multiplayer-native-card">
         <span className="sqc-card-eyebrow">Share</span>
         <h2>Send this Multiplayer Side Quest to another player.</h2>
