@@ -298,6 +298,57 @@ test("non-official lookup fails closed when two storage owners claim the same qu
   assert.equal(await findGroupQuestById(client, canonical.id), null);
 });
 
+test("non-official lookup accepts a canonical owner at an exact total-count page boundary", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => ({
+    data: Array.from({ length: limit }, (_, index) => index === 0
+      ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+      : { id: `user-${index}`, privateMetadata: {} }),
+    totalCount: limit,
+  }) } };
+
+  const found = await findGroupQuestById(client, canonical.id);
+  assert.equal(found?.userId, "host-user");
+});
+
+test("non-official lookup rejects a full final page that contradicts a non-multiple total count", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    return {
+      data: Array.from({ length: limit }, (_, index) => page === 1 && index === 0
+        ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+        : { id: `user-${page}-${index}`, privateMetadata: {} }),
+      totalCount: 150,
+    };
+  } } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+  assert.equal(page, 2);
+});
+
+test("non-official lookup rejects a short final page that contradicts the snapshotted total count", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    const length = page === 1 ? limit : 50;
+    return {
+      data: Array.from({ length }, (_, index) => page === 1 && index === 0
+        ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+        : { id: `user-${page}-${index}`, privateMetadata: {} }),
+      totalCount: 200,
+    };
+  } } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+  assert.equal(page, 2);
+});
+
 test("non-official lookup fails closed when a hard-bounded scan never proves completion", async () => {
   const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
   canonical.id = "community-table";

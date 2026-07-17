@@ -318,13 +318,17 @@ export async function findGroupQuestById(
   let offset = 0;
   let pageCount = 0;
   let pageBound: number | undefined;
+  let snapshottedTotalCount: number | undefined;
   let replicaFallback: GroupQuestHostRecord | null = null;
   let canonicalRecord: GroupQuestHostRecord | null = null;
   let conflictingOwnerClaim = false;
   while (pageCount < (pageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
-    pageBound ??= clerkPageBound(users.totalCount);
+    if (pageBound === undefined && isValidClerkTotalCount(users.totalCount) && users.totalCount >= users.data.length) {
+      snapshottedTotalCount = users.totalCount;
+      pageBound = clerkPageBound(users.totalCount);
+    }
     for (const user of users.data) {
       const groupQuest = getAllStoredGroupQuests(user).find((quest) => quest.id === id);
       if (!groupQuest) continue;
@@ -336,14 +340,20 @@ export async function findGroupQuestById(
       replicaFallback ??= record;
     }
     if (users.data.length < CLERK_USER_PAGE_SIZE) {
-      return conflictingOwnerClaim ? null : canonicalRecord ?? replicaFallback;
+      const shortPageMatchesSnapshot = snapshottedTotalCount === undefined
+        || offset + users.data.length === snapshottedTotalCount;
+      return shortPageMatchesSnapshot && !conflictingOwnerClaim ? canonicalRecord ?? replicaFallback : null;
     }
     offset += CLERK_USER_PAGE_SIZE;
   }
-  // A full final page does not prove that this offset scan observed every copy:
-  // accounts can move between pages while Clerk is serving the scan. Private
-  // owner capabilities therefore fail closed unless a short page terminates it.
-  return null;
+  // A trusted first-page total proves an exact-multiple boundary once every
+  // snapshotted page was scanned. Without it, a full final page does not prove
+  // completion because accounts can move between offset pages.
+  const totalCountProvesCompletion = snapshottedTotalCount !== undefined
+    && snapshottedTotalCount > 0
+    && snapshottedTotalCount % CLERK_USER_PAGE_SIZE === 0
+    && snapshottedTotalCount <= CLERK_USER_SCAN_MAX_PAGES * CLERK_USER_PAGE_SIZE;
+  return totalCountProvesCompletion && !conflictingOwnerClaim ? canonicalRecord ?? replicaFallback : null;
 }
 
 export async function findGroupQuestByInviteKey(
