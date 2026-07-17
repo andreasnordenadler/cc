@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 import { MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import { POST as supportPOST, withSupportRouteTestDependencies } from "../src/app/api/support/route";
 import { leaveGroupQuest } from "../src/lib/group-quest-leave";
 import { buildGroupQuestSharePayload, shareGroupQuest } from "../src/lib/group-quest-share";
 import { validateCommunityMultiplayerReport } from "../src/lib/mobile-web-parity-actions";
@@ -45,6 +46,11 @@ function renderDetail(quest: MobileWebMultiplayerPreview, signedIn = true) {
   return renderToStaticMarkup(React.createElement(AppRouterContext.Provider, { value: router },
     React.createElement(MobileMultiplayerDetailScreen, { quest, signedIn }),
   ));
+}
+
+function setNodeEnv(value: string | undefined) {
+  if (value === undefined) delete process.env.NODE_ENV;
+  else Object.defineProperty(process.env, "NODE_ENV", { value, configurable: true, enumerable: true, writable: true });
 }
 
 test("joined official Multiplayer detail renders the Android next action and real share controls without an official host card", () => {
@@ -89,6 +95,11 @@ test("hostless Community Multiplayer detail still offers reporting", () => {
   assert.match(html, /aria-label="Report this Community Multiplayer Side Quest"/);
 });
 
+test("signed-out Community Multiplayer reporting preserves the exact encoded detail return", () => {
+  const html = renderDetail({ ...officialJoinedQuest, id: "community/table", sourceBadge: "Community" }, false);
+  assert.match(html, /href="\/sign-in\?redirect_url=%2Fgroupquests%2Fcommunity%252Ftable"/);
+});
+
 test("Community Multiplayer owners cannot report their own Side Quest", () => {
   const html = renderDetail({
     ...officialJoinedQuest,
@@ -125,6 +136,53 @@ test("Community Multiplayer report sends only the exact support message", async 
     message: "Community Multiplayer Side Quest community/table: misleading rules",
   });
   assert.deepEqual(result, { kind: "success", message: "Report sent. We’ll review this Multiplayer Side Quest." });
+});
+
+test("exported support route rejects anonymous reports and attributes authenticated reports server-side", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+
+  const anonymous = await withSupportRouteTestDependencies({
+    authenticate: async () => null,
+    getClient: async () => { throw new Error("anonymous request must not load Clerk"); },
+  }, () => supportPOST(new Request("https://sidequestchess.com/api/support", {
+    method: "POST",
+    body: JSON.stringify({ message: "Community Multiplayer Side Quest community/table: misleading rules" }),
+  })));
+  assert.equal(anonymous.status, 401);
+
+  const writes: Array<{ userId: string; metadata: unknown }> = [];
+  const authenticated = await withSupportRouteTestDependencies({
+    authenticate: async () => "session-user",
+    getClient: async () => ({ users: {
+      getUser: async (userId: string) => {
+        assert.equal(userId, "session-user");
+        return {
+          privateMetadata: {},
+          primaryEmailAddress: { emailAddress: "player@example.com" },
+          firstName: "Session",
+          lastName: "Player",
+          username: "ignored-client-name",
+        };
+      },
+      updateUserMetadata: async (userId: string, metadata: unknown) => { writes.push({ userId, metadata }); },
+    } }),
+  }, () => supportPOST(new Request("https://sidequestchess.com/api/support", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      message: "Community Multiplayer Side Quest community/table: misleading rules",
+      userId: "attacker",
+    }),
+  })));
+  assert.equal(authenticated.status, 200);
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0]?.userId, "session-user");
+  const saved = writes[0]?.metadata as { privateMetadata: { sqcSupportMessages: Array<{ message: string; accountEmail: string; displayName: string }> } };
+  assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.message, "Community Multiplayer Side Quest community/table: misleading rules");
+  assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.accountEmail, "player@example.com");
+  assert.equal(saved.privateMetadata.sqcSupportMessages[0]?.displayName, "Session Player");
 });
 
 test("Community Multiplayer report submitter rejects overlapping duplicate activation", async () => {
