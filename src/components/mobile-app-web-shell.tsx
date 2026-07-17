@@ -25,6 +25,7 @@ import GroupQuestLeaveAction from "./group-quest-leave-action";
 import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-action";
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
+import type { WebSupportAccountContext } from "@/lib/web-support-diagnostics";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -623,9 +624,11 @@ export function MobileCreateCustomScreen({ signedIn = false }: { signedIn?: bool
 export function MobileSupportScreen({
   signedIn = false,
   supportMessages = [],
+  accountContext = null,
 }: {
   signedIn?: boolean;
   supportMessages?: MobileWebSupportMessage[];
+  accountContext?: WebSupportAccountContext | null;
 }) {
   const helpRows = [
     {
@@ -675,7 +678,10 @@ export function MobileSupportScreen({
             <small>Only needed if support asks for your build details.</small>
           </span>
         </summary>
-        <p>Web support page. Include your browser, account email, and what you tried when reporting an issue.</p>
+        <p><strong>Web app</strong></p>
+        <p>{accountContext ? `Signed in as ${accountContext.displayName ?? "SQC player"}.` : "Not signed in."}</p>
+        <p>Lichess: {accountContext?.lichessUsername ?? "not connected"} · Chess.com: {accountContext?.chessComUsername ?? "not connected"}</p>
+        <p>Active Solo: {accountContext?.activeSoloQuestTitle ?? "none"} · Active Multiplayer: {accountContext?.activeMultiplayerQuestCount ?? 0} · Public hosted: {accountContext?.publicHostedMultiplayerQuestCount ?? 0}</p>
       </details>
 
       <section className="sqc-support-row-list" aria-label="Help topics">
@@ -698,7 +704,7 @@ export function MobileSupportScreen({
       </section>
 
       {signedIn ? (
-        <MobileSupportComposer signedIn initialMessages={supportMessages} />
+        <MobileSupportComposer signedIn initialMessages={supportMessages} accountContext={accountContext} />
       ) : (
         <section className="sqc-support-card sqc-support-report" aria-label="Report a problem">
           <span className="sqc-card-eyebrow">Report a problem</span>

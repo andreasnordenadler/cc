@@ -1,0 +1,186 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+import { buildWebSupportAccountContext, buildWebSupportDiagnostics, loadWebSupportGroupQuestContext } from "../src/lib/web-support-diagnostics";
+import { buildGroupQuest } from "../src/lib/groupquests";
+
+test("web support diagnostics include the same account and quest context as Android", () => {
+  const diagnostics = buildWebSupportDiagnostics({
+    url: "https://sidequestchess.com/support",
+    userAgent: "Example Browser 1.0",
+    platform: "macOS",
+    recordedAt: "2026-07-17T22:00:00.000Z",
+    account: {
+      displayName: "Knight Rider",
+      lichessUsername: "knight-rider",
+      chessComUsername: null,
+      activeSoloQuestTitle: "Knightmare Mode",
+      activeMultiplayerQuestCount: 2,
+      publicHostedMultiplayerQuestCount: 1,
+    },
+  });
+
+  assert.equal(diagnostics, [
+    "Side Quest Chess web diagnostics",
+    "URL: https://sidequestchess.com/support",
+    "Browser: Example Browser 1.0",
+    "Platform: macOS",
+    "Account: signed in as Knight Rider",
+    "Lichess: knight-rider",
+    "Chess.com: not connected",
+    "Active solo quest: Knightmare Mode",
+    "Active multiplayer quests: 2",
+    "Public hosted multiplayer quests: 1",
+    "Recorded at: 2026-07-17T22:00:00.000Z",
+  ].join("\n"));
+});
+
+test("support account context counts only active related quests and public hosted quests", () => {
+  const now = new Date("2026-07-17T22:00:00.000Z");
+  const activeHosted = buildGroupQuest({
+    hostUserId: "viewer",
+    hostName: "Knight Rider",
+    name: "Open hosted table",
+    inviteMode: "public",
+    startAt: "2026-07-17T20:00:00.000Z",
+    endAt: "2026-07-18T20:00:00.000Z",
+  });
+  const activeJoined = buildGroupQuest({
+    hostUserId: "other-host",
+    hostName: "Other Host",
+    name: "Joined table",
+    startAt: "2026-07-17T20:00:00.000Z",
+    endAt: "2026-07-18T20:00:00.000Z",
+  });
+  activeJoined.participants.push({
+    userId: "viewer",
+    provider: "lichess",
+    username: "knight-rider",
+    leaderboardName: "Knight Rider",
+    joinedAt: "2026-07-17T20:30:00.000Z",
+    score: 0,
+    completedQuestIds: [],
+  });
+  const finishedHosted = buildGroupQuest({
+    hostUserId: "viewer",
+    hostName: "Knight Rider",
+    name: "Finished table",
+    inviteMode: "public",
+    startAt: "2026-07-15T20:00:00.000Z",
+    endAt: "2026-07-16T20:00:00.000Z",
+  });
+  const privateHosted = buildGroupQuest({
+    hostUserId: "viewer",
+    hostName: "Knight Rider",
+    name: "Private hosted table",
+    inviteMode: "private-key",
+    startAt: "2026-07-17T20:00:00.000Z",
+    endAt: "2026-07-18T20:00:00.000Z",
+  });
+  const unrelatedPublic = buildGroupQuest({
+    hostUserId: "another-host",
+    hostName: "Another Host",
+    name: "Another public table",
+    inviteMode: "public",
+    startAt: "2026-07-17T20:00:00.000Z",
+    endAt: "2026-07-18T20:00:00.000Z",
+  });
+
+  assert.deepEqual(buildWebSupportAccountContext({
+    displayName: "Knight Rider",
+    lichessUsername: "knight-rider",
+    chessComUsername: "",
+    activeSoloQuestTitle: "Knightmare Mode",
+    relatedGroupQuests: [activeHosted, activeJoined, finishedHosted, privateHosted],
+    publicGroupQuests: [activeHosted, finishedHosted, unrelatedPublic],
+    userId: "viewer",
+    now,
+  }), {
+    displayName: "Knight Rider",
+    lichessUsername: "knight-rider",
+    chessComUsername: null,
+    activeSoloQuestTitle: "Knightmare Mode",
+    activeMultiplayerQuestCount: 1,
+    publicHostedMultiplayerQuestCount: 2,
+  });
+});
+
+test("support group quest context degrades to empty counts when provider scans fail", async () => {
+  const result = await loadWebSupportGroupQuestContext({
+    loadRelatedGroupQuests: async () => { throw new Error("provider unavailable"); },
+    loadPublicGroupQuests: async () => { throw new Error("provider unavailable"); },
+  });
+
+  assert.deepEqual(result, { relatedGroupQuests: [], publicGroupQuests: [] });
+});
+
+test("support group quest context preserves either successful provider scan", async () => {
+  const related = buildGroupQuest({ hostUserId: "host", hostName: "Host", name: "Related" });
+  const publicQuest = buildGroupQuest({ hostUserId: "host", hostName: "Host", name: "Public" });
+
+  assert.deepEqual(await loadWebSupportGroupQuestContext({
+    loadRelatedGroupQuests: async () => { throw new Error("related unavailable"); },
+    loadPublicGroupQuests: async () => [publicQuest],
+  }), { relatedGroupQuests: [], publicGroupQuests: [publicQuest] });
+
+  assert.deepEqual(await loadWebSupportGroupQuestContext({
+    loadRelatedGroupQuests: async () => [related],
+    loadPublicGroupQuests: async () => { throw new Error("public unavailable"); },
+  }), { relatedGroupQuests: [related], publicGroupQuests: [] });
+});
+
+test("support account context matches Android lifecycle boundaries and excludes official quests", () => {
+  const now = new Date("2026-07-17T22:00:00.000Z");
+  const makeParticipantQuest = (id: string, endAt: string, official = false) => {
+    const quest = buildGroupQuest({
+      hostUserId: "host",
+      hostName: "Host",
+      name: id,
+      startAt: "2026-07-17T20:00:00.000Z",
+      endAt,
+    });
+    quest.id = id;
+    quest.official = official;
+    quest.participants.push({
+      userId: "viewer",
+      provider: "lichess",
+      username: "viewer",
+      leaderboardName: "Viewer",
+      joinedAt: "2026-07-17T20:30:00.000Z",
+      score: 0,
+      completedQuestIds: [],
+    });
+    return quest;
+  };
+  const equalBoundary = makeParticipantQuest("equal-boundary", now.toISOString());
+  const malformedEnd = makeParticipantQuest("malformed-end", "not-a-date");
+  const official = makeParticipantQuest("official-current", "2026-07-18T20:00:00.000Z", true);
+
+  const context = buildWebSupportAccountContext({
+    displayName: "Viewer",
+    lichessUsername: null,
+    chessComUsername: null,
+    activeSoloQuestTitle: null,
+    relatedGroupQuests: [equalBoundary, malformedEnd, official],
+    publicGroupQuests: [equalBoundary, malformedEnd, official],
+    userId: "viewer",
+    now,
+  });
+
+  assert.equal(context.activeMultiplayerQuestCount, 2);
+  assert.equal(context.publicHostedMultiplayerQuestCount, 2);
+});
+
+test("support route passes server-derived account context to the production support screen", () => {
+  const routeSource = readFileSync(new URL("../src/app/support/page.tsx", import.meta.url), "utf8");
+  const screenSource = readFileSync(new URL("../src/components/mobile-app-web-shell.tsx", import.meta.url), "utf8");
+  const composerSource = readFileSync(new URL("../src/components/mobile-support-composer.tsx", import.meta.url), "utf8");
+
+  assert.match(routeSource, /listUserRelatedGroupQuests/);
+  assert.match(routeSource, /listPublicGroupQuests/);
+  assert.match(routeSource, /loadWebSupportGroupQuestContext/);
+  assert.match(routeSource, /buildWebSupportAccountContext/);
+  assert.match(routeSource, /accountContext=\{accountContext\}/);
+  assert.match(screenSource, /accountContext=\{accountContext\}/);
+  assert.match(composerSource, /buildWebSupportDiagnostics/);
+});
