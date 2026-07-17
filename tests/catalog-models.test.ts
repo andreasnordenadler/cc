@@ -43,6 +43,45 @@ test("private invite codes use the canonical storage owner and never participant
   assert.equal(canonicalOwner.inviteKey, "ROOK-742");
 });
 
+test("custom Multiplayer snapshots keep rule provenance when their ID collides with an official quest", () => {
+  const custom = quest({
+    questIds: ["knights-before-coffee"],
+    customQuestSnapshots: [{
+      id: "knights-before-coffee",
+      title: "Owner's Knight Variant",
+      summary: "Win this exact owner-authored knight version.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
+    }],
+  });
+
+  const preview = buildMobileWebMultiplayerPreview(custom, "host", "Community", likeSummary);
+  assert.deepEqual(preview.quests, ["Owner's Knight Variant"]);
+  assert.deepEqual(preview.questRuleDetails, [{
+    id: "knights-before-coffee",
+    title: "Owner's Knight Variant",
+    summary: "Win this exact owner-authored knight version.",
+    status: "Included",
+    imageUrl: null,
+    glowColor: "rgba(245, 200, 106, .38)",
+    ruleLines: ["Win the game."],
+  }]);
+});
+
+test("malformed custom Multiplayer rule snapshots degrade to a safe rule label", () => {
+  const malformed = quest({
+    questIds: ["custom-malformed"],
+    customQuestSnapshots: [{
+      id: "custom-malformed",
+      title: "Malformed Legacy Rule",
+      summary: "A legacy snapshot with an invalid nested condition.",
+      config: JSON.stringify({ version: 2, logic: "all", blocks: [null] }),
+    }],
+  });
+
+  const preview = buildMobileWebMultiplayerPreview(malformed, null, "Community", likeSummary);
+  assert.deepEqual(preview.questRuleDetails?.[0]?.ruleLines, ["Custom rule"]);
+});
+
 test("private detail loader authorizes and discloses only from a canonical host record", async () => {
   const replica = quest({ hostUserId: "canonical-owner", inviteMode: "private-key", inviteKey: "ROOK-742" });
   const dependencies = {

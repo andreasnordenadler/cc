@@ -26,6 +26,17 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   publiclyListed: true,
   inviteCopy: "A two-week official Multiplayer Side Quest.",
   quests: ["Any Game Counts", "Knights Before Coffee", "Bishop Field Trip"],
+  questRuleDetails: [
+    {
+      id: "finish-any-game",
+      title: "Any Game Counts",
+      summary: "Finish one public game.",
+      status: "Easy",
+      imageUrl: "/badges/v7/finish-any-game-badge.png",
+      glowColor: "rgba(245, 200, 106, .38)",
+      ruleLines: ["Finish the game — win, lose, or draw."],
+    },
+  ],
   rules: [["Games allowed", "Lichess or Chess.com"]],
   status: "Joined",
   playersLabel: "1 player",
@@ -67,6 +78,35 @@ test("joined official Multiplayer detail renders the Android next action and rea
   assert.match(html, />Share Side Quest</);
   assert.match(html, />Copy invite link</);
   assert.doesNotMatch(html, /Back to catalog|Joined Side Quest|before joining|Created by|Hosted by Side Quest Chess/);
+});
+
+test("each included Multiplayer Side Quest opens its Android rule and proof detail", () => {
+  const html = renderDetail(officialJoinedQuest);
+
+  assert.match(html, /<details[^>]*class="sqc-multiplayer-rule-detail"/);
+  assert.match(html, /<summary[^>]*aria-label="Open or close rules for Any Game Counts"/);
+  assert.match(html, />Multiplayer Side Quest rules</);
+  assert.match(html, />Any Game Counts</);
+  assert.match(html, />Finish one public game\.</);
+  assert.match(html, /<img[^>]*alt=""[^>]*src="\/badges\/v7\/finish-any-game-badge\.png"/);
+  assert.match(html, />EASY</);
+  assert.match(html, />What counts</);
+  assert.match(html, />Finish the game — win, lose, or draw\.</);
+  assert.match(html, />Multiplayer proof</);
+  assert.match(html, /Use a public game that starts after you joined this Multiplayer Side Quest\./);
+  assert.match(html, /Solo Side Quest completions only count here if they were completed during this Multiplayer Side Quest\./);
+});
+
+test("included Multiplayer rule details preserve Android card geometry without browser markers", async () => {
+  const css = await readFile(new URL("../src/app/mobile-web.css", import.meta.url), "utf8");
+
+  assert.match(css, /\.sqc-multiplayer-rule-detail\s*>\s*summary[\s\S]*list-style:\s*none/);
+  assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*position:\s*fixed/);
+  assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*inset:\s*0/);
+  assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] > summary[\s\S]*width:\s*46px[\s\S]*height:\s*46px/);
+  assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*padding:\s*max\(64px/);
+  assert.doesNotMatch(css, /\.sqc-multiplayer-rule-detail-coat\s*\{[^}]*filter:/);
+  assert.match(css, /\.sqc-multiplayer-rule-detail\[open\] \.sqc-multiplayer-rule-detail-body[\s\S]*overflow-y:\s*auto/);
 });
 
 test("private Multiplayer hosts can see and copy the exact invite code", () => {

@@ -1479,14 +1479,49 @@ export function MobileMultiplayerDetailScreen({
         <span className="sqc-card-eyebrow">Quests in this Multiplayer Side Quest</span>
         <h2>{quest.quests.length} Side Quests to complete.</h2>
         <div className="sqc-condition-list">
-          {quest.quests.map((title, index) => (
-            <div key={title} className="sqc-condition-compact-row">
-              <span>{index + 1}</span>
-              <div>
-                <strong>{title}</strong>
-                <p>Complete this within the Multiplayer Side Quest window.</p>
+          {(quest.questRuleDetails ?? quest.quests.map((title, index) => ({
+            id: `${index}-${title}`,
+            title,
+            summary: "Complete this within the Multiplayer Side Quest window.",
+            status: undefined,
+            imageUrl: null,
+            glowColor: undefined,
+            ruleLines: ["Follow the saved Side Quest rules."],
+          }))).map((detail, index) => (
+            <details key={detail.id} className="sqc-multiplayer-rule-detail">
+              <summary className="sqc-condition-compact-row" aria-label={`Open or close rules for ${detail.title}`}>
+                <span>{index + 1}</span>
+                <div>
+                  <strong>{detail.title}</strong>
+                  <p>{detail.summary}</p>
+                </div>
+              </summary>
+              <div className="sqc-multiplayer-rule-detail-body">
+                <header className="sqc-multiplayer-rule-detail-hero">
+                  {detail.imageUrl ? (
+                    <span className="sqc-multiplayer-rule-detail-coat" style={{ "--sqc-rule-glow": detail.glowColor ?? "rgba(245, 200, 106, .38)" } as CSSProperties} aria-hidden="true">
+                      <Image src={detail.imageUrl} alt="" width={148} height={148} unoptimized />
+                    </span>
+                  ) : null}
+                  <span className="sqc-multiplayer-kicker">Multiplayer Side Quest rules</span>
+                  <h2>{detail.title}</h2>
+                  <p>{detail.summary}</p>
+                  {detail.status ? <span className="sqc-detail-latest-check">{detail.status.toUpperCase()}</span> : null}
+                </header>
+                <section className="sqc-multiplayer-rule-detail-card">
+                  <span className="sqc-card-eyebrow">What counts</span>
+                  <h3>Complete this within the Multiplayer Side Quest window.</h3>
+                  <ul>
+                    {detail.ruleLines.map((line) => <li key={line}>{line}</li>)}
+                  </ul>
+                </section>
+                <section className="sqc-multiplayer-rule-detail-card">
+                  <span className="sqc-card-eyebrow">Multiplayer proof</span>
+                  <p><strong>Proof:</strong> Use a public game that starts after you joined this Multiplayer Side Quest.</p>
+                  <p><strong>Solo Side Quest progress:</strong> Solo Side Quest completions only count here if they were completed during this Multiplayer Side Quest.</p>
+                </section>
               </div>
-            </div>
+            </details>
           ))}
         </div>
       </section>
