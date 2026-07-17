@@ -319,6 +319,8 @@ export async function findGroupQuestById(
   let pageCount = 0;
   let pageBound: number | undefined;
   let replicaFallback: GroupQuestHostRecord | null = null;
+  let canonicalRecord: GroupQuestHostRecord | null = null;
+  let conflictingOwnerClaim = false;
   while (pageCount < (pageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
@@ -327,13 +329,21 @@ export async function findGroupQuestById(
       const groupQuest = getAllStoredGroupQuests(user).find((quest) => quest.id === id);
       if (!groupQuest) continue;
       const record = { userId: user.id, groupQuest };
-      if (user.id === groupQuest.hostUserId) return record;
+      if (user.id === groupQuest.hostUserId) {
+        if (canonicalRecord && canonicalRecord.userId !== user.id) conflictingOwnerClaim = true;
+        else canonicalRecord = record;
+      }
       replicaFallback ??= record;
     }
-    if (users.data.length < CLERK_USER_PAGE_SIZE) return replicaFallback;
+    if (users.data.length < CLERK_USER_PAGE_SIZE) {
+      return conflictingOwnerClaim ? null : canonicalRecord ?? replicaFallback;
+    }
     offset += CLERK_USER_PAGE_SIZE;
   }
-  return replicaFallback;
+  // A full final page does not prove that this offset scan observed every copy:
+  // accounts can move between pages while Clerk is serving the scan. Private
+  // owner capabilities therefore fail closed unless a short page terminates it.
+  return null;
 }
 
 export async function findGroupQuestByInviteKey(

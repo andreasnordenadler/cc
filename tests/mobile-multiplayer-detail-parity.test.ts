@@ -11,7 +11,7 @@ import { POST as supportPOST, withSupportRouteTestDependencies } from "../src/ap
 import { POST as removeParticipantPOST, withRemoveParticipantRouteTestDependencies } from "../src/app/api/groupquests/[id]/remove-participant/route";
 import { leaveGroupQuest } from "../src/lib/group-quest-leave";
 import { removeGroupQuestParticipant } from "../src/lib/group-quest-remove-participant";
-import { buildGroupQuestSharePayload, shareGroupQuest } from "../src/lib/group-quest-share";
+import { buildGroupQuestSharePayload, copyGroupQuestInviteKey, shareGroupQuest } from "../src/lib/group-quest-share";
 import { validateCommunityMultiplayerReport } from "../src/lib/mobile-web-parity-actions";
 import { createCommunityMultiplayerReportSubmitter, submitCommunityMultiplayerReport } from "../src/lib/community-multiplayer-report";
 import { buildMobileWebMultiplayerLeaderboardRows, type MobileWebMultiplayerPreview } from "../src/lib/mobile-web-multiplayer";
@@ -67,6 +67,32 @@ test("joined official Multiplayer detail renders the Android next action and rea
   assert.match(html, />Share Side Quest</);
   assert.match(html, />Copy invite link</);
   assert.doesNotMatch(html, /Back to catalog|Joined Side Quest|before joining|Created by|Hosted by Side Quest Chess/);
+});
+
+test("private Multiplayer hosts can see and copy the exact invite code", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    id: "private-table",
+    sourceBadge: "Community",
+    status: "Hosted",
+    viewerJoined: true,
+    publiclyListed: false,
+    inviteKey: "ROOK-742",
+  });
+
+  assert.match(html, /aria-label="Private Multiplayer invite code"/);
+  assert.match(html, />ROOK-742</);
+  assert.match(html, /aria-label="Copy private invite code"/);
+});
+
+test("copying a private invite code writes only the code and reports success", async () => {
+  const copied: string[] = [];
+  const result = await copyGroupQuestInviteKey("ROOK-742", {
+    clipboard: { writeText: async (value: string) => { copied.push(value); } },
+  });
+
+  assert.deepEqual(copied, ["ROOK-742"]);
+  assert.deepEqual(result, { kind: "copied", message: "Invite code copied." });
 });
 
 test("not-joined Multiplayer detail keeps direct joining and community quests keep their host card", () => {

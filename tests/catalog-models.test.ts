@@ -2,10 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
-import { buildMobileWebMultiplayerLeaderboardRows, buildUserMultiplayerRows, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
+import { buildMobileWebMultiplayerLeaderboardRows, buildMobileWebMultiplayerPreview, buildUserMultiplayerRows, getMobileWebMultiplayerDetail, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
-const likeSummary = { count: 0, likedByCurrentUser: false };
+const likeSummary = { count: 0, likedByCurrentUser: false, likedByViewer: false };
 
 function multiplayerRow(overrides: Record<string, unknown> = {}) {
   return {
@@ -25,6 +25,52 @@ function quest(overrides: Partial<ServerGroupQuest> = {}): ServerGroupQuest {
     createdAt: "2026-07-09T00:00:00.000Z", participants: [], ...overrides,
   };
 }
+
+test("private invite codes use the canonical storage owner and never participant replicas", () => {
+  const privateQuest = quest({ inviteMode: "private-key", inviteKey: "ROOK-742", participants: [{ userId: "participant", provider: "lichess", username: "rook-player", leaderboardName: "Rook Player", joinedAt: "2026-07-11T00:00:00.000Z" }] });
+  const spoofedReplica = { ...privateQuest, hostUserId: "attacker" };
+
+  const host = buildMobileWebMultiplayerPreview(privateQuest, "host", "Community", likeSummary, true, "host");
+  const participant = buildMobileWebMultiplayerPreview(privateQuest, "participant", "Community", likeSummary, true, "host");
+  const anonymous = buildMobileWebMultiplayerPreview(privateQuest, null, "Community", likeSummary, true, "host");
+  const attacker = buildMobileWebMultiplayerPreview(spoofedReplica, "attacker", "Community", likeSummary, true, "canonical-owner");
+  const canonicalOwner = buildMobileWebMultiplayerPreview(spoofedReplica, "canonical-owner", "Community", likeSummary, true, "canonical-owner");
+
+  assert.equal(host.inviteKey, "ROOK-742");
+  assert.equal(participant.inviteKey, undefined);
+  assert.equal(anonymous.inviteKey, undefined);
+  assert.equal(attacker.inviteKey, undefined);
+  assert.equal(canonicalOwner.inviteKey, "ROOK-742");
+});
+
+test("private detail loader authorizes and discloses only from a canonical host record", async () => {
+  const replica = quest({ hostUserId: "canonical-owner", inviteMode: "private-key", inviteKey: "ROOK-742" });
+  const dependencies = {
+    findQuestById: async () => ({ userId: "canonical-owner", groupQuest: replica }),
+    getLikeSummaries: async () => new Map(),
+  };
+
+  const attacker = await getMobileWebMultiplayerDetail({} as never, replica.id, "attacker", dependencies);
+  const canonicalOwner = await getMobileWebMultiplayerDetail({} as never, replica.id, "canonical-owner", dependencies);
+
+  assert.equal(attacker, null);
+  assert.equal(canonicalOwner?.status, "Hosted");
+  assert.equal(canonicalOwner?.inviteKey, "ROOK-742");
+
+  const participantReplica = quest({
+    hostUserId: "missing-owner",
+    inviteMode: "private-key",
+    inviteKey: "ROOK-742",
+    participants: [{ userId: "replica-user", provider: "lichess", username: "replica", leaderboardName: "Replica", joinedAt: "2026-07-11T00:00:00.000Z" }],
+  });
+  const participantOnly = await getMobileWebMultiplayerDetail({} as never, participantReplica.id, "replica-user", {
+    findQuestById: async () => ({ userId: "replica-user", groupQuest: participantReplica }),
+    getLikeSummaries: async () => new Map(),
+  });
+
+  assert.equal(participantOnly?.status, "Joined");
+  assert.equal(participantOnly?.inviteKey, undefined);
+});
 
 test("solo catalog matches title and rule text, filters status, and sorts by name", () => {
   const rows = [
