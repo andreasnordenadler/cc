@@ -996,6 +996,7 @@ export function MobileMultiplayerSideQuestsScreen({
   signedIn,
   officialRows,
   communityRows,
+  communityHost,
   previousOfficialRows,
   earlierOfficialWeeks,
 }: {
@@ -1003,6 +1004,7 @@ export function MobileMultiplayerSideQuestsScreen({
   signedIn: boolean;
   officialRows: MobileWebMultiplayerPreview[];
   communityRows: MobileWebMultiplayerPreview[];
+  communityHost?: string | null;
   previousOfficialRows?: MobileWebMultiplayerResult[];
   earlierOfficialWeeks?: MobileWebOfficialWeek[];
 }) {
@@ -1042,7 +1044,7 @@ export function MobileMultiplayerSideQuestsScreen({
 
       {selectedTab === "official"
         ? <OfficialMultiplayerPanel signedIn={signedIn} rows={officialRows} previousOfficialRows={previousOfficialRows ?? []} earlierOfficialWeeks={earlierOfficialWeeks ?? []} />
-        : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} />}
+        : <CommunityMultiplayerPanel signedIn={signedIn} rows={communityRows} initialHost={communityHost} />}
     </div>
   );
 }
@@ -1173,7 +1175,7 @@ function getOfficialPodiumSeal(placement: "Gold" | "Silver" | "Bronze") {
   return mobileAsset.bronzeSeal;
 }
 
-function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[] }) {
+function CommunityMultiplayerPanel({ signedIn, rows, initialHost }: { signedIn: boolean; rows: MobileWebMultiplayerPreview[]; initialHost?: string | null }) {
   return (
     <>
       <section className="sqc-empty-panel standalone">
@@ -1185,7 +1187,7 @@ function CommunityMultiplayerPanel({ signedIn, rows }: { signedIn: boolean; rows
         </span>
       </section>
 
-      <CommunityMultiplayerCatalog rows={rows} signedIn={signedIn} />
+      <CommunityMultiplayerCatalog rows={rows} signedIn={signedIn} initialHost={initialHost} />
 
       {signedIn ? (
         <>
@@ -1439,6 +1441,12 @@ export function MobileMultiplayerDetailScreen({
           <span className="sqc-card-eyebrow">Created by</span>
           <h2>Hosted by {quest.hostName}</h2>
           <p>See more public Side Quests from this host when they share them.</p>
+          <Link
+            href={`/multiplayer-side-quests?tab=community&host=${encodeURIComponent(quest.hostName)}`}
+            className="sqc-detail-secondary-button"
+          >
+            More by host
+          </Link>
         </section>
       ) : null}
 

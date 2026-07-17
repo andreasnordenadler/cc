@@ -1,6 +1,6 @@
 import MobileAppWebShell, { MobileMultiplayerSideQuestsScreen } from "@/components/mobile-app-web-shell";
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
-import { getMobileWebMultiplayerPreviews } from "@/lib/mobile-web-multiplayer";
+import { getMobileWebMultiplayerPreviews, getMultiplayerHostFilter } from "@/lib/mobile-web-multiplayer";
 import { unstable_noStore as noStore } from "next/cache";
 import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
@@ -9,10 +9,10 @@ export { metadata } from "../multiplayer/page";
 export default async function MultiplayerSideQuestsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string | string[]; host?: string | string[] }>;
 }) {
   noStore();
-  const [{ tab }, user, client] = await Promise.all([searchParams, currentUser(), clerkClient()]);
+  const [{ tab, host }, user, client] = await Promise.all([searchParams, currentUser(), clerkClient()]);
   const metadata = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
   const { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks } = await getMobileWebMultiplayerPreviews(client, user?.id);
   const displayName = user
@@ -37,6 +37,7 @@ export default async function MultiplayerSideQuestsPage({
         signedIn={Boolean(user)}
         officialRows={officialRows}
         communityRows={communityRows}
+        communityHost={getMultiplayerHostFilter(host)}
         previousOfficialRows={previousOfficialRows}
         earlierOfficialWeeks={earlierOfficialWeeks}
       />

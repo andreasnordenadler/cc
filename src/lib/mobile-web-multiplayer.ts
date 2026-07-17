@@ -10,6 +10,7 @@ export type MobileWebMultiplayerPreview = {
   href: string;
   sourceBadge: "SQC Official" | "Community";
   hostName?: string;
+  publiclyListed: boolean;
   inviteCopy: string;
   quests: string[];
   rules: Array<[string, string]>;
@@ -57,6 +58,16 @@ export type MobileWebOfficialWeek = {
 
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
+export function getMultiplayerHostFilter(value: string | string[] | undefined) {
+  return typeof value === "string" && value.length > 0 && value.length <= 80 ? value : null;
+}
+
+export function mergeCommunityCatalogQuests(publicQuests: ServerGroupQuest[], relatedQuests: ServerGroupQuest[]) {
+  const questsById = new Map(publicQuests.filter((quest) => !isOfficialGroupQuest(quest)).map((quest) => [quest.id, quest]));
+  relatedQuests.forEach((quest) => questsById.set(quest.id, quest));
+  return [...questsById.values()];
+}
+
 export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userId?: string | null) {
   const [publicQuests, relatedQuests, likeSummaries] = await Promise.all([
     listPublicGroupQuests(client),
@@ -70,10 +81,7 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
     .filter((quest) => isOfficialGroupQuest(quest))
     .map((quest) => buildPreviewRow(quest, userId, "SQC Official", likeSummaries.get("multiplayer", quest.id)));
 
-  const publicCommunityQuests = activeQuests.filter((quest) => !isOfficialGroupQuest(quest));
-  const communityQuestMap = new Map(publicCommunityQuests.map((quest) => [quest.id, quest]));
-  relatedQuests.forEach((quest) => communityQuestMap.set(quest.id, quest));
-  const communityRows = [...communityQuestMap.values()].map((quest) => buildPreviewRow(
+  const communityRows = mergeCommunityCatalogQuests(publicQuests, relatedQuests).map((quest) => buildPreviewRow(
     quest,
     userId,
     isOfficialGroupQuest(quest) ? "SQC Official" : "Community",
@@ -139,6 +147,7 @@ function buildPreviewRow(
     href: `/groupquests/${quest.id}${joined && !isOwner ? "?accepted=1" : ""}`,
     sourceBadge,
     hostName: quest.hostName,
+    publiclyListed: quest.inviteMode === "public",
     inviteCopy: quest.inviteCopy,
     quests: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
     rules: buildRuleRows(quest),

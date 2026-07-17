@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "../src/lib/catalog-models";
-import { buildMobileWebMultiplayerLeaderboardRows, buildUserMultiplayerRows } from "../src/lib/mobile-web-multiplayer";
+import { buildMobileWebMultiplayerLeaderboardRows, buildUserMultiplayerRows, getMultiplayerHostFilter, mergeCommunityCatalogQuests } from "../src/lib/mobile-web-multiplayer";
 import type { ServerGroupQuest } from "../src/lib/groupquests";
 
 const likeSummary = { count: 0, likedByCurrentUser: false };
@@ -104,4 +104,21 @@ test("Multiplayer rows expose Android-ranked final standings without leaking use
 test("filters return an empty list only when no row matches", () => {
   assert.deepEqual(filterSoloCatalog([], { query: "none", status: "all", sort: "name" }), []);
   assert.deepEqual(filterMultiplayerCatalog([multiplayerRow()], { query: "missing", filter: "all", sort: "closing" }), []);
+});
+
+test("Multiplayer host query accepts one exact canonical name and rejects ambiguous or oversized input", () => {
+  assert.equal(getMultiplayerHostFilter(" Ada "), " Ada ");
+  assert.equal(getMultiplayerHostFilter(["Ada", "Bob"]), null);
+  assert.equal(getMultiplayerHostFilter(""), null);
+  assert.equal(getMultiplayerHostFilter("A".repeat(81)), null);
+});
+
+test("Community catalog data keeps finished public quests available for host shelves", () => {
+  const openPublic = quest({ id: "open-public" });
+  const finishedPublic = quest({ id: "finished-public", endAt: "2026-07-01T00:00:00.000Z" });
+  const relatedPrivate = quest({ id: "related-private", inviteMode: "private-key" });
+  assert.deepEqual(
+    mergeCommunityCatalogQuests([openPublic, finishedPublic], [relatedPrivate]).map(item => item.id),
+    ["open-public", "finished-public", "related-private"],
+  );
 });
