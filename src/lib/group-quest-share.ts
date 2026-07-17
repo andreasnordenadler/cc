@@ -43,6 +43,18 @@ export async function shareGroupQuest(payload: GroupQuestSharePayload, client: S
   return copyGroupQuestLink(payload.url, client);
 }
 
+export async function copyGroupQuestInviteKey(inviteKey: string, client: Pick<ShareClient, "clipboard">) {
+  if (!client.clipboard) {
+    return { kind: "error" as const, message: "Copying is not available in this browser." };
+  }
+  try {
+    await client.clipboard.writeText(inviteKey);
+    return { kind: "copied" as const, message: "Invite code copied." };
+  } catch {
+    return { kind: "error" as const, message: "Could not copy the invite code. Try again." };
+  }
+}
+
 export async function copyGroupQuestLink(url: string, client: Pick<ShareClient, "clipboard">) {
   if (!client.clipboard) {
     return { kind: "error" as const, message: "Copying is not available in this browser." };

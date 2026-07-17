@@ -24,6 +24,7 @@ import GroupQuestShareControls from "./group-quest-share-controls";
 import GroupQuestLeaveAction from "./group-quest-leave-action";
 import GroupQuestRemoveParticipantAction from "./group-quest-remove-participant-action";
 import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
+import GroupQuestInviteKeyControl from "./group-quest-invite-key-control";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -1414,6 +1415,10 @@ export function MobileMultiplayerDetailScreen({
           <p>Update the invite, schedule, rules, and Side Quest lineup from the exact owner screen.</p>
           <Link href={`/groupquests/${encodeURIComponent(quest.id)}/edit`} className="sqc-detail-secondary-button">Manage Side Quest</Link>
         </section>
+      ) : null}
+
+      {joinState.kind === "hosted" && quest.inviteKey ? (
+        <GroupQuestInviteKeyControl inviteKey={quest.inviteKey} />
       ) : null}
 
       <section className="sqc-native-card sqc-multiplayer-native-card">

@@ -11,6 +11,7 @@ export type MobileWebMultiplayerPreview = {
   sourceBadge: "SQC Official" | "Community";
   hostName?: string;
   publiclyListed: boolean;
+  inviteKey?: string;
   inviteCopy: string;
   quests: string[];
   rules: Array<[string, string]>;
@@ -59,6 +60,16 @@ export type MobileWebOfficialWeek = {
 
 type ClerkClient = Awaited<ReturnType<typeof clerkClient>>;
 
+type MobileWebMultiplayerDetailDependencies = {
+  findQuestById: typeof findGroupQuestById;
+  getLikeSummaries: typeof getCommunityLikeSummaries;
+};
+
+const mobileWebMultiplayerDetailDependencies: MobileWebMultiplayerDetailDependencies = {
+  findQuestById: findGroupQuestById,
+  getLikeSummaries: getCommunityLikeSummaries,
+};
+
 export function getMultiplayerHostFilter(value: string | string[] | undefined) {
   return typeof value === "string" && value.length > 0 && value.length <= 80 ? value : null;
 }
@@ -80,9 +91,9 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
 
   const officialRows = activeQuests
     .filter((quest) => isOfficialGroupQuest(quest))
-    .map((quest) => buildPreviewRow(quest, userId, "SQC Official", likeSummaries.get("multiplayer", quest.id)));
+    .map((quest) => buildMobileWebMultiplayerPreview(quest, userId, "SQC Official", likeSummaries.get("multiplayer", quest.id)));
 
-  const communityRows = mergeCommunityCatalogQuests(publicQuests, relatedQuests).map((quest) => buildPreviewRow(
+  const communityRows = mergeCommunityCatalogQuests(publicQuests, relatedQuests).map((quest) => buildMobileWebMultiplayerPreview(
     quest,
     userId,
     isOfficialGroupQuest(quest) ? "SQC Official" : "Community",
@@ -103,31 +114,39 @@ export async function getMobileWebMultiplayerPreviews(client: ClerkClient, userI
   return { officialRows, communityRows, previousOfficialRows, earlierOfficialWeeks };
 }
 
-export async function getMobileWebMultiplayerDetail(client: ClerkClient, id: string, userId?: string | null) {
-  const found = await findGroupQuestById(client, id);
+export async function getMobileWebMultiplayerDetail(
+  client: ClerkClient,
+  id: string,
+  userId?: string | null,
+  dependencies: MobileWebMultiplayerDetailDependencies = mobileWebMultiplayerDetailDependencies,
+) {
+  const found = await dependencies.findQuestById(client, id);
   if (!found) return null;
+  const canonicalOwnerUserId = found.userId === found.groupQuest.hostUserId ? found.userId : undefined;
   const joined = Boolean(userId) && found.groupQuest.participants.some((participant) => participant.userId === userId);
-  const hosted = found.groupQuest.hostUserId === userId;
+  const hosted = canonicalOwnerUserId === userId;
   if (found.groupQuest.inviteMode !== "public" && !joined && !hosted) return null;
-  const likeSummaries = await getCommunityLikeSummaries(client, userId ?? null);
-  return buildPreviewRow(
+  const likeSummaries = await dependencies.getLikeSummaries(client, userId ?? null);
+  return buildMobileWebMultiplayerPreview(
     found.groupQuest,
     userId,
     isOfficialGroupQuest(found.groupQuest) ? "SQC Official" : "Community",
     likeSummaries.get("multiplayer", id),
     true,
+    canonicalOwnerUserId,
   );
 }
 
-function buildPreviewRow(
+export function buildMobileWebMultiplayerPreview(
   quest: ServerGroupQuest,
   userId: string | null | undefined,
   sourceBadge: "SQC Official" | "Community",
   likeSummary: CommunityLikeSummary,
   includeLeaderboard = false,
+  canonicalOwnerUserId?: string,
 ): MobileWebMultiplayerPreview {
   const joined = Boolean(userId) && quest.participants.some((participant) => participant.userId === userId);
-  const isOwner = Boolean(userId) && quest.hostUserId === userId;
+  const isOwner = Boolean(userId) && (canonicalOwnerUserId ?? quest.hostUserId) === userId;
   const status = deriveGroupQuestStatus(quest.startAt, quest.endAt);
   const playersLabel = formatPlayersLabel(quest.participants.length);
   const timeLeftLabel = status === "Finished" ? "Final" : formatTimeLeftLabel(quest.endAt);
@@ -149,6 +168,7 @@ function buildPreviewRow(
     sourceBadge,
     hostName: quest.hostName,
     publiclyListed: quest.inviteMode === "public",
+    ...(canonicalOwnerUserId && isOwner && quest.inviteMode === "private-key" && quest.inviteKey ? { inviteKey: quest.inviteKey } : {}),
     inviteCopy: quest.inviteCopy,
     quests: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
     rules: buildRuleRows(quest),
@@ -175,7 +195,7 @@ export function buildUserMultiplayerRows(
   return quests
     .filter((quest) => quest.hostUserId === userId || quest.participants.some((participant) => participant.userId === userId))
     .map((quest) => {
-      const row = buildPreviewRow(quest, userId, isOfficialGroupQuest(quest) ? "SQC Official" : "Community", likeSummaries.get(quest.id) ?? { count: 0, likedByViewer: false });
+      const row = buildMobileWebMultiplayerPreview(quest, userId, isOfficialGroupQuest(quest) ? "SQC Official" : "Community", likeSummaries.get(quest.id) ?? { count: 0, likedByViewer: false });
       return { ...row, lifecycle: Number.isFinite(Date.parse(quest.endAt)) && Date.parse(quest.endAt) < now ? "finished" as const : "open" as const };
     });
 }

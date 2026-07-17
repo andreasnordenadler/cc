@@ -283,6 +283,89 @@ test("non-official lookup prefers the host's authoritative copy over an earlier 
   assert.equal(found?.groupQuest.name, "Canonical table");
 });
 
+test("non-official lookup fails closed when two storage owners claim the same quest", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  const forgedOwnerReplica = { ...structuredClone(canonical), hostUserId: "attacker-user", inviteKey: "PRIVATE-KEY" };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "attacker-user", privateMetadata: { sqcGroupQuests: [forgedOwnerReplica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+});
+
+test("non-official lookup accepts a canonical owner at an exact total-count page boundary", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => ({
+    data: Array.from({ length: limit }, (_, index) => index === 0
+      ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+      : { id: `user-${index}`, privateMetadata: {} }),
+    totalCount: limit,
+  }) } };
+
+  const found = await findGroupQuestById(client, canonical.id);
+  assert.equal(found?.userId, "host-user");
+});
+
+test("non-official lookup rejects a full final page that contradicts a non-multiple total count", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    return {
+      data: Array.from({ length: limit }, (_, index) => page === 1 && index === 0
+        ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+        : { id: `user-${page}-${index}`, privateMetadata: {} }),
+      totalCount: 150,
+    };
+  } } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+  assert.equal(page, 2);
+});
+
+test("non-official lookup rejects a short final page that contradicts the snapshotted total count", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    const length = page === 1 ? limit : 50;
+    return {
+      data: Array.from({ length }, (_, index) => page === 1 && index === 0
+        ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+        : { id: `user-${page}-${index}`, privateMetadata: {} }),
+      totalCount: 200,
+    };
+  } } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+  assert.equal(page, 2);
+});
+
+test("non-official lookup fails closed when a hard-bounded scan never proves completion", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  let page = 0;
+  const client = { users: { getUserList: async ({ limit }: { limit: number }) => {
+    page += 1;
+    return {
+      data: Array.from({ length: limit }, (_, index) => page === 1 && index === 0
+        ? { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } }
+        : { id: `user-${page}-${index}`, privateMetadata: {} }),
+    };
+  } } };
+
+  assert.equal(await findGroupQuestById(client, canonical.id), null);
+  assert.equal(page, CLERK_USER_SCAN_MAX_PAGES);
+});
+
 test("public official records merge with legacy private copies in lookup, catalogs, and user-related scans", async () => {
   const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
   const publicCopy = structuredClone(official);
