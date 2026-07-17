@@ -66,15 +66,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   if (!found) {
     return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
   }
-  if (isGroupQuestFinished(found.groupQuest)) {
-    return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
-  }
-
   if (found.groupQuest.hostUserId !== userId) {
     return NextResponse.json({ ok: false, error: "host_only" }, { status: 403 });
   }
 
-  const host = await dependencies.getHost(found.userId);
+  const host = await dependencies.getHost(userId);
   const privateMetadata = host.privateMetadata && typeof host.privateMetadata === "object"
     ? host.privateMetadata as Record<string, unknown>
     : {};
@@ -94,7 +90,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   const updatedQuest = removeParticipantFromGroupQuest(authoritativeQuest, participantUserId);
-  await dependencies.saveHost(found.userId, {
+  await dependencies.saveHost(userId, {
     ...privateMetadata,
     sqcAnalytics: compactAnalyticsStore(getAnalyticsStore(privateMetadata)),
     sqcGroupQuests: upsertHostGroupQuest(privateMetadata, updatedQuest),

@@ -507,7 +507,7 @@ test("host removal reports when the participant is already gone without navigati
   assert.deepEqual(result, { kind: "error", message: "That player is no longer in this Multiplayer Side Quest." });
 });
 
-test("exported host removal route derives the host from the session and persists the exact participant removal", async (t) => {
+test("exported host removal route recovers from a stale finished participant replica through the authenticated host account", async (t) => {
   const previousNodeEnv = process.env.NODE_ENV;
   setNodeEnv("test");
   t.after(() => setNodeEnv(previousNodeEnv));
@@ -534,6 +534,57 @@ test("exported host removal route derives the host from the session and persists
     ],
   };
 
+  const staleReplica = { ...quest, endAt: "2026-07-02T00:00:00.000Z" };
+  const response = await withRemoveParticipantRouteTestDependencies({
+    authenticate: async () => "session-host",
+    findQuest: async (id) => {
+      assert.equal(id, "table-1");
+      return { userId: "storage-host", groupQuest: staleReplica };
+    },
+    getHost: async (userId) => {
+      assert.equal(userId, "session-host");
+      return { privateMetadata: { sqcGroupQuests: [quest] } };
+    },
+    saveHost: async (userId, privateMetadata) => { writes.push({ userId, privateMetadata }); },
+  }, () => removeParticipantPOST(new Request("https://sidequestchess.com/api/groupquests/table-1/remove-participant", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ participantUserId: "guest-user", userId: "attacker" }),
+  }), { params: Promise.resolve({ id: "table-1" }) }));
+
+  assert.equal(response.status, 200);
+  assert.equal(writes.length, 1);
+  assert.equal(writes[0]?.userId, "session-host");
+  const savedQuests = writes[0]?.privateMetadata.sqcGroupQuests as Array<{ participants: Array<{ userId: string }> }>;
+  assert.deepEqual(savedQuests[0]?.participants.map((participant) => participant.userId), ["session-host"]);
+});
+
+test("exported host removal route preserves a late participant from the canonical host record", async (t) => {
+  const previousNodeEnv = process.env.NODE_ENV;
+  setNodeEnv("test");
+  t.after(() => setNodeEnv(previousNodeEnv));
+
+  const writes: Array<{ userId: string; privateMetadata: Record<string, unknown> }> = [];
+  const quest = {
+    id: "table-1",
+    hostUserId: "session-host",
+    hostName: "Host",
+    name: "Table",
+    inviteMode: "public" as const,
+    inviteKey: "",
+    inviteCopy: "Join",
+    providerMode: "both" as const,
+    providerLabel: "Lichess or Chess.com",
+    questIds: ["quest-one"],
+    startAt: "2026-07-01T00:00:00.000Z",
+    endAt: "2099-07-20T00:00:00.000Z",
+    rules: {},
+    createdAt: "2026-07-01T00:00:00.000Z",
+    participants: [
+      { userId: "session-host", provider: "lichess" as const, username: "host", leaderboardName: "Host", joinedAt: "2026-07-01T00:00:00.000Z" },
+      { userId: "guest-user", provider: "chesscom" as const, username: "guest", leaderboardName: "Guest", joinedAt: "2026-07-02T00:00:00.000Z" },
+    ],
+  };
   const latestQuest = {
     ...quest,
     participants: [
@@ -544,12 +595,9 @@ test("exported host removal route derives the host from the session and persists
 
   const response = await withRemoveParticipantRouteTestDependencies({
     authenticate: async () => "session-host",
-    findQuest: async (id) => {
-      assert.equal(id, "table-1");
-      return { userId: "storage-host", groupQuest: quest };
-    },
+    findQuest: async () => ({ userId: "session-host", groupQuest: quest }),
     getHost: async (userId) => {
-      assert.equal(userId, "storage-host");
+      assert.equal(userId, "session-host");
       return { privateMetadata: { unrelated: "preserved", sqcGroupQuests: [latestQuest] } };
     },
     saveHost: async (userId, privateMetadata) => { writes.push({ userId, privateMetadata }); },
@@ -561,7 +609,7 @@ test("exported host removal route derives the host from the session and persists
 
   assert.equal(response.status, 200);
   assert.equal(writes.length, 1);
-  assert.equal(writes[0]?.userId, "storage-host");
+  assert.equal(writes[0]?.userId, "session-host");
   assert.equal(writes[0]?.privateMetadata.unrelated, "preserved");
   const savedQuests = writes[0]?.privateMetadata.sqcGroupQuests as Array<{ participants: Array<{ userId: string; completedQuestIds?: string[] }> }>;
   assert.deepEqual(savedQuests[0]?.participants.map((participant) => participant.userId), ["session-host", "late-player"]);
