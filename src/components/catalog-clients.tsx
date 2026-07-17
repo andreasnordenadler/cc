@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
-import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "@/lib/catalog-models";
+import { filterCommunitySoloCatalog, filterCustomCatalog, filterMultiplayerCatalog, paginateCatalog, type CommunitySoloCatalogFilter, type CommunitySoloCatalogSort } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
 
 export type SoloCatalogClientRow = {
@@ -54,34 +54,49 @@ function MultiplayerCatalogRow({ row, status, signedIn }: { row: MobileWebMultip
   );
 }
 
-export function CommunitySoloCatalog({ rows, signedIn }: { rows: SoloCatalogClientRow[]; signedIn: boolean }) {
+export type CommunitySoloCatalogClientRow = SoloCatalogClientRow & {
+  updatedAtMs: number;
+  popularityScore: number;
+  likeCount: number;
+  completedByViewer: boolean;
+  isNew: boolean;
+};
+
+export function CommunitySoloCatalog({ rows, signedIn }: { rows: CommunitySoloCatalogClientRow[]; signedIn: boolean }) {
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | "completed">("all");
-  const [sort, setSort] = useState<"name" | "newest">("newest");
-  const [limit, setLimit] = useState(12);
-  const filtered = useMemo(() => filterSoloCatalog(rows, { query, status, sort }), [rows, query, status, sort]);
+  const [filter, setFilter] = useState<CommunitySoloCatalogFilter>("all");
+  const [sort, setSort] = useState<CommunitySoloCatalogSort>("popular");
+  const [limit, setLimit] = useState(10);
+  const filtered = useMemo(() => filterCommunitySoloCatalog(rows, { query, filter, sort }), [rows, query, filter, sort]);
   const page = paginateCatalog(filtered, limit);
+  const filters: Array<{ value: CommunitySoloCatalogFilter; label: string }> = [
+    { value: "all", label: "All" },
+    { value: "popular", label: "Popular" },
+    { value: "new", label: "New" },
+    { value: "completed", label: "Completed" },
+  ];
 
   return (
     <>
       <div className="sqc-community-browse-panel" aria-label="Community Side Quest filters">
         <label className="sqc-search-shell">
           <span className="sr-only">Search Community Side Quests</span>
-          <input value={query} onChange={(event) => { setQuery(event.target.value); setLimit(12); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />
+          <input value={query} onChange={(event) => { setQuery(event.target.value); setLimit(10); }} placeholder="Search by name or rule" aria-label="Search Community Side Quests" />
         </label>
         <div className="sqc-community-controls">
           <div className="sqc-filter-row" aria-label="Filter Community Side Quests">
-            <button type="button" className={status === "all" ? "active" : ""} onClick={() => { setStatus("all"); setLimit(12); }}>All</button>
-            <button type="button" className={status === "completed" ? "active" : ""} onClick={() => { setStatus("completed"); setLimit(12); }}>Completed</button>
+            {filters.map(({ value, label }) => (
+              <button type="button" key={value} className={filter === value ? "active" : ""} aria-pressed={filter === value} onClick={() => { setFilter(value); setLimit(10); }}>{label}</button>
+            ))}
           </div>
-          <label className="sqc-sort-pill">Sort <select aria-label="Sort Community Side Quests" value={sort} onChange={(event) => setSort(event.target.value as typeof sort)}><option value="newest">Newest</option><option value="name">Name</option></select></label>
+          <label className="sqc-sort-pill">Sort <select aria-label="Sort Community Side Quests" value={sort} onChange={(event) => { setSort(event.target.value as CommunitySoloCatalogSort); setLimit(10); }}><option value="popular">Top</option><option value="liked">Liked</option><option value="newest">Newest</option><option value="name">A–Z</option></select></label>
         </div>
       </div>
       <span>{page.total} result{page.total === 1 ? "" : "s"}</span>
       {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : (
         <div className="sqc-empty-panel standalone"><strong>No Community Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : signedIn ? "Create the first public Side Quest from My Custom Side Quests." : "Public player-made Side Quests will appear here."}</span></div>
       )}
-      {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 12)}>Load more</button> : null}
+      {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 10)}>Load more</button> : null}
     </>
   );
 }

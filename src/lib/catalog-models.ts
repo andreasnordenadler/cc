@@ -30,6 +30,40 @@ export function filterSoloCatalog<T extends SoloCatalogRow>(
     .map(({ row }) => row);
 }
 
+export type CommunitySoloCatalogRow = SoloCatalogRow & {
+  updatedAtMs: number;
+  popularityScore: number;
+  likeCount: number;
+  completedByViewer: boolean;
+  isNew: boolean;
+};
+
+export type CommunitySoloCatalogFilter = "all" | "popular" | "new" | "completed";
+export type CommunitySoloCatalogSort = "popular" | "liked" | "newest" | "name";
+
+export function filterCommunitySoloCatalog<T extends CommunitySoloCatalogRow>(
+  rows: T[],
+  options: { query: string; filter: CommunitySoloCatalogFilter; sort: CommunitySoloCatalogSort },
+): T[] {
+  const query = options.query.trim().toLocaleLowerCase();
+  return rows
+    .filter((row) => !query || `${row.title} ${row.meta}`.toLocaleLowerCase().includes(query))
+    .filter((row) => {
+      if (options.filter === "popular") return row.popularityScore + row.likeCount * 5 > 0;
+      if (options.filter === "new") return row.isNew;
+      if (options.filter === "completed") return row.completedByViewer;
+      return true;
+    })
+    .sort((a, b) => {
+      if (options.sort === "name") return a.title.localeCompare(b.title);
+      if (options.sort === "liked") return b.likeCount - a.likeCount || b.updatedAtMs - a.updatedAtMs || a.title.localeCompare(b.title);
+      if (options.sort === "newest") return b.updatedAtMs - a.updatedAtMs || a.title.localeCompare(b.title);
+      return (b.popularityScore + b.likeCount * 5) - (a.popularityScore + a.likeCount * 5)
+        || b.updatedAtMs - a.updatedAtMs
+        || a.title.localeCompare(b.title);
+    });
+}
+
 export type CustomCatalogRow = SoloCatalogRow & {
   lifecycle: "draft" | "published" | "archived";
   visibility: "private" | "public";

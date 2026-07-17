@@ -92,6 +92,11 @@ type CommunitySideQuestRow = {
   image?: string | null;
   sourceBadge?: string | null;
   status?: string | null;
+  updatedAtMs: number;
+  popularityScore: number;
+  likeCount: number;
+  completedByViewer: boolean;
+  isNew: boolean;
 };
 
 type CommunitySideQuestDetail = {

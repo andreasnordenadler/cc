@@ -40,6 +40,17 @@ test("Solo and Multiplayer swap controls are real links with the Android swap ic
   assert.doesNotMatch(multiplayer, /role="separator"/);
 });
 
+test("Community Solo browse exposes every Android filter and sort choice", () => {
+  const html = renderToStaticMarkup(createElement(MobileCommunitySideQuestsScreen, { rows: [], signedIn: true }));
+
+  for (const label of ["All", "Popular", "New", "Completed"]) {
+    assert.match(html, new RegExp(`>${label}<`));
+  }
+  for (const label of ["Top", "Liked", "Newest", "A–Z"]) {
+    assert.match(html, new RegExp(`>${label}<`));
+  }
+});
+
 test("text-only community quest rows receive the full copy column", () => {
   const multiplayer = renderToStaticMarkup(createElement(MobileMultiplayerSideQuestsScreen, { selectedTab: "community", signedIn: true, officialRows: [], communityRows: [row] }));
   assert.match(multiplayer, /class="sqc-app-row sqc-app-row-with-like text-only"/);
