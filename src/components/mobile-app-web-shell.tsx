@@ -597,7 +597,16 @@ export function MobileCreateCustomScreen({ signedIn = false }: { signedIn?: bool
         <h1>Build your Side Quest.</h1>
         <p>Choose what should happen in a real game. SQC will check it after you play.</p>
       </section>
-      <MobileCustomCreateForm signedIn={signedIn} />
+      {signedIn ? (
+        <MobileCustomCreateForm signedIn />
+      ) : (
+        <section className="sqc-native-card sqc-simple-hero" aria-label="Sign in required">
+          <span className="sqc-card-eyebrow">Account required</span>
+          <h2>Sign in to create a Custom Side Quest.</h2>
+          <p>Custom Side Quests belong to your SQC account so drafts, ownership, and proof stay available across devices.</p>
+          <Link href="/sign-in?redirect_url=%2Fcreate-custom-side-quest" className="sqc-primary-action">Sign in to create</Link>
+        </section>
+      )}
     </div>
   );
 }

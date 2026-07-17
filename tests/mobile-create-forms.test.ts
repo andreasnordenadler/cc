@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { MobileCreateCustomScreen } from "../src/components/mobile-app-web-shell";
 import MobileCustomCreateForm from "../src/components/mobile-custom-create-form";
 import type { CustomSideQuestRuleBlock } from "../src/lib/custom-side-quests";
 import {
@@ -14,10 +15,6 @@ import {
   getMultiplayerCreateDestination,
   getMultiplayerLocalDateTimeDefaults,
 } from "../src/lib/mobile-create-forms";
-import {
-  loadLocalCustomSideQuestDrafts,
-  saveLocalCustomSideQuestDraft,
-} from "../src/lib/local-custom-side-quest-drafts";
 
 const root = new URL("../", import.meta.url);
 const source = (path: string) => readFile(new URL(path, root), "utf8");
@@ -60,31 +57,6 @@ test("custom creator preserves Android's empty signed-in draft behavior", () => 
   assert.equal(payload.visibility, "private");
 });
 
-test("signed-out custom drafts stay private, newest-first, and bounded to Android's six-item session library", () => {
-  const values = new Map<string, string>();
-  const storage = {
-    getItem: (key: string) => values.get(key) ?? null,
-    setItem: (key: string, value: string) => { values.set(key, value); },
-  };
-
-  for (let index = 0; index < 7; index += 1) {
-    saveLocalCustomSideQuestDraft(storage, {
-      id: `local-${index}`,
-      title: `Local quest ${index}`,
-      summary: `Rule ${index}`,
-      config: JSON.stringify({ version: 2, logic: "all", blocks: [{ type: "gameResult", result: "win" }] }),
-      lifecycle: index === 6 ? "published" : "draft",
-      savedAt: `2026-07-17T00:00:0${index}.000Z`,
-    });
-  }
-
-  const drafts = loadLocalCustomSideQuestDrafts(storage);
-  assert.equal(drafts.length, 6);
-  assert.deepEqual(drafts.map((draft) => draft.id), ["local-6", "local-5", "local-4", "local-3", "local-2", "local-1"]);
-  assert.equal(drafts[0].visibility, "private");
-  assert.equal(drafts[0].lifecycle, "published");
-});
-
 test("custom creator supports six independently editable Android-compatible conditions", () => {
   const blocks: CustomSideQuestRuleBlock[] = [
     { type: "gameResult", result: "win" },
@@ -118,22 +90,16 @@ test("custom builder renders the Android-style multi-condition command center", 
   assert.match(html, /Delete/);
 });
 
-test("signed-out custom builder saves locally and the custom library reads the saved row without a fake edit link", async () => {
-  const html = renderToStaticMarkup(React.createElement(MobileCustomCreateForm, { signedIn: false }));
-  const [formSource, catalogSource] = await Promise.all([
-    source("src/components/mobile-custom-create-form.tsx"),
-    source("src/components/catalog-clients.tsx"),
-  ]);
+test("signed-out custom creator deep links show an exact-return sign-in gate instead of an unreachable builder", () => {
+  const signedOut = renderToStaticMarkup(React.createElement(MobileCreateCustomScreen, { signedIn: false }));
+  const signedIn = renderToStaticMarkup(React.createElement(MobileCreateCustomScreen, { signedIn: true }));
 
-  assert.match(html, />Save locally</);
-  assert.match(formSource, /saveLocalCustomSideQuestDraft\(window\.localStorage/);
-  assert.match(formSource, /\/custom-side-quests\?local=/);
-  assert.match(catalogSource, /loadLocalCustomSideQuestDrafts\(window\.localStorage\)/);
-  assert.match(catalogSource, /Saved on this browser/);
-  assert.match(catalogSource, /return href \? <Link/);
-  assert.match(catalogSource, /href: null/);
+  assert.match(signedOut, /Sign in to create a Custom Side Quest/);
+  assert.match(signedOut, /href="\/sign-in\?redirect_url=%2Fcreate-custom-side-quest"/);
+  assert.doesNotMatch(signedOut, /Custom Side Quest builder|Save locally/);
+  assert.match(signedIn, /Custom Side Quest builder/);
+  assert.doesNotMatch(signedIn, /Sign in to create a Custom Side Quest/);
 });
-
 test("custom success navigates to the owned custom catalog", () => {
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "custom-safe" } }), "/custom-side-quests?saved=custom-safe");
   assert.equal(getCustomCreateDestination({ ok: true, customQuest: { id: "../escape" } }), null);
