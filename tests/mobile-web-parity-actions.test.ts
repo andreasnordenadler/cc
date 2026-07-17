@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
+import { MobileCommunitySideQuestDetailScreen } from "../src/components/mobile-app-web-shell";
 import {
   getCommunitySoloPickState,
   getMultiplayerJoinState,
@@ -80,4 +83,27 @@ test("official Solo detail CTAs execute start and proof-check actions instead of
   assert.match(controls, /action={checkActiveChallenge}/);
   assert.match(controls, /pending \? "Checking latest game…" : "Check my latest game"/);
   assert.match(controls, /Switch active Side Quest\?/);
+});
+
+test("Community Solo detail exposes Android share and copy actions instead of a self-link", () => {
+  const html = renderToStaticMarkup(React.createElement(MobileCommunitySideQuestDetailScreen, {
+    signedIn: false,
+    quest: {
+      id: "quest/42",
+      title: "Ada's Fork",
+      summary: "Win a fork.",
+      creatorName: "Ada",
+      creatorBrowsePath: "/community-side-quests?creator=ada",
+      ruleLabel: "Fork",
+      ruleDetails: ["Create a fork."],
+      badgeImageUrl: "/badges/custom/community/community-coat-28.png",
+      stats: { soloAttempts: 0, soloSelections: 0, soloCompletions: 0, multiplayerLineups: 0, multiplayerAttempts: 0, multiplayerFulfillments: 0 },
+    },
+  }));
+
+  assert.match(html, /<button[^>]*aria-label="Share Community Solo Side Quest"[^>]*>Share public link<\/button>/);
+  assert.match(html, /<button[^>]*aria-label="Copy Community Solo Side Quest public link"[^>]*>Copy public link<\/button>/);
+  assert.match(html, /%2Fbadges%2Fcustom%2Fcommunity%2Fcommunity-coat-28\.png/);
+  assert.doesNotMatch(html, /%2Fmobile-source%2Fbadges%2Fcustom%2Fcommunity%2Fcommunity-coat-28\.png/);
+  assert.doesNotMatch(html, /<a[^>]*href="\/challenges\/community\/quest%2F42"[^>]*>Share public link<\/a>/);
 });

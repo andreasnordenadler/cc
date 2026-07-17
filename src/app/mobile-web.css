@@ -3266,9 +3266,17 @@ body::after {
   text-decoration: none;
 }
 
-.sqc-community-detail-actions {
+.sqc-community-detail-actions,
+.sqc-community-share-actions {
   display: grid;
   gap: 8px;
+}
+
+.sqc-community-share-actions small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: center;
 }
 
 .sqc-detail-primary-button,
@@ -3309,8 +3317,12 @@ body::after {
 .sqc-detail-quiet-button {
   min-height: 28px;
   padding: 4px 12px;
+  border: 0;
+  background: transparent;
   color: var(--muted);
+  font-family: inherit;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .sqc-create-selection-head {
