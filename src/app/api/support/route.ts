@@ -1,6 +1,7 @@
 import { clerkClient } from "@clerk/nextjs/server";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { getSupportMessages } from "@/lib/analytics";
 
 const MAX_SUPPORT_MESSAGES = 30;
@@ -15,8 +16,30 @@ type SupportMessage = {
   displayName?: string | null;
 };
 
+type SupportRouteDependencies = {
+  authenticate: () => Promise<string | null>;
+  getClient: () => ReturnType<typeof clerkClient>;
+};
+
+const testDependencies = new AsyncLocalStorage<SupportRouteDependencies>();
+
+export function withSupportRouteTestDependencies<Result>(dependencies: SupportRouteDependencies, callback: () => Result): Result {
+  if (process.env.NODE_ENV !== "test") throw new Error("Support route dependency overrides are test-only.");
+  return testDependencies.run(dependencies, callback);
+}
+
+function createSupportRouteDependencies(): SupportRouteDependencies {
+  return {
+    authenticate: async () => (await auth()).userId,
+    getClient: clerkClient,
+  };
+}
+
 export async function POST(request: Request) {
-  const { userId } = await auth();
+  const dependencies = process.env.NODE_ENV === "test"
+    ? testDependencies.getStore() ?? createSupportRouteDependencies()
+    : createSupportRouteDependencies();
+  const userId = await dependencies.authenticate();
 
   if (!userId) {
     return NextResponse.json({ ok: false, message: "Sign in before sending a support message." }, { status: 401 });
@@ -37,7 +60,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "Write a little more so the support note is useful." }, { status: 400 });
   }
 
-  const client = await clerkClient();
+  const client = await dependencies.getClient();
   const user = await client.users.getUser(userId);
   const existing = getSupportMessages(user.privateMetadata);
   const submittedAt = new Date().toISOString();
