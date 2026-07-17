@@ -318,18 +318,22 @@ export async function findGroupQuestById(
   let offset = 0;
   let pageCount = 0;
   let pageBound: number | undefined;
+  let replicaFallback: GroupQuestHostRecord | null = null;
   while (pageCount < (pageBound ?? CLERK_USER_SCAN_MAX_PAGES)) {
     const users = await client.users.getUserList({ limit: CLERK_USER_PAGE_SIZE, offset, orderBy: "-created_at" });
     pageCount += 1;
     pageBound ??= clerkPageBound(users.totalCount);
     for (const user of users.data) {
       const groupQuest = getAllStoredGroupQuests(user).find((quest) => quest.id === id);
-      if (groupQuest) return { userId: user.id, groupQuest };
+      if (!groupQuest) continue;
+      const record = { userId: user.id, groupQuest };
+      if (user.id === groupQuest.hostUserId) return record;
+      replicaFallback ??= record;
     }
-    if (users.data.length < CLERK_USER_PAGE_SIZE) return null;
+    if (users.data.length < CLERK_USER_PAGE_SIZE) return replicaFallback;
     offset += CLERK_USER_PAGE_SIZE;
   }
-  return null;
+  return replicaFallback;
 }
 
 export async function findGroupQuestByInviteKey(

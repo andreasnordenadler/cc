@@ -265,6 +265,24 @@ test("official participation respects Clerk public metadata byte capacity with m
   assert.equal(Buffer.byteLength(JSON.stringify(nextMetadata), "utf8") <= 7_680, true);
 });
 
+test("non-official lookup prefers the host's authoritative copy over an earlier participant replica", async () => {
+  const canonical = buildGroupQuest({ hostUserId: "host-user", hostName: "Host", name: "Canonical table" });
+  canonical.id = "community-table";
+  const staleReplica = { ...structuredClone(canonical), name: "Stale participant copy", participants: [] };
+  const client = { users: { getUserList: async () => ({
+    data: [
+      { id: "participant-user", privateMetadata: { sqcGroupQuests: [staleReplica] } },
+      { id: "host-user", privateMetadata: { sqcGroupQuests: [canonical] } },
+    ],
+    totalCount: 2,
+  }) } };
+
+  const found = await findGroupQuestById(client, canonical.id);
+
+  assert.equal(found?.userId, "host-user");
+  assert.equal(found?.groupQuest.name, "Canonical table");
+});
+
 test("public official records merge with legacy private copies in lookup, catalogs, and user-related scans", async () => {
   const official = getBuiltInOfficialGroupQuests(new Date("2026-07-06T12:00:00.000Z"))[0];
   const publicCopy = structuredClone(official);

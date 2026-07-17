@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { compactAnalyticsStore, getAnalyticsStore, isAdminAnalyticsViewer } from "@/lib/analytics";
 import { getChallengeById } from "@/lib/challenges";
 import { findPublicCommunityCustomSideQuestById } from "@/lib/community-side-quests";
+import { getGroupQuestDetailHref, isCanonicalGroupQuestOwner } from "@/lib/groupquest-edit-access";
 import { getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { findGroupQuestById, isGroupQuestFinished, upsertHostGroupQuest, type ServerGroupQuest } from "@/lib/groupquests";
 import { validateMultiplayerProofUpdate } from "@/lib/multiplayer-proof-rules";
@@ -17,7 +18,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const client = await clerkClient();
   const record = await findGroupQuestById(client, id);
   if (!record) return NextResponse.json({ ok: false, error: "not_found" }, { status: 404 });
-  if (record.groupQuest.hostUserId !== userId) return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+  if (!isCanonicalGroupQuestOwner(userId, { hostUserId: record.groupQuest.hostUserId, storageUserId: record.userId })) {
+    return NextResponse.json({ ok: false, error: "forbidden" }, { status: 403 });
+  }
   if (isGroupQuestFinished(record.groupQuest)) return NextResponse.json({ ok: false, error: "finished" }, { status: 400 });
   const proofConfiguration = validateMultiplayerProofUpdate(payload as Record<string, unknown>, record.groupQuest);
   if (!proofConfiguration.ok) return NextResponse.json({ ok: false, error: proofConfiguration.code }, { status: 400 });
@@ -39,7 +42,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     },
   });
 
-  return NextResponse.json({ ok: true, href: `/groupquests/${id}${updatedQuest.participants.some((participant) => participant.userId === userId) ? "?accepted=1" : ""}` });
+  return NextResponse.json({
+    ok: true,
+    href: getGroupQuestDetailHref(id, updatedQuest.participants.some((participant) => participant.userId === userId)),
+  });
 }
 
 function patchGroupQuest(current: ServerGroupQuest, payload: Record<string, unknown>, canSetOfficial: boolean, questSelection: Awaited<ReturnType<typeof buildGroupQuestSelection>>): ServerGroupQuest {
