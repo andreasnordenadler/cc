@@ -2,7 +2,7 @@ import MobileAppWebShell, { MobileCommunitySideQuestsScreen } from "@/components
 import { clerkClient, currentUser } from "@clerk/nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 import { listPublicCommunitySideQuests } from "@/lib/community-side-quests";
-import { getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
+import { getChallengeProgress, getChessComUsername, getLichessUsername, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +13,12 @@ export const metadata = {
 
 export default async function CommunitySideQuestsPage() {
   noStore();
-  const [user, communityQuests] = await Promise.all([
-    currentUser(),
-    listPublicCommunitySideQuests(await clerkClient(), { limit: 80 }),
-  ]);
+  const client = await clerkClient();
+  const user = await currentUser();
+  const communityQuests = await listPublicCommunitySideQuests(client, { limit: null, viewerUserId: user?.id ?? null });
   const metadataRecord = user?.publicMetadata ? (user.publicMetadata as UserMetadataRecord) : {};
+  const completedIds = new Set(getChallengeProgress(metadataRecord).completedChallengeIds);
+  const newQuestCutoffMs = getCommunityNewCutoffMs();
   const displayName = user
     ? getPreferredRunnerName(metadataRecord, {
         firstName: user.firstName,
@@ -44,18 +45,30 @@ export default async function CommunitySideQuestsPage() {
     >
       <MobileCommunitySideQuestsScreen
         signedIn={Boolean(user)}
-        rows={communityQuests.map((quest) => ({
-          id: quest.id,
-          title: quest.title,
-          meta: `${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${quest.summary} · ${formatCommunityStats(quest.stats)}`,
-          href: quest.detailPath,
-          image: quest.badgeImageUrl,
-          sourceBadge: quest.creatorUserId === user?.id ? "Yours" : "Community",
-          status: "Ready",
-        }))}
+        rows={communityQuests.map((quest) => {
+          const likeSummary = quest.likeSummary;
+          return {
+            id: quest.id,
+            title: quest.title,
+            meta: `${quest.creatorName ? `By ${quest.creatorName} · ` : ""}${quest.summary} · ${formatCommunityStats(quest.stats)} · ${likeSummary.count} like${likeSummary.count === 1 ? "" : "s"}`,
+            href: quest.detailPath,
+            image: quest.badgeImageUrl,
+            sourceBadge: quest.creatorUserId === user?.id ? "Yours" : "Community",
+            status: completedIds.has(quest.id) ? "Completed" : "Ready",
+            updatedAtMs: quest.updatedAtMs,
+            popularityScore: quest.popularityScore,
+            likeCount: likeSummary.count,
+            completedByViewer: completedIds.has(quest.id),
+            isNew: quest.updatedAtMs > newQuestCutoffMs,
+          };
+        })}
       />
     </MobileAppWebShell>
   );
+}
+
+function getCommunityNewCutoffMs() {
+  return Date.now() - 1000 * 60 * 60 * 24 * 30;
 }
 
 function formatCommunityStats(stats: {

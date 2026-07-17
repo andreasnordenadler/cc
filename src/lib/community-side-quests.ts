@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import { getCommunityLikes, type CommunityLikeSummary } from "@/lib/community-likes";
 import { getCustomSideQuestBadgeUrl, getCustomSideQuests, parseCustomRuleConfig, type CustomSideQuest } from "@/lib/custom-side-quests";
 import { type ServerGroupQuest } from "@/lib/groupquests";
 import { getActiveChallenge, getChallengeAttempts, getChallengeProgress, getPreferredRunnerName, type UserMetadataRecord } from "@/lib/user-metadata";
@@ -21,6 +22,7 @@ export type PublicCommunitySideQuest = CustomSideQuest & {
     multiplayerFulfillments: number;
   };
   popularityScore: number;
+  likeSummary: CommunityLikeSummary;
 };
 
 type ClerkUserListClient = {
@@ -39,11 +41,22 @@ type ClerkUserListClient = {
   };
 };
 
-export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number; groupQuests?: ServerGroupQuest[] } = {}) {
+export async function listPublicCommunitySideQuests(client: ClerkUserListClient, options: { limit?: number | null; groupQuests?: ServerGroupQuest[]; viewerUserId?: string | null } = {}) {
   noStore();
   const users = await fetchAllUsers(client);
   const seen = new Set<string>();
   const userPublicMetadata = users.map((user) => asMetadata(user.publicMetadata));
+  const soloLikeCounts = new Map<string, number>();
+  let viewerSoloLikes = new Set<string>();
+  for (const user of users) {
+    const soloLikes = getCommunityLikes(asMetadata(user.privateMetadata)).filter((like) => like.targetType === "solo");
+    if (options.viewerUserId && user.id === options.viewerUserId) {
+      viewerSoloLikes = new Set(soloLikes.map((like) => like.targetId));
+    }
+    for (const like of soloLikes) {
+      soloLikeCounts.set(like.targetId, (soloLikeCounts.get(like.targetId) ?? 0) + 1);
+    }
+  }
   const quests = users.flatMap((user) => {
     const publicMetadata = asMetadata(user.publicMetadata);
     const privateMetadata = asMetadata(user.privateMetadata);
@@ -73,18 +86,22 @@ export async function listPublicCommunitySideQuests(client: ClerkUserListClient,
           updatedAtMs: Date.parse(quest.updatedAt) || Date.parse(quest.createdAt) || 0,
           stats,
           popularityScore: getCommunityPopularityScore(stats),
+          likeSummary: {
+            count: soloLikeCounts.get(quest.id) ?? 0,
+            likedByViewer: viewerSoloLikes.has(quest.id),
+          },
         };
       });
   });
 
-  return quests
+  const sortedQuests = quests
     .filter((quest) => {
       if (seen.has(quest.id)) return false;
       seen.add(quest.id);
       return isDisplayableCommunitySideQuest(quest);
     })
-    .sort((a, b) => b.updatedAtMs - a.updatedAtMs)
-    .slice(0, options.limit ?? 80);
+    .sort((a, b) => b.updatedAtMs - a.updatedAtMs);
+  return options.limit === null ? sortedQuests : sortedQuests.slice(0, options.limit ?? 80);
 }
 
 export async function findPublicCommunitySideQuestById(client: ClerkUserListClient, id: string) {
