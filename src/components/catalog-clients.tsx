@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import OfficialSoloLikeControl from "./official-solo-like-control";
 import { filterCustomCatalog, filterMultiplayerCatalog, filterSoloCatalog, paginateCatalog } from "@/lib/catalog-models";
 import type { MobileWebMultiplayerPreview } from "@/lib/mobile-web-multiplayer";
+import { loadLocalCustomSideQuestDrafts } from "@/lib/local-custom-side-quest-drafts";
 
 export type SoloCatalogClientRow = {
-  id: string; title: string; meta: string; href: string; image?: string | null; sourceBadge?: string | null; status?: string | null;
+  id: string; title: string; meta: string; href?: string | null; image?: string | null; sourceBadge?: string | null; status?: string | null;
 };
 
 export type CustomCatalogClientRow = SoloCatalogClientRow & {
@@ -17,16 +18,16 @@ export type CustomCatalogClientRow = SoloCatalogClientRow & {
 };
 
 function CatalogRow({ row, status }: { row: SoloCatalogClientRow; status: string }) {
-  return (
-    <Link href={row.href} className="sqc-app-row text-only">
-      <span className="sqc-row-copy">
-        {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
-        <strong className="sqc-row-title-line"><span>{row.title}</span></strong>
-        <small>{row.meta}</small>
-      </span>
-      <span className="sqc-row-status">{status}</span>
-    </Link>
-  );
+  const content = <>
+    <span className="sqc-row-copy">
+      {row.sourceBadge ? <span className="sqc-row-badge">{row.sourceBadge}</span> : null}
+      <strong className="sqc-row-title-line"><span>{row.title}</span></strong>
+      <small>{row.meta}</small>
+    </span>
+    <span className="sqc-row-status">{status}</span>
+  </>;
+  const href = row.href;
+  return href ? <Link href={href} className="sqc-app-row text-only">{content}</Link> : <div className="sqc-app-row text-only" aria-label={`${row.title}, ${status}`}>{content}</div>;
 }
 
 function MultiplayerCatalogRow({ row, status, signedIn }: { row: MobileWebMultiplayerPreview; status: string; signedIn: boolean }) {
@@ -91,7 +92,25 @@ export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) 
   const [filter, setFilter] = useState<"all" | "published" | "draft" | "public" | "archived">("all");
   const [sort, setSort] = useState<"newest" | "name">("newest");
   const [limit, setLimit] = useState(12);
-  const filtered = useMemo(() => filterCustomCatalog(rows, { query, filter, sort }), [rows, query, filter, sort]);
+  const [localRows, setLocalRows] = useState<CustomCatalogClientRow[]>([]);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setLocalRows(loadLocalCustomSideQuestDrafts(window.localStorage).map((draft) => ({
+        id: draft.id,
+        title: draft.title,
+        meta: `Saved on this browser · Private · ${draft.summary || "Custom Side Quest"}`,
+        href: null,
+        sourceBadge: "Local",
+        status: draft.lifecycle === "draft" ? "Draft" : "Sign in to publish",
+        lifecycle: draft.lifecycle,
+        visibility: "private",
+        updatedAt: draft.savedAt,
+      })));
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+  const allRows = useMemo(() => [...localRows, ...rows.filter((row) => !localRows.some((local) => local.id === row.id))], [localRows, rows]);
+  const filtered = useMemo(() => filterCustomCatalog(allRows, { query, filter, sort }), [allRows, query, filter, sort]);
   const page = paginateCatalog(filtered, limit);
   const filters = ["all", "published", "draft", "public", "archived"] as const;
   return <>
@@ -101,7 +120,7 @@ export function CustomSoloCatalog({ rows }: { rows: CustomCatalogClientRow[] }) 
       <label className="sqc-sort-pill">Sort <select aria-label="Sort my custom Side Quests" value={sort} onChange={event => setSort(event.target.value as typeof sort)}><option value="newest">Recently updated</option><option value="name">Name</option></select></label></div>
     </div>
     <span aria-live="polite">{page.total} result{page.total === 1 ? "" : "s"}</span>
-    {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{rows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
+    {page.rows.length ? <div className="sqc-catalog">{page.rows.map(row => <CatalogRow key={row.id} row={row} status={row.status ?? "Ready"} />)}</div> : <div className="sqc-empty-panel standalone"><strong>No custom Side Quests match these filters.</strong><span>{allRows.length ? "Try another search or filter." : "Create a draft first, then publish it when the rule feels ready."}</span></div>}
     {page.hasMore ? <button type="button" className="sqc-detail-secondary-button" onClick={() => setLimit(value => value + 12)}>Load more</button> : null}
   </>;
 }

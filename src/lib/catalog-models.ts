@@ -2,7 +2,7 @@ export type SoloCatalogRow = {
   id: string;
   title: string;
   meta: string;
-  href: string;
+  href?: string | null;
   status?: string | null;
 };
 
