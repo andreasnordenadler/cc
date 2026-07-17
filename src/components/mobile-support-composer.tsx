@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { buildWebSupportDiagnostics, type WebSupportAccountContext } from "@/lib/web-support-diagnostics";
 
 export type MobileWebSupportMessage = {
   id: string;
@@ -14,9 +15,11 @@ const SUPPORT_NOTE_MAX_LENGTH = 900;
 export function MobileSupportComposer({
   signedIn,
   initialMessages,
+  accountContext,
 }: {
   signedIn: boolean;
   initialMessages: MobileWebSupportMessage[];
+  accountContext: WebSupportAccountContext | null;
 }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState(initialMessages);
@@ -48,7 +51,7 @@ export function MobileSupportComposer({
     setState({ busy: true, message: null, error: null });
 
     try {
-      const diagnostics = buildWebSupportDiagnostics();
+      const diagnostics = getWebSupportDiagnostics(accountContext);
       const response = await fetch("/api/support", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -78,7 +81,7 @@ export function MobileSupportComposer({
   }
 
   async function copySupportDetails() {
-    const diagnostics = buildWebSupportDiagnostics();
+    const diagnostics = getWebSupportDiagnostics(accountContext);
     try {
       await navigator.clipboard.writeText(diagnostics);
       setState({ busy: false, message: "Support details copied.", error: null });
@@ -122,13 +125,14 @@ export function MobileSupportComposer({
   );
 }
 
-function buildWebSupportDiagnostics() {
-  const lines = ["Side Quest Chess web diagnostics"];
-  if (typeof window !== "undefined") {
-    lines.push(`URL: ${window.location.href}`);
-    lines.push(`User agent: ${navigator.userAgent}`);
-  }
-  return lines.join("\n");
+function getWebSupportDiagnostics(accountContext: WebSupportAccountContext | null) {
+  return buildWebSupportDiagnostics({
+    url: typeof window === "undefined" ? "unknown" : window.location.href,
+    userAgent: typeof navigator === "undefined" ? "unknown" : navigator.userAgent,
+    platform: typeof navigator === "undefined" ? "unknown" : navigator.platform || "web",
+    recordedAt: new Date().toISOString(),
+    account: accountContext,
+  });
 }
 
 function formatSupportDate(value: string) {
