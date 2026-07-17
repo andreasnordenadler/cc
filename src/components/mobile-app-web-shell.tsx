@@ -22,6 +22,7 @@ import ActiveSoloActions from "./active-solo-actions";
 import GroupQuestRefreshButton from "./group-quest-refresh-button";
 import GroupQuestShareControls from "./group-quest-share-controls";
 import GroupQuestLeaveAction from "./group-quest-leave-action";
+import CommunityMultiplayerReportControl from "./community-multiplayer-report-control";
 
 type AppTab = "home" | "sideQuests" | "multiplayerSideQuests" | "coatOfArms" | "account";
 
@@ -1438,6 +1439,14 @@ export function MobileMultiplayerDetailScreen({
           <span className="sqc-card-eyebrow">Created by</span>
           <h2>Hosted by {quest.hostName}</h2>
           <p>See more public Side Quests from this host when they share them.</p>
+        </section>
+      ) : null}
+
+      {!official ? (
+        <section className="sqc-native-card sqc-multiplayer-native-card">
+          <span className="sqc-card-eyebrow">Community safety</span>
+          <h2>Report a problem with this Side Quest.</h2>
+          <CommunityMultiplayerReportControl questId={quest.id} title={quest.title} signedIn={signedIn} />
         </section>
       ) : null}
 

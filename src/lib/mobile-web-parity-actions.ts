@@ -52,6 +52,12 @@ export function validateCommunitySoloReport(questId: string, reason: string) {
   return { ok: true as const, message: `Community Solo Side Quest ${questId}: ${cleanReason}` };
 }
 
+export function validateCommunityMultiplayerReport(questId: string, reason: string) {
+  const cleanReason = reason.trim().replace(/\s+/g, " ").slice(0, 500);
+  if (cleanReason.length < 3) return { ok: false as const, message: "Add a short reason before reporting this Side Quest." };
+  return { ok: true as const, message: `Community Multiplayer Side Quest ${questId}: ${cleanReason}` };
+}
+
 export function normalizeInviteLookupError(error?: string) {
   if (error === "missing_invite_key") return "Paste the invite code from the host first.";
   if (error === "groupquest_finished") return "That Multiplayer Side Quest has finished.";
