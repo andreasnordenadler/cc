@@ -1442,7 +1442,7 @@ export function MobileMultiplayerDetailScreen({
         </section>
       ) : null}
 
-      {!official ? (
+      {!official && joinState.kind !== "hosted" ? (
         <section className="sqc-native-card sqc-multiplayer-native-card">
           <span className="sqc-card-eyebrow">Community safety</span>
           <h2>Report a problem with this Side Quest.</h2>

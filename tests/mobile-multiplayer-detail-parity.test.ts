@@ -89,6 +89,17 @@ test("hostless Community Multiplayer detail still offers reporting", () => {
   assert.match(html, /aria-label="Report this Community Multiplayer Side Quest"/);
 });
 
+test("Community Multiplayer owners cannot report their own Side Quest", () => {
+  const html = renderDetail({
+    ...officialJoinedQuest,
+    sourceBadge: "Community",
+    status: "Hosted",
+    viewerJoined: true,
+    hostName: "Current user",
+  });
+  assert.doesNotMatch(html, /Report this Community Multiplayer Side Quest|Report this Side Quest/);
+});
+
 test("Community Multiplayer reports require a useful reason and identify the exact quest", () => {
   assert.deepEqual(validateCommunityMultiplayerReport("community/table", "  "), {
     ok: false,
