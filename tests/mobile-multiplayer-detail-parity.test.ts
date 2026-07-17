@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { AppRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 import { MobileMultiplayerDetailScreen, MobileMultiplayerSideQuestsScreen } from "../src/components/mobile-app-web-shell";
+import { CommunityMultiplayerCatalog } from "../src/components/catalog-clients";
 import { POST as supportPOST, withSupportRouteTestDependencies } from "../src/app/api/support/route";
 import { leaveGroupQuest } from "../src/lib/group-quest-leave";
 import { buildGroupQuestSharePayload, shareGroupQuest } from "../src/lib/group-quest-share";
@@ -20,6 +21,7 @@ const officialJoinedQuest: MobileWebMultiplayerPreview = {
   href: "/groupquests/official-starter-shield?accepted=1",
   sourceBadge: "SQC Official",
   hostName: "Side Quest Chess",
+  publiclyListed: true,
   inviteCopy: "A two-week official Multiplayer Side Quest.",
   quests: ["Any Game Counts", "Knights Before Coffee", "Bishop Field Trip"],
   rules: [["Games allowed", "Lichess or Chess.com"]],
@@ -71,7 +73,7 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
     ...officialJoinedQuest,
     id: "community-table",
     sourceBadge: "Community",
-    hostName: "Ada",
+    hostName: "Ada & Lin",
     status: "Not joined",
     positionLabel: null,
   });
@@ -79,7 +81,9 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
   assert.match(html, />Join first</);
   assert.match(html, />Join Side Quest</);
   assert.match(html, />Created by</);
-  assert.match(html, />Hosted by Ada</);
+  assert.match(html, />Hosted by Ada &amp; Lin</);
+  assert.match(html, /href="\/multiplayer-side-quests\?tab=community&amp;host=Ada%20%26%20Lin"/);
+  assert.match(html, />More by host</);
   assert.match(html, /aria-label="Report this Community Multiplayer Side Quest"/);
   assert.match(html, />Report this Side Quest</);
   assert.doesNotMatch(html, /Check my latest game|Leave Side Quest/);
@@ -88,6 +92,28 @@ test("not-joined Multiplayer detail keeps direct joining and community quests ke
 test("official Multiplayer detail does not offer the Community report action", () => {
   const html = renderDetail(officialJoinedQuest);
   assert.doesNotMatch(html, /Report this Community Multiplayer Side Quest|Report this Side Quest/);
+});
+
+test("Community Multiplayer host shelf opens filtered and exposes a real clear action", () => {
+  const html = renderToStaticMarkup(React.createElement(CommunityMultiplayerCatalog, {
+    rows: [
+      { ...officialJoinedQuest, id: "ada-table", href: "/groupquests/ada-table", title: "Ada Table", sourceBadge: "Community", hostName: "Ada & Lin", status: "Not joined" },
+      { ...officialJoinedQuest, id: "ada-finished", href: "/groupquests/ada-finished", title: "Ada Finished Table", sourceBadge: "Community", hostName: "Ada & Lin", status: "Not joined", lifecycle: "finished" },
+      { ...officialJoinedQuest, id: "ada-private", href: "/groupquests/ada-private", title: "Ada Private Table", sourceBadge: "Community", hostName: "Ada & Lin", status: "Joined", publiclyListed: false },
+      { ...officialJoinedQuest, id: "bob-table", href: "/groupquests/bob-table", title: "Bob Table", sourceBadge: "Community", hostName: "Bob", status: "Not joined" },
+    ],
+    signedIn: false,
+    initialHost: "Ada & Lin",
+  }));
+
+  assert.match(html, />Host shelf: Ada &amp; Lin</);
+  assert.match(html, />Showing public Community Multiplayer Side Quests from this host\.</);
+  assert.match(html, />Show all hosts</);
+  assert.match(html, /href="\/multiplayer-side-quests\?tab=community"/);
+  assert.match(html, />Ada Table</);
+  assert.match(html, />Ada Finished Table</);
+  assert.doesNotMatch(html, />Ada Private Table</);
+  assert.doesNotMatch(html, />Bob Table</);
 });
 
 test("hostless Community Multiplayer detail still offers reporting", () => {

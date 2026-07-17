@@ -12,6 +12,7 @@ const row: MobileWebMultiplayerPreview = {
   meta: "Community public · 4 players · Final",
   href: "/multiplayer-side-quests/community-row",
   sourceBadge: "Community",
+  publiclyListed: true,
   inviteCopy: "Join the table.",
   quests: ["finish-any-game"],
   rules: [["Mode", "Any"]],
