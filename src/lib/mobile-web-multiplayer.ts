@@ -1,5 +1,6 @@
 import { CHALLENGES } from "@/lib/challenges";
 import { getCommunityLikeSummaries, type CommunityLikeSummary } from "@/lib/community-likes";
+import { describeCustomSideQuestRuleDetails } from "@/lib/community-side-quests";
 import { findGroupQuestById, listPublicGroupQuests, listUserRelatedGroupQuests, rankGroupQuestParticipants, type ServerGroupQuest } from "@/lib/groupquests";
 import type { clerkClient } from "@clerk/nextjs/server";
 
@@ -14,6 +15,7 @@ export type MobileWebMultiplayerPreview = {
   inviteKey?: string;
   inviteCopy: string;
   quests: string[];
+  questRuleDetails?: MobileWebMultiplayerQuestRuleDetail[];
   rules: Array<[string, string]>;
   status: "Not joined" | "Joined" | "Hosted";
   viewerJoined?: boolean;
@@ -25,6 +27,16 @@ export type MobileWebMultiplayerPreview = {
   lifecycle: "open" | "finished";
   createdAt: string;
   endAt: string;
+};
+
+export type MobileWebMultiplayerQuestRuleDetail = {
+  id: string;
+  title: string;
+  summary: string;
+  status?: string;
+  imageUrl?: string | null;
+  glowColor?: string;
+  ruleLines: string[];
 };
 
 export type MobileWebMultiplayerLeaderboardRow = {
@@ -171,6 +183,7 @@ export function buildMobileWebMultiplayerPreview(
     ...(canonicalOwnerUserId && isOwner && quest.inviteMode === "private-key" && quest.inviteKey ? { inviteKey: quest.inviteKey } : {}),
     inviteCopy: quest.inviteCopy,
     quests: quest.questIds.map((questId) => getGroupQuestChallengeTitle(quest, questId)),
+    questRuleDetails: quest.questIds.map((questId) => getGroupQuestChallengeRuleDetail(quest, questId)),
     rules: buildRuleRows(quest),
     status: isOwner ? "Hosted" : joined ? "Joined" : "Not joined",
     viewerJoined: joined,
@@ -257,9 +270,55 @@ export function buildMobileWebMultiplayerLeaderboardRows(
 }
 
 function getGroupQuestChallengeTitle(quest: Pick<ServerGroupQuest, "customQuestSnapshots">, challengeId: string) {
-  return CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
-    ?? quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
+  return quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId)?.title
+    ?? CHALLENGES.find((challenge) => challenge.id === challengeId)?.title
     ?? challengeId;
+}
+
+function getGroupQuestChallengeRuleDetail(
+  quest: Pick<ServerGroupQuest, "customQuestSnapshots">,
+  challengeId: string,
+): MobileWebMultiplayerQuestRuleDetail {
+  const custom = quest.customQuestSnapshots?.find((snapshot) => snapshot.id === challengeId);
+  if (custom) {
+    return {
+      id: challengeId,
+      title: custom.title,
+      summary: custom.summary,
+      status: "Included",
+      imageUrl: custom.badgeImageUrl ?? null,
+      glowColor: "rgba(245, 200, 106, .38)",
+      ruleLines: getSafeCustomRuleDetails(custom.config),
+    };
+  }
+
+  const official = CHALLENGES.find((challenge) => challenge.id === challengeId);
+  if (official) {
+    return {
+      id: official.id,
+      title: official.title,
+      summary: official.objective,
+      status: official.difficulty,
+      imageUrl: official.badgeIdentity.image ?? null,
+      glowColor: official.badgeIdentity.colors.glow,
+      ruleLines: official.conditions.length ? official.conditions : [official.instruction],
+    };
+  }
+
+  return {
+    id: challengeId,
+    title: challengeId,
+    summary: "Complete this custom Side Quest.",
+    ruleLines: ["Follow the saved Side Quest rules."],
+  };
+}
+
+function getSafeCustomRuleDetails(config: string) {
+  try {
+    return describeCustomSideQuestRuleDetails(config);
+  } catch {
+    return ["Custom rule"];
+  }
 }
 
 function buildRuleRows(quest: Pick<ServerGroupQuest, "providerLabel" | "rules">) {
